@@ -11,7 +11,11 @@
 
 namespace App\Jobs\Inventory;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\InventoryNotificationObject;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -20,9 +24,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
-
-//todo - ensure we are MultiDB Aware in dispatched jobs
 
 class AdjustProductInventory implements ShouldQueue
 {
@@ -34,9 +37,8 @@ class AdjustProductInventory implements ShouldQueue
 
     public array $old_invoice;
 
-    public function __construct(Company $company, Invoice $invoice, array $old_invoice = [])
+    public function __construct(Company $company, Invoice $invoice, ?array $old_invoice = [])
     {
-
         $this->company = $company;
         $this->invoice = $invoice;
         $this->old_invoice = $old_invoice;
@@ -53,10 +55,16 @@ class AdjustProductInventory implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         if(count($this->old_invoice) > 0)
-            return $this->existingInventoryAdjustment();
+            $this->existingInventoryAdjustment();
 
         return $this->newInventoryAdjustment();
 
+    }
+
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->company->company_key)];
     }
 
     private function newInventoryAdjustment()
@@ -68,16 +76,18 @@ class AdjustProductInventory implements ShouldQueue
         {
 
             $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->where('in_stock_quantity', '>', 0)->first();
-            $p->in_stock_quantity -= $item->quantity;
-            $p->save();
 
-            //check threshols and notify user
+            if(!$p)
+                continue;
+
+            $p->in_stock_quantity -= $item->quantity;
+            $p->saveQuietly();
 
             if($p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold)
                 $this->notifyStockLevels($p, 'product');
-            elseif($this->company->stock_notification_threshold && $p->in_stock_quantity <= $this->company->stock_notification_threshold){
+            elseif($this->company->stock_notification_threshold && $p->in_stock_quantity <= $this->company->stock_notification_threshold)
                 $this->notifyStocklevels($p, 'company');
-            }
+            
         }
 
     }
@@ -85,10 +95,30 @@ class AdjustProductInventory implements ShouldQueue
     private function existingInventoryAdjustment()
     {
 
+        foreach($this->old_invoice as $item)
+        {
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
+
+            if(!$p)
+                continue;
+
+            $p->in_stock_quantity += $item->quantity;
+            $p->saveQuietly();
+
+        }
+
     }
 
     private function notifyStocklevels(Product $product, string $notification_level)
     {
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new InventoryNotificationObject($product, $notification_level))->build() );
+        $nmo->company = $this->company;
+        $nmo->settings = $this->company->settings;
+        $nmo->to_user = $this->company->owner();
+
+        NinjaMailerJob::dispatch($nmo);
 
     }
 

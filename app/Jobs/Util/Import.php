@@ -89,6 +89,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
@@ -185,6 +186,11 @@ class Import implements ShouldQueue
         $this->company = $company;
         $this->user = $user;
         $this->resources = $resources;
+    }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->company->account->key)];
     }
 
     /**

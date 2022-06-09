@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,6 +22,8 @@ class CreatePurchaseOrderInvitationsTable extends Migration
      */
     public function up()
     {
+        set_time_limit(0);
+    
         Schema::create('purchase_order_invitations', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('company_id');
@@ -47,6 +57,10 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->unsignedInteger('client_id')->nullable()->change();
         });
 
+        Schema::table('activities', function (Blueprint $table) {
+            $table->unsignedInteger('purchase_order_id')->nullable();
+            $table->unsignedInteger('vendor_contact_id')->nullable();
+        });
 
         Company::cursor()->each(function ($company){
 
@@ -60,6 +74,8 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $settings->purchase_order_number_counter = 1; //@implemented
             $settings->email_subject_purchase_order = '';
             $settings->email_template_purchase_order = '';
+            $settings->require_purchase_order_signature = false;
+
             $company->settings = $settings;
             $company->save();
         });
@@ -74,4 +90,5 @@ class CreatePurchaseOrderInvitationsTable extends Migration
     public function down()
     {
     }
+
 }

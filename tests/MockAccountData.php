@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 
 namespace Tests;
@@ -217,6 +217,7 @@ trait MockAccountData
         $settings->timezone_id = '1';
         $settings->entity_send_time = 0;
 
+        $this->company->track_inventory = true;
         $this->company->settings = $settings;
         $this->company->save();
 

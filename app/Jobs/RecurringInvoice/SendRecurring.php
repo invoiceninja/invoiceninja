@@ -87,6 +87,7 @@ class SendRecurring implements ShouldQueue
                                ->applyNumber()
                                //->createInvitations() //need to only link invitations to those in the recurring invoice
                                ->fillDefaults()
+                               ->adjustInventory()
                                ->save();
 
         }

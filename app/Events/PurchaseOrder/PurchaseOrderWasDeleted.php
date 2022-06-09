@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Events\PurchaseOrder;
 
@@ -8,20 +16,21 @@ use App\Models\PurchaseOrder;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class PurchaseOrderWasMarkedSent.
+ * Class PurchaseOrderWasDeleted.
  */
-class PurchaseOrderWasMarkedSent
+class PurchaseOrderWasDeleted
 {
     use SerializesModels;
 
     /**
-     * @var \App\Models\PurchaseOrder
+     * @var PurchaseOrder
      */
     public $purchase_order;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *

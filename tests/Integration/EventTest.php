@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Tests\Integration;
 
@@ -31,6 +31,11 @@ use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasRestored;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;            
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
@@ -806,5 +811,78 @@ class EventTest extends TestCase
         ])->post('/api/v1/subscriptions/bulk?action=delete', $data)
         ->assertStatus(200);
     }
+
+
+public function PurchaseOrderEvents()
+    {
+
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->vendor->hashed_id,
+            'number' => 'dude',
+        ];
+
+        $this->expectsEvents([
+            PurchaseOrderWasCreated::class,
+            PurchaseOrderWasUpdated::class,
+            PurchaseOrderWasArchived::class,
+            PurchaseOrderWasRestored::class,
+            PurchaseOrderWasDeleted::class,
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/', $data)
+        ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'client_id' => $this->vendor->hashed_id,
+            'number' => 'dude2',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $quote = PurchaseOrder::find($this->decodePrimaryKey($arr['data']['id']));
+        $quote->status_id = PurchaseOrder::STATUS_SENT;
+        $quote->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/bulk?action=approve', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/bulk?action=delete', $data)
+        ->assertStatus(200);
+    }
+
 
 }

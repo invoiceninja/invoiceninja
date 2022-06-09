@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use Carbon\Carbon;
@@ -9,12 +17,16 @@ use Illuminate\Support\Facades\Schema;
 
 class SetRecurringClientTimestamp extends Migration
 {
+
     /**
      * Run the migrations.
      *
      */
     public function up()
     {
+    
+        set_time_limit(0);
+    
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->datetime('next_send_date_client')->nullable();
         });
@@ -24,7 +36,7 @@ class SetRecurringClientTimestamp extends Migration
         });
 
 
-        RecurringInvoice::whereNotNull('next_send_date')->cursor()->each(function ($recurring_invoice){
+        RecurringInvoice::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_invoice){
 
             // $offset = $recurring_invoice->client->timezone_offset();
             // $re = Carbon::parse($recurring_invoice->next_send_date)->subSeconds($offset)->format('Y-m-d');
@@ -34,7 +46,7 @@ class SetRecurringClientTimestamp extends Migration
 
         });
     
-        RecurringExpense::whereNotNull('next_send_date')->cursor()->each(function ($recurring_expense){
+        RecurringExpense::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_expense){
             $recurring_expense->next_send_date_client = $recurring_expense->next_send_date;
             $recurring_expense->saveQuietly();
         });
