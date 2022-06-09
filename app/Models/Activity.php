@@ -109,6 +109,14 @@ class Activity extends StaticModel
     const DELETE_RECURRING_EXPENSE = 123; 
     const RESTORE_RECURRING_EXPENSE = 124; 
 
+    const CREATE_PURCHASE_ORDER = 130;
+    const UPDATE_PURCHASE_ORDER = 131;
+    const ARCHIVE_PURCHASE_ORDER = 132; 
+    const DELETE_PURCHASE_ORDER = 133; 
+    const RESTORE_PURCHASE_ORDER = 134;
+    const EMAIL_PURCHASE_ORDER = 135; 
+    const VIEW_PURCHASE_ORDER = 136;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
