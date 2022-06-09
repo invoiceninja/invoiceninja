@@ -57,6 +57,10 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->unsignedInteger('client_id')->nullable()->change();
         });
 
+        Schema::table('activities', function (Blueprint $table) {
+            $table->unsignedInteger('purchase_order_id')->nullable();
+            $table->unsignedInteger('vendor_contact_id')->nullable();
+        });
 
         Company::cursor()->each(function ($company){
 

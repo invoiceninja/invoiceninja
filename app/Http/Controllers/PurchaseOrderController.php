@@ -477,7 +477,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_orders = PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $invoices) {
+        if (! $purchase_orders) {
             return response()->json(['message' => 'No Purchase Orders Found']);
         }
 

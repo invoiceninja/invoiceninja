@@ -11,8 +11,6 @@
 
 namespace App\Services\PurchaseOrder;
 
-
-use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
 use App\Models\PurchaseOrder;
 use App\Utils\Ninja;
 
@@ -45,8 +43,6 @@ class MarkSent
             //  ->adjustBalance($this->purchase_order->amount)
             //  ->touchPdf()
             ->save();
-
-        event(new PurchaseOrderWasMarkedSent($this->purchase_order, $this->purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->purchase_order;
     }

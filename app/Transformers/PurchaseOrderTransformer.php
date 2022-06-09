@@ -89,7 +89,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'custom_surcharge_tax3' => (bool)$purchase_order->custom_surcharge_tax3,
             'custom_surcharge_tax4' => (bool)$purchase_order->custom_surcharge_tax4,
             'line_items' => $purchase_order->line_items ?: (array)[],
-            'entity_type' => 'credit',
+            'entity_type' => 'purchase_order',
             'exchange_rate' => (float)$purchase_order->exchange_rate,
             'paid_to_date' => (float)$purchase_order->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($purchase_order->subscription_id),
