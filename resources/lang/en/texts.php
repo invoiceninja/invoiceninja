@@ -4619,7 +4619,8 @@ $LANG = array(
     'activity_134' => ':user restored purchase order :purchase_order',
     'activity_135' => ':user emailed purchase order :purchase_order',
     'activity_136' => ':contact viewed purchase order :purchase_order',
-
+    'purchase_order_subject' => '',
+    'purchase_order_message' => '',
 );
 
 return $LANG;
