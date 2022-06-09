@@ -16,7 +16,7 @@
     @apply mb-4;
 
     input {
-        @apply form-input input #{!important};
+        @apply input #{!important};
     }
 
     @screen lg {
