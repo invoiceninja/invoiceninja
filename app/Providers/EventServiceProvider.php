@@ -61,6 +61,13 @@ use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
 use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -436,6 +443,22 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasEmailedAndFailed::class => [
             PaymentEmailFailureActivity::class,
         ],
+        PurchaseOrderWasArchived::class => [
+        ],
+        PurchaseOrderWasCreated::class => [
+        ],
+        PurchaseOrderWasDeleted::class => [
+        ],
+        PurchaseOrderWasEmailed::class => [
+        ],
+        PurchaseOrderWasMarkedSent::class => [
+        ],
+        PurchaseOrderWasRestored::class => [
+        ],
+        PurchaseOrderWasUpdated::class => [
+        ],
+        PurchaseOrderWasViewed::class => [
+        ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
         ],
@@ -558,9 +581,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
-        ],
-        PurchaseOrderWasMarkedSent::class => [
-        ],
+        ]
 
     ];
 

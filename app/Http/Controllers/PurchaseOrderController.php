@@ -12,6 +12,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
 use App\Filters\PurchaseOrderFilters;
 use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
@@ -26,6 +28,7 @@ use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -181,6 +184,8 @@ class PurchaseOrderController extends BaseController
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
             ->save();
+
+        event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order);
     }
@@ -351,6 +356,8 @@ class PurchaseOrderController extends BaseController
         }
 
         $purchase_order = $this->purchase_order_repository->save($request->all(), $purchase_order);
+
+        event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order);
     }

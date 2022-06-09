@@ -16,20 +16,21 @@ use App\Models\PurchaseOrder;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class PurchaseOrderWasMarkedSent.
+ * Class PurchaseOrderWasArchived.
  */
-class PurchaseOrderWasMarkedSent
+class PurchaseOrderWasArchived
 {
     use SerializesModels;
 
     /**
-     * @var \App\Models\PurchaseOrder
+     * @var PurchaseOrder
      */
     public $purchase_order;
 
     public $company;
 
     public $event_vars;
+
     /**
      * Create a new event instance.
      *
