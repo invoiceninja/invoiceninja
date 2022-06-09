@@ -54,8 +54,6 @@ class AdjustProductInventory implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-nlog("old invoice count = " . count($this->old_invoice));
-
         if(count($this->old_invoice) > 0)
             $this->existingInventoryAdjustment();
 
@@ -74,8 +72,6 @@ nlog("old invoice count = " . count($this->old_invoice));
         
         $line_items = $this->invoice->line_items;
 
-nlog($line_items);
-
         foreach($line_items as $item)
         {
 
@@ -84,14 +80,8 @@ nlog($line_items);
             if(!$p)
                 continue;
 
-
-nlog("subtracting back " . $item->quantity);
-
             $p->in_stock_quantity -= $item->quantity;
             $p->saveQuietly();
-
-nlog($p->toArray());
-
 
             if($p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold)
                 $this->notifyStockLevels($p, 'product');
@@ -112,11 +102,9 @@ nlog($p->toArray());
             if(!$p)
                 continue;
 
-nlog("adding back " . $item->quantity);
-
             $p->in_stock_quantity += $item->quantity;
             $p->saveQuietly();
-nlog($p->toArray());
+
         }
 
     }
