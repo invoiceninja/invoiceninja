@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Entity Ninja (https://entityninja.com).
+ * Invoice Ninja (https://entityninja.com).
  *
- * @link https://github.com/entityninja/entityninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Entity Ninja LLC (https://entityninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */

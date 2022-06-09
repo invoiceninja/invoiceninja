@@ -331,6 +331,7 @@
                     <div class="client-wrapper-left-side">
                         <h4 class="entity-label">$entity_label</h4>
                         <div id="client-details" cellspacing="0"></div>
+                        <div id="vendor-details" cellspacing="0"></div>
                     </div>
 
                     <div class="entity-details-wrapper-right-side">
@@ -380,7 +381,8 @@ $entity_images
                 let tables = [
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
+                    'vendor-details', 'client-details'
                 ];
 
                 tables.forEach((tableIdentifier) => {

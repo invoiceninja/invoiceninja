@@ -12,18 +12,23 @@
 namespace App\Http\Controllers;
 
 
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
 use App\Filters\PurchaseOrderFilters;
+use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
+use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -174,13 +179,13 @@ class PurchaseOrderController extends BaseController
     public function store(StorePurchaseOrderRequest $request)
     {
 
-        $client = Client::find($request->get('client_id'));
-
         $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
             ->save();
+
+        event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order);
     }
@@ -352,6 +357,8 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $this->purchase_order_repository->save($request->all(), $purchase_order);
 
+        event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
         return $this->itemResponse($purchase_order);
     }
     /**
@@ -409,5 +416,222 @@ class PurchaseOrderController extends BaseController
         $this->purchase_order_repository->delete($purchase_order);
 
         return $this->itemResponse($purchase_order->fresh());
+    }
+
+    /**
+     * Perform bulk actions on the list view.
+     *
+     * @return Collection
+     *
+     * @OA\Post(
+     *      path="/api/v1/purchase_orders/bulk",
+     *      operationId="bulkPurchaseOrderss",
+     *      tags={"purchase_orders"},
+     *      summary="Performs bulk actions on an array of purchase_orders",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="Purchase Order IDS",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Bulk Action response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+
+        $purchase_orders = PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+
+        if (! $purchase_orders) {
+            return response()->json(['message' => 'No Purchase Orders Found']);
+        }
+
+        /*
+         * Download Purchase Order/s
+         */
+
+        if ($action == 'bulk_download' && $purchase_orders->count() > 1) {
+            $purchase_orders->each(function ($purchase_order) {
+                if (auth()->user()->cannot('view', $purchase_order)) {
+                    nlog("access denied");
+                    return response()->json(['message' => ctrans('text.access_denied')]);
+                }
+            });
+
+            ZipInvoices::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
+
+            return response()->json(['message' => ctrans('texts.sent_message')], 200);
+        }
+
+        /*
+         * Send the other actions to the switch
+         */
+        $purchase_orders->each(function ($purchase_order, $key) use ($action) {
+            if (auth()->user()->can('edit', $purchase_order)) {
+                $this->performAction($purchase_order, $action, true);
+            }
+        });
+
+        /* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+        return $this->listResponse(PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/purchase_orders/{id}/{action}",
+     *      operationId="actionPurchaseOrder",
+     *      tags={"purchase_orders"},
+     *      summary="Performs a custom action on an purchase order",
+     *      description="Performs a custom action on an purchase order.
+     *
+     *        The current range of actions are as follows
+     *        - mark_paid
+     *        - download
+     *        - archive
+     *        - delete
+     *        - email",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Purchase Order Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Parameter(
+     *          name="action",
+     *          in="path",
+     *          description="The action string to be performed",
+     *          example="clone_to_quote",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the invoice object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param ActionPurchaseOrderRequest $request
+     * @param PurchaseOrder $purchase_order
+     * @param $action
+     * @return \App\Http\Controllers\Response|\Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function action(ActionPurchaseOrderRequest $request, PurchaseOrder $purchase_order, $action)
+    {
+        return $this->performAction($invoice, $action);
+    }
+
+    private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)
+    {   
+        /*If we are using bulk actions, we don't want to return anything */
+        switch ($action) {
+            case 'mark_sent':
+                $purchase_order->service()->markSent()->save();
+
+                if (! $bulk) {
+                    return $this->itemResponse($purchase_order);
+                }
+                break;
+            case 'download':
+
+                $file = $purchase_order->service()->getPurchaseOrderPdf();
+
+                return response()->streamDownload(function () use($file) {
+                        echo Storage::get($file);
+                },  basename($file), ['Content-Type' => 'application/pdf']);
+
+                break;
+            case 'restore':
+                $this->purchase_order_repository->restore($purchase_order);
+
+                if (! $bulk) {
+                    return $this->listResponse($purchase_order);
+                }
+                break;
+            case 'archive':
+                $this->purchase_order_repository->archive($purchase_order);
+
+                if (! $bulk) {
+                    return $this->listResponse($purchase_order);
+                }
+                break;
+            case 'delete':
+
+                $this->purchase_order_repository->delete($purchase_order);
+
+                if (! $bulk) {
+                    return $this->listResponse($purchase_order);
+                }
+                break;
+            
+            case 'email':
+                //check query parameter for email_type and set the template else use calculateTemplate
+
+
+            default:
+                return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
+                break;
+        }
     }
 }

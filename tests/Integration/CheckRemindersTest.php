@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Tests\Integration;
 
@@ -130,13 +130,13 @@ class CheckRemindersTest extends TestCase
 
         $settings = $this->company->settings;
         $settings->enable_reminder1 = false;
-        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->schedule_reminder1 = '';
         $settings->num_days_reminder1 = 0;
         $settings->enable_reminder2 = false;
-        $settings->schedule_reminder2 = 'before_due_date';
+        $settings->schedule_reminder2 = '';
         $settings->num_days_reminder2 = 0;
         $settings->enable_reminder3 = false;
-        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->schedule_reminder3 = '';
         $settings->num_days_reminder3 = 0;
 
         $this->company->settings = $settings;
@@ -153,13 +153,13 @@ class CheckRemindersTest extends TestCase
 
         $settings = $this->company->settings;
         $settings->enable_reminder1 = false;
-        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->schedule_reminder1 = '';
         $settings->num_days_reminder1 = 0;
         $settings->enable_reminder2 = false;
-        $settings->schedule_reminder2 = 'before_due_date';
+        $settings->schedule_reminder2 = '';
         $settings->num_days_reminder2 = 0;
         $settings->enable_reminder3 = false;
-        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->schedule_reminder3 = '';
         $settings->num_days_reminder3 = 0;
 
         $this->company->settings = $settings;

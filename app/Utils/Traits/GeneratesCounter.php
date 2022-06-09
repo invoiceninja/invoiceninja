@@ -18,6 +18,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
@@ -44,8 +45,8 @@ trait GeneratesCounter
 
         $is_client_counter = false;
 
-        $counter_string = $this->getEntityCounter($entity, $client);  
-        $pattern = $this->getNumberPattern($entity, $client);  
+        $counter_string = $this->getEntityCounter($entity, $client);
+        $pattern = $this->getNumberPattern($entity, $client);
 
         if ((strpos($pattern, 'clientCounter') !== false) || (strpos($pattern, 'client_counter') !==false) ) {
 
@@ -71,9 +72,9 @@ trait GeneratesCounter
             $counter_entity = $client->company;
         }
 
-        //If it is a quote - we need to 
+        //If it is a quote - we need to
         $pattern = $this->getNumberPattern($entity, $client);
-        
+
         if(strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)){
             $pattern = $pattern.'{$counter}';
         }
@@ -127,9 +128,9 @@ trait GeneratesCounter
                 break;
             case Quote::class:
 
-                if ($this->hasSharedCounter($client, 'quote')) 
+                if ($this->hasSharedCounter($client, 'quote'))
                     return 'invoice_number_counter';
-                
+
                 return 'quote_number_counter';
                 break;
             case RecurringInvoice::class:
@@ -145,13 +146,20 @@ trait GeneratesCounter
                 return 'payment_number_counter';
                 break;
             case Credit::class:
-                if ($this->hasSharedCounter($client, 'credit')) 
+                if ($this->hasSharedCounter($client, 'credit'))
                     return 'invoice_number_counter';
-            
+
                 return 'credit_number_counter';
                 break;
             case Project::class:
                 return 'project_number_counter';
+                break;
+            case PurchaseOrder::class:
+                return 'purchase_order_number_counter';
+                break;
+
+            case PurchaseOrder::class:
+                return 'purchase_order_number_counter';
                 break;
 
             default:
@@ -345,6 +353,23 @@ trait GeneratesCounter
 
     }
 
+    public function getNextPurchaseOrderNumber(PurchaseOrder $purchase_order) :string
+    {
+        $this->resetCompanyCounters($purchase_order->company);
+
+        $counter = $purchase_order->company->settings->purchase_order_number_counter;
+        $setting_entity = $purchase_order->company->settings->purchase_order_number_counter;
+
+        $purchase_order_number = $this->checkEntityNumber(PurchaseOrder::class, $purchase_order, $counter, $purchase_order->company->settings->counter_padding, $purchase_order->company->settings->purchase_order_number_pattern);
+
+        $this->incrementCounter($purchase_order->company, 'purchase_order_number_counter');
+
+        $entity_number = $purchase_order_number;
+
+        return $this->replaceUserVars($purchase_order, $entity_number);
+
+    }   
+
     /**
      * Gets the next expense number.
      *
@@ -385,7 +410,7 @@ trait GeneratesCounter
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
-    public function hasSharedCounter(Client $client, string $type = 'quote') : bool 
+    public function hasSharedCounter(Client $client, string $type = 'quote') : bool
     {
         if($type == 'quote')
             return (bool) $client->getSetting('shared_invoice_quote_counter');
@@ -438,9 +463,9 @@ trait GeneratesCounter
     public function checkNumberAvailable($class, $entity, $number) :bool
     {
 
-        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists()) 
+        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists())
             return false;
-        
+
         return true;
 
     }
@@ -504,7 +529,7 @@ trait GeneratesCounter
 
         if($reset_counter_frequency == 0)
             return;
-        
+
         $timezone = Timezone::find($client->getSetting('timezone_id'));
 
         $reset_date = Carbon::parse($client->getSetting('reset_counter_date'), $timezone->name);
@@ -558,6 +583,7 @@ trait GeneratesCounter
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
+        $settings->purchase_order_number_counter = 1;
 
         $client->company->settings = $settings;
         $client->company->save();
@@ -622,6 +648,7 @@ trait GeneratesCounter
         $settings->task_number_counter = 1;
         $settings->expense_number_counter = 1;
         $settings->recurring_expense_number_counter =1;
+        $settings->purchase_order_number_counter = 1;
 
         $company->settings = $settings;
         $company->save();
@@ -644,7 +671,7 @@ trait GeneratesCounter
 
         $search = [];
         $replace = [];
-        
+
         $search[] = '{$counter}';
         $replace[] = $counter;
 
@@ -659,7 +686,7 @@ trait GeneratesCounter
 
         $search[] = '{$year}';
         $replace[] = Carbon::now($entity->company->timezone()->name)->format('Y');
-        
+
         if (strstr($pattern, '{$user_id}') || strstr($pattern, '{$userId}')) {
             $user_id = $entity->user_id ? $entity->user_id : 0;
             $search[] = '{$user_id}';
@@ -683,7 +710,7 @@ trait GeneratesCounter
             $search[] = '{$vendor_id_number}';
             $replace[] = $entity->id_number;
         }
-        
+
         if ($entity instanceof Expense) {
             if ($entity->vendor) {
                 $search[] = '{$vendor_id_number}';
@@ -708,7 +735,7 @@ trait GeneratesCounter
             $search[] = '{$expense_id_number}';
             $replace[] = $entity->id_number;
         }
-        
+
         if ($entity->client || ($entity instanceof Client)) {
             $client = $entity->client ?: $entity;
 

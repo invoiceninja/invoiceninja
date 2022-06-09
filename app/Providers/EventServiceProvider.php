@@ -60,6 +60,14 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
+use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -170,6 +178,13 @@ use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
+use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderArchivedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderDeletedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderEmailActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderRestoredActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderViewedActivity;
+use App\Listeners\PurchaseOrder\UpdatePurchaseOrderActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteApprovedNotification;
 use App\Listeners\Quote\QuoteApprovedWebhook;
@@ -435,6 +450,27 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasEmailedAndFailed::class => [
             PaymentEmailFailureActivity::class,
         ],
+        PurchaseOrderWasArchived::class => [
+            PurchaseOrderArchivedActivity::class,
+        ],
+        PurchaseOrderWasCreated::class => [
+            CreatePurchaseOrderActivity::class,
+        ],
+        PurchaseOrderWasDeleted::class => [
+            PurchaseOrderDeletedActivity::class,
+        ],
+        PurchaseOrderWasEmailed::class => [
+            PurchaseOrderEmailActivity::class,
+        ],
+        PurchaseOrderWasRestored::class => [
+            PurchaseOrderRestoredActivity::class,
+        ],
+        PurchaseOrderWasUpdated::class => [
+            UpdatePurchaseOrderActivity::class,
+        ],
+        PurchaseOrderWasViewed::class => [
+            PurchaseOrderViewedActivity::class,
+        ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
         ],
@@ -557,7 +593,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
-        ],
+        ]
 
     ];
 

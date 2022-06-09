@@ -30,6 +30,10 @@ trait DesignHelpers
     {
         $this->syncPdfVariables();
 
+        if (isset($this->context['vendor'])) {
+            $this->vendor = $this->context['vendor'];
+        }
+
         if (isset($this->context['client'])) {
             $this->client = $this->context['client'];
         }
