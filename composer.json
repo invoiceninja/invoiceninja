@@ -51,6 +51,7 @@
         "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^6.0",
+        "imdhemy/laravel-purchases": "^0.10.3",
         "intervention/image": "^2.5",
         "invoiceninja/inspector": "dev-main",
         "laracasts/presenter": "^0.2.1",
