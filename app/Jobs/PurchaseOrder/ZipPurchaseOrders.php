@@ -18,6 +18,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadInvoices;
+use App\Mail\DownloadPurchaseOrders;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\TempFile;
@@ -101,7 +102,7 @@ class ZipPurchaseOrders implements ShouldQueue
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
+            $nmo->mailable = new DownloadPurchaseOrders(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;

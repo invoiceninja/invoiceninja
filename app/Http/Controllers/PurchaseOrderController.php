@@ -33,6 +33,7 @@ use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {
@@ -488,7 +489,7 @@ class PurchaseOrderController extends BaseController
          * Download Purchase Order/s
          */
 
-        if ($action == 'bulk_download' && $purchase_orders->count() > 1) {
+        if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
                     nlog("access denied");
@@ -582,7 +583,7 @@ class PurchaseOrderController extends BaseController
      */
     public function action(ActionPurchaseOrderRequest $request, PurchaseOrder $purchase_order, $action)
     {
-        return $this->performAction($invoice, $action);
+        return $this->performAction($purchase_order, $action);
     }
 
     private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)

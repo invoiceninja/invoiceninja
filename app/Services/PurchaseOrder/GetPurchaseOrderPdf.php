@@ -31,7 +31,7 @@ class GetPurchaseOrderPdf extends AbstractService
     {
 
         if (! $this->contact) {
-            $this->contact = $this->purchase_order->vendor->contacts()->where('send_email', true)->first();
+            $this->contact = $this->purchase_order->vendor->contacts()->orderBy('send_email', 'DESC')->first();
         }
 
         $invitation = $this->purchase_order->invitations()->where('vendor_contact_id', $this->contact->id)->first();

@@ -4622,6 +4622,7 @@ $LANG = array(
     'purchase_order_subject' => 'New Purchase Order :number from :account',
     'purchase_order_message' => 'To view your purchase order for :amount, click the link below.',
     'view_purchase_order' => 'View Purchase Order',
+    'purchase_orders_backup_subject' => 'Your purchase orders are ready for download',
 
 );
 
