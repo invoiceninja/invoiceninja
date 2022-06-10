@@ -74,6 +74,9 @@ class StorePaymentRequest extends Request
             }
         }
 
+        // if (array_key_exists('amount', $input))
+        //     $input['amount'] = 0;
+
         if (isset($input['credits']) && is_array($input['credits']) === false) {
             $input['credits'] = null;
         }
@@ -94,8 +97,7 @@ class StorePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'amount' => 'sometimes|numeric',
-            'amount' => [new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
+            'amount' => ['numeric', 'bail', new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
             'client_id' => 'bail|required|exists:clients,id',
             'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
             'invoices.*.amount' => 'bail|required',
