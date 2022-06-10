@@ -60,6 +60,8 @@ class CheckClientExistence
 
         session()->put('multiple_contacts', $multiple_contacts);
 
+        session()->put('is_silent', request()->has('silent'));
+
         return $next($request);
     }
 }
