@@ -184,7 +184,7 @@ trait DesignHelpers
 
             $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
 
-            if ($key) {
+            if ($key !== false) {
                 array_splice($this->context['pdf_variables']["{$type}_columns"], $key, 1, $taxes);
             }
         }
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         $key = array_search(sprintf('%s%s.description', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
 
-        if ($key) {
+        if ($key !== false) {
             array_splice($this->context['pdf_variables']["{$type}_columns"], $key + 1, 0, $custom_columns);
         }
     }
