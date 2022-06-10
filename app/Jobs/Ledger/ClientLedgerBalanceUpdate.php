@@ -47,7 +47,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle() :void
     {
-        nlog("Updating company ledger for client ". $this->client->id);
+        // nlog("Updating company ledger for client ". $this->client->id);
 
         MultiDB::setDb($this->company->db);
         
