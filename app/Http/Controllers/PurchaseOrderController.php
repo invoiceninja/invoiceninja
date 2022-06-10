@@ -23,6 +23,7 @@ use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
+use App\Jobs\Invoice\PurchaseOrderEmail;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Client;
 use App\Models\PurchaseOrder;
@@ -183,6 +184,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
+            ->triggeredActions($request)
             ->save();
 
         event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -627,7 +629,7 @@ class PurchaseOrderController extends BaseController
             
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
-
+                PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);

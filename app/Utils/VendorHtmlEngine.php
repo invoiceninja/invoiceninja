@@ -134,20 +134,15 @@ class VendorHtmlEngine
 
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format(), $this->company->locale()), 'label' => ctrans('texts.date')];
 
-        $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
-        $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
-
-
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
         $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];
         $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number_short')];
         $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->company) ?: '', 'label' => ctrans('texts.invoice_terms')];
         $data['$terms'] = &$data['$entity.terms'];
-        $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
+        $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_purchase_order').'</a>', 'label' => ctrans('texts.view_purchase_order')];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$viewButton'] = &$data['$view_link'];
         $data['$view_button'] = &$data['$view_link'];
-        $data['$paymentButton'] = &$data['$payment_button'];
         $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
         $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
 
@@ -389,11 +384,6 @@ class VendorHtmlEngine
         $data['$tech_hero_image'] = ['value' => asset('images/pdf-designs/tech-hero-image.jpg'), 'label' => ''];
         $data['$autoBill'] = ['value' => ctrans('texts.auto_bill_notification_placeholder'), 'label' => ''];
         $data['$auto_bill'] = &$data['$autoBill'];
-
-        /*Payment Aliases*/
-        $data['$paymentLink'] = &$data['$payment_link'];
-        $data['$payment_url'] = &$data['$payment_link'];
-        $data['$portalButton'] = &$data['$paymentLink'];
 
         $data['$dir'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
         $data['$dir_text_align'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];

@@ -60,6 +60,10 @@ trait DesignHelpers
 
         $this->document();
 
+        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client;
+
+        $this->company = $this->vendor ? $this->vendor->company : $this->client->company;
+        
         return $this;
     }
 
