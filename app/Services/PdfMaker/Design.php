@@ -799,7 +799,7 @@ class Design extends BaseDesign
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = $this->entity->{$_variable} != 0 || $this->entity->{$_variable} != '0';
+                $visible = (int)$this->entity->{$_variable} != 0 || $this->entity->{$_variable} != '0' || !$this->entity->{$_variable};
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
