@@ -30,6 +30,7 @@ class OAuth
     const SOCIAL_TWITTER = 5;
     const SOCIAL_BITBUCKET = 6;
     const SOCIAL_MICROSOFT = 7;
+    const SOCIAL_APPLE = 8;
 
     /**
      * @param Socialite $user
@@ -39,8 +40,8 @@ class OAuth
     {
         /** 1. Ensure user arrives on the correct provider **/
         $query = [
-            'oauth_user_id' =>$socialite_user->getId(),
-            'oauth_provider_id'=>$provider,
+            'oauth_user_id' => $socialite_user->getId(),
+            'oauth_provider_id' => $provider,
         ];
 
         if ($user = MultiDB::hasUser($query)) {
@@ -55,12 +56,12 @@ class OAuth
     {
         $name = trim($name);
         $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $first_name = trim(preg_replace('#'.preg_quote($last_name, '/').'#', '', $name));
+        $first_name = trim(preg_replace('#' . preg_quote($last_name, '/') . '#', '', $name));
 
         return [$first_name, $last_name];
     }
 
-    public static function providerToString(int $social_provider) : string
+    public static function providerToString(int $social_provider): string
     {
         switch ($social_provider) {
             case SOCIAL_GOOGLE:
@@ -77,10 +78,12 @@ class OAuth
                 return 'bitbucket';
             case SOCIAL_MICROSOFT:
                 return 'microsoft';
+            case SOCIAL_APPLE:
+                return 'apple';
         }
     }
 
-    public static function providerToInt(string $social_provider) : int
+    public static function providerToInt(string $social_provider): int
     {
         switch ($social_provider) {
             case 'google':
@@ -97,6 +100,8 @@ class OAuth
                 return SOCIAL_BITBUCKET;
             case 'microsoft':
                 return SOCIAL_MICROSOFT;
+            case 'apple':
+                return SOCIAL_APPLE;
         }
     }
 
