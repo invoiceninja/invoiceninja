@@ -51,7 +51,7 @@ jobs:
           cd ..
           rm -rf ui
           php artisan ninja:react
-          
+
       - name: Prepare JS/CSS assets
         run: |
           npm i
