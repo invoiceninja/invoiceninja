@@ -57,6 +57,7 @@ class Account extends BaseModel
         'utm_content',
         'user_agent',
         'platform',
+        // 'set_react_as_default_ap',
     ];
 
     /**

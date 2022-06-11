@@ -38,7 +38,7 @@ class StorePurchaseOrderRequest extends Request
     {
         $rules = [];
 
-        $rules['vendor_id'] = 'required';
+        $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)];
         $rules['discount']  = 'sometimes|numeric';

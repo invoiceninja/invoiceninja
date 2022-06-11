@@ -24,6 +24,8 @@ use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
@@ -31,6 +33,7 @@ use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {
@@ -183,6 +186,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->fillDefaults()
+            ->triggeredActions($request)
             ->save();
 
         event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -485,7 +489,7 @@ class PurchaseOrderController extends BaseController
          * Download Purchase Order/s
          */
 
-        if ($action == 'bulk_download' && $purchase_orders->count() > 1) {
+        if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
                     nlog("access denied");
@@ -493,7 +497,7 @@ class PurchaseOrderController extends BaseController
                 }
             });
 
-            ZipInvoices::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
+            ZipPurchaseOrders::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -579,7 +583,7 @@ class PurchaseOrderController extends BaseController
      */
     public function action(ActionPurchaseOrderRequest $request, PurchaseOrder $purchase_order, $action)
     {
-        return $this->performAction($invoice, $action);
+        return $this->performAction($purchase_order, $action);
     }
 
     private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)
@@ -627,7 +631,12 @@ class PurchaseOrderController extends BaseController
             
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
+                PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
 
+
+                if (! $bulk) {
+                    return response()->json(['message' => 'email sent'], 200);
+                }
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);

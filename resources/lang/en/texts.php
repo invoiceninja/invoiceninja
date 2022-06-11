@@ -4619,8 +4619,11 @@ $LANG = array(
     'activity_134' => ':user restored purchase order :purchase_order',
     'activity_135' => ':user emailed purchase order :purchase_order',
     'activity_136' => ':contact viewed purchase order :purchase_order',
-    'purchase_order_subject' => '',
-    'purchase_order_message' => '',
+    'purchase_order_subject' => 'New Purchase Order :number from :account',
+    'purchase_order_message' => 'To view your purchase order for :amount, click the link below.',
+    'view_purchase_order' => 'View Purchase Order',
+    'purchase_orders_backup_subject' => 'Your purchase orders are ready for download',
+
 );
 
 return $LANG;

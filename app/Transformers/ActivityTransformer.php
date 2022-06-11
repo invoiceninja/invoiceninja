@@ -65,7 +65,7 @@ class ActivityTransformer extends EntityTransformer
             'created_at' => (int) $activity->created_at,
             'expense_id' => $activity->expense_id ? (string) $this->encodePrimaryKey($activity->expense_id) : '',
             'is_system' => (bool) $activity->is_system,
-            'contact_id' => $activity->contact_id ? (string) $this->encodePrimaryKey($activity->contact_id) : '',
+            'contact_id' => $activity->client_contact_id ? (string) $this->encodePrimaryKey($activity->client_contact_id) : '',
             'task_id' => $activity->task_id ? (string) $this->encodePrimaryKey($activity->task_id) : '',
             'token_id' => $activity->token_id ? (string) $this->encodePrimaryKey($activity->token_id) : '',
             'notes' => $activity->notes ? (string) $activity->notes : '',
