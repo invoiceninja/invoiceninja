@@ -29,6 +29,7 @@ class OAuth
     const SOCIAL_LINKEDIN = 4;
     const SOCIAL_TWITTER = 5;
     const SOCIAL_BITBUCKET = 6;
+    const SOCIAL_MICROSOFT = 7;
 
     /**
      * @param Socialite $user
@@ -74,6 +75,8 @@ class OAuth
                 return 'twitter';
             case SOCIAL_BITBUCKET:
                 return 'bitbucket';
+            case SOCIAL_MICROSOFT:
+                return 'microsoft';
         }
     }
 
@@ -92,6 +95,8 @@ class OAuth
                 return SOCIAL_TWITTER;
             case 'bitbucket':
                 return SOCIAL_BITBUCKET;
+            case 'microsoft':
+                return SOCIAL_MICROSOFT;
         }
     }
 
@@ -103,7 +108,6 @@ class OAuth
                 $this->provider_id = self::SOCIAL_GOOGLE;
 
                 return $this;
-
             default:
                 return null;
                 break;
