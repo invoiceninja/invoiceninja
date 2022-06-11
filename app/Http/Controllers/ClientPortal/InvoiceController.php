@@ -61,7 +61,7 @@ class InvoiceController extends Controller
 
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
-            if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+            if ($invitation && auth()->guard('contact') && !session()->get('is_silent') && ! $invitation->viewed_date) {
 
                 $invitation->markViewed();
 

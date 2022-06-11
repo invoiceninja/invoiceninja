@@ -110,7 +110,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ClientContactResetPassword($token));
+        // $this->notify(new ClientContactResetPassword($token));
     }
 
     public function preferredLocale()
@@ -118,12 +118,9 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         $languages = Cache::get('languages');
 
         return $languages->filter(function ($item) {
-            return $item->id == $this->client->getSetting('language_id');
+            return $item->id == $this->company->getSetting('language_id');
         })->first()->locale;
 
-        //$lang = Language::find($this->client->getSetting('language_id'));
-
-        //return $lang->locale;
     }
 
     /**

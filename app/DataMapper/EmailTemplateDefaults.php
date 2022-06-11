@@ -62,7 +62,7 @@ class EmailTemplateDefaults
             case 'email_template_custom3':
                 return self::emailInvoiceTemplate();
             case 'email_template_purchase_order':
-                return self::emailPurchaseOrderSubject();
+                return self::emailPurchaseOrderTemplate();
                 break;
 
             /* Subject */
@@ -157,7 +157,7 @@ class EmailTemplateDefaults
 
     public static function emailPurchaseOrderSubject()
     {
-        return ctrans('texts.purchase_order_subject', ['number' => '$number']);
+        return ctrans('texts.purchase_order_subject', ['number' => '$number', 'account' => '$account']);
     }
 
     public static function emailPurchaseOrderTemplate()
