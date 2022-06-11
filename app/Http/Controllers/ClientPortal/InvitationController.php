@@ -22,6 +22,7 @@ use App\Models\ClientContact;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Services\ClientPortal\InstantPayment;
 use App\Utils\CurlUtils;
@@ -41,7 +42,7 @@ class InvitationController extends Controller
     use MakesDates;
 
     public function router(string $entity, string $invitation_key)
-    {   
+    {
         Auth::logout();
 
         return $this->genericRouter($entity, $invitation_key);
@@ -128,9 +129,11 @@ class InvitationController extends Controller
         if (auth()->guard('contact')->user() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
+            if(!session()->get('is_silent'))
+                event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
 
-            $this->fireEntityViewedEvent($invitation, $entity);
+            if(!session()->get('is_silent'))
+                $this->fireEntityViewedEvent($invitation, $entity);
         }
         else{
             $is_silent = 'true';
@@ -166,7 +169,7 @@ class InvitationController extends Controller
     {
 
         set_time_limit(45);
-        
+
         if(Ninja::isHosted())
             return $this->returnRawPdf($entity, $invitation_key);
 
@@ -191,7 +194,6 @@ class InvitationController extends Controller
             return response()->json(["message" => "no record found"], 400);
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
-        nlog($file_name);
 
         $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
 
@@ -203,7 +205,7 @@ class InvitationController extends Controller
         return response()->streamDownload(function () use($file) {
                 echo $file;
         },  $file_name, $headers);
-        
+
     }
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
@@ -229,14 +231,14 @@ class InvitationController extends Controller
         $invitation = InvoiceInvitation::where('key', $invitation_key)
                                     ->with('contact.client')
                                     ->firstOrFail();
-        
+
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
         $invoice = $invitation->invoice;
 
         if($invoice->partial > 0)
             $amount = round($invoice->partial, (int)$invoice->client->currency()->precision);
-        else 
+        else
             $amount = round($invoice->balance, (int)$invoice->client->currency()->precision);
 
         $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
@@ -278,6 +280,10 @@ class InvitationController extends Controller
             $invite->contact->save();
         }elseif($entity == 'credit'){
             $invite = CreditInvitation::withTrashed()->where('key', $invitation_key)->first();
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }elseif($entity == 'purchase_order'){
+            $invite = PurchaseOrderInvitation::withTrashed()->where('key', $invitation_key)->first();
             $invite->contact->send_email = false;
             $invite->contact->save();
         }

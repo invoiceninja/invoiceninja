@@ -41,6 +41,7 @@ class InvoiceSumInclusive
 
     private $sub_total;
 
+    private $precision;
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -49,6 +50,11 @@ class InvoiceSumInclusive
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
+
+        if($this->invoice->client)
+            $this->precision = $this->invoice->client->currency()->precision;
+        else
+            $this->precision = $this->invoice->vendor->currency()->precision;
 
         $this->tax_map = new Collection;
     }
@@ -164,32 +170,15 @@ class InvoiceSumInclusive
 
     private function calculateTotals()
     {
-        //$this->total += $this->total_taxes;
-
-        // if (is_numeric($this->invoice->custom_value1)) {
-        //     $this->total += $this->invoice->custom_value1;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value2)) {
-        //     $this->total += $this->invoice->custom_value2;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value3)) {
-        //     $this->total += $this->invoice->custom_value3;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value4)) {
-        //     $this->total += $this->invoice->custom_value4;
-        // }
 
         return $this;
     }
 
     public function getRecurringInvoice()
     {
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
-        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->saveQuietly();
 
@@ -229,6 +218,15 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    public function getPurchaseOrder()
+    {
+        //Build invoice values here and return Invoice
+        $this->setCalculatedAttributes();
+        $this->invoice->saveQuietly();
+
+        return $this->invoice;
+    }
+
     /**
      * Build $this->invoice variables after
      * calculations have been performed.
@@ -240,14 +238,14 @@ class InvoiceSumInclusive
             if ($this->invoice->amount != $this->invoice->balance) {
                 $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision) - $paid_to_date;
+                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $paid_to_date;
             } else {
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
             }
         }
         
         /* Set new calculated total */
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->total_taxes = $this->getTotalTaxes();
 

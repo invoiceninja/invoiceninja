@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Tests\Feature;
 
@@ -50,8 +50,8 @@ class CompanyTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $cc = Company::first();
-        $cc->delete();
+        // $cc = Company::first();
+        // $cc->delete();
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

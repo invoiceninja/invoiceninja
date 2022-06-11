@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
+use Beganovich\Snappdf\Snappdf;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -134,6 +135,15 @@ class SelfUpdateController extends BaseController
 
         nlog("Extracting zip");
 
+        // try{
+        //     $s = new Snappdf;
+        //     $s->getChromiumPath();
+        //     chmod($this->generatePlatformExecutable($s->getChromiumPath()), 0755);
+        // }
+        // catch(\Exception $e){
+        //     nlog("I could not set the file permissions for chrome");
+        // }
+
         $zipFile = new \PhpZip\ZipFile();
 
         $zipFile->openFile($file);
@@ -141,6 +151,14 @@ class SelfUpdateController extends BaseController
         $zipFile->extractTo(base_path());
 
         $zipFile->close();
+
+        // $zip = new \ZipArchive;
+        
+        // $res = $zip->open($file);
+        // if ($res === TRUE) {
+        //     $zip->extractTo(base_path());
+        //     $zip->close();
+        // } 
 
         nlog("Finished extracting files");
 

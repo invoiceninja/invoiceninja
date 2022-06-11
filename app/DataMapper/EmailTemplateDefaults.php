@@ -61,10 +61,13 @@ class EmailTemplateDefaults
                 break;
             case 'email_template_custom3':
                 return self::emailInvoiceTemplate();
+            case 'email_template_purchase_order':
+                return self::emailPurchaseOrderTemplate();
                 break;
 
             /* Subject */
-
+            case 'email_subject_purchase_order':
+                return self::emailPurchaseOrderSubject();
             case 'email_subject_invoice':
                 return self::emailInvoiceSubject();
                 break;
@@ -150,6 +153,20 @@ class EmailTemplateDefaults
     public static function emailPaymentSubject()
     {
         return ctrans('texts.payment_subject');
+    }
+
+    public static function emailPurchaseOrderSubject()
+    {
+        return ctrans('texts.purchase_order_subject', ['number' => '$number', 'account' => '$account']);
+    }
+
+    public static function emailPurchaseOrderTemplate()
+    {
+
+        $purchase_order_message = '<p>$vendor<br><br>'.self::transformText('purchase_order_message').'</p><div class="center">$view_button</div>';
+
+        return $purchase_order_message;
+
     }
 
     public static function emailPaymentTemplate()

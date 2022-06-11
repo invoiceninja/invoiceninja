@@ -35,6 +35,9 @@ class Design extends BaseDesign
     /** @var App\Models\Client */
     public $client;
 
+    /** @var App\Models\Vendor */
+    public $vendor;
+
     /** Global state of the design, @var array */
     public $context;
 
@@ -53,6 +56,10 @@ class Design extends BaseDesign
     /** @var Payment[] */
     public $payments;
 
+    public $settings_object;
+
+    public $company;
+
     /** @var array */
     public $aging = [];
 
@@ -69,12 +76,15 @@ class Design extends BaseDesign
 
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
+    const PURCHASE_ORDER = 'purchase_order';
+
 
     public function __construct(string $design = null, array $options = [])
     {
         Str::endsWith('.html', $design) ? $this->design = $design : $this->design = "{$design}.html";
 
         $this->options = $options;
+
     }
 
     public function html(): ?string
@@ -112,6 +122,10 @@ class Design extends BaseDesign
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
+            ],
+            'vendor-details' => [
+                'id' => 'vendor-details',
+                'elements' => $this->vendorDetails(),
             ],
             'entity-details' => [
                 'id' => 'entity-details',
@@ -188,9 +202,28 @@ class Design extends BaseDesign
         return $elements;
     }
 
+    public function vendorDetails(): array
+    {
+        $elements = [];
+
+        if(!$this->vendor)
+            return $elements;
+
+        $variables = $this->context['pdf_variables']['vendor_details'];
+
+        foreach ($variables as $variable) {
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+        }
+
+        return $elements;
+    }
+
     public function clientDetails(): array
     {
         $elements = [];
+
+        if(!$this->client)
+            return $elements;
 
         if ($this->type == self::DELIVERY_NOTE) {
             $elements = [
@@ -224,6 +257,8 @@ class Design extends BaseDesign
 
     public function entityDetails(): array
     {
+
+
         if ($this->type === 'statement') {
 
             $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
@@ -256,6 +291,12 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Credit) {
             $variables = $this->context['pdf_variables']['credit_details'];
+        }
+
+        if($this->vendor){
+
+            $variables = $this->context['pdf_variables']['purchase_order_details'];
+
         }
 
         $elements = [];
@@ -538,19 +579,19 @@ class Design extends BaseDesign
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {
-                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->client->getSetting('hide_empty_columns_on_pdf')]];
-            } elseif ($column == '$product.discount' && !$this->client->company->enable_product_discount) {
+                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+            } elseif ($column == '$product.discount' && !$this->company->enable_product_discount) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
-            } elseif ($column == '$product.quantity' && !$this->client->company->enable_product_quantity) {
+            } elseif ($column == '$product.quantity' && !$this->company->enable_product_quantity) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.tax_rate1') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->client->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.tax_rate2') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->client->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.tax_rate3') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->client->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } else {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->client->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             }
         }
 
@@ -641,9 +682,9 @@ class Design extends BaseDesign
 
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost'], 'properties' => ['data-ref' => 'task_table-task.cost-td']];
-                    } elseif ($cell == '$product.discount' && !$this->client->company->enable_product_discount) {
+                    } elseif ($cell == '$product.discount' && !$this->company->enable_product_discount) {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.discount'], 'properties' => ['data-ref' => 'product_table-product.discount-td', 'style' => 'display: none;']];
-                    } elseif ($cell == '$product.quantity' && !$this->client->company->enable_product_quantity) {
+                    } elseif ($cell == '$product.quantity' && !$this->company->enable_product_quantity) {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.quantity'], 'properties' => ['data-ref' => 'product_table-product.quantity-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td']];
@@ -763,7 +804,7 @@ class Design extends BaseDesign
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = $this->entity->{$_variable} > 0 || $this->entity->{$_variable} > '0';
+                $visible = (int)$this->entity->{$_variable} != 0 || $this->entity->{$_variable} != '0' || !$this->entity->{$_variable};
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
@@ -771,7 +812,7 @@ class Design extends BaseDesign
                 ]];
             } elseif (Str::startsWith($variable, '$custom')) {
                 $field = explode('_', $variable);
-                $visible = is_object($this->client->company->custom_fields) && property_exists($this->client->company->custom_fields, $field[1]) && !empty($this->client->company->custom_fields->{$field[1]});
+                $visible = is_object($this->company->custom_fields) && property_exists($this->company->custom_fields, $field[1]) && !empty($this->company->custom_fields->{$field[1]});
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],

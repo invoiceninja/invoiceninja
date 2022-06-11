@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\User;
@@ -102,7 +103,10 @@ class Company extends BaseModel
         'markdown_email_enabled',
         'stop_on_unpaid_recurring',
         'use_quote_terms_on_conversion',
-        'show_production_description_dropdown',
+        'enable_applying_payments',
+        'track_inventory',
+        'inventory_notification_threshold',
+        'stock_notification'
     ];
 
     protected $hidden = [
@@ -401,6 +405,12 @@ class Company extends BaseModel
     {
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
+        }
+
+        $cs = CompanySettings::defaults();
+
+        if (property_exists($cs, $setting) != false) {
+            return $cs->{$setting};
         }
 
         return null;

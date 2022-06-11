@@ -90,6 +90,9 @@ class ProductTransformer extends EntityTransformer
             'custom_value3' => $product->custom_value3 ?: '',
             'custom_value4' => $product->custom_value4 ?: '',
             'is_deleted' => (bool) $product->is_deleted,
+            'in_stock_quantity' => (int) $product->in_stock_quantity ?: 0,
+            'stock_notification' => (bool) $product->stock_notification,
+            'stock_notification_threshold' => (int) $product->stock_notification_threshold,
         ];
     }
 }

@@ -220,13 +220,12 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
 
-        // $client = Client::find($request->input('client_id'));
-
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $invoice = $invoice->service()
                            ->fillDefaults()
                            ->triggeredActions($request)
+                           ->adjustInventory()
                            ->save();
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -416,9 +415,14 @@ class InvoiceController extends BaseController
             return response()->json(['message' => ctrans('texts.locked_invoice')], 403);
         }
 
+        $old_invoice = $invoice->line_items;
+
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
-        
-        $invoice->service()->triggeredActions($request)->touchPdf();
+
+        $invoice->service()
+                ->triggeredActions($request)
+                ->touchPdf()
+                ->adjustInventory($old_invoice);
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -710,7 +714,6 @@ class InvoiceController extends BaseController
                 return response()->streamDownload(function () use($file) {
                         echo Storage::get($file);
                 },  basename($file), ['Content-Type' => 'application/pdf']);
-
 
                 break;
             case 'restore':

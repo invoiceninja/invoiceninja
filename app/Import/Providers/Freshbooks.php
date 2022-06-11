@@ -41,7 +41,7 @@ class Freshbooks extends BaseImport
 
         //collate any errors
 
-        $this->finalizeImport();
+        // $this->finalizeImport();
     }
 
     public function client()

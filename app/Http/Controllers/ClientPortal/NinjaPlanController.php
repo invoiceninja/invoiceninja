@@ -125,13 +125,14 @@ class NinjaPlanController extends Controller
         $gateway_driver->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
 
         //set free trial
-        // $account = auth()->guard('contact')->user()->company->account;
         if(auth()->guard('contact')->user()->client->custom_value2){
             MultiDB::findAndSetDbByAccountKey(auth()->guard('contact')->user()->client->custom_value2);
             $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
-            $account->trial_started = now();
-            $account->trial_plan = 'pro';
+            // $account->trial_started = now();
+            // $account->trial_plan = 'pro';
             $account->plan = 'pro';
+            $account->plan_term = 'month';
+            $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
             $account->save();
         }

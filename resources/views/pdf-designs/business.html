@@ -324,6 +324,7 @@
                <p class="entity-issued-to">$entity_issued_to_label:</p>
                <div class="client-and-entity-wrapper">
                   <div id="client-details"></div>
+                  <div id="vendor-details"></div>
                   <div class="entity-details-wrapper">
                      <table id="entity-details" cellspacing="0" dir="$dir"></table>
                   </div>
@@ -365,6 +366,7 @@ $entity_images
         let tables = [
             'product-table', 'task-table', 'delivery-note-table',
             'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+            'vendor-details','client-details'
         ];
 
         tables.forEach((tableIdentifier) => {

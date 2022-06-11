@@ -79,6 +79,8 @@ class CSVIngest implements ShouldQueue {
 
         }
 
+        $engine->finalizeImport();
+        
         $this->checkContacts();
     }
 

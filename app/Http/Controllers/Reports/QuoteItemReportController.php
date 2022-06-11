@@ -31,11 +31,11 @@ class QuoteItemReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/invoice_items",
+     *      path="/api/v1/reports/quote_items",
      *      operationId="getQuoteItemReport",
      *      tags={"reports"},
-     *      summary="Invoice item reports",
-     *      description="Export invoice item reports",
+     *      summary="Quote item reports",
+     *      description="Export Quote item reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(

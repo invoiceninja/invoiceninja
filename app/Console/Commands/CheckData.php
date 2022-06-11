@@ -74,7 +74,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
 
     /**
      * @var string
@@ -88,6 +88,9 @@ class CheckData extends Command
     protected $wrong_paid_to_dates = 0;
 
     protected $wrong_balances = 0;
+
+    protected $wrong_paid_status = 0;
+
 
     public function handle()
     {
@@ -109,6 +112,7 @@ class CheckData extends Command
         $this->checkVendorContacts();
         $this->checkEntityInvitations();
         $this->checkCompanyData();
+        $this->checkBalanceVsPaidStatus();
 
         if(Ninja::isHosted())
             $this->checkAccountStatuses();
@@ -856,4 +860,45 @@ class CheckData extends Command
         });
     }
 
+    public function checkBalanceVsPaidStatus()
+    {
+        $this->wrong_paid_status = 0;
+
+        foreach(Invoice::with(['payments'])->whereHas('payments')->where('status_id', 4)->where('balance', '>', 0)->where('is_deleted',0)->cursor() as $invoice)
+        {
+            $this->$this->wrong_paid_status++;
+            
+            $this->logMessage("# {$invoice->id} " . ' - '.$invoice->number." - Marked as paid, but balance = {$invoice->balance}");
+
+            if($this->option('balance_status')){
+
+                $val = $invoice->balance;
+
+                $invoice->balance = 0;
+                $invoice->paid_to_date=$val;
+                $invoice->save();
+
+                $p = $invoice->payments->first();
+
+                if($p && (int)$p->amount == 0)
+                {
+                    $p->amount = $val;
+                    $p->applied = $val;
+                    $p->save();
+
+                    $pivot = $p->paymentables->first();
+                    $pivot->amount = $val;
+                    $pivot->save();
+                }
+
+
+                $this->logMessage("Fixing {$invoice->id} settings payment to {$val}");
+
+            }
+
+        }
+
+        $this->logMessage($this->wrong_paid_status." wrong invoices with bad balance state");
+
+    }
 }

@@ -48,6 +48,7 @@ class SendToAdmin implements ShouldQueue
 
     public function handle()
     {
+        
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
         $csv = $export->run();

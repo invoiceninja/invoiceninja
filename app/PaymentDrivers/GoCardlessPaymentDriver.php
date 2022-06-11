@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 
 namespace App\PaymentDrivers;
@@ -235,7 +235,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         nlog("GoCardless Event");
         nlog($request->all());
 
-        if(!is_array($request->events) || !is_object($request->events)){
+        if(!$request->has("events")){
 
             nlog("No GoCardless events to process in response?");
             return response()->json([], 200);
@@ -245,18 +245,19 @@ class GoCardlessPaymentDriver extends BaseDriver
         sleep(1);
 
         foreach ($request->events as $event) {
-            if ($event['action'] === 'confirmed' || $event['action'] === 'paid_out') {
+            if ($event['action'] === 'confirmed' || $event['action'] === 'paid_out' || $event['action'] === 'paid') {
 
                 nlog("Searching for transaction reference");
                 
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
-                    // ->where('company_id', $request->getCompany()->id)
+                    ->where('company_id', $request->getCompany()->id)
                     ->first();
 
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
+                    nlog("GoCardless completed");
                 }
                 else
                     nlog("I was unable to find the payment for this reference");
@@ -268,12 +269,13 @@ class GoCardlessPaymentDriver extends BaseDriver
 
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
-                    // ->where('company_id', $request->getCompany()->id)
+                    ->where('company_id', $request->getCompany()->id)
                     ->first();
 
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_FAILED;
                     $payment->save();
+                    nlog("GoCardless completed");
                 }
             }
         }

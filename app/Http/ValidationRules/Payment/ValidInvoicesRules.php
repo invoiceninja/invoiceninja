@@ -62,7 +62,7 @@ class ValidInvoicesRules implements Rule
                 return false;
             }
 
-            $inv = Invoice::whereId($invoice['invoice_id'])->first();
+            $inv = Invoice::withTrashed()->whereId($invoice['invoice_id'])->first();
 
             if (! $inv) {
 

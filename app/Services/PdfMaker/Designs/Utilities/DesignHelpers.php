@@ -30,6 +30,10 @@ trait DesignHelpers
     {
         $this->syncPdfVariables();
 
+        if (isset($this->context['vendor'])) {
+            $this->vendor = $this->context['vendor'];
+        }
+
         if (isset($this->context['client'])) {
             $this->client = $this->context['client'];
         }
@@ -56,6 +60,10 @@ trait DesignHelpers
 
         $this->document();
 
+        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client;
+
+        $this->company = $this->vendor ? $this->vendor->company : $this->client->company;
+        
         return $this;
     }
 
@@ -176,7 +184,7 @@ trait DesignHelpers
 
             $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
 
-            if ($key) {
+            if ($key !== false) {
                 array_splice($this->context['pdf_variables']["{$type}_columns"], $key, 1, $taxes);
             }
         }
@@ -334,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         $key = array_search(sprintf('%s%s.description', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
 
-        if ($key) {
+        if ($key !== false) {
             array_splice($this->context['pdf_variables']["{$type}_columns"], $key + 1, 0, $custom_columns);
         }
     }

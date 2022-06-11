@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Tests\Feature\Export;
 
@@ -45,6 +45,7 @@ class ClientCsvTest extends TestCase
         $data = [
             "date_range" => "this_year",
             "report_keys" => [],
+            "send_email" => false
         ];
 
         $response = $this->withHeaders([
@@ -62,6 +63,7 @@ class ClientCsvTest extends TestCase
         $data = [
             "date_range" => "this_year",
             "report_keys" => [],
+            "send_email" => false
         ];
 
         $response = $this->withHeaders([
