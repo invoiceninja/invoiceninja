@@ -99,7 +99,7 @@ class CreateEntityPdf implements ShouldQueue
         $this->client = $invitation->contact->client;
         $this->client->load('company');
         
-        $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
+        $this->disk = (Ninja::isHosted() || Ninja::isSelfHost()) ? config('filesystems.default') : $disk;
 
     }
 
