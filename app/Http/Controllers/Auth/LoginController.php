@@ -92,7 +92,7 @@ class LoginController extends BaseController
      * @return void
      * deprecated .1 API ONLY we don't need to set any session variables
      */
-    public function authenticated(Request $request, User $user) : void
+    public function authenticated(Request $request, User $user): void
     {
         //$this->setCurrentCompanyId($user->companies()->first()->account->default_company_id);
     }
@@ -168,9 +168,9 @@ class LoginController extends BaseController
             $this->fireLockoutEvent($request);
 
             return response()
-            ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
-            ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Api-Version', config('ninja.minimum_client_version'));
+                ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
+                ->header('X-App-Version', config('ninja.app_version'))
+                ->header('X-Api-Version', config('ninja.minimum_client_version'));
         }
 
         if ($this->attemptLogin($request)) {
@@ -196,7 +196,7 @@ class LoginController extends BaseController
 
             }
             elseif($user->google_2fa_secret && !$request->has('one_time_password')) {
-                
+
                     return response()
                     ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
                     ->header('X-App-Version', config('ninja.app_version'))
@@ -234,23 +234,23 @@ class LoginController extends BaseController
             // /* Ensure the user has a valid token */
             // if($user->company_users()->count() != $user->tokens()->count())
             // {
-              
+
             //   $user->companies->each(function($company) use($user, $request){
-              
+
             //     if(!CompanyToken::where('user_id', $user->id)->where('company_id', $company->id)->exists()){
-                
+
             //       CreateCompanyToken::dispatchNow($company, $user, $request->server('HTTP_USER_AGENT'));
-                  
+
             //     }
-              
+
             //   });
-              
+
             // }
 
             // $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $user->account->default_company->id)->first());
 
             /*On the hosted platform, only owners can login for free/pro accounts*/
-            if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
             event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
@@ -267,9 +267,9 @@ class LoginController extends BaseController
             $this->incrementLoginAttempts($request);
 
             return response()
-            ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-            ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Api-Version', config('ninja.minimum_client_version'));
+                ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+                ->header('X-App-Version', config('ninja.app_version'))
+                ->header('X-Api-Version', config('ninja.minimum_client_version'));
 
         }
     }
@@ -317,29 +317,28 @@ class LoginController extends BaseController
     {
         $truth = app()->make(TruthSource::class);
 
-        if($truth->getCompanyToken())
+        if ($truth->getCompanyToken())
             $company_token = $truth->getCompanyToken();
         else
             $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
-                          ->where('user_id', $company_token->user_id);
+            ->where('user_id', $company_token->user_id);
 
-        if($cu->count() == 0)
+        if ($cu->count() == 0)
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
-        $cu->first()->account->companies->each(function ($company) use($cu, $request){
+        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
 
-            if($company->tokens()->where('is_system', true)->count() == 0)
-            {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
                 CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
             }
         });
 
-        if($request->has('current_company') && $request->input('current_company') == 'true')
-          $cu->where("company_id", $company_token->company_id);
+        if ($request->has('current_company') && $request->input('current_company') == 'true')
+            $cu->where("company_id", $company_token->company_id);
 
-        if(Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient())
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient())
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
         return $this->refreshResponse($cu);
@@ -359,24 +358,134 @@ class LoginController extends BaseController
      */
     public function oauthApiLogin()
     {
+
+        $message = 'Provider not supported';
         if (request()->input('provider') == 'google') {
             return $this->handleGoogleOauth();
+        } elseif (request()->input('provider') == 'microsoft') {
+            if (request()->has('token')) {
+                return $this->handleSocialiteLogin('microsoft', request()->get('token'));
+            } else {
+                $message = 'Bearer token missing for the microsoft login';
+            }
+        } elseif (request()->input('provider') == 'apple') {
+            if (request()->has('token')) {
+                return $this->handleSocialiteLogin('apple', request()->get('token'));
+            } else {
+                $message = 'Token is missing for the apple login';
+            }
         }
 
         return response()
-        ->json(['message' => 'Provider not supported'], 400)
-        ->header('X-App-Version', config('ninja.app_version'))
-        ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            ->json(['message' => $message], 400)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
 
-    private function hydrateCompanyUser() :Builder
+    private function getSocialiteUser(string $provider, string $token)
+    {
+        return Socialite::driver($provider)->userFromToken($token);
+    }
+
+    private function handleSocialiteLogin($provider, $token)
+    {
+        $user = $this->getSocialiteUser($provider, $token);
+        if ($user) {
+            return $this->loginOrCreateFromSocialite($user, $provider);
+        }
+        return response()
+            ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
+
+    }
+
+
+    private function loginOrCreateFromSocialite($user, $provider)
+    {
+        $query = [
+            'oauth_user_id' => $user->id,
+            'oauth_provider_id' => $provider,
+        ];
+        if ($existing_user = MultiDB::hasUser($query)) {
+
+            if (!$existing_user->account)
+                return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
+            Auth::login($existing_user, true);
+
+            $cu = $this->hydrateCompanyUser();
+
+            if ($cu->count() == 0)
+                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
+            return $this->timeConstrainedResponse($cu);
+
+        }
+        //If this is a result user/email combo - lets add their OAuth details details
+        if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
+            if (!$existing_login_user->account)
+                return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
+            Auth::login($existing_login_user, true);
+
+            auth()->user()->update([
+                'oauth_user_id' => $user->id,
+                'oauth_provider_id' => $provider,
+            ]);
+
+            $cu = $this->hydrateCompanyUser();
+
+            if ($cu->count() == 0)
+                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
+            return $this->timeConstrainedResponse($cu);
+        }
+        $name = OAuth::splitName($user->name);
+
+        $new_account = [
+            'first_name' => $name[0],
+            'last_name' => $name[1],
+            'password' => '',
+            'email' => $user->email,
+            'oauth_user_id' => $user->id,
+            'oauth_provider_id' => $provider,
+        ];
+
+        MultiDB::setDefaultDatabase();
+
+        $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
+
+        Auth::login($account->default_company->owner(), true);
+        auth()->user()->email_verified_at = now();
+        auth()->user()->save();
+
+        $cu = $this->hydrateCompanyUser();
+
+        if ($cu->count() == 0)
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
+        return $this->timeConstrainedResponse($cu);
+    }
+
+
+    private function hydrateCompanyUser(): Builder
     {
 
         $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
 
-        if(CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists())
+        if (CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists())
             $set_company = auth()->user()->account->default_company;
-        else{
+        else {
             $set_company = $cu->first()->company;
         }
 
@@ -392,19 +501,18 @@ class LoginController extends BaseController
         if($cu->count() == 0)
             return $cu;
 
-        if(auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count())
-        {
-          
-          auth()->user()->companies->each(function($company){
-          
-            if(!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()){
-            
-              CreateCompanyToken::dispatchNow($company, auth()->user(), "Google_O_Auth");
-              
+        if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
+
+            auth()->user()->companies->each(function ($company) {
+
+                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+
+                    CreateCompanyToken::dispatchNow($company, auth()->user(), "Google_O_Auth");
+
             }
-          
+
           });
-          
+
         }
 
         $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
@@ -444,7 +552,7 @@ class LoginController extends BaseController
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
                 return $this->timeConstrainedResponse($cu);
-                
+
             }
 
             //If this is a result user/email combo - lets add their OAuth details details
@@ -474,14 +582,14 @@ class LoginController extends BaseController
         }
 
         if ($user) {
-            
+
             //check the user doesn't already exist in some form
 
             if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
             {
                 if(!$existing_login_user->account)
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
-                
+
                 Auth::login($existing_login_user, true);
 
                 auth()->user()->update([
@@ -490,11 +598,11 @@ class LoginController extends BaseController
                     ]);
 
                 $cu = $this->hydrateCompanyUser();
-                
+
                 // $cu = CompanyUser::query()
                 //                   ->where('user_id', auth()->user()->id);
 
-                if($cu->count() == 0)
+                if ($cu->count() == 0)
                     return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
@@ -557,7 +665,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-        
+
             if(!in_array($provider, ['google']))
                 return abort(400, 'Invalid provider');
 
@@ -594,7 +702,7 @@ class LoginController extends BaseController
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
                 'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->refreshToken 
+                'oauth_user_refresh_token' => $socialite_user->refreshToken
             ];
 
             $user->update($update_user);
