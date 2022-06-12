@@ -212,7 +212,7 @@ class Payment extends BaseModel
                 return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
                 break;
             case self::STATUS_CANCELLED:
-                return '<h6><span class="badge badge-warning">'.ctrans('texts.payment_status_2').'</span></h6>';
+                return '<h6><span class="badge badge-warning text-white">'.ctrans('texts.payment_status_2').'</span></h6>';
                 break;
             case self::STATUS_FAILED:
                 return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';

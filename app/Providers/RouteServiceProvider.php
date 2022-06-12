@@ -121,4 +121,12 @@ class RouteServiceProvider extends ServiceProvider
              ->namespace($this->namespace)
              ->group(base_path('routes/shop.php'));
     }
+
+    protected function mapVendorsApiRoutes()
+    {
+        Route::prefix('')
+            ->middleware('vendor')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/vendor.php'));
+    }
 }
