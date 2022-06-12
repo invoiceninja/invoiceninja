@@ -127,6 +127,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::prefix('')
             ->middleware('vendor')
             ->namespace($this->namespace)
-            ->group(base_path('routes/contact.php'));
+            ->group(base_path('routes/vendor.php'));
     }
 }
