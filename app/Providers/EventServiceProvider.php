@@ -264,9 +264,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        AccountCreated::class =>[
+        AccountCreated::class => [
         ],
-        MessageSending::class =>[
+        MessageSending::class => [
         ],
         MessageSent::class => [
             MailSentListener::class,
@@ -312,35 +312,35 @@ class EventServiceProvider extends ServiceProvider
         PaymentWasVoided::class => [
             PaymentVoidedActivity::class,
         ],
-        PaymentWasRestored::class =>[
+        PaymentWasRestored::class => [
             PaymentRestoredActivity::class,
         ],
         // Clients
-        ClientWasCreated::class =>[
+        ClientWasCreated::class => [
             CreatedClientActivity::class,
         ],
-        ClientWasArchived::class =>[
+        ClientWasArchived::class => [
             ArchivedClientActivity::class,
         ],
-        ClientWasUpdated::class =>[
+        ClientWasUpdated::class => [
             ClientUpdatedActivity::class,
         ],
-        ClientWasDeleted::class =>[
+        ClientWasDeleted::class => [
             DeleteClientActivity::class,
         ],
-        ClientWasRestored::class =>[
+        ClientWasRestored::class => [
             RestoreClientActivity::class,
         ],
         // Documents
-        DocumentWasCreated::class =>[
+        DocumentWasCreated::class => [
         ],
-        DocumentWasArchived::class =>[
+        DocumentWasArchived::class => [
         ],
-        DocumentWasUpdated::class =>[
+        DocumentWasUpdated::class => [
         ],
-        DocumentWasDeleted::class =>[
+        DocumentWasDeleted::class => [
         ],
-        DocumentWasRestored::class =>[
+        DocumentWasRestored::class => [
         ],
         CreditWasCreated::class => [
             CreatedCreditActivity::class,
@@ -404,11 +404,11 @@ class EventServiceProvider extends ServiceProvider
         InvoiceWasCreated::class => [
             CreateInvoiceActivity::class,
             InvoiceCreatedNotification::class,
-        //    CreateInvoicePdf::class,
+            //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
-           InvoicePaidActivity::class,
-           CreateInvoicePdf::class,
+            InvoicePaidActivity::class,
+            CreateInvoicePdf::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,
@@ -593,7 +593,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
-        ]
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            // ... Manager won't register drivers that are not added to this listener.
+            \SocialiteProviders\Apple\AppleExtendSocialite::class . '@handle',
+            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class . '@handle',
+        ],
 
     ];
 

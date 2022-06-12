@@ -27,9 +27,8 @@ class CreatePaymentMethodRequest extends FormRequest
                 $available_methods[] = $method['gateway_type_id'];
             });
 
-        if (in_array($this->query('method'), $available_methods)) {
-            return true;
-        }
+        if (in_array($this->query('method'), $available_methods)) 
+            return true;        
 
         return false;
     }

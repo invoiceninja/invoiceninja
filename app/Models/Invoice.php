@@ -346,7 +346,7 @@ class Invoice extends BaseModel
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
                 break;
             case self::STATUS_UNPAID:
-                return '<h5><span class="badge badge-warning">'.ctrans('texts.unpaid').'</span></h5>';
+                return '<h5><span class="badge badge-warning text-white">'.ctrans('texts.unpaid').'</span></h5>';
                 break;
             case self::STATUS_REVERSED:
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
