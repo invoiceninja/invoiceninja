@@ -4623,7 +4623,10 @@ $LANG = array(
     'purchase_order_message' => 'To view your purchase order for :amount, click the link below.',
     'view_purchase_order' => 'View Purchase Order',
     'purchase_orders_backup_subject' => 'Your purchase orders are ready for download',
-
+    'notification_purchase_order_viewed_subject' => 'Purchase Order :invoice was viewed by :client',
+    'notification_purchase_order_viewed' => 'The following vendor :client viewed Purchase Order :invoice for :amount.',
+    'purchase_order_date' => 'Purchase Order Date',
+    'purchase_orders' => 'Purchase Orders',
 );
 
 return $LANG;
