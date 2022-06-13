@@ -76,13 +76,13 @@ class PurchaseOrdersTable extends Component
         // }
 
         $query = $query
-            ->where('vendor_id', auth()->guard('vendor')->user()->client_id)
+            ->where('vendor_id', auth()->guard('vendor')->user()->vendor_id)
             // ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             // ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
             ->withTrashed()
             ->paginate($this->per_page);
 
-        return render('components.livewire.purchase_orders-table', [
+        return render('components.livewire.purchase-orders-table', [
             'purchase_orders' => $query
         ]);
     }

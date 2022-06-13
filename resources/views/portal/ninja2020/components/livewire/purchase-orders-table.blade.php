@@ -79,19 +79,19 @@
                                 {{ $purchase_order->number }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $purchase_order->translateDate($purchase_order->date, $invoice->company->date_format(), $invoice->company->locale()) }}
+                                {{ $purchase_order->translateDate($purchase_order->date, $purchase_order->company->date_format(), $purchase_order->company->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ App\Utils\Number::formatMoney($purchase_order->amount, $purchase_order->company) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                            {{ App\Utils\Number::formatMoney($purchase_order->balance, $invoice->company) }}
+                            {{ App\Utils\Number::formatMoney($purchase_order->balance, $purchase_order->company) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $purchase_order->translateDate($purchase_order->due_date, $invoice->company->date_format(), $purchase_order->company->locale()) }}
+                                {{ $purchase_order->translateDate($purchase_order->due_date, $purchase_order->company->date_format(), $purchase_order->company->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {!! App\Models\PurchaseOrder::badgeForStatus($purchase_order->status) !!}
+                                {!! App\Models\PurchaseOrder::badgeForStatus($purchase_order->status_id) !!}
                             </td>
                             <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-nowrap">
                                 <a href="{{ route('vendor.purchase_order.show', $purchase_order->hashed_id) }}" class="button-link text-primary">
@@ -111,7 +111,7 @@
         </div>
     </div>
     <div class="flex justify-center mt-6 mb-6 md:justify-between">
-        @if($invoices && $invoices->total() > 0)
+        @if($purchase_orders && $purchase_orders->total() > 0)
             <span class="hidden text-sm text-gray-700 md:block mr-2">
                 {{ ctrans('texts.showing_x_of', ['first' => $purchase_orders->firstItem(), 'last' => $purchase_orders->lastItem(), 'total' => $purchase_orders->total()]) }}
             </span>

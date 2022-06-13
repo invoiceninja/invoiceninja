@@ -4627,6 +4627,8 @@ $LANG = array(
     'notification_purchase_order_viewed' => 'The following vendor :client viewed Purchase Order :invoice for :amount.',
     'purchase_order_date' => 'Purchase Order Date',
     'purchase_orders' => 'Purchase Orders',
+    'purchase_order_number_placeholder' => 'Purchase Order # :purchase_order',
+
 );
 
 return $LANG;

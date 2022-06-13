@@ -123,6 +123,30 @@ class PurchaseOrder extends BaseModel
                 break;
         }
     }
+
+
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
+                break;
+            case self::STATUS_SENT:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                break;
+            case self::STATUS_APPROVED:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.approved').'</span></h5>';
+                break;
+            case self::STATUS_CANCELLED:
+                return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
+
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();

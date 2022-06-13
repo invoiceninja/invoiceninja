@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.app')
+@extends('portal.ninja2020.layout.vendor_app')
 @section('meta_title', ctrans('texts.purchase_orders'))
 
 @section('header')
@@ -20,6 +20,6 @@
             </form>
     </div>
     <div class="flex flex-col mt-4">
-        @livewire('purchase_orders-table', ['company' => $company])
+        @livewire('purchase-orders-table', ['company' => $company])
     </div>
 @endsection

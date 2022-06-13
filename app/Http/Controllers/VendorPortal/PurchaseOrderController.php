@@ -53,7 +53,7 @@ class PurchaseOrderController extends Controller
     public function index(ShowPurchaseOrdersRequest $request)
     {
 
-        return $this->render('purchase_orders.index');
+        return $this->render('purchase_orders.index', ['company' => auth()->user()->company, 'settings' => auth()->user()->company->settings, 'sidebar' => $this->sidebarMenu()]);
     }
 
     /**

@@ -29,5 +29,6 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     Route::get('purchase_orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase_order.show');
 
     Route::get('profile/{vendor_contact}/edit', [PurchaseOrderController::class, 'index'])->name('profile.edit');
+    Route::post('invoices/payment', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
 
 });
