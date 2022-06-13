@@ -135,6 +135,9 @@ class SelfUpdateController extends BaseController
 
         nlog("Extracting zip");
 
+        //clean up old snappdf installations
+        $this->cleanOldSnapChromeBinaries();
+        
         // try{
         //     $s = new Snappdf;
         //     $s->getChromiumPath();
@@ -186,6 +189,21 @@ class SelfUpdateController extends BaseController
         nlog("Called Artisan commands");
 
         return response()->json(['message' => 'Update completed'], 200);
+
+
+    }
+
+    private function cleanOldSnapChromeBinaries()
+    {
+        $current_revision =  base_path('vendor/beganovich/snappdf/versions/revision.txt');
+
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions'), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+                foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+
+                    unlink($file->getPathName());
+
+                }
 
 
     }
