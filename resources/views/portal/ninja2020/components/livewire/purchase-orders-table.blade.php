@@ -121,5 +121,5 @@
 </div>
 
 @push('footer')
-    <script src="{{ asset('js/clients/invoices/action-selectors.js') }}"></script>
+    <script src="{{ asset('js/clients/purchase_orders/action-selectors.js') }}"></script>
 @endpush

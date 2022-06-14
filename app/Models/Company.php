@@ -14,6 +14,7 @@ namespace App\Models;
 use App\DataMapper\CompanySettings;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
+use App\Models\PurchaseOrder;
 use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
@@ -190,6 +191,11 @@ class Company extends BaseModel
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class)->withTrashed();
+    }
+
+    public function purchase_orders()
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
     }
 
     public function task_statuses()

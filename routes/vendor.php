@@ -9,9 +9,12 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+use App\Http\Controllers\Auth\VendorContactLoginController;
 use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('vendor', [VendorContactLoginController::class, 'catch'])->name('vendor.catchall')->middleware(['domain_db', 'contact_account','vendor_locale']); //catch all
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /*Invitation catches*/
@@ -30,5 +33,6 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
     Route::get('profile/{vendor_contact}/edit', [PurchaseOrderController::class, 'index'])->name('profile.edit');
     Route::post('invoices/payment', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
+    Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
 
 });

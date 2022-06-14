@@ -4628,7 +4628,7 @@ $LANG = array(
     'purchase_order_date' => 'Purchase Order Date',
     'purchase_orders' => 'Purchase Orders',
     'purchase_order_number_placeholder' => 'Purchase Order # :purchase_order',
-
+    'accepted' => 'Accepted',
 );
 
 return $LANG;

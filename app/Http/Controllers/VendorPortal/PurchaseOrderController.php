@@ -14,6 +14,7 @@ namespace App\Http\Controllers\VendorPortal;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
 use App\Models\PurchaseOrder;
@@ -115,4 +116,73 @@ class PurchaseOrderController extends Controller
         return $data;
     }
 
+    public function bulk(ProcessPurchaseOrdersInBulkRequest $request)
+    {
+        $transformed_ids = $this->transformKeys($request->purchase_orders);
+
+        if ($request->input('action') == 'download') {
+            return $this->downloadInvoices((array) $transformed_ids);
+        }
+
+        return redirect()
+            ->back()
+            ->with('message', ctrans('texts.no_action_provided'));
+    }
+
+    public function downloadInvoices($ids)
+    {
+
+        $purchase_orders = PurchaseOrder::whereIn('id', $ids)
+                            ->where('vendor_id', auth()->guard('vendor')->user()->vendor_id)
+                            ->withTrashed()
+                            ->get();
+
+        if(count($purchase_orders) == 0)
+            return back()->with(['message' => ctrans('texts.no_items_selected')]);
+
+
+        if(count($purchase_orders) == 1){
+
+           $purchase_order = $purchase_orders->first();
+
+           $file = $purchase_order->service()->getPurchaseOrderPdf(auth()->guard('vendor')->user());
+
+            return response()->streamDownload(function () use($file) {
+                    echo Storage::get($file);
+            },  basename($file), ['Content-Type' => 'application/pdf']);
+        }
+
+        return $this->buildZip($purchase_orders);
+    }
+
+
+    private function buildZip($purchase_orders)
+    {
+        // create new archive
+        $zipFile = new \PhpZip\ZipFile();
+        try{
+            
+            foreach ($purchase_orders as $purchase_order) {
+
+                #add it to the zip
+                $zipFile->addFromString(basename($purchase_order->pdf_file_path()), file_get_contents($purchase_order->pdf_file_path(null, 'url', true)));
+
+            }
+
+            $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.purchase_orders')).'.zip';
+            $filepath = sys_get_temp_dir() . '/' . $filename;
+
+           $zipFile->saveAsFile($filepath) // save the archive to a file
+                   ->close(); // close archive
+                    
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+
+        }
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
+        }
+    }
 }

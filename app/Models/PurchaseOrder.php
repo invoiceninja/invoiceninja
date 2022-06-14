@@ -101,7 +101,7 @@ class PurchaseOrder extends BaseModel
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
-    const STATUS_APPROVED = 3;
+    const STATUS_ACCEPTED = 3;
     const STATUS_CANCELLED = 4;
 
     public static function stringStatus(int $status)
@@ -113,8 +113,8 @@ class PurchaseOrder extends BaseModel
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
                 break;
-            case self::STATUS_APPROVED:
-                return ctrans('texts.approved');
+            case self::STATUS_ACCEPTED:
+                return ctrans('texts.accepted');
                 break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
@@ -134,8 +134,8 @@ class PurchaseOrder extends BaseModel
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
                 break;
-            case self::STATUS_APPROVED:
-                return '<h5><span class="badge badge-primary">'.ctrans('texts.approved').'</span></h5>';
+            case self::STATUS_ACCEPTED:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.accepted').'</span></h5>';
                 break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
