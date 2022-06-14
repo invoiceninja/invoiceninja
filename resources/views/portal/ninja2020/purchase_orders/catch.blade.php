@@ -1,18 +1,11 @@
-@extends('portal.ninja2020.layout.vendor_app')
-@section('meta_title', ctrans('texts.purchase_orders'))
+@extends('portal.ninja2020.layout.clean')
+@section('meta_title', ctrans('texts.vendor'))
 
-@section('header')
-    @if($errors->any())
-        <div class="alert alert-failure mb-4">
-            @foreach($errors->all() as $error)
-            <p>{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
-@endsection
+@component('portal.ninja2020.components.test')
+@endcomponent
 
 @section('body')
-    <div class="flex items-center">
-        <h1>Vendor Portal</h1>
-    </div>
+<div class="flex justify-center items-center h-screen">
+  <h1>Vendor Portal</h1>
+</div>
 @endsection

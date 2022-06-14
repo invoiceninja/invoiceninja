@@ -14,7 +14,7 @@ use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('vendor', [VendorContactLoginController::class, 'catch'])->name('vendor.catchall')->middleware(['domain_db', 'contact_account','vendor_locale']); //catch all
+Route::get('vendors', [VendorContactLoginController::class, 'catch'])->name('vendor.catchall')->middleware(['domain_db', 'contact_account','vendor_locale']); //catch all
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /*Invitation catches*/

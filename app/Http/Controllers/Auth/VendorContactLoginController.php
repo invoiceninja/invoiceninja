@@ -34,12 +34,16 @@ class VendorContactLoginController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('guest:vendor', ['except' => ['logout']]);
+        $this->middleware('guest:vendor', ['except' => ['logout']]);
     }
 
     public function catch()
     {
+        $data = [
+        
+        ];
 
+        return $this->render('purchase_orders.catch');
     }
 
     public function logout()
@@ -47,7 +51,7 @@ class VendorContactLoginController extends Controller
         Auth::guard('vendor')->logout();
         request()->session()->invalidate();
 
-        return redirect('/vendor');
+        return redirect('/vendors');
     }
 
 
