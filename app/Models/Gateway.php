@@ -170,6 +170,11 @@ class Gateway extends StaticModel
                     GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']] // Razorpay
                 ];
                 break;
+            case 59:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']]
+                ];
+                break;
             default:
                 return [];
                 break;
