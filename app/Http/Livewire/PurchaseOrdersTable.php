@@ -62,14 +62,6 @@ class PurchaseOrdersTable extends Component
             $query = $query->whereIn('status_id', array_unique($local_status));
         }
 
-        // if (in_array('overdue', $this->status)) {
-        //     $query = $query->where(function ($query) {
-        //         $query
-        //             ->orWhere('due_date', '<', Carbon::now())
-        //             ->orWhere('partial_due_date', '<', Carbon::now());
-        //     });
-        // }
-
         $query = $query
             ->where('vendor_id', auth()->guard('vendor')->user()->vendor_id)
             // ->where('status_id', '<>', Invoice::STATUS_DRAFT)

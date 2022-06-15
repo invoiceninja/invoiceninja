@@ -18,6 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrderRequest;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ShowPurchaseOrdersRequest;
+use App\Jobs\Invoice\InjectSignature;
 use App\Models\PurchaseOrder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
@@ -148,6 +149,10 @@ class PurchaseOrderController extends Controller
                                                        ->setStatus(PurchaseOrder::STATUS_ACCEPTED)
                                                        ->save();
 
+                                        if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
+                                            InjectSignature::dispatch($purchase_order, request()->signature);
+                                        }
+                                        
                                         event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
 
         });
