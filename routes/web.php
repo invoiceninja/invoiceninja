@@ -45,3 +45,10 @@ Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'G
 Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Mollie3dsController@index')->middleware('domain_db')->name('mollie.3ds_redirect');
 Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\GoCardlessController@ibpRedirect')->middleware('domain_db')->name('gocardless.ibp_redirect');
 Route::get('.well-known/apple-developer-merchantid-domain-association', 'ClientPortal\ApplePayDomainController@showAppleMerchantId');
+
+Route::get('twocheckout/3ds_return', function(\App\Http\Requests\Request $request){
+    dd($request);
+})->name('two_checkout.3ds_return');
+Route::get('twocheckout/3ds_cancel', function(\App\Http\Requests\Request $request){
+    dd($request);
+})->name('two_checkout.3ds_cancel');
