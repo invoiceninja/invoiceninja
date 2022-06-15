@@ -116,7 +116,8 @@ class Activity extends StaticModel
     const RESTORE_PURCHASE_ORDER = 134;
     const EMAIL_PURCHASE_ORDER = 135; 
     const VIEW_PURCHASE_ORDER = 136;
-
+    const ACCEPT_PURCHASE_ORDER = 137;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\VendorPortal;
 
 use App\Events\Misc\InvitationWasViewed;
+use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VendorPortal\PurchaseOrders\ProcessPurchaseOrdersInBulkRequest;
@@ -138,12 +139,26 @@ class PurchaseOrderController extends Controller
         $purchase_orders = PurchaseOrder::query()
                                         ->whereIn('id', $this->transformKeys($data['purchase_orders']))
                                         ->where('company_id', auth()->guard('vendor')->user()->vendor->company_id)
-                                        ->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT]);
+                                        ->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
+                                        ->cursor()->each(function ($purchase_order){
 
-        $purchase_orders->update(['status_id' => PurchaseOrder::STATUS_ACCEPTED]);
+                                        $purchase_order->service()
+                                                       ->markSent()
+                                                       ->applyNumber()
+                                                       ->setStatus(PurchaseOrder::STATUS_ACCEPTED)
+                                                       ->save();
 
-        if($purchase_orders->count() == 1) 
-            return redirect()->route('vendor.purchase_order.show', ['purchase_order' => $purchase_orders->first()->hashed_id]);
+                                        event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
+
+        });
+
+        if(count($data['purchase_orders']) == 1){ 
+
+            $purchase_order = PurchaseOrder::whereIn('id', $this->transformKeys($data['purchase_orders']))->first();
+            
+            return redirect()->route('vendor.purchase_order.show', ['purchase_order' => $purchase_order->hashed_id]);
+        
+        }
         else
             return redirect()->route('vendor.purchase_orders.index');
 

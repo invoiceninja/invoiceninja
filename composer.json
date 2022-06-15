@@ -11,7 +11,12 @@
         "Credit card billing",
         "projects",
         "tasks",
-        "freelancer"
+        "freelancer",
+        "quotes",
+        "purchase orders",
+        "stripe billing",
+        "invoices",
+        "subscriptions"
     ],
     "license": "Elastic License",
     "authors": [

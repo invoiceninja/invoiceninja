@@ -46,22 +46,17 @@ class PurchaseOrdersTable extends Component
         $query = PurchaseOrder::query()
             ->with('vendor.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->whereIn('status_id', [PurchaseOrder::STATUS_SENT, PurchaseOrder::STATUS_ACCEPTED])
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false);
 
-        // if (in_array('paid', $this->status)) {
-        //     $local_status[] = Invoice::STATUS_PAID;
-        // }
+        if (in_array('sent', $this->status)) {
+            $local_status[] = PurchaseOrder::STATUS_SENT;
+        }
 
-        // if (in_array('unpaid', $this->status)) {
-        //     $local_status[] = Invoice::STATUS_SENT;
-        //     $local_status[] = Invoice::STATUS_PARTIAL;
-        // }
-
-        // if (in_array('overdue', $this->status)) {
-        //     $local_status[] = Invoice::STATUS_SENT;
-        //     $local_status[] = Invoice::STATUS_PARTIAL;
-        // }
+        if (in_array('accepted', $this->status)) {
+            $local_status[] = PurchaseOrder::STATUS_ACCEPTED;
+        }
 
         if (count($local_status) > 0) {
             $query = $query->whereIn('status_id', array_unique($local_status));

@@ -11,16 +11,12 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model="status" value="paid" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
-                <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_paid') }}</label>
+                <input wire:model="status" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="paid-checkbox">
+                <label for="paid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_sent') }}</label>
             </div>
             <div class="mr-3">
-                <input wire:model="status" value="unpaid" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
-                <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_unpaid') }}</label>
-            </div>
-            <div class="mr-3">
-                <input wire:model="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
-                <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.past_due') }}</label>
+                <input wire:model="status" value="accepted" type="checkbox" class="cursor-pointer form-checkbox" id="unpaid-checkbox">
+                <label for="unpaid-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.accepted') }}</label>
             </div>
         </div>
     </div>

@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
     Route::get('profile/{vendor_contact}/edit', [PurchaseOrderController::class, 'index'])->name('profile.edit');
     Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
-    Route::post('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
+    Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
 
 });
 
