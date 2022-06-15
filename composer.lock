@@ -434,16 +434,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.225.2",
+            "version": "3.225.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "f846724ad842916061127d20da4fe4e129f7d4b8"
+                "reference": "ddfe35918317380245c376a3b2b97b7428135ae1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/f846724ad842916061127d20da4fe4e129f7d4b8",
-                "reference": "f846724ad842916061127d20da4fe4e129f7d4b8",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ddfe35918317380245c376a3b2b97b7428135ae1",
+                "reference": "ddfe35918317380245c376a3b2b97b7428135ae1",
                 "shasum": ""
             },
             "require": {
@@ -451,7 +451,7 @@
                 "ext-json": "*",
                 "ext-pcre": "*",
                 "ext-simplexml": "*",
-                "guzzlehttp/guzzle": "^5.3.3 || ^6.5.6 || ^7.4.3",
+                "guzzlehttp/guzzle": "^5.3.3 || ^6.2.1 || ^7.0",
                 "guzzlehttp/promises": "^1.4.0",
                 "guzzlehttp/psr7": "^1.7.0 || ^2.1.1",
                 "mtdowling/jmespath.php": "^2.6",
@@ -519,9 +519,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.225.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.225.4"
             },
-            "time": "2022-06-10T19:03:26+00:00"
+            "time": "2022-06-14T18:32:31+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2285,16 +2285,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.252.0",
+            "version": "v0.253.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "9941c959f6a1f781e49019b78f453d54554dff73"
+                "reference": "70c62b17f7821526cb52c6f125254dc51f256109"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/9941c959f6a1f781e49019b78f453d54554dff73",
-                "reference": "9941c959f6a1f781e49019b78f453d54554dff73",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/70c62b17f7821526cb52c6f125254dc51f256109",
+                "reference": "70c62b17f7821526cb52c6f125254dc51f256109",
                 "shasum": ""
             },
             "require": {
@@ -2323,22 +2323,22 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.252.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.253.0"
             },
-            "time": "2022-06-06T01:20:11+00:00"
+            "time": "2022-06-13T01:06:12+00:00"
         },
         {
             "name": "google/auth",
-            "version": "v1.21.0",
+            "version": "v1.21.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "73392bad2eb6852eea9084b6bbdec752515cb849"
+                "reference": "aa3b9ca29258ac6347ce3c8937a2418c5d78f840"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/73392bad2eb6852eea9084b6bbdec752515cb849",
-                "reference": "73392bad2eb6852eea9084b6bbdec752515cb849",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/aa3b9ca29258ac6347ce3c8937a2418c5d78f840",
+                "reference": "aa3b9ca29258ac6347ce3c8937a2418c5d78f840",
                 "shasum": ""
             },
             "require": {
@@ -2381,9 +2381,9 @@
             "support": {
                 "docs": "https://googleapis.github.io/google-auth-library-php/main/",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
-                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.21.0"
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.21.1"
             },
-            "time": "2022-04-13T20:35:52+00:00"
+            "time": "2022-05-16T19:34:15+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -6016,16 +6016,16 @@
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v2.6.1",
+            "version": "v2.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "d6e1d5d0fb2458dfdd7018ec2f74be120353a3b9"
+                "reference": "58c3f47f650c94ec05a151692652a868995d2938"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/d6e1d5d0fb2458dfdd7018ec2f74be120353a3b9",
-                "reference": "d6e1d5d0fb2458dfdd7018ec2f74be120353a3b9",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/58c3f47f650c94ec05a151692652a868995d2938",
+                "reference": "58c3f47f650c94ec05a151692652a868995d2938",
                 "shasum": ""
             },
             "require": {
@@ -6079,7 +6079,7 @@
                 "issues": "https://github.com/paragonie/constant_time_encoding/issues",
                 "source": "https://github.com/paragonie/constant_time_encoding"
             },
-            "time": "2022-06-11T00:43:46+00:00"
+            "time": "2022-06-14T06:56:20+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -6815,16 +6815,16 @@
         },
         {
             "name": "pragmarx/google2fa",
-            "version": "8.0.0",
+            "version": "v8.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antonioribeiro/google2fa.git",
-                "reference": "26c4c5cf30a2844ba121760fd7301f8ad240100b"
+                "reference": "80c3d801b31fe165f8fe99ea085e0a37834e1be3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antonioribeiro/google2fa/zipball/26c4c5cf30a2844ba121760fd7301f8ad240100b",
-                "reference": "26c4c5cf30a2844ba121760fd7301f8ad240100b",
+                "url": "https://api.github.com/repos/antonioribeiro/google2fa/zipball/80c3d801b31fe165f8fe99ea085e0a37834e1be3",
+                "reference": "80c3d801b31fe165f8fe99ea085e0a37834e1be3",
                 "shasum": ""
             },
             "require": {
@@ -6861,9 +6861,9 @@
             ],
             "support": {
                 "issues": "https://github.com/antonioribeiro/google2fa/issues",
-                "source": "https://github.com/antonioribeiro/google2fa/tree/8.0.0"
+                "source": "https://github.com/antonioribeiro/google2fa/tree/v8.0.1"
             },
-            "time": "2020-04-05T10:47:18+00:00"
+            "time": "2022-06-13T21:57:56+00:00"
         },
         {
             "name": "predis/predis",
