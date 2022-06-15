@@ -28,6 +28,12 @@ class VendorLocale
     public function handle($request, Closure $next)
     {
 
+        if (auth()->guard('contact')->check()) {
+            auth()->guard('contact')->logout();
+            $request->session()->invalidate();
+        }
+
+
         /*LOCALE SET */
         if ($request->has('lang')) {
             $locale = $request->input('lang');

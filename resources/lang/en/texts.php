@@ -4630,6 +4630,7 @@ $LANG = array(
     'purchase_order_number_placeholder' => 'Purchase Order # :purchase_order',
     'accepted' => 'Accepted',
     'activity_137' => ':contact accepted purchase order :purchase_order',
+    'vendor_information' => 'Vendor Information',
 );
 
 return $LANG;

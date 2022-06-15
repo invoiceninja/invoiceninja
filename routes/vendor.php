@@ -12,6 +12,7 @@
 use App\Http\Controllers\Auth\VendorContactLoginController;
 use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
+use App\Http\Controllers\VendorPortal\VendorContactController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('vendors', [VendorContactLoginController::class, 'catch'])->name('vendor.catchall')->middleware(['domain_db', 'contact_account','vendor_locale']); //catch all
@@ -31,7 +32,9 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     Route::get('purchase_orders', [PurchaseOrderController::class, 'index'])->name('purchase_orders.index');
     Route::get('purchase_orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase_order.show');
 
-    Route::get('profile/{vendor_contact}/edit', [PurchaseOrderController::class, 'index'])->name('profile.edit');
+    Route::get('profile/{vendor_contact}/edit', [VendorContactController::class, 'edit'])->name('profile.edit');
+    Route::put('profile/{vendor_contact}/edit', [VendorContactController::class, 'update'])->name('profile.update');
+
     Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
 
