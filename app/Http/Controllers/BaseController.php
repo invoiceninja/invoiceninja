@@ -172,7 +172,12 @@ class BaseController extends Controller
      */
     public function notFoundClient()
     {
-        abort(404, 'Page not found in client portal.');
+        abort(404, 'Page not found in the client portal.');
+    }
+
+    public function notFoundVendor()
+    {
+        abort(404, 'Page not found in the vendor portal.');
     }
 
     /**

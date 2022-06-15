@@ -118,15 +118,36 @@ class PurchaseOrderController extends Controller
 
     public function bulk(ProcessPurchaseOrdersInBulkRequest $request)
     {
+
         $transformed_ids = $this->transformKeys($request->purchase_orders);
 
         if ($request->input('action') == 'download') {
             return $this->downloadInvoices((array) $transformed_ids);
         }
+        elseif ($request->input('action') == 'accept'){
+            return $this->acceptPurchaseOrder($request->all());
+        }
 
         return redirect()
             ->back()
             ->with('message', ctrans('texts.no_action_provided'));
+    }
+
+    public function acceptPurchaseOrder($data)
+    {
+        $purchase_orders = PurchaseOrder::query()
+                                        ->whereIn('id', $this->transformKeys($data['purchase_orders']))
+                                        ->where('company_id', auth()->guard('vendor')->user()->vendor->company_id)
+                                        ->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT]);
+
+        $purchase_orders->update(['status_id' => PurchaseOrder::STATUS_ACCEPTED]);
+
+        if($purchase_orders->count() == 1) 
+            return redirect()->route('vendor.purchase_order.show', ['purchase_order' => $purchase_orders->first()->hashed_id]);
+        else
+            return redirect()->route('vendor.purchase_orders.index');
+
+
     }
 
     public function downloadInvoices($ids)
