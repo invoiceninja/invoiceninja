@@ -58,7 +58,10 @@ class ZeroCostProduct extends AbstractService
 
             $recurring_invoice->next_send_date = now();
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+            $recurring_invoice->next_send_date = now();
+            $recurring_invoice->next_send_date_client = now();
             $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+            $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
 
             /* Start the recurring service */
             $recurring_invoice->service()
