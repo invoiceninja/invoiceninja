@@ -28,10 +28,14 @@ use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
+use Checkout\CheckoutDefaultSdk;
+use Checkout\CheckoutFourSdk;
+use Checkout\Environment;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Refund;
 use Exception;
+use JmesPath\Env;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -109,7 +113,21 @@ class CheckoutComPaymentDriver extends BaseDriver
             'sandbox' => $this->company_gateway->getConfigField('testMode'),
         ];
 
-        $this->gateway = new CheckoutApi($config['secret'], $config['sandbox'], $config['public']);
+
+        if(strlen($config['secret']) === 35){
+            $builder = CheckoutFourSdk::staticKeys();
+            $builder->setPublicKey($config['public']); // optional, only required for operations related with tokens
+            $builder->setSecretKey($config['secret']);
+            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox(): Environment::production());
+            $this->gateway = $builder->build();
+        }
+        else    {
+            $builder = CheckoutDefaultSdk::staticKeys();
+            $builder->setPublicKey($config['public']); // optional, only required for operations related with tokens
+            $builder->setSecretKey($config['secret']);
+            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox(): Environment::production());
+            $this->gateway = $builder->build();
+        }
 
         return $this;
     }

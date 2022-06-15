@@ -14,17 +14,22 @@ namespace App\PaymentDrivers\CheckoutCom;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Utils\Traits\MakesHash;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\CheckoutAuthorizationException;
+use Checkout\Common\CustomerRequest;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
-use Checkout\Models\Payments\Payment;
-use Checkout\Models\Payments\TokenSource;
+use Checkout\Payments\Four\Request\PaymentRequest;
+use Checkout\Payments\Four\Request\Source\RequestTokenSource;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CreditCard implements MethodInterface
@@ -57,6 +62,23 @@ class CreditCard implements MethodInterface
         return render('gateways.checkout.credit_card.authorize', $data);
     }
 
+    private function getCustomer()
+    {
+        try{
+        
+        $response = $this->checkout->gateway->getCustomersClient()->get($this->checkout->client->present()->email());
+            
+            return $response;
+        }
+        catch(\Exception $e){
+
+            $request = new CustomerRequest();
+            $request->email = $this->checkout->client->present()->email();
+            $request->name = $this->checkout->client->present()->name();
+            return $request;
+        }
+    }
+
     /**
      * Handle authorization for credit card.
      *
@@ -67,29 +89,43 @@ class CreditCard implements MethodInterface
     {
         $gateway_response = \json_decode($request->gateway_response);
 
-        $method = new TokenSource(
-            $gateway_response->token
-        );
+        // $method = new TokenSource(
+        //     $gateway_response->token
+        // );
 
-        $payment = new Payment($method, 'USD');
-        $payment->amount = 100; // $1
-        $payment->reference = '$1 payment for authorization.';
-        $payment->capture = false;
+        // $payment = new Payment($method, 'USD');
+        // $payment->amount = 100; // $1
+        // $payment->reference = '$1 payment for authorization.';
+        // $payment->capture = false;
+
+$customerRequest = $this->getCustomer();
+
+$token_source = new RequestTokenSource();
+$token_source->token = $gateway_response->token;
+
+$request = new PaymentRequest();
+$request->source = $token_source;
+$request->capture = false;
+$request->reference = '$1 payment for authorization.';
+$request->amount = 100;
+$request->currency = $this->checkout->client->getCurrencyCode();
+$request->customer = $customerRequest;
 
         try {
-            $response = $this->checkout->gateway->payments()->request($payment);
+            $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($request);
 
-            if ($response->approved && $response->status === 'Authorized') {
+
+            if ($response['approved'] && $response['status'] === 'Authorized') {
                 $payment_meta = new \stdClass;
-                $payment_meta->exp_month = (string) $response->source['expiry_month'];
-                $payment_meta->exp_year = (string) $response->source['expiry_year'];
-                $payment_meta->brand = (string) $response->source['scheme'];
-                $payment_meta->last4 = (string) $response->source['last4'];
+                $payment_meta->exp_month = (string) $response['source']['expiry_month'];
+                $payment_meta->exp_year = (string) $response['source']['expiry_year'];
+                $payment_meta->brand = (string) $response['source']['scheme'];
+                $payment_meta->last4 = (string) $response['source']['last4'];
                 $payment_meta->type = (int) GatewayType::CREDIT_CARD;
 
                 $data = [
                     'payment_meta' => $payment_meta,
-                    'token' => $response->source['id'],
+                    'token' => $response['source']['id'],
                     'payment_method_id' => GatewayType::CREDIT_CARD,
                 ];
 
@@ -97,11 +133,51 @@ class CreditCard implements MethodInterface
 
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }
-        } catch (CheckoutHttpException $exception) {
-            throw new PaymentFailed(
-                $exception->getMessage()
-            );
+
+
+        } catch (CheckoutApiException $e) {
+            // API error
+            $request_id = $e->request_id;
+            $http_status_code = $e->http_status_code;
+            $error_details = $e->error_details;
+
+        dd($e);
+
+        } catch (CheckoutArgumentException $e) {
+            // Bad arguments
+            dd($e->getMessage());
+        } catch (CheckoutAuthorizationException $e) {
+            // Bad Invalid authorization
+            dd($e->getMessage());
+
         }
+
+        // try {
+        //     $response = $this->checkout->gateway->payments()->request($payment);
+
+        //     if ($response->approved && $response->status === 'Authorized') {
+        //         $payment_meta = new \stdClass;
+        //         $payment_meta->exp_month = (string) $response->source['expiry_month'];
+        //         $payment_meta->exp_year = (string) $response->source['expiry_year'];
+        //         $payment_meta->brand = (string) $response->source['scheme'];
+        //         $payment_meta->last4 = (string) $response->source['last4'];
+        //         $payment_meta->type = (int) GatewayType::CREDIT_CARD;
+
+        //         $data = [
+        //             'payment_meta' => $payment_meta,
+        //             'token' => $response->source['id'],
+        //             'payment_method_id' => GatewayType::CREDIT_CARD,
+        //         ];
+
+        //         $payment_method = $this->checkout->storeGatewayToken($data);
+
+        //         return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
+        //     }
+        // } catch (CheckoutHttpException $exception) {
+        //     throw new PaymentFailed(
+        //         $exception->getMessage()
+        //     );
+        // }
     }
 
     public function paymentView($data)

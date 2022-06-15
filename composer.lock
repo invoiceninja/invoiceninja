@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9278efe297c252de6bc0b5a48540c0b",
+    "content-hash": "6845489fdc254427c4536e22f025ff51",
     "packages": [
         {
             "name": "afosto/yaac",
@@ -741,28 +741,37 @@
         },
         {
             "name": "checkout/checkout-sdk-php",
-            "version": "1.0.19",
+            "version": "2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/checkout/checkout-sdk-php.git",
-                "reference": "c2c323ea2f95f74bff3055c42801e7ce22999791"
+                "reference": "097b862487f7583fd0fab47a08e3dc0800f5c3e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/c2c323ea2f95f74bff3055c42801e7ce22999791",
-                "reference": "c2c323ea2f95f74bff3055c42801e7ce22999791",
+                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/097b862487f7583fd0fab47a08e3dc0800f5c3e4",
+                "reference": "097b862487f7583fd0fab47a08e3dc0800f5c3e4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "ext-fileinfo": "*",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^6.5 || ^7.4",
+                "monolog/monolog": "^1.27 || ^2.4",
+                "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^6"
+                "mockery/mockery": "^1.3 || ^1.4",
+                "phpstan/phpstan": "^1.2",
+                "phpunit/phpunit": "^5.7 || ^9.0",
+                "smgladkovskiy/phpcs-git-pre-commit": "dev-master",
+                "squizlabs/php_codesniffer": "^3.3",
+                "symfony/phpunit-bridge": "^5.2 || ^6.0"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Checkout\\": "src/"
+                    "Checkout\\": "lib/Checkout"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -772,7 +781,7 @@
             "authors": [
                 {
                     "name": "Checkout.com",
-                    "email": "platforms@checkout.com",
+                    "email": "integrations@checkout.com",
                     "homepage": "https://github.com/checkout/checkout-sdk-php/graphs/contributors"
                 }
             ],
@@ -794,9 +803,9 @@
             ],
             "support": {
                 "issues": "https://github.com/checkout/checkout-sdk-php/issues",
-                "source": "https://github.com/checkout/checkout-sdk-php/tree/1.0.19"
+                "source": "https://github.com/checkout/checkout-sdk-php/tree/2.5.1"
             },
-            "time": "2021-11-19T15:08:38+00:00"
+            "time": "2022-06-13T00:23:23+00:00"
         },
         {
             "name": "cleverit/ubl_invoice",
