@@ -44,16 +44,20 @@ class Checkout3dsRequest extends FormRequest
 
     public function getCompanyGateway()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
+
         return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     public function getPaymentHash()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
+
         return PaymentHash::where('hash', $this->hash)->first();
     }
 
     public function getClient()
     {
-        return Client::find($this->getPaymentHash()->data->client_id);
+        return Client::withTrashed()->find($this->getPaymentHash()->data->client_id);
     }
 }

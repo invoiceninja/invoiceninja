@@ -28,6 +28,9 @@ use App\PaymentDrivers\CheckoutCom\CreditCard;
 use App\PaymentDrivers\CheckoutCom\Utilities;
 use App\Utils\Traits\SystemLogTrait;
 use Checkout\CheckoutApi;
+use Checkout\CheckoutApiException;
+use Checkout\CheckoutArgumentException;
+use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
 use Checkout\Environment;
@@ -35,7 +38,12 @@ use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Refund;
 use Exception;
-use JmesPath\Env;
+use Checkout\Payments\Four\Request\PaymentRequest;
+use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
+use Checkout\Payments\PaymentRequest as PaymentsPaymentRequest;
+use Checkout\Payments\Source\RequestIdSource;
+use Checkout\Common\CustomerRequest;
+use Checkout\Payments\RefundRequest;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -142,9 +150,6 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function viewForType($gateway_type_id)
     {
-        // At the moment Checkout.com payment
-        // driver only supports payments using credit card.
-
         return 'gateways.checkout.credit_card.pay';
     }
 
@@ -232,30 +237,104 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $checkout_payment = new Refund($payment->transaction_reference);
+        $request = new RefundRequest();
+        $request->reference = "{$payment->transaction_reference} " . now();
+        $request->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
 
         try {
-            $refund = $this->gateway->payments()->refund($checkout_payment);
-            $checkout_payment = $this->gateway->payments()->details($refund->id);
-
-            $response = ['refund_response' => $refund, 'checkout_payment_fetch' => $checkout_payment];
+            // or, refundPayment("payment_id") for a full refund
+            $response = $this->gateway->getPaymentsClient()->refundPayment($payment->transaction_reference, $request);
 
             return [
-                'transaction_reference' => $refund->action_id,
+                'transaction_reference' => $response['action_id'],
                 'transaction_response' => json_encode($response),
-                'success' => $checkout_payment->status == 'Refunded',
-                'description' => $checkout_payment->status,
-                'code' => $checkout_payment->http_code,
+                'success' => true,
+                'description' => $response['reference'],
+                'code' => 202,
             ];
-        } catch (CheckoutHttpException $e) {
-            return [
-                'transaction_reference' => null,
-                'transaction_response' => json_encode($e->getMessage()),
-                'success' => false,
-                'description' => $e->getMessage(),
-                'code' => $e->getCode(),
-            ];
+
+        } catch (CheckoutApiException $e) {
+            // API error
+            nlog($e);
+            $request_id = $e->request_id;
+            $http_status_code = $e->http_status_code;
+            $error_details = $e->error_details;
+        } catch (CheckoutArgumentException $e) {
+            // Bad arguments
+            nlog($e);
+        } catch (CheckoutAuthorizationException $e) {
+            // Bad Invalid authorization
+            nlog($e);
         }
+
+
+
+        // $checkout_payment = new Refund($payment->transaction_reference);
+
+        // // try {
+        // //     $refund = $this->gateway->payments()->refund($checkout_payment);
+        // //     $checkout_payment = $this->gateway->payments()->details($refund->id);
+
+        // //     $response = ['refund_response' => $refund, 'checkout_payment_fetch' => $checkout_payment];
+
+        // //     return [
+        // //         'transaction_reference' => $refund->action_id,
+        // //         'transaction_response' => json_encode($response),
+        // //         'success' => $checkout_payment->status == 'Refunded',
+        // //         'description' => $checkout_payment->status,
+        // //         'code' => $checkout_payment->http_code,
+        // //     ];
+        // // } catch (CheckoutApiException $e) {
+        // //     return [
+        // //         'transaction_reference' => null,
+        // //         'transaction_response' => json_encode($e->getMessage()),
+        // //         'success' => false,
+        // //         'description' => $e->getMessage(),
+        // //         'code' => $e->getCode(),
+        // //     ];
+        // // }
+    }
+
+    public function getCustomer()
+    {
+        try{
+        
+        $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
+            
+            return $response;
+        }
+        catch(\Exception $e){
+
+            $request = new CustomerRequest();
+            $request->email = $this->client->present()->email();
+            $request->name = $this->client->present()->name();
+            return $request;
+        }
+    }
+
+    public function bootTokenRequest($token)
+    {
+
+        if($this->is_four_api){
+
+            $token_source = new SourceRequestIdSource();
+            $token_source->id = $token;
+            $request = new PaymentRequest();
+            $request->source = $token_source;
+
+
+        }
+        else {
+
+            $token_source = new RequestIdSource();
+            $token_source->id = $token;
+            $request = new PaymentsPaymentRequest();
+            $request->source = $token_source;
+
+        }
+
+        return $request;
+
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -265,27 +344,29 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $this->init();
 
-        $method = new IdSource($cgt->token);
-
-        $payment = new \Checkout\Models\Payments\Payment($method, $this->client->getCurrencyCode());
-        $payment->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        $payment->reference = $invoice->number . '-' . now();
+        $paymentRequest = $this->bootTokenRequest($cgt->token);
+        $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
+        $paymentRequest->reference = '#' . $invoice->number . ' - ' . now();
+        $paymentRequest->customer = $this->getCustomer();
+        $paymentRequest->metadata = ['udf1' => "Invoice Ninja"];
+        $paymentRequest->currency = $this->client->getCurrencyCode();
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
 
         try {
-            $response = $this->gateway->payments()->request($payment);
+            // $response = $this->gateway->payments()->request($payment);
+            $response = $this->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
-            if ($response->status == 'Authorized') {
+            if ($response['status'] == 'Authorized') {
                 $this->confirmGatewayFee($request);
 
                 $data = [
-                    'payment_method' => $response->source['id'],
-                    'payment_type' => PaymentType::parseCardType(strtolower($response->source['scheme'])),
+                    'payment_method' => $response['source']['id'],
+                    'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'])),
                     'amount' => $amount,
-                    'transaction_reference' => $response->id,
+                    'transaction_reference' => $response['id'],
                 ];
 
                 $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
@@ -301,10 +382,10 @@ class CheckoutComPaymentDriver extends BaseDriver
                 return $payment;
             }
 
-            if ($response->status == 'Declined') {
+            if ($response['status'] == 'Declined') {
                 $this->unWindGatewayFees($payment_hash);
 
-                $this->sendFailureMail($response->status . " " . $response->response_summary);
+                $this->sendFailureMail($response['status'] . " " . $response['response_summary']);
 
                 $message = [
                     'server_response' => $response,
@@ -321,11 +402,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 return false;
             }
-        } catch (Exception | CheckoutHttpException $e) {
+        } catch (Exception | CheckoutApiException $e) {
             $this->unWindGatewayFees($payment_hash);
-            $message = $e instanceof CheckoutHttpException
-                ? $e->getBody()
-                : $e->getMessage();
+            $message = $e->getMessage();
 
             $data = [
                 'status' => '',
@@ -355,20 +434,21 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
     {
+
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
 
         try {
-            $payment = $this->gateway->payments()->details(
+            $payment = $this->gateway->getPaymentsClient()->getPaymentDetails(
                 $request->query('cko-session-id')
             );
 
-            if ($payment->approved) {
+            if ($payment['approved']) {
                 return $this->processSuccessfulPayment($payment);
             } else {
                 return $this->processUnsuccessfulPayment($payment);
             }
-        } catch (CheckoutHttpException | Exception $e) {
+        } catch (CheckoutApiException | Exception $e) {
             return $this->processInternallyFailedPayment($this, $e);
         }
     }

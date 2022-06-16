@@ -117,10 +117,11 @@ trait Utilities
 
     private function processPendingPayment($_payment)
     {
+
         try {
-            return redirect($_payment['links']['redirect']['href']);
+            return redirect($_payment['_links']['redirect']['href']);
         } catch (Exception $e) {
-            return $this->processInternallyFailedPayment($this->getParent(), $e);
+            return $this->getParent()->processInternallyFailedPayment($this->getParent(), $e);
         }
     }
 
@@ -128,15 +129,15 @@ trait Utilities
     {
         try {
             $payment_meta = new stdClass;
-            $payment_meta->exp_month = (string) $response->source['expiry_month'];
-            $payment_meta->exp_year = (string) $response->source['expiry_year'];
-            $payment_meta->brand = (string) $response->source['scheme'];
-            $payment_meta->last4 = (string) $response->source['last4'];
+            $payment_meta->exp_month = (string) $response['source']['expiry_month'];
+            $payment_meta->exp_year = (string) $response['source']['expiry_year'];
+            $payment_meta->brand = (string) $response['source']['scheme'];
+            $payment_meta->last4 = (string) $response['source']['last4'];
             $payment_meta->type = (int) GatewayType::CREDIT_CARD;
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $response->source['id'],
+                'token' => $response['source']['id'],
                 'payment_method_id' => $this->getParent()->payment_hash->data->payment_method_id,
             ];
 
