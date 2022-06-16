@@ -56,6 +56,8 @@ class CheckoutComPaymentDriver extends BaseDriver
     /* Authorise payment methods */
     public $can_authorise_credit_card = true;
 
+    public $is_four_api = false;
+
     /**
      * @var CheckoutApi;
      */
@@ -114,7 +116,8 @@ class CheckoutComPaymentDriver extends BaseDriver
         ];
 
 
-        if(strlen($config['secret']) === 35){
+        if(strlen($config['secret']) <= 38){
+            $this->is_four_api = true;
             $builder = CheckoutFourSdk::staticKeys();
             $builder->setPublicKey($config['public']); // optional, only required for operations related with tokens
             $builder->setSecretKey($config['secret']);
