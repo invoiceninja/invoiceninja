@@ -203,15 +203,15 @@ class SelfUpdateController extends BaseController
         foreach ($iterator as $file) 
         {
 
-        if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
-        {
-
-            $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
-
-            foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
+            if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
             {
-              unlink($filex->getPathName());
-            }
+
+                $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+                foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
+                {
+                  unlink($filex->getPathName());
+                }
 
             }
 
