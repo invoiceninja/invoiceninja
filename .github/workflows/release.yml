@@ -41,7 +41,6 @@ jobs:
           
       - name: Prepare React FrontEnd
         run: |
-          mkdir public/react
           git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
           cd ui
           git checkout main
