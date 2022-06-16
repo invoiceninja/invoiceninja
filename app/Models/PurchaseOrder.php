@@ -18,6 +18,7 @@ use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -26,6 +27,7 @@ class PurchaseOrder extends BaseModel
 {
     use Filterable;
     use SoftDeletes;
+    use MakesDates;
 
     protected $fillable = [
         'number',
@@ -99,8 +101,51 @@ class PurchaseOrder extends BaseModel
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
-    const STATUS_PARTIAL = 3;
-    const STATUS_APPLIED = 4;
+    const STATUS_ACCEPTED = 3;
+    const STATUS_CANCELLED = 4;
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_SENT:
+                return ctrans('texts.sent');
+                break;
+            case self::STATUS_ACCEPTED:
+                return ctrans('texts.accepted');
+                break;
+            case self::STATUS_CANCELLED:
+                return ctrans('texts.cancelled');
+                break;
+                // code...
+                break;
+        }
+    }
+
+
+    public static function badgeForStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
+                break;
+            case self::STATUS_SENT:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                break;
+            case self::STATUS_ACCEPTED:
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.accepted').'</span></h5>';
+                break;
+            case self::STATUS_CANCELLED:
+                return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
 
     public function assigned_user()
     {

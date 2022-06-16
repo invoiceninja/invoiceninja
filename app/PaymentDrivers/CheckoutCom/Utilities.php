@@ -54,17 +54,18 @@ trait Utilities
         return round($amount * 100);
     }
 
-    private function processSuccessfulPayment(Payment $_payment)
+    private function processSuccessfulPayment($_payment)
     {
+
         if ($this->getParent()->payment_hash->data->store_card) {
             $this->storeLocalPaymentMethod($_payment);
         }
 
         $data = [
-            'payment_method' => $_payment->source['id'],
+            'payment_method' => $_payment['source']['id'],
             'payment_type' => 12,
             'amount' => $this->getParent()->payment_hash->data->raw_value,
-            'transaction_reference' => $_payment->id,
+            'transaction_reference' => $_payment['id'],
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 
@@ -82,15 +83,15 @@ trait Utilities
         return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
     }
 
-    public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
+    public function processUnsuccessfulPayment($_payment, $throw_exception = true)
     {
 
         $error_message = '';
 
-        if(property_exists($_payment, 'server_response'))
-            $error_message = $_payment->response_summary;
-        elseif(property_exists($_payment, 'status'))
-            $error_message = $_payment->status;
+        if(array_key_exists('response_summary',$_payment))
+            $error_message = $_payment['response_summary'];
+        elseif(array_key_exists('status',$_payment))
+            $error_message = $_payment['status'];
 
         $this->getParent()->sendFailureMail($error_message);
                 
@@ -110,36 +111,37 @@ trait Utilities
 
         if ($throw_exception) {
 
-            throw new PaymentFailed($_payment->status . " " . $error_message, $_payment->http_code);
+            throw new PaymentFailed($_payment['status'] . " " . $error_message, 500);
         }
     }
 
-    private function processPendingPayment(Payment $_payment)
+    private function processPendingPayment($_payment)
     {
+
         try {
-            return redirect($_payment->_links['redirect']['href']);
+            return redirect($_payment['_links']['redirect']['href']);
         } catch (Exception $e) {
-            return $this->processInternallyFailedPayment($this->getParent(), $e);
+            return $this->getParent()->processInternallyFailedPayment($this->getParent(), $e);
         }
     }
 
-    private function storeLocalPaymentMethod(Payment $response)
+    private function storeLocalPaymentMethod($response)
     {
         try {
             $payment_meta = new stdClass;
-            $payment_meta->exp_month = (string) $response->source['expiry_month'];
-            $payment_meta->exp_year = (string) $response->source['expiry_year'];
-            $payment_meta->brand = (string) $response->source['scheme'];
-            $payment_meta->last4 = (string) $response->source['last4'];
+            $payment_meta->exp_month = (string) $response['source']['expiry_month'];
+            $payment_meta->exp_year = (string) $response['source']['expiry_year'];
+            $payment_meta->brand = (string) $response['source']['scheme'];
+            $payment_meta->last4 = (string) $response['source']['last4'];
             $payment_meta->type = (int) GatewayType::CREDIT_CARD;
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $response->source['id'],
+                'token' => $response['source']['id'],
                 'payment_method_id' => $this->getParent()->payment_hash->data->payment_method_id,
             ];
 
-            return $this->getParent()->storePaymentMethod($data);
+            return $this->getParent()->storePaymentMethod($data, ['gateway_customer_reference' => $response['customer']['id']]);
         } catch (Exception $e) {
             session()->flash('message', ctrans('texts.payment_method_saving_failed'));
         }
