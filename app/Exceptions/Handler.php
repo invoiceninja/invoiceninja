@@ -222,6 +222,9 @@ class Handler extends ExceptionHandler
             case 'user':
                 $login = 'login';
                 break;
+            case 'vendor':
+                $login = 'vendor.catchall';
+                break;
             default:
                 $login = 'default';
                 break;

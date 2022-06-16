@@ -46,7 +46,7 @@ class SetInviteDb
         if($entity == "pay")
             $entity = "invoice";
 
-        if(!in_array($entity, ['invoice','quote','credit','recurring_invoice']))
+        if(!in_array($entity, ['invoice','quote','credit','recurring_invoice','purchase_order']))
             abort(404,'I could not find this resource.');
 
         /* Try and determine the DB from the invitation key STRING*/

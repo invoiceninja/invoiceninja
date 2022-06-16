@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\ModelNotFoundException;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Ninja\EmailQuotaExceeded;
@@ -57,7 +58,7 @@ class Account extends BaseModel
         'utm_content',
         'user_agent',
         'platform',
-        // 'set_react_as_default_ap',
+        'set_react_as_default_ap',
     ];
 
     /**
@@ -75,7 +76,8 @@ class Account extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'onboarding' => 'object'
+        'onboarding' => 'object',
+        'set_react_as_default_ap' => 'bool'
     ];
 
     const PLAN_FREE = 'free';
@@ -88,6 +90,7 @@ class Account extends BaseModel
     const FEATURE_TASKS = 'tasks';
     const FEATURE_EXPENSES = 'expenses';
     const FEATURE_QUOTES = 'quotes';
+    const FEATURE_PURCHASE_ORDERS = 'purchase_orders';
     const FEATURE_CUSTOMIZE_INVOICE_DESIGN = 'custom_designs';
     const FEATURE_DIFFERENT_DESIGNS = 'different_designs';
     const FEATURE_EMAIL_TEMPLATES_REMINDERS = 'template_reminders';
@@ -163,6 +166,7 @@ class Account extends BaseModel
             case self::FEATURE_TASKS:
             case self::FEATURE_EXPENSES:
             case self::FEATURE_QUOTES:
+            case self::FEATURE_PURCHASE_ORDERS:
                 return true;
 
             case self::FEATURE_CUSTOMIZE_INVOICE_DESIGN:
@@ -467,6 +471,16 @@ class Account extends BaseModel
         return false;
 
 
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
 }

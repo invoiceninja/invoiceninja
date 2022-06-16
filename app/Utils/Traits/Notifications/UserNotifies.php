@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 
 /**
@@ -99,7 +100,10 @@ trait UserNotifies
                 break;
             case ($entity instanceof Credit):
                 return array_merge($required_permissions, ["all_notifications","all_user_notifications","credit_created_user","credit_sent_user","credit_viewed_user"]);
-                break;            
+                break;
+            case ($entity instanceof PurchaseOrder):
+                return array_merge($required_permissions, ["all_notifications","all_user_notifications","purchase_order_created_user","purchase_order_sent_user","purchase_order_viewed_user"]);
+                break;      
             default:
                 return [];
                 break;
@@ -122,7 +126,10 @@ trait UserNotifies
                 break;
             case ($entity instanceof Credit):
                 return array_diff($required_permissions, ["all_user_notifications","credit_created_user","credit_sent_user","credit_viewed_user"]);
-                break;            
+                break;
+            case ($entity instanceof PurchaseOrder):
+                return array_diff($required_permissions, ["all_user_notifications","purchase_order_created_user","purchase_order_sent_user","purchase_order_viewed_user"]);
+                break;                
             default:
                 // code...
                 break;

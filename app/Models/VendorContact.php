@@ -73,6 +73,24 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'vendor_id',
     ];
 
+    public function avatar()
+    {
+        if ($this->avatar) {
+            return $this->avatar;
+        }
+
+        return asset('images/svg/user.svg');
+    }
+    
+    public function setAvatarAttribute($value)
+    {
+        if (! filter_var($value, FILTER_VALIDATE_URL) && $value) {
+            $this->attributes['avatar'] = url('/').$value;
+        } else {
+            $this->attributes['avatar'] = $value;
+        }
+    }
+
     public function getEntityType()
     {
         return self::class;

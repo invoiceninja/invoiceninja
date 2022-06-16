@@ -407,12 +407,7 @@ class BaseDriver extends AbstractPaymentDriver
             $this->unWindGatewayFees($this->payment_hash);
         }
 
-        if ($e instanceof CheckoutHttpException) {
-            $error = $e->getBody();
-        } else if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        } else
-            $error = $e->getMessage();
+        $error = $e->getMessage();
 
         if(!$this->payment_hash)
             throw new PaymentFailed($error, $e->getCode());

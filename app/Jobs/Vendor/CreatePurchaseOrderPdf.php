@@ -70,7 +70,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
      *
      * @param $invitation
      */
-    public function __construct($invitation, $disk = 'public')
+    public function __construct($invitation, $disk = null)
     {
         $this->invitation = $invitation;
         $this->company = $invitation->company;
@@ -83,7 +83,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         $this->vendor = $invitation->contact->vendor;
         $this->vendor->load('company');
         
-        $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
+        $this->disk = $disk ?? config('filesystems.default');
 
     }
 

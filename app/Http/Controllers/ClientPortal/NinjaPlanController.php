@@ -154,6 +154,7 @@ class NinjaPlanController extends Controller
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
         $recurring_invoice->due_date_days = 'terms';
         $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
+        $recurring_invoice->next_send_date_client = now()->addDays(14)->format('Y-m-d');
 
         $recurring_invoice->save();
         $r = $recurring_invoice->calc()->getRecurringInvoice();
