@@ -203,20 +203,34 @@ class SelfUpdateController extends BaseController
         foreach ($iterator as $file) 
         {
 
-        if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
-        {
-
-            $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
-
-            foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
+            if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
             {
-              unlink($filex->getPathName());
-            }
 
+                $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+                foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
+                {
+                  unlink($filex->getPathName());
+                }
+
+                $this->deleteDirectory(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()));
             }
 
         }
 
+    }
+
+    private function deleteDirectory($dir) {
+        if (!file_exists($dir)) return true;
+    
+        if (!is_dir($dir) || is_link($dir)) return unlink($dir);
+            foreach (scandir($dir) as $item) {
+                if ($item == '.' || $item == '..') continue;
+                if (!$this->deleteDirectory($dir . "/" . $item)) {
+                    if (!$this->deleteDirectory($dir . "/" . $item)) return false;
+                };
+            }
+            return rmdir($dir);
     }
 
     private function postHookUpdate()

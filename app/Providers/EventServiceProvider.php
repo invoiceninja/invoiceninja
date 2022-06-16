@@ -181,6 +181,7 @@ use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedNotification;
 use App\Listeners\PurchaseOrder\PurchaseOrderArchivedActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderDeletedActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailActivity;
@@ -475,6 +476,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PurchaseOrderWasAccepted::class => [
             PurchaseOrderAcceptedActivity::class,
+            PurchaseOrderAcceptedNotification::class
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,

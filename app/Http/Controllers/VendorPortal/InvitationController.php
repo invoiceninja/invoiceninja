@@ -75,14 +75,13 @@ class InvitationController extends Controller
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
         }
 
-        if (auth()->guard('vendor')->user() && ! request()->has('silent') && ! $invitation->viewed_date) {
+        session()->put('is_silent', request()->has('silent'));
 
-            if(!session()->get('is_silent')){
+        if (auth()->guard('vendor')->user() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
 
-                $invitation->markViewed();
-                event(new InvitationWasViewed($invitation->purchase_order, $invitation, $invitation->company, Ninja::eventVars()));
-            }
-
+            $invitation->markViewed();
+            event(new InvitationWasViewed($invitation->purchase_order, $invitation, $invitation->company, Ninja::eventVars()));
+            
         }
         else{
 

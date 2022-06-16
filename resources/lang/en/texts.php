@@ -4631,6 +4631,8 @@ $LANG = array(
     'accepted' => 'Accepted',
     'activity_137' => ':contact accepted purchase order :purchase_order',
     'vendor_information' => 'Vendor Information',
+    'notification_purchase_order_accepted_subject' => 'Purchase Order :purchase_order was accepted by :vendor',
+    'notification_purchase_order_accepted' => 'The following vendor :vendor accepted Purchase Order :purchase_order for :amount.',
 );
 
 return $LANG;
