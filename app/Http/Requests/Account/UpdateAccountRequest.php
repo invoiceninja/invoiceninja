@@ -26,7 +26,7 @@ class UpdateAccountRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->isAdmin() || auth()->user()->isOwner();
+        return (auth()->user()->isAdmin() || auth()->user()->isOwner()) && (int)$this->account->id === auth()->user()->account_id;
     }
 
     /**
@@ -41,6 +41,7 @@ class UpdateAccountRequest extends Request
         ];
     }
 
+    /* Only allow single field to update account table */
     protected function prepareForValidation()
     {
         $input = $this->all();
