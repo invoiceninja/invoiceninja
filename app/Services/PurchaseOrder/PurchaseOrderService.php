@@ -11,11 +11,12 @@
 
 namespace App\Services\PurchaseOrder;
 
-
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrder\ApplyNumber;
 use App\Services\PurchaseOrder\CreateInvitations;
 use App\Services\PurchaseOrder\GetPurchaseOrderPdf;
+use App\Services\PurchaseOrder\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderService
@@ -62,6 +63,13 @@ class PurchaseOrderService
         return $this;
     }
 
+    public function triggeredActions($request)
+    {
+        $this->purchase_order = (new TriggeredActions($this->purchase_order->load('invitations'), $request))->run();
+
+        return $this;
+    }
+
     public function getPurchaseOrderPdf($contact = null)
     {
         return (new GetPurchaseOrderPdf($this->purchase_order, $contact))->run();
@@ -77,6 +85,34 @@ class PurchaseOrderService
     public function markSent()
     {
         $this->purchase_order = (new MarkSent($this->purchase_order->vendor, $this->purchase_order))->run();
+
+        return $this;
+    }
+
+
+    public function touchPdf($force = false)
+    {
+        try {
+        
+            if($force){
+
+                $this->purchase_order->invitations->each(function ($invitation) {
+                    CreatePurchaseOrderPdf::dispatchNow($invitation);
+                });
+
+                return $this;
+            }
+
+            $this->purchase_order->invitations->each(function ($invitation) {
+                CreatePurchaseOrderPdf::dispatch($invitation);
+            });
+        
+        }
+        catch(\Exception $e){
+
+            nlog("failed creating purchase orders in Touch PDF");
+        
+        }
 
         return $this;
     }

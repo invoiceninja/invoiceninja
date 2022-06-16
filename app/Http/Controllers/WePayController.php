@@ -29,7 +29,7 @@ class WePayController extends BaseController
      */
     public function signup(string $token)
     {
-        return render('gateways.wepay.signup.finished');
+        // return render('gateways.wepay.signup.finished');
 
         $hash = Cache::get($token);
 

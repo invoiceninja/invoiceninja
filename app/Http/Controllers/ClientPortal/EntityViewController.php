@@ -154,9 +154,11 @@ class EntityViewController extends Controller
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
+            if(!session()->get('is_silent'))
+                event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
 
-            $this->fireEntityViewedEvent($invitation, $request->entity_type);
+            if(!session()->get('is_silent'))
+                $this->fireEntityViewedEvent($invitation, $request->entity_type);
         }
         
         return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);

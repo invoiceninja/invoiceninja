@@ -24,6 +24,7 @@ Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], 
 });
 
 Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+    Route::put('accounts/{account}', 'AccountController@update')->name('account.update');
     Route::post('check_subdomain', 'SubdomainController@index')->name('check_subdomain');
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');

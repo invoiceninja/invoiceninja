@@ -19,6 +19,14 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/invoices/action-selectors.js"
     )
     .js(
+        "resources/js/clients/purchase_orders/action-selectors.js",
+        "public/js/clients/purchase_orders/action-selectors.js"
+    )
+    .js(
+        "resources/js/clients/purchase_orders/accept.js",
+        "public/js/clients/purchase_orders/accept.js"
+    )
+    .js(
         "resources/js/clients/invoices/payment.js",
         "public/js/clients/invoices/payment.js"
     )

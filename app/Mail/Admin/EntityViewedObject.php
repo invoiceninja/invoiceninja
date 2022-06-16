@@ -65,7 +65,12 @@ class EntityViewedObject
 
     private function getAmount()
     {
-        return Number::formatMoney($this->entity->amount, $this->entity->client);
+        if($this->entity->client)
+            $currency_entity = $this->entity->client;
+        else
+            $currency_entity = $this->company;
+
+        return Number::formatMoney($this->entity->amount, $currency_entity);
     }
 
     private function getSubject()
@@ -82,7 +87,10 @@ class EntityViewedObject
 
     private function getData()
     {
-        $settings = $this->entity->client->getMergedSettings();
+        if($this->entity->client)
+            $settings = $this->entity->client->getMergedSettings();
+        else
+            $settings = $this->company->settings; 
 
         $data = [
             'title' => $this->getSubject(),
