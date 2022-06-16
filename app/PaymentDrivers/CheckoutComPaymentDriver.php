@@ -255,44 +255,31 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         } catch (CheckoutApiException $e) {
             // API error
-            nlog($e);
             $request_id = $e->request_id;
             $http_status_code = $e->http_status_code;
             $error_details = $e->error_details;
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
-            nlog($e);
+
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode($e->getMessage()),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
-            nlog($e);
+
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode($e->getMessage()),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
         }
 
-
-
-        // $checkout_payment = new Refund($payment->transaction_reference);
-
-        // // try {
-        // //     $refund = $this->gateway->payments()->refund($checkout_payment);
-        // //     $checkout_payment = $this->gateway->payments()->details($refund->id);
-
-        // //     $response = ['refund_response' => $refund, 'checkout_payment_fetch' => $checkout_payment];
-
-        // //     return [
-        // //         'transaction_reference' => $refund->action_id,
-        // //         'transaction_response' => json_encode($response),
-        // //         'success' => $checkout_payment->status == 'Refunded',
-        // //         'description' => $checkout_payment->status,
-        // //         'code' => $checkout_payment->http_code,
-        // //     ];
-        // // } catch (CheckoutApiException $e) {
-        // //     return [
-        // //         'transaction_reference' => null,
-        // //         'transaction_response' => json_encode($e->getMessage()),
-        // //         'success' => false,
-        // //         'description' => $e->getMessage(),
-        // //         'code' => $e->getCode(),
-        // //     ];
-        // // }
     }
 
     public function getCustomer()
