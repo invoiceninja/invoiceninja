@@ -800,7 +800,7 @@ class BaseController extends Controller
 
             $this->buildCache();
 
-            if(config('ninja.react_app_enabled'))
+            if(Ninja::isSelfHost() && $account->set_react_as_default_ap)
                 return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
             else
                 return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);

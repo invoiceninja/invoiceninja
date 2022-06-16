@@ -196,15 +196,26 @@ class SelfUpdateController extends BaseController
     private function cleanOldSnapChromeBinaries()
     {
         $current_revision =  base_path('vendor/beganovich/snappdf/versions/revision.txt');
+        $current_revision_text = file_get_contents($current_revision);
 
-        $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions'), \RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new \DirectoryIterator(base_path('vendor/beganovich/snappdf/versions'));
 
-                foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+        foreach ($iterator as $file) 
+        {
 
-                    unlink($file->getPathName());
+        if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
+        {
 
-                }
+            $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
 
+            foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
+            {
+              unlink($filex->getPathName());
+            }
+
+            }
+
+        }
 
     }
 

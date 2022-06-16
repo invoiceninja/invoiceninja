@@ -57,7 +57,7 @@ class Account extends BaseModel
         'utm_content',
         'user_agent',
         'platform',
-        // 'set_react_as_default_ap',
+        'set_react_as_default_ap',
     ];
 
     /**
@@ -75,7 +75,8 @@ class Account extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'onboarding' => 'object'
+        'onboarding' => 'object',
+        'set_react_as_default_ap' => 'bool'
     ];
 
     const PLAN_FREE = 'free';

@@ -23,9 +23,6 @@ class SetAccountFlagForReact extends Migration
     {
         Illuminate\Support\Facades\Artisan::call('ninja:design-update');
 
-        // Schema::table('accounts', function (Blueprint $table) {
-        //     $table->boolean('set_react_as_default_ap')->default(0);
-        // });
     }
 
     /**
