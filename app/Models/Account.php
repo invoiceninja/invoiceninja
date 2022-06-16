@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\ModelNotFoundException;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Ninja\EmailQuotaExceeded;
@@ -470,6 +471,16 @@ class Account extends BaseModel
         return false;
 
 
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
 }

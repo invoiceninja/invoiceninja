@@ -12,9 +12,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\CompanyUser;
+use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\TruthSource;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -156,5 +158,18 @@ class AccountController extends BaseController
 
 
         return $this->listResponse($ct);
+    }
+
+    public function update(UpdateAccountRequest $request, Account $account)
+    {
+
+        $account->fill($request->all());
+        $account->save();
+
+        $this->entity_type = Account::class;
+
+        $this->entity_transformer = AccountTransformer::class;
+
+        return $this->itemResponse($account);
     }
 }
