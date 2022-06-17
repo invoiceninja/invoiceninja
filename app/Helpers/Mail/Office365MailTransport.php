@@ -12,6 +12,7 @@
 namespace App\Helpers\Mail;
 
 use Illuminate\Mail\Transport\Transport;
+use Illuminate\Support\Str;
 use Swift_Mime_SimpleMessage;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\UploadSession;
@@ -29,8 +30,9 @@ class Office365MailTransport extends Transport
         $this->beforeSendPerformed($message);
 
         $graph = new Graph();
+        $token = $message->getHeaders()->get('GmailToken')->getValue();
 
-        $graph->setAccessToken($this->getAccessToken());
+        $graph->setAccessToken($token);
 
         // Special treatment if the message has too large attachments
         $messageBody = $this->getBody($message, true);
@@ -163,7 +165,7 @@ class Office365MailTransport extends Transport
             //add attachments if any
             $attachments = [];
             foreach ($message->getChildren() as $attachment) {
-                if ($attachment instanceof \Swift_Mime_SimpleMimeEntity) {
+                if ($attachment instanceof \Swift_Mime_SimpleMimeEntity && $attachment->getContentType() != 'text/plain') {
                     $attachments[] = [
                         "@odata.type" => "#microsoft.graph.fileAttachment",
                         "name" => $attachment->getHeaders()->get('Content-Type')->getParameter('name'),
@@ -285,23 +287,4 @@ class Office365MailTransport extends Transport
         );
     }
 
-    protected function getAccessToken()
-    {
-        $guzzle = new \GuzzleHttp\Client();
-        $url = 'https://login.microsoftonline.com/' . config('ninja.o365.tenant_id') . '/oauth2/v2.0/token';
-        $token = json_decode($guzzle->post($url, [
-            'form_params' => [
-                'client_id' => config('ninja.o365.client_id'),
-                'client_secret' => config('ninja.o365.client_secret'),
-                'scope' => 'https://graph.microsoft.com/.default',
-                'grant_type' => 'client_credentials',
-            ],
-        ])->getBody()->getContents());
-
-        nlog($token);
-
-        nlog($token->access_token);
-
-        return $token->access_token;
-    }
 }

@@ -184,10 +184,31 @@ class NinjaMailerJob implements ShouldQueue
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
                 break;
+            case 'office365':
+                $this->mailer = 'office365';
+                $this->setOfficeMailer();
+                break;
             default:
                 break;
         }
 
+    }
+
+    private function setOfficeMailer()
+    {
+        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+
+        $user = User::find($this->decodePrimaryKey($sending_user));
+        $token = $user->oauth_user_token->access_token;
+
+        nlog("Sending via {$user->name()}");
+
+        $this->nmo
+             ->mailable
+             ->from($user->email, $user->name())
+             ->withSwiftMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+             });
     }
 
     private function setGmailMailer()
