@@ -511,7 +511,7 @@ class LoginController extends BaseController
         if($user){
 
             $account = request()->input('account');
-            $email = $user->getMail();
+            $email = $user->getMail() ?: $user->getUserPrincipalName();
 
             $query = [
                 'oauth_user_id' => $account['idToken']['sub'],
@@ -761,7 +761,7 @@ class LoginController extends BaseController
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
     {
-        
+
         $socialite_user = Socialite::driver($provider)->user();
         nlog($socialite_user);
 
