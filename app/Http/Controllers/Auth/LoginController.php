@@ -699,14 +699,14 @@ class LoginController extends BaseController
 
         if($provider == 'microsoft'){
             $scopes = ['email', 'Mail.ReadWrite', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
-            $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
+            $parameters = ['access_type' => 'offline', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
 
-            if(!in_array($provider, ['google']))
+            if(!in_array($provider, ['google','microsoft']))
                 return abort(400, 'Invalid provider');
 
             return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
