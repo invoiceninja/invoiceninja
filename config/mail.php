@@ -73,6 +73,9 @@ return [
         'gmail' => [
             'transport' => 'gmail',
         ],
+        'office365' => [
+            'transport' => 'office365',
+        ],
         'cocopostmark' => [
             'transport' => 'cocopostmark',
         ],

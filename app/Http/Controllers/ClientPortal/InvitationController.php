@@ -80,7 +80,8 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
-        $invitation = $entity_obj::where('key', $invitation_key)
+        $invitation = $entity_obj::withTrashed()
+                                    ->where('key', $invitation_key)
                                     ->whereHas($entity, function ($query) {
                                          $query->where('is_deleted',0);
                                     })
@@ -186,7 +187,8 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
-        $invitation = $entity_obj::where('key', $invitation_key)
+        $invitation = $entity_obj::withTrashed()
+                                    ->where('key', $invitation_key)
                                     ->with('contact.client')
                                     ->firstOrFail();
 
@@ -228,7 +230,8 @@ class InvitationController extends Controller
 
     public function payInvoice(Request $request, string $invitation_key)
     {
-        $invitation = InvoiceInvitation::where('key', $invitation_key)
+        $invitation = InvoiceInvitation::withTrashed()
+                                    ->where('key', $invitation_key)
                                     ->with('contact.client')
                                     ->firstOrFail();
 
