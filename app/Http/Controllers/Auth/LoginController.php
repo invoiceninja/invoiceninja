@@ -514,7 +514,7 @@ class LoginController extends BaseController
             $email = $user->getMail() ?: $user->getUserPrincipalName();
 
             $query = [
-                'oauth_user_id' => $account['idToken']['sub'],
+                'oauth_user_id' => $account['idToken']['oid'],
                 'oauth_provider_id'=> 'microsoft',
             ];
 
@@ -534,7 +534,7 @@ class LoginController extends BaseController
 
                 Auth::login($existing_login_user, true);
 
-                return $this->existingLoginUser($account['idToken']['sub'], 'microsoft');
+                return $this->existingLoginUser($account['idToken']['oid'], 'microsoft');
             }
 
             // Signup!
@@ -543,7 +543,7 @@ class LoginController extends BaseController
                 'last_name' => $user->getSurname() ?: '' ,
                 'password' => '',
                 'email' => $email,
-                'oauth_user_id' => $account['idToken']['sub'],
+                'oauth_user_id' => $account['idToken']['oid'],
                 'oauth_provider_id' => 'microsoft',
             ];
 
