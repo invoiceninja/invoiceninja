@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.4.2',
-    'app_tag' => '5.4.2',
+    'app_version' => '5.4.3',
+    'app_tag' => '5.4.3',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -154,6 +154,11 @@ return [
     ],
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
+    ],
+    'o365' => [
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET', false),
+        'client_id' => env('MICROSOFT_CLIENT_ID', false),
+        'tenant_id' => env('MICROSOFT_TENANT_ID', false),
     ],
     'maintenance' => [
         'delete_pdfs' => env('DELETE_PDF_DAYS', 0),
