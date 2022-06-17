@@ -699,7 +699,7 @@ class LoginController extends BaseController
 
         if($provider == 'microsoft'){
             $scopes = ['email', 'Mail.ReadWrite', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
-            $parameters = ['access_type' => 'offline', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
         }
 
         if (request()->has('code')) {
