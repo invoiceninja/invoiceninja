@@ -213,43 +213,10 @@ class LoginController extends BaseController
                 $user = $user->fresh();
             }
 
-            // $user->setCompany($user->account->default_company);
-            // $this->setLoginCache($user);
-
-            // $cu = CompanyUser::query()
-            //       ->where('user_id', auth()->user()->id);
-
             $cu = $this->hydrateCompanyUser();
 
             if($cu->count() == 0)
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-
-            // $truth = app()->make(TruthSource::class);
-
-            // $truth->setCompanyUser($cu->first());
-            // $truth->setUser(auth()->user());
-            // $truth->setCompany($user->account->default_company);
-
-            // if(!$cu->exists())
-            //     return response()->json(['message' => 'User not linked to any companies'], 403);
-
-            // /* Ensure the user has a valid token */
-            // if($user->company_users()->count() != $user->tokens()->count())
-            // {
-
-            //   $user->companies->each(function($company) use($user, $request){
-
-            //     if(!CompanyToken::where('user_id', $user->id)->where('company_id', $company->id)->exists()){
-
-            //       CreateCompanyToken::dispatchNow($company, $user, $request->server('HTTP_USER_AGENT'));
-
-            //     }
-
-            //   });
-
-            // }
-
-            // $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $user->account->default_company->id)->first());
 
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
