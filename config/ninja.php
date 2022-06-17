@@ -155,6 +155,11 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'o365' => [
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET', false),
+        'client_id' => env('MICROSOFT_CLIENT_ID', false),
+        'tenant_id' => env('MICROSOFT_TENANT_ID', false),
+    ],
     'maintenance' => [
         'delete_pdfs' => env('DELETE_PDF_DAYS', 0),
         'delete_backups' => env('DELETE_BACKUP_DAYS', 0),
