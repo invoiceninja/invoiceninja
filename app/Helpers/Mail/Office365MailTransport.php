@@ -121,10 +121,21 @@ class Office365MailTransport extends Transport
             //definetly send the message
             $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/messages/" . $graphMessage->getId() . "/send")->execute();
         } else {
-            $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/sendmail")
-                ->attachBody($messageBody)
-                ->setReturnType(\Microsoft\Graph\Model\Message::class)
-                ->execute();
+
+            try {
+                $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/sendmail")
+                    ->attachBody($messageBody)
+                    ->setReturnType(\Microsoft\Graph\Model\Message::class)
+                    ->execute();
+            }
+            catch(\Exception $e){
+
+                sleep(5);
+                $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/sendmail")
+                    ->attachBody($messageBody)
+                    ->setReturnType(\Microsoft\Graph\Model\Message::class)
+                    ->execute();
+            }
         }
 
         $this->sendPerformed($message);
