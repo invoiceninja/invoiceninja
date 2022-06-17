@@ -697,6 +697,11 @@ class LoginController extends BaseController
             $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
 
+        if($provider == 'microsoft'){
+            $scopes = ['email', 'Mail.ReadWrite', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
+            $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
+        }
+
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
@@ -710,6 +715,10 @@ class LoginController extends BaseController
 
     public function handleProviderCallback(string $provider)
     {
+
+        if($provider == 'microsoft')
+            return $this->handleMicrosoftProviderCallback();
+
         $socialite_user = Socialite::driver($provider)->user();
 
         $oauth_user_token = '';
@@ -749,4 +758,40 @@ class LoginController extends BaseController
 
         return redirect('/#/');
     }
+
+    public function handleMicrosoftProviderCallback($provider = 'microsoft')
+    {
+        
+        $socialite_user = Socialite::driver($provider)->user();
+        nlog($socialite_user);
+
+        $oauth_user_token = '';
+
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
+
+            nlog('found user and updating their user record');
+            $name = OAuth::splitName($socialite_user->getName());
+
+            $update_user = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'email' => $socialite_user->getEmail(),
+                'oauth_user_id' => $socialite_user->getId(),
+                'oauth_provider_id' => $provider,
+                'oauth_user_token' => $oauth_user_token,
+                'oauth_user_refresh_token' => $socialite_user->refreshToken
+            ];
+
+            $user->update($update_user);
+
+        }
+        else {
+            nlog("user not found for oauth");
+        }
+
+        return redirect('/#/');
+
+    }
+
 }
