@@ -23,6 +23,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyToken;
@@ -363,17 +364,18 @@ class LoginController extends BaseController
         if (request()->input('provider') == 'google') {
             return $this->handleGoogleOauth();
         } elseif (request()->input('provider') == 'microsoft') {
-            if (request()->has('token')) {
-                return $this->handleSocialiteLogin('microsoft', request()->get('token'));
-            } else {
-                $message = 'Bearer token missing for the microsoft login';
-            }
+            // if (request()->has('token')) {
+            //     return $this->handleSocialiteLogin('microsoft', request()->get('token'));
+            // } else {
+            //     $message = 'Bearer token missing for the microsoft login';
+            // }
+            return $this->handleMicrosoftOauth();
         } elseif (request()->input('provider') == 'apple') {
-            if (request()->has('token')) {
-                return $this->handleSocialiteLogin('apple', request()->get('token'));
-            } else {
-                $message = 'Token is missing for the apple login';
-            }
+            // if (request()->has('token')) {
+            //     return $this->handleSocialiteLogin('apple', request()->get('token'));
+            // } else {
+            //     $message = 'Token is missing for the apple login';
+            // }
         }
 
         return response()
@@ -483,6 +485,9 @@ class LoginController extends BaseController
 
         $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
 
+        if($cu->count() == 0)
+            return $cu;
+
         if (CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists())
             $set_company = auth()->user()->account->default_company;
         else {
@@ -518,6 +523,24 @@ class LoginController extends BaseController
         $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
 
         return $cu;
+
+    }
+
+    private function handleMicrosoftOauth()
+    {
+        if(request()->has('accessToken'))
+            $accessToken = request()->input('accessToken');
+        else
+            return response()->json(['message' => 'Invalid response from oauth server'], 400);
+
+        $graph = new Microsoft\Graph();
+        $graph->setAccessToken($accessToken);
+
+        $user = $graph->createRequest("GET", "/me")
+                      ->setReturnType(Microsoft\Graph\Model\User::class)
+                      ->execute();
+
+        nlog($user);
 
     }
 
@@ -599,9 +622,6 @@ class LoginController extends BaseController
 
                 $cu = $this->hydrateCompanyUser();
 
-                // $cu = CompanyUser::query()
-                //                   ->where('user_id', auth()->user()->id);
-
                 if ($cu->count() == 0)
                     return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
@@ -627,6 +647,9 @@ class LoginController extends BaseController
             MultiDB::setDefaultDatabase();
 
             $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
+
+            if(!$account instanceOf Account)
+                return $account;
 
             Auth::login($account->default_company->owner(), true);
             auth()->user()->email_verified_at = now();
