@@ -46,7 +46,8 @@ class InvitationController extends Controller
 
         Auth::logout();
 
-        $invitation = PurchaseOrderInvitation::where('key', $invitation_key)
+        $invitation = PurchaseOrderInvitation::withTrashed()
+                                    ->where('key', $invitation_key)
                                     ->whereHas('purchase_order', function ($query) {
                                          $query->where('is_deleted',0);
                                     })

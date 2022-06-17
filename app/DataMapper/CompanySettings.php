@@ -163,7 +163,7 @@ class CompanySettings extends BaseSettings
     public $require_quote_signature = false;  //@TODO ben to confirm
 
     //email settings
-    public $email_sending_method = 'default'; //enum 'default','gmail' //@implemented
+    public $email_sending_method = 'default'; //enum 'default','gmail','office365' //@implemented
     public $gmail_sending_user_id = '0'; //@implemented
 
     public $reply_to_email = ''; //@implemented

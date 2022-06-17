@@ -374,6 +374,9 @@ class Account extends BaseModel
     public function getDailyEmailLimit()
     {
 
+        if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
+            return 50;
+
         if($this->isPaid()){
             $limit = $this->paid_plan_email_quota;
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;

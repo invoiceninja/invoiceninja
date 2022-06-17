@@ -141,6 +141,8 @@ class PurchaseOrderController extends Controller
                                         ->whereIn('id', $this->transformKeys($data['purchase_orders']))
                                         ->where('company_id', auth()->guard('vendor')->user()->vendor->company_id)
                                         ->whereIn('status_id', [PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_SENT])
+                                        ->where('is_deleted', 0)
+                                        ->withTrashed()
                                         ->cursor()->each(function ($purchase_order){
 
                                         $purchase_order->service()
@@ -159,7 +161,7 @@ class PurchaseOrderController extends Controller
 
         if(count($data['purchase_orders']) == 1){ 
 
-            $purchase_order = PurchaseOrder::whereIn('id', $this->transformKeys($data['purchase_orders']))->first();
+            $purchase_order = PurchaseOrder::withTrashed()->where('is_deleted', 0)->whereIn('id', $this->transformKeys($data['purchase_orders']))->first();
             
             return redirect()->route('vendor.purchase_order.show', ['purchase_order' => $purchase_order->hashed_id]);
         
