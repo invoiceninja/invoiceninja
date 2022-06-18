@@ -116,6 +116,11 @@ class Helpers
 
         $replacements = [
             'literal' => [
+                ':MONTHYEAR' => \sprintf(
+                    '%s %s', 
+                    Carbon::createFromDate(now()->month)->translatedFormat('F'),
+                    now()->year,
+                ),
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
                 ':QUARTER' => 'Q' . now()->quarter,
@@ -139,6 +144,7 @@ class Helpers
                 ),
             ],
             'raw' => [
+                ':MONTHYEAR' => now()->month,
                 ':MONTH' => now()->month,
                 ':YEAR' => now()->year,
                 ':QUARTER' => now()->quarter,
@@ -254,6 +260,18 @@ class Helpers
 
                 if ($matches->keys()->first() == ':MONTH') {
                     $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
+                }
+
+                if ($matches->keys()->first() == ':MONTHYEAR') {
+                    
+                    $final_date = now()->addMonths($output-now()->month);
+
+                    $output =    \sprintf(
+                            '%s %s', 
+                            $final_date->translatedFormat('F'),
+                            $final_date->year,
+                        );
+
                 }
 
                 $value = preg_replace(
