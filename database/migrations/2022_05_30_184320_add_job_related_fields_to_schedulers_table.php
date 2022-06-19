@@ -24,7 +24,7 @@ class AddJobRelatedFieldsToSchedulersTable extends Migration
         Schema::table('schedulers', function (Blueprint $table) {
             $table->string('action_name')->index();
             $table->string('action_class');
-            $table->json('parameters')->nullable();
+            $table->mediumText('parameters')->nullable();
         });
     }
 
