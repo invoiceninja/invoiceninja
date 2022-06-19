@@ -50,6 +50,8 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapContactApiRoutes();
 
+        $this->mapVendorsApiRoutes();
+
         $this->mapClientApiRoutes();
 
         $this->mapShopApiRoutes();
@@ -125,7 +127,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapVendorsApiRoutes()
     {
         Route::prefix('')
-            ->middleware('vendor')
+            ->middleware('client')
             ->namespace($this->namespace)
             ->group(base_path('routes/vendor.php'));
     }

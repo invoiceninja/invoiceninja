@@ -184,10 +184,47 @@ class NinjaMailerJob implements ShouldQueue
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
                 break;
+            case 'office365':
+                $this->mailer = 'office365';
+                $this->setOfficeMailer();
+                break;
             default:
                 break;
         }
 
+    }
+
+    private function setOfficeMailer()
+    {
+        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+
+        $user = User::find($this->decodePrimaryKey($sending_user));
+        
+        nlog("Sending via {$user->name()}");
+
+        $token = $this->refreshOfficeToken($user);
+
+        if($token)
+        {
+            $user->oauth_user_token = $token;
+            $user->save();
+
+        }
+        else {
+
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        
+        }
+
+        $this->nmo
+             ->mailable
+             ->from($user->email, $user->name())
+             ->withSwiftMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+             });
+
+        sleep(rand(1,3));
     }
 
     private function setGmailMailer()
@@ -301,6 +338,27 @@ class NinjaMailerJob implements ShouldQueue
     public function failed($exception = null)
     {
         
+    }
+
+    private function refreshOfficeToken($user)
+    {
+        $guzzle = new \GuzzleHttp\Client(); 
+        $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'; 
+
+        $token = json_decode($guzzle->post($url, [
+            'form_params' => [
+                'client_id' => config('ninja.o365.client_id') ,
+                'client_secret' => config('ninja.o365.client_secret') ,
+                'scope' => 'email Mail.ReadWrite Mail.Send offline_access profile User.Read openid',
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $user->oauth_user_refresh_token
+            ],
+        ])->getBody()->getContents());
+
+        if($token)
+            return $token->access_token;
+
+        return false;
     }
 
 }

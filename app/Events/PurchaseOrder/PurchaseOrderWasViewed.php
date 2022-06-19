@@ -13,6 +13,7 @@ namespace App\Events\PurchaseOrder;
 
 use App\Models\Company;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -25,7 +26,7 @@ class PurchaseOrderWasViewed
     /**
      * @var PurchaseOrder
      */
-    public $purchase_order;
+    public $invitation;
 
     public $company;
 
@@ -38,9 +39,9 @@ class PurchaseOrderWasViewed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(PurchaseOrder $purchase_order, Company $company, array $event_vars)
+    public function __construct(PurchaseOrderInvitation $invitation, Company $company, array $event_vars)
     {
-        $this->purchase_order = $purchase_order;
+        $this->invitation = $invitation;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

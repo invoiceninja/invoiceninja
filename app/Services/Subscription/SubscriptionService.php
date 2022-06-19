@@ -164,6 +164,7 @@ class SubscriptionService
 
         $recurring_invoice = $this->convertInvoiceToRecurring($client_contact->client_id);
         $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
+        $recurring_invoice->next_send_date_client = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->backup = 'is_trial';
 
         if(array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
@@ -620,7 +621,9 @@ class SubscriptionService
             $recurring_invoice = $this->convertInvoiceToRecurring($old_recurring_invoice->client_id);
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
             $recurring_invoice->next_send_date = now()->format('Y-m-d');
+            $recurring_invoice->next_send_date_client = now()->format('Y-m-d');
             $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+            $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
 
             /* Start the recurring service */
             $recurring_invoice->service()
@@ -754,8 +757,9 @@ class SubscriptionService
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
         $recurring_invoice->due_date_days = 'terms';
         $recurring_invoice->next_send_date = now()->format('Y-m-d');
+        $recurring_invoice->next_send_date_client = now()->format('Y-m-d');
         $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
-
+        $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
         return $recurring_invoice;
     }
 

@@ -29,6 +29,7 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
@@ -39,6 +40,7 @@ use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
+use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\RecurringExpenseTransformer;
 use App\Utils\Traits\MakesHash;
 use stdClass;
@@ -95,6 +97,7 @@ class CompanyTransformer extends EntityTransformer
         'task_statuses',
         'subscriptions',
         'recurring_expenses',
+        'purchase_orders',
     ];
 
     /**
@@ -390,5 +393,12 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new SubscriptionTransformer($this->serializer);
 
         return $this->includeCollection($company->subscriptions, $transformer, Subscription::class);
+    }
+
+    public function includePurchaseOrders(Company $company)
+    {
+        $transformer = new PurchaseOrderTransformer($this->serializer);
+
+        return $this->includeCollection($company->purchase_orders, $transformer, PurchaseOrder::class);
     }
 }

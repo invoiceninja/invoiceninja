@@ -10,9 +10,10 @@
  */
 namespace App\Helpers\Mail;
 
-use Illuminate\Mail\MailManager;
 use App\CustomMailDriver\CustomTransport;
+use App\Helpers\Mail\Office365MailTransport;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
+use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Config;
 
 
@@ -21,5 +22,10 @@ class GmailTransportManager extends MailManager
     protected function createGmailTransport()
     {
         return new GmailTransport(new Mail);
+    }
+
+    protected function createOffice365Transport()
+    {
+        return new Office365MailTransport();
     }
 }

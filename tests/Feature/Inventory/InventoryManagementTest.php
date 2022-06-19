@@ -85,27 +85,27 @@ class InventoryManagementTest extends TestCase
         $this->assertEquals(90, $product->in_stock_quantity);
 
 
-        $arr = $response->json();
-        $invoice_hashed_id = $arr['data']['id'];
+        // $arr = $response->json();
+        // $invoice_hashed_id = $arr['data']['id'];
 
-        $invoice_item = new InvoiceItem;
-        $invoice_item->type_id = 1;
-        $invoice_item->product_key = $product->product_key;
-        $invoice_item->notes = $product->notes;
-        $invoice_item->quantity = 5;
-        $invoice_item->cost = 100;
+        // $invoice_item = new InvoiceItem;
+        // $invoice_item->type_id = 1;
+        // $invoice_item->product_key = $product->product_key;
+        // $invoice_item->notes = $product->notes;
+        // $invoice_item->quantity = 5;
+        // $invoice_item->cost = 100;
 
-        $line_items2[] = $invoice_item;
-        $invoice->line_items = $line_items2;
+        // $line_items2[] = $invoice_item;
+        // $invoice->line_items = $line_items2;
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/'.$invoice_hashed_id, $invoice->toArray())
-        ->assertStatus(200);
+        // $response = $this->withHeaders([
+        //     'X-API-SECRET' => config('ninja.api_secret'),
+        //     'X-API-TOKEN' => $this->token,
+        // ])->put('/api/v1/invoices/'.$invoice_hashed_id, $invoice->toArray())
+        // ->assertStatus(200);
 
-        $product = $product->refresh();
+        // $product = $product->refresh();
 
-        $this->assertEquals(95, $product->in_stock_quantity);
+        // $this->assertEquals(95, $product->in_stock_quantity);
     }
 }

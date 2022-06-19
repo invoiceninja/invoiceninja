@@ -88,8 +88,16 @@ class TemplateEmail extends Mailable
 
         $this->from(config('mail.from.address'), $email_from_name);
 
-        if (strlen($settings->bcc_email) > 1)
-            $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
+        if (strlen($settings->bcc_email) > 1){
+
+            if(Ninja::isHosted()){
+                $bccs = explode(",",str_replace(" ", "", $settings->bcc_email));
+                $this->bcc(reset($bccs));//remove whitespace if any has been inserted.
+            }
+            else
+                $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
+
+        }
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.text', [

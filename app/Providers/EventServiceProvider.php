@@ -60,11 +60,12 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
-use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
+use App\Events\PurchaseOrder\PurchaseOrderWasAccepted;
 use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
+use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
 use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
@@ -179,6 +180,8 @@ use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedNotification;
 use App\Listeners\PurchaseOrder\PurchaseOrderArchivedActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderDeletedActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailActivity;
@@ -470,6 +473,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         PurchaseOrderWasViewed::class => [
             PurchaseOrderViewedActivity::class,
+        ],
+        PurchaseOrderWasAccepted::class => [
+            PurchaseOrderAcceptedActivity::class,
+            PurchaseOrderAcceptedNotification::class
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,

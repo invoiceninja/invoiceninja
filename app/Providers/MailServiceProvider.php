@@ -39,7 +39,6 @@ class MailServiceProvider extends MailProvider
             return new GmailTransportManager($app);
         });
 
-
         //this is octane ready - but is untested
         // $this->app->bind('mail.manager', function ($app){
         //     return new GmailTransportManager($app);
