@@ -90,8 +90,10 @@ class TemplateEmail extends Mailable
 
         if (strlen($settings->bcc_email) > 1){
 
-            if(Ninja::isHosted())
-                $this->bcc(reset(explode(",",str_replace(" ", "", $settings->bcc_email))));//remove whitespace if any has been inserted.
+            if(Ninja::isHosted()){
+                $bccs = explode(",",str_replace(" ", "", $settings->bcc_email));
+                $this->bcc(reset($bccs));//remove whitespace if any has been inserted.
+            }
             else
                 $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
 

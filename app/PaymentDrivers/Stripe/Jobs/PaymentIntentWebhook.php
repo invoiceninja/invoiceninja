@@ -118,6 +118,9 @@ class PaymentIntentWebhook implements ShouldQueue
             if(!$payment_hash)
                 return;
 
+            nlog("payment intent");
+            nlog($this->stripe_request);
+
             if(optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']) && in_array('card', $this->stripe_request['object']['allowed_source_types']))
             {
                 nlog("hash found");
