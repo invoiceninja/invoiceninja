@@ -375,7 +375,7 @@ class Account extends BaseModel
     {
 
         if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
-            return 50;
+            return 20;
 
         if($this->isPaid()){
             $limit = $this->paid_plan_email_quota;
