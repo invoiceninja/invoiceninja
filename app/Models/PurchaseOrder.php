@@ -84,7 +84,7 @@ class PurchaseOrder extends BaseModel
         'balance',
         'partial',
         'paid_to_date',
-        'subscription_id',
+        // 'subscription_id',
         'vendor_id',
         'last_viewed'
     ];
