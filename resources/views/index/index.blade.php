@@ -159,10 +159,11 @@
     crossorigin="anonymous">
   </script>
   <script type="text/javascript">
-    if (location.hash.includes("code")) {
-        open(location, '_self').close()
-        window.close()
-    }
+    window.onload = function() {
+      if (location.hash.includes("code")) {
+        new PublicClientApplication("1023b9ce-5b09-4f04-98f8-e1ed85a72332", null, null);
+      }
+    };
   </script>
   
   <center style="padding-top: 150px" id="loader">
