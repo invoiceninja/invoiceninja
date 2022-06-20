@@ -87,7 +87,10 @@ class CreditCard
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
-
+        $amount_with_fee = $payment_hash->data->total->amount_with_fee;
+        $fee_total = ( 3 * $amount_with_fee) / 100;
+        $amount_with_fee = $amount_with_fee + $fee_total;
+        
         try {
             $curl = curl_init();
 
@@ -102,8 +105,8 @@ class CreditCard
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS =>'{
                      "action":"sale", 
-                     "authorization_amount":'.$payment_hash->data->total->amount_with_fee.',
-                     "service_fee_amount":'.$payment_hash->data->total->fee_total.',
+                     "authorization_amount":'.$amount_with_fee.',
+                     "service_fee_amount":'.$fee_total.',
                      "billing_address":{
                         "first_name":"'.$this->forte->client->name.'",
                         "last_name":"'.$this->forte->client->name.'"
