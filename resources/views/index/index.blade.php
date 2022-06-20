@@ -160,7 +160,8 @@
   </script>
   <script type="text/javascript">
     if (location.hash.includes("id_token")) {
-      new PublicClientApplication("1023b9ce-5b09-4f04-98f8-e1ed85a72332", null, null);
+        open(location, '_self').close()
+        window.close()
     }
   </script>
   
