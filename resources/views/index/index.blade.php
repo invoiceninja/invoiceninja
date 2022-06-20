@@ -159,7 +159,7 @@
     crossorigin="anonymous">
   </script>
   <script type="text/javascript">
-    if (location.hash.includes("id_token")) {
+    if (location.hash.includes("code")) {
         open(location, '_self').close()
         window.close()
     }
