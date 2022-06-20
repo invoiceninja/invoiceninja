@@ -152,6 +152,18 @@
 
   <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
 
+
+  <script type="text/javascript" 
+    src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"
+    integrity="sha384-ggh+EF1aSqm+Y4yvv2n17KpurNcZTeYtUZUvhPziElsstmIEubyEB6AIVpKLuZgr"
+    crossorigin="anonymous">
+  </script>
+  <script type="text/javascript">
+    if (location.hash.includes("id_token")) {
+      new PublicClientApplication("1023b9ce-5b09-4f04-98f8-e1ed85a72332", null, null);
+    }
+  </script>
+  
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
   </center>
