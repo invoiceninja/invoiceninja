@@ -159,11 +159,11 @@
     crossorigin="anonymous">
   </script>
   <script type="text/javascript">
-    window.onload = function() {
-      if (location.hash.includes("code")) {
-        new PublicClientApplication("1023b9ce-5b09-4f04-98f8-e1ed85a72332", null, null);
-      }
-    };
+window.onload = function() {
+  if (location.hash.includes("code")) {
+    new msal.PublicClientApplication({auth: {clientId: "1023b9ce-5b09-4f04-98f8-e1ed85a72332"}});
+  }
+};
   </script>
   
   <center style="padding-top: 150px" id="loader">
