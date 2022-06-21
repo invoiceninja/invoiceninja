@@ -44,6 +44,9 @@ class CreditCard implements MethodInterface
         return render('gateways.twocheckout.credit_card.pay', $data);
     }
 
+    /**
+     * @throws \App\Exceptions\PaymentFailed
+     */
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $state = [
@@ -60,24 +63,14 @@ class CreditCard implements MethodInterface
         $this->twoCheckout->payment_hash->data = array_merge((array)$this->twoCheckout->payment_hash->data, $state);
         $this->twoCheckout->payment_hash->save();
 
-        return $this->attemptPaymentUsingCreditCard($request);
+        return $this->completePayment($request);
     }
 
-    private function attemptPaymentUsingCreditCard(PaymentResponseRequest $request)
+
+
+    private function completePayment(PaymentResponseRequest $request)
     {
 
-        $method = new TokenSource(
-            $this->twoCheckout->payment_hash->data->token
-        );
-
-        return $this->completePayment($method, $request);
-    }
-
-    private function completePayment($method, PaymentResponseRequest $request)
-    {
-
-        $payment = new Payment($method, $this->twoCheckout->payment_hash->data->currency);
-        $payment->amount = $this->twoCheckout->payment_hash->data->amount_with_fee;
         //todo set in config instead of hardcode
         $api_url = 'https://api.2checkout.com/rest/6.0/orders';
 
