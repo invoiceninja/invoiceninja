@@ -40,7 +40,7 @@ class RegisterRequest extends FormRequest
                 $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:255']);
             }
 
-            if ($field === 'password') {
+            if ($field === 'current_password') {
                 $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
             }
         }
