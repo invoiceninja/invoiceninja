@@ -98,7 +98,7 @@ class BaseNotification extends Notification
             $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
 
-        return $mail_message->withSwiftMessage(function ($message) {
+        return $mail_message->withSymfonyMessage(function ($message) {
             $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
         });
     }

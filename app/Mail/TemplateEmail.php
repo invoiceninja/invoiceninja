@@ -114,7 +114,7 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ])
-            ->withSwiftMessage(function ($message) use ($company) {
+            ->withSymfonyMessage(function ($message) use ($company) {
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
                 $message->invitation = $this->invitation;
             });

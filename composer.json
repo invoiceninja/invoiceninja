@@ -85,13 +85,13 @@
         "socialiteproviders/microsoft": "^4.1",
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",
-        "symfony/http-client": "^5.2",
+        "symfony/http-client": "^6.0",
         "tijsverkoyen/css-to-inline-styles": "^2.2",
         "turbo124/beacon": "^1.0",
         "turbo124/laravel-gmail": "^5",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wepay/php-sdk": "^0.3",
-        "wildbit/swiftmailer-postmark": "^3.3"
+        "symfony/postmark-mailer": "^6.0"
     },
     "require-dev": {
         "php": "^7.4|^8.0",

@@ -42,7 +42,7 @@ class UserNotificationMailer extends Mailable
                 'body' => $this->mail_obj->data['message'],
             ])
             ->view($this->mail_obj->markdown, $this->mail_obj->data)
-            ->withSwiftMessage(function ($message) {
+            ->withSymfonyMessage(function ($message) {
                 $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
             });
     }

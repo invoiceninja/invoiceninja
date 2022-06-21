@@ -108,7 +108,7 @@ class VendorTemplateEmail extends Mailable
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ])
-            ->withSwiftMessage(function ($message) {
+            ->withSymfonyMessage(function ($message) {
                 $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
                 $message->invitation = $this->invitation;
             });

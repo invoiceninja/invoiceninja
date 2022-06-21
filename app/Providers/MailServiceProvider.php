@@ -28,7 +28,7 @@ class MailServiceProvider extends MailProvider
 
     public function boot()
     {
-        app('mail.manager')->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+        app('mail.manager')->getSymfonyTransport()->registerPlugin($this->app->make(CssInlinerPlugin::class));
     }
 
     protected function registerIlluminateMailer()
