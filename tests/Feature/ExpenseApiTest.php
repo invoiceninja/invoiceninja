@@ -44,7 +44,7 @@ class ExpenseApiTest extends TestCase
     public function testExpensePost()
     {
         $data = [
-            'public_notes' => $this->faker->firstName,
+            'public_notes' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -61,7 +61,7 @@ class ExpenseApiTest extends TestCase
     public function testDuplicateNumberCatch()
     {
         $data = [
-            'public_notes' => $this->faker->firstName,
+            'public_notes' => $this->faker->firstName(),
             'number' => 'iamaduplicate',
         ];
 
@@ -83,7 +83,7 @@ class ExpenseApiTest extends TestCase
     public function testExpensePut()
     {
         $data = [
-            'public_notes' => $this->faker->firstName,
+            'public_notes' => $this->faker->firstName(),
             'number' => 'Coolio',
         ];
 
@@ -192,7 +192,7 @@ class ExpenseApiTest extends TestCase
     public function testAddingExpense()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

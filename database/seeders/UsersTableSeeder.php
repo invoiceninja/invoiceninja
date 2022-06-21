@@ -75,8 +75,8 @@ class UsersTableSeeder extends Seeder
         ]);
 
         ClientContact::create([
-            'first_name' => $faker->firstName,
-            'last_name' => $faker->lastName,
+            'first_name' => $faker->firstName(),
+            'last_name' => $faker->lastName(),
             'email' => config('ninja.testvars.clientname'),
             'company_id' => $company->id,
             'password' => Hash::make(config('ninja.testvars.password')),

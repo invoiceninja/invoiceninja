@@ -137,15 +137,15 @@ class DemoMode extends Command
 
         $settings = $company->settings;
 
-        $settings->name = $faker->company;
-        $settings->address1 = $faker->buildingNumber;
-        $settings->address2 = $faker->streetAddress;
-        $settings->city = $faker->city;
-        $settings->state = $faker->state;
-        $settings->postal_code = $faker->postcode;
-        $settings->website = $faker->url;
+        $settings->name = $faker->company();
+        $settings->address1 = $faker->buildingNumber();
+        $settings->address2 = $faker->streetAddress();
+        $settings->city = $faker->city();
+        $settings->state = $faker->state();
+        $settings->postal_code = $faker->postcode();
+        $settings->website = $faker->url();
         $settings->vat_number = (string) $faker->numberBetween(123456789, 987654321);
-        $settings->phone = (string) $faker->phoneNumber;
+        $settings->phone = (string) $faker->phoneNumber();
 
         $company->settings = $settings;
         $company->save();
@@ -395,7 +395,7 @@ class DemoMode extends Command
         //     $invoice->tax_rate3 = 5;
         // }
 
-        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value1 = $faker->date();
         // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
@@ -462,7 +462,7 @@ class DemoMode extends Command
         //     $invoice->tax_rate3 = 5;
         // }
 
-        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value1 = $faker->date();
         // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();

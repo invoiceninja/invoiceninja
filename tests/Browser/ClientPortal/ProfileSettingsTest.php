@@ -46,10 +46,10 @@ class ProfileSettingsTest extends DuskTestCase
     public function testClientDetailsUpdate()
     {
         $original = [
-            'name' => $this->faker->name,
+            'name' => $this->faker->name(),
             'vat_number' => (string) $this->faker->randomNumber(6),
-            'phone' => $this->faker->phoneNumber,
-            'website' => $this->faker->url,
+            'phone' => $this->faker->phoneNumber(),
+            'website' => $this->faker->url(),
         ];
 
         $this->browse(function (Browser $browser) use ($original) {
@@ -85,10 +85,10 @@ class ProfileSettingsTest extends DuskTestCase
     public function testContactDetailsUpdate()
     {
         $original = [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
             'email_address' => 'user@example.com',
-            'phone' => $this->faker->phoneNumber,
+            'phone' => $this->faker->phoneNumber(),
         ];
 
         $this->browse(function (Browser $browser) use ($original) {
@@ -125,11 +125,11 @@ class ProfileSettingsTest extends DuskTestCase
     public function testBillingAddressUpdate()
     {
         $original = [
-            'street' => $this->faker->streetName,
-            'apt' => $this->faker->streetAddress,
-            'city' => $this->faker->city,
-            'state' => $this->faker->state,
-            'postal_code' => $this->faker->postcode,
+            'street' => $this->faker->streetName(),
+            'apt' => $this->faker->streetAddress(),
+            'city' => $this->faker->city(),
+            'state' => $this->faker->state(),
+            'postal_code' => $this->faker->postcode(),
         ];
 
         $this->browse(function (Browser $browser) use ($original) {
@@ -168,11 +168,11 @@ class ProfileSettingsTest extends DuskTestCase
     public function testShippingAddressUpdate()
     {
         $original = [
-            'street' => $this->faker->streetName,
-            'apt' => $this->faker->streetAddress,
-            'city' => $this->faker->city,
-            'state' => $this->faker->state,
-            'postal_code' => $this->faker->postcode,
+            'street' => $this->faker->streetName(),
+            'apt' => $this->faker->streetAddress(),
+            'city' => $this->faker->city(),
+            'state' => $this->faker->state(),
+            'postal_code' => $this->faker->postcode(),
         ];
 
         $this->browse(function (Browser $browser) use ($original) {

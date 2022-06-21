@@ -56,7 +56,7 @@ class DesignApiTest extends TestCase
         ];
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 
@@ -94,7 +94,7 @@ class DesignApiTest extends TestCase
         $this->assertEquals($this->id, $arr['data']['id']);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 
@@ -137,7 +137,7 @@ class DesignApiTest extends TestCase
         ];
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 

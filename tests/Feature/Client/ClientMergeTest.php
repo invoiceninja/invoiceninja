@@ -56,7 +56,7 @@ class ClientMergeTest extends TestCase
 
         $this->user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail,
+            'email' => $this->faker->safeEmail(),
         ]);
 
         $this->company = Company::factory()->create([
@@ -104,7 +104,7 @@ class ClientMergeTest extends TestCase
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => $this->faker->safeEmail,
+            'email' => $this->faker->safeEmail(),
         ]);
 
         $company = Company::factory()->create([

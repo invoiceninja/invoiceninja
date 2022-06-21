@@ -95,7 +95,7 @@ class RandomDataSeeder extends Seeder
         $account->save();
 
         $user = User::factory()->create([
-            'email'             => $faker->freeEmail,
+            'email'             => $faker->freeEmail(),
             'account_id' => $account->id,
             'confirmation_code' => $this->createDbHash(config('database.default')),
         ]);
@@ -153,8 +153,8 @@ class RandomDataSeeder extends Seeder
         ]);
 
         ClientContact::create([
-            'first_name' => $faker->firstName,
-            'last_name' => $faker->lastName,
+            'first_name' => $faker->firstName(),
+            'last_name' => $faker->lastName(),
             'email' => config('ninja.testvars.username'),
             'company_id' => $company->id,
             'password' => Hash::make(config('ninja.testvars.password')),

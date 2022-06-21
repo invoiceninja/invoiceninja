@@ -55,7 +55,7 @@ class ProjectApiTest extends TestCase
     public function testProjectPost()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'client_id' => $this->client->hashed_id,
             'number' => 'duplicate',
         ];
@@ -111,7 +111,7 @@ class ProjectApiTest extends TestCase
     public function testProjectPut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'public_notes' => 'Coolio',
         ];
 

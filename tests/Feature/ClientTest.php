@@ -305,7 +305,7 @@ class ClientTest extends TestCase
 
         $data = [
             'name' => 'A loyal Client',
-            'contacts' => $this->faker->unique()->safeEmail,
+            'contacts' => $this->faker->unique()->safeEmail(),
         ];
 
         try {
@@ -360,7 +360,7 @@ class ClientTest extends TestCase
         $data = [
             'name' => 'A loyal Client',
             'contacts' => [
-                ['email' => $this->faker->unique()->safeEmail],
+                ['email' => $this->faker->unique()->safeEmail()],
             ],
         ];
 
@@ -376,7 +376,7 @@ class ClientTest extends TestCase
             'name' => 'A loyal Client',
             'contacts' => [
                 [
-                    'email' => $this->faker->unique()->safeEmail,
+                    'email' => $this->faker->unique()->safeEmail(),
                     'password' => '*****',
                 ],
             ],
@@ -392,7 +392,7 @@ class ClientTest extends TestCase
             'name' => 'A loyal Client',
             'contacts' => [
                 [
-                    'email' => $this->faker->unique()->safeEmail,
+                    'email' => $this->faker->unique()->safeEmail(),
                     'password' => '1',
                 ],
             ],
@@ -414,7 +414,7 @@ class ClientTest extends TestCase
             'name' => 'A loyal Client',
             'contacts' => [
                 [
-                    'email' => $this->faker->unique()->safeEmail,
+                    'email' => $this->faker->unique()->safeEmail(),
                     'password' => '1Qajsj...33',
                 ],
             ],
@@ -437,11 +437,11 @@ class ClientTest extends TestCase
             'name' => 'A loyal Client',
             'contacts' => [
                 [
-                    'email' => $this->faker->unique()->safeEmail,
+                    'email' => $this->faker->unique()->safeEmail(),
                     'password' => '1Qajsj...33',
                 ],
                 [
-                    'email' => $this->faker->unique()->safeEmail,
+                    'email' => $this->faker->unique()->safeEmail(),
                     'password' => '1234AAAAAaaaaa',
                 ],
             ],
@@ -472,7 +472,7 @@ class ClientTest extends TestCase
 
         $arr = $response->json();
 
-        $safe_email = $this->faker->unique()->safeEmail;
+        $safe_email = $this->faker->unique()->safeEmail();
 
         $data = [
             'name' => 'A loyal Client',
@@ -506,7 +506,7 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, strlen($contact->password));
 
-        $safe_email = $this->faker->unique()->safeEmail;
+        $safe_email = $this->faker->unique()->safeEmail();
 
         $data = [
             'name' => 'A loyal Client',

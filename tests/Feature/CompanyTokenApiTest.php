@@ -66,7 +66,7 @@ class CompanyTokenApiTest extends TestCase
         $this->withoutMiddleware(PasswordProtection::class);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

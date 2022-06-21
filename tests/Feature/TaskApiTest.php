@@ -74,7 +74,7 @@ class TaskApiTest extends TestCase
     public function testTaskPost()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
             'number' => 'taskynumber',
         ];
 
@@ -113,7 +113,7 @@ class TaskApiTest extends TestCase
     public function testTaskPostNoDefinedTaskNumber()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -129,7 +129,7 @@ class TaskApiTest extends TestCase
     public function testTaskPostWithActionStart()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -144,7 +144,7 @@ class TaskApiTest extends TestCase
     public function testTaskPut()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -238,7 +238,7 @@ class TaskApiTest extends TestCase
     public function testTaskPostWithStartAction()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
             'number' => 'taskynumber2',
         ];
 
@@ -257,7 +257,7 @@ class TaskApiTest extends TestCase
     public function testTaskPostWithStopAction()
     {
         $data = [
-            'description' => $this->faker->firstName,
+            'description' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

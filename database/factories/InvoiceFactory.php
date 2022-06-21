@@ -42,7 +42,7 @@ class InvoiceFactory extends Factory
             'tax_rate2' => 17.5,
             //'tax_name3' => 'THIRDTAX',
             //'tax_rate3' => 5,
-            // 'custom_value1' => $this->faker->date,
+            // 'custom_value1' => $this->faker->date(),
             //'custom_value2' => rand(0, 1) ? 'yes' : 'no',
             // 'custom_value3' => $this->faker->numberBetween(1,4),
             // 'custom_value4' => $this->faker->numberBetween(1,4),

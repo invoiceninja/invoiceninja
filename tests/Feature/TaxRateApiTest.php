@@ -44,7 +44,7 @@ class TaxRateApiTest extends TestCase
 
     public function testTaxRatePost()
     {
-        $rate_name = $this->faker->firstName;
+        $rate_name = $this->faker->firstName();
 
         $data = [
             'name' => $rate_name,
@@ -85,7 +85,7 @@ class TaxRateApiTest extends TestCase
     public function testTaxRatePostWithActionStart()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'rate' => rand(1, 20),
         ];
 
@@ -101,7 +101,7 @@ class TaxRateApiTest extends TestCase
     public function testTaxRatePut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

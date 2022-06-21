@@ -44,7 +44,7 @@ class InvoicesTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);

@@ -37,7 +37,7 @@ class ClientSettingsTest extends TestCase
     public function testClientBaseline()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
         ];
 
@@ -63,7 +63,7 @@ class ClientSettingsTest extends TestCase
     public function testClientValidSettings()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -102,7 +102,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalCurrency()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => 'a',
@@ -132,7 +132,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalLanguage()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -162,7 +162,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalPaymenTerms()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -192,7 +192,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalValidUntil()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -222,7 +222,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalDefaultTaskRate()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -255,7 +255,7 @@ class ClientSettingsTest extends TestCase
     public function testClientIllegalSendReminderBool()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',
@@ -285,7 +285,7 @@ class ClientSettingsTest extends TestCase
     public function testClientSettingBools()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'settings' => [
                 'currency_id' => '1',

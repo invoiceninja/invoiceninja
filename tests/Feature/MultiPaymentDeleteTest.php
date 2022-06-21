@@ -57,7 +57,7 @@ class MultiPaymentDeleteTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '11',
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail(),
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);

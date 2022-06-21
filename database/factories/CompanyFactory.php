@@ -35,9 +35,9 @@ class CompanyFactory extends Factory
     public function definition()
     {
         return [
-            //'name' => $this->faker->name,
+            //'name' => $this->faker->name(),
             'company_key' => strtolower(\Illuminate\Support\Str::random(config('ninja.key_length'))),
-            'ip' => $this->faker->ipv4,
+            'ip' => $this->faker->ipv4(),
             'db' => config('database.default'),
             'settings' => CompanySettings::defaults(),
             'is_large' => false,

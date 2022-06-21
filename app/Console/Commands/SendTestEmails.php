@@ -70,7 +70,7 @@ class SendTestEmails extends Command
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '123',
-            'email' => $faker->safeEmail,
+            'email' => $faker->safeEmail(),
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);

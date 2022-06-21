@@ -31,9 +31,9 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'first_name'        => $this->faker->name,
-            'last_name'         => $this->faker->name,
-            'phone'             => $this->faker->phoneNumber,
+            'first_name'        => $this->faker->name(),
+            'last_name'         => $this->faker->name(),
+            'phone'             => $this->faker->phoneNumber(),
             'email'             => config('ninja.testvars.username'),
             'email_verified_at' => now(),
             'password'          => bcrypt(config('ninja.testvars.password')), // secret

@@ -429,7 +429,7 @@ class CreateSingleAccount extends Command
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value1 = $faker->date();
         $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
@@ -827,7 +827,7 @@ class CreateSingleAccount extends Command
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value1 = $faker->date();
         $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->status_id = RecurringInvoice::STATUS_ACTIVE;

@@ -142,7 +142,7 @@ class FactoryCreationTest extends TestCase
     public function testUserCreate()
     {
         $new_user = UserFactory::create($this->account->id);
-        $new_user->email = $this->faker->freeEmail;
+        $new_user->email = $this->faker->freeEmail();
         $new_user->save();
 
         $this->assertNotNull($new_user);

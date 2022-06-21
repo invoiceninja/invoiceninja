@@ -44,7 +44,7 @@ class TaskStatusApiTest extends TestCase
     public function testTaskStatusPost()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -58,7 +58,7 @@ class TaskStatusApiTest extends TestCase
     public function testTaskStatusPut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

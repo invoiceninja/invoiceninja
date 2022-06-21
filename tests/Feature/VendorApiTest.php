@@ -45,7 +45,7 @@ class VendorApiTest extends TestCase
     public function testAddVendorToInvoice()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -78,7 +78,7 @@ class VendorApiTest extends TestCase
     public function testAddVendorToRecurringInvoice()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -112,7 +112,7 @@ class VendorApiTest extends TestCase
     public function testAddVendorToQuote()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -145,7 +145,7 @@ class VendorApiTest extends TestCase
     public function testAddVendorToCredit()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -178,7 +178,7 @@ class VendorApiTest extends TestCase
     public function testVendorPost()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -192,7 +192,7 @@ class VendorApiTest extends TestCase
     public function testVendorPut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'number' => 'wiggles',
         ];

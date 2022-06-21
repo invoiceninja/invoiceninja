@@ -119,7 +119,7 @@ class EventTest extends TestCase
         ]);
 
         $data = [
-            'public_notes' => $this->faker->firstName,
+            'public_notes' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -131,7 +131,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'public_notes' => $this->faker->firstName,
+            'public_notes' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -174,7 +174,7 @@ class EventTest extends TestCase
         ]);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -186,7 +186,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
         ];
 
@@ -608,7 +608,7 @@ class EventTest extends TestCase
         ]);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -620,7 +620,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
         ];
 
@@ -740,7 +740,7 @@ class EventTest extends TestCase
         ]);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -752,7 +752,7 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([

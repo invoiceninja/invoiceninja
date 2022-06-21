@@ -53,7 +53,7 @@ class ClientApiTest extends TestCase
         ];
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'settings' => $settings,
         ];
 
@@ -77,7 +77,7 @@ class ClientApiTest extends TestCase
     public function testClientLanguageCodeIllegal()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'language_code' => 'not_really_a_VALID-locale',
         ];
@@ -104,7 +104,7 @@ class ClientApiTest extends TestCase
     public function testClientLanguageCodeValidationTrue()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'language_code' => 'de',
         ];
@@ -131,7 +131,7 @@ class ClientApiTest extends TestCase
     public function testClientCountryCodeValidationTrue()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'country_code' => 'AM',
         ];
@@ -154,7 +154,7 @@ class ClientApiTest extends TestCase
     public function testClientNoneValidation()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'number' => '',
         ];
 
@@ -176,7 +176,7 @@ class ClientApiTest extends TestCase
     public function testClientNullValidation()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'number' => null,
         ];
 
@@ -198,7 +198,7 @@ class ClientApiTest extends TestCase
     public function testClientCountryCodeValidationTrueIso3()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'country_code' => 'ARM',
         ];
@@ -221,7 +221,7 @@ class ClientApiTest extends TestCase
     public function testClientCountryCodeValidationFalse()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'country_code' => 'AdfdfdfM',
         ];
@@ -237,7 +237,7 @@ class ClientApiTest extends TestCase
     public function testClientPost()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -251,7 +251,7 @@ class ClientApiTest extends TestCase
     public function testDuplicateNumberCatch()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'number' => 'iamaduplicate',
         ];
 
@@ -273,7 +273,7 @@ class ClientApiTest extends TestCase
     public function testClientPut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
         ];
 
@@ -372,7 +372,7 @@ class ClientApiTest extends TestCase
     public function testClientCurrencyCodeValidationTrue()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'currency_code' => 'USD',
         ];
@@ -388,7 +388,7 @@ class ClientApiTest extends TestCase
     public function testClientCurrencyCodeValidationFalse()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'id_number' => 'Coolio',
             'currency_code' => 'R',
         ];

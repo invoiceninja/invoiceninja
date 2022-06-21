@@ -94,7 +94,7 @@ class ProfitAndLossReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail(),
         ]);
 
         $settings = CompanySettings::defaults();

@@ -57,7 +57,7 @@ class EntityTranslationTest extends TestCase
         ]);
 
         $u = User::factory()->create([
-            'email' => $this->faker->email,
+            'email' => $this->faker->email(),
             'account_id' => $account->id,
         ]);
 

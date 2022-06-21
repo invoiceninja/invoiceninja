@@ -31,11 +31,11 @@ class ClientContactFactory extends Factory
     public function definition()
     {
         return [
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
-            'phone' => $this->faker->phoneNumber,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'phone' => $this->faker->phoneNumber(),
             'email_verified_at' => now(),
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail(),
             'send_email' => true,
             'password' => bcrypt('password'),
             'remember_token' => \Illuminate\Support\Str::random(10),

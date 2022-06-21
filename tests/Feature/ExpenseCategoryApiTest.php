@@ -44,7 +44,7 @@ class ExpenseCategoryApiTest extends TestCase
     public function testExpenseCategoryPost()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
@@ -58,7 +58,7 @@ class ExpenseCategoryApiTest extends TestCase
     public function testExpenseCategoryPut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
