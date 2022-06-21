@@ -33,7 +33,7 @@ Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
 /*
  * Inbound routes requiring DB Lookup
  */
-Route::group(['middleware' => ['url_db']], function () {
+Route::middleware('url_db')->group(function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
     Route::post('/user/confirm/{confirmation_code}', 'UserController@confirmWithPassword');
 });

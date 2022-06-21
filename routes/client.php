@@ -30,7 +30,7 @@ Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\Invitation
 Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['domain_db']);
 Route::post('client/ninja/trial_confirmation', 'ClientPortal\NinjaPlanController@trial_confirmation')->name('client.trial.response')->middleware(['domain_db']);
 
-Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db', 'check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::middleware('auth:contact', 'locale', 'domain_db', 'check_client_existence')->prefix('client')->name('client.')->group(function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('plan', 'ClientPortal\NinjaPlanController@plan')->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
@@ -100,7 +100,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db', 'check_cli
 
 Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');
 
-Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::middleware('invite_db')->prefix('client')->name('client.')->group(function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');
     Route::get('invoice/{invitation_key}', 'ClientPortal\InvitationController@invoiceRouter');

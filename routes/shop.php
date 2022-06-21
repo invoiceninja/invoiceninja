@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['company_key_db', 'locale'], 'prefix' => 'api/v1'], function () {
+Route::middleware('company_key_db', 'locale')->prefix('api/v1')->group(function () {
     Route::get('shop/products', 'Shop\ProductController@index');
     Route::post('shop/clients', 'Shop\ClientController@store');
     Route::post('shop/invoices', 'Shop\InvoiceController@store');
