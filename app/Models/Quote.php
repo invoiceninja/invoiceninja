@@ -91,9 +91,6 @@ class Quote extends BaseModel
         'is_deleted' => 'boolean',
         'is_amount_discount' => 'bool',
     ];
-
-    protected $dates = [];
-
     const STATUS_DRAFT = 1;
 
     const STATUS_SENT = 2;

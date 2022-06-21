@@ -18,8 +18,6 @@ class Project extends BaseModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
     /**
      * @var array
      */

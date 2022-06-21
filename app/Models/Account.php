@@ -65,15 +65,9 @@ class Account extends BaseModel
     /**
      * @var array
      */
-    protected $dates = [
-        'deleted_at',
-        'promo_expires',
-        'discount_expires',
-        // 'trial_started',
-        // 'plan_expires'
-    ];
-
     protected $casts = [
+        'promo_expires' => 'datetime',
+        'discount_expires' => 'datetime',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
