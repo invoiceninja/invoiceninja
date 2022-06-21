@@ -28,50 +28,42 @@ class QuotesTable extends Component
     public $status = [];
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
-
     }
 
     public function render()
     {
         $query = Quote::query()
-            ->with('client.gateway_tokens','company','client.contacts')
+            ->with('client.gateway_tokens', 'company', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {
-            
+
             /* Special filter for expired*/
-            if(in_array("-1", $this->status)){
+            if (in_array('-1', $this->status)) {
                 // $query->whereDate('due_date', '<=', now()->startOfDay());
-    
-                $query->where(function ($query){
+
+                $query->where(function ($query) {
                     $query->whereDate('due_date', '<=', now()->startOfDay())
                           ->whereNotNull('due_date')
                           ->where('status_id', '<>', Quote::STATUS_CONVERTED);
                 });
-
             }
-            
-            if(in_array("2", $this->status)){
 
-                $query->where(function ($query){
+            if (in_array('2', $this->status)) {
+                $query->where(function ($query) {
                     $query->whereDate('due_date', '>=', now()->startOfDay())
                           ->orWhereNull('due_date');
                 })->where('status_id', Quote::STATUS_SENT);
-            
             }
 
-            if(in_array("3", $this->status)){
+            if (in_array('3', $this->status)) {
                 $query->whereIn('status_id', [Quote::STATUS_APPROVED, Quote::STATUS_CONVERTED]);
             }
-
-
         }
-
-
 
         $query = $query
             ->where('company_id', $this->company->id)

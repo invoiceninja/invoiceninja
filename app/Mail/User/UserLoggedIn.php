@@ -50,9 +50,9 @@ class UserLoggedIn extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.new_login_detected'))
-            ->text('email.admin.generic_text',[
+            ->text('email.admin.generic_text', [
                 'title' => ctrans('texts.new_login_detected'),
-                'body' => strip_tags(ctrans('texts.new_login_description', ['email' => $this->user->email, 'ip' => $this->ip, 'time' => now()]))
+                'body' => strip_tags(ctrans('texts.new_login_description', ['email' => $this->user->email, 'ip' => $this->ip, 'time' => now()])),
             ])
             ->view('email.admin.notification')
             ->with([

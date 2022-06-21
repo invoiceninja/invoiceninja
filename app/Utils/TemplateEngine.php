@@ -54,6 +54,7 @@ class TemplateEngine
     private $raw_body;
 
     private $raw_subject;
+
     /**
      * @var array
      */
@@ -141,7 +142,7 @@ class TemplateEngine
     private function replaceValues()
     {
         $this->raw_body = $this->body;
-        $this->raw_subject  = $this->subject;
+        $this->raw_subject = $this->subject;
 
         if ($this->entity_obj) {
             $this->entityValues($this->entity_obj->client->primary_contact()->first());
@@ -214,13 +215,11 @@ class TemplateEngine
             } else {
                 $wrapper = '';
             }
-        }
-        elseif ($email_style == 'plain') {
+        } elseif ($email_style == 'plain') {
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
             $injection = '';
             $wrapper = str_replace('<head>', $injection, $wrapper);
-        }
-        else {
+        } else {
             $wrapper = view($this->getTemplatePath('client'), $data)->render();
             $injection = '';
             $wrapper = str_replace('<head>', $injection, $wrapper);
@@ -231,7 +230,7 @@ class TemplateEngine
             'body' => $this->body,
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
-            'raw_subject' => $this->raw_subject
+            'raw_subject' => $this->raw_subject,
         ];
 
         $this->tearDown();
@@ -244,48 +243,45 @@ class TemplateEngine
         DB::connection(config('database.default'))->beginTransaction();
 
         $client = Client::factory()->create([
-                'user_id' => auth()->user()->id,
-                'company_id' => auth()->user()->company()->id,
-            ]);
+            'user_id' => auth()->user()->id,
+            'company_id' => auth()->user()->company()->id,
+        ]);
 
         $contact = ClientContact::factory()->create([
+            'user_id' => auth()->user()->id,
+            'company_id' => auth()->user()->company()->id,
+            'client_id' => $client->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
+
+        if (! $this->entity || $this->entity == 'invoice') {
+            $this->entity_obj = Invoice::factory()->create([
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
                 'client_id' => $client->id,
-                'is_primary' => 1,
-                'send_email' => true,
             ]);
 
-
-        if(!$this->entity || $this->entity == 'invoice')
-        {
-            $this->entity_obj = Invoice::factory()->create([
-                        'user_id' => auth()->user()->id,
-                        'company_id' => auth()->user()->company()->id,
-                        'client_id' => $client->id,
-                    ]);
-
             $invitation = InvoiceInvitation::factory()->create([
-                        'user_id' => auth()->user()->id,
-                        'company_id' => auth()->user()->company()->id,
-                        'invoice_id' => $this->entity_obj->id,
-                        'client_contact_id' => $contact->id,
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'invoice_id' => $this->entity_obj->id,
+                'client_contact_id' => $contact->id,
             ]);
         }
 
-        if($this->entity == 'quote')
-        {
+        if ($this->entity == 'quote') {
             $this->entity_obj = Quote::factory()->create([
-                        'user_id' => auth()->user()->id,
-                        'company_id' => auth()->user()->company()->id,
-                        'client_id' => $client->id,
-                    ]);
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'client_id' => $client->id,
+            ]);
 
             $invitation = QuoteInvitation::factory()->create([
-                        'user_id' => auth()->user()->id,
-                        'company_id' => auth()->user()->company()->id,
-                        'quote_id' => $this->entity_obj->id,
-                        'client_contact_id' => $contact->id,
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'quote_id' => $this->entity_obj->id,
+                'client_contact_id' => $contact->id,
             ]);
         }
 

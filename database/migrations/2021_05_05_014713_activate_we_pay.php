@@ -15,8 +15,9 @@ class ActivateWePay extends Migration
      */
     public function up()
     {
-        if(Gateway::count() >=1 && Ninja::isHosted())
+        if (Gateway::count() >= 1 && Ninja::isHosted()) {
             Gateway::whereIn('id', [49])->update(['visible' => true]);
+        }
     }
 
     /**

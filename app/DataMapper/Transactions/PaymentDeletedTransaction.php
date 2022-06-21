@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class PaymentDeletedTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::PAYMENT_DELETED; 
-
+    public $event_id = TransactionEvent::PAYMENT_DELETED;
 }

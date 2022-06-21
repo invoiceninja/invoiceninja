@@ -26,7 +26,7 @@ class RecurringService
     }
 
     //set schedules - update next_send_dates
-    
+
     /**
      * Stops a recurring invoice
      *
@@ -34,8 +34,9 @@ class RecurringService
      */
     public function stop()
     {
-        if($this->recurring_entity->status_id < RecurringInvoice::STATUS_PAUSED)
+        if ($this->recurring_entity->status_id < RecurringInvoice::STATUS_PAUSED) {
             $this->recurring_entity->status_id = RecurringInvoice::STATUS_PAUSED;
+        }
 
         return $this;
     }
@@ -49,13 +50,12 @@ class RecurringService
 
     public function start()
     {
-
         if ($this->recurring_entity->remaining_cycles == 0) {
             return $this;
         }
 
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
-        
+
         return $this;
     }
 
@@ -84,20 +84,15 @@ class RecurringService
 
     public function deletePdf()
     {
-
-        $this->recurring_entity->invitations->each(function ($invitation){
-
-        UnlinkFile::dispatchNow(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
-        
+        $this->recurring_entity->invitations->each(function ($invitation) {
+            UnlinkFile::dispatchNow(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation).$this->recurring_entity->numberFormatter().'.pdf');
         });
-
 
         return $this;
     }
-    
+
     public function triggeredActions($request)
     {
-
         if ($request->has('start') && $request->input('start') == 'true') {
             $this->start();
         }
@@ -105,9 +100,8 @@ class RecurringService
         if ($request->has('stop') && $request->input('stop') == 'true') {
             $this->stop();
         }
-        
-        if(isset($this->recurring_entity->client))
-        {
+
+        if (isset($this->recurring_entity->client)) {
             $offset = $this->recurring_entity->client->timezone_offset();
             $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
         }
@@ -117,10 +111,9 @@ class RecurringService
 
     public function fillDefaults()
     {
-
         return $this;
     }
-    
+
     public function save()
     {
         $this->recurring_entity->saveQuietly();

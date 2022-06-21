@@ -57,7 +57,7 @@ trait MakesDates
      */
     public function formatDate($date, string $format) :string
     {
-        if (!isset($date)) {
+        if (! isset($date)) {
             return '';
         }
 
@@ -76,7 +76,7 @@ trait MakesDates
      */
     public function formatDatetime($date, string $format) :string
     {
-        return Carbon::createFromTimestamp($date)->format($format . " g:i a");
+        return Carbon::createFromTimestamp($date)->format($format.' g:i a');
     }
 
     /**
@@ -94,21 +94,22 @@ trait MakesDates
     {
         $dt = new DateTime($date);
         $dt->setTimezone(new DateTimeZone('UTC'));
+
         return $dt;
     }
 
     public function translateDate($date, $format, $locale)
     {
-        if(empty($date))
+        if (empty($date)) {
             return '';
+        }
 
         Carbon::setLocale($locale);
 
         try {
             return Carbon::parse($date)->translatedFormat($format);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return 'Invalid date!';
         }
     }
-
 }

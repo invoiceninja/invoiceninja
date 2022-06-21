@@ -18,8 +18,8 @@ class GroupSettingFactory
 {
     public static function create(int $company_id, int $user_id) :GroupSetting
     {
-    	$settings = new \stdClass;
-    	$settings->entity = Client::class;
+        $settings = new \stdClass;
+        $settings->entity = Client::class;
 
         $gs = new GroupSetting;
         $gs->name = '';

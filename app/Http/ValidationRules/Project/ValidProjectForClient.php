@@ -30,6 +30,7 @@ class ValidProjectForClient implements Rule
     {
         $this->input = $input;
     }
+
     /**
      * @param string $attribute
      * @param mixed $value
@@ -42,15 +43,16 @@ class ValidProjectForClient implements Rule
         if (empty($this->input['project_id'])) {
             return true;
         }
-        
+
         // if (is_string($this->input['project_id'])) {
         //     $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
         // }
 
         $project = Project::find($this->input['project_id']);
 
-        if(!$project){
-            $this->message = "Project not found";
+        if (! $project) {
+            $this->message = 'Project not found';
+
             return;
         }
 

@@ -16,7 +16,6 @@ class AddRussianLang extends Migration
      */
     public function up()
     {
-
         $russian = ['id' => 29, 'name' => 'Russian (Russia)', 'locale' => 'ru_RU'];
 
         Language::unguard();
@@ -27,7 +26,6 @@ class AddRussianLang extends Migration
         });
 
         Company::whereNotNull('id')->update(['default_password_timeout' => 30]);
-
     }
 
     /**

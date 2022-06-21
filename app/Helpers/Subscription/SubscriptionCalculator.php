@@ -20,9 +20,8 @@ use Illuminate\Support\Carbon;
 /**
  * SubscriptionCalculator.
  */
-class SubscriptionCalculator 
+class SubscriptionCalculator
 {
-
     public Subscription $target_subscription;
 
     public Invoice $invoice;
@@ -37,20 +36,18 @@ class SubscriptionCalculator
      * Tests if the user is currently up
      * to date with their payments for
      * a given recurring invoice
-     *     
+     *
      * @return bool
      */
     public function isPaidUp() :bool
     {
-
         $outstanding_invoices_exist = Invoice::whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                              ->where('subscription_id', $this->invoice->subscription_id)
                                              ->where('client_id', $this->invoice->client_id)
                                              ->where('balance', '>', 0)
                                              ->exists();
 
-       return ! $outstanding_invoices_exist;
-
+        return ! $outstanding_invoices_exist;
     }
 
     public function calcUpgradePlan()
@@ -63,21 +60,21 @@ class SubscriptionCalculator
         //are they paid up to date.
 
         //yes - calculate refund
-        if($this->isPaidUp())
+        if ($this->isPaidUp()) {
             $refund_invoice = $this->getRefundInvoice();
+        }
 
-        if($refund_invoice)
-        {
+        if ($refund_invoice) {
             $subscription = Subscription::find($this->invoice->subscription_id);
             $pro_rata = new ProRata;
 
-            $to_date = $subscription->service()->getNextDateForFrequency(Carbon::parse($refund_invoice->date), $subscription->frequency_id); 
+            $to_date = $subscription->service()->getNextDateForFrequency(Carbon::parse($refund_invoice->date), $subscription->frequency_id);
 
             $refund_amount = $pro_rata->refund($refund_invoice->amount, now(), $to_date, $subscription->frequency_id);
 
             $charge_amount = $pro_rata->charge($this->target_subscription->price, now(), $to_date, $this->target_subscription->frequency_id);
-        
-            return ($charge_amount - $refund_amount);
+
+            return $charge_amount - $refund_amount;
         }
 
         //no - return full freight charge.
@@ -86,7 +83,6 @@ class SubscriptionCalculator
 
     public function executeUpgradePlan()
     {
-
     }
 
     private function getRefundInvoice()
@@ -96,7 +92,5 @@ class SubscriptionCalculator
                       ->where('is_deleted', 0)
                       ->orderBy('id', 'desc')
                       ->first();
-
     }
-
 }

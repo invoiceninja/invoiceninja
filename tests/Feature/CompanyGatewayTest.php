@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\CompanyGateway;
@@ -190,6 +191,5 @@ class CompanyGatewayTest extends TestCase
 
         /*simple pro rata*/
         $fees_and_limits = $cg->getFeesAndLimits(GatewayType::CREDIT_CARD);
-
     }
 }

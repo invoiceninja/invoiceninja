@@ -11,7 +11,6 @@
 
 namespace App\Services\TaskScheduler;
 
-
 use App\Export\CSV\ClientExport;
 use App\Export\CSV\ContactExport;
 use App\Export\CSV\CreditExport;
@@ -52,13 +51,12 @@ class TaskSchedulerService
     {
         $scheduler->action_name = $request->job;
         $scheduler->paused = $request->get('paused', false);
-        $scheduler->start_from = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();
+        $scheduler->start_from = $request->get('start_from') ? Carbon::parse((int) $request->get('start_from')) : Carbon::now();
         $scheduler->repeat_every = $request->get('repeat_every');
-        $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();;
+        $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int) $request->get('start_from')) : Carbon::now();
         $scheduler->company_id = auth()->user()->company()->id;
         $scheduler = $this->setJobParameters($scheduler, $request);
         $scheduler->save();
-
     }
 
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)

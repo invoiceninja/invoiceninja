@@ -21,14 +21,12 @@ use Illuminate\Support\Facades\DB;
  */
 trait ChartQueries
 {
-
     /**
      * Expenses
      */
     public function getExpenseQuery($start_date, $end_date)
     {
-
-        return DB::select( DB::raw("
+        return DB::select(DB::raw('
             SELECT sum(expenses.amount) as amount,
             IFNULL(expenses.currency_id, :company_currency) as currency_id
             FROM expenses
@@ -36,14 +34,12 @@ trait ChartQueries
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
-    
+        '), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getExpenseChartQuery($start_date, $end_date, $currency_id)
     {
-
-         return DB::select( DB::raw("
+        return DB::select(DB::raw('
             SELECT
             sum(expenses.amount) as total,
             expenses.date,
@@ -54,14 +50,13 @@ trait ChartQueries
             AND expenses.is_deleted = 0
             GROUP BY expenses.date
             HAVING currency_id = :currency_id
-        "), [
+        '), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
-            'company_id' => $this->company->id, 
-            'start_date' => $start_date, 
-            'end_date' => $end_date
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
-
     }
 
     /**
@@ -69,8 +64,7 @@ trait ChartQueries
      */
     public function getPaymentQuery($start_date, $end_date)
     {
-
-        return DB::select( DB::raw("
+        return DB::select(DB::raw('
             SELECT sum(payments.amount) as amount,
             IFNULL(payments.currency_id, :company_currency) as currency_id
             FROM payments
@@ -78,19 +72,17 @@ trait ChartQueries
             AND payments.company_id = :company_id
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), [
-            'company_currency' => $this->company->settings->currency_id, 
-            'company_id' => $this->company->id, 
-            'start_date' => $start_date, 
-            'end_date' => $end_date
+        '), [
+            'company_currency' => $this->company->settings->currency_id,
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
-
     }
 
     public function getPaymentChartQuery($start_date, $end_date, $currency_id)
     {
-
-         return DB::select( DB::raw("
+        return DB::select(DB::raw('
             SELECT
             sum(payments.amount - payments.refunded) as total,
             payments.date,
@@ -102,23 +94,21 @@ trait ChartQueries
             AND payments.is_deleted = 0
             GROUP BY payments.date
             HAVING currency_id = :currency_id
-        "), [
+        '), [
             'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
-            'company_id' => $this->company->id, 
-            'start_date' => $start_date, 
-            'end_date' => $end_date
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
+    }
 
-    }    
-
-    /** 
+    /**
      * Invoices
      */
     public function getOutstandingQuery($start_date, $end_date)
     {
-
-        return DB::select( DB::raw("
+        return DB::select(DB::raw("
             SELECT
             sum(invoices.balance) as amount,
             IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
@@ -132,14 +122,12 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
-    
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getRevenueQuery($start_date, $end_date)
     {
-
-        return DB::select( DB::raw("
+        return DB::select(DB::raw("
             SELECT
             sum(invoices.paid_to_date) as paid_to_date,
             IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
@@ -153,14 +141,12 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
-
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
     public function getInvoiceChartQuery($start_date, $end_date, $currency_id)
     {
-
-         return DB::select( DB::raw("
+        return DB::select(DB::raw("
             SELECT
             sum(invoices.amount) as total,
             invoices.date,
@@ -176,13 +162,11 @@ trait ChartQueries
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
         "), [
-            'company_currency' => (int)$this->company->settings->currency_id,
+            'company_currency' => (int) $this->company->settings->currency_id,
             'currency_id' => $currency_id,
-            'company_id' => $this->company->id, 
-            'start_date' => $start_date, 
-            'end_date' => $end_date
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
         ]);
-
     }
-
 }

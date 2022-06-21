@@ -13,9 +13,6 @@ class AddUniqueConstraintsOnAllEntities extends Migration
      */
     public function up()
     {
-
-
-
     }
 
     /**

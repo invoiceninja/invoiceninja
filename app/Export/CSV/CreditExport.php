@@ -65,7 +65,7 @@ class CreditExport extends BaseExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'currency'
+        'currency' => 'currency',
     ];
 
     private array $decorate_keys = [
@@ -84,7 +84,6 @@ class CreditExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -94,71 +93,69 @@ class CreditExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
-        
+        }
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')->where('company_id', $this->company->id)
-                        ->where('is_deleted',0);
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
         $query->cursor()
-            ->each(function ($credit){
+            ->each(function ($credit) {
+                $this->csv->insertOne($this->buildRow($credit));
+            });
 
-                $this->csv->insertOne($this->buildRow($credit)); 
-
-        });
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Credit $credit) :array
     {
-
         $transformed_credit = $this->credit_transformer->transform($credit);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_credit))
+            if (array_key_exists($key, $transformed_credit)) {
                 $entity[$keyval] = $transformed_credit[$key];
-            else
+            } else {
                 $entity[$keyval] = '';
-
+            }
         }
 
         return $this->decorateAdvancedFields($credit, $entity);
-
     }
 
     private function decorateAdvancedFields(Credit $credit, array $entity) :array
     {
+        if (in_array('country_id', $this->input['report_keys'])) {
+            $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : '';
+        }
 
-        if(in_array('country_id', $this->input['report_keys']))
-            $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
+        if (in_array('currency_id', $this->input['report_keys'])) {
+            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $invoice->company->currency()->code;
+        }
 
-        if(in_array('currency_id', $this->input['report_keys']))
-            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $invoice->company->currency()->code;;
+        if (in_array('invoice_id', $this->input['report_keys'])) {
+            $entity['invoice'] = $credit->invoice ? $credit->invoice->number : '';
+        }
 
-        if(in_array('invoice_id', $this->input['report_keys']))
-            $entity['invoice'] = $credit->invoice ? $credit->invoice->number : "";
-
-        if(in_array('client_id', $this->input['report_keys']))
+        if (in_array('client_id', $this->input['report_keys'])) {
             $entity['client'] = $credit->client->present()->name();
+        }
 
-        if(in_array('status_id',$this->input['report_keys']))
+        if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $credit->stringStatus($credit->status_id);
+        }
 
         return $entity;
     }
-
 }

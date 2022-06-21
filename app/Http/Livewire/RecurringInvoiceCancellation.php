@@ -24,7 +24,7 @@ class RecurringInvoiceCancellation extends Component
     public $invoice;
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -43,6 +43,4 @@ class RecurringInvoiceCancellation extends Component
 
         return redirect()->route('client.recurring_invoices.request_cancellation', ['recurring_invoice' => $this->invoice->hashed_id]);
     }
-
-
 }

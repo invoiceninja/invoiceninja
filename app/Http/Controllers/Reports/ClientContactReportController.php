@@ -65,6 +65,7 @@ class ClientContactReportController extends BaseController
     {
         if ($request->has('send_email') && $request->get('send_email')) {
             SendToAdmin::dispatch(auth()->user()->company(), $request->all(), ContactExport::class, $this->filename);
+
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
@@ -72,16 +73,13 @@ class ClientContactReportController extends BaseController
 
         $csv = $export->run();
 
-        $headers = array(
+        $headers = [
             'Content-Disposition' => 'attachment',
             'Content-Type' => 'text/csv',
-        );
+        ];
 
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
         }, $this->filename, $headers);
-
     }
-
-
 }

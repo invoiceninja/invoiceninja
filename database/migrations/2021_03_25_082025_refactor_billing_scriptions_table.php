@@ -13,7 +13,6 @@ class RefactorBillingScriptionsTable extends Migration
      */
     public function up()
     {
-
         Schema::rename('billing_subscriptions', 'subscriptions');
 
         Schema::table('subscriptions', function (Blueprint $table) {
@@ -28,7 +27,6 @@ class RefactorBillingScriptionsTable extends Migration
             $table->renameColumn('product_id', 'product_ids');
             $table->dropColumn('is_recurring');
         });
-
     }
 
     /**

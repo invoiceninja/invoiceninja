@@ -23,7 +23,7 @@ class RecurringExpenseTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
-    
+
     protected $defaultIncludes = [
         'documents',
     ];
@@ -81,7 +81,7 @@ class RecurringExpenseTransformer extends EntityTransformer
             'transaction_reference' => (string) $recurring_expense->transaction_reference ?: '',
             'transaction_id' => (string) $recurring_expense->transaction_id ?: '',
             'date' => $recurring_expense->date ?: '',
-            'number' => (string)$recurring_expense->number ?: '',
+            'number' => (string) $recurring_expense->number ?: '',
             'payment_date' => $recurring_expense->payment_date ?: '',
             'custom_value1' => $recurring_expense->custom_value1 ?: '',
             'custom_value2' => $recurring_expense->custom_value2 ?: '',
@@ -105,9 +105,10 @@ class RecurringExpenseTransformer extends EntityTransformer
             'recurring_dates' => (array) [],
         ];
 
-        if(request()->has('show_dates') && request()->query('show_dates') == 'true')
+        if (request()->has('show_dates') && request()->query('show_dates') == 'true') {
             $data['recurring_dates'] = (array) $recurring_expense->recurringDates();
+        }
 
-             return $data;
+        return $data;
     }
 }

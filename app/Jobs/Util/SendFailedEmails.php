@@ -63,7 +63,7 @@ class SendFailedEmails implements ShouldQueue
             $invitation = $job_meta_array['entity_name']::where('key', $job_meta_array['invitation_key'])->with('contact')->first();
 
             if ($invitation->invoice) {
-                if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
+                if (! $invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
                     EmailEntity::dispatch($invitation, $invitation->company, $job_meta_array['reminder_template']);
                 }
             }

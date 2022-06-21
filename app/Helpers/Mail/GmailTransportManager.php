@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Helpers\Mail;
 
 use App\CustomMailDriver\CustomTransport;
@@ -15,7 +16,6 @@ use App\Helpers\Mail\Office365MailTransport;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\MailManager;
 use Illuminate\Support\Facades\Config;
-
 
 class GmailTransportManager extends MailManager
 {

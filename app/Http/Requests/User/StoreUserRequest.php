@@ -60,8 +60,9 @@ class StoreUserRequest extends Request
 
         //unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
 
-        if(array_key_exists('email', $input))
+        if (array_key_exists('email', $input)) {
             $input['email'] = trim($input['email']);
+        }
 
         if (isset($input['company_user'])) {
             if (! isset($input['company_user']['is_admin'])) {

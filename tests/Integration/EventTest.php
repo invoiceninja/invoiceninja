@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Events\Client\ClientWasArchived;
@@ -31,15 +32,15 @@ use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasRestored;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
-use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
-use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasRestored;            
-use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -127,7 +128,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/expenses/', $data)
             ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -137,9 +137,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/expenses/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/expenses/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -164,10 +163,8 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
     public function testVendorEvents()
     {
-        
         $this->expectsEvents([
             VendorWasCreated::class,
             VendorWasUpdated::class,
@@ -186,7 +183,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/vendors/', $data)
             ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -197,9 +193,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/vendors/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/vendors/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -224,7 +219,6 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
     public function testTaskEvents()
     {
 
@@ -248,7 +242,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/tasks/', $data)
         ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -259,9 +252,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/tasks/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/tasks/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -309,7 +301,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/credits/', $data)
         ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -320,9 +311,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/credits/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/credits/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -371,7 +361,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/quotes/', $data)
         ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -382,9 +371,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/quotes/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/quotes/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -419,7 +407,6 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
     //@TODO paymentwasvoided
     //@TODO paymentwasrefunded
 
@@ -438,8 +425,8 @@ class EventTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -455,13 +442,13 @@ class EventTest extends TestCase
         $arr = $response->json();
 
         $data = [
-            'transaction_reference' => 'testing'
+            'transaction_reference' => 'testing',
         ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/payments/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/payments/'.$arr['data']['id'], $data)
         ->assertStatus(200);
 
         $data = [
@@ -487,7 +474,6 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
     public function testInvoiceEvents()
     {
         /* Test fire new invoice */
@@ -510,7 +496,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -521,9 +506,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/invoices/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -547,8 +531,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/invoices/bulk?action=delete', $data)
         ->assertStatus(200);
     }
-
-
 
     public function testRecurringInvoiceEvents()
     {
@@ -578,7 +560,6 @@ class EventTest extends TestCase
 
         $response->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -590,9 +571,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/recurring_invoices/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/recurring_invoices/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -617,8 +597,6 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
-
     public function testClientEvents()
     {
         $this->expectsEvents([
@@ -639,7 +617,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/clients/', $data)
             ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -650,9 +627,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/clients/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/clients/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -677,7 +653,6 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
     public function testUserEvents()
     {
         $this->withoutMiddleware(PasswordProtection::class);
@@ -695,19 +670,19 @@ class EventTest extends TestCase
             'last_name' => 'you',
             'email' => 'bob1@good.ole.boys.com',
             'company_user' => [
-                    'is_admin' => false,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->post('/api/v1/users?include=company_user', $data)
           ->assertStatus(200);
-       
+
         $arr = $response->json();
 
         $data = [
@@ -715,19 +690,18 @@ class EventTest extends TestCase
             'last_name' => 'you',
             'email' => 'bob1@good.ole.boys.com',
             'company_user' => [
-                    'is_admin' => false,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
         ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->put('/api/v1/users/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/users/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -775,7 +749,6 @@ class EventTest extends TestCase
         ])->post('/api/v1/subscriptions/', $data)
             ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -785,9 +758,8 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/subscriptions/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/subscriptions/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -812,8 +784,7 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
-
-public function PurchaseOrderEvents()
+    public function PurchaseOrderEvents()
     {
 
         /* Test fire new invoice */
@@ -836,7 +807,6 @@ public function PurchaseOrderEvents()
         ])->post('/api/v1/purchase_orders/', $data)
         ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -847,9 +817,8 @@ public function PurchaseOrderEvents()
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
+        ])->put('/api/v1/purchase_orders/'.$arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],
@@ -883,6 +852,4 @@ public function PurchaseOrderEvents()
         ])->post('/api/v1/purchase_orders/bulk?action=delete', $data)
         ->assertStatus(200);
     }
-
-
 }

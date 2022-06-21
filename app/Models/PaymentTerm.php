@@ -26,6 +26,7 @@ class PaymentTerm extends BaseModel
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var array
      */

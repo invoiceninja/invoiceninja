@@ -21,7 +21,6 @@ class DropRedundantColumnShowProductionDescriptionDropdown extends Migration
         });
 
         $this->buildCache(true);
-        
     }
 
     /**

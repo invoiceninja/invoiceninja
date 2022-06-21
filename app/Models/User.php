@@ -108,10 +108,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'deleted_at'       => 'timestamp',
     ];
 
-
     public function name()
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function getEntityType()
@@ -148,7 +147,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
-        if($truth->getCompanyToken()){
+        if ($truth->getCompanyToken()) {
             return $truth->getCompanyToken();
         }
 
@@ -189,13 +188,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
-        if ($this->company){
+        if ($this->company) {
             return $this->company;
-        }
-        elseif($truth->getCompany()){
+        } elseif ($truth->getCompany()) {
             return $truth->getCompany();
-        }
-        elseif (request()->header('X-API-TOKEN')) {
+        } elseif (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
 
             return $company_token->company;
@@ -206,8 +203,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function companyIsSet()
     {
-        if($this->company)
+        if ($this->company) {
             return true;
+        }
 
         return false;
     }
@@ -238,29 +236,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
-        if($truth->getCompanyUser()){
+        if ($truth->getCompanyUser()) {
             return $truth->getCompanyUser();
         }
-        
-        return $this->token()->cu;
 
+        return $this->token()->cu;
     }
 
     public function company_user()
     {
-        if($this->companyId())
+        if ($this->companyId()) {
             return $this->belongsTo(CompanyUser::class)->where('company_id', $this->companyId())->withTrashed();
+        }
 
         $truth = app()->make(TruthSource::class);
 
-        if($truth->getCompanyUser())
+        if ($truth->getCompanyUser()) {
             return $truth->getCompanyUser();
-        
+        }
+
         return $this->token()->cu;
 
         // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
         // ->withTrashed();
-
     }
 
     /**
@@ -286,7 +284,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         return $this->token()->cu->permissions;
-        
+
         // return $this->company_user->permissions;
     }
 
@@ -311,13 +309,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->token()->cu->is_admin;
 
-       // return $this->company_user->is_admin;
+        // return $this->company_user->is_admin;
     }
 
     public function isOwner() : bool
     {
         return $this->token()->cu->is_owner;
-        
+
         // return $this->company_user->is_owner;
     }
 
@@ -401,9 +399,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
-
-        if($this->token()->cu->slack_webhook_url)
+        if ($this->token()->cu->slack_webhook_url) {
             return $this->token()->cu->slack_webhook_url;
+        }
     }
 
     public function routeNotificationForMail($notification)
@@ -433,9 +431,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
-
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->mailable = new NinjaMailer((new ResetPasswordObject($token, $this, $this->account->default_company))->build());
         $nmo->to_user = $this;
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;

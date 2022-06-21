@@ -49,9 +49,10 @@ class InitializeStripeConnectRequest extends FormRequest
      */
     public function getTokenContent()
     {
-        if($this->state)
+        if ($this->state) {
             $this->token = $this->state;
-        
+        }
+
         $data = Cache::get($this->token);
 
         return $data;

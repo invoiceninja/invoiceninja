@@ -15,24 +15,21 @@ class AddAppDomainIdToGatewaysTable extends Migration
      */
     public function up()
     {
-
-        if(Ninja::isHosted()){
-
+        if (Ninja::isHosted()) {
             $stripe_connect = Gateway::find(56);
 
-            if($stripe_connect){
+            if ($stripe_connect) {
                 $stripe_connect->fields = '{"account_id":"", "appleDomainVerification":""}';
                 $stripe_connect->save();
             }
         }
 
-            $stripe_connect = Gateway::find(20);
+        $stripe_connect = Gateway::find(20);
 
-            if($stripe_connect){
-                $stripe_connect->fields = '{"account_id":"", "appleDomainVerification":""}';
-                $stripe_connect->save();
-            }
-        
+        if ($stripe_connect) {
+            $stripe_connect->fields = '{"account_id":"", "appleDomainVerification":""}';
+            $stripe_connect->save();
+        }
     }
 
     /**
@@ -40,5 +37,4 @@ class AddAppDomainIdToGatewaysTable extends Migration
      *
      * @return void
      */
-
 }

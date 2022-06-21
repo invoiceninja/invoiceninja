@@ -14,12 +14,10 @@ class AddEstonianLanguage extends Migration
      */
     public function up()
     {
-
         $estonia = ['id' => 35, 'name' => 'Estonian', 'locale' => 'et'];
 
         Language::unguard();
         Language::create($estonia);
-
     }
 
     /**

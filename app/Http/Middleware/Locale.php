@@ -35,13 +35,10 @@ class Locale
         } elseif (auth()->guard('contact')->user()) {
             App::setLocale(auth()->guard('contact')->user()->client()->setEagerLoads([])->first()->locale());
         } elseif (auth()->user()) {
-
-            try{
+            try {
                 App::setLocale(auth()->user()->company()->getLocale());
+            } catch (\Exception $e) {
             }
-            catch(\Exception $e){
-            }
-
         } else {
             App::setLocale(config('ninja.i18n.locale'));
         }

@@ -33,8 +33,8 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PDF;
 use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PDF;
 use App\Utils\Traits\Pdf\PdfMaker;
 use App\Utils\VendorHtmlEngine;
 use Illuminate\Bus\Queueable;
@@ -74,7 +74,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
     {
         $this->invitation = $invitation;
         $this->company = $invitation->company;
-        
+
         $this->entity = $invitation->purchase_order;
         $this->entity_string = 'purchase_order';
 
@@ -82,14 +82,12 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $this->vendor = $invitation->contact->vendor;
         $this->vendor->load('company');
-        
-        $this->disk = $disk ?? config('filesystems.default');
 
+        $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
         /* Forget the singleton*/
@@ -108,7 +106,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         }
 
         $entity_design_id = '';
-        
+
         $path = $this->vendor->purchase_order_filepath($this->invitation);
         $entity_design_id = 'purchase_order_design_id';
 
@@ -119,15 +117,16 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         $design = Design::find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
-        if(!$design)
+        if (! $design) {
             $design = Design::find(2);
+        }
 
         $html = new VendorHtmlEngine($this->invitation);
 
         if ($design->is_custom) {
             $options = [
-            'custom_partials' => json_decode(json_encode($design->design), true)
-          ];
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
             $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
             $template = new PdfMakerDesign(strtolower($design->name));
@@ -161,28 +160,23 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         $pdf = null;
 
         try {
-
-            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
                 $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-                if($numbered_pdf)
+                if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
-
-            }
-            else {
-
+                }
+            } else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-                
+
                 $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-                if($numbered_pdf)
+                if ($numbered_pdf) {
                     $pdf = $numbered_pdf;
-                
-
+                }
             }
-
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
         }
@@ -192,30 +186,21 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         }
 
         if ($pdf) {
-
-            try{
-                
-                if(!Storage::disk($this->disk)->exists($path)) 
+            try {
+                if (! Storage::disk($this->disk)->exists($path)) {
                     Storage::disk($this->disk)->makeDirectory($path, 0775);
+                }
 
                 Storage::disk($this->disk)->put($file_path, $pdf, 'public');
-
-            }
-            catch(\Exception $e)
-            {
-
+            } catch (\Exception $e) {
                 throw new FilePermissionsFailure($e->getMessage());
-
             }
         }
-        
+
         return $file_path;
     }
 
     public function failed($e)
     {
-
     }
-    
-
 }

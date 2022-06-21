@@ -64,11 +64,9 @@ class UserController extends BaseController
      */
     public function __construct(UserRepository $user_repo)
     {
-
         parent::__construct();
 
         $this->user_repo = $user_repo;
-
     }
 
     /**
@@ -216,7 +214,7 @@ class UserController extends BaseController
 
         $user->setCompany($company);
         $user->company_id = $company->id;
-        
+
         return $this->itemResponse($user);
     }
 
@@ -396,7 +394,7 @@ class UserController extends BaseController
             UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
         }
 
-        $user->company_users()->update(["permissions_updated_at" => now()]);        
+        $user->company_users()->update(['permissions_updated_at' => now()]);
 
         event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -465,8 +463,9 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
-        if($user->isOwner())
-            return response()->json(['message', 'Cannot detach owner.'],400);
+        if ($user->isOwner()) {
+            return response()->json(['message', 'Cannot detach owner.'], 400);
+        }
 
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->delete($request->all(), $user);
@@ -606,7 +605,6 @@ class UserController extends BaseController
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-        
         if ($request->entityIsDeleted($user)) {
             return $request->disallowUpdate();
         }
@@ -616,8 +614,9 @@ class UserController extends BaseController
                                     ->withTrashed()
                                     ->first();
 
-        if($company_user->is_owner)
+        if ($company_user->is_owner) {
             return response()->json(['message', 'Cannot detach owner.'], 401);
+        }
 
         $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
@@ -681,13 +680,10 @@ class UserController extends BaseController
      */
     public function invite(ReconfirmUserRequest $request, User $user)
     {
-
         $user->service()->invite($user->company());
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
-
     }
-
 
     /**
      * Invite an existing user to a company.
@@ -738,10 +734,8 @@ class UserController extends BaseController
      */
     public function reconfirm(ReconfirmUserRequest $request, User $user)
     {
-
         $user->service()->invite($user->company());
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
-
     }
 }

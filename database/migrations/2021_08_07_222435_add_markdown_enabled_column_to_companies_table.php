@@ -25,6 +25,5 @@ class AddMarkdownEnabledColumnToCompaniesTable extends Migration
      */
     public function down()
     {
-        
     }
 }

@@ -41,9 +41,9 @@ class GetQuotePdf extends AbstractService
 
         // $disk = 'public';
         $disk = config('filesystems.default');
-        
+
         $file_path = CreateEntityPdf::dispatchNow($invitation);
-        
+
         return $file_path;
         //return Storage::disk($disk)->path($file_path);
     }

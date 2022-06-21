@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankSubaccount extends BaseModel
 {
     use SoftDeletes;
+
     /**
      * @var array
      */

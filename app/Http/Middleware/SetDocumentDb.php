@@ -33,10 +33,9 @@ class SetDocumentDb
         ];
 
         if (config('ninja.db.multi_db_enabled')) {
-            
-            if (! MultiDB::documentFindAndSetDb($request->segment(2))) 
+            if (! MultiDB::documentFindAndSetDb($request->segment(2))) {
                 return response()->json($error, 400);
-            
+            }
         }
 
         return $next($request);

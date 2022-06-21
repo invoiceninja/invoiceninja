@@ -38,13 +38,14 @@ class ShowChartRequest extends Request
     {
         $input = $this->all();
 
-            if(!array_key_exists('start_date', $input))
-                $input['start_date'] = now()->subDays(20);
+        if (! array_key_exists('start_date', $input)) {
+            $input['start_date'] = now()->subDays(20);
+        }
 
-            if(!array_key_exists('end_date', $input))
-                $input['end_date'] = now();
+        if (! array_key_exists('end_date', $input)) {
+            $input['end_date'] = now();
+        }
 
         $this->replace($input);
-
     }
 }

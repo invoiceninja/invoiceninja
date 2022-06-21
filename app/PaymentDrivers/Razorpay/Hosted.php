@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -8,14 +7,13 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\Razorpay;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -25,6 +23,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
@@ -63,9 +62,9 @@ class Hosted implements MethodInterface
 
     /**
      * Payment view for the Razorpay.
-     * 
-     * @param array $data 
-     * @return View 
+     *
+     * @param array $data
+     * @return View
      */
     public function paymentView(array $data): View
     {
@@ -92,9 +91,9 @@ class Hosted implements MethodInterface
 
     /**
      * Handle payments page for Razorpay.
-     * 
-     * @param PaymentResponseRequest $request 
-     * @return void 
+     *
+     * @param PaymentResponseRequest $request
+     * @return void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -105,27 +104,25 @@ class Hosted implements MethodInterface
         ]);
 
         if (! property_exists($this->razorpay->payment_hash->data, 'order_id')) {
+            $this->razorpay->sendFailureMail('Missing [order_id] property. ');
 
-            $this->razorpay->sendFailureMail("Missing [order_id] property. ");
-            
-            throw new PaymentFailed('Missing [order_id] property. Please contact the administrator. Reference: ' . $this->razorpay->payment_hash->hash);
+            throw new PaymentFailed('Missing [order_id] property. Please contact the administrator. Reference: '.$this->razorpay->payment_hash->hash);
         }
-        
+
         try {
             $attributes = [
                 'razorpay_order_id' => $this->razorpay->payment_hash->data->order_id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
                 'razorpay_signature' => $request->razorpay_signature,
             ];
-    
+
             $this->razorpay->gateway->utility->verifyPaymentSignature($attributes);
 
             return $this->processSuccessfulPayment($request->razorpay_payment_id);
-        }
-        catch (SignatureVerificationError $exception) {
+        } catch (SignatureVerificationError $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
-    } 
+    }
 
     /**
      * Handle the successful payment for Razorpay.
@@ -165,7 +162,6 @@ class Hosted implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $exception): void
     {
-
         $this->razorpay->sendFailureMail($exception->getMessage());
 
         SystemLogger::dispatch(
@@ -178,6 +174,5 @@ class Hosted implements MethodInterface
         );
 
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
-    
     }
 }

@@ -24,8 +24,7 @@ class ActivateMolliePaymentDriver extends Migration
      */
     public function up()
     {
-        if($mollie = Gateway::find(7))
-        {
+        if ($mollie = Gateway::find(7)) {
             $mollie->visible = true;
 
             $fields = json_decode($mollie->fields);
@@ -33,7 +32,7 @@ class ActivateMolliePaymentDriver extends Migration
             $fields->profileId = '';
 
             $mollie->fields = json_encode($fields);
-            
+
             $mollie->save();
         }
     }

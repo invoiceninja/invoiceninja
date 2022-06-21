@@ -29,19 +29,19 @@ class WePayPaymentDriver extends BaseDriver
     use MakesHash;
 
     /* Does this gateway support refunds? */
-    public $refundable = true; 
+    public $refundable = true;
 
     /* Does this gateway support token billing? */
-    public $token_billing = true; 
+    public $token_billing = true;
 
     /* Does this gateway support authorizations? */
-    public $can_authorise_credit_card = true; 
+    public $can_authorise_credit_card = true;
 
     /* Initialized gateway */
-    public $wepay; 
+    public $wepay;
 
     /* Initialized payment method */
-    public $payment_method; 
+    public $payment_method;
 
     /* Maps the Payment Gateway Type - to its implementation */
     public static $methods = [
@@ -49,32 +49,30 @@ class WePayPaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_WEPAY; 
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_WEPAY;
 
     public function init()
     {
-        
         if (WePay::getEnvironment() == 'none') {
-            
-            if(config('ninja.wepay.environment') == 'staging')
+            if (config('ninja.wepay.environment') == 'staging') {
                 WePay::useStaging(config('ninja.wepay.client_id'), config('ninja.wepay.client_secret'));
-            else
+            } else {
                 WePay::useProduction(config('ninja.wepay.client_id'), config('ninja.wepay.client_secret'));
-
+            }
         }
 
-        if ($this->company_gateway) 
+        if ($this->company_gateway) {
             $this->wepay = new WePay($this->company_gateway->getConfigField('accessToken'));
-        else
+        } else {
             $this->wepay = new WePay(null);
-        
+        }
+
         return $this;
-        
     }
 
     /**
      * Return the gateway types that have been enabled
-     * 
+     *
      * @return array
      */
     public function gatewayTypes(): array
@@ -89,7 +87,7 @@ class WePayPaymentDriver extends BaseDriver
 
     /**
      * Setup the gateway
-     * 
+     *
      * @param  array $data user_id + company
      * @return view
      */
@@ -100,13 +98,14 @@ class WePayPaymentDriver extends BaseDriver
 
     /**
      * Set the payment method
-     * 
+     *
      * @param int $payment_method_id Alias of GatewayType
      */
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -125,8 +124,8 @@ class WePayPaymentDriver extends BaseDriver
     public function authorizeResponse($request)
     {
         $this->init();
-        
-        return $this->payment_method->authorizeResponse($request);  
+
+        return $this->payment_method->authorizeResponse($request);
     }
 
     public function verificationView(ClientGatewayToken $cgt)
@@ -147,14 +146,14 @@ class WePayPaymentDriver extends BaseDriver
     {
         $this->init();
 
-        return $this->payment_method->paymentView($data);  
+        return $this->payment_method->paymentView($data);
     }
 
     public function processPaymentResponse($request)
     {
         $this->init();
 
-        return $this->payment_method->paymentResponse($request); 
+        return $this->payment_method->paymentResponse($request);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -163,7 +162,7 @@ class WePayPaymentDriver extends BaseDriver
         $this->setPaymentMethod($cgt->gateway_type_id);
         $this->setPaymentHash($payment_hash);
 
-        return $this->payment_method->tokenBilling($cgt, $payment_hash); 
+        return $this->payment_method->tokenBilling($cgt, $payment_hash);
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
@@ -191,14 +190,15 @@ class WePayPaymentDriver extends BaseDriver
         if ($objectType == 'credit_card') {
             $payment_method = ClientGatewayToken::where('token', $objectId)->first();
 
-            if (! $payment_method) 
+            if (! $payment_method) {
                 throw new \Exception('Unknown payment method');
+            }
 
-            $source = $this->wepay->request('credit_card', array(
+            $source = $this->wepay->request('credit_card', [
                 'client_id'          => config('ninja.wepay.client_id'),
                 'client_secret'      => config('ninja.wepay.client_secret'),
-                'credit_card_id'     => (int)$objectId,
-            ));
+                'credit_card_id'     => (int) $objectId,
+            ]);
 
             if ($source->state == 'deleted') {
                 $payment_method->delete();
@@ -209,12 +209,12 @@ class WePayPaymentDriver extends BaseDriver
             return 'Processed successfully';
         } elseif ($objectType == 'account') {
             if ($accountId != $objectId) {
-                throw new \Exception('Unknown account ' . $accountId . ' does not equal '.$objectId);
+                throw new \Exception('Unknown account '.$accountId.' does not equal '.$objectId);
             }
 
-            $wepayAccount = $this->wepay->request('account', array(
-                'account_id'     => (int)$objectId,
-            ));
+            $wepayAccount = $this->wepay->request('account', [
+                'account_id'     => (int) $objectId,
+            ]);
 
             if ($wepayAccount->state == 'deleted') {
                 $this->company_gateway->delete();
@@ -238,16 +238,16 @@ class WePayPaymentDriver extends BaseDriver
                 throw new \Exception('Payment is deleted');
             }
 
-            $checkout = $this->wepay->request('checkout', array(
+            $checkout = $this->wepay->request('checkout', [
                 'checkout_id' => intval($objectId),
-            ));
+            ]);
 
             if ($checkout->state == 'captured') {
                 $payment->status_id = Payment::STATUS_COMPLETED;
                 $payment->save();
             } elseif ($checkout->state == 'cancelled') {
                 $payment->service()->deletePayment()->save();
-            } elseif ($checkout->state == 'failed') {                
+            } elseif ($checkout->state == 'failed') {
                 $payment->status_id = Payment::STATUS_FAILED;
                 $payment->save();
             }
@@ -257,21 +257,18 @@ class WePayPaymentDriver extends BaseDriver
             return 'Ignoring event';
         }
 
-
-
         return true;
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        
         $this->init();
 
-        $response = $this->wepay->request('checkout/refund', array(
+        $response = $this->wepay->request('checkout/refund', [
             'checkout_id'   => $payment->transaction_reference,
             'refund_reason' => 'Refund by merchant',
-            'amount'        => $amount
-        ));
+            'amount'        => $amount,
+        ]);
 
         return [
             'transaction_reference' => $response->checkout_id,
@@ -280,14 +277,14 @@ class WePayPaymentDriver extends BaseDriver
             'description' => 'refund',
             'code' => 0,
         ];
-        
     }
 
     public function detach(ClientGatewayToken $token)
     {
         /*Bank accounts cannot be deleted - only CC*/
-        if($token->gateway_type_id == 2)
+        if ($token->gateway_type_id == 2) {
             return true;
+        }
 
         $this->init();
 
@@ -303,7 +300,6 @@ class WePayPaymentDriver extends BaseDriver
             throw new \Exception(trans('texts.failed_remove_payment_method'));
         }
     }
-
 
     public function getClientRequiredFields(): array
     {
@@ -348,12 +344,4 @@ class WePayPaymentDriver extends BaseDriver
 
         return $fields;
     }
-
-
-
-
-
-
-
-
 }

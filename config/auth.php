@@ -94,7 +94,6 @@ return [
             'model' => App\Models\VendorContact::class,
         ],
 
-
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

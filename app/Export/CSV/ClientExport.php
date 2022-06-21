@@ -17,9 +17,9 @@ use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
-use Illuminate\Support\Carbon;
 
 class ClientExport extends BaseExport
 {
@@ -95,7 +95,6 @@ class ClientExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -105,8 +104,9 @@ class ClientExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -114,69 +114,65 @@ class ClientExport extends BaseExport
         $query = Client::query()->with('contacts')
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id)
-                                ->where('is_deleted',0);
-    
+                                ->where('is_deleted', 0);
+
         $query = $this->addDateRange($query);
 
         $query->cursor()
-              ->each(function ($client){
-                        $this->csv->insertOne($this->buildRow($client)); 
-                    });
+              ->each(function ($client) {
+                  $this->csv->insertOne($this->buildRow($client));
+              });
 
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Client $client) :array
     {
-
         $transformed_contact = false;
 
         $transformed_client = $this->client_transformer->transform($client);
 
-        if($contact = $client->contacts()->first())
+        if ($contact = $client->contacts()->first()) {
             $transformed_contact = $this->contact_transformer->transform($contact);
+        }
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
+        foreach (array_values($this->input['report_keys']) as $key) {
+            $parts = explode('.', $key);
 
-            $parts = explode(".",$key);
-            
             $keyval = array_search($key, $this->entity_keys);
 
-            if($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$keyval] = $transformed_client[$parts[1]];
-            }
-            elseif($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$keyval] = $transformed_contact[$parts[1]];
+            } else {
+                $entity[$keyval] = '';
             }
-            else 
-                $entity[$keyval] = "";
-
         }
 
         return $this->decorateAdvancedFields($client, $entity);
-
     }
 
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
+        if (in_array('client.country_id', $this->input['report_keys'])) {
+            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
+        }
 
-        if(in_array('client.country_id', $this->input['report_keys']))
-            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
+        if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
+            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
+        }
 
-        if(in_array('client.shipping_country_id', $this->input['report_keys']))
-            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
-
-        if(in_array('client.currency', $this->input['report_keys']))
+        if (in_array('client.currency', $this->input['report_keys'])) {
             $entity['currency'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
+        }
 
-        if(in_array('client.industry_id', $this->input['report_keys']))
-            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : ""; 
+        if (in_array('client.industry_id', $this->input['report_keys'])) {
+            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
+        }
 
         return $entity;
     }
-
 }

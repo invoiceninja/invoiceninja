@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit\Migration;
 
 use App\Exceptions\ResourceDependencyMissing;
@@ -66,12 +67,12 @@ class ImportTest extends TestCase
 
     //     $this->user->setCompany($this->company);
     //     auth()->login($this->user, true);
-        
+
     //     Import::dispatchNow($this->migration_array, $this->company, $this->user);
 
     //     $this->assertTrue(true);
     // }
-    
+
 //     public function testExceptionOnUnavailableResource()
 //     {
 //         $data['panda_bears'] = [
@@ -150,8 +151,6 @@ class ImportTest extends TestCase
 //         $this->assertGreaterThan(1, count($this->migration_array));
 
 //     }
-
-
 
 //     public function testClientAttributes()
 //     {

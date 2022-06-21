@@ -9,10 +9,15 @@ class PersonalAddress extends Component
     public $profile;
 
     public $address1;
+
     public $address2;
+
     public $city;
+
     public $state;
+
     public $postal_code;
+
     public $country_id;
 
     public $countries;

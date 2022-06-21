@@ -13,20 +13,18 @@ namespace App\Helpers\Mail;
 
 use Illuminate\Mail\Transport\Transport;
 use Illuminate\Support\Str;
-use Swift_Mime_SimpleMessage;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\UploadSession;
+use Swift_Mime_SimpleMessage;
 
 class Office365MailTransport extends Transport
 {
-
     public function __construct()
     {
     }
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
-
         $this->beforeSendPerformed($message);
 
         $graph = new Graph();
@@ -42,7 +40,7 @@ class Office365MailTransport extends Transport
 
         if ($messageBodySizeMb >= 4) {
             unset($messageBody);
-            $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/messages")
+            $graphMessage = $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/messages')
                 ->attachBody($this->getBody($message))
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
@@ -58,31 +56,31 @@ class Office365MailTransport extends Transport
                         'AttachmentItem' => [
                             'attachmentType' => 'file',
                             'name' => $fileName,
-                            'size' => strlen($content)
-                        ]
+                            'size' => strlen($content),
+                        ],
                     ];
 
                     if ($size <= 3) { //ErrorAttachmentSizeShouldNotBeLessThanMinimumSize if attachment <= 3mb, then we need to add this
                         $attachmentBody = [
-                            "@odata.type" => "#microsoft.graph.fileAttachment",
-                            "name" => $attachment->getHeaders()->get('Content-Type')->getParameter('name'),
-                            "contentType" => $attachment->getBodyContentType(),
-                            "contentBytes" => base64_encode($attachment->getBody()),
-                            'contentId'    => $id
+                            '@odata.type' => '#microsoft.graph.fileAttachment',
+                            'name' => $attachment->getHeaders()->get('Content-Type')->getParameter('name'),
+                            'contentType' => $attachment->getBodyContentType(),
+                            'contentBytes' => base64_encode($attachment->getBody()),
+                            'contentId'    => $id,
                         ];
 
-                        $addAttachment = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/messages/" . $graphMessage->getId() . "/attachments")
+                        $addAttachment = $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/messages/'.$graphMessage->getId().'/attachments')
                             ->attachBody($attachmentBody)
                             ->setReturnType(UploadSession::class)
                             ->execute();
                     } else {
                         //upload the files in chunks of 4mb....
-                        $uploadSession = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/messages/" . $graphMessage->getId() . "/attachments/createUploadSession")
+                        $uploadSession = $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/messages/'.$graphMessage->getId().'/attachments/createUploadSession')
                             ->attachBody($attachmentMessage)
                             ->setReturnType(UploadSession::class)
                             ->execute();
 
-                        $fragSize =  1024 * 1024 * 4; //4mb at once...
+                        $fragSize = 1024 * 1024 * 4; //4mb at once...
                         $numFragments = ceil($fileSize / $fragSize);
                         $contentChunked = str_split($content, $fragSize);
                         $bytesRemaining = $fileSize;
@@ -97,19 +95,19 @@ class Office365MailTransport extends Transport
                                 $end = $fileSize - 1;
                             }
                             $data = $contentChunked[$i];
-                            $content_range = "bytes " . $start . "-" . $end . "/" . $fileSize;
+                            $content_range = 'bytes '.$start.'-'.$end.'/'.$fileSize;
                             $headers = [
-                                "Content-Length" => $numBytes,
-                                "Content-Range" => $content_range
+                                'Content-Length' => $numBytes,
+                                'Content-Range' => $content_range,
                             ];
                             $client = new \GuzzleHttp\Client();
                             $tmp = $client->put($uploadSession->getUploadUrl(), [
                                 'headers'         => $headers,
                                 'body'            => $data,
                                 'allow_redirects' => false,
-                                'timeout'         => 1000
+                                'timeout'         => 1000,
                             ]);
-                            $result = $tmp->getBody() . '';
+                            $result = $tmp->getBody().'';
                             $result = json_decode($result); //if body == empty, then the file was successfully uploaded
                             $bytesRemaining = $bytesRemaining - $chunkSize;
                             $i++;
@@ -119,19 +117,16 @@ class Office365MailTransport extends Transport
             }
 
             //definetly send the message
-            $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/messages/" . $graphMessage->getId() . "/send")->execute();
+            $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/messages/'.$graphMessage->getId().'/send')->execute();
         } else {
-
             try {
-                $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/sendmail")
+                $graphMessage = $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/sendmail')
                     ->attachBody($messageBody)
                     ->setReturnType(\Microsoft\Graph\Model\Message::class)
                     ->execute();
-            }
-            catch(\Exception $e){
-
+            } catch (\Exception $e) {
                 sleep(5);
-                $graphMessage = $graph->createRequest("POST", "/users/" . key($message->getFrom()) . "/sendmail")
+                $graphMessage = $graph->createRequest('POST', '/users/'.key($message->getFrom()).'/sendmail')
                     ->attachBody($messageBody)
                     ->setReturnType(\Microsoft\Graph\Model\Message::class)
                     ->execute();
@@ -150,15 +145,14 @@ class Office365MailTransport extends Transport
      * @param bool $withAttachments
      * @return array
      */
-
     protected function getBody(Swift_Mime_SimpleMessage $message, $withAttachments = false)
     {
         $messageData = [
             'from' => [
                 'emailAddress' => [
                     'address' => key($message->getFrom()),
-                    'name' => current($message->getFrom())
-                ]
+                    'name' => current($message->getFrom()),
+                ],
             ],
             'toRecipients' => $this->getTo($message),
             'ccRecipients' => $this->getCc($message),
@@ -166,9 +160,9 @@ class Office365MailTransport extends Transport
             'replyTo' => $this->getReplyTo($message),
             'subject' => $message->getSubject(),
             'body' => [
-                'contentType' => $message->getBodyContentType() == "text/html" ? 'html' : 'text',
-                'content' => $message->getBody()
-            ]
+                'contentType' => $message->getBodyContentType() == 'text/html' ? 'html' : 'text',
+                'content' => $message->getBody(),
+            ],
         ];
 
         if ($withAttachments) {
@@ -178,11 +172,11 @@ class Office365MailTransport extends Transport
             foreach ($message->getChildren() as $attachment) {
                 if ($attachment instanceof \Swift_Mime_SimpleMimeEntity && $attachment->getContentType() != 'text/plain') {
                     $attachments[] = [
-                        "@odata.type" => "#microsoft.graph.fileAttachment",
-                        "name" => $attachment->getHeaders()->get('Content-Type')->getParameter('name'),
-                        "contentType" => $attachment->getBodyContentType(),
-                        "contentBytes" => base64_encode($attachment->getBody()),
-                        'contentId'    => $attachment->getId()
+                        '@odata.type' => '#microsoft.graph.fileAttachment',
+                        'name' => $attachment->getHeaders()->get('Content-Type')->getParameter('name'),
+                        'contentType' => $attachment->getBodyContentType(),
+                        'contentBytes' => base64_encode($attachment->getBody()),
+                        'contentId'    => $attachment->getId(),
                     ];
                 }
             }
@@ -206,12 +200,12 @@ class Office365MailTransport extends Transport
             return $display ? [
                 'emailAddress' => [
                     'address' => $address,
-                    'name' => $display
-                ]
+                    'name' => $display,
+                ],
             ] : [
                 'emailAddress' => [
-                    'address' => $address
-                ]
+                    'address' => $address,
+                ],
             ];
         })->values()->toArray();
     }
@@ -228,12 +222,12 @@ class Office365MailTransport extends Transport
             return $display ? [
                 'emailAddress' => [
                     'address' => $address,
-                    'name' => $display
-                ]
+                    'name' => $display,
+                ],
             ] : [
                 'emailAddress' => [
-                    'address' => $address
-                ]
+                    'address' => $address,
+                ],
             ];
         })->values()->toArray();
     }
@@ -250,12 +244,12 @@ class Office365MailTransport extends Transport
             return $display ? [
                 'emailAddress' => [
                     'address' => $address,
-                    'name' => $display
-                ]
+                    'name' => $display,
+                ],
             ] : [
                 'emailAddress' => [
-                    'address' => $address
-                ]
+                    'address' => $address,
+                ],
             ];
         })->values()->toArray();
     }
@@ -272,12 +266,12 @@ class Office365MailTransport extends Transport
             return $display ? [
                 'emailAddress' => [
                     'address' => $address,
-                    'name' => $display
-                ]
+                    'name' => $display,
+                ],
             ] : [
                 'emailAddress' => [
-                    'address' => $address
-                ]
+                    'address' => $address,
+                ],
             ];
         })->values()->toArray();
     }
@@ -297,5 +291,4 @@ class Office365MailTransport extends Transport
             (array) $message->getReplyTo()
         );
     }
-
 }

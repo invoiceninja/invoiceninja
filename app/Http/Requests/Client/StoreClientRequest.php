@@ -25,6 +25,7 @@ use Illuminate\Validation\Rule;
 class StoreClientRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,7 +38,6 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
-        
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
@@ -51,14 +51,14 @@ class StoreClientRequest extends Request
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id);
         }
-        
+
         $rules['country_id'] = 'integer|nullable';
 
-        if(isset($this->currency_code)){
+        if (isset($this->currency_code)) {
             $rules['currency_code'] = 'sometimes|exists:currencies,code';
         }
 
-        if(isset($this->country_code)){
+        if (isset($this->country_code)) {
             $rules['country_code'] = new CountryCodeExistsRule();
         }
 
@@ -68,22 +68,22 @@ class StoreClientRequest extends Request
         $rules['contacts'] = 'array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
-                                        'nullable',
-                                        'sometimes',
-                                        'string',
-                                        'min:7',             // must be at least 10 characters in length
-                                        'regex:/[a-z]/',      // must contain at least one lowercase letter
-                                        'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                                        'regex:/[0-9]/',      // must contain at least one digit
-                                        //'regex:/[@$!%*#?&.]/', // must contain a special character
-                                        ];
+            'nullable',
+            'sometimes',
+            'string',
+            'min:7',             // must be at least 10 characters in length
+            'regex:/[a-z]/',      // must contain at least one lowercase letter
+            'regex:/[A-Z]/',      // must contain at least one uppercase letter
+            'regex:/[0-9]/',      // must contain at least one digit
+            //'regex:/[@$!%*#?&.]/', // must contain a special character
+        ];
 
         if (auth()->user()->company()->account->isFreeHostedClient()) {
             $rules['id'] = new CanStoreClientsRule(auth()->user()->company()->id);
         }
 
-        $rules['number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
-        $rules['id_number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['id_number'] = ['nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
 
         return $rules;
     }
@@ -96,22 +96,22 @@ class StoreClientRequest extends Request
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
             foreach ($input['settings'] as $key => $value) {
-
-                if($key == 'default_task_rate')
+                if ($key == 'default_task_rate') {
                     $value = floatval($value);
-                
+                }
+
                 $settings->{$key} = $value;
             }
         }
 
         $input = $this->decodePrimaryKeys($input);
 
-        if(isset($input['group_settings_id']))
+        if (isset($input['group_settings_id'])) {
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
 
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
         if (! property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
-
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
@@ -142,8 +142,9 @@ class StoreClientRequest extends Request
         }
 
         /* If there is no number, just unset it here. */
-        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+        if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
             unset($input['number']);
+        }
 
         $this->replace($input);
     }
@@ -166,12 +167,12 @@ class StoreClientRequest extends Request
             return $item->locale == $language_code;
         })->first();
 
-        if($language)
+        if ($language) {
             return (string) $language->id;
+        }
 
-        return "";
+        return '';
     }
-
 
     private function getCountryCode($country_code)
     {
@@ -181,10 +182,11 @@ class StoreClientRequest extends Request
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
         })->first();
 
-        if($country)
+        if ($country) {
             return (string) $country->id;
+        }
 
-        return "";
+        return '';
     }
 
     private function getCurrencyCode($code)
@@ -195,9 +197,10 @@ class StoreClientRequest extends Request
             return $item->code == $code;
         })->first();
 
-        if($currency)
+        if ($currency) {
             return (string) $currency->id;
+        }
 
-        return "";
+        return '';
     }
 }

@@ -18,11 +18,10 @@ class AddNumberYearsActiveToCompanyUsersTable extends Migration
             $table->unsignedInteger('number_years_active')->default(3);
         });
 
-        CompanyUser::cursor()->each(function ($cu){
+        CompanyUser::cursor()->each(function ($cu) {
             $cu->number_years_active = 3;
             $cu->save();
         });
-
     }
 
     /**
@@ -32,6 +31,5 @@ class AddNumberYearsActiveToCompanyUsersTable extends Migration
      */
     public function down()
     {
-
     }
 }

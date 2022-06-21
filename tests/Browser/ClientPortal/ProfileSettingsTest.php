@@ -47,7 +47,7 @@ class ProfileSettingsTest extends DuskTestCase
     {
         $original = [
             'name' => $this->faker->name,
-            'vat_number' => (string)$this->faker->randomNumber(6),
+            'vat_number' => (string) $this->faker->randomNumber(6),
             'phone' => $this->faker->phoneNumber,
             'website' => $this->faker->url,
         ];
@@ -75,7 +75,7 @@ class ProfileSettingsTest extends DuskTestCase
                 'name' => $browser->value('#client_name'),
                 'vat_number' => $browser->value('#client_vat_number'),
                 'phone' => $browser->value('#client_phone'),
-                'website' => $browser->value('#client_website')
+                'website' => $browser->value('#client_website'),
             ];
 
             $this->assertSame($original, $updated);

@@ -48,7 +48,6 @@ class ProfitAndLoss implements ShouldQueue
      */
     public function handle() : void
     {
-
         MultiDB::setDb($this->company->db);
 
         /*
@@ -56,7 +55,7 @@ class ProfitAndLoss implements ShouldQueue
 
             start_date - Y-m-d
             end_date - Y-m-d
-            date_range - 
+            date_range -
                 all
                 last7
                 last30
@@ -75,15 +74,9 @@ class ProfitAndLoss implements ShouldQueue
         $pl = new ProfitLoss($this->company, $this->payload);
 
         $pl->build();
-
     }
-
-
-
-
 
     public function failed($exception = null)
     {
-
     }
 }

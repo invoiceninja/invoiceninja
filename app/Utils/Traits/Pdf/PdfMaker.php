@@ -39,12 +39,13 @@ trait PdfMaker
             $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
         }
 
-        $generated  = $pdf
+        $generated = $pdf
                         ->setHtml($html)
                         ->generate();
 
-        if($generated)
+        if ($generated) {
             return $generated;
+        }
 
         throw new InternalPDFFailure('There was an issue generating the PDF locally');
     }

@@ -34,7 +34,6 @@ class EntityNotificationMailer extends Mailable
      */
     public function build()
     {
-
         return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject($this->mail_obj->subject)
                     ->markdown($this->mail_obj->markdown, $this->mail_obj->data)

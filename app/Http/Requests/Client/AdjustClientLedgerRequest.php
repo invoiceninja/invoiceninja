@@ -50,6 +50,4 @@ class AdjustClientLedgerRequest extends Request
 
         $this->replace($input);
     }
-
-
 }

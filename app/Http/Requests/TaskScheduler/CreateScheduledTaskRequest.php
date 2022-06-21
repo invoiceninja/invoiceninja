@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Http\Requests\TaskScheduler;
-
 
 use App\Http\Requests\Request;
 
@@ -32,8 +30,9 @@ class CreateScheduledTaskRequest extends Request
     {
         $input = $this->all();
 
-        if(!array_key_exists('start_from', $input))
+        if (! array_key_exists('start_from', $input)) {
             $input['start_from'] = now();
+        }
 
         $this->replace($input);
     }

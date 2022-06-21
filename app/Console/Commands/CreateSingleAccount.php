@@ -57,9 +57,9 @@ use stdClass;
 class CreateSingleAccount extends Command
 {
     use MakesHash, GeneratesCounter;
-    
+
     protected $description = 'Create Single Sample Account';
-    
+
     protected $signature = 'ninja:create-single-account {gateway=all} {--database=db-ninja-01}';
 
     protected $invoice_repo;
@@ -75,12 +75,13 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
+        if (config('ninja.is_docker')) {
+            return;
+        }
 
-        if(config('ninja.is_docker'))
+        if (! $this->confirm('Are you sure you want to inject dummy data?')) {
             return;
-        
-        if (!$this->confirm('Are you sure you want to inject dummy data?'))
-            return;
+        }
 
         $this->invoice_repo = new InvoiceRepository();
 
@@ -105,10 +106,10 @@ class CreateSingleAccount extends Command
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
-            'default_password_timeout' => 30*60000,
+            'default_password_timeout' => 30 * 60000,
             'portal_mode' => 'domain',
             'portal_domain' => 'http://ninja.test:8000',
-            'track_inventory' => true
+            'track_inventory' => true,
         ]);
 
         $settings = $company->settings;
@@ -153,32 +154,30 @@ class CreateSingleAccount extends Command
         ]);
 
         Product::factory()->count(1)->create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-            ]);
-
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
 
         TaxRate::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'name' => 'GST',
-            'rate' => 10
+            'rate' => 10,
         ]);
 
         TaxRate::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'name' => 'VAT',
-            'rate' => 17.5
+            'rate' => 17.5,
         ]);
 
         TaxRate::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'name' => 'CA Sales Tax',
-            'rate' => 5
+            'rate' => 5,
         ]);
-
 
         $this->info('Creating '.$this->count.' clients');
 
@@ -227,18 +226,18 @@ class CreateSingleAccount extends Command
 
             $client = $company->clients->random();
 
-            $this->info('creating task for client #' . $client->id);
+            $this->info('creating task for client #'.$client->id);
             $this->createTask($client);
 
             $client = $company->clients->random();
 
-            $this->info('creating project for client #' . $client->id);
+            $this->info('creating project for client #'.$client->id);
             $this->createProject($client);
 
-            $this->info('creating credit for client #' . $client->id);
+            $this->info('creating credit for client #'.$client->id);
             $this->createCredit($client);
 
-            $this->info('creating recurring invoice for client # ' . $client->id);
+            $this->info('creating recurring invoice for client # '.$client->id);
             $this->createRecurringInvoice($client);
         }
 
@@ -250,7 +249,7 @@ class CreateSingleAccount extends Command
     private function createSubsData($company, $user)
     {
         $gs = GroupSettingFactory::create($company->id, $user->id);
-        $gs->name = "plans";
+        $gs->name = 'plans';
         $gs->save();
 
         $p1 = Product::factory()->create([
@@ -290,7 +289,7 @@ class CreateSingleAccount extends Command
         ];
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Pro Plan";
+        $sub->name = 'Pro Plan';
         $sub->group_id = $gs->id;
         $sub->recurring_product_ids = "{$p1->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
@@ -299,7 +298,7 @@ class CreateSingleAccount extends Command
         $sub->save();
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Enterprise Plan";
+        $sub->name = 'Enterprise Plan';
         $sub->group_id = $gs->id;
         $sub->recurring_product_ids = "{$p2->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
@@ -308,7 +307,7 @@ class CreateSingleAccount extends Command
         $sub->save();
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
-        $sub->name = "Free Plan";
+        $sub->name = 'Free Plan';
         $sub->group_id = $gs->id;
         $sub->recurring_product_ids = "{$p3->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
@@ -324,28 +323,28 @@ class CreateSingleAccount extends Command
 
         // });
         $client = Client::factory()->create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-            ]);
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
 
         ClientContact::factory()->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                    'is_primary' => 1,
-                    'email' => 'user@example.com'
-                ]);
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+            'is_primary' => 1,
+            'email' => 'user@example.com',
+        ]);
 
         ClientContact::factory()->count(rand(1, 2))->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                ]);
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
 
         $client->number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = "1";
+        $settings->currency_id = '1';
 //        $settings->use_credits_payment = "always";
 
         $client->settings = $settings;
@@ -359,48 +358,48 @@ class CreateSingleAccount extends Command
     private function createExpense($client)
     {
         Expense::factory()->count(rand(1, 2))->create([
-                'user_id' => $client->user->id,
-                'client_id' => $client->id,
-                'company_id' => $client->company->id,
-            ]);
+            'user_id' => $client->user->id,
+            'client_id' => $client->id,
+            'company_id' => $client->company->id,
+        ]);
     }
 
     private function createVendor($client)
     {
         $vendor = Vendor::factory()->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company->id,
-            ]);
+            'user_id' => $client->user->id,
+            'company_id' => $client->company->id,
+        ]);
 
         VendorContact::factory()->create([
-                'user_id' => $client->user->id,
-                'vendor_id' => $vendor->id,
-                'company_id' => $client->company->id,
-                'is_primary' => 1,
-            ]);
+            'user_id' => $client->user->id,
+            'vendor_id' => $vendor->id,
+            'company_id' => $client->company->id,
+            'is_primary' => 1,
+        ]);
 
         VendorContact::factory()->count(rand(1, 2))->create([
-                'user_id' => $client->user->id,
-                'vendor_id' => $vendor->id,
-                'company_id' => $client->company->id,
-                'is_primary' => 0,
-            ]);
+            'user_id' => $client->user->id,
+            'vendor_id' => $vendor->id,
+            'company_id' => $client->company->id,
+            'is_primary' => 0,
+        ]);
     }
 
     private function createTask($client)
     {
         $vendor = Task::factory()->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company->id,
-            ]);
+            'user_id' => $client->user->id,
+            'company_id' => $client->company->id,
+        ]);
     }
 
     private function createProject($client)
     {
         $vendor = Project::factory()->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company->id,
-            ]);
+            'user_id' => $client->user->id,
+            'company_id' => $client->company->id,
+        ]);
     }
 
     private function createInvoice($client)
@@ -517,7 +516,6 @@ class CreateSingleAccount extends Command
         $quote->service()->createInvitations();
     }
 
-
     private function buildCreditItem()
     {
         $line_items = [];
@@ -538,10 +536,8 @@ class CreateSingleAccount extends Command
 
         $line_items[] = $item;
 
-
         return $line_items;
     }
-
 
     private function buildLineItems($count = 1)
     {
@@ -614,7 +610,6 @@ class CreateSingleAccount extends Command
     private function createGateways($company, $user)
     {
         if (config('ninja.testvars.stripe') && ($this->gateway == 'all' || $this->gateway == 'stripe')) {
-
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -633,8 +628,6 @@ class CreateSingleAccount extends Command
 
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
-
-
         }
 
         if (config('ninja.testvars.paypal') && ($this->gateway == 'all' || $this->gateway == 'paypal')) {
@@ -742,7 +735,6 @@ class CreateSingleAccount extends Command
             $cg->save();
         }
 
-
         if (config('ninja.testvars.paytrace.decrypted') && ($this->gateway == 'all' || $this->gateway == 'paytrace')) {
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
@@ -755,7 +747,6 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.paytrace.decrypted'));
 
             $cg->save();
-
 
             $gateway_types = $cg->driver()->gatewayTypes();
 

@@ -25,7 +25,7 @@ class InvoiceEmailedNotification implements ShouldQueue
     use UserNotifies;
 
     public $delay = 5;
-    
+
     public function __construct()
     {
     }
@@ -47,10 +47,9 @@ class InvoiceEmailedNotification implements ShouldQueue
         $invoice->saveQuietly();
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'invoice', $event->template))->build() );
+        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
         $nmo->company = $invoice->company;
         $nmo->settings = $invoice->company->settings;
-
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->invitation->company->company_users as $company_user) {
@@ -71,7 +70,7 @@ class InvoiceEmailedNotification implements ShouldQueue
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }
@@ -79,7 +78,7 @@ class InvoiceEmailedNotification implements ShouldQueue
             /* Override the methods in the Notification Class */
             // $notification->method = $methods;
 
-            //  Notify on the alternate channels 
+            //  Notify on the alternate channels
             // $user->notify($notification);
         }
     }

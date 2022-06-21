@@ -7,6 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 class UpdateCanadianDollarSymbol extends Migration
 {
     use AppSetup;
+
     /**
      * Run the migrations.
      *

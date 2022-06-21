@@ -23,7 +23,6 @@ use Illuminate\Queue\SerializesModels;
 
 class NewPaymentNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
@@ -102,8 +101,8 @@ class NewPaymentNotification extends Notification
                 ->content(ctrans(
                     'texts.notification_payment_paid',
                     ['amount' => $amount,
-                    'client' => $this->payment->client->present()->name(),
-                    'invoice' => $invoice_texts, ]
+                        'client' => $this->payment->client->present()->name(),
+                        'invoice' => $invoice_texts, ]
                 ));
     }
 }

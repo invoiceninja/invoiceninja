@@ -48,7 +48,7 @@ class UpdateDesignRequest extends Request
         if (! array_key_exists('includes', $input['design']) || is_null($input['design']['includes'])) {
             $input['design']['includes'] = '';
         }
-        
+
         if (! array_key_exists('footer', $input['design']) || is_null($input['design']['footer'])) {
             $input['design']['footer'] = '';
         }

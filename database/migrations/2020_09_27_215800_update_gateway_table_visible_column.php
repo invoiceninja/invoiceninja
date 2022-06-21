@@ -6,9 +6,8 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
@@ -25,7 +24,7 @@ class UpdateGatewayTableVisibleColumn extends Migration
     {
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,15,20,39])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1, 15, 20, 39])->update(['visible' => 1]);
 
         Schema::table('recurring_invoice_invitations', function ($t) {
             $t->string('transaction_reference')->nullable();
@@ -50,8 +49,6 @@ class UpdateGatewayTableVisibleColumn extends Migration
             $t->boolean('is_deleted')->default(0);
         });
     }
-
-
 
     /**
      * Reverse the migrations.

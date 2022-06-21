@@ -37,6 +37,5 @@ class AddPaidToDateColumn extends Migration
      */
     public function down()
     {
-
     }
 }

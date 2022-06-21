@@ -177,7 +177,7 @@ class TaskStatusController extends BaseController
     public function store(StoreTaskStatusRequest $request)
     {
         // nlog($request->all());
-        
+
         $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $task_status->fill($request->all());
 
@@ -400,9 +400,8 @@ class TaskStatusController extends BaseController
      */
     public function destroy(DestroyTaskStatusRequest $request, TaskStatus $task_status)
     {
-        
         $task_status = $this->task_status_repo->delete($task_status);
-     
+
         return $this->itemResponse($task_status);
     }
 

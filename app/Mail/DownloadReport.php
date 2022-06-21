@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Mail;
 
 use App\Models\Company;
@@ -22,7 +23,9 @@ class DownloadReport extends Mailable
     use Queueable, SerializesModels;
 
     protected Company $company;
+
     protected $csv;
+
     protected string $file_name;
 
     /**

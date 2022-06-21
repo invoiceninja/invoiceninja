@@ -16,7 +16,6 @@ namespace App\Models;
  */
 class TransactionEvent extends StaticModel
 {
-
     public $timestamps = false;
 
     public $guarded = ['id'];
@@ -28,19 +27,30 @@ class TransactionEvent extends StaticModel
     ];
 
     public const INVOICE_MARK_PAID = 1;
+
     public const INVOICE_UPDATED = 2;
+
     public const INVOICE_DELETED = 3;
+
     public const INVOICE_PAYMENT_APPLIED = 4;
+
     public const INVOICE_CANCELLED = 5;
+
     public const INVOICE_FEE_APPLIED = 6;
+
     public const INVOICE_REVERSED = 7;
-    
+
     public const PAYMENT_MADE = 100;
+
     public const PAYMENT_APPLIED = 101;
+
     public const PAYMENT_REFUND = 102;
+
     public const PAYMENT_FAILED = 103;
+
     public const GATEWAY_PAYMENT_MADE = 104;
+
     public const PAYMENT_DELETED = 105;
-    
+
     public const CLIENT_STATUS = 200;
 }

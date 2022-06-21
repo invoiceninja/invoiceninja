@@ -26,7 +26,7 @@ class QuoteApprovedNotification implements ShouldQueue
     use UserNotifies;
 
     public $delay = 5;
-    
+
     public function __construct()
     {
     }
@@ -46,7 +46,7 @@ class QuoteApprovedNotification implements ShouldQueue
         $quote = $event->quote;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new QuoteApprovedObject($quote, $event->company))->build() );
+        $nmo->mailable = new NinjaMailer((new QuoteApprovedObject($quote, $event->company))->build());
         $nmo->company = $quote->company;
         $nmo->settings = $quote->company->settings;
 
@@ -56,8 +56,9 @@ class QuoteApprovedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if(!$user)
+            if (! $user) {
                 continue;
+            }
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($quote->invitations()->first(), $company_user, 'quote', ['all_notifications', 'quote_approved', 'quote_approved_all']);
@@ -69,11 +70,10 @@ class QuoteApprovedNotification implements ShouldQueue
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }
-
         }
     }
 }

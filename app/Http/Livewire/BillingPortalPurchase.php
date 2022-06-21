@@ -11,6 +11,7 @@
 
 namespace App\Http\Livewire;
 
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -27,7 +28,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\DataMapper\ClientSettings;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -45,7 +45,6 @@ class BillingPortalPurchase extends Component
      * @var string
      */
     public $heading_text;
-
 
     /**
      * E-mail address model for user input.
@@ -87,14 +86,14 @@ class BillingPortalPurchase extends Component
     /**
      * Id for CompanyGateway record.
      *
-     * @var string|integer
+     * @var string|int
      */
     public $company_gateway_id;
 
     /**
      * Id for GatewayType.
      *
-     * @var string|integer
+     * @var string|int
      */
     public $payment_method_id;
 
@@ -188,8 +187,7 @@ class BillingPortalPurchase extends Component
         if (request()->query('coupon')) {
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
-        }
-        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+        } elseif (strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
             $this->price = $this->subscription->promo_price;
         }
     }
@@ -239,7 +237,7 @@ class BillingPortalPurchase extends Component
         $company = $this->subscription->company;
         $user = $this->subscription->user;
         $user->setCompany($company);
-        
+
         $client_repo = new ClientRepository(new ClientContactRepository());
 
         $data = [
@@ -269,7 +267,7 @@ class BillingPortalPurchase extends Component
             })->first();
 
             if ($record) {
-                $data['settings']['language_id'] = (string)$record->id;
+                $data['settings']['language_id'] = (string) $record->id;
             }
         }
 
@@ -297,10 +295,11 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((int)$this->price == 0)
+        if ((int) $this->price == 0) {
             $this->steps['payment_required'] = false;
-        else
+        } else {
             $this->steps['fetched_payment_methods'] = true;
+        }
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
@@ -394,9 +393,8 @@ class BillingPortalPurchase extends Component
 
     public function handlePaymentNotRequired()
     {
-
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
-        
+
         if ($is_eligible['status_code'] != 200) {
             $this->steps['not_eligible'] = true;
             $this->steps['not_eligible_message'] = $is_eligible['message'];
@@ -404,7 +402,6 @@ class BillingPortalPurchase extends Component
 
             return;
         }
-
 
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
@@ -433,11 +430,12 @@ class BillingPortalPurchase extends Component
 
         if ($option == 'increment') {
             $this->quantity++;
-            return $this->price = (int)$this->price + $this->subscription->product->price;
+
+            return $this->price = (int) $this->price + $this->subscription->product->price;
         }
 
         $this->quantity--;
-        $this->price = (int)$this->price - $this->subscription->product->price;
+        $this->price = (int) $this->price - $this->subscription->product->price;
 
         return 0;
     }
@@ -460,7 +458,7 @@ class BillingPortalPurchase extends Component
             ->first();
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string) route('client.subscription.purchase', $this->subscription->hashed_id).'?coupon='.$this->coupon);
         $mailer->company = $this->subscription->company;
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;

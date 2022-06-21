@@ -196,7 +196,7 @@ class BraintreePaymentDriver extends BaseDriver
             'paymentMethodToken' => $cgt->token,
             'deviceData' => '',
             'options' => [
-                'submitForSettlement' => true
+                'submitForSettlement' => true,
             ],
         ]);
 
@@ -224,7 +224,7 @@ class BraintreePaymentDriver extends BaseDriver
             return $payment;
         }
 
-        if (!$result->success) {
+        if (! $result->success) {
             $this->unWindGatewayFees($payment_hash);
 
             $this->sendFailureMail($result->transaction->additionalProcessorResponse);
@@ -249,7 +249,6 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function processWebhookRequest($request)
     {
-
         $validator = Validator::make($request->all(), [
             'bt_signature' => ['required'],
             'bt_payload' => ['required'],
@@ -262,21 +261,18 @@ class BraintreePaymentDriver extends BaseDriver
         $this->init();
 
         $webhookNotification = $this->gateway->webhookNotification()->parse(
-            $request->input("bt_signature"), $request->input("bt_payload")
+            $request->input('bt_signature'), $request->input('bt_payload')
         );
 
-        nlog("braintree webhook");
+        nlog('braintree webhook');
 
         // if($webhookNotification)
         //     nlog($webhookNotification->kind);
-        
+
         // // Example values for webhook notification properties
         // $message = $webhookNotification->kind; // "subscription_went_past_due"
         // $message = $webhookNotification->timestamp->format('D M j G:i:s T Y'); // "Sun Jan 1 00:00:00 UTC 2012"
 
         return response()->json([], 200);
-
     }
-
-
 }

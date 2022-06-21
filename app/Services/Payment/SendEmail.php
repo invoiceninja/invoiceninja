@@ -37,6 +37,7 @@ class SendEmail
         $this->payment->client->contacts->each(function ($contact) {
             if ($contact->email) {
                 EmailPayment::dispatchNow($this->payment, $this->payment->company, $contact);
+
                 return false;
                 //11-01-2021 only send payment receipt to the first contact
             }

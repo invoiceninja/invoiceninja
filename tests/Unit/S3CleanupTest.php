@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
@@ -25,15 +26,14 @@ class S3CleanupTest extends TestCase
 
     public function testMergeCollections()
     {
-        $c1 = collect(["1","2","3","4"]);
-        $c2 = collect(["5","6","7","8"]);
+        $c1 = collect(['1', '2', '3', '4']);
+        $c2 = collect(['5', '6', '7', '8']);
 
-        $c3 = collect(["1","2","10"]);
+        $c3 = collect(['1', '2', '10']);
 
         $merged = $c1->merge($c2)->toArray();
 
-        $this->assertTrue(in_array("1", $merged));
-        $this->assertFalse(in_array("10", $merged));
-           
+        $this->assertTrue(in_array('1', $merged));
+        $this->assertFalse(in_array('10', $merged));
     }
 }

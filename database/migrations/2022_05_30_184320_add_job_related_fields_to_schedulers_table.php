@@ -35,6 +35,5 @@ class AddJobRelatedFieldsToSchedulersTable extends Migration
      */
     public function down()
     {
-
     }
 }

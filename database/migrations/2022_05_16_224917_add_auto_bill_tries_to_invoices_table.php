@@ -31,6 +31,5 @@ class AddAutoBillTriesToInvoicesTable extends Migration
      */
     public function down()
     {
-
     }
 }

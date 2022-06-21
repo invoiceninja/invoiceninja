@@ -39,9 +39,7 @@ class MarkSent
         $this->quote->markInvitationsSent();
 
         if ($this->quote->due_date != '' || $this->quote->client->getSetting('valid_until') == '') {
-            
-        }
-        else{
+        } else {
             $this->quote->due_date = Carbon::parse($this->quote->date)->addDays($this->quote->client->getSetting('valid_until'));
         }
 

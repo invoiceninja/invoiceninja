@@ -51,7 +51,7 @@ class PRZELEWY24
             'currency' => 'eur',
             'payment_method_types' => ['p24'],
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::PRZELEWY24,
@@ -97,7 +97,7 @@ class PRZELEWY24
         if (Payment::where('transaction_reference', $payment_intent)->exists()) {
             return redirect()->route('client.payments.index');
         }
-        
+
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::PRZELEWY24,

@@ -60,8 +60,9 @@ class DocumentController extends Controller
 
         $headers = [];
 
-        if(request()->input('inline') == 'true') 
+        if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
 
         return Storage::disk($document->disk)->download($document->url, $document->name, $headers);
     }
@@ -74,29 +75,22 @@ class DocumentController extends Controller
 
         $zipFile = new \PhpZip\ZipFile();
 
-        try{
-            
+        try {
             foreach ($documents as $document) {
                 $zipFile->addFile(TempFile::path($document->filePath()), $document->name);
             }
 
-            $filename = now() . '-documents.zip';
-            $filepath = sys_get_temp_dir() . '/' . $filename;
+            $filename = now().'-documents.zip';
+            $filepath = sys_get_temp_dir().'/'.$filename;
 
-           $zipFile->saveAsFile($filepath) // save the archive to a file
+            $zipFile->saveAsFile($filepath) // save the archive to a file
                    ->close(); // close archive
-                    
-           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
 
-        }
-        catch(\PhpZip\Exception\ZipException $e){
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+        } catch (\PhpZip\Exception\ZipException $e) {
             // handle exception
-        }
-        finally{
+        } finally {
             $zipFile->close();
         }
-
     }
-
-
 }

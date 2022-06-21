@@ -14,19 +14,14 @@ class UpdateStripeAppleDomainConfig extends Migration
      */
     public function up()
     {
-
-        CompanyGateway::whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'])->cursor()->each(function($cg){
-
+        CompanyGateway::whereIn('gateway_key', ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'])->cursor()->each(function ($cg) {
             $config = $cg->getConfig();
 
-            if(!property_exists($config, 'appleDomainVerification')){
-
-                $config->appleDomainVerification = "";
+            if (! property_exists($config, 'appleDomainVerification')) {
+                $config->appleDomainVerification = '';
                 $cg->setConfig($config);
                 $cg->save();
-
             }
-
         });
     }
 

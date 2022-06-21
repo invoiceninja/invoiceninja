@@ -20,7 +20,7 @@ use stdClass;
 
 class ClientPaymentFailureObject
 {
-     use MakesHash;
+    use MakesHash;
 
     public $client;
 
@@ -51,12 +51,11 @@ class ClientPaymentFailureObject
         $this->payment_hash = $payment_hash;
 
         $this->company = $company;
-
     }
 
     public function build()
     {
-        if(!$this->payment_hash){
+        if (! $this->payment_hash) {
             return;
         }
 
@@ -82,28 +81,25 @@ class ClientPaymentFailureObject
 
     private function getAmount()
     {
-
-       return array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
-
+        return array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
     }
 
     private function getSubject()
     {
-
         return
             ctrans(
                 'texts.notification_invoice_payment_failed_subject',
-                ['invoice' => implode(",", $this->invoices->pluck('number')->toArray())]
+                ['invoice' => implode(',', $this->invoices->pluck('number')->toArray())]
             );
-
     }
 
     private function getData()
     {
         $invitation = $this->invoices->first()->invitations->first();
 
-        if(!$invitation)
+        if (! $invitation) {
             throw new \Exception('Unable to find invitation for reference');
+        }
 
         $signature = $this->client->getSetting('email_signature');
         $html_variables = (new HtmlEngine($invitation))->makeValues();
@@ -113,11 +109,11 @@ class ClientPaymentFailureObject
             'title' => ctrans(
                 'texts.notification_invoice_payment_failed_subject',
                 [
-                    'invoice' => $this->invoices->first()->number
+                    'invoice' => $this->invoices->first()->number,
                 ]
             ),
             'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
-            'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
+            'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
@@ -130,6 +126,4 @@ class ClientPaymentFailureObject
 
         return $data;
     }
-
-
 }

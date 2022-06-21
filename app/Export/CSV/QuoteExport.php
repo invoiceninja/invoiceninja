@@ -70,7 +70,7 @@ class QuoteExport extends BaseExport
     private array $decorate_keys = [
         'client',
         'currency',
-        'invoice'
+        'invoice',
     ];
 
     public function __construct(Company $company, array $input)
@@ -82,7 +82,6 @@ class QuoteExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -92,8 +91,9 @@ class QuoteExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -101,58 +101,55 @@ class QuoteExport extends BaseExport
         $query = Quote::query()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted',0);
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
         $query->cursor()
-            ->each(function ($quote){
+            ->each(function ($quote) {
+                $this->csv->insertOne($this->buildRow($quote));
+            });
 
-                $this->csv->insertOne($this->buildRow($quote)); 
-
-        });
-
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Quote $quote) :array
     {
-
         $transformed_quote = $this->quote_transformer->transform($quote);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_quote))
+            if (array_key_exists($key, $transformed_quote)) {
                 $entity[$keyval] = $transformed_quote[$key];
-            else
+            } else {
                 $entity[$keyval] = '';
+            }
         }
 
         return $this->decorateAdvancedFields($quote, $entity);
-
     }
 
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
-        if(in_array('currency_id', $this->input['report_keys']))
+        if (in_array('currency_id', $this->input['report_keys'])) {
             $entity['currency'] = $quote->client->currency()->code;
+        }
 
-        if(in_array('client_id', $this->input['report_keys']))
+        if (in_array('client_id', $this->input['report_keys'])) {
             $entity['client'] = $quote->client->present()->name();
+        }
 
-        if(in_array('status_id',$this->input['report_keys']))
+        if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $quote->stringStatus($quote->status_id);
+        }
 
-        if(in_array('invoice_id', $this->input['report_keys']))
-            $entity['invoice'] = $quote->invoice ? $quote->invoice->number : "";
+        if (in_array('invoice_id', $this->input['report_keys'])) {
+            $entity['invoice'] = $quote->invoice ? $quote->invoice->number : '';
+        }
 
         return $entity;
     }
-
 }

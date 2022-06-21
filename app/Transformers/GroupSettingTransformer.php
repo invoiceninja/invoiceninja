@@ -25,7 +25,7 @@ class GroupSettingTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-        'documents'
+        'documents',
     ];
 
     /**
@@ -57,5 +57,4 @@ class GroupSettingTransformer extends EntityTransformer
 
         return $this->includeCollection($group_setting->documents, $transformer, Document::class);
     }
-
 }

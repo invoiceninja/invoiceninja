@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\PurchaseOrder;
 
-
 use App\Http\Requests\Request;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
@@ -20,6 +19,7 @@ use Illuminate\Validation\Rule;
 class StorePurchaseOrderRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,6 +29,7 @@ class StorePurchaseOrderRequest extends Request
     {
         return auth()->user()->can('create', PurchaseOrder::class);
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -41,9 +42,8 @@ class StorePurchaseOrderRequest extends Request
         $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)];
-        $rules['discount']  = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-
 
         $rules['line_items'] = 'array';
 
@@ -58,5 +58,4 @@ class StorePurchaseOrderRequest extends Request
 
         $this->replace($input);
     }
-
 }

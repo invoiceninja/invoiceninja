@@ -38,7 +38,6 @@ class UpdateTaskStatusRequest extends Request
         //     $rules['name'] = Rule::unique('task_statuses')->where('company_id', auth()->user()->company()->id)->ignore($this->task_status->id);
         // }
 
-
         return $rules;
     }
 
@@ -46,8 +45,9 @@ class UpdateTaskStatusRequest extends Request
     {
         $input = $this->all();
 
-            if(array_key_exists('color', $input) && is_null($input['color']))
-                $input['color'] = '';
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
+            $input['color'] = '';
+        }
 
         $this->replace($input);
     }

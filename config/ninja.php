@@ -40,7 +40,7 @@ return [
     'local_download' => env('LOCAL_DOWNLOAD', false),
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://39389664f3f14969b4c43dadda00a40b@sentry2.invoicing.co/5'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
-	'preconfigured_install' => env('PRECONFIGURED_INSTALL',false),
+    'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     // Settings used by invoiceninja.com
 
@@ -88,11 +88,11 @@ return [
         'braintree' => env('BRAINTREE_KEYS', ''),
         'paytrace' => [
             'username' => env('PAYTRACE_U', ''),
-            'password' => env('PAYTRACE_P',''),
+            'password' => env('PAYTRACE_P', ''),
             'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
         'mollie' => env('MOLLIE_KEYS', ''),
-        'square' => env('SQUARE_KEYS',''),
+        'square' => env('SQUARE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
@@ -177,7 +177,7 @@ return [
     'wepay' => [
         'environment' => env('WEPAY_ENVIRONMENT', 'stage'),
         'client_id' => env('WEPAY_CLIENT_ID', ''),
-        'client_secret' => env('WEPAY_CLIENT_SECRET',''),
+        'client_secret' => env('WEPAY_CLIENT_SECRET', ''),
         'fee_payer' => env('WEPAY_FEE_PAYER'),
         'fee_cc_multiplier' => env('WEPAY_APP_FEE_CC_MULTIPLIER'),
         'fee_ach_multiplier' => env('WEPAY_APP_FEE_ACH_MULTIPLIER'),
@@ -195,4 +195,3 @@ return [
     'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false),
     'react_app_enabled' => env('REACT_APP_ENABLED', false),
 ];
-

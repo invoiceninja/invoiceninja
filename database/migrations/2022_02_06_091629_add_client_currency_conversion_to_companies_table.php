@@ -25,6 +25,5 @@ class AddClientCurrencyConversionToCompaniesTable extends Migration
      */
     public function down()
     {
-
     }
 }

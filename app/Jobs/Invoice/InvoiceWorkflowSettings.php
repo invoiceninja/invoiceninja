@@ -26,7 +26,9 @@ class InvoiceWorkflowSettings implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $invoice;
+
     public $client;
+
     private $base_repository;
 
     /**

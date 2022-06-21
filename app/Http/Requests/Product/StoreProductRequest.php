@@ -44,7 +44,7 @@ class StoreProductRequest extends Request
         $rules['in_stock_quantity'] = 'sometimes|numeric';
         $rules['stock_notification_threshold'] = 'sometimes|numeric';
         $rules['stock_notification'] = 'sometimes|bool';
-        
+
         return $rules;
     }
 

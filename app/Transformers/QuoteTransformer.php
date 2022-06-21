@@ -25,8 +25,8 @@ class QuoteTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-            'invitations',
-            'documents',
+        'invitations',
+        'documents',
     ];
 
     protected $availableIncludes = [

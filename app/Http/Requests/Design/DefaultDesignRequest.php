@@ -38,7 +38,7 @@ class DefaultDesignRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-        
+
         $this->replace($input);
     }
 }

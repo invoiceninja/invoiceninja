@@ -141,9 +141,9 @@ return [
         ],
         'post_update' => [
             'postupdate:cleanup' => [
-            'class' => \App\Console\Commands\PostUpdate::class,
+                'class' => \App\Console\Commands\PostUpdate::class,
+            ],
         ],
-    ]
     ],
 
 ];

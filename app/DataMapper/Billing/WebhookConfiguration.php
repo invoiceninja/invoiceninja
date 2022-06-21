@@ -12,7 +12,6 @@
 
 namespace App\DataMapper\Billing;
 
-
 class WebhookConfiguration
 {
     /**
@@ -33,11 +32,11 @@ class WebhookConfiguration
     /**
      * @var string
      */
-    public $post_purchase_body =  '';
+    public $post_purchase_body = '';
 
     /**
      * @var string
-     */ 
+     */
     public $post_purchase_rest_method = 'POST';
 
     /**

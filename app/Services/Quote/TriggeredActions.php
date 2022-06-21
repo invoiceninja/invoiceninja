@@ -36,7 +36,6 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
-
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->quote = $this->quote->service()->markSent()->save();
             $this->sendEmail();
@@ -48,19 +47,17 @@ class TriggeredActions extends AbstractService
 
         if ($this->request->has('convert') && $this->request->input('convert') == 'true') {
             $this->quote = $this->quote->service()->convert()->save();
-        }        
+        }
 
         if ($this->request->has('approve') && $this->request->input('approve') == 'true' && in_array($this->quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
             $this->quote = $this->quote->service()->approveWithNoCoversion()->save();
-        }        
+        }
 
-        
         return $this->quote;
     }
 
     private function sendEmail()
     {
-
         $reminder_template = $this->quote->calculateTemplate('quote');
         // $reminder_template = 'email_template_quote';
 

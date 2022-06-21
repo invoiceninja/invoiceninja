@@ -10,7 +10,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
@@ -99,7 +98,7 @@ class RequiredClientInfo extends Component
     public $show_form = false;
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -109,7 +108,6 @@ class RequiredClientInfo extends Component
         count($this->fields) > 0
             ? $this->checkFields()
             : $this->show_form = false;
-
     }
 
     public function handleSubmit(array $data): bool
@@ -117,7 +115,7 @@ class RequiredClientInfo extends Component
         $rules = [];
 
         collect($this->fields)->map(function ($field) use (&$rules) {
-            if (!array_key_exists('filled', $field)) {
+            if (! array_key_exists('filled', $field)) {
                 $rules[$field['name']] = array_key_exists('validation_rules', $field)
                     ? $field['validation_rules']
                     : 'required';
@@ -225,7 +223,7 @@ class RequiredClientInfo extends Component
             'client_shipping_state' => $this->contact->client->state,
             'client_shipping_postal_code' => $this->contact->client->postal_code,
             'client_shipping_country_id' => $this->contact->client->country_id,
-        ]); 
+        ]);
     }
 
     public function render()

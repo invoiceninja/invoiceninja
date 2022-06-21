@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
@@ -73,10 +72,10 @@ class PurchaseOrder extends BaseModel
         'custom_surcharge2',
         'custom_surcharge3',
         'custom_surcharge4',
-//        'custom_surcharge_tax1',
-//        'custom_surcharge_tax2',
-//        'custom_surcharge_tax3',
-//        'custom_surcharge_tax4',
+        //        'custom_surcharge_tax1',
+        //        'custom_surcharge_tax2',
+        //        'custom_surcharge_tax3',
+        //        'custom_surcharge_tax4',
         'design_id',
         'invoice_id',
         'assigned_user_id',
@@ -86,7 +85,7 @@ class PurchaseOrder extends BaseModel
         'paid_to_date',
         // 'subscription_id',
         'vendor_id',
-        'last_viewed'
+        'last_viewed',
     ];
 
     protected $casts = [
@@ -100,8 +99,11 @@ class PurchaseOrder extends BaseModel
     ];
 
     const STATUS_DRAFT = 1;
+
     const STATUS_SENT = 2;
+
     const STATUS_ACCEPTED = 3;
+
     const STATUS_CANCELLED = 4;
 
     public static function stringStatus(int $status)
@@ -124,7 +126,6 @@ class PurchaseOrder extends BaseModel
         }
     }
 
-
     public static function badgeForStatus(int $status)
     {
         switch ($status) {
@@ -145,7 +146,6 @@ class PurchaseOrder extends BaseModel
                 break;
         }
     }
-
 
     public function assigned_user()
     {
@@ -181,6 +181,7 @@ class PurchaseOrder extends BaseModel
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
+
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {
@@ -194,33 +195,34 @@ class PurchaseOrder extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-
-            if($this->invitations()->exists())
+            if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
-            else{
+            } else {
                 $this->service()->createInvitations();
                 $invitation = $this->invitations()->first();
             }
-
         }
 
-        if(!$invitation)
+        if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
 
         $file_path = $this->vendor->purchase_order_filepath($invitation).$this->numberFormatter().'.pdf';
 
-        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        elseif(Ninja::isHosted() && $portal){
-            $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation,config('filesystems.default'));
+        } elseif (Ninja::isHosted() && $portal) {
+            $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation, config('filesystems.default'));
+
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
-        if(Storage::disk('public')->exists($file_path))
+        if (Storage::disk('public')->exists($file_path)) {
             return Storage::disk('public')->{$type}($file_path);
+        }
 
         $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation);
+
         return Storage::disk('public')->{$type}($file_path);
     }
 
@@ -271,5 +273,4 @@ class PurchaseOrder extends BaseModel
 
         return $purchase_order_calc->build();
     }
-
 }

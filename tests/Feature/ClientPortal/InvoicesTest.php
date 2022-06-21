@@ -12,7 +12,6 @@
 
 namespace Tests\Feature\ClientPortal;
 
-
 use App\DataMapper\ClientSettings;
 use App\Http\Livewire\InvoicesTable;
 use App\Models\Account;
@@ -31,14 +30,13 @@ class InvoicesTest extends TestCase
 {
     use DatabaseTransactions;
     use AppSetup;
-    
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
         $this->buildCache(true);
-
     }
 
     public function testInvoiceTableFilters()
@@ -50,12 +48,12 @@ class InvoicesTest extends TestCase
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
-        $company->settings->language_id = "1";
+        $company->settings->language_id = '1';
         $company->save();
 
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
         $settings = $client->settings;
-        $settings->language_id = "1";
+        $settings->language_id = '1';
         $client->settings = $settings;
         $client->save();
 

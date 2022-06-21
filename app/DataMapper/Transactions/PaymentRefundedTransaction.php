@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class PaymentRefundedTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::PAYMENT_REFUND; 
-
+    public $event_id = TransactionEvent::PAYMENT_REFUND;
 }

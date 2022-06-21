@@ -170,7 +170,6 @@ class Kernel extends HttpKernel
         'session_domain' => SessionDomains::class,
     ];
 
-
     protected $middlewarePriority = [
         EncryptCookies::class,
         StartSession::class,

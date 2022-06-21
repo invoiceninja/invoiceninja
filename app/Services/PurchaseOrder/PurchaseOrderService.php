@@ -32,7 +32,6 @@ class PurchaseOrderService
 
     public function createInvitations()
     {
-
         $this->purchase_order = (new CreateInvitations($this->purchase_order))->run();
 
         return $this;
@@ -51,14 +50,12 @@ class PurchaseOrderService
 
         // //TODO implement design, footer, terms
 
-
         // /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         // if (!isset($this->purchase_order->exchange_rate) && $this->purchase_order->client->currency()->id != (int)$this->purchase_order->company->settings->currency_id)
         //     $this->purchase_order->exchange_rate = $this->purchase_order->client->currency()->exchange_rate;
 
         // if (!isset($this->purchase_order->public_notes))
         //     $this->purchase_order->public_notes = $this->purchase_order->client->public_notes;
-
 
         return $this;
     }
@@ -89,13 +86,10 @@ class PurchaseOrderService
         return $this;
     }
 
-
     public function touchPdf($force = false)
     {
         try {
-        
-            if($force){
-
+            if ($force) {
                 $this->purchase_order->invitations->each(function ($invitation) {
                     CreatePurchaseOrderPdf::dispatchNow($invitation);
                 });
@@ -106,12 +100,8 @@ class PurchaseOrderService
             $this->purchase_order->invitations->each(function ($invitation) {
                 CreatePurchaseOrderPdf::dispatch($invitation);
             });
-        
-        }
-        catch(\Exception $e){
-
-            nlog("failed creating purchase orders in Touch PDF");
-        
+        } catch (\Exception $e) {
+            nlog('failed creating purchase orders in Touch PDF');
         }
 
         return $this;
@@ -127,5 +117,4 @@ class PurchaseOrderService
 
         return $this->purchase_order;
     }
-
 }

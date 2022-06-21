@@ -23,7 +23,6 @@ class MobileLocalization extends Command
      */
     protected $description = 'Generate mobile localization resources';
 
-
     /**
      * Create a new command instance.
      *
@@ -83,9 +82,9 @@ class MobileLocalization extends Command
                     $text = $resources->$key;
                 }
 
-                $text = str_replace(array('<b>', '</b>'), '', $text);
-                $text = str_replace(array('<i>', '</i>'), '', $text);
-                $text = str_replace(array('<strong>', '</strong>'), '', $text);
+                $text = str_replace(['<b>', '</b>'], '', $text);
+                $text = str_replace(['<i>', '</i>'], '', $text);
+                $text = str_replace(['<strong>', '</strong>'], '', $text);
 
                 echo "'$key': '$text',\n";
             }
@@ -103,11 +102,11 @@ class MobileLocalization extends Command
         $end = strpos($data, '},', $start);
         $data = substr($data, $start, $end - $start - 5);
 
-        $data = str_replace("\n", "", $data);
-        $data = str_replace("\"", "\'", $data);
-        $data = str_replace("'", "\"", $data);
+        $data = str_replace("\n", '', $data);
+        $data = str_replace('"', "\'", $data);
+        $data = str_replace("'", '"', $data);
 
-        return json_decode('{' . rtrim($data, ',') . '}');
+        return json_decode('{'.rtrim($data, ',').'}');
     }
 
     protected function getOptions()
@@ -116,5 +115,4 @@ class MobileLocalization extends Command
             ['type', null, InputOption::VALUE_OPTIONAL, 'Type', null],
         ];
     }
-
 }

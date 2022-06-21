@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace Tests\Feature\PdfMaker;
 
 use App\Services\PdfMaker\Design;

@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Ninja;
 
-
 use App\Jobs\Report\SendToAdmin;
 use App\Libraries\MultiDB;
 use App\Models\Scheduler;
@@ -31,10 +30,8 @@ class TaskScheduler implements ShouldQueue
      *
      * @return void
      */
-
     public function __construct()
     {
-
     }
 
     /**
@@ -44,9 +41,7 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
-        foreach (MultiDB::$dbs as $db)
-        {
-
+        foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
             Scheduler::with('company')
@@ -54,12 +49,10 @@ class TaskScheduler implements ShouldQueue
                 ->where('is_deleted', false)
                 ->where('scheduled_run', '<', now())
                 ->cursor()
-                ->each(function ($scheduler){
+                ->each(function ($scheduler) {
                     $this->doJob($scheduler);
                 });
-
         }
-
     }
 
     private function doJob(Scheduler $scheduler)
@@ -69,7 +62,6 @@ class TaskScheduler implements ShouldQueue
         $company = $scheduler->company;
 
         $parameters = $scheduler->parameters;
-
 
         switch ($scheduler->action_name) {
             case Scheduler::CREATE_CLIENT_REPORT:
@@ -120,5 +112,4 @@ class TaskScheduler implements ShouldQueue
         $scheduler->scheduled_run = $scheduler->nextScheduledDate();
         $scheduler->save();
     }
-
 }

@@ -16,7 +16,6 @@ class AddTrialDurationToAccountsTable extends Migration
         Schema::table('accounts', function (Blueprint $table) {
             $table->unsignedInteger('trial_duration')->nullable();
         });
-
     }
 
     /**

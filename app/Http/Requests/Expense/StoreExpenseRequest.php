@@ -35,11 +35,13 @@ class StoreExpenseRequest extends Request
     {
         $rules = [];
 
-        if ($this->number) 
+        if ($this->number) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id);
-        
-        if(!empty($this->client_id))
+        }
+
+        if (! empty($this->client_id)) {
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        }
 
         return $this->globalRules($rules);
     }
@@ -55,11 +57,12 @@ class StoreExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
-        if(array_key_exists('color', $input) && is_null($input['color']))
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
 
         $this->replace($input);
     }

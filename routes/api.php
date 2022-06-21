@@ -18,8 +18,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
 
-Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
-    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit')->middleware('throttle:20,1');;
+Route::group(['middleware' => ['throttle:10,1', 'api_secret_check', 'email_db']], function () {
+    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
 
@@ -31,7 +31,6 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
     Route::get('activities', 'ActivityController@index');
     Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
-
 
     Route::post('charts/totals', 'ChartController@totals')->name('chart.totals');
     Route::post('charts/chart_summary', 'ChartController@chart_summary')->name('chart.chart_summary');
@@ -146,7 +145,6 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_expenses/bulk', 'RecurringExpenseController@bulk')->name('recurring_expenses.bulk');
     Route::put('recurring_expenses/{recurring_expense}/upload', 'RecurringExpenseController@upload');
 
-
     Route::resource('recurring_invoices', 'RecurringInvoiceController'); // name = (recurring_invoices. index / create / show / update / destroy / edit
     Route::post('recurring_invoices/bulk', 'RecurringInvoiceController@bulk')->name('recurring_invoices.bulk');
     Route::put('recurring_invoices/{recurring_invoice}/upload', 'RecurringInvoiceController@upload');
@@ -171,9 +169,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/tasks', 'Reports\TaskReportController');
     Route::post('reports/profitloss', 'Reports\ProfitAndLossController');
 
-
     Route::resource('task_scheduler', 'TaskSchedulerController')->except('edit')->parameters(['task_scheduler' => 'scheduler']);
-
 
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
@@ -239,11 +235,10 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
     Route::get('statics', 'StaticController');
     // Route::post('apple_pay/upload_file','ApplyPayController@upload');
-
 });
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
-    ->middleware(['throttle:1000,1','guest'])
+    ->middleware(['throttle:1000,1', 'guest'])
     ->name('payment_webhook');
 
 Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', 'PaymentNotificationWebhookController')

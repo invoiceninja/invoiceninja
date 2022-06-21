@@ -74,18 +74,12 @@ class PostMarkController extends BaseController
      */
     public function webhook(Request $request)
     {
-
-        if($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('postmark.secret'))
-        {
-
+        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('postmark.secret')) {
             ProcessPostmarkWebhook::dispatch($request->all());
 
             return response()->json(['message' => 'Success'], 200);
-
         }
 
         return response()->json(['message' => 'Unauthorized'], 403);
-
     }
-
 }

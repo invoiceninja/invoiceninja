@@ -26,16 +26,16 @@ use App\Utils\Traits\MakesHash;
 class PaytracePaymentDriver extends BaseDriver
 {
     use MakesHash;
-    
-    public $refundable = true; 
 
-    public $token_billing = true; 
+    public $refundable = true;
 
-    public $can_authorise_credit_card = true; 
+    public $token_billing = true;
 
-    public $gateway; 
+    public $can_authorise_credit_card = true;
 
-    public $payment_method; 
+    public $gateway;
+
+    public $payment_method;
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
@@ -53,7 +53,7 @@ class PaytracePaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
@@ -63,6 +63,7 @@ class PaytracePaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -96,24 +97,21 @@ class PaytracePaymentDriver extends BaseDriver
             'amount' => $amount,
             //'customer_id' => $cgt->token,
             'transaction_id' => $payment->transaction_reference,
-            'integrator_id' => '959195xd1CuC'
+            'integrator_id' => '959195xd1CuC',
         ];
 
         $response = $this->gatewayRequest('/v1/transactions/refund/for_transaction', $data);
 
-        if($response && $response->success)
-        {
-
+        if ($response && $response->success) {
             SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_PAYTRACE, $this->client, $this->client->company);
 
-                return [
-                    'transaction_reference' => $response->transaction_id,
-                    'transaction_response' => json_encode($response),
-                    'success' => true,
-                    'description' => $response->status_message,
-                    'code' => $response->response_code,
-                ];
-
+            return [
+                'transaction_reference' => $response->transaction_id,
+                'transaction_response' => json_encode($response),
+                'success' => true,
+                'description' => $response->status_message,
+                'code' => $response->response_code,
+            ];
         }
 
         SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYTRACE, $this->client, $this->client->company);
@@ -125,7 +123,6 @@ class PaytracePaymentDriver extends BaseDriver
             'description' => $response->status_message,
             'code' => 422,
         ];
-
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -140,8 +137,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $response = $this->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        if($response && $response->success)
-        {
+        if ($response && $response->success) {
             $data = [
                 'gateway_type_id' => $cgt->gateway_type_id,
                 'payment_type' => PaymentType::CREDIT_CARD_OTHER,
@@ -161,8 +157,9 @@ class PaytracePaymentDriver extends BaseDriver
 
         $error = $response->status_message;
 
-        if(property_exists($response, 'approval_message') && $response->approval_message)
+        if (property_exists($response, 'approval_message') && $response->approval_message) {
             $error .= " - {$response->approval_message}";
+        }
 
         $data = [
             'response' => $response,
@@ -201,7 +198,7 @@ class PaytracePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code) {
+        if ($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -213,11 +210,8 @@ class PaytracePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-
         return $fields;
     }
-
-
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
@@ -226,47 +220,45 @@ class PaytracePaymentDriver extends BaseDriver
     /*Helpers*/
     private function generateAuthHeaders()
     {
-
         $url = 'https://api.paytrace.com/oauth/token';
         $data = [
             'grant_type' => 'password',
             'username' => $this->company_gateway->getConfigField('username'),
-            'password' => $this->company_gateway->getConfigField('password')
+            'password' => $this->company_gateway->getConfigField('password'),
         ];
 
         $response = CurlUtils::post($url, $data, $headers = false);
 
         $auth_data = json_decode($response);
 
-        if(!property_exists($auth_data, 'access_token'))
+        if (! property_exists($auth_data, 'access_token')) {
             throw new SystemError('Error authenticating with PayTrace');
+        }
 
-            $headers = [];
-            $headers[] = 'Content-type: application/json';
-            $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
+        $headers = [];
+        $headers[] = 'Content-type: application/json';
+        $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
 
         return $headers;
-
     }
 
     public function getAuthToken()
     {
-
         $headers = $this->generateAuthHeaders();
 
         $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
 
         $response = json_decode($response);
 
-        if($response)
+        if ($response) {
             return $response->clientKey;
+        }
 
         return false;
     }
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
-        
         $base_url = "https://api.paytrace.com{$uri}";
 
         $headers = $this->generateAuthHeaders();
@@ -275,10 +267,10 @@ class PaytracePaymentDriver extends BaseDriver
 
         $response = json_decode($response);
 
-        if($response)
+        if ($response) {
             return $response;
+        }
 
         return false;
-
     }
 }

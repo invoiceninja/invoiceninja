@@ -13,11 +13,9 @@ class AddTaskPropertyToCompaniesTable extends Migration
      */
     public function up()
     {
-
         Schema::table('company_user', function (Blueprint $table) {
             $table->dropColumn('number_years_active');
         });
-           
     }
 
     /**

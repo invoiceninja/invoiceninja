@@ -26,7 +26,7 @@ class UpdateAccountRequest extends Request
      */
     public function authorize()
     {
-        return (auth()->user()->isAdmin() || auth()->user()->isOwner()) && (int)$this->account->id === auth()->user()->account_id;
+        return (auth()->user()->isAdmin() || auth()->user()->isOwner()) && (int) $this->account->id === auth()->user()->account_id;
     }
 
     /**
@@ -37,7 +37,7 @@ class UpdateAccountRequest extends Request
     public function rules()
     {
         return [
-            'set_react_as_default_ap' => 'required|bail|bool'
+            'set_react_as_default_ap' => 'required|bail|bool',
         ];
     }
 
@@ -46,9 +46,8 @@ class UpdateAccountRequest extends Request
     {
         $input = $this->all();
 
-        $cleaned_input = array_intersect_key( $input, array_flip(['set_react_as_default_ap']));
+        $cleaned_input = array_intersect_key($input, array_flip(['set_react_as_default_ap']));
 
         $this->replace($cleaned_input);
-
     }
 }

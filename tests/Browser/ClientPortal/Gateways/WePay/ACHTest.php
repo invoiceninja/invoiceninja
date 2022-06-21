@@ -40,7 +40,7 @@ class ACHTest extends DuskTestCase
 
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
-        
+
         $this->browse(function (Browser $browser) {
             $browser
                 ->visit(new Login())

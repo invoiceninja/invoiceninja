@@ -13,10 +13,8 @@ class PaymentsTableCurrencyNullable extends Migration
      */
     public function up()
     {
-        Schema::table('payments', function (Blueprint $table){
-
+        Schema::table('payments', function (Blueprint $table) {
             $table->unsignedInteger('exchange_currency_id')->nullable()->change();
-
         });
     }
 

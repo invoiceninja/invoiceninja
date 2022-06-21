@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\PurchaseOrder;
 
-
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
@@ -31,6 +30,7 @@ class UpdatePurchaseOrderRequest extends Request
     {
         return auth()->user()->can('edit', $this->purchase_order);
     }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -40,15 +40,17 @@ class UpdatePurchaseOrderRequest extends Request
     {
         $rules = [];
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)->ignore($this->purchase_order->id);
+        }
 
         $rules['line_items'] = 'array';
-        $rules['discount']  = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
 
         return $rules;
     }
+
     protected function prepareForValidation()
     {
         $input = $this->all();

@@ -67,8 +67,8 @@ class ACH implements MethodInterface
 
             try {
                 $payment_meta = new \stdClass;
-                $payment_meta->brand = (string)$account->bankName;
-                $payment_meta->last4 = (string)$account->last4;
+                $payment_meta->brand = (string) $account->bankName;
+                $payment_meta->last4 = (string) $account->last4;
                 $payment_meta->type = GatewayType::BANK_TRANSFER;
                 $payment_meta->state = 'authorized';
 
@@ -117,7 +117,7 @@ class ACH implements MethodInterface
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token->token,
             'options' => [
-                'submitForSettlement' => true
+                'submitForSettlement' => true,
             ],
         ]);
 
@@ -158,7 +158,7 @@ class ACH implements MethodInterface
     private function processUnsuccessfulPayment($response)
     {
         $this->braintree->sendFailureMail($response->transaction->additionalProcessorResponse);
-        
+
         $message = [
             'server_response' => $response,
             'data' => $this->braintree->payment_hash->data,

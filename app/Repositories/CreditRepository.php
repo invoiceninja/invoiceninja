@@ -26,7 +26,6 @@ class CreditRepository extends BaseRepository
     {
     }
 
-
     /**
      * Saves the client and its contacts.
      *

@@ -13,7 +13,7 @@ class AdditionalCompanyProperties extends Migration
      */
     public function up()
     {
-        Schema::table('companies', function(Blueprint $table){
+        Schema::table('companies', function (Blueprint $table) {
             $table->integer('session_timeout')->default(0);
             $table->boolean('oauth_password_required')->default(0);
         });

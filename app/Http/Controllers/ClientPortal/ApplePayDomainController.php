@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ApplePayDomainController extends Controller
 {
-
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
     public function showAppleMerchantId(Request $request)
@@ -29,20 +28,15 @@ class ApplePayDomainController extends Controller
 
         /* Self Host */
 
-        if(Ninja::isSelfHost()){
-
+        if (Ninja::isSelfHost()) {
             $cgs = CompanyGateway::whereIn('gateway_key', $this->stripe_keys)
                                  ->where('is_deleted', false)
                                  ->get();
 
-            foreach($cgs as $cg)
-            {
-
-                if($cg->getConfigField('appleDomainVerification')){
-                   return response($cg->getConfigField('appleDomainVerification'),200);
-                                    
+            foreach ($cgs as $cg) {
+                if ($cg->getConfigField('appleDomainVerification')) {
+                    return response($cg->getConfigField('appleDomainVerification'), 200);
                 }
-
             }
 
             return response('', 400);
@@ -52,52 +46,44 @@ class ApplePayDomainController extends Controller
 
         $domain_name = $request->getHost();
 
-        if (strpos($domain_name, 'invoicing.co') !== false) 
-        {
+        if (strpos($domain_name, 'invoicing.co') !== false) {
             $subdomain = explode('.', $domain_name)[0];
-            
+
             $query = [
                 'subdomain' => $subdomain,
                 'portal_mode' => 'subdomain',
             ];
 
-            if($company = MultiDB::findAndSetDbByDomain($query)){
-               return $this->resolveAppleMerchantId($company);
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
+                return $this->resolveAppleMerchantId($company);
             }
         }
 
-       $query = [
+        $query = [
             'portal_domain' => $request->getSchemeAndHttpHost(),
             'portal_mode' => 'domain',
         ];
 
-        if($company = MultiDB::findAndSetDbByDomain($query)){
+        if ($company = MultiDB::findAndSetDbByDomain($query)) {
             return $this->resolveAppleMerchantId($company);
         }
 
         return response('', 400);
-
     }
 
     private function resolveAppleMerchantId($company)
     {
-
         $cgs = $company->company_gateways()
                        ->whereIn('gateway_key', $this->stripe_keys)
                        ->where('is_deleted', false)
                        ->get();
 
-        foreach($cgs as $cg)
-        {
-
-            if($cg->getConfigField('appleDomainVerification')){
-               return response($cg->getConfigField('appleDomainVerification'),200);
+        foreach ($cgs as $cg) {
+            if ($cg->getConfigField('appleDomainVerification')) {
+                return response($cg->getConfigField('appleDomainVerification'), 200);
             }
-
         }
 
         return response('', 400);
-
     }
-
 }

@@ -22,7 +22,7 @@ use Illuminate\Queue\SerializesModels;
 //@deprecated
 class ClientContactResetPassword extends Notification
 {
-   // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     /**
      * The password reset token.
      *

@@ -19,19 +19,19 @@ class Checkout3dsController extends Controller
 {
     public function index(Checkout3dsRequest $request, string $company_key, string $company_gateway_id, string $hash)
     {
-        if (!$request->getCompany()) {
+        if (! $request->getCompany()) {
             return response()->json(['message' => 'Company record not found.', 'company_key' => $company_key]);
         }
 
-        if (!$request->getCompanyGateway()) {
+        if (! $request->getCompanyGateway()) {
             return response()->json(['message' => 'Company gateway record not found.', 'company_gateway_id' => $company_gateway_id]);
         }
 
-        if (!$request->getPaymentHash()) {
+        if (! $request->getPaymentHash()) {
             return response()->json(['message' => 'Hash record not found.', 'hash' => $hash]);
         }
 
-        if (!$request->getClient()) {
+        if (! $request->getClient()) {
             return response()->json(['message' => 'Client record not found.']);
         }
 

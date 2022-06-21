@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class ClientStatusTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::CLIENT_STATUS; 
-
+    public $event_id = TransactionEvent::CLIENT_STATUS;
 }

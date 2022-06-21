@@ -45,30 +45,21 @@ class ApplyNumber extends AbstractService
 
     private function trySaving()
     {
+        $x = 1;
 
-        $x=1;
-
-        do{
-
-            try{
-
+        do {
+            try {
                 $this->payment->number = $this->getNextPaymentNumber($this->client, $this->payment);
                 $this->payment->saveQuietly();
 
                 $this->completed = false;
-                
-
-            }
-            catch(QueryException $e){
-
+            } catch (QueryException $e) {
                 $x++;
 
-                if($x>10)
+                if ($x > 10) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
-
+        } while ($this->completed);
     }
 }

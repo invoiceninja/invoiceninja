@@ -39,7 +39,6 @@ use Illuminate\Http\Response;
 /**
  * Class TaskController.
  */
-
 class TaskController extends BaseController
 {
     use MakesHash;
@@ -278,12 +277,13 @@ class TaskController extends BaseController
         }
 
         $old_task = json_decode(json_encode($task));
-        
+
         $task = $this->task_repo->save($request->all(), $task);
         $task = $this->task_repo->triggeredActions($request, $task);
 
-        if($task->status_order != $old_task->status_order)
+        if ($task->status_order != $old_task->status_order) {
             $this->task_repo->sortStatuses($old_task, $task);
+        }
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -520,7 +520,7 @@ class TaskController extends BaseController
         //todo
     }
 
-/**
+    /**
      * Update the specified resource in storage.
      *
      * @param UploadTaskRequest $request
@@ -573,17 +573,16 @@ class TaskController extends BaseController
      */
     public function upload(UploadTaskRequest $request, Task $task)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $task);
+        }
 
         return $this->itemResponse($task->fresh());
-
-    }  
-
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -625,12 +624,10 @@ class TaskController extends BaseController
      */
     public function sort(SortTaskRequest $request)
     {
-    
         $task_statuses = $request->input('status_ids');
         $tasks = $request->input('task_ids');
 
-        collect($task_statuses)->each(function ($task_status_hashed_id, $key){
-
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key) {
             $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
                                      ->where('company_id', auth()->user()->company()->id)
                                      ->withTrashed()
@@ -638,27 +635,21 @@ class TaskController extends BaseController
 
             $task_status->status_order = $key;
             $task_status->save();
-
         });
 
-        foreach($tasks as $key => $task_list)
-        {
-
+        foreach ($tasks as $key => $task_list) {
             $sort_status_id = $this->decodePrimaryKey($key);
-            
-            foreach ($task_list as $key => $task)
-            {
-                
+
+            foreach ($task_list as $key => $task) {
                 $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
                              ->withTrashed()
                              ->first();
-                
+
                 $task_record->status_order = $key;
                 $task_record->status_id = $sort_status_id;
                 $task_record->save();
             }
-
         }
 
         return response()->json(['message' => 'Ok'], 200);

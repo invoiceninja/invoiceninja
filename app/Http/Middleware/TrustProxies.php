@@ -47,7 +47,7 @@ class TrustProxies extends Middleware
     public function __construct(Repository $config)
     {
         parent::__construct($config);
-    
+
         if (config('ninja.trusted_proxies')) {
             $this->proxies = config('ninja.trusted_proxies');
         }

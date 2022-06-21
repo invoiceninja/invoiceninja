@@ -44,7 +44,6 @@ class ReminderJob implements ShouldQueue
      */
     public function handle()
     {
-
         if (! config('ninja.db.multi_db_enabled')) {
             $this->processReminders();
         } else {
@@ -59,7 +58,7 @@ class ReminderJob implements ShouldQueue
 
     private function processReminders()
     {
-        nlog("Sending invoice reminders " . now()->format('Y-m-d h:i:s'));
+        nlog('Sending invoice reminders '.now()->format('Y-m-d h:i:s'));
 
         Invoice::where('next_send_date', '<=', now()->toDateTimeString())
                  ->whereNull('deleted_at')
@@ -67,53 +66,49 @@ class ReminderJob implements ShouldQueue
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                  ->where('balance', '>', 0)
                  ->whereHas('client', function ($query) {
-                     $query->where('is_deleted',0)
-                           ->where('deleted_at', NULL);
+                     $query->where('is_deleted', 0)
+                           ->where('deleted_at', null);
                  })
                  ->whereHas('company', function ($query) {
-                     $query->where('is_disabled',0);
+                     $query->where('is_disabled', 0);
                  })
                  ->with('invitations')->cursor()->each(function ($invoice) {
+                     if ($invoice->isPayable()) {
+                         $reminder_template = $invoice->calculateTemplate('invoice');
+                         $invoice->service()->touchReminder($reminder_template)->save();
+                         $invoice = $this->calcLateFee($invoice, $reminder_template);
 
-            if ($invoice->isPayable()) {
-                $reminder_template = $invoice->calculateTemplate('invoice');
-                $invoice->service()->touchReminder($reminder_template)->save();
-                $invoice = $this->calcLateFee($invoice, $reminder_template);
+                         $invoice->service()->touchPdf();
 
-                $invoice->service()->touchPdf();
+                         //20-04-2022 fixes for endless reminders - generic template naming was wrong
+                         $enabled_reminder = 'enable_'.$reminder_template;
 
-                //20-04-2022 fixes for endless reminders - generic template naming was wrong
-                $enabled_reminder = "enable_".$reminder_template;
-   
-                if($reminder_template == 'endless_reminder')
-                 $enabled_reminder = 'enable_reminder_endless';
+                         if ($reminder_template == 'endless_reminder') {
+                             $enabled_reminder = 'enable_reminder_endless';
+                         }
 
-                //check if this reminder needs to be emailed
-                //15-01-2022 - insert addition if block if send_reminders is definitely set
-                if(in_array($reminder_template, ['reminder1','reminder2','reminder3','reminder_endless','endless_reminder']) && 
-                    $invoice->client->getSetting($enabled_reminder) && 
-                    $invoice->client->getSetting("send_reminders") && 
-                    (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient()))
-                {
-                    $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                        EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                        nlog("Firing reminder email for invoice {$invoice->number}");
-                    });
+                         //check if this reminder needs to be emailed
+                         //15-01-2022 - insert addition if block if send_reminders is definitely set
+                         if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
+                    $invoice->client->getSetting($enabled_reminder) &&
+                    $invoice->client->getSetting('send_reminders') &&
+                    (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+                             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
+                                 EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
+                                 nlog("Firing reminder email for invoice {$invoice->number}");
+                             });
 
-                    if ($invoice->invitations->count() > 0) {
-                        event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
-                    }
-                }
-                $invoice->service()->setReminder()->save();
-                
-            } else {
-                $invoice->next_send_date = null;
-                $invoice->save();
-            }
-
-        });
+                             if ($invoice->invitations->count() > 0) {
+                                 event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
+                             }
+                         }
+                         $invoice->service()->setReminder()->save();
+                     } else {
+                         $invoice->next_send_date = null;
+                         $invoice->save();
+                     }
+                 });
     }
-
 
     /**
      * Calculates the late if - if any - and rebuilds the invoice
@@ -164,7 +159,6 @@ class ReminderJob implements ShouldQueue
      */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
-
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
@@ -200,12 +194,12 @@ class ReminderJob implements ShouldQueue
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
         $invoice->service()->deletePdf();
-        
+
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;
         $client = $client->fresh();
 
-        nlog("adjusting client balance and invoice balance by ". ($invoice->balance - $temp_invoice_balance));
+        nlog('adjusting client balance and invoice balance by '.($invoice->balance - $temp_invoice_balance));
         $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 

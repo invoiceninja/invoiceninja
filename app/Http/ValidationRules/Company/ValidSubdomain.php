@@ -24,7 +24,6 @@ class ValidSubdomain implements Rule
      * @param mixed $value
      * @return bool
      */
-    
     private $input;
 
     public function __construct($input)
@@ -34,8 +33,9 @@ class ValidSubdomain implements Rule
 
     public function passes($attribute, $value)
     {
-        if(empty($input['subdomain']))
+        if (empty($input['subdomain'])) {
             return true;
+        }
 
         return MultiDB::checkDomainAvailable($input['subdomain']);
     }

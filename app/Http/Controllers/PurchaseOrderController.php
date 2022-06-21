@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
@@ -40,7 +39,9 @@ class PurchaseOrderController extends BaseController
     use MakesHash;
 
     protected $entity_type = PurchaseOrder::class;
+
     protected $entity_transformer = PurchaseOrderTransformer::class;
+
     protected $purchase_order_repository;
 
     public function __construct(PurchaseOrderRepository $purchase_order_repository)
@@ -49,6 +50,7 @@ class PurchaseOrderController extends BaseController
 
         $this->purchase_order_repository = $purchase_order_repository;
     }
+
     /**
      * Show the list of Purchase Orders.
      *
@@ -95,6 +97,7 @@ class PurchaseOrderController extends BaseController
 
         return $this->listResponse($purchase_orders);
     }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -140,6 +143,7 @@ class PurchaseOrderController extends BaseController
 
         return $this->itemResponse($purchase_order);
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -181,7 +185,6 @@ class PurchaseOrderController extends BaseController
      */
     public function store(StorePurchaseOrderRequest $request)
     {
-
         $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $purchase_order = $purchase_order->service()
@@ -193,6 +196,7 @@ class PurchaseOrderController extends BaseController
 
         return $this->itemResponse($purchase_order);
     }
+
     /**
      * Display the specified resource.
      *
@@ -248,6 +252,7 @@ class PurchaseOrderController extends BaseController
     {
         return $this->itemResponse($purchase_order);
     }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -302,6 +307,7 @@ class PurchaseOrderController extends BaseController
     {
         return $this->itemResponse($purchase_order);
     }
+
     /**
      * Update the specified resource in storage.
      *
@@ -365,6 +371,7 @@ class PurchaseOrderController extends BaseController
 
         return $this->itemResponse($purchase_order);
     }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -474,7 +481,6 @@ class PurchaseOrderController extends BaseController
      */
     public function bulk()
     {
-        
         $action = request()->input('action');
 
         $ids = request()->input('ids');
@@ -492,7 +498,8 @@ class PurchaseOrderController extends BaseController
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
-                    nlog("access denied");
+                    nlog('access denied');
+
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -587,7 +594,7 @@ class PurchaseOrderController extends BaseController
     }
 
     private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)
-    {   
+    {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'mark_sent':
@@ -601,9 +608,9 @@ class PurchaseOrderController extends BaseController
 
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
 
-                return response()->streamDownload(function () use($file) {
-                        echo Storage::get($file);
-                },  basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($file) {
+                    echo Storage::get($file);
+                }, basename($file), ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -628,11 +635,10 @@ class PurchaseOrderController extends BaseController
                     return $this->listResponse($purchase_order);
                 }
                 break;
-            
+
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
                 PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
-
 
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);

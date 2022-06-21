@@ -43,13 +43,11 @@ trait VerifiesUserEmail
         $user->confirmation_code = null;
         $user->save();
 
-        if(isset($user->oauth_user_id)){
-
+        if (isset($user->oauth_user_id)) {
             return $this->render('auth.confirmed', [
                 'root' => 'themes',
                 'message' => ctrans('texts.security_confirmation'),
             ]);
-            
         }
 
         if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
@@ -69,7 +67,6 @@ trait VerifiesUserEmail
         request()->validate([
             'password' => ['required', 'min:6'],
         ]);
-
 
         $user->password = Hash::make(request()->password);
 

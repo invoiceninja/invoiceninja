@@ -19,7 +19,6 @@ trait SavesDocuments
 {
     public function saveDocuments($document_array, $entity, $is_public = true)
     {
-
         if ($entity instanceof Company) {
             $account = $entity->account;
             $company = $entity;
@@ -45,7 +44,6 @@ trait SavesDocuments
                 $is_public
             );
         }
-
     }
 
     public function saveDocument($document, $entity, $is_public = true)

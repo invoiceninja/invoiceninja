@@ -20,7 +20,7 @@ class TaxRate extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
-    
+
     protected $fillable = [
         'name',
         'rate',

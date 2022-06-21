@@ -16,7 +16,6 @@ use Illuminate\Support\Str;
 
 class MagicLink
 {
-
     //return a magic login link URL
     public static function create($email, $company_id, $url = null) :string
     {
@@ -24,8 +23,8 @@ class MagicLink
         $timeout = 600; //seconds
 
         $payload = [
-        	'email' => $email, 
-        	'company_id' => $company_id,
+            'email' => $email,
+            'company_id' => $company_id,
         ];
 
         Cache::add($magic_key, $payload, $timeout);

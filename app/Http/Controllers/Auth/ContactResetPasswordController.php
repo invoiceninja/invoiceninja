@@ -69,63 +69,56 @@ class ContactResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-
-        if($request->session()->has('company_key')){
+        if ($request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->session()->get('company_key'))->first();
             $db = $company->db;
             $account = $company->account;
-        }
-        else {
-
+        } else {
             $account_key = $request->session()->has('account_key') ? $request->session()->get('account_key') : false;
 
-            if($account_key){
-            
+            if ($account_key) {
                 MultiDB::findAndSetDbByAccountKey($account_key);
                 $account = Account::where('key', $account_key)->first();
                 $db = $account->companies->first()->db;
                 $company = $account->companies->first();
-            }
-            else{
-
+            } else {
                 $account = Account::first();
                 $db = $account->companies->first()->db;
                 $company = $account->companies->first();
             }
-
         }
-
 
         return $this->render('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db, 'company' => $company]
         );
-            
     }
 
     public function reset(Request $request)
     {
-        if($request->session()->has('company_key'))
+        if ($request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
-        
+        }
+
         $request->validate($this->rules(), $this->validationErrorMessages());
 
-        $user = ClientContact::where($request->only(['email','token']))->first();
+        $user = ClientContact::where($request->only(['email', 'token']))->first();
 
-        if(!$user)
+        if (! $user) {
             return $this->sendResetFailedResponse($request, PASSWORD::INVALID_USER);
+        }
 
         $hashed_password = Hash::make($request->input('password'));
 
         ClientContact::where('email', $user->email)->update([
             'password' => $hashed_password,
-            'remember_token' => Str::random(60)
+            'remember_token' => Str::random(60),
         ]);
 
         event(new PasswordReset($user));
 
         auth()->login($user, true);
-        
+
         $response = Password::PASSWORD_RESET;
 
         // Added this because it collides the session between

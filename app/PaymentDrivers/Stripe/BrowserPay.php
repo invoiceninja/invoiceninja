@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\Stripe;
@@ -70,7 +70,7 @@ class BrowserPay implements MethodInterface
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::APPLE_PAY,
@@ -90,7 +90,7 @@ class BrowserPay implements MethodInterface
                 'amount' => $payment_intent_data['amount'],
             ],
             'requestPayerName' => true,
-            'requestPayerEmail' => true
+            'requestPayerEmail' => true,
         ];
 
         return render('gateways.stripe.browser_pay.pay', $data);
@@ -105,7 +105,7 @@ class BrowserPay implements MethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $gateway_response = json_decode($request->gateway_response);
-        
+
         $this->stripe->payment_hash
             ->withData('gateway_response', $gateway_response)
             ->withData('payment_intent', PaymentIntent::retrieve($gateway_response->id, $this->stripe->stripe_connect_auth));
@@ -200,8 +200,9 @@ class BrowserPay implements MethodInterface
 
         $domain = $this->getAppleDomain();
 
-        if(!$domain)
+        if (! $domain) {
             throw new PaymentFailed('Unable to register Domain with Apple Pay', 500);
+        }
 
         $response = ApplePayDomain::create([
             'domain_name' => $domain,
@@ -210,34 +211,24 @@ class BrowserPay implements MethodInterface
         $config->apple_pay_domain_id = $response->id;
 
         $this->stripe->company_gateway->setConfig($config);
-        
+
         $this->stripe->company_gateway->save();
     }
 
-
     private function getAppleDomain()
     {
-
         $domain = '';
 
-        if(Ninja::isHosted())
-        {
-
-            if($this->stripe->company_gateway->company->portal_mode == 'domain'){
+        if (Ninja::isHosted()) {
+            if ($this->stripe->company_gateway->company->portal_mode == 'domain') {
                 $domain = $this->stripe->company_gateway->company->portal_domain;
+            } else {
+                $domain = $this->stripe->company_gateway->company->subdomain.'.'.config('ninja.app_domain');
             }
-            else{
-                $domain = $this->stripe->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
-            }
-
-        }
-        else {
-
+        } else {
             $domain = config('ninja.app_url');
         }
 
-        return str_replace("https://", "", $domain);
-
+        return str_replace('https://', '', $domain);
     }
-
 }

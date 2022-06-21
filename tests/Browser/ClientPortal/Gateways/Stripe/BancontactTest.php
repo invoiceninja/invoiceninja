@@ -67,4 +67,5 @@ class BancontactTest extends DuskTestCase
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });
-}}
+    }
+}

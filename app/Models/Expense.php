@@ -125,5 +125,5 @@ class Expense extends BaseModel
     public function project()
     {
         return $this->belongsTo(Project::class);
-    }    
+    }
 }

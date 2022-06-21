@@ -25,6 +25,5 @@ class Change2faColumnFromVarcharToText extends Migration
      */
     public function down()
     {
-
     }
 }

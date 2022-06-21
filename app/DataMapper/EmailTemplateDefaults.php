@@ -162,11 +162,9 @@ class EmailTemplateDefaults
 
     public static function emailPurchaseOrderTemplate()
     {
-
         $purchase_order_message = '<p>$vendor<br><br>'.self::transformText('purchase_order_message').'</p><div class="center">$view_button</div>';
 
         return $purchase_order_message;
-
     }
 
     public static function emailPaymentTemplate()
@@ -249,6 +247,6 @@ class EmailTemplateDefaults
     {
         //preformat the string, removing trailing colons.
 
-        return str_replace(':', '$', rtrim( ctrans('texts.'.$string), ":"));
+        return str_replace(':', '$', rtrim(ctrans('texts.'.$string), ':'));
     }
 }

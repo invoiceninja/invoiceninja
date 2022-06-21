@@ -40,22 +40,23 @@ class UpdateInvoicePayment
         $paid_invoices = $this->payment_hash->invoices();
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
-        
+
         $client = $this->payment->client;
 
-        if($client->trashed())
+        if ($client->trashed()) {
             $client->restore();
+        }
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices, $client) {
-
             $client = $client->fresh();
 
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
 
-            if($invoice->trashed())
+            if ($invoice->trashed()) {
                 $invoice->restore();
+            }
 
             if ($invoice->id == $this->payment_hash->fee_invoice_id) {
                 $paid_amount = $paid_invoice->amount + $this->payment_hash->fee_total;
@@ -68,8 +69,9 @@ class UpdateInvoicePayment
             $client->save();
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
-            if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
+            if ($paid_amount > $invoice->partial && $paid_amount > $invoice->balance) {
                 $paid_amount = $invoice->balance;
+            }
 
             /*Improve performance here - 26-01-2022 - also change the order of events for invoice first*/
             //caution what if we amount paid was less than partial - we wipe it!
@@ -77,14 +79,14 @@ class UpdateInvoicePayment
             $invoice->paid_to_date += $paid_amount;
             $invoice->save();
 
-            $invoice =  $invoice->service() 
+            $invoice = $invoice->service()
                                 ->clearPartial()
                                 // ->updateBalance($paid_amount * -1)
                                 // ->updatePaidToDate($paid_amount)
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->save();
-            
+
             $invoice->service()
                 ->workFlow()
                 ->save();
@@ -113,18 +115,14 @@ class UpdateInvoicePayment
             ];
 
             TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
-
-
         });
-        
+
         /* Remove the event updater from within the loop to prevent race conditions */
 
         $this->payment->saveQuietly();
 
         $invoices->each(function ($invoice) {
-            
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        
         });
 
         return $this->payment->fresh();

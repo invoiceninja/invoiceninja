@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\App;
 
 class GmailTokenInvalid extends Mailable
 {
-
     public $company;
 
     public $settings;

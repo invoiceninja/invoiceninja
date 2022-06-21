@@ -48,7 +48,7 @@ class GmailTransport extends Transport
 
         /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();
-        
+
         $message->getHeaders()->remove('GmailToken');
 
         $this->beforeSendPerformed($message);
@@ -61,34 +61,25 @@ class GmailTransport extends Transport
 
         $this->gmail->cc($message->getCc());
 
-        if(is_array($message->getBcc()))
+        if (is_array($message->getBcc())) {
             $this->gmail->bcc(array_keys($message->getBcc()));
+        }
 
-        foreach ($message->getChildren() as $child) 
-        {
-
-            if($child->getContentType() != 'text/plain')
-            {
-
-                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
-            
+        foreach ($message->getChildren() as $child) {
+            if ($child->getContentType() != 'text/plain') {
+                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name')));
             }
-
-        } 
+        }
 
         /**
          * Google is very strict with their
          * sending limits, if we hit 429s, sleep and
          * retry again later.
          */
-        try{
-
+        try {
             $this->gmail->send();
-
-        }
-        catch(\Google\Service\Exception $e)
-        {
-            nlog("gmail exception");
+        } catch (\Google\Service\Exception $e) {
+            nlog('gmail exception');
             nlog($e->getErrors());
 
             sleep(5);

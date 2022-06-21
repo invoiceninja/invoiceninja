@@ -47,13 +47,11 @@ class StoreCompanyRequest extends Request
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
-           
-            if(Ninja::isHosted()){
+            if (Ninja::isHosted()) {
                 $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain($this->all())];
-            }
-            else
+            } else {
                 $rules['subdomain'] = 'nullable|alpha_num';
-           
+            }
         }
 
         return $rules;
@@ -81,8 +79,9 @@ class StoreCompanyRequest extends Request
             }
         }
 
-        if(array_key_exists('portal_domain', $input))
+        if (array_key_exists('portal_domain', $input)) {
             $input['portal_domain'] = strtolower($input['portal_domain']);
+        }
 
         $this->replace($input);
     }

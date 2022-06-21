@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature\Import\CSV;
@@ -56,7 +56,7 @@ class CsvImportTest extends TestCase
     public function testExpenseCsvImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/expenses.csv'
+            base_path().'/tests/Feature/Import/expenses.csv'
         );
         $hash = Str::random(32);
         $column_map = [
@@ -73,7 +73,7 @@ class CsvImportTest extends TestCase
             'import_type' => 'csv',
         ];
 
-        Cache::put($hash . '-expense', base64_encode($csv), 360);
+        Cache::put($hash.'-expense', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 
@@ -87,7 +87,7 @@ class CsvImportTest extends TestCase
     public function testVendorCsvImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/vendors.csv'
+            base_path().'/tests/Feature/Import/vendors.csv'
         );
         $hash = Str::random(32);
         $column_map = [
@@ -108,7 +108,7 @@ class CsvImportTest extends TestCase
 
         $pre_import = Vendor::count();
 
-        Cache::put($hash . '-vendor', base64_encode($csv), 360);
+        Cache::put($hash.'-vendor', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 
@@ -122,10 +122,10 @@ class CsvImportTest extends TestCase
     public function testProductImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/products.csv'
+            base_path().'/tests/Feature/Import/products.csv'
         );
         $hash = Str::random(32);
-        Cache::put($hash . '-product', base64_encode($csv), 360);
+        Cache::put($hash.'-product', base64_encode($csv), 360);
 
         $column_map = [
             1 => 'product.product_key',
@@ -155,7 +155,7 @@ class CsvImportTest extends TestCase
     public function testClientImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/clients.csv'
+            base_path().'/tests/Feature/Import/clients.csv'
         );
         $hash = Str::random(32);
         $column_map = [
@@ -177,7 +177,7 @@ class CsvImportTest extends TestCase
             'import_type' => 'csv',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 
@@ -189,7 +189,7 @@ class CsvImportTest extends TestCase
 
         $this->assertTrue($base_transformer->hasClient('Ludwig Krajcik DVM'));
         $this->assertTrue($base_transformer->hasClient('Bradly Jaskolski Sr.'));
-        
+
         $client_id = $base_transformer->getClient('Ludwig Krajcik DVM', null);
 
         $c = Client::find($client_id);
@@ -208,7 +208,7 @@ class CsvImportTest extends TestCase
     {
         /*Need to import clients first*/
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/clients.csv'
+            base_path().'/tests/Feature/Import/clients.csv'
         );
         $hash = Str::random(32);
         $column_map = [
@@ -229,7 +229,7 @@ class CsvImportTest extends TestCase
             'import_type' => 'csv',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 
@@ -245,7 +245,7 @@ class CsvImportTest extends TestCase
 
         /*Now import invoices*/
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/invoice.csv'
+            base_path().'/tests/Feature/Import/invoice.csv'
         );
         $hash = Str::random(32);
 
@@ -274,7 +274,7 @@ class CsvImportTest extends TestCase
             'import_type' => 'csv',
         ];
 
-        Cache::put($hash . '-invoice', base64_encode($csv), 360);
+        Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 
@@ -285,7 +285,7 @@ class CsvImportTest extends TestCase
         /* Lets piggy back payments tests here to save rebuilding the test multiple times*/
 
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/payments.csv'
+            base_path().'/tests/Feature/Import/payments.csv'
         );
         $hash = Str::random(32);
 
@@ -303,7 +303,7 @@ class CsvImportTest extends TestCase
             'import_type' => 'csv',
         ];
 
-        Cache::put($hash . '-payment', base64_encode($csv), 360);
+        Cache::put($hash.'-payment', base64_encode($csv), 360);
 
         $csv_importer = new Csv($data, $this->company);
 

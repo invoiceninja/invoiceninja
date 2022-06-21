@@ -13,12 +13,11 @@ namespace App\Mail\Admin;
 
 use App\Utils\Ninja;
 use App\Utils\Number;
-use stdClass;
 use Illuminate\Support\Facades\App;
+use stdClass;
 
 class EntityCreatedObject
 {
-
     public $entity_type;
 
     public $entity;
@@ -71,21 +70,21 @@ class EntityCreatedObject
 
         switch ($this->entity_type) {
             case 'invoice':
-                $this->template_subject = "texts.notification_invoice_created_subject";
-                $this->template_body = "texts.notification_invoice_created_body";
+                $this->template_subject = 'texts.notification_invoice_created_subject';
+                $this->template_body = 'texts.notification_invoice_created_body';
                 break;
             case 'quote':
-                $this->template_subject = "texts.notification_quote_created_subject";
-                $this->template_body = "texts.notification_quote_created_body";
+                $this->template_subject = 'texts.notification_quote_created_subject';
+                $this->template_body = 'texts.notification_quote_created_body';
                 break;
             case 'credit':
-                $this->template_subject = "texts.notification_credit_created_subject";
-                $this->template_body = "texts.notification_credit_created_body";
+                $this->template_subject = 'texts.notification_credit_created_subject';
+                $this->template_body = 'texts.notification_credit_created_body';
                 break;
 
             default:
-                $this->template_subject = "texts.notification_invoice_created_subject";
-                $this->template_body = "texts.notification_invoice_created_body";
+                $this->template_subject = 'texts.notification_invoice_created_subject';
+                $this->template_body = 'texts.notification_invoice_created_body';
                 break;
         }
     }
@@ -101,9 +100,9 @@ class EntityCreatedObject
             ctrans(
                 $this->template_subject,
                 [
-                        'client' => $this->client->present()->name(),
-                        'invoice' => $this->entity->number,
-                    ]
+                    'client' => $this->client->present()->name(),
+                    'invoice' => $this->entity->number,
+                ]
             );
     }
 

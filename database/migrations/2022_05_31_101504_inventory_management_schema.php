@@ -21,8 +21,6 @@ class InventoryManagementSchema extends Migration
      */
     public function up()
     {
-
-
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('enable_applying_payments')->default(0);
             $table->boolean('track_inventory')->default(0);
@@ -30,13 +28,11 @@ class InventoryManagementSchema extends Migration
             $table->boolean('stock_notification')->default(1);
         });
 
-        Schema::table('products', function (Blueprint $table){
+        Schema::table('products', function (Blueprint $table) {
             $table->integer('in_stock_quantity')->default(0);
             $table->boolean('stock_notification')->default(1);
             $table->integer('stock_notification_threshold')->default(0);
         });
-
-
     }
 
     /**
@@ -49,4 +45,3 @@ class InventoryManagementSchema extends Migration
         //
     }
 }
-

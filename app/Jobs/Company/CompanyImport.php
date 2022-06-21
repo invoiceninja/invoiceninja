@@ -41,8 +41,8 @@ use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
-use App\Models\PaymentTerm;
 use App\Models\Paymentable;
+use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
@@ -62,6 +62,7 @@ use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use function GuzzleHttp\json_encode;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -75,8 +76,6 @@ use JsonMachine\JsonDecoder\ExtJsonDecoder;
 use JsonMachine\JsonMachine;
 use ZipArchive;
 
-use function GuzzleHttp\json_encode;
-
 class CompanyImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash, GeneratesCounter;
@@ -84,7 +83,7 @@ class CompanyImport implements ShouldQueue
     public $tries = 1;
 
     public $timeout = 0;
-    
+
     protected $current_app_version;
 
     private $account;
@@ -150,60 +149,60 @@ class CompanyImport implements ShouldQueue
     ];
 
     private $company_properties = [
-        "convert_products",
-        "fill_products",
-        "update_products",
-        "show_product_details",
-        "client_can_register",
-        "custom_surcharge_taxes1",
-        "custom_surcharge_taxes2",
-        "custom_surcharge_taxes3",
-        "custom_surcharge_taxes4",
-        "show_product_cost",
-        "enabled_tax_rates",
-        "enabled_modules",
-        "enable_product_cost",
-        "enable_product_quantity",
-        "default_quantity",
-        "subdomain",
-        "size_id",
-        "first_day_of_week",
-        "first_month_of_year",
-        "portal_mode",
-        "portal_domain",
-        "enable_modules",
-        "custom_fields",
-        "industry_id",
-        "slack_webhook_url",
-        "google_analytics_key",
-        "created_at",
-        "updated_at",
-        "enabled_item_tax_rates",
-        "is_large",
-        "enable_shop_api",
-        "default_auto_bill",
-        "mark_expenses_invoiceable",
-        "mark_expenses_paid",
-        "invoice_expense_documents",
-        "auto_start_tasks",
-        "invoice_task_timelog",
-        "invoice_task_documents",
-        "show_tasks_table",
-        "is_disabled",
-        "default_task_is_date_based",
-        "enable_product_discount",
-        "calculate_expense_tax_by_amount",
-        "expense_inclusive_taxes",
-        "session_timeout",
-        "oauth_password_required",
-        "invoice_task_datelog",
-        "default_password_timeout",
-        "show_task_end_date",
-        "markdown_enabled",
-        "use_comma_as_decimal_place",
-        "report_include_drafts",
-        "client_registration_fields",
-        "convert_rate_to_client",
+        'convert_products',
+        'fill_products',
+        'update_products',
+        'show_product_details',
+        'client_can_register',
+        'custom_surcharge_taxes1',
+        'custom_surcharge_taxes2',
+        'custom_surcharge_taxes3',
+        'custom_surcharge_taxes4',
+        'show_product_cost',
+        'enabled_tax_rates',
+        'enabled_modules',
+        'enable_product_cost',
+        'enable_product_quantity',
+        'default_quantity',
+        'subdomain',
+        'size_id',
+        'first_day_of_week',
+        'first_month_of_year',
+        'portal_mode',
+        'portal_domain',
+        'enable_modules',
+        'custom_fields',
+        'industry_id',
+        'slack_webhook_url',
+        'google_analytics_key',
+        'created_at',
+        'updated_at',
+        'enabled_item_tax_rates',
+        'is_large',
+        'enable_shop_api',
+        'default_auto_bill',
+        'mark_expenses_invoiceable',
+        'mark_expenses_paid',
+        'invoice_expense_documents',
+        'auto_start_tasks',
+        'invoice_task_timelog',
+        'invoice_task_documents',
+        'show_tasks_table',
+        'is_disabled',
+        'default_task_is_date_based',
+        'enable_product_discount',
+        'calculate_expense_tax_by_amount',
+        'expense_inclusive_taxes',
+        'session_timeout',
+        'oauth_password_required',
+        'invoice_task_datelog',
+        'default_password_timeout',
+        'show_task_end_date',
+        'markdown_enabled',
+        'use_comma_as_decimal_place',
+        'report_include_drafts',
+        'client_registration_fields',
+        'convert_rate_to_client',
     ];
 
     /**
@@ -229,17 +228,18 @@ class CompanyImport implements ShouldQueue
 
         $json = JsonMachine::fromFile($this->file_path, '/'.$key, new ExtJsonDecoder);
 
-        if($force_array)
+        if ($force_array) {
             return iterator_to_array($json);
+        }
 
         return $json;
     }
 
     public function handle()
     {
-    	MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->company->db);
 
-    	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
+        $this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
         $this->company_owner = $this->company->owner();
 
@@ -248,9 +248,10 @@ class CompanyImport implements ShouldQueue
 
         // $this->backup_file = Cache::get($this->hash);
 
-        if ( empty( $this->file_location ) ) 
+        if (empty($this->file_location)) {
             throw new \Exception('No import data found, has the cache expired?');
-        
+        }
+
         // $this->backup_file = json_decode(file_get_contents($this->file_location));
         $tmp_file = $this->unzipFile();
 
@@ -258,15 +259,12 @@ class CompanyImport implements ShouldQueue
 
         $this->checkUserCount();
 
-        if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
-
+        if (array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
             $this->preFlightChecks()->importSettings();
         }
 
-        if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
-
-            try{
-
+        if (array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
+            try {
                 $this->preFlightChecks()
                      ->purgeCompanyData()
                      ->importCompany()
@@ -274,7 +272,7 @@ class CompanyImport implements ShouldQueue
                      ->postImportCleanup();
 
                 $data = [
-                    'errors'  => []
+                    'errors'  => [],
                 ];
 
                 $_company = Company::find($this->company->id);
@@ -285,18 +283,12 @@ class CompanyImport implements ShouldQueue
                 $nmo->settings = $_company->settings;
                 $nmo->to_user = $_company->owner();
                 NinjaMailerJob::dispatchNow($nmo);
-
-             }
-             catch(\Exception $e){
-
+            } catch (\Exception $e) {
                 info($e->getMessage());
-
-             }
-
+            }
         }
 
         unlink($tmp_file);
-
     }
 
     //
@@ -308,23 +300,19 @@ class CompanyImport implements ShouldQueue
              ->clients()
              ->whereDoesntHave('contacts')
              ->cursor()
-             ->each(function ($client){
-
-                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $new_contact->client_id = $client->id;
-                $new_contact->contact_key = Str::random(40);
-                $new_contact->is_primary = true;
-                $new_contact->confirmed = true;
-                $new_contact->email = ' ';
-                $new_contact->save();
-
-        });
-
+             ->each(function ($client) {
+                 $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+                 $new_contact->client_id = $client->id;
+                 $new_contact->contact_key = Str::random(40);
+                 $new_contact->is_primary = true;
+                 $new_contact->confirmed = true;
+                 $new_contact->email = ' ';
+                 $new_contact->save();
+             });
     }
 
     private function unzipFile()
     {
-
         $path = TempFile::filePath(Storage::disk(config('filesystems.default'))->get($this->file_location), basename($this->file_location));
 
         $zip = new ZipArchive();
@@ -336,75 +324,67 @@ class CompanyImport implements ShouldQueue
         $zip->close();
         $file_location = "{$file_path}/backup.json";
 
-        if (! file_exists($file_path)) 
+        if (! file_exists($file_path)) {
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
+        }
 
         return $file_location;
-
     }
 
-
     /**
-     * On the hosted platform we cannot allow the 
+     * On the hosted platform we cannot allow the
      * import to start if there are users > plan number
      * due to entity user_id dependencies
-     *     
+     *
      * @return bool
      */
     private function checkUserCount()
     {
-
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             $this->pre_flight_checks_pass = true;
+        }
 
         // $backup_users = $this->backup_file->users;
         $backup_users = $this->getObject('users', true);
 
         $company_users = $this->company->users;
-        
-            nlog("Backup user count = ".count($backup_users));
 
-            if(count($backup_users) > 1){
+        nlog('Backup user count = '.count($backup_users));
 
+        if (count($backup_users) > 1) {
+        }
+
+        nlog('backup users email = '.$backup_users[0]->email);
+
+        if (count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
+        }
+
+        $backup_users_emails = array_column($backup_users, 'email');
+
+        $company_users_emails = $company_users->pluck('email')->toArray();
+
+        $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+        nlog("existing user count = {$existing_user_count}");
+
+        if ($existing_user_count > 1) {
+            if ($this->account->plan == 'pro') {
             }
 
-            nlog("backup users email = " . $backup_users[0]->email);
-
-            if(count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
-
+            if ($this->account->plan == 'enterprise') {
             }
+        }
 
-            $backup_users_emails = array_column($backup_users, 'email');
+        if ($this->company->account->isFreeHostedClient() && (count($this->getObject('clients', true)) > config('ninja.quotas.free.clients'))) {
+            nlog('client quota busted');
 
-            $company_users_emails = $company_users->pluck('email')->toArray();
+            $client_limit = config('ninja.quotas.free.clients');
+            $client_count = count($this->getObject('clients', true));
 
-            $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+            $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
 
-            nlog("existing user count = {$existing_user_count}");
-
-            if($existing_user_count > 1){
-
-                if($this->account->plan == 'pro'){
-
-                }
-
-                if($this->account->plan == 'enterprise'){
-
-                }
-            }
-
-            if($this->company->account->isFreeHostedClient() && (count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')) ){
-                
-                nlog("client quota busted");
-
-                $client_limit = config('ninja.quotas.free.clients');
-                $client_count = count($this->getObject('clients', true));
-
-                $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
-                
-                $this->pre_flight_checks_pass = false;
-
-            }
+            $this->pre_flight_checks_pass = false;
+        }
 
         return $this;
     }
@@ -414,32 +394,29 @@ class CompanyImport implements ShouldQueue
      Company and settings only
      Data
      */
-    
+
     private function preFlightChecks()
     {
-    	//check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
+        //check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
 
-        $data = (object)$this->getObject('app_version', true);
-        
-    	if($this->current_app_version != $data->app_version)
-        {
+        $data = (object) $this->getObject('app_version', true);
+
+        if ($this->current_app_version != $data->app_version) {
             //perform some magic here
         }
-        
-        if($this->pre_flight_checks_pass === false)
-        {
 
+        if ($this->pre_flight_checks_pass === false) {
             $this->sendImportMail($this->message);
 
             throw new \Exception($this->message);
         }
 
-    	return $this;
+        return $this;
     }
 
     private function importSettings()
     {
-        $co = (object)$this->getObject("company", true);
+        $co = (object) $this->getObject('company', true);
 
         $settings = $co->settings;
         $settings->invoice_number_counter = 1;
@@ -480,61 +457,57 @@ class CompanyImport implements ShouldQueue
     private function importCompany()
     {
         //$tmp_company = $this->backup_file->company;
-        $tmp_company = (object)$this->getObject("company",true);
+        $tmp_company = (object) $this->getObject('company', true);
         $tmp_company->company_key = $this->createHash();
         $tmp_company->db = config('database.default');
         $tmp_company->account_id = $this->account->id;
 
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             $tmp_company->subdomain = MultiDB::randomSubdomainGenerator();
-        else 
+        } else {
             $tmp_company->subdomain = '';
-
-        foreach($this->company_properties as $value){
-
-            if(property_exists($tmp_company, $value))
-                $this->company->{$value} = $tmp_company->{$value};    
-
         }
-        
+
+        foreach ($this->company_properties as $value) {
+            if (property_exists($tmp_company, $value)) {
+                $this->company->{$value} = $tmp_company->{$value};
+            }
+        }
+
         $this->company->save();
 
-    	return $this;
+        return $this;
     }
 
     private function importData()
     {
-
-        foreach($this->importables as $import){
-
+        foreach ($this->importables as $import) {
             $method = "import_{$import}";
 
             nlog($method);
 
             $this->{$method}();
-
         }
 
-        nlog("finished importing company data");
+        nlog('finished importing company data');
 
         return $this;
-
     }
 
     private function import_recurring_expenses()
     {
-//unset / transforms / object_property / match_key
-        $this->genericImport(RecurringExpense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id','recurring_expense_id'], 
+        //unset / transforms / object_property / match_key
+        $this->genericImport(RecurringExpense::class,
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id', 'recurring_expense_id'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['clients' => 'client_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
                 ['expense_categories' => 'category_id'],
-            ], 
+            ],
             'recurring_expenses',
             'number');
 
@@ -543,28 +516,24 @@ class CompanyImport implements ShouldQueue
 
     private function import_payment_terms()
     {
-
-        $this->genericImport(PaymentTerm::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id']], 
+        $this->genericImport(PaymentTerm::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'],
+            [['users' => 'user_id']],
             'payment_terms',
             'num_days');
 
         return $this;
-
     }
 
     /* Cannot use generic as we are matching on two columns for existing data */
     private function import_tax_rates()
     {
-        
+
         // foreach($this->backup_file->tax_rates as $obj)
-        foreach((object)$this->getObject("tax_rates") as $obj)
-        {
-        
+        foreach ((object) $this->getObject('tax_rates') as $obj) {
             $user_id = $this->transformId('users', $obj->user_id);
 
-            $obj_array = (array)$obj;
+            $obj_array = (array) $obj;
             unset($obj_array['user_id']);
             unset($obj_array['company_id']);
             unset($obj_array['hashed_id']);
@@ -579,7 +548,6 @@ class CompanyImport implements ShouldQueue
             $new_obj->company_id = $this->company->id;
             $new_obj->user_id = $user_id;
             $new_obj->save(['timestamps' => false]);
-            
         }
 
         return $this;
@@ -587,62 +555,53 @@ class CompanyImport implements ShouldQueue
 
     private function import_expense_categories()
     {
-
-        $this->genericImport(ExpenseCategory::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id']], 
+        $this->genericImport(ExpenseCategory::class,
+            ['user_id', 'company_id', 'id', 'hashed_id'],
+            [['users' => 'user_id']],
             'expense_categories',
             'name');
 
         return $this;
-
     }
 
     private function import_task_statuses()
     {
-
-        $this->genericImport(TaskStatus::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id']], 
+        $this->genericImport(TaskStatus::class,
+            ['user_id', 'company_id', 'id', 'hashed_id'],
+            [['users' => 'user_id']],
             'task_statuses',
             'name');
 
         return $this;
-        
     }
 
     private function import_clients()
     {
-
-        $this->genericImport(Client::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents','country'], 
-            [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+        $this->genericImport(Client::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents', 'country'],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id']],
             'clients',
             'number');
 
         return $this;
-        
     }
 
     private function import_client_contacts()
     {
-
-        $this->genericImport(ClientContact::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id','company'], 
-            [['users' => 'user_id'], ['clients' => 'client_id']], 
+        $this->genericImport(ClientContact::class,
+            ['user_id', 'company_id', 'id', 'hashed_id', 'company'],
+            [['users' => 'user_id'], ['clients' => 'client_id']],
             'client_contacts',
             'email');
 
         return $this;
-        
     }
 
     private function import_vendors()
     {
-
-        $this->genericImport(Vendor::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id'], ['users' =>'assigned_user_id']], 
+        $this->genericImport(Vendor::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'],
+            [['users' => 'user_id'], ['users' =>'assigned_user_id']],
             'vendors',
             'number');
 
@@ -651,283 +610,258 @@ class CompanyImport implements ShouldQueue
 
     private function import_projects()
     {
-
-        $this->genericImport(Project::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id','client_id'], 
-            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']], 
+        $this->genericImport(Project::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id'],
+            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']],
             'projects',
             'number');
-     
-        return $this;   
+
+        return $this;
     }
 
     private function import_products()
     {
-
         $this->genericNewClassImport(Product::class,
             ['user_id', 'company_id', 'hashed_id', 'id'],
             [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
-            'products' 
+            'products'
         );
 
-        return $this;        
+        return $this;
     }
 
     private function import_company_gateways()
     {
-
         $this->genericNewClassImport(CompanyGateway::class,
             ['user_id', 'company_id', 'hashed_id', 'id'],
             [['users' => 'user_id']],
-            'company_gateways' 
+            'company_gateways'
         );
 
-        return $this;        
+        return $this;
     }
 
     private function import_client_gateway_tokens()
     {
-
-        $this->genericNewClassImport(ClientGatewayToken::class, 
-            ['company_id', 'id', 'hashed_id','client_id'], 
-            [['clients' => 'client_id', 'company_gateways' => 'company_gateway_id']], 
+        $this->genericNewClassImport(ClientGatewayToken::class,
+            ['company_id', 'id', 'hashed_id', 'client_id'],
+            [['clients' => 'client_id', 'company_gateways' => 'company_gateway_id']],
             'client_gateway_tokens');
 
-        return $this;        
+        return $this;
     }
 
     private function import_group_settings()
     {
-
-        $this->genericImport(GroupSetting::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id']], 
+        $this->genericImport(GroupSetting::class,
+            ['user_id', 'company_id', 'id', 'hashed_id'],
+            [['users' => 'user_id']],
             'group_settings',
             'name');
 
-        return $this;        
+        return $this;
     }
 
     private function import_subscriptions()
     {
-        
-        $this->genericImport(Subscription::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
-            [['group_settings' => 'group_id'], ['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+        $this->genericImport(Subscription::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'],
+            [['group_settings' => 'group_id'], ['users' => 'user_id'], ['users' => 'assigned_user_id']],
             'subscriptions',
             'name');
 
-        return $this;        
+        return $this;
     }
 
     private function import_recurring_invoices()
     {
-
-        $this->genericImport(RecurringInvoice::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id','subscription_id','project_id','vendor_id','status'], 
+        $this->genericImport(RecurringInvoice::class,
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id', 'subscription_id', 'project_id', 'vendor_id', 'status'],
             [
-                ['subscriptions' => 'subscription_id'], 
-                ['users' => 'user_id'], 
+                ['subscriptions' => 'subscription_id'],
+                ['users' => 'user_id'],
                 ['users' => 'assigned_user_id'],
                 ['clients' => 'client_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['clients' => 'client_id'],
-            ], 
+            ],
             'recurring_invoices',
             'number');
 
         return $this;
-
     }
 
     private function import_recurring_invoice_invitations()
     {
-
-
-        $this->genericImport(RecurringInvoiceInvitation::class, 
-            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'recurring_invoice_id'], 
+        $this->genericImport(RecurringInvoiceInvitation::class,
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'recurring_invoice_id'],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
                 ['client_contacts' => 'client_contact_id'],
-            ], 
+            ],
             'recurring_invoice_invitations',
             'key');
 
         return $this;
-
     }
 
     private function import_invoices()
     {
-
-        $this->genericImport(Invoice::class, 
-            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+        $this->genericImport(Invoice::class,
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id', 'status'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['recurring_invoices' => 'recurring_id'],
                 ['clients' => 'client_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-            ], 
+            ],
             'invoices',
             'number');
 
-        return $this;        
+        return $this;
     }
 
     private function import_invoice_invitations()
     {
-
-
-        $this->genericImport(InvoiceInvitation::class, 
-            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'invoice_id'], 
+        $this->genericImport(InvoiceInvitation::class,
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'invoice_id'],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['invoices' => 'invoice_id'],
                 ['client_contacts' => 'client_contact_id'],
-            ], 
+            ],
             'invoice_invitations',
             'key');
 
-        return $this;        
+        return $this;
     }
 
     private function import_quotes()
     {
-
-        $this->genericImport(Quote::class, 
-            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+        $this->genericImport(Quote::class,
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id', 'status'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['recurring_invoices' => 'recurring_id'],
                 ['clients' => 'client_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-            ], 
+            ],
             'quotes',
             'number');
 
         return $this;
-
     }
 
     private function import_quote_invitations()
     {
-
-        $this->genericImport(QuoteInvitation::class, 
-            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'quote_id'], 
+        $this->genericImport(QuoteInvitation::class,
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'quote_id'],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['quotes' => 'quote_id'],
                 ['client_contacts' => 'client_contact_id'],
-            ], 
+            ],
             'quote_invitations',
             'key');
 
-
-        return $this;        
+        return $this;
     }
 
     private function import_credits()
     {
-
-
-        $this->genericImport(Credit::class, 
-            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+        $this->genericImport(Credit::class,
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id', 'status'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['recurring_invoices' => 'recurring_id'],
                 ['clients' => 'client_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-            ], 
+            ],
             'credits',
             'number');
 
-            return $this;        
+        return $this;
     }
 
     private function import_credit_invitations()
     {
-
-        $this->genericImport(CreditInvitation::class, 
-            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'credit_id'], 
+        $this->genericImport(CreditInvitation::class,
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'credit_id'],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['credits' => 'credit_id'],
                 ['client_contacts' => 'client_contact_id'],
-            ], 
+            ],
             'credit_invitations',
             'key');
 
-            return $this;        
+        return $this;
     }
 
     private function import_expenses()
     {
-
-        $this->genericImport(Expense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
+        $this->genericImport(Expense::class,
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id', 'recurring_expense_id'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['clients' => 'client_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
                 // ['recurring_expenses' => 'recurring_expense_id'],
                 ['expense_categories' => 'category_id'],
-            ], 
+            ],
             'expenses',
             'number');
 
         return $this;
-
     }
 
     private function import_tasks()
     {
-
-        $this->genericImport(Task::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'invoice_id','project_id'], 
+        $this->genericImport(Task::class,
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'invoice_id', 'project_id'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['clients' => 'client_id'],
                 ['projects' => 'project_id'],
                 ['invoices' => 'invoice_id'],
-            ], 
+            ],
             'tasks',
             'number');
 
-        return $this;        
+        return $this;
     }
 
     private function import_payments()
     {
-
-        $this->genericImport(Payment::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'client_contact_id','invitation_id','vendor_id','paymentables'], 
+        $this->genericImport(Payment::class,
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'client_contact_id', 'invitation_id', 'vendor_id', 'paymentables'],
             [
-                ['users' => 'user_id'], 
-                ['users' => 'assigned_user_id'], 
+                ['users' => 'user_id'],
+                ['users' => 'assigned_user_id'],
                 ['clients' => 'client_id'],
                 ['client_contacts' => 'client_contact_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoice_invitations' => 'invitation_id'],
                 ['company_gateways' => 'company_gateway_id'],
-            ], 
+            ],
             'payments',
             'number');
-        
+
         $this->paymentablesImport();
 
         return $this;
@@ -935,20 +869,18 @@ class CompanyImport implements ShouldQueue
 
     private function import_activities()
     {
-
         $activities = [];
 
-
-        $this->genericNewClassImport(Activity::class, 
+        $this->genericNewClassImport(Activity::class,
             [
                 'hashed_id',
                 'company_id',
                 'backup',
                 'invitation_id',
                 'payment_id',
-            ], 
+            ],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['clients' => 'client_id'],
                 ['client_contacts' => 'client_contact_id'],
                 ['projects' => 'project_id'],
@@ -963,67 +895,58 @@ class CompanyImport implements ShouldQueue
                 ['recurring_invoices' => 'recurring_invoice_id'],
                 // ['recurring_expenses' => 'recurring_expense_id'],
                 // ['invitations' => 'invitation_id'],
-            ], 
+            ],
             'activities');
 
         return $this;
-
     }
 
     private function import_backups()
     {
-
-        $this->genericImportWithoutCompany(Backup::class, 
-            ['hashed_id','id'], 
+        $this->genericImportWithoutCompany(Backup::class,
+            ['hashed_id', 'id'],
             [
-                ['activities' => 'activity_id'], 
-            ], 
+                ['activities' => 'activity_id'],
+            ],
             'backups',
             'created_at');
 
-
-        return $this;        
-    }  
+        return $this;
+    }
 
     private function import_company_ledger()
     {
-
-        $this->genericImport(CompanyLedger::class, 
-            ['company_id', 'user_id', 'client_id', 'activity_id', 'id','account_id'], 
+        $this->genericImport(CompanyLedger::class,
+            ['company_id', 'user_id', 'client_id', 'activity_id', 'id', 'account_id'],
             [
-                ['users' => 'user_id'], 
+                ['users' => 'user_id'],
                 ['clients' => 'client_id'],
                 // ['activities' => 'activity_id'],
-            ], 
+            ],
             'company_ledger',
             'created_at');
 
         return $this;
-        
     }
 
     private function import_designs()
     {
-        
-        $this->genericImport(Design::class, 
-            ['company_id', 'user_id', 'hashed_id'], 
+        $this->genericImport(Design::class,
+            ['company_id', 'user_id', 'hashed_id'],
             [
                 ['users' => 'user_id'],
-            ], 
+            ],
             'designs',
             'name');
 
         return $this;
-
     }
 
     private function import_documents()
     {
 
         // foreach($this->backup_file->documents as $document)
-        foreach((object)$this->getObject("documents") as $document)
-        {
-
+        foreach ((object) $this->getObject('documents') as $document) {
             $new_document = new Document();
             $new_document->user_id = $this->transformId('users', $document->user_id);
             $new_document->assigned_user_id = $this->transformId('users', $document->assigned_user_id);
@@ -1049,7 +972,6 @@ class CompanyImport implements ShouldQueue
             $new_document->documentable_type = $document->documentable_type;
 
             $new_document->save(['timestamps' => false]);
-        
         }
 
         return $this;
@@ -1057,18 +979,16 @@ class CompanyImport implements ShouldQueue
 
     private function import_webhooks()
     {
-
-        $this->genericImport(Webhook::class, 
-            ['company_id', 'user_id'], 
+        $this->genericImport(Webhook::class,
+            ['company_id', 'user_id'],
             [
                 ['users' => 'user_id'],
-            ], 
+            ],
             'webhooks',
             'created_at');
 
         return $this;
     }
-
 
     private function import_system_logs()
     {
@@ -1080,13 +1000,12 @@ class CompanyImport implements ShouldQueue
         User::unguard();
 
         //foreach ($this->backup_file->users as $user)
-        foreach((object)$this->getObject("users") as $user)
-        {
-
-            if(User::withTrashed()->where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
+        foreach ((object) $this->getObject('users') as $user) {
+            if (User::withTrashed()->where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists()) {
                 throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
+            }
 
-            $user_array = (array)$user;
+            $user_array = (array) $user;
             unset($user_array['laravel_through_key']);
             unset($user_array['hashed_id']);
             unset($user_array['id']);
@@ -1102,11 +1021,9 @@ class CompanyImport implements ShouldQueue
             $new_user->save(['timestamps' => false]);
 
             $this->ids['users']["{$user->hashed_id}"] = $new_user->id;
-
         }
 
         User::reguard();
-
     }
 
     private function import_company_users()
@@ -1114,11 +1031,10 @@ class CompanyImport implements ShouldQueue
         CompanyUser::unguard();
 
         // foreach($this->backup_file->company_users as $cu)
-        foreach((object)$this->getObject("company_users") as $cu)
-        {
+        foreach ((object) $this->getObject('company_users') as $cu) {
             $user_id = $this->transformId('users', $cu->user_id);
 
-            $cu_array = (array)$cu;
+            $cu_array = (array) $cu;
             unset($cu_array['id']);
             unset($cu_array['company_id']);
             unset($cu_array['user_id']);
@@ -1136,11 +1052,9 @@ class CompanyImport implements ShouldQueue
 
             $new_cu->account_id = $this->account->id;
             $new_cu->save(['timestamps' => false]);
-            
         }
 
         CompanyUser::reguard();
-
     }
 
     private function transformDocumentId($id, $type)
@@ -1180,9 +1094,8 @@ class CompanyImport implements ShouldQueue
                 return $this->transformId('clients', $id);
                 break;
 
-            
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -1191,12 +1104,8 @@ class CompanyImport implements ShouldQueue
     {
 
         // foreach($this->backup_file->payments as $payment)
-        foreach((object)$this->getObject("payments") as $payment)
-        {
-
-            foreach($payment->paymentables as $paymentable_obj)
-            {
-
+        foreach ((object) $this->getObject('payments') as $payment) {
+            foreach ($payment->paymentables as $paymentable_obj) {
                 $paymentable = new Paymentable();
                 $paymentable->payment_id = $this->transformId('payments', $paymentable_obj->payment_id);
                 $paymentable->paymentable_type = $paymentable_obj->paymentable_type;
@@ -1222,78 +1131,68 @@ class CompanyImport implements ShouldQueue
                 break;
             case Credit::class:
                 return $this->transformId('credits', $id);
-                break;    
+                break;
             case Payment::class:
-                return $this->transformId('payments', $id);        
+                return $this->transformId('payments', $id);
             default:
-                # code...
+                // code...
                 break;
         }
     }
 
-
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
-
         $class::unguard();
 
-        foreach((object)$this->getObject($object_property) as $obj)
-        {
+        foreach ((object) $this->getObject($object_property) as $obj) {
             /* Remove unwanted keys*/
-            $obj_array = (array)$obj;
-            foreach($unset as $un){
+            $obj_array = (array) $obj;
+            foreach ($unset as $un) {
                 unset($obj_array[$un]);
             }
 
-            if($class instanceof CompanyGateway){
-
-                if(Ninja::isHosted() && $obj_array['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+            if ($class instanceof CompanyGateway) {
+                if (Ninja::isHosted() && $obj_array['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23') {
                     $obj_array['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 }
 
-                if(Ninja::isSelfHost() && $obj_array['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34'){
+                if (Ninja::isSelfHost() && $obj_array['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34') {
                     $obj_array['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
-                }                
-
+                }
             }
 
-            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+            if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
                 $obj_array['deleted_at'] = now();
             }
 
             $activity_invitation_key = false;
 
-            if($class == 'App\Models\Activity'){
-
-                if(isset($obj->invitation_id)){
-
-                    if(isset($obj->invoice_id))
+            if ($class == 'App\Models\Activity') {
+                if (isset($obj->invitation_id)) {
+                    if (isset($obj->invoice_id)) {
                         $activity_invitation_key = 'invoice_invitations';
-                    elseif(isset($obj->quote_id))
+                    } elseif (isset($obj->quote_id)) {
                         $activity_invitation_key = 'quote_invitations';
-                    elseif(isset($obj->credit_id))
-                        $activity_invitation_key  = 'credit_invitations';
-
+                    } elseif (isset($obj->credit_id)) {
+                        $activity_invitation_key = 'credit_invitations';
+                    }
                 }
 
                 $obj_array['account_id'] = $this->account->id;
-
             }
 
             /* Transform old keys to new keys */
-            foreach($transforms as $transform)
-            {
-                foreach($transform as $key => $value)
-                {
-                    if($class == 'App\Models\Activity' && $activity_invitation_key && $key == 'invitations'){
+            foreach ($transforms as $transform) {
+                foreach ($transform as $key => $value) {
+                    if ($class == 'App\Models\Activity' && $activity_invitation_key && $key == 'invitations') {
                         $key = $activity_invitation_key;
                     }
-                    
+
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
-                }    
+                }
             }
 
-            if($class == 'App\Models\CompanyGateway') {
+            if ($class == 'App\Models\CompanyGateway') {
                 $obj_array['config'] = encrypt($obj_array['config']);
             }
 
@@ -1302,52 +1201,45 @@ class CompanyImport implements ShouldQueue
             $new_obj->fill($obj_array);
 
             $new_obj->save(['timestamps' => false]);
-            
-            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
 
+            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
         }
 
         $class::reguard();
-    
-
     }
 
     private function genericImportWithoutCompany($class, $unset, $transforms, $object_property, $match_key)
     {
-
         $class::unguard();
 
         //foreach($this->backup_file->{$object_property} as $obj)
-        foreach((object)$this->getObject($object_property) as $obj)
-        {
-
-            if(is_null($obj))
+        foreach ((object) $this->getObject($object_property) as $obj) {
+            if (is_null($obj)) {
                 continue;
+            }
 
             /* Remove unwanted keys*/
-            $obj_array = (array)$obj;
-            foreach($unset as $un){
+            $obj_array = (array) $obj;
+            foreach ($unset as $un) {
                 unset($obj_array[$un]);
             }
 
             /* Transform old keys to new keys */
-            foreach($transforms as $transform)
-            {
-                foreach($transform as $key => $value)
-                {
+            foreach ($transforms as $transform) {
+                foreach ($transform as $key => $value) {
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
-                }    
+                }
             }
-            
-            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+
+            if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
                 $obj_array['deleted_at'] = now();
             }
 
             /* New to convert product ids from old hashes to new hashes*/
-            if($class == 'App\Models\Subscription'){
-                $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
-                $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
-                $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']); 
+            if ($class == 'App\Models\Subscription') {
+                $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']);
+                $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']);
+                $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']);
             }
 
             $new_obj = $class::firstOrNew(
@@ -1356,161 +1248,141 @@ class CompanyImport implements ShouldQueue
                 );
 
             $new_obj->save(['timestamps' => false]);
-            
-            if($new_obj instanceof CompanyLedger){
 
-            }
-            else
+            if ($new_obj instanceof CompanyLedger) {
+            } else {
                 $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
-
+            }
         }
 
         $class::reguard();
-    
     }
 
     /* Ensure if no number is set, we don't overwrite a record with an existing number */
     private function genericImport($class, $unset, $transforms, $object_property, $match_key)
     {
-
         $class::unguard();
         $x = 0;
 
-        foreach((object)$this->getObject($object_property) as $obj)
-        {
-            
+        foreach ((object) $this->getObject($object_property) as $obj) {
+
             /* Remove unwanted keys*/
-            $obj_array = (array)$obj;
-            foreach($unset as $un){
+            $obj_array = (array) $obj;
+            foreach ($unset as $un) {
                 unset($obj_array[$un]);
             }
 
             /* Transform old keys to new keys */
-            foreach($transforms as $transform)
-            {
-                foreach($transform as $key => $value)
-                {
+            foreach ($transforms as $transform) {
+                foreach ($transform as $key => $value) {
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
-                }    
+                }
             }
-            
-            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+
+            if (array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1) {
                 $obj_array['deleted_at'] = now();
             }
 
             /* New to convert product ids from old hashes to new hashes*/
-            if($class == 'App\Models\Subscription'){
-                
-                if(array_key_exists('company', $obj_array))
+            if ($class == 'App\Models\Subscription') {
+                if (array_key_exists('company', $obj_array)) {
                     unset($obj_array['company']);
+                }
 
-                $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
+                $obj_array['webhook_configuration'] = (array) $obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
-            if($class == 'App\Models\Expense' && is_null($obj->{$match_key})){
+            if ($class == 'App\Models\Expense' && is_null($obj->{$match_key})) {
                 $new_obj = new Expense();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextExpenseNumber($new_obj);
-
-            }
-            elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
+            } elseif ($class == 'App\Models\Invoice' && is_null($obj->{$match_key})) {
                 $new_obj = new Invoice();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextInvoiceNumber($client = Client::find($obj_array['client_id']),$new_obj);
-            }
-            elseif($class == 'App\Models\Payment' && is_null($obj->{$match_key})){
+                $new_obj->number = $this->getNextInvoiceNumber($client = Client::find($obj_array['client_id']), $new_obj);
+            } elseif ($class == 'App\Models\Payment' && is_null($obj->{$match_key})) {
                 $new_obj = new Payment();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextPaymentNumber($client = Client::find($obj_array['client_id']), $new_obj);
-            }
-            elseif($class == 'App\Models\Quote' && is_null($obj->{$match_key})){
+            } elseif ($class == 'App\Models\Quote' && is_null($obj->{$match_key})) {
                 $new_obj = new Quote();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextQuoteNumber($client = Client::find($obj_array['client_id']), $new_obj);
-            }
-            elseif($class == 'App\Models\ClientContact'){
+            } elseif ($class == 'App\Models\ClientContact') {
                 $new_obj = new ClientContact();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-            }
-            elseif($class == 'App\Models\RecurringExpense' && is_null($obj->{$match_key})){
+            } elseif ($class == 'App\Models\RecurringExpense' && is_null($obj->{$match_key})) {
                 $new_obj = new RecurringExpense();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextRecurringExpenseNumber($new_obj);   
-            }
-            elseif($class == 'App\Models\Project' && is_null($obj->{$match_key})){
+                $new_obj->number = $this->getNextRecurringExpenseNumber($new_obj);
+            } elseif ($class == 'App\Models\Project' && is_null($obj->{$match_key})) {
                 $new_obj = new Project();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextProjectNumber($new_obj);   
-            }
-            elseif($class == 'App\Models\Task' && is_null($obj->{$match_key})){
+                $new_obj->number = $this->getNextProjectNumber($new_obj);
+            } elseif ($class == 'App\Models\Task' && is_null($obj->{$match_key})) {
                 $new_obj = new Task();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextTaskNumber($new_obj);   
-            }
-            elseif($class == 'App\Models\CompanyLedger'){
+                $new_obj->number = $this->getNextTaskNumber($new_obj);
+            } elseif ($class == 'App\Models\CompanyLedger') {
                 $new_obj = $class::firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );
-            }
-            else{
+            } else {
                 $new_obj = $class::withTrashed()->firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );
-                }
+            }
 
             $new_obj->save(['timestamps' => false]);
-            
-            if($new_obj instanceof CompanyLedger){
-            }
-            else
-                $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
 
+            if ($new_obj instanceof CompanyLedger) {
+            } else {
+                $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+            }
         }
 
         $class::reguard();
-    
     }
 
     private function recordProductIds($ids)
     {
-
-        $id_array = explode(",", $ids);
+        $id_array = explode(',', $ids);
 
         $tmp_arr = [];
 
-        foreach($id_array as $id) {
-
-            if(!$id)
+        foreach ($id_array as $id) {
+            if (! $id) {
                 continue;
+            }
 
             $id = $this->decodePrimaryKey($id);
 
             nlog($id);
             $tmp_arr[] = $this->encodePrimaryKey($this->transformId('products', $id));
-        }     
+        }
 
-        return implode(",", $tmp_arr);
+        return implode(',', $tmp_arr);
     }
 
     /* Transform all IDs from old to new
@@ -1518,19 +1390,19 @@ class CompanyImport implements ShouldQueue
      * In the case of users - we need to check if the system
      * is attempting to migrate resources above their quota,
      *
-     * ie. > 50 clients or more than 1 user 
+     * ie. > 50 clients or more than 1 user
     */
     private function transformId(string $resource, ?string $old): ?int
     {
-        if(empty($old))
+        if (empty($old)) {
             return null;
+        }
 
-        if ($resource == 'users' && $this->force_user_coalesce){
+        if ($resource == 'users' && $this->force_user_coalesce) {
             return $this->company_owner->id;
         }
 
         if (! array_key_exists($resource, $this->ids)) {
-            
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
 
             throw new \Exception("Resource {$resource} not available.");
@@ -1540,13 +1412,14 @@ class CompanyImport implements ShouldQueue
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
 
-            nlog("If we are missing a user - default to the company owner");
-            
-            if($resource == 'users')
+            nlog('If we are missing a user - default to the company owner');
+
+            if ($resource == 'users') {
                 return $this->company_owner->id;
+            }
 
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
-            
+
             nlog($this->ids[$resource]);
 
             throw new \Exception("Missing {$resource} key: {$old}");
@@ -1555,9 +1428,8 @@ class CompanyImport implements ShouldQueue
         return $this->ids[$resource]["{$old}"];
     }
 
-
-    private function sendImportMail($message){
-
+    private function sendImportMail($message)
+    {
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
@@ -1570,6 +1442,5 @@ class CompanyImport implements ShouldQueue
         $nmo->settings = $this->company->settings;
         $nmo->to_user = $this->company->owner();
         NinjaMailerJob::dispatchNow($nmo);
-
     }
 }

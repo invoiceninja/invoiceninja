@@ -59,11 +59,9 @@ class CreditCard
     public function paymentView(array $data)
     {
 
-
         // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
-        $invoice_numbers =  collect($data['invoices'])->pluck('invoice_number')->implode(',');
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
         $description = "Invoices: {$invoice_numbers} for {$data['total']['amount_with_fee']} for client {$this->stripe->client->present()->name()}";
-
 
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -89,8 +87,11 @@ class CreditCard
         // return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
     }
 
-    private function decode_encoded_utf8($string){
-        return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function($matches) { return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE"); }, $string);
+    private function decode_encoded_utf8($string)
+    {
+        return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function ($matches) {
+            return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UCS-2BE');
+        }, $string);
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
@@ -105,7 +106,7 @@ class CreditCard
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        if ($request->has('token') && !is_null($request->token)) {
+        if ($request->has('token') && ! is_null($request->token)) {
             $state['store_card'] = false;
         }
 
@@ -118,7 +119,6 @@ class CreditCard
         $server_response = $this->stripe->payment_hash->data->server_response;
 
         if ($server_response->status == 'succeeded') {
-
             $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $this->processSuccessfulPayment();

@@ -13,7 +13,7 @@ class VendorsPhoneColumn extends Migration
      */
     public function up()
     {
-        Schema::table('vendors', function ($t){
+        Schema::table('vendors', function ($t) {
             $t->renameColumn('work_phone', 'phone');
         });
     }

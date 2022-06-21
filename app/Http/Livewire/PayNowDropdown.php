@@ -22,7 +22,7 @@ class PayNowDropdown extends Component
     public $methods;
 
     public $company;
-    
+
     public function mount(int $total)
     {
         MultiDB::setDb($this->company->db);

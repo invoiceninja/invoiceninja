@@ -13,7 +13,6 @@ class CreateLicensesTable extends Migration
      */
     public function up()
     {
-
         Schema::create('licenses', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();

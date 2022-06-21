@@ -16,15 +16,12 @@ use Illuminate\Support\Facades\App;
 
 class ResetPasswordObject
 {
-
     public $user;
 
     public $token;
 
     public $company;
-    /**
-     *
-     */
+
     public function __construct($token, $user, $company)
     {
         $this->token = $token;
@@ -34,7 +31,6 @@ class ResetPasswordObject
 
     public function build()
     {
-
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
         $t = app('translator');

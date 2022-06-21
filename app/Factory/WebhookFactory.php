@@ -25,7 +25,7 @@ class WebhookFactory
         $webhook->format = 'JSON';
         $webhook->rest_method = 'post';
         $webhook->headers = [];
-        
+
         return $webhook;
     }
 }

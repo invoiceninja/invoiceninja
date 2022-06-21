@@ -17,7 +17,7 @@ Route::post('setup/check_pdf', 'SetupController@checkPdf')->middleware('guest');
 
 Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->middleware('domain_db')->name('password.request');
 Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->middleware(['domain_db','email_db'])->name('password.reset');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->middleware(['domain_db', 'email_db'])->name('password.reset');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset')->middleware('email_db')->name('password.update');
 
 Route::get('wepay/signup/{token}', 'WePayController@signup')->name('wepay.signup');

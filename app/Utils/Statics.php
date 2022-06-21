@@ -70,11 +70,10 @@ class Statics
         $data = [];
 
         foreach (config('ninja.cached_tables') as $name => $class) {
-            
-            if (!Cache::has($name)) {
+            if (! Cache::has($name)) {
 
                 // check that the table exists in case the migration is pending
-                if (!Schema::hasTable((new $class())->getTable())) {
+                if (! Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'payment_terms') {

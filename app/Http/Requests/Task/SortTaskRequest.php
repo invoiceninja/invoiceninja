@@ -22,16 +22,12 @@ class SortTaskRequest extends Request
      */
     public function authorize() : bool
     {
-
         return true;
 //        return auth()->user()->can('edit', $this->task);
     }
 
     public function rules()
     {
-
         return [];
-
     }
-
 }

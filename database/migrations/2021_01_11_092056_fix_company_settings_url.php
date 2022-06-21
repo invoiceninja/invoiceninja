@@ -14,9 +14,7 @@ class FixCompanySettingsUrl extends Migration
      */
     public function up()
     {
-
-        Company::all()->each(function ($company){
-
+        Company::all()->each(function ($company) {
             $settings = $company->settings;
 
             $company_logo = $settings->company_logo;
@@ -26,7 +24,6 @@ class FixCompanySettingsUrl extends Migration
 
             $company->settings = $settings;
             $company->save();
-
         });
 
         Schema::table('companies', function (Blueprint $table) {

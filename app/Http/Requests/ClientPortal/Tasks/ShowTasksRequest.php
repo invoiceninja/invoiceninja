@@ -23,7 +23,7 @@ class ShowTasksRequest extends FormRequest
      */
     public function authorize()
     {
-        return (bool)auth()->guard('contact')->user()->client->getSetting('enable_client_portal_tasks');
+        return (bool) auth()->guard('contact')->user()->client->getSetting('enable_client_portal_tasks');
     }
 
     /**

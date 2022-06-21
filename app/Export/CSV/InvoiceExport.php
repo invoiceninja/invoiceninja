@@ -63,7 +63,7 @@ class InvoiceExport extends BaseExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency_id' => 'currency_id'
+        'currency_id' => 'currency_id',
     ];
 
     private array $decorate_keys = [
@@ -84,7 +84,6 @@ class InvoiceExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -94,9 +93,10 @@ class InvoiceExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
-        
+        }
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
@@ -104,57 +104,55 @@ class InvoiceExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted',0);
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
         $query->cursor()
-            ->each(function ($invoice){
+            ->each(function ($invoice) {
+                $this->csv->insertOne($this->buildRow($invoice));
+            });
 
-                $this->csv->insertOne($this->buildRow($invoice)); 
-
-        });
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Invoice $invoice) :array
     {
-
         $transformed_invoice = $this->invoice_transformer->transform($invoice);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_invoice))
+            if (array_key_exists($key, $transformed_invoice)) {
                 $entity[$keyval] = $transformed_invoice[$key];
-            else
+            } else {
                 $entity[$keyval] = '';
+            }
         }
 
         return $this->decorateAdvancedFields($invoice, $entity);
-
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if(in_array('country_id', $this->input['report_keys']))
-            $entity['country'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : ""; 
+        if (in_array('country_id', $this->input['report_keys'])) {
+            $entity['country'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
+        }
 
-        if(in_array('currency_id', $this->input['report_keys']))
+        if (in_array('currency_id', $this->input['report_keys'])) {
             $entity['currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
+        }
 
-        if(in_array('client_id', $this->input['report_keys']))
+        if (in_array('client_id', $this->input['report_keys'])) {
             $entity['client'] = $invoice->client->present()->name();
+        }
 
-        if(in_array('status_id',$this->input['report_keys']))
+        if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        }
 
         return $entity;
     }
-
 }

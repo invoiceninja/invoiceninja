@@ -24,5 +24,4 @@ class EditRecurringExpenseRequest extends Request
     {
         return auth()->user()->can('edit', $this->recurring_expense);
     }
-
 }

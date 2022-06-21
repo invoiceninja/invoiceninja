@@ -52,20 +52,16 @@ class ConvertQuote
         $invoice_array['invitations'] = $invites;
 
         //try and convert the invoice number to a quote number here.
-        if($this->client->getSetting('shared_invoice_quote_counter'))
-        {
-           
+        if ($this->client->getSetting('shared_invoice_quote_counter')) {
             $converted_number = $this->harvestQuoteCounter($quote, $invoice, $this->client);
 
-            if($converted_number)
-            {
+            if ($converted_number) {
                 $invoice_array['number'] = $converted_number;
             }
-            
         }
 
         $invoice = $this->invoice_repo->save($invoice_array, $invoice);
-        
+
         $invoice->fresh();
 
         $invoice->service()
@@ -83,23 +79,21 @@ class ConvertQuote
 
     /**
      * Only create the invitations that are defined on the quote.
-     * 
+     *
      * @return Invoice $invoice
      */
     private function createConversionInvitations($invoice, $quote)
     {
         $invites = [];
 
-        foreach($quote->invitations as $quote_invitation){
-
+        foreach ($quote->invitations as $quote_invitation) {
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
             $ii->key = $this->createDbHash($invoice->company->db);
             $ii->client_contact_id = $quote_invitation->client_contact_id;
-        
+
             $invites[] = $ii;
         }
 
         return $invites;
     }
-
 }

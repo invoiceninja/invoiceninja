@@ -45,14 +45,15 @@ class CreditEmailEngine extends BaseEmailEngine
     public function build()
     {
         App::forgetInstance('translator');
-        
+
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
-        
-        if($this->reminder_template == 'endless_reminder')
+
+        if ($this->reminder_template == 'endless_reminder') {
             $this->reminder_template = 'reminder_endless';
-        
-        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
+        }
+
+        if (is_array($this->template_data) && array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
         } else {
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
@@ -72,10 +73,9 @@ class CreditEmailEngine extends BaseEmailEngine
             );
 
             $body_template .= '<div class="center">$view_button</div>';
-
         }
 
-        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
+        if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
         } else {
             $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
@@ -103,7 +103,7 @@ class CreditEmailEngine extends BaseEmailEngine
                 null,
                 $this->client->locale()
 
-            ) . "\n\n" . $this->invitation->getLink();
+            )."\n\n".$this->invitation->getLink();
 
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
@@ -117,26 +117,24 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-
-            if(Ninja::isHosted())
+            if (Ninja::isHosted()) {
                 $this->setAttachments([$this->credit->pdf_file_path($this->invitation, 'url', true)]);
-            else
+            } else {
                 $this->setAttachments([$this->credit->pdf_file_path($this->invitation)]);
-            
+            }
         }
 
         //attach third party documents
-        if($this->client->getSetting('document_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
+        if ($this->client->getSetting('document_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
             // Storage::url
-            foreach($this->credit->documents as $document){
+            foreach ($this->credit->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
 
-            foreach($this->credit->company->documents as $document){
+            foreach ($this->credit->company->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
-
         }
 
         return $this;

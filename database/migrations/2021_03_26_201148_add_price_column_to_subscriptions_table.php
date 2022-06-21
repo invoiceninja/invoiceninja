@@ -31,7 +31,6 @@ class AddPriceColumnToSubscriptionsTable extends Migration
             $table->unsignedInteger('frequency_id')->nullable()->change();
             $table->text('plan_map')->nullable()->change();
         });
-
     }
 
     /**

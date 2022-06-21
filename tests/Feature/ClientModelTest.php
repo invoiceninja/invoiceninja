@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature;
@@ -50,7 +50,5 @@ class ClientModelTest extends TestCase
         $this->assertGreaterThan(0, CompanyGateway::count());
 
         $this->assertEquals(1, count($payment_methods));
-
     }
-
 }

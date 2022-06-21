@@ -108,7 +108,7 @@ return [
 
         'gelf' => [
             'driver' => 'custom',
-            
+
             'via' => \Hedii\LaravelGelfLogger\GelfLoggerFactory::class,
 
             // This optional option determines the processors that should be
@@ -154,7 +154,7 @@ return [
             'path' => null,
 
             // This optional option determines the maximum length per message
-            // field. When forgotten or set to null, the default value of 
+            // field. When forgotten or set to null, the default value of
             // \Monolog\Formatter\GelfMessageFormatter::DEFAULT_MAX_LENGTH is
             // used (currently this value is 32766)
             'max_length' => null,

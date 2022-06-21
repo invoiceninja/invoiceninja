@@ -57,10 +57,9 @@ class InvoiceTransformer extends EntityTransformer
         return $this->includeItem($invoice->client, $transformer, Client::class);
     }
 
-
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer( $this->serializer);
+        $transformer = new PaymentTransformer($this->serializer);
 
         return $this->includeCollection($invoice->payments, $transformer, Payment::class);
     }
@@ -86,7 +85,6 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->activities, $transformer, Activity::class);
     }
-
 
     public function transform(Invoice $invoice)
     {

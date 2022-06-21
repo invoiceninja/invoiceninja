@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit\Phantom;
 
 use Tests\TestCase;
@@ -25,23 +26,19 @@ class PhantomJsTest extends TestCase
 
     public function testValidPdfMime()
     {
-    	$pdf = file_get_contents(base_path('/tests/Unit/Phantom/valid.pdf'));
+        $pdf = file_get_contents(base_path('/tests/Unit/Phantom/valid.pdf'));
 
         $finfo = new \finfo(FILEINFO_MIME);
 
-		$this->assertEquals('application/pdf; charset=binary', $finfo->buffer($pdf));
-
+        $this->assertEquals('application/pdf; charset=binary', $finfo->buffer($pdf));
     }
 
     public function testInValidPdfMime()
     {
-
-    	$pdf = file_get_contents(base_path('/tests/Unit/Phantom/invalid.pdf'));
+        $pdf = file_get_contents(base_path('/tests/Unit/Phantom/invalid.pdf'));
 
         $finfo = new \finfo(FILEINFO_MIME);
 
-		$this->assertNotEquals('application/pdf; charset=binary', $finfo->buffer($pdf));
-
+        $this->assertNotEquals('application/pdf; charset=binary', $finfo->buffer($pdf));
     }
-
 }

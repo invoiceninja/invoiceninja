@@ -71,7 +71,6 @@ class TaskExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -79,15 +78,15 @@ class TaskExport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
-    
+
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
-        
+
         ksort($this->entity_keys);
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
-
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -97,59 +96,50 @@ class TaskExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query->cursor()
-              ->each(function ($entity){
+              ->each(function ($entity) {
+                  $this->buildRow($entity);
+              });
 
-                $this->buildRow($entity); 
-
-        });
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
-    private function buildRow(Task $task) 
+    private function buildRow(Task $task)
     {
-
         $entity = [];
         $transformed_entity = $this->entity_transformer->transform($task);
 
-        if(is_null($task->time_log) || (is_array(json_decode($task->time_log,1)) && count(json_decode($task->time_log,1)) == 0)){
-
-            foreach(array_values($this->input['report_keys']) as $key){
-
+        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
+            foreach (array_values($this->input['report_keys']) as $key) {
                 $keyval = array_search($key, $this->entity_keys);
 
-                if(array_key_exists($key, $transformed_entity))
+                if (array_key_exists($key, $transformed_entity)) {
                     $entity[$keyval] = $transformed_entity[$key];
-                else
-                    $entity[$keyval] = '';            
+                } else {
+                    $entity[$keyval] = '';
+                }
             }
 
-            $entity['start_date'] = "";
-            $entity['end_date'] = "";
-            $entity['duration'] = "";
+            $entity['start_date'] = '';
+            $entity['end_date'] = '';
+            $entity['duration'] = '';
 
             $entity = $this->decorateAdvancedFields($task, $entity);
 
             ksort($entity);
             $this->csv->insertOne($entity);
-
-        }
-        elseif(is_array(json_decode($task->time_log,1)) && count(json_decode($task->time_log,1)) > 0) {
-
-            foreach(array_values($this->input['report_keys']) as $key){
-
+        } elseif (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) > 0) {
+            foreach (array_values($this->input['report_keys']) as $key) {
                 $keyval = array_search($key, $this->entity_keys);
 
-                if(array_key_exists($key, $transformed_entity))
+                if (array_key_exists($key, $transformed_entity)) {
                     $entity[$keyval] = $transformed_entity[$key];
-                else
-                    $entity[$keyval] = '';            
+                } else {
+                    $entity[$keyval] = '';
+                }
             }
 
             $this->iterateLogs($task, $entity);
         }
-
     }
 
     private function iterateLogs(Task $task, array $entity)
@@ -157,48 +147,51 @@ class TaskExport extends BaseExport
         $timezone = Timezone::find($task->company->settings->timezone_id);
         $timezone_name = 'US/Eastern';
 
-        if($timezone)
+        if ($timezone) {
             $timezone_name = $timezone->name;
+        }
 
-        $logs = json_decode($task->time_log,1);
-        
-        $date_format_default = "Y-m-d";
+        $logs = json_decode($task->time_log, 1);
+
+        $date_format_default = 'Y-m-d';
 
         $date_format = DateFormat::find($task->company->settings->date_format_id);
 
-        if($date_format)
+        if ($date_format) {
             $date_format_default = $date_format->format;
+        }
 
-        foreach($logs as $key => $item)
-        {
-
-            if(in_array("start_date", $this->input['report_keys'])){
+        foreach ($logs as $key => $item) {
+            if (in_array('start_date', $this->input['report_keys'])) {
                 $entity['start_date'] = Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name)->format($date_format_default);
             }
 
-            if(in_array("end_date", $this->input['report_keys']) && $item[1] > 0){
+            if (in_array('end_date', $this->input['report_keys']) && $item[1] > 0) {
                 $entity['end_date'] = Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name)->format($date_format_default);
             }
 
-            if(in_array("end_date", $this->input['report_keys']) && $item[1] == 0){
+            if (in_array('end_date', $this->input['report_keys']) && $item[1] == 0) {
                 $entity['end_date'] = ctrans('texts.is_running');
             }
 
-            if(in_array("duration", $this->input['report_keys'])){
+            if (in_array('duration', $this->input['report_keys'])) {
                 $entity['duration'] = $task->calcDuration();
             }
 
-            if(!array_key_exists('duration', $entity))
-                $entity['duration'] = "";
+            if (! array_key_exists('duration', $entity)) {
+                $entity['duration'] = '';
+            }
 
-            if(!array_key_exists('start_date', $entity))
-                $entity['start_date'] = "";
+            if (! array_key_exists('start_date', $entity)) {
+                $entity['start_date'] = '';
+            }
 
-            if(!array_key_exists('end_date', $entity))
-                $entity['end_date'] = "";
+            if (! array_key_exists('end_date', $entity)) {
+                $entity['end_date'] = '';
+            }
 
             $entity = $this->decorateAdvancedFields($task, $entity);
-            
+
             ksort($entity);
             $this->csv->insertOne($entity);
 
@@ -206,25 +199,26 @@ class TaskExport extends BaseExport
             unset($entity['end_date']);
             unset($entity['duration']);
         }
-
     }
 
     private function decorateAdvancedFields(Task $task, array $entity) :array
     {
-
-        if(in_array('status_id', $this->input['report_keys']))
+        if (in_array('status_id', $this->input['report_keys'])) {
             $entity['status'] = $task->status()->exists() ? $task->status->name : '';
+        }
 
-        if(in_array('project_id', $this->input['report_keys']))
+        if (in_array('project_id', $this->input['report_keys'])) {
             $entity['project'] = $task->project()->exists() ? $task->project->name : '';
+        }
 
-        if(in_array('client_id', $this->input['report_keys']))
-            $entity['client'] = $task->client ? $task->client->present()->name() : "";
+        if (in_array('client_id', $this->input['report_keys'])) {
+            $entity['client'] = $task->client ? $task->client->present()->name() : '';
+        }
 
-        if(in_array('invoice_id', $this->input['report_keys']))
-            $entity['invoice'] = $task->invoice ? $task->invoice->number : "";
+        if (in_array('invoice_id', $this->input['report_keys'])) {
+            $entity['invoice'] = $task->invoice ? $task->invoice->number : '';
+        }
 
         return $entity;
     }
-
 }

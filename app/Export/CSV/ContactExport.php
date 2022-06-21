@@ -91,7 +91,6 @@ class ContactExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -101,8 +100,9 @@ class ContactExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -112,19 +112,15 @@ class ContactExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
-        $query->cursor()->each(function ($contact){
-
-            $this->csv->insertOne($this->buildRow($contact)); 
-
+        $query->cursor()->each(function ($contact) {
+            $this->csv->insertOne($this->buildRow($contact));
         });
 
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(ClientContact $contact) :array
     {
-
         $transformed_contact = false;
 
         $transformed_client = $this->client_transformer->transform($contact->client);
@@ -132,41 +128,40 @@ class ContactExport extends BaseExport
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
-            $parts = explode(".",$key);
+        foreach (array_values($this->input['report_keys']) as $key) {
+            $parts = explode('.', $key);
             $keyval = array_search($key, $this->entity_keys);
 
-            if($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
+            if ($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$keyval] = $transformed_client[$parts[1]];
-            }
-            elseif($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+            } elseif ($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$keyval] = $transformed_contact[$parts[1]];
+            } else {
+                $entity[$keyval] = '';
             }
-            else 
-                $entity[$keyval] = "";
         }
 
         return $this->decorateAdvancedFields($contact->client, $entity);
-
     }
 
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
+        if (in_array('client.country_id', $this->input['report_keys'])) {
+            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : '';
+        }
 
-        if(in_array('client.country_id', $this->input['report_keys']))
-            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
+        if (in_array('client.shipping_country_id', $this->input['report_keys'])) {
+            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : '';
+        }
 
-        if(in_array('client.shipping_country_id', $this->input['report_keys']))
-            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
-
-        if(in_array('client.currency', $this->input['report_keys']))
+        if (in_array('client.currency', $this->input['report_keys'])) {
             $entity['currency'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
+        }
 
-        if(in_array('client.industry_id', $this->input['report_keys']))
-            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : ""; 
+        if (in_array('client.industry_id', $this->input['report_keys'])) {
+            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
+        }
 
         return $entity;
     }
-
 }

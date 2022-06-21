@@ -21,7 +21,6 @@ class CreditsSumRule implements Rule
 {
     use MakesHash;
 
-
     private $input;
 
     public function __construct($input)

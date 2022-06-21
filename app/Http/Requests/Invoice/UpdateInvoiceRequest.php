@@ -53,14 +53,15 @@ class UpdateInvoiceRequest extends Request
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
+        }
 
         $rules['is_amount_discount'] = ['boolean'];
-        
+
         $rules['line_items'] = 'array';
-        $rules['discount']  = 'sometimes|numeric';
-        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
+        $rules['discount'] = 'sometimes|numeric';
+        $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         // if($this->input('status_id') != Invoice::STATUS_DRAFT)
         //     $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());
@@ -75,11 +76,11 @@ class UpdateInvoiceRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->invoice->id;
-        
+
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
-        
+
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
         }

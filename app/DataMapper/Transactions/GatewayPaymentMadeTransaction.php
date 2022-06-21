@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class GatewayPaymentMadeTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::GATEWAY_PAYMENT_MADE; 
-
+    public $event_id = TransactionEvent::GATEWAY_PAYMENT_MADE;
 }

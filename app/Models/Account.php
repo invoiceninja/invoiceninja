@@ -36,6 +36,7 @@ class Account extends BaseModel
     private $free_plan_email_quota = 250;
 
     private $paid_plan_email_quota = 500;
+
     /**
      * @var string
      */
@@ -77,40 +78,67 @@ class Account extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'onboarding' => 'object',
-        'set_react_as_default_ap' => 'bool'
+        'set_react_as_default_ap' => 'bool',
     ];
 
     const PLAN_FREE = 'free';
+
     const PLAN_PRO = 'pro';
+
     const PLAN_ENTERPRISE = 'enterprise';
+
     const PLAN_WHITE_LABEL = 'white_label';
+
     const PLAN_TERM_MONTHLY = 'month';
+
     const PLAN_TERM_YEARLY = 'year';
 
     const FEATURE_TASKS = 'tasks';
+
     const FEATURE_EXPENSES = 'expenses';
+
     const FEATURE_QUOTES = 'quotes';
+
     const FEATURE_PURCHASE_ORDERS = 'purchase_orders';
+
     const FEATURE_CUSTOMIZE_INVOICE_DESIGN = 'custom_designs';
+
     const FEATURE_DIFFERENT_DESIGNS = 'different_designs';
+
     const FEATURE_EMAIL_TEMPLATES_REMINDERS = 'template_reminders';
+
     const FEATURE_INVOICE_SETTINGS = 'invoice_settings';
+
     const FEATURE_CUSTOM_EMAILS = 'custom_emails';
+
     const FEATURE_PDF_ATTACHMENT = 'pdf_attachments';
+
     const FEATURE_MORE_INVOICE_DESIGNS = 'more_invoice_designs';
+
     const FEATURE_REPORTS = 'reports';
+
     const FEATURE_BUY_NOW_BUTTONS = 'buy_now_buttons';
+
     const FEATURE_API = 'api';
+
     const FEATURE_CLIENT_PORTAL_PASSWORD = 'client_portal_password';
+
     const FEATURE_CUSTOM_URL = 'custom_url';
+
     const FEATURE_MORE_CLIENTS = 'more_clients';
+
     const FEATURE_WHITE_LABEL = 'white_label';
+
     const FEATURE_REMOVE_CREATED_BY = 'remove_created_by';
+
     const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
+
     const FEATURE_DOCUMENTS = 'documents';
+
     const FEATURE_USER_PERMISSIONS = 'permissions';
 
     const RESULT_FAILURE = 'failure';
+
     const RESULT_SUCCESS = 'success';
 
     public function getEntityType()
@@ -150,8 +178,9 @@ class Account extends BaseModel
 
     public function getPlan()
     {
-        if(Carbon::parse($this->plan_expires)->lt(now()))
+        if (Carbon::parse($this->plan_expires)->lt(now())) {
             return '';
+        }
 
         return $this->plan ?: '';
     }
@@ -287,16 +316,15 @@ class Account extends BaseModel
         $trial_active = false;
 
         //14 day trial
-        $duration = 60*60*24*14;
+        $duration = 60 * 60 * 24 * 14;
 
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
             $trial_expires = Carbon::parse($this->trial_started)->addSeconds($duration);
 
-            if($trial_expires->greaterThan(now())){
+            if ($trial_expires->greaterThan(now())) {
                 $trial_active = true;
-             }
-
+            }
         }
 
         $plan_active = false;
@@ -315,7 +343,6 @@ class Account extends BaseModel
         if (! $include_inactive && ! $plan_active && ! $trial_active) {
             return null;
         }
-
 
         // Should we show plan details or trial details?
         if (($plan && ! $trial_plan) || ! $include_trial) {
@@ -373,15 +400,14 @@ class Account extends BaseModel
 
     public function getDailyEmailLimit()
     {
-
-        if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
+        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0) {
             return 20;
+        }
 
-        if($this->isPaid()){
+        if ($this->isPaid()) {
             $limit = $this->paid_plan_email_quota;
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
-        }
-        else{
+        } else {
             $limit = $this->free_plan_email_quota;
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         }
@@ -391,22 +417,22 @@ class Account extends BaseModel
 
     public function emailsSent()
     {
-        if(is_null(Cache::get($this->key)))
+        if (is_null(Cache::get($this->key))) {
             return 0;
+        }
 
         return Cache::get($this->key);
-    } 
+    }
 
     public function emailQuotaExceeded() :bool
     {
-        if(is_null(Cache::get($this->key)))
+        if (is_null(Cache::get($this->key))) {
             return false;
+        }
 
         try {
-            if(Cache::get($this->key) > $this->getDailyEmailLimit()) {
-
-                if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
-
+            if (Cache::get($this->key) > $this->getDailyEmailLimit()) {
+                if (is_null(Cache::get("throttle_notified:{$this->key}"))) {
                     App::forgetInstance('translator');
                     $t = app('translator');
                     $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
@@ -420,14 +446,14 @@ class Account extends BaseModel
 
                     Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
 
-                    if(config('ninja.notification.slack'))
+                    if (config('ninja.notification.slack')) {
                         $this->companies()->first()->notification(new EmailQuotaNotification($this))->ninja();
+                    }
                 }
 
                 return true;
             }
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             \Sentry\captureMessage("I encountered an error with email quotas for account {$this->key} - defaulting to SEND");
         }
 
@@ -436,17 +462,16 @@ class Account extends BaseModel
 
     public function gmailCredentialNotification() :bool
     {
-        nlog("checking if gmail credential notification has already been sent");
+        nlog('checking if gmail credential notification has already been sent');
 
-        if(is_null(Cache::get($this->key)))
+        if (is_null(Cache::get($this->key))) {
             return false;
+        }
 
-        nlog("Sending notification");
-        
+        nlog('Sending notification');
+
         try {
-
-            if(is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
-
+            if (is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
                 App::forgetInstance('translator');
                 $t = app('translator');
                 $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
@@ -460,20 +485,17 @@ class Account extends BaseModel
 
                 Cache::put("gmail_credentials_notified:{$this->key}", true, 60 * 24);
 
-                if(config('ninja.notification.slack'))
+                if (config('ninja.notification.slack')) {
                     $this->companies()->first()->notification(new GmailCredentialNotification($this))->ninja();
+                }
             }
 
             return true;
-            
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             \Sentry\captureMessage("I encountered an error with sending with gmail for account {$this->key}");
         }
 
         return false;
-
-
     }
 
     public function resolveRouteBinding($value, $field = null)
@@ -485,5 +507,4 @@ class Account extends BaseModel
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
-
 }

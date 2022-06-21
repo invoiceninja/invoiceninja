@@ -14,8 +14,7 @@ class ChangeEnglishLanguagesTables extends Migration
      */
     public function up()
     {
-        if($language = Language::find(1))
-        {
+        if ($language = Language::find(1)) {
             $language->name = 'English - United States';
             $language->save();
         }

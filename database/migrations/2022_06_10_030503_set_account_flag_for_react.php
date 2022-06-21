@@ -22,7 +22,6 @@ class SetAccountFlagForReact extends Migration
     public function up()
     {
         Illuminate\Support\Facades\Artisan::call('ninja:design-update');
-
     }
 
     /**

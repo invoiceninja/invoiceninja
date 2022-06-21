@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     use MakesHash;
+
     /**
      * This namespace is applied to your controller routes.
      *

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Utils\Traits\MakesHash;
@@ -20,6 +21,7 @@ use Tests\TestCase;
 class GroupSettingTest extends TestCase
 {
     use MakesHash;
+
     //use DatabaseTransactions;
     use MockAccountData;
 

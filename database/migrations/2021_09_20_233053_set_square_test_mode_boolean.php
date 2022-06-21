@@ -28,20 +28,16 @@ class SetSquareTestModeBoolean extends Migration
      */
     public function down()
     {
-        //Fixes a state where the deleted_at timestamp is 000 
-        
-        if(!Ninja::isHosted())
-        {
+        //Fixes a state where the deleted_at timestamp is 000
 
+        if (! Ninja::isHosted()) {
             Invoice::withTrashed()->where('deleted_at', '0000-00-00 00:00:00.000000')->update(['deleted_at' => null]);
             Quote::withTrashed()->where('deleted_at', '0000-00-00 00:00:00.000000')->update(['deleted_at' => null]);
             Credit::withTrashed()->where('deleted_at', '0000-00-00 00:00:00.000000')->update(['deleted_at' => null]);
-
         }
 
         // fixes a bool cast to string back to bool
-        if($gateway = Gateway::find(57))
-        {
+        if ($gateway = Gateway::find(57)) {
             $fields = json_decode($gateway->fields);
             $fields->testMode = false;
 

@@ -24,12 +24,19 @@ class OAuth
      * Socialite Providers.
      */
     const SOCIAL_GOOGLE = 1;
+
     const SOCIAL_FACEBOOK = 2;
+
     const SOCIAL_GITHUB = 3;
+
     const SOCIAL_LINKEDIN = 4;
+
     const SOCIAL_TWITTER = 5;
+
     const SOCIAL_BITBUCKET = 6;
+
     const SOCIAL_MICROSOFT = 7;
+
     const SOCIAL_APPLE = 8;
 
     /**
@@ -56,7 +63,7 @@ class OAuth
     {
         $name = trim($name);
         $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $first_name = trim(preg_replace('#' . preg_quote($last_name, '/') . '#', '', $name));
+        $first_name = trim(preg_replace('#'.preg_quote($last_name, '/').'#', '', $name));
 
         return [$first_name, $last_name];
     }

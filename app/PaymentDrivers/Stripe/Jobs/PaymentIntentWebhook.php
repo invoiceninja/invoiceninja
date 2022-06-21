@@ -53,46 +53,39 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
-        
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
 
-            foreach ($this->stripe_request as $transaction) {
-
-                if(array_key_exists('payment_intent', $transaction))
-                {
-                    $payment = Payment::query()
+        foreach ($this->stripe_request as $transaction) {
+            if (array_key_exists('payment_intent', $transaction)) {
+                $payment = Payment::query()
                         ->where('company_id', $company->id)
                         ->where(function ($query) use ($transaction) {
                             $query->where('transaction_reference', $transaction['payment_intent'])
                                   ->orWhere('transaction_reference', $transaction['id']);
-                                })
+                        })
                         ->first();
-                }
-                else
-                {
-                     $payment = Payment::query()
+            } else {
+                $payment = Payment::query()
                         ->where('company_id', $company->id)
                         ->where('transaction_reference', $transaction['id'])
                         ->first();
-                }
-
-                if ($payment) {
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
-    
-                    $this->payment_completed = true;
-                }
             }
 
+            if ($payment) {
+                $payment->status_id = Payment::STATUS_COMPLETED;
+                $payment->save();
 
-        if($this->payment_completed)
+                $this->payment_completed = true;
+            }
+        }
+
+        if ($this->payment_completed) {
             return;
+        }
 
-
-        if(optional($this->stripe_request['object']['charges']['data'][0])['id']){
-
+        if (optional($this->stripe_request['object']['charges']['data'][0])['id']) {
             $company = Company::where('company_key', $this->company_key)->first();
 
             $payment = Payment::query()
@@ -100,30 +93,29 @@ class PaymentIntentWebhook implements ShouldQueue
                              ->where('transaction_reference', $this->stripe_request['object']['charges']['data'][0]['id'])
                              ->first();
 
-             //return early
-            if($payment && $payment->status_id == Payment::STATUS_COMPLETED){
-                nlog(" payment found and status correct - returning "); 
+            //return early
+            if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
+                nlog(' payment found and status correct - returning ');
+
                 return;
-            }
-            elseif($payment){
+            } elseif ($payment) {
                 $payment->status_id = Payment::STATUS_COMPLETED;
                 $payment->save();
             }
-
 
             $hash = optional($this->stripe_request['object']['charges']['data'][0]['metadata'])['payment_hash'];
 
             $payment_hash = PaymentHash::where('hash', $hash)->first();
 
-            if(!$payment_hash)
+            if (! $payment_hash) {
                 return;
+            }
 
-            nlog("payment intent");
+            nlog('payment intent');
             nlog($this->stripe_request);
 
-            if(optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']) && in_array('card', $this->stripe_request['object']['allowed_source_types']))
-            {
-                nlog("hash found");
+            if (optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']) && in_array('card', $this->stripe_request['object']['allowed_source_types'])) {
+                nlog('hash found');
 
                 $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
 
@@ -133,9 +125,7 @@ class PaymentIntentWebhook implements ShouldQueue
 
                 $this->updateCreditCardPayment($payment_hash, $client);
             }
-
         }
-
     }
 
     private function updateCreditCardPayment($payment_hash, $client)
@@ -155,7 +145,7 @@ class PaymentIntentWebhook implements ShouldQueue
             'transaction_reference' => $this->stripe_request['object']['charges']['data'][0]['id'],
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
-        
+
         $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
@@ -166,7 +156,5 @@ class PaymentIntentWebhook implements ShouldQueue
             $client,
             $client->company,
         );
-
     }
-
 }

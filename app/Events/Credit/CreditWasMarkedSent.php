@@ -21,6 +21,7 @@ use Illuminate\Queue\SerializesModels;
 class CreditWasMarkedSent
 {
     use SerializesModels;
+
     /**
      * @var Credit
      */

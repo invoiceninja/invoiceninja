@@ -41,7 +41,6 @@ class TransactionEvents extends Migration
             $table->unsignedInteger('credit_status')->nullable();
 
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
-
         });
     }
 
@@ -55,4 +54,3 @@ class TransactionEvents extends Migration
         //
     }
 }
-

@@ -24,7 +24,6 @@ use Throwable;
  */
 trait MakesInvoiceHtml
 {
-
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
         $section = strtr($section, $labels);

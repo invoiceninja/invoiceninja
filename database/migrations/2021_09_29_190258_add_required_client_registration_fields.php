@@ -17,23 +17,20 @@ class AddRequiredClientRegistrationFields extends Migration
      */
     public function up()
     {
-        
         Schema::table('companies', function (Blueprint $table) {
             $table->mediumText('client_registration_fields')->nullable();
         });
 
-        Company::all()->each(function ($company){
+        Company::all()->each(function ($company) {
             $company->update(['client_registration_fields' => ClientRegistrationFields::generate()]);
         });
 
-
         Model::unguard();
 
+        $currencies = [
+            ['id' => 111, 'name' => 'Cuban Peso', 'code' => 'CUP', 'symbol' => '₱', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
 
-    $currencies = [
-['id' => 111, 'name' => 'Cuban Peso','code' => 'CUP', 'symbol' => '₱', 'precision' => '2','thousand_separator' => ',','decimal_separator' => '.'],
-
-    ];
+        ];
 
         foreach ($currencies as $currency) {
             $record = Currency::whereCode($currency['code'])->first();
@@ -51,7 +48,6 @@ class AddRequiredClientRegistrationFields extends Migration
                 Currency::create($currency);
             }
         }
-
     }
 
     /**

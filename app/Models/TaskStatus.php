@@ -21,11 +21,12 @@ class TaskStatus extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     /**
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var array
      */
@@ -36,5 +37,4 @@ class TaskStatus extends BaseModel
         'color',
         'status_order',
     ];
-
 }

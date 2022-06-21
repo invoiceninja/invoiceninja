@@ -13,11 +13,9 @@ class UseCommaAsDecimalPlaceCompaniesTable extends Migration
      */
     public function up()
     {
-        
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('use_comma_as_decimal_place')->default(0);
         });
-
     }
 
     /**

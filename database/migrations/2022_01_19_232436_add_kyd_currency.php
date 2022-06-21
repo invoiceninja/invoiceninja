@@ -13,8 +13,7 @@ class AddKydCurrency extends Migration
      * @return void
      */
     public function up()
-    { 
-
+    {
         $currencies = [
 
             ['id' => 112, 'name' => 'Cayman Island Dollar', 'code' => 'KYD', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
@@ -37,7 +36,6 @@ class AddKydCurrency extends Migration
                 Currency::create($currency);
             }
         }
-
     }
 
     /**

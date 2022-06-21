@@ -27,22 +27,18 @@ class SessionDomains
      */
     public function handle($request, Closure $next)
     {
-
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             return $next($request);
+        }
 
         $domain_name = $request->getHost();
 
-        if (strpos($domain_name, 'invoicing.co') !== false) 
-        {
+        if (strpos($domain_name, 'invoicing.co') !== false) {
             // config(['session.domain' => '.invoicing.co']);
-        }            
-        else{
-
+        } else {
             config(['session.domain' => $domain_name]);
-            
         }
-        
-        return $next($request);        
+
+        return $next($request);
     }
 }

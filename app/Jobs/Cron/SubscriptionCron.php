@@ -21,6 +21,7 @@ class SubscriptionCron
 {
     use Dispatchable;
     use SubscriptionHooker;
+
     /**
      * Create a new job instance.
      *
@@ -37,29 +38,22 @@ class SubscriptionCron
      */
     public function handle() : void
     {
-
-        nlog("Subscription Cron");
+        nlog('Subscription Cron');
 
         if (! config('ninja.db.multi_db_enabled')) {
-
             $this->loopSubscriptions();
-
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-
                 MultiDB::setDB($db);
 
                 $this->loopSubscriptions();
-
             }
         }
-        
     }
 
     private function loopSubscriptions()
     {
-
         $invoices = Invoice::where('is_deleted', 0)
                           ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                           ->where('balance', '>', 0)
@@ -68,29 +62,23 @@ class SubscriptionCron
                           ->whereNotNull('subscription_id')
                           ->cursor();
 
-
-        $invoices->each(function ($invoice){
-
+        $invoices->each(function ($invoice) {
             $subscription = $invoice->subscription;
 
             $body = [
-              'context' => 'plan_expired',
-              'client' => $invoice->client->hashed_id,
-              'invoice' => $invoice->hashed_id,
-              'subscription' => $subscription->hashed_id,
+                'context' => 'plan_expired',
+                'client' => $invoice->client->hashed_id,
+                'invoice' => $invoice->hashed_id,
+                'subscription' => $subscription->hashed_id,
             ];
 
             $this->sendLoad($subscription, $body);
-            //This will send the notification daily. 
+            //This will send the notification daily.
             //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
         });
-
     }
-
 
     private function handleWebhook($invoice, $subscription)
     {
-
     }
-    
 }

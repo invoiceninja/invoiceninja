@@ -14,7 +14,7 @@ class ReportIncludeDraftsInCompaniesTable extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->boolean('report_include_drafts')->default(0);            
+            $table->boolean('report_include_drafts')->default(0);
         });
     }
 
@@ -25,6 +25,5 @@ class ReportIncludeDraftsInCompaniesTable extends Migration
      */
     public function down()
     {
-
     }
 }

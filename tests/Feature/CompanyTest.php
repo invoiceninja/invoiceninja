@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
@@ -54,9 +55,9 @@ class CompanyTest extends TestCase
         // $cc->delete();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/companies');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/companies');
 
         $response->assertStatus(200);
 
@@ -92,13 +93,13 @@ class CompanyTest extends TestCase
 
         $company_update = [
             'name' => 'CHANGE NAME',
-         //   'logo' => UploadedFile::fake()->image('avatar.jpg')
+            //   'logo' => UploadedFile::fake()->image('avatar.jpg')
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
             ->assertStatus(200);
 
         $settings = CompanySettings::defaults();

@@ -6,9 +6,8 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;

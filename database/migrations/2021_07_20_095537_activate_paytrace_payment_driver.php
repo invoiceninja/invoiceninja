@@ -14,11 +14,9 @@ class ActivatePaytracePaymentDriver extends Migration
      */
     public function up()
     {
-
-        if($paytrace = Gateway::find(46))
-        {
+        if ($paytrace = Gateway::find(46)) {
             $fields = json_decode($paytrace->fields);
-            $fields->integratorId = "";
+            $fields->integratorId = '';
 
             $paytrace->fields = json_encode($fields);
             $paytrace->provider = 'Paytrace';

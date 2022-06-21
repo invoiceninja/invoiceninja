@@ -55,19 +55,21 @@ class UpdateOrCreateProduct implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        if(strval($this->invoice->client->getSetting('currency_id')) != strval($this->company->settings->currency_id))
+        if (strval($this->invoice->client->getSetting('currency_id')) != strval($this->company->settings->currency_id)) {
             return;
-        
-        /* 
+        }
+
+        /*
          * If the invoice was generated from a Task or Expense then
          * we do NOT update the product details this short block we
          * check for the presence of a task_id and/or expense_id
-         */        
-        $expense_count = count(array_column((array)$this->products, 'expense_id'));
-        $task_count = count(array_column((array)$this->products, 'task_id'));
+         */
+        $expense_count = count(array_column((array) $this->products, 'expense_id'));
+        $task_count = count(array_column((array) $this->products, 'task_id'));
 
-        if($task_count >= 1 || $expense_count >= 1)
+        if ($task_count >= 1 || $expense_count >= 1) {
             return;
+        }
 
         //only update / create products - not tasks or gateway fees
         $updateable_products = collect($this->products)->filter(function ($item) {
@@ -85,10 +87,11 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->notes = isset($item->notes) ? $item->notes : '';
             //$product->cost = isset($item->cost) ? $item->cost : 0; //this value shouldn't be updated.
             $product->price = isset($item->cost) ? $item->cost : 0;
-            
-            if(!$product->id)
+
+            if (! $product->id) {
                 $product->quantity = isset($item->quantity) ? $item->quantity : 0;
-            
+            }
+
             $product->tax_name1 = isset($item->tax_name1) ? $item->tax_name1 : '';
             $product->tax_rate1 = isset($item->tax_rate1) ? $item->tax_rate1 : 0;
             $product->tax_name2 = isset($item->tax_name2) ? $item->tax_name2 : '';
@@ -109,7 +112,7 @@ class UpdateOrCreateProduct implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info("update create failed with = ");
+        info('update create failed with = ');
         info(print_r($exception->getMessage(), 1));
     }
 }

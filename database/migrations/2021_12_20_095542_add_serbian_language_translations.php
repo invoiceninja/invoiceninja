@@ -18,7 +18,6 @@ class AddSerbianLanguageTranslations extends Migration
 
         Language::unguard();
         Language::create($serbian);
-
     }
 
     /**

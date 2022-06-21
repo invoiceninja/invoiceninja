@@ -81,7 +81,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
         return asset('images/svg/user.svg');
     }
-    
+
     public function setAvatarAttribute($value)
     {
         if (! filter_var($value, FILTER_VALIDATE_URL) && $value) {
@@ -138,7 +138,6 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         return $languages->filter(function ($item) {
             return $item->id == $this->company->getSetting('language_id');
         })->first()->locale;
-
     }
 
     /**
@@ -154,6 +153,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
             ->withTrashed()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
+
     public function purchase_order_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PurchaseOrderInvitation::class);

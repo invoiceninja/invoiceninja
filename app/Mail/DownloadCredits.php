@@ -37,7 +37,6 @@ class DownloadCredits extends Mailable
      */
     public function build()
     {
-
         App::setLocale($this->company->getLocale());
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))

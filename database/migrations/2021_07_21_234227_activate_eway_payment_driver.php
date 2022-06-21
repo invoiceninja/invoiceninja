@@ -14,18 +14,16 @@ class ActivateEwayPaymentDriver extends Migration
      */
     public function up()
     {
-        if($eway = Gateway::find(3))
-        {
+        if ($eway = Gateway::find(3)) {
             $eway->visible = true;
             $eway->provider = 'Eway';
 
             $fields = json_decode($eway->fields);
             $fields->publicApiKey = '';
             $eway->fields = json_encode($fields);
-            
+
             $eway->save();
         }
-
     }
 
     /**

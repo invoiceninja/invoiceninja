@@ -34,9 +34,8 @@ class UpdateExpenseCategoryRequest extends Request
         $rules = [];
 
         if ($this->input('name')) {
-           // $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
+            // $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
             $rules['name'] = Rule::unique('expense_categories')->where('company_id', auth()->user()->company()->id)->ignore($this->expense_category->id);
-
         }
 
         return $rules;
@@ -46,8 +45,9 @@ class UpdateExpenseCategoryRequest extends Request
     {
         $input = $this->all();
 
-            if(array_key_exists('color', $input) && is_null($input['color']))
-                $input['color'] = '';
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
+            $input['color'] = '';
+        }
 
         $this->replace($input);
     }

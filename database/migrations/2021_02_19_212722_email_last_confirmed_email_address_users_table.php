@@ -13,7 +13,7 @@ class EmailLastConfirmedEmailAddressUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function(Blueprint $table){
+        Schema::table('users', function (Blueprint $table) {
             $table->string('last_confirmed_email_address')->nullable();
         });
     }

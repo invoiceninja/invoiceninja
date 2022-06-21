@@ -25,6 +25,5 @@ class SetInvoiceTaskDatelogTrueInCompaniesTable extends Migration
      */
     public function down()
     {
-
     }
 }

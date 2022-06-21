@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Jobs\Entity\CreateEntityPdf;
@@ -39,7 +40,7 @@ class PdfCreatorTest extends TestCase
     public function testCreditPdfCreated()
     {
         $credit_path = CreateEntityPdf::dispatchNow($this->credit->invitations->first());
-    
+
         $this->assertTrue(Storage::disk('public')->exists($credit_path));
     }
 
@@ -48,12 +49,12 @@ class PdfCreatorTest extends TestCase
         $invoice_path = CreateEntityPdf::dispatchNow($this->invoice->invitations->first());
 
         $this->assertTrue(Storage::disk('public')->exists($invoice_path));
-        }
+    }
 
     public function testQuotePdfCreated()
     {
         $quote_path = CreateEntityPdf::dispatchNow($this->quote->invitations->first());
-    
+
         $this->assertTrue(Storage::disk('public')->exists($quote_path));
     }
 }

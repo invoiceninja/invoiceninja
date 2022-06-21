@@ -383,6 +383,7 @@ class PaymentController extends BaseController
         $payment = $this->payment_repo->save($request->all(), $payment);
 
         event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
         return $this->itemResponse($payment);
     }
 
@@ -439,7 +440,6 @@ class PaymentController extends BaseController
      */
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
-
         $this->payment_repo->delete($payment);
 
         return $this->itemResponse($payment);
@@ -590,7 +590,7 @@ class PaymentController extends BaseController
         switch ($action) {
             case 'restore':
              $this->payment_repo->restore($payment);
-                
+
                 if (! $bulk) {
                     return $this->itemResponse($payment);
                 }
@@ -598,7 +598,7 @@ class PaymentController extends BaseController
                 break;
             case 'archive':
              $this->payment_repo->archive($payment);
-                
+
                 if (! $bulk) {
                     return $this->itemResponse($payment);
                 }
@@ -606,7 +606,7 @@ class PaymentController extends BaseController
                 break;
             case 'delete':
              $this->payment_repo->delete($payment);
-                
+
                 if (! $bulk) {
                     return $this->itemResponse($payment);
                 }
@@ -627,7 +627,7 @@ class PaymentController extends BaseController
                     return $this->itemResponse($payment);
                 }
                 break;
-            
+
             default:
                 // code...
                 break;
@@ -688,7 +688,7 @@ class PaymentController extends BaseController
         return $this->itemResponse($payment);
     }
 
-/**
+    /**
      * Update the specified resource in storage.
      *
      * @param UploadPaymentRequest $request
@@ -741,14 +741,14 @@ class PaymentController extends BaseController
      */
     public function upload(UploadPaymentRequest $request, Payment $payment)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
+        }
 
-        if ($request->has('documents')) 
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $payment);
+        }
 
         return $this->itemResponse($payment->fresh());
-
-    }  
+    }
 }

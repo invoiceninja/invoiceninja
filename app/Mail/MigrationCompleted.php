@@ -35,18 +35,17 @@ class MigrationCompleted extends Mailable
      */
     public function build()
     {
-
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
         App::setLocale($this->company->getLocale());
-        
+
         $data['settings'] = $this->company->settings;
         $data['company'] = $this->company->fresh();
         $data['whitelabel'] = $this->company->account->isPaid() ? true : false;
         $data['check_data'] = $this->check_data ?: '';
         $data['logo'] = $this->company->present()->logo();
-        
+
         $data = array_merge($data, [
             'logo' => $this->company->present()->logo(),
             'settings' => $this->company->settings,

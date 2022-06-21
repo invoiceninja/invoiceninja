@@ -13,12 +13,9 @@ class ChangeRefreshTokenColumnSize extends Migration
      */
     public function up()
     {
-
         Schema::table('users', function (Blueprint $table) {
             $table->text('oauth_user_refresh_token')->change();
         });
-
-        
     }
 
     /**

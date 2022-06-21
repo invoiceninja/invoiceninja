@@ -21,72 +21,58 @@ use App\Utils\Traits\MakesHash;
 
 class StripeController extends BaseController
 {
-	use MakesHash;
+    use MakesHash;
 
     private $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
-	public function update()
-	{
-		if(auth()->user()->isAdmin())
-		{
-			
-			StripeUpdatePaymentMethods::dispatch(auth()->user()->company());
+    public function update()
+    {
+        if (auth()->user()->isAdmin()) {
+            StripeUpdatePaymentMethods::dispatch(auth()->user()->company());
 
-			return response()->json(['message' => 'Processing'], 200);
+            return response()->json(['message' => 'Processing'], 200);
+        }
 
-		}
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
-		return response()->json(['message' => 'Unauthorized'], 403);
-	}
+    public function import()
+    {
 
-	public function import()
-	{
+        // return response()->json(['message' => 'Processing'], 200);
 
-		// return response()->json(['message' => 'Processing'], 200);
+        if (auth()->user()->isAdmin()) {
+            ImportStripeCustomers::dispatch(auth()->user()->company());
 
+            return response()->json(['message' => 'Processing'], 200);
+        }
 
-		if(auth()->user()->isAdmin())
-		{
-			
-			ImportStripeCustomers::dispatch(auth()->user()->company());
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
-			return response()->json(['message' => 'Processing'], 200);
+    public function verify()
+    {
+        if (auth()->user()->isAdmin()) {
+            MultiDB::findAndSetDbByCompanyKey(auth()->user()->company()->company_key);
 
-		}
-		
-		return response()->json(['message' => 'Unauthorized'], 403);
-	}
+            $company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
+                                ->where('is_deleted', 0)
+                                ->whereIn('gateway_key', $this->stripe_keys)
+                                ->first();
 
-	public function verify()
-	{
-		
-		if(auth()->user()->isAdmin())
-		{
+            return $company_gateway->driver(new Client)->verifyConnect();
+        }
 
-			MultiDB::findAndSetDbByCompanyKey(auth()->user()->company()->company_key);
-			
-	    	$company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
-	                            ->where('is_deleted',0)
-	    						->whereIn('gateway_key', $this->stripe_keys)
-	    						->first();
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
 
-			return $company_gateway->driver(new Client)->verifyConnect();
+    public function disconnect(string $company_gateway_id)
+    {
+        $company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
+                                         ->where('id', $this->decodePrimaryKey($company_gateway_id))
+                                         ->whereIn('gateway_key', $this->stripe_keys)
+                                         ->firstOrFail();
 
-		}
-
-		return response()->json(['message' => 'Unauthorized'], 403);
-
-	}
-
-	public function disconnect(string $company_gateway_id)
-	{
-
-		$company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
-										 ->where('id', $this->decodePrimaryKey($company_gateway_id))
-										 ->whereIn('gateway_key', $this->stripe_keys)
-										 ->firstOrFail();
-
-		return $company_gateway->driver()->disconnect();
-		
-	}
+        return $company_gateway->driver()->disconnect();
+    }
 }

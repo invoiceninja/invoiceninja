@@ -27,7 +27,7 @@ class VendorTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'contacts',
-        'documents'
+        'documents',
     ];
 
     /**

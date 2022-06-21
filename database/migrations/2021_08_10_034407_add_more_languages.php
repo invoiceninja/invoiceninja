@@ -18,29 +18,21 @@ class AddMoreLanguages extends Migration
 
         $language = Language::find(30);
 
-        if(!$language){
-
+        if (! $language) {
             Language::create(['id' => 30, 'name' => 'Arabic', 'locale' => 'ar']);
-
         }
 
         $language = Language::find(31);
 
-        if(!$language){
-
+        if (! $language) {
             Language::create(['id' => 31, 'name' => 'Persian', 'locale' => 'fa']);
-
         }
 
         $language = Language::find(32);
 
-        if(!$language){
-
+        if (! $language) {
             Language::create(['id' => 32, 'name' => 'Latvian', 'locale' => 'lv_LV']);
-
         }
-        
-
     }
 
     /**

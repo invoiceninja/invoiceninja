@@ -6,9 +6,8 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,7 +22,7 @@ class VendorSchemaUpdate extends Migration
      */
     public function up()
     {
-        Schema::table('vendor_contacts', function ($table){
+        Schema::table('vendor_contacts', function ($table) {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('confirmation_code')->nullable();
             $table->boolean('confirmed')->default(false);
