@@ -11,12 +11,6 @@
 |
 */
 
-use App\Http\Controllers\ClientGatewayTokenController;
-use App\Http\Controllers\Reports;
-use App\Http\Controllers\StaticController;
-use App\Http\Controllers\Support\Messages;
-use App\Http\Controllers\SystemLogController;
-use App\Http\Controllers\TaskSchedulerController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ApplyPayController;
@@ -24,6 +18,7 @@ use App\Http\Controllers\Auth;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientGatewayTokenController;
 use App\Http\Controllers\ClientStatementController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CompanyGatewayController;
@@ -60,12 +55,17 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringInvoiceController;
 use App\Http\Controllers\RecurringQuoteController;
+use App\Http\Controllers\Reports;
 use App\Http\Controllers\SchedulerController;
 use App\Http\Controllers\SelfUpdateController;
+use App\Http\Controllers\StaticController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubdomainController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Support\Messages;
+use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskSchedulerController;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TemplateController;

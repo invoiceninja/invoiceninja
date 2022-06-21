@@ -4,8 +4,7 @@ use App\Models\Currency;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 
-return new class extends Migration
-{
+return new class extends Migration {
     use AppSetup;
 
     /**

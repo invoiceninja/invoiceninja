@@ -40,6 +40,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
     protected $appends = [
         'hashed_id',
     ];

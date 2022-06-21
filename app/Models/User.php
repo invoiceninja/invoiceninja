@@ -47,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use \Awobaz\Compoships\Compoships;
 
     protected $guard = 'user';
+
     protected $presenter = UserPresenter::class;
 
     protected $with = []; // ? companies also

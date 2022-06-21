@@ -4,8 +4,7 @@ use App\Models\Design;
 use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *

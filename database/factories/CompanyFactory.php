@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CompanyFactory extends Factory
 {
     use MakesHash;
+
     /**
      * Define the model's default state.
      *

@@ -37,6 +37,5 @@ class DocumentRepository extends BaseRepository
 
     public function archive($document)
     {
-
     }
 }
