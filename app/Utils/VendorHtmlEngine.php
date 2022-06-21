@@ -383,8 +383,8 @@ class VendorHtmlEngine
         $data['$autoBill'] = ['value' => ctrans('texts.auto_bill_notification_placeholder'), 'label' => ''];
         $data['$auto_bill'] = &$data['$autoBill'];
 
-        $data['$dir'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
-        $data['$dir_text_align'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
+        $data['$dir'] = ['value' => $this->company->language()?->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
+        $data['$dir_text_align'] = ['value' => $this->company->language()?->locale === 'ar' ? 'right' : 'left', 'label' => ''];
 
         $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
         $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];

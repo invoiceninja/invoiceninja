@@ -247,7 +247,7 @@ class Design extends BaseDesign
                     ['element' => 'span', 'content' => "{$this->client->shipping_state} ", 'properties' => ['ref' => 'delivery_note-client.shipping_state']],
                     ['element' => 'span', 'content' => "{$this->client->shipping_postal_code} ", 'properties' => ['ref' => 'delivery_note-client.shipping_postal_code']],
                 ]],
-                ['element' => 'p', 'content' => optional($this->client->shipping_country)->name, 'show_empty' => false],
+                ['element' => 'p', 'content' => $this->client->shipping_country?->name, 'show_empty' => false],
             ];
 
             if (! is_null($this->context['contact'])) {

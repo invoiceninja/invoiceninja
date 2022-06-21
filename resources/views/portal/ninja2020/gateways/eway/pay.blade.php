@@ -35,7 +35,7 @@ ctrans('texts.credit_card')])
                 <label class="mr-4">
                     <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                         class="form-radio cursor-pointer toggle-payment-with-token" />
-                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                 </label>
             @endforeach
         @endisset

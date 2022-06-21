@@ -39,7 +39,7 @@
                         data-token="{{ $token->token }}"
                         name="payment-type"
                         class="form-radio cursor-pointer toggle-payment-with-token"/>
-                    <span class="ml-1 cursor-pointer">{{ optional($token->meta)->email }}</span>
+                    <span class="ml-1 cursor-pointer">{{ $token->meta?->email }}</span>
                 </label>
             @endforeach
         @endisset

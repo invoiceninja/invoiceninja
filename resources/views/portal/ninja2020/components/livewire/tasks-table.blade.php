@@ -44,10 +44,10 @@
                             {{ \Illuminate\Support\Str::limit($task->description, 80) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ optional($task->project)->name }}
+                            {{ $task->project?->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ optional($task->status)->name }}
+                            {{ $task->status?->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ \Carbon\CarbonInterval::seconds($task->calcDuration())->cascade()->forHumans() }}

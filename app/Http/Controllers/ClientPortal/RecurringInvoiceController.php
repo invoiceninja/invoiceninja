@@ -64,7 +64,7 @@ class RecurringInvoiceController extends Controller
     {
         nlog('outside cancellation');
 
-        if (optional($recurring_invoice->subscription)->allow_cancellation) {
+        if ($recurring_invoice->subscription?->allow_cancellation) {
             nlog('inside the cancellation');
 
             $nmo = new NinjaMailerObject;

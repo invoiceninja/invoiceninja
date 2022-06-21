@@ -372,7 +372,7 @@ class HtmlEngine
 
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 
-        $data['$client.lang_2'] = ['value' => optional($this->client->language())->locale, 'label' => ''];
+        $data['$client.lang_2'] = ['value' => $this->client->language()?->locale, 'label' => ''];
 
         $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
         $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
@@ -520,8 +520,8 @@ class HtmlEngine
         $data['$payment_url'] = &$data['$payment_link'];
         $data['$portalButton'] = &$data['$paymentLink'];
 
-        $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
-        $data['$dir_text_align'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
+        $data['$dir'] = ['value' => $this->client->language()?->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
+        $data['$dir_text_align'] = ['value' => $this->client->language()?->locale === 'ar' ? 'right' : 'left', 'label' => ''];
 
         $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
         $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];

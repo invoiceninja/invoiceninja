@@ -62,7 +62,7 @@ class ACH implements MethodInterface
             ],
         ]);
 
-        if ($result->success && optional($result->paymentMethod)->verified) {
+        if ($result->success && $result->paymentMethod?->verified) {
             $account = $result->paymentMethod;
 
             try {
