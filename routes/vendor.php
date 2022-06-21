@@ -9,6 +9,9 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\ClientPortal;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\Auth\VendorContactLoginController;
 use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
@@ -20,8 +23,8 @@ Route::get('vendors', [VendorContactLoginController::class, 'catch'])->name('ven
 Route::middleware('invite_db')->prefix('vendor')->name('vendor.')->group(function () {
     /*Invitation catches*/
     Route::get('purchase_order/{invitation_key}', [InvitationController::class, 'purchaseOrder']);
-    //   Route::get('purchase_order/{invitation_key}/download_pdf', 'PurchaseOrderController@downloadPdf')->name('recurring_invoice.download_invitation_key');
- //   Route::get('purchase_order/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
+    //   Route::get('purchase_order/{invitation_key}/download_pdf', [PurchaseOrderController::class, 'downloadPdf'])->name('recurring_invoice.download_invitation_key');
+ //   Route::get('purchase_order/{invitation_key}/download', [ClientPortal\InvitationController::class, 'routerForDownload']);
 });
 
 Route::middleware('auth:vendor', 'vendor_locale', 'domain_db')->prefix('vendor')->name('vendor.')->group(function () {
@@ -36,4 +39,4 @@ Route::middleware('auth:vendor', 'vendor_locale', 'domain_db')->prefix('vendor')
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
 });
 
-Route::fallback('BaseController@notFoundVendor');
+Route::fallback([BaseController::class, 'notFoundVendor']);
