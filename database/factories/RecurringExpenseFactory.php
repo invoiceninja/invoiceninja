@@ -17,13 +17,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class RecurringExpenseFactory extends Factory
 {
     /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = RecurringExpense::class;
-
-    /**
      * Define the model's default state.
      *
      * @return array

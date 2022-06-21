@@ -9,13 +9,6 @@ use Illuminate\Support\Str;
 class PurchaseOrderInvitationFactory extends Factory
 {
     /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = PurchaseOrderInvitation::class;
-
-    /**
      * Define the model's default state.
      *
      * @return array

@@ -18,13 +18,6 @@ use Illuminate\Support\Str;
 class QuoteInvitationFactory extends Factory
 {
     /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = QuoteInvitation::class;
-
-    /**
      * Define the model's default state.
      *
      * @return array

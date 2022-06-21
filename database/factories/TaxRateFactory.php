@@ -18,13 +18,6 @@ use Illuminate\Support\Str;
 class TaxRateFactory extends Factory
 {
     /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = TaxRate::class;
-
-    /**
      * Define the model's default state.
      *
      * @return array
