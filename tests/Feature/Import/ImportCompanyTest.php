@@ -74,7 +74,7 @@ class ImportCompanyTest extends TestCase
 
     public $ids;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -1113,7 +1113,7 @@ class ImportCompanyTest extends TestCase
         return $this->ids[$resource]["{$old}"];
     }
 
-    public function tearDown() :void
+    protected function tearDown() :void
     {
         $backup_json_file = sys_get_temp_dir().'/backup/backup.json';
 

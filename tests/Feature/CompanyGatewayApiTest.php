@@ -33,7 +33,7 @@ class CompanyGatewayApiTest extends TestCase
     use MockAccountData;
     use CompanyGatewayFeesAndLimitsSaver;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

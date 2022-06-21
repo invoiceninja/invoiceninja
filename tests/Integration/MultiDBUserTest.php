@@ -31,7 +31,7 @@ use Tests\TestCase;
  */
 class MultiDBUserTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -244,7 +244,7 @@ class MultiDBUserTest extends TestCase
     //     }
     // }
 
-    public function tearDown() :void
+    protected function tearDown() :void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

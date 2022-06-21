@@ -42,7 +42,7 @@ class ClientMergeTest extends TestCase
 
     private $primary_contact;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

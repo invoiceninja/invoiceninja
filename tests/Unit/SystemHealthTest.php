@@ -20,7 +20,7 @@ use Tests\TestCase;
  */
 class SystemHealthTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }

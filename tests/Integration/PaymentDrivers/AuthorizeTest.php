@@ -44,7 +44,7 @@ class AuthorizeTest extends TestCase
 
     public $customer_payment_profile = 1512424103;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

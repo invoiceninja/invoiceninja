@@ -28,7 +28,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

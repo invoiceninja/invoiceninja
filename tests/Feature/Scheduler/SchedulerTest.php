@@ -22,7 +22,7 @@ class SchedulerTest extends TestCase
     use WithoutEvents;
     // use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

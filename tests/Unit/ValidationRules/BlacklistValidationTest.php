@@ -23,7 +23,7 @@ use Tests\TestCase;
  */
 class BlacklistValidationTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }

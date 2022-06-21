@@ -49,7 +49,7 @@ class RelationExistsTest extends TestCase
         Vendor::class,
     ];
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

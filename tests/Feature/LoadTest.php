@@ -50,7 +50,7 @@ class LoadTest extends TestCase
 
     public int $count = 1;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

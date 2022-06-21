@@ -33,7 +33,7 @@ class HtmlGenerationTest extends TestCase
     use MockAccountData;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

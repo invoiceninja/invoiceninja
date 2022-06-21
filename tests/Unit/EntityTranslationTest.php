@@ -38,7 +38,7 @@ class EntityTranslationTest extends TestCase
 {
     public $faker;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

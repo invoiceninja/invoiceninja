@@ -25,7 +25,7 @@ class InvoiceUploadTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

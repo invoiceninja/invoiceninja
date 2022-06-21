@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class S3CleanupTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }

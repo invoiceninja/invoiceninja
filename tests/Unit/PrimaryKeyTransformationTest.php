@@ -22,7 +22,7 @@ class PrimaryKeyTransformationTest extends TestCase
 {
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }

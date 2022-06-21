@@ -29,7 +29,7 @@ class InvoiceEmailTest extends TestCase
     use DatabaseTransactions;
     use GeneratesCounter;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

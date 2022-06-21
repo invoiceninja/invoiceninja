@@ -31,7 +31,7 @@ class DesignApiTest extends TestCase
 
     public $id;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

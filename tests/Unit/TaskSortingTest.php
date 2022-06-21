@@ -20,7 +20,7 @@ class TaskSortingTest extends TestCase
 {
     public $collection;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

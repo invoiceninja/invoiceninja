@@ -30,7 +30,7 @@ class UniqueEmailTest extends TestCase
 
     protected $rule;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -104,7 +104,7 @@ class UniqueEmailTest extends TestCase
         $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
     }
 
-    public function tearDown() :void
+    protected function tearDown() :void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

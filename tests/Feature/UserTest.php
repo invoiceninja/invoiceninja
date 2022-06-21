@@ -37,7 +37,7 @@ class UserTest extends TestCase
 
     private $default_email = 'attach@gmail.com';
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

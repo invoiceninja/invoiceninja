@@ -30,7 +30,7 @@ class EntityTest extends TestCase
 
     public $settings;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

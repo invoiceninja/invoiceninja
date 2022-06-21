@@ -20,7 +20,7 @@ use Tests\TestCase;
  */
 class CompanySettingsSaveableTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }

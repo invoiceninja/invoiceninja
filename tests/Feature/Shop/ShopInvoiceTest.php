@@ -28,7 +28,7 @@ class ShopInvoiceTest extends TestCase
     use MakesHash;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

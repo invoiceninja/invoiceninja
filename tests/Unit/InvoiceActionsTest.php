@@ -27,7 +27,7 @@ class InvoiceActionsTest extends TestCase
     use DatabaseTransactions;
     use ActionsInvoice;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

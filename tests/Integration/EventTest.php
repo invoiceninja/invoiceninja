@@ -92,7 +92,7 @@ class EventTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
