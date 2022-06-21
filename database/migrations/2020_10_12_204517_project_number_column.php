@@ -12,7 +12,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class ProjectNumberColumn extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -44,4 +44,4 @@ class ProjectNumberColumn extends Migration
     {
         //
     }
-}
+};

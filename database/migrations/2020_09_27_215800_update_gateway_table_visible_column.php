@@ -13,7 +13,7 @@ use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateGatewayTableVisibleColumn extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -59,4 +59,4 @@ class UpdateGatewayTableVisibleColumn extends Migration
     {
         //
     }
-}
+};

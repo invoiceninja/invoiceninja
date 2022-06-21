@@ -13,7 +13,7 @@
 use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
 
-class ActivateGocardlessPaymentDriver extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -30,4 +30,4 @@ class ActivateGocardlessPaymentDriver extends Migration
             $gateway->save();
         }
     }
-}
+};

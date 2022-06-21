@@ -4,7 +4,7 @@ use App\Models\Design;
 use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTechDesign extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -46,4 +46,4 @@ class AddTechDesign extends Migration
     {
         //
     }
-}
+};

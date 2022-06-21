@@ -7,7 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ClientSettingsParseForTypes extends Migration
+return new class extends Migration
 {
     use ClientGroupSettingsSaver;
 
@@ -37,4 +37,4 @@ class ClientSettingsParseForTypes extends Migration
     {
         //
     }
-}
+};
