@@ -359,6 +359,8 @@ class NinjaMailerJob implements ShouldQueue
                 ],
             ])->getBody()->getContents());
 
+            nlog($token);
+            
             if($token){
                 
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
