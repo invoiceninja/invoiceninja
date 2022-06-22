@@ -772,6 +772,8 @@ class LoginController extends BaseController
 
         $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 
+        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
 
@@ -785,7 +787,8 @@ class LoginController extends BaseController
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
                 'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token']
+                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
+                'oauth_user_token_expiry' => $oauth_expiry,
             ];
 
             $user->update($update_user);

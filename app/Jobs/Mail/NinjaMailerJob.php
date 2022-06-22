@@ -342,23 +342,38 @@ class NinjaMailerJob implements ShouldQueue
 
     private function refreshOfficeToken($user)
     {
-        $guzzle = new \GuzzleHttp\Client(); 
-        $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'; 
 
-        $token = json_decode($guzzle->post($url, [
-            'form_params' => [
-                'client_id' => config('ninja.o365.client_id') ,
-                'client_secret' => config('ninja.o365.client_secret') ,
-                'scope' => 'email Mail.ReadWrite Mail.Send offline_access profile User.Read openid',
-                'grant_type' => 'refresh_token',
-                'refresh_token' => $user->oauth_user_refresh_token
-            ],
-        ])->getBody()->getContents());
+        if($user->oauth_user_token_expiry->lt(now()))
+        {
+            $guzzle = new \GuzzleHttp\Client(); 
+            $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'; 
 
-        if($token)
-            return $token->access_token;
+            $token = json_decode($guzzle->post($url, [
+                'form_params' => [
+                    'client_id' => config('ninja.o365.client_id') ,
+                    'client_secret' => config('ninja.o365.client_secret') ,
+                    'scope' => 'email Mail.ReadWrite Mail.Send offline_access profile User.Read openid',
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $user->oauth_user_refresh_token
+                ],
+            ])->getBody()->getContents());
 
-        return false;
+            if($token){
+                
+                nlog($token);
+
+                $user->oauth_user_token = $token->access_token;
+                $user->oauth_user_token_expiry = now()->addSeconds($token->expires_in);
+                $user->save();
+
+                return $token->access_token;
+            }
+
+            return false;
+        }
+
+        return $user->oauth_user_refresh_token;
+        
     }
 
 }

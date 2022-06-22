@@ -13,7 +13,7 @@ class FixesForDescriptionInPdfDesigns extends Migration
      */
     public function up()
     {
-            \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
+        \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
     }
 
     /**
