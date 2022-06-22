@@ -498,6 +498,8 @@ class LoginController extends BaseController
     {
         if(request()->has('accessToken'))
             $accessToken = request()->input('accessToken');
+        elseif(request()->has('access_token'))
+            $accessToken = request()->input('access_token');
         else
             return response()->json(['message' => 'Invalid response from oauth server'], 400);
 

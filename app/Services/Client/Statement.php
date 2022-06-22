@@ -220,6 +220,7 @@ class Statement
     protected function getInvoices(): \Illuminate\Support\LazyCollection
     {
         return Invoice::withTrashed()
+            ->with('payments.type')
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
