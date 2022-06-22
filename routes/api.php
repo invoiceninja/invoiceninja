@@ -44,7 +44,9 @@ use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentNotificationWebhookController;
 use App\Http\Controllers\PaymentTermController;
+use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\PingController;
 use App\Http\Controllers\PostMarkController;
 use App\Http\Controllers\PreviewController;
@@ -63,6 +65,7 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubdomainController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Support\Messages;
+use App\Http\Controllers\Support\Messages\SendingController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskSchedulerController;
@@ -236,7 +239,7 @@ Route::middleware('throttle:100,1', 'api_db', 'token_auth', 'locale')->prefix('a
     Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', Support\Messages\SendingController::class);
+    Route::post('support/messages/send', SendingController::class);
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);
@@ -301,11 +304,11 @@ Route::middleware('throttle:100,1', 'api_db', 'token_auth', 'locale')->prefix('a
     // Route::post('apple_pay/upload_file',[ApplyPayController::class, 'upload']);
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
+Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
     ->middleware(['throttle:1000,1', 'guest'])
     ->name('payment_webhook');
 
-Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', 'PaymentNotificationWebhookController')
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', PaymentNotificationWebhookController::class)
     ->middleware(['throttle:1000,1', 'guest'])
     ->name('payment_notification_webhook');
 

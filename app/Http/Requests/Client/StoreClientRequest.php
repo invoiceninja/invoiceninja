@@ -131,7 +131,7 @@ class StoreClientRequest extends Request
             $settings->language_id = $this->getLanguageId($input['language_code']);
         }
 
-        $input['settings'] = $settings;
+        $input['settings'] = (array)$settings;
 
         if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
