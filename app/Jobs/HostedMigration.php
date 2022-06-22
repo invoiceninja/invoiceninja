@@ -28,6 +28,10 @@ class HostedMigration extends Job
 
     private $forced;
 
+    public $tries = 1;
+
+    public $timeout = 0;
+
     public function __construct(User $user, array $data, $db, $forced = false)
     {
         $this->user = $user;
