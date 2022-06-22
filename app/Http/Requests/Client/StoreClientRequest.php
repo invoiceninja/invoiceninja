@@ -93,6 +93,15 @@ class StoreClientRequest extends Request
         $input = $this->all();
 
         $settings = ClientSettings::defaults();
+        $tmp = [];
+
+        $tmp['settings'] = (array)$settings;
+        
+        nlog("seeetings");
+        nlog($tmp['settings']);
+        
+        if (array_key_exists('settings', $input))
+        nlog($input['settings']);
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
             foreach ($input['settings'] as $key => $value) {
@@ -100,9 +109,11 @@ class StoreClientRequest extends Request
                     $value = floatval($value);
                 }
 
-                $settings->{$key} = $value;
+                $tmp['settings'][$key] = $value;
             }
         }
+
+        $input['settings'] = $tmp['settings'];
 
         $input = $this->decodePrimaryKeys($input);
 
@@ -115,23 +126,26 @@ class StoreClientRequest extends Request
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
-                $settings->currency_id = (string) $group_settings->settings->currency_id;
+                $input['settings']['currency_id'] = (string) $group_settings->settings->currency_id;
             } else {
-                $settings->currency_id = (string) auth()->user()->company()->settings->currency_id;
+                $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
             }
         } elseif (! property_exists($settings, 'currency_id')) {
-            $settings->currency_id = (string) auth()->user()->company()->settings->currency_id;
+            $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
         if (isset($input['currency_code'])) {
-            $settings->currency_id = $this->getCurrencyCode($input['currency_code']);
+            $input['settings']['currency_id'] = $this->getCurrencyCode($input['currency_code']);
         }
 
         if (isset($input['language_code'])) {
-            $settings->language_id = $this->getLanguageId($input['language_code']);
+            $input['settings']['language_id'] = $this->getLanguageId($input['language_code']);
+
+            if(strlen($input['settings']['language_id']) == 0)
+                unset($input['settings']['language_id']);
         }
 
-        $input['settings'] = (array)$settings;
+        // $input['settings'] = $settings;
 
         if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
@@ -145,6 +159,10 @@ class StoreClientRequest extends Request
         if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
             unset($input['number']);
         }
+
+
+nlog($input);
+
 
         $this->replace($input);
     }

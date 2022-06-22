@@ -69,8 +69,10 @@ class ClientApiTest extends TestCase
             nlog($message);
         }
 
+
         $response->assertStatus(200);
         $arr = $response->json();
+
         $this->assertFalse(array_key_exists('translations', $arr['data']['settings']));
     }
 
@@ -97,6 +99,8 @@ class ClientApiTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
+
+nlog($arr);
 
         $this->assertFalse(array_key_exists('language_id', $arr['data']['settings']));
     }

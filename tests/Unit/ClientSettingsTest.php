@@ -90,7 +90,7 @@ class ClientSettingsTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-
+nlog($arr);
         $this->assertEquals('1', $arr['data']['settings']['currency_id']);
         $this->assertEquals('1', $arr['data']['settings']['language_id']);
         $this->assertEquals('1', $arr['data']['settings']['payment_terms']);
@@ -100,15 +100,16 @@ class ClientSettingsTest extends TestCase
     }
 
     public function testClientIllegalCurrency()
-    {
+    {nlog("illegal");
+
         $data = [
             'name' => $this->faker->firstName(),
-            'id_number' => 'Coolio',
+            'id_number' => 'Cooliox2',
             'settings' => [
-                'currency_id' => 'a',
+                'currency_id' => '2',
                 'language_id' => '1',
                 'payment_terms' => '1',
-                'valid_until' => '1',
+                'valid_until' => '2',
                 'default_task_rate' => 10,
                 'send_reminders' => true,
             ],
@@ -125,6 +126,8 @@ class ClientSettingsTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
         }
+
+nlog($response->json());
 
         $response->assertStatus(302);
     }
