@@ -342,8 +342,9 @@ class NinjaMailerJob implements ShouldQueue
 
     private function refreshOfficeToken($user)
     {
+        $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
 
-        if($user->oauth_user_token_expiry->lt(now()))
+        if($expiry->lt(now()))
         {
             $guzzle = new \GuzzleHttp\Client(); 
             $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'; 
