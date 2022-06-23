@@ -87,6 +87,16 @@ class SpamNotification extends Notification
                 }
             }
 
+            if(array_key_exists('templates', $spam_list))
+            {
+                $content .= " Templates \n";
+
+                foreach($spam_list['templates'] as $company)
+                {
+                    $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
+                }
+            }
+
 
             if(array_key_exists('users', $spam_list))
             {
