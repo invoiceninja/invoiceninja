@@ -68,6 +68,7 @@ class StoreClientRequest extends Request
         $rules['contacts'] = 'array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
+            'bail',
             'nullable',
             'sometimes',
             'string',
@@ -82,8 +83,8 @@ class StoreClientRequest extends Request
             $rules['id'] = new CanStoreClientsRule(auth()->user()->company()->id);
         }
 
-        $rules['number'] = ['nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
-        $rules['id_number'] = ['nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['id_number'] = ['bail', 'nullable', Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
 
         return $rules;
     }
@@ -92,37 +93,30 @@ class StoreClientRequest extends Request
     {
         $input = $this->all();
 
-        $settings = ClientSettings::defaults();
-        $tmp = [];
+        /* Default settings */
+        $settings = (array)ClientSettings::defaults();
 
-        $tmp['settings'] = (array)$settings;
-        
-        nlog("seeetings");
-        nlog($tmp['settings']);
-        
-        if (array_key_exists('settings', $input))
-        nlog($input['settings']);
+        /* Stub settings if they don't exist */
+        if(!array_key_exists('settings', $input))
+            $input['settings'] = [];
+                
+        /* Merge default into base settings */
+        $input['settings'] = array_merge($input['settings'], $settings);
 
-        if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
-            foreach ($input['settings'] as $key => $value) {
-                if ($key == 'default_task_rate') {
-                    $value = floatval($value);
-                }
-
-                $tmp['settings'][$key] = $value;
+        /* Type enforcement */
+        foreach ($input['settings'] as $key => $value) 
+        {
+            if ($key == 'default_task_rate') {
+                $value = floatval($value);
+                $input['settings'][$key] = $value;
             }
         }
 
-        $input['settings'] = $tmp['settings'];
-
+        /* Convert hashed IDs to IDs*/
         $input = $this->decodePrimaryKeys($input);
 
-        if (isset($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-        }
-
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
-        if (! property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
+        if (! array_key_exists('currency_id', $input['settings']) && isset($input['group_settings_id'])) {
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
@@ -130,7 +124,8 @@ class StoreClientRequest extends Request
             } else {
                 $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
             }
-        } elseif (! property_exists($settings, 'currency_id')) {
+
+        } elseif (! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
@@ -145,8 +140,6 @@ class StoreClientRequest extends Request
                 unset($input['settings']['language_id']);
         }
 
-        // $input['settings'] = $settings;
-
         if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
         }
@@ -155,14 +148,10 @@ class StoreClientRequest extends Request
             $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
         }
 
-        /* If there is no number, just unset it here. */
+        /* If there is a client number, just unset it here. */
         if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
             unset($input['number']);
         }
-
-
-nlog($input);
-
 
         $this->replace($input);
     }

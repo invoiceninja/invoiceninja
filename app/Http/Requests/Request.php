@@ -77,6 +77,10 @@ class Request extends FormRequest
 
     public function decodePrimaryKeys($input)
     {
+        if (array_key_exists('group_settings_id', $input) && is_string($input['group_settings_id'])) {
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
+        
         if (array_key_exists('group_id', $input) && is_string($input['group_id'])) {
             $input['group_id'] = $this->decodePrimaryKey($input['group_id']);
         }
