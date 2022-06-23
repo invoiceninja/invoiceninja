@@ -106,6 +106,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'updated_at'       => 'timestamp',
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
+        'oauth_user_token_expiry' => 'datetime',
     ];
 
 
