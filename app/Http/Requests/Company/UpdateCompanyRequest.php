@@ -56,15 +56,12 @@ class UpdateCompanyRequest extends Request
             }
         }
 
-        // if($this->company->account->isPaidHostedClient()) {
-        //     return $settings;
-        // }
-
         return $rules;
     }
 
     protected function prepareForValidation()
     {
+    
         $input = $this->all();
 
         if (Ninja::isHosted() && array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
@@ -73,7 +70,7 @@ class UpdateCompanyRequest extends Request
         }
 
         if (array_key_exists('settings', $input)) {
-            $input['settings'] = $this->filterSaveableSettings($input['settings']);
+            $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
         }
 
         $this->replace($input);

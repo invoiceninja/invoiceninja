@@ -53,6 +53,9 @@ class CompanySettingsTest extends TestCase
 
         $response = false;
 
+nlog($this->company->toJson());
+
+
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

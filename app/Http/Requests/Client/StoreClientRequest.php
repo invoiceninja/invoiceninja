@@ -103,13 +103,16 @@ class StoreClientRequest extends Request
         /* Merge default into base settings */
         $input['settings'] = array_merge($input['settings'], $settings);
 
-        /* Type enforcement */
+        /* Type and property enforcement */
         foreach ($input['settings'] as $key => $value) 
         {
             if ($key == 'default_task_rate') {
                 $value = floatval($value);
                 $input['settings'][$key] = $value;
             }
+
+            if($key == 'translations')
+                unset($input['settings']['translations']);
         }
 
         /* Convert hashed IDs to IDs*/
