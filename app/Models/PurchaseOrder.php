@@ -34,7 +34,6 @@ class PurchaseOrder extends BaseModel
         'discount',
         'company_id',
         'status_id',
-        'user_id',
         'last_sent_date',
         'is_deleted',
         'po_number',
