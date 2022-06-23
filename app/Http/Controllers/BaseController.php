@@ -778,8 +778,13 @@ class BaseController extends Controller
             }
 
             /* Clean up URLs and remove query parameters from the URL*/
-            if(request()->has('login') && request()->input('login') == 'true')
-                return redirect('/')->with(['login' => "true"]);
+            if (request()->has('login') && request()->input('login') == 'true') {
+                return redirect('/')->with(['login' => 'true']);
+            }
+
+            if (request()->has('signup') && request()->input('signup') == 'true') {
+                return redirect('/')->with(['signup' => 'true']);
+            }
 
             $data = [];
 
@@ -789,10 +794,16 @@ class BaseController extends Controller
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
-            $data['login'] = request()->has('login') ? request()->input('login') : "false";
-            
-            if(request()->session()->has('login'))
-                $data['login'] = "true";
+            $data['login'] = request()->has('login') ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+
+            if (request()->session()->has('login')) {
+                $data['login'] = 'true';
+            }
+
+            if(request()->session()->has('signup')){
+                $data['signup'] = 'true';
+            }
 
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 

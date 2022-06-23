@@ -378,4 +378,12 @@ class NinjaMailerJob implements ShouldQueue
         
     }
 
+    /**
+     * Is this the cleanest way to requeue a job?
+     * 
+     * $this->delete();
+     *
+     * $job = NinjaMailerJob::dispatch($this->nmo, $this->override)->delay(3600);
+    */
+
 }
