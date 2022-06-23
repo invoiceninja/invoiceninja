@@ -63,6 +63,8 @@ class Gateway extends StaticModel
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         } elseif ($this->id == 20 || $this->id == 56) {
             $link = 'https://dashboard.stripe.com/account/apikeys';
+        } elseif ($this->id == 59) {
+            $link = 'https://www.forte.net/';
         }
 
         return $link;
@@ -168,6 +170,12 @@ class Gateway extends StaticModel
             case 58:
                 return [
                     GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']] // Razorpay
+                ];
+                break;
+            case 59:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], // Forte
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']],
                 ];
                 break;
             default:
