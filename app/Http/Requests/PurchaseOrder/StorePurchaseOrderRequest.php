@@ -50,7 +50,7 @@ class StorePurchaseOrderRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

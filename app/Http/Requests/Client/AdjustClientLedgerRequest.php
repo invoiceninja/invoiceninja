@@ -44,7 +44,7 @@ class AdjustClientLedgerRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

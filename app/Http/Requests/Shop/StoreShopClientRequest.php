@@ -72,7 +72,7 @@ class StoreShopClientRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $this->company = Company::where('company_key', request()->header('X-API-COMPANY-KEY'))->firstOrFail();
 

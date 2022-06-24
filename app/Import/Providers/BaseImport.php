@@ -150,6 +150,22 @@ class BaseImport
         return $this->error_array;
     }
 
+
+    private function runValidation($data)
+    {        
+        $_syn_request_class = new $this->request_name;
+        $_syn_request_class->setContainer(app());
+        $_syn_request_class->initialize($data);
+        $_syn_request_class->prepareForValidation();
+
+        $validator = Validator::make($_syn_request_class->all(), $_syn_request_class->rules());
+
+        $_syn_request_class->setValidator($validator);
+
+        return $validator;
+
+    }
+
     public function ingest($data, $entity_type)
     {
         $count = 0;
@@ -157,7 +173,8 @@ class BaseImport
         foreach ($data as $key => $record) {
             try {
                 $entity = $this->transformer->transform($record);
-                $validator = $this->request_name::runFormRequest($entity);
+                // $validator = $this->request_name::runFormRequest($entity);
+                $validator = $this->runValidation($entity);
 
                 if ($validator->fails()) {
                     $this->error_array[$entity_type][] = [
@@ -172,7 +189,6 @@ class BaseImport
                             $this->getUserIDForRecord($entity)
                         )
                     );
-
                     $entity->saveQuietly();
                     $count++;
                 }
@@ -192,6 +208,8 @@ class BaseImport
                     $entity_type => $record,
                     'error' => $message,
                 ];
+             
+             nlog($ex->getMessage());   
             }
         }
 

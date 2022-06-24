@@ -51,7 +51,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings', $data);
+        ])->postJson('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
 
@@ -74,7 +74,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings', $data);
+        ])->postJson('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
 
@@ -88,7 +88,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings/bulk', $data);
+        ])->postJson('/api/v1/group_settings/bulk', $data);
 
         $response->assertStatus(200);
 

@@ -36,7 +36,7 @@ class StorePaymentRequest extends Request
         return auth()->user()->can('create', Payment::class);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

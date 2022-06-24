@@ -89,7 +89,7 @@ class StoreClientRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -99,7 +99,9 @@ class StoreClientRequest extends Request
         /* Stub settings if they don't exist */
         if(!array_key_exists('settings', $input))
             $input['settings'] = [];
-                
+        elseif(is_object($input['settings']))
+            $input['settings'] = (array)$input['settings'];
+        
         /* Merge default into base settings */
         $input['settings'] = array_merge($input['settings'], $settings);
 

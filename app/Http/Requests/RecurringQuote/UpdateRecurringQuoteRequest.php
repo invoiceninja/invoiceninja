@@ -55,7 +55,7 @@ class UpdateRecurringQuoteRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
         $input = $this->decodePrimaryKeys($input);

@@ -149,7 +149,6 @@ class CsvImportTest extends TestCase
         $base_transformer = new BaseTransformer($this->company);
 
         $this->assertTrue($base_transformer->hasProduct('officiis'));
-        // $this->assertTrue($base_transformer->hasProduct('maxime'));
     }
 
     public function testClientImport()
@@ -280,7 +279,7 @@ class CsvImportTest extends TestCase
 
         $csv_importer->import('invoice');
 
-        $this->assertTrue($base_transformer->hasInvoice('801'));
+        $this->assertTrue($base_transformer->hasInvoice('780'));
 
         /* Lets piggy back payments tests here to save rebuilding the test multiple times*/
 
@@ -309,15 +308,15 @@ class CsvImportTest extends TestCase
 
         $csv_importer->import('payment');
 
-        $this->assertTrue($base_transformer->hasInvoice('801'));
+        $this->assertTrue($base_transformer->hasInvoice('780'));
 
-        $invoice_id = $base_transformer->getInvoiceId('801');
+        $invoice_id = $base_transformer->getInvoiceId('780');
 
-        $invoice = Invoice::find($invoice_id);
+        $invoice = Invoice::with('payments')->find($invoice_id);
 
         $this->assertTrue($invoice->payments()->exists());
-        $this->assertEquals(3, $invoice->payments()->count());
-        $this->assertEquals(1200, $invoice->payments()->sum('payments.amount'));
+        $this->assertEquals(1, $invoice->payments()->count());
+        $this->assertEquals(51.03, round($invoice->payments()->sum('payments.amount'),2));
     }
 }
 

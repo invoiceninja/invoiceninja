@@ -179,7 +179,7 @@ class Request extends FormRequest
         return $input;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
     }
 }

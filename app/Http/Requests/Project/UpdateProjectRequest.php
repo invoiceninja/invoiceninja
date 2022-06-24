@@ -40,7 +40,7 @@ class UpdateProjectRequest extends Request
         return $this->globalRules($rules);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
 

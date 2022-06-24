@@ -45,7 +45,7 @@ class PreviewInvoiceRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

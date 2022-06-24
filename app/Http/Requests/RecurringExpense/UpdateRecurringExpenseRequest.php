@@ -60,7 +60,7 @@ class UpdateRecurringExpenseRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

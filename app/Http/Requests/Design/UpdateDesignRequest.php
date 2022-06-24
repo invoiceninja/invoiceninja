@@ -33,7 +33,7 @@ class UpdateDesignRequest extends Request
         return [];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

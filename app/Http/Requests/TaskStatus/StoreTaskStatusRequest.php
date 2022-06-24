@@ -28,7 +28,7 @@ class StoreTaskStatusRequest extends Request
         return auth()->user()->isAdmin();
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

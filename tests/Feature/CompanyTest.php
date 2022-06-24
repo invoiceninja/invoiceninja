@@ -99,7 +99,7 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company_update)
             ->assertStatus(200);
 
         $settings = CompanySettings::defaults();
@@ -112,7 +112,7 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company->toArray())
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($company->id), $company->toArray())
         ->assertStatus(200)->decodeResponseJson();
 
         $response = $this->withHeaders([

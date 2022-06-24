@@ -42,7 +42,7 @@ class UpdateAccountRequest extends Request
     }
 
     /* Only allow single field to update account table */
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

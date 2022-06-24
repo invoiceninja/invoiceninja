@@ -39,7 +39,7 @@ class CompanySettingsTest extends TestCase
         Session::start();
 
         $this->faker = \Faker\Factory::create();
-        $this->withoutExceptionHandling();
+        // $this->withoutExceptionHandling();
         Model::reguard();
     }
 
@@ -53,14 +53,11 @@ class CompanySettingsTest extends TestCase
 
         $response = false;
 
-nlog($this->company->toJson());
-
-
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-Token' => $this->token,
-            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+                'X-API-TOKEN' => $this->token,
+            ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
         }
@@ -86,7 +83,7 @@ nlog($this->company->toJson());
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-Token' => $this->token,
-            ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+            ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -113,7 +110,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
         $response->assertStatus(200);
 
@@ -139,7 +136,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
         $response->assertStatus(200);
 
@@ -166,7 +163,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->put('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
 
         $response->assertStatus(200);
 
@@ -189,7 +186,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company', $this->company->toArray());
+        ])->postJson('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -207,7 +204,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company', $this->company->toArray());
+        ])->postJson('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -225,7 +222,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company', $this->company->toArray());
+        ])->postJson('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -243,7 +240,7 @@ nlog($this->company->toJson());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-Token' => $this->token,
-        ])->post('/api/v1/companies?include=company', $this->company->toArray());
+        ])->postJson('/api/v1/companies?include=company', $this->company->toArray());
 
         $arr = $response->json();
         $response->assertStatus(200);
