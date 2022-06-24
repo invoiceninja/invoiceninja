@@ -97,16 +97,15 @@ class PasswordProtection
             }
             elseif(auth()->user()->oauth_provider_id == 'microsoft')
             {
-                nlog(request()->header('X-API-OAUTH-PASSWORD'));
+                try{
+                    $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-','+',explode('.', request()->header('X-API-OAUTH-PASSWORD'))[1]))));
+                }
+                catch(\Exception $e){
+                    nlog("could not decode microsoft response");
+                    return response()->json(['message' => 'Could not decode the response from Microsoft'], 412);
+                }
 
-                $graph = new \Microsoft\Graph\Graph();
-                $graph->setAccessToken(request()->header('X-API-OAUTH-PASSWORD'));
-
-                $user = $graph->createRequest("GET", "/me")
-                              ->setReturnType(Model\User::class)
-                              ->execute();
-
-                if($user && ($user->getId() == auth()->user()->oauth_user_id)){
+                if($payload->preferred_username == auth()->user()->email)){
 
                     Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);
