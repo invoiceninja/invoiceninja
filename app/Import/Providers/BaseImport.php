@@ -209,7 +209,7 @@ class BaseImport
                     'error' => $message,
                 ];
              
-             nlog($ex->getMessage());   
+             nlog("Ingest {$ex->getMessage()}");   
             }
         }
 

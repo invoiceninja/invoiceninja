@@ -145,7 +145,7 @@ class ShopInvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-COMPANY-KEY' => $this->company->company_key,
-        ])->post('/api/v1/shop/clients/', $data);
+        ])->postJson('/api/v1/shop/clients/', $data);
 
         $response->assertStatus(200);
         $arr = $response->json();
@@ -165,7 +165,7 @@ class ShopInvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-COMPANY-KEY' => $this->company->company_key,
-        ])->post('/api/v1/shop/clients/', $data);
+        ])->postJson('/api/v1/shop/clients/', $data);
 
         $response->assertStatus(200);
         $arr = $response->json();
@@ -180,7 +180,7 @@ class ShopInvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-COMPANY-KEY' => $this->company->company_key,
-        ])->post('/api/v1/shop/invoices/', $invoice_data);
+        ])->postJson('/api/v1/shop/invoices/', $invoice_data);
 
         $response->assertStatus(200);
         $arr = $response->json();

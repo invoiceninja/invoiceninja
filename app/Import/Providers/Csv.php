@@ -166,8 +166,7 @@ class Csv extends BaseImport implements ImportInterface
 
             return;
         }
-nlog($data);
-
+        
         $this->request_name = StorePaymentRequest::class;
         $this->repository_name = PaymentRepository::class;
         $this->factory_name = PaymentFactory::class;
@@ -178,8 +177,6 @@ nlog($data);
         $this->transformer = new PaymentTransformer($this->company);
 
         $payment_count = $this->ingest($data, $entity_type);
-
-nlog($payment_count);
 
         $this->entity_count['payments'] = $payment_count;
     }
