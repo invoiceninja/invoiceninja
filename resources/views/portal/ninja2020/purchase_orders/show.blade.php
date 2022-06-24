@@ -3,7 +3,7 @@
 
 @push('head')
     <meta name="show-purchase_order-terms" content="false">
-    <meta name="require-purchase_order-signature" content="{{ $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_purchase_order_signature }}">
+    <meta name="require-purchase_order-signature" content="{{ $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && property_exists($settings, 'require_purchase_order_signature') && $settings->require_purchase_order_signature }}">
     @include('portal.ninja2020.components.no-cache')
     
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>

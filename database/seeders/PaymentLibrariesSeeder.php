@@ -98,7 +98,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,3,7,11,15,20,39,46,55,50,57,52,58,59])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20])->update(['visible' => 0]);
