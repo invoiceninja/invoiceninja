@@ -64,7 +64,9 @@ class GmailTransport extends AbstractTransport
                 return ['email' => $email->getAddress(), 'type' => 'to'];
             }));
 
-        $this->gmail->from($message->getFrom());
+nlog($message->getFrom());
+
+        $this->gmail->from($message->getFrom()[0]->getAddress());
 
         $this->gmail->subject($message->getSubject());
         $this->gmail->message($message->getHtmlBody());
@@ -79,7 +81,7 @@ class GmailTransport extends AbstractTransport
             if($child->getContentType() != 'text/plain')
             {
 
-                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
+                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getName() ));
             
             }
 
