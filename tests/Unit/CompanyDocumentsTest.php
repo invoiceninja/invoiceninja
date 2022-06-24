@@ -25,7 +25,7 @@ class CompanyDocumentsTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -44,13 +44,13 @@ class CompanyDocumentsTest extends TestCase
 
         $image = UploadedFile::fake()->image('avatar.jpg');
 
-        $document = UploadFile::dispatchNow(
+
+        $document = (new UploadFile(
             $image,
             UploadFile::IMAGE,
             $this->user,
             $this->company,
-            $this->invoice
-        );
+            $this->invoice))->handle();
 
         $this->assertNotNull($document);
 

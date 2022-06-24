@@ -94,7 +94,7 @@ class BaseNotification extends Notification
         }
 
         if ($this->entity instanceof Invoice && $this->settings->ubl_email_attachment) {
-            $ubl_string = CreateUbl::dispatchNow($this->entity);
+            $ubl_string = (new Createubl($this->entity))->handle();
             $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
 

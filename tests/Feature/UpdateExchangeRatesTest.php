@@ -55,7 +55,7 @@ class UpdateExchangeRatesTest extends TestCase
 
             $currency_api = json_decode($response->getBody());
 
-            UpdateExchangeRates::dispatchNow();
+            UpdateExchangeRates::dispatchSync();
 
             $currencies = Cache::get('currencies');
 

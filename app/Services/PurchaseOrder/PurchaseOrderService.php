@@ -91,7 +91,7 @@ class PurchaseOrderService
         try {
             if ($force) {
                 $this->purchase_order->invitations->each(function ($invitation) {
-                    CreatePurchaseOrderPdf::dispatchNow($invitation);
+                    CreatePurchaseOrderPdf::dispatchSync($invitation);
                 });
 
                 return $this;

@@ -136,7 +136,7 @@ class QuoteService
         try {
             if ($force) {
                 $this->quote->invitations->each(function ($invitation) {
-                    CreateEntityPdf::dispatchNow($invitation);
+                    CreateEntityPdf::dispatchSync($invitation);
                 });
 
                 return $this;
@@ -225,7 +225,7 @@ class QuoteService
     public function deletePdf()
     {
         $this->quote->invitations->each(function ($invitation) {
-            UnlinkFile::dispatchNow(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
+            UnlinkFile::dispatchSync(config('filesystems.default'), $this->quote->client->quote_filepath($invitation).$this->quote->numberFormatter().'.pdf');
         });
 
         return $this;

@@ -463,7 +463,7 @@ class BillingPortalPurchase extends Component
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;
 
-        NinjaMailerJob::dispatchNow($mailer);
+        NinjaMailerJob::dispatchSync($mailer);
 
         $this->steps['passwordless_login_sent'] = true;
         $this->passwordless_login_btn = false;

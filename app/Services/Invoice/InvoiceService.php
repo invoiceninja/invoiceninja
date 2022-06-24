@@ -418,7 +418,7 @@ class InvoiceService
         try {
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
-                    CreateEntityPdf::dispatchNow($invitation);
+                    CreateEntityPdf::dispatchSync($invitation);
                 });
 
                 return $this;
@@ -557,7 +557,7 @@ class InvoiceService
     public function adjustInventory($old_invoice = [])
     {
         if ($this->invoice->company->track_inventory) {
-            AdjustProductInventory::dispatchNow($this->invoice->company, $this->invoice, $old_invoice);
+            AdjustProductInventory::dispatchSync($this->invoice->company, $this->invoice, $old_invoice);
         }
 
         return $this;

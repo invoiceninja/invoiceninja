@@ -236,7 +236,7 @@ trait MockAccountData
 
         // auth()->login($user);
 
-        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
+        CreateCompanyTaskStatuses::dispatchSync($this->company, $this->user);
 
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;

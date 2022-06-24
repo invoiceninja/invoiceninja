@@ -36,7 +36,7 @@ class HostedMigrationController extends Controller
             return response()->json(['error' => 'This user is not able to perform a migration. Please contact us at contact@invoiceninja.com to discuss.'], 401);
         }
 
-        $account = CreateAccount::dispatchNow($request->all(), $request->getClientIp());
+        $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         $account->hosted_client_count = 100;
         $account->hosted_company_count = 10;
         $account->save();
@@ -44,8 +44,8 @@ class HostedMigrationController extends Controller
         $company = $account->companies->first();
 
         $company_token = CompanyToken::where('user_id', auth()->user()->id)
-                                     ->where('company_id', $company->id)
-                                     ->first();
+            ->where('company_id', $company->id)
+            ->first();
 
         return response()->json(['token' => $company_token->token], 200);
     }
@@ -64,7 +64,7 @@ class HostedMigrationController extends Controller
 
         $forward_url = $company->domain();
 
-        $billing_transferred = \Modules\Admin\Jobs\Account\TransferAccountPlan::dispatchNow($input);
+        $billing_transferred = (new \Modules\Admin\Jobs\Account\TransferAccountPlan($input))->handle();
 
         return response()->json(['forward_url' => $forward_url, 'billing_transferred' => $billing_transferred], 200);
     }

@@ -186,13 +186,13 @@ class LoginController extends BaseController
             if ($user->google_2fa_secret && $request->has('one_time_password')) {
                 $google2fa = new Google2FA();
 
-                if (strlen($request->input('one_time_password')) == 0 || ! $google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
+                if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
                     return response()
-                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
-                    ->header('X-App-Version', config('ninja.app_version'))
-                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
+                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                        ->header('X-App-Version', config('ninja.app_version'))
+                        ->header('X-Api-Version', config('ninja.minimum_client_version'));
                 }
-            } elseif ($user->google_2fa_secret && ! $request->has('one_time_password')) {
+            } elseif ($user->google_2fa_secret && !$request->has('one_time_password')) {
                 return response()
                     ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
                     ->header('X-App-Version', config('ninja.app_version'))
@@ -200,7 +200,7 @@ class LoginController extends BaseController
             }
 
             /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/
-            if (! $user->account->default_company) {
+            if (!$user->account->default_company) {
                 $account = $user->account;
                 $account->default_company_id = $user->companies->first()->id;
                 $account->save();
@@ -214,7 +214,7 @@ class LoginController extends BaseController
             }
 
             /*On the hosted platform, only owners can login for free/pro accounts*/
-            if (Ninja::isHosted() && ! $cu->first()->is_owner && ! $user->account->isEnterpriseClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient()) {
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -293,7 +293,7 @@ class LoginController extends BaseController
 
         $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
             if ($company->tokens()->where('is_system', true)->count() == 0) {
-                CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+                CreateCompanyToken::dispatchSync($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
             }
         });
 
@@ -301,7 +301,7 @@ class LoginController extends BaseController
             $cu->where('company_id', $company_token->company_id);
         }
 
-        if (Ninja::isHosted() && ! $cu->first()->is_owner && ! $cu->first()->user->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -371,7 +371,7 @@ class LoginController extends BaseController
             'oauth_provider_id' => $provider,
         ];
         if ($existing_user = MultiDB::hasUser($query)) {
-            if (! $existing_user->account) {
+            if (!$existing_user->account) {
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -383,7 +383,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && ! $cu->first()->is_owner && ! $existing_user->account->isEnterpriseClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient()) {
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -391,7 +391,7 @@ class LoginController extends BaseController
         }
         //If this is a result user/email combo - lets add their OAuth details details
         if ($existing_login_user = MultiDB::hasUser(['email' => $user->email])) {
-            if (! $existing_login_user->account) {
+            if (!$existing_login_user->account) {
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
@@ -408,7 +408,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && ! $cu->first()->is_owner && ! $existing_login_user->account->isEnterpriseClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient()) {
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -427,7 +427,7 @@ class LoginController extends BaseController
 
         MultiDB::setDefaultDatabase();
 
-        $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
+        $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
 
         Auth::login($account->default_company->owner(), true);
         auth()->user()->email_verified_at = now();
@@ -439,7 +439,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && ! $cu->first()->is_owner && ! auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -475,8 +475,8 @@ class LoginController extends BaseController
 
         if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
             auth()->user()->companies->each(function ($company) {
-                if (! CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
-                    CreateCompanyToken::dispatchNow($company, auth()->user(), 'Google_O_Auth');
+                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+                    CreateCompanyToken::dispatchSync($company, auth()->user(), 'Google_O_Auth');
                 }
             });
         }
@@ -498,8 +498,8 @@ class LoginController extends BaseController
         $graph->setAccessToken($accessToken);
 
         $user = $graph->createRequest('GET', '/me')
-                      ->setReturnType(Model\User::class)
-                      ->execute();
+            ->setReturnType(Model\User::class)
+            ->execute();
 
         if ($user) {
             $account = request()->input('account');
@@ -507,11 +507,11 @@ class LoginController extends BaseController
 
             $query = [
                 'oauth_user_id' => $user->getId(),
-                'oauth_provider_id'=> 'microsoft',
+                'oauth_provider_id' => 'microsoft',
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (! $existing_user->account) {
+                if (!$existing_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -520,7 +520,7 @@ class LoginController extends BaseController
 
             //If this is a result user/email combo - lets add their OAuth details details
             if ($existing_login_user = MultiDB::hasUser(['email' => $email])) {
-                if (! $existing_login_user->account) {
+                if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -553,7 +553,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && ! $cu->first()->is_owner && ! $existing_user->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -564,7 +564,7 @@ class LoginController extends BaseController
     {
         auth()->user()->update([
             'oauth_user_id' => $oauth_user_id,
-            'oauth_provider_id'=> $provider,
+            'oauth_provider_id' => $provider,
         ]);
 
         $cu = $this->hydrateCompanyUser();
@@ -573,7 +573,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && ! $cu->first()->is_owner && ! auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -591,11 +591,11 @@ class LoginController extends BaseController
         if (is_array($user)) {
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id'=> 'google',
+                'oauth_provider_id' => 'google',
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
-                if (! $existing_user->account) {
+                if (!$existing_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -604,7 +604,7 @@ class LoginController extends BaseController
 
             //If this is a result user/email combo - lets add their OAuth details details
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
-                if (! $existing_login_user->account) {
+                if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -618,7 +618,7 @@ class LoginController extends BaseController
 
             //check the user doesn't already exist in some form
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
-                if (! $existing_login_user->account) {
+                if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
@@ -643,18 +643,17 @@ class LoginController extends BaseController
         }
 
         return response()
-        ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-        ->header('X-App-Version', config('ninja.app_version'))
-        ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+            ->header('X-App-Version', config('ninja.app_version'))
+            ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
 
     private function createNewAccount($new_account)
     {
         MultiDB::setDefaultDatabase();
 
-        $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
-
-        if (! $account instanceof Account) {
+        $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
+        if (!$account instanceof Account) {
             return $account;
         }
 
@@ -668,7 +667,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && ! $cu->first()->is_owner && ! auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -683,18 +682,18 @@ class LoginController extends BaseController
 
         if ($provider == 'google') {
             $scopes = ['https://www.googleapis.com/auth/gmail.send', 'email', 'profile', 'openid'];
-            $parameters = ['access_type' => 'offline', 'prompt' => 'consent select_account', 'redirect_uri' => config('ninja.app_url').'/auth/google'];
+            $parameters = ['access_type' => 'offline', 'prompt' => 'consent select_account', 'redirect_uri' => config('ninja.app_url') . '/auth/google'];
         }
 
         if ($provider == 'microsoft') {
             $scopes = ['email', 'Mail.ReadWrite', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
-            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url').'/auth/microsoft'];
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . '/auth/microsoft'];
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            if (! in_array($provider, ['google', 'microsoft'])) {
+            if (!in_array($provider, ['google', 'microsoft'])) {
                 return abort(400, 'Invalid provider');
             }
 
@@ -747,8 +746,8 @@ class LoginController extends BaseController
         $socialite_user = Socialite::driver($provider)->user();
         nlog($socialite_user);
 
-        nlog('refresh token '.$socialite_user->accessTokenResponseBody['refresh_token']);
-        nlog('access token '.$socialite_user->accessTokenResponseBody['access_token']);
+        nlog('refresh token ' . $socialite_user->accessTokenResponseBody['refresh_token']);
+        nlog('access token ' . $socialite_user->accessTokenResponseBody['access_token']);
 
         $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 

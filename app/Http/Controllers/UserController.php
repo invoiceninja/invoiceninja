@@ -208,7 +208,7 @@ class UserController extends BaseController
 
         $user_agent = request()->input('token_name') ?: request()->server('HTTP_USER_AGENT');
 
-        $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
+        $ct = (new CreateCompanyToken($company, $user, $user_agent))->handle();
 
         event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

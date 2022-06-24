@@ -34,7 +34,7 @@ trait SavesDocuments
         }
 
         foreach ($document_array as $document) {
-            $document = UploadFile::dispatchNow(
+            $document = (new UploadFile(
                 $document,
                 UploadFile::DOCUMENT,
                 $user,
@@ -42,7 +42,7 @@ trait SavesDocuments
                 $entity,
                 null,
                 $is_public
-            );
+            ))->handle();
         }
     }
 
@@ -62,7 +62,7 @@ trait SavesDocuments
             return false;
         }
 
-        $document = UploadFile::dispatchNow(
+        $document = (new UploadFile(
             $document,
             UploadFile::DOCUMENT,
             $user,
@@ -70,6 +70,6 @@ trait SavesDocuments
             $entity,
             null,
             $is_public
-        );
+        ))->handle();
     }
 }

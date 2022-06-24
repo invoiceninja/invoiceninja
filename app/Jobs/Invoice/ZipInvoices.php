@@ -80,7 +80,7 @@ class ZipInvoices implements ShouldQueue
         $path = $this->invoices->first()->client->invoice_filepath($invitation);
 
         $this->invoices->each(function ($invoice) {
-            CreateEntityPdf::dispatchNow($invoice->invitations()->first());
+            CreateEntityPdf::dispatchSync($invoice->invitations()->first());
         });
 
         try {

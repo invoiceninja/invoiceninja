@@ -443,7 +443,7 @@ class Invoice extends BaseModel
         if (Ninja::isHosted() && $portal && $file_exists) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         } elseif (Ninja::isHosted()) {
-            $file_path = CreateEntityPdf::dispatchNow($invitation, config('filesystems.default'));
+            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
 
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
@@ -458,7 +458,7 @@ class Invoice extends BaseModel
             return Storage::disk('public')->{$type}($file_path);
         }
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
+        $file_path = (new CreateEntityPdf($invitation))->handle();
 
         return Storage::disk('public')->{$type}($file_path);
     }

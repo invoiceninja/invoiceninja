@@ -131,9 +131,9 @@ class CreateAccount extends Command
             'settings' => null,
         ]);
 
-        CreateCompanyPaymentTerms::dispatchNow($company, $user);
-        CreateCompanyTaskStatuses::dispatchNow($company, $user);
-        VersionCheck::dispatchNow();
+        CreateCompanyPaymentTerms::dispatchSync($company, $user);
+        CreateCompanyTaskStatuses::dispatchSync($company, $user);
+        VersionCheck::dispatchSync();
     }
 
     private function warmCache()

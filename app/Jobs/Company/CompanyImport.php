@@ -282,7 +282,7 @@ class CompanyImport implements ShouldQueue
                 $nmo->company = $_company;
                 $nmo->settings = $_company->settings;
                 $nmo->to_user = $_company->owner();
-                NinjaMailerJob::dispatchNow($nmo);
+                NinjaMailerJob::dispatchSync($nmo);
             } catch (\Exception $e) {
                 info($e->getMessage());
             }
@@ -1441,6 +1441,6 @@ class CompanyImport implements ShouldQueue
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
         $nmo->to_user = $this->company->owner();
-        NinjaMailerJob::dispatchNow($nmo);
+        NinjaMailerJob::dispatchSync($nmo);
     }
 }

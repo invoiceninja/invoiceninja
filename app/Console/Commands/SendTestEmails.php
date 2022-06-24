@@ -96,6 +96,6 @@ class SendTestEmails extends Command
         $nmo->settings = $user->account->companies()->first()->settings;
         $nmo->to_user = $user;
 
-        NinjaMailerJob::dispatchNow($nmo);
+        NinjaMailerJob::dispatchSync($nmo);
     }
 }
