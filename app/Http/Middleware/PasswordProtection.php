@@ -61,12 +61,26 @@ class PasswordProtection
 
         }elseif( $request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) >=1){
 
+            $user = false;
+
             //user is attempting to reauth with OAuth - check the token value
             //todo expand this to include all OAuth providers
-            $user = false;
-            $google = new Google();
-            $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
-            
+            if(auth()->user()->oauth_provider_id == 'google')
+            {
+                $user = false;
+                $google = new Google();
+                $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
+            }
+            elseif(auth()->user()->oauth_provider_id == 'microsoft')
+            {
+                nlog(request()->header('X-API-OAUTH-PASSWORD'));
+                nlog(auth()->user()->oauth_user_token);
+                if(request()->header('X-API-OAUTH-PASSWORD') == auth()->user()->oauth_user_token){
+                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                    return $next($request);
+                }
+            }
+
             if (is_array($user)) {
                 
                 $query = [
