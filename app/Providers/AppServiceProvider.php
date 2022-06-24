@@ -11,6 +11,8 @@
 
 namespace App\Providers;
 
+use App\Helpers\Mail\GmailTransport;
+use App\Helpers\Mail\Office365MailTransport;
 use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Invoice;
 use App\Models\Proposal;
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
@@ -72,6 +75,15 @@ class AppServiceProvider extends ServiceProvider
         // Model::preventLazyLoading(
         //     !$this->app->isProduction()
         // );
+
+        Mail::extend('gmail', function () {
+            return new GmailTransport();
+        });
+
+        Mail::extend('office365', function () {
+            return new Office365MailTransport();
+        });
+        
     }
 
     /**

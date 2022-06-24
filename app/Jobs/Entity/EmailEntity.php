@@ -163,4 +163,9 @@ class EmailEntity implements ShouldQueue
 
         return (new $class($this->invitation, $this->reminder_template, $this->template_data))->build();
     }
+
+    public function failed($e)
+    {
+        nlog($e->getMessage());
+    }
 }

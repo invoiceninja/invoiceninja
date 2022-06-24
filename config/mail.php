@@ -78,11 +78,6 @@ return [
         'office365' => [
             'transport' => 'office365',
         ],
-
-        'cocopostmark' => [
-            'transport' => 'cocopostmark',
-        ],
-
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
