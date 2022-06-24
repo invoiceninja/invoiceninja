@@ -106,7 +106,7 @@ class PasswordProtection
                               ->setReturnType(Model\User::class)
                               ->execute();
 
-                if($user && ($user->getId() == auth()->user()->oauth_user_id){
+                if($user && ($user->getId() == auth()->user()->oauth_user_id)){
 
                     Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);
