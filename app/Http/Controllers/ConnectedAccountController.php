@@ -81,10 +81,56 @@ class ConnectedAccountController extends BaseController
             return $this->handleGoogleOauth();
         }
 
+        if ($request->input('provider') == 'microsoft') {
+            return $this->handleMicrosoftOauth($request);
+        }
+
         return response()
         ->json(['message' => 'Provider not supported'], 400)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
+    }
+
+    private function handleMicrosoftOauth($request)
+    {
+        nlog($request->all());
+
+        $graph = new \Microsoft\Graph\Graph();
+        $graph->setAccessToken($request->input('access_token'));
+
+        $user = $graph->createRequest("GET", "/me")
+                      ->setReturnType(Model\User::class)
+                      ->execute();
+
+        if($user){
+
+            $email = $user->getMail() ?: $user->getUserPrincipalName();
+
+            if(auth()->user()->email != $email && MultiDB::checkUserEmailExists($email))
+                return response()->json(['message' => ctrans('texts.email_already_register')], 400);
+
+            $connected_account = [
+                'email' => $email,
+                'oauth_user_id' => $user->getId(),
+                'oauth_provider_id' => 'microsoft',
+                'email_verified_at' =>now()
+            ];
+
+            auth()->user()->update($connected_account);
+            auth()->user()->email_verified_at = now();
+            auth()->user()->save();
+            
+            $this->setLoginCache(auth()->user());
+            
+            return $this->itemResponse(auth()->user());
+
+        }
+
+        return response()
+        ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+        ->header('X-App-Version', config('ninja.app_version'))
+        ->header('X-Api-Version', config('ninja.minimum_client_version'));
+
     }
 
     private function handleGoogleOauth()
