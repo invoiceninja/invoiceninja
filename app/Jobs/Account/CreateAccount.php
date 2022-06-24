@@ -90,15 +90,15 @@ class CreateAccount
 
         $sp794f3f->save();
 
-        $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
+        $sp035a66 = (new CreateCompany($this->request,$sp794f3f))->handle();
         $sp035a66->load('account');
         $sp794f3f->default_company_id = $sp035a66->id;
         $sp794f3f->save();
 
-        $spaa9f78 = CreateUser::dispatchNow($this->request, $sp794f3f, $sp035a66, true);
+        $spaa9f78 = (new CreateUser($this->request, $sp794f3f, $sp035a66, true))->handle();
 
-        CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        CreateCompanyTaskStatuses::dispatchNow($sp035a66, $spaa9f78);
+        CreateCompanyPaymentTerms::dispatchSync($sp035a66, $spaa9f78);
+        CreateCompanyTaskStatuses::dispatchSync($sp035a66, $spaa9f78);
 
         if ($spaa9f78) {
             auth()->login($spaa9f78, false);
@@ -108,8 +108,7 @@ class CreateAccount
         $this->setLoginCache($spaa9f78);
 
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
-        $sp2d97e8 = CreateCompanyToken::dispatchNow($sp035a66, $spaa9f78, $spafe62e);
-
+        $sp2d97e8 = (new CreateCompanyToken($sp035a66, $spaa9f78, $spafe62e))->handle();
         if ($spaa9f78) {
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }

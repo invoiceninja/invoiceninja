@@ -38,8 +38,7 @@ class UBLInvoiceTest extends TestCase
 
     public function testUblGenerates()
     {
-        $ubl = CreateUbl::dispatchNow($this->invoice);
-
+        $ubl = (new CreateUbl($this->invoice))->handle();
         $this->assertNotNull($ubl);
     }
 }

@@ -87,7 +87,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-client', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Client::count());
     }
@@ -117,7 +117,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-client', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         /*Now import invoices*/
         $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
@@ -152,7 +152,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Invoice::count());
     }
@@ -181,7 +181,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-vendor', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Vendor::count());
     }
@@ -207,7 +207,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-product', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Product::count());
     }
@@ -233,7 +233,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-expense', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Expense::count());
     }
@@ -264,7 +264,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-client', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         /*Now import invoices*/
         $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
@@ -299,7 +299,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         /* Test Now import payments*/
 
@@ -324,7 +324,7 @@ class ImportCsvTest extends TestCase
 
         Cache::put($hash.'-payment', base64_encode($csv), 360);
 
-        CSVImport::dispatchNow($data, $this->company);
+        CSVImport::dispatchSync($data, $this->company);
 
         $this->assertGreaterThan($pre_import, Payment::count());
     }

@@ -82,7 +82,7 @@ class ZipPurchaseOrders implements ShouldQueue
         $path = $this->purchase_orders->first()->vendor->purchase_order_filepath($invitation);
 
         $this->purchase_orders->each(function ($purchase_order) {
-            CreatePurchaseOrderPdf::dispatchNow($purchase_order->invitations()->first());
+            CreatePurchaseOrderPdf::dispatchSync($purchase_order->invitations()->first());
         });
 
         try {

@@ -188,7 +188,7 @@ class CreateSingleAccount extends Command
             $this->createClient($company, $user);
         }
 
-        CreateCompanyTaskStatuses::dispatchNow($company, $user);
+        CreateCompanyTaskStatuses::dispatchSync($company, $user);
 
         for ($x = 0; $x < $this->count; $x++) {
             $client = $company->clients->random();

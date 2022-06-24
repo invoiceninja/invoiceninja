@@ -283,7 +283,7 @@ class Credit extends BaseModel
         if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         } elseif (Ninja::isHosted() && $portal) {
-            $file_path = CreateEntityPdf::dispatchNow($invitation, config('filesystems.default'));
+            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
 
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
@@ -292,7 +292,8 @@ class Credit extends BaseModel
             return Storage::disk('public')->{$type}($file_path);
         }
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
+
+        $file_path = (new CreateEntityPdf($invitation))->handle();
 
         return Storage::disk('public')->{$type}($file_path);
     }

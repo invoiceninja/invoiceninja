@@ -61,7 +61,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchSync($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -89,7 +89,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchSync($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -117,7 +117,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchSync($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -140,7 +140,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatchSync($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }

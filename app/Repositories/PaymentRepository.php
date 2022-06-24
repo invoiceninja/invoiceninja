@@ -164,7 +164,7 @@ class PaymentRepository extends BaseRepository
 
                 if ($credit) {
                     $credit = $credit->service()->markSent()->save();
-                    ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
+                    ApplyCreditPayment::dispatchSync($credit, $payment, $paid_credit['amount'], $credit->company);
                 }
             }
         }

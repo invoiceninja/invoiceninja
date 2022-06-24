@@ -85,7 +85,7 @@ class RecurringService
     public function deletePdf()
     {
         $this->recurring_entity->invitations->each(function ($invitation) {
-            UnlinkFile::dispatchNow(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation).$this->recurring_entity->numberFormatter().'.pdf');
+            UnlinkFile::dispatchSync(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation).$this->recurring_entity->numberFormatter().'.pdf');
         });
 
         return $this;

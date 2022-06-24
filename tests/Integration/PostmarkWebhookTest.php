@@ -70,7 +70,7 @@ class PostmarkWebhookTest extends TestCase
         $invitation->message_id = '00000000-0000-0000-0000-000000000000';
         $invitation->save();
 
-        ProcessPostmarkWebhook::dispatchNow([
+        ProcessPostmarkWebhook::dispatchSync([
             'RecordType' => 'Delivery',
             'ServerID' => '23',
             'MessageStream' => 'outbound',
@@ -118,7 +118,7 @@ class PostmarkWebhookTest extends TestCase
         $invitation->message_id = '00000000-0000-0000-0000-000000000001';
         $invitation->save();
 
-        ProcessPostmarkWebhook::dispatchNow([
+        ProcessPostmarkWebhook::dispatchSync([
             'RecordType' => 'SpamComplaint',
             'ServerID' => '23',
             'MessageStream' => 'outbound',

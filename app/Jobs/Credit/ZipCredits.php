@@ -80,7 +80,7 @@ class ZipCredits implements ShouldQueue
         $path = $this->credits->first()->client->quote_filepath($invitation);
 
         $this->credits->each(function ($credit) {
-            CreateEntityPdf::dispatchNow($credit->invitations()->first());
+            CreateEntityPdf::dispatchSync($credit->invitations()->first());
         });
 
         try {

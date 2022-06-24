@@ -34,7 +34,7 @@ class InvoiceUploadTest extends TestCase
 
     public function testInvoiceUploadWorks()
     {
-        CreateEntityPdf::dispatchNow($this->invoice->invitations->first());
+        CreateEntityPdf::dispatchSync($this->invoice->invitations->first());
 
         $this->assertNotNull($this->invoice->service()->getInvoicePdf($this->invoice->client->primary_contact()->first()));
     }

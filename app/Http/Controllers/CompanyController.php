@@ -211,10 +211,9 @@ class CompanyController extends BaseController
     {
         $this->forced_includes = ['company_user'];
 
-        $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
-
-        CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
-        CreateCompanyTaskStatuses::dispatchNow($company, auth()->user());
+        $company = (new CreateCompany($request->all(), auth()->user()->company()->account))->handle();
+        CreateCompanyPaymentTerms::dispatchSync($company, auth()->user());
+        CreateCompanyTaskStatuses::dispatchSync($company, auth()->user());
 
         $company = $this->company_repo->save($request->all(), $company);
 
@@ -244,8 +243,7 @@ class CompanyController extends BaseController
          */
         $user_agent = request()->has('token_name') ? request()->input('token_name') : request()->server('HTTP_USER_AGENT');
 
-        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), $user_agent);
-
+        $company_token = (new CreateCompanyToken($company, auth()->user(), $user_agent))->handle();
         $this->entity_transformer = CompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
 
