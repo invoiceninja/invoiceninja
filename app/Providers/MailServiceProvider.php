@@ -39,6 +39,19 @@ class MailServiceProvider extends MailProvider
     public function registerGmailApiMailer()
     {
 
+        // $factory = new GmailApiTransportFactory();
+
+        // if (! isset($config['secret'])) {
+        //     $config = $this->app['config']->get('services.mailgun', []);
+        // }
+
+        // return $factory->create(new Dsn(
+        //     'gmail+api'),
+        //     $config['endpoint'] ?? 'default',
+        //     $config['secret'],
+        //     $config['domain']
+        // ));
+
     }
 
     public function registerMicrosoftMailer()
