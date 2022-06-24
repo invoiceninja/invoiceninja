@@ -354,7 +354,7 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
 
-            $data[$key]['task_id'] = $item->task_id;
+            $data[$key]['task_id'] = property_exists($item, 'task_id') ? $item->task_id : '';
         }
 
         return $data;

@@ -11,9 +11,7 @@
 
 namespace App\Providers;
 
-use App\Helpers\Mail\GmailTransportManager;
 use App\Utils\CssInlinerPlugin;
-use Coconuts\Mail\PostmarkTransport;
 use GuzzleHttp\Client as HttpClient;
 use Illuminate\Container\Container;
 use Illuminate\Mail\MailServiceProvider as MailProvider;
@@ -21,54 +19,30 @@ use Illuminate\Mail\TransportManager;
 
 class MailServiceProvider extends MailProvider
 {
-    public function register()
-    {
-        $this->registerIlluminateMailer();
-    }
 
     public function boot()
     {
         // app('mail.manager')->getSymfonyTransport()->registerPlugin($this->app->make(CssInlinerPlugin::class));
     }
 
-    protected function registerIlluminateMailer()
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
     {
-        // //this is not octane safe
-        $this->app->singleton('mail.manager', function ($app) {
-            return new GmailTransportManager($app);
-        });
-
-        //this is octane ready - but is untested
-        // $this->app->bind('mail.manager', function ($app){
-        //     return new GmailTransportManager($app);
-        // });
-
-        $this->app->bind('mailer', function ($app) {
-            return $app->make('mail.manager')->mailer();
-        });
-
-        $this->app['mail.manager']->extend('cocopostmark', function () {
-            return new PostmarkTransport(
-                $this->guzzle(config('postmark.guzzle', [])),
-                config('postmark.secret')
-            );
-        });
+        $this->registerIlluminateMailer();
+        $this->registerMarkdownRenderer();
     }
 
-    protected function guzzle(array $config): HttpClient
+    public function registerGmailApiMailer()
     {
-        return new HttpClient(array_merge($config, [
-            'base_uri' => empty($config['base_uri'])
-                ? 'https://api.postmarkapp.com'
-                : $config['base_uri'],
-        ]));
+
     }
 
-    public function provides()
+    public function registerMicrosoftMailer()
     {
-        return [
-            'mail.manager',
-            'mailer',
-        ];
+
     }
 }

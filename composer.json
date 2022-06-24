@@ -84,11 +84,12 @@
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^6.0",
+        "symfony/mailgun-mailer": "^6.1",
+        "symfony/postmark-mailer": "^6.1",
         "tijsverkoyen/css-to-inline-styles": "^2.2",
         "turbo124/beacon": "^1.2",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wepay/php-sdk": "^0.3",
-        "symfony/postmark-mailer": "^6.0"
+        "wepay/php-sdk": "^0.3"
     },
     "require-dev": {
         "php": "^7.4|^8.0",
