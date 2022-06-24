@@ -105,7 +105,7 @@ class PasswordProtection
                     return response()->json(['message' => 'Could not decode the response from Microsoft'], 412);
                 }
 
-                if($payload->preferred_username == auth()->user()->email)){
+                if($payload->preferred_username == auth()->user()->email){
 
                     Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);
