@@ -22,6 +22,7 @@ use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Microsoft\Graph\Model;
 
 class ConnectedAccountController extends BaseController
 {
@@ -95,7 +96,7 @@ class ConnectedAccountController extends BaseController
     {
         nlog($request->all());
 
-        if(!$request->has('account_token'))
+        if(!$request->has('access_token'))
             return response()->json(['message' => 'No access_token parameter found!'], 400);
 
         $graph = new \Microsoft\Graph\Graph();
