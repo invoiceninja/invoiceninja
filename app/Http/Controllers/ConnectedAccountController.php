@@ -95,7 +95,7 @@ class ConnectedAccountController extends BaseController
     {
         nlog($request->all());
 
-        if(!$request->has('account_token'))
+        if(!$request->has('access_token'))
             return response()->json(['message' => 'No access_token parameter found!'], 400);
 
         $graph = new \Microsoft\Graph\Graph();
