@@ -158,7 +158,7 @@ class UserController extends BaseController
      */
     public function create(CreateUserRequest $request)
     {
-        $user = UserFactory::create(auth()->user()->account->id);
+        $user = UserFactory::create(auth()->user()->account_id);
 
         return $this->itemResponse($user);
     }

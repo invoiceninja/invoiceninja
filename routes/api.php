@@ -212,6 +212,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::get('purchase_orders/{purchase_order}/{action}', 'PurchaseOrderController@action')->name('purchase_orders.action');
 
     Route::get('users', 'UserController@index');
+    Route::get('users/create', 'UserController@create')->middleware('password_protected');
     Route::get('users/{user}', 'UserController@show')->middleware('password_protected');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
     Route::post('users', 'UserController@store')->middleware('password_protected');
