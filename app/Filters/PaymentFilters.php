@@ -43,6 +43,26 @@ class PaymentFilters extends QueryFilters
     }
 
     /**
+     * Filters the list based on the transaction reference
+     * Used to sincronize status with external apis
+     *
+     * @param string transaction
+     * @return Builder
+     */
+    public function transaction(string $transaction = '') : Builder
+    {
+	    $table = 'payments';
+        if (strlen($transaction) == 0) {
+            return $this->builder->where(function ($query) use ($table) {
+                $query->whereNull($table.'.transaction_reference')
+                    ->orWhere($table.'.transaction_reference', 'like', '');
+            });
+        }
+
+        return $this->builder->where($table.'.transaction_reference', $transaction);
+    }
+
+    /**
      * Filters the list based on the status
      * archived, active, deleted.
      *
