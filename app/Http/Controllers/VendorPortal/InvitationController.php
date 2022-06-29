@@ -99,7 +99,7 @@ class InvitationController extends Controller
 
     public function download(string $invitation_key)
     {
-        $invitation = PurchaseOrder::withTrashed()
+        $invitation = PurchaseOrderInvitation::withTrashed()
                             ->where('key', $invitation_key)
                             ->with('contact.vendor')
                             ->firstOrFail();
