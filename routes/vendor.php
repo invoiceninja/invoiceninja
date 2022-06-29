@@ -40,4 +40,7 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
 });
 
+Route::get('purchase_order/{invitation_key}/download', 'VendorPortal\InvitationController@download');
+
+
 Route::fallback('BaseController@notFoundVendor');

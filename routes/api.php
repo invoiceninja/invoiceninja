@@ -129,6 +129,9 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('preview', 'PreviewController@show')->name('preview.show');
     Route::post('live_preview', 'PreviewController@live')->name('preview.live');
 
+    Route::post('preview/purchase_order', 'PreviewPurchaseOrderController@show')->name('preview_purchase_order.show');
+    Route::post('live_preview/purchase_order', 'PreviewPurchaseOrderController@live')->name('preview_purchase_order.live');
+
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', 'ProductController@bulk')->name('products.bulk');
     Route::put('products/{product}/upload', 'ProductController@upload');
