@@ -111,7 +111,7 @@ class InvitationController extends Controller
 
         // $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
 
-        $file = (new CreatePurchaseOrderPdf($invitation))->handle();
+        $file = (new CreatePurchaseOrderPdf($invitation))->rawPdf();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
