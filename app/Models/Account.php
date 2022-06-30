@@ -33,7 +33,7 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
-    private $free_plan_email_quota = 250;
+    private $free_plan_email_quota = 100;
 
     private $paid_plan_email_quota = 500;
     /**
@@ -373,8 +373,13 @@ class Account extends BaseModel
 
     public function getDailyEmailLimit()
     {
+        if($this->is_flagged)
+            return 0;
 
         if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
+            return 20;
+
+        if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 2 && !$this->payment_id)
             return 20;
 
         if($this->isPaid()){

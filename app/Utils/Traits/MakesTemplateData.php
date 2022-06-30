@@ -200,6 +200,36 @@ trait MakesTemplateData
         $data['$task.tax_name3'] = ['value' => 'CA Sales Tax', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '$100.00', 'label' => ctrans('texts.line_total')];
 
+        $data['$vendor_name'] = &$data['$client_name'];
+        $data['$vendor.name'] = &$data['$client_name'];
+        $data['$vendor'] = &$data['$client_name'];
+
+        $data['$vendor.address1'] = &$data['$address1'];
+        $data['$vendor.address2'] = &$data['$address2'];
+        $data['$vendor_address'] = ['value' => '5 Kalamazoo Way\n Jimbuckeroo\n USA 90210', 'label' => ctrans('texts.address')];
+        $data['$vendor.address'] = &$data['$vendor_address'];
+        $data['$vendor.postal_code'] = ['value' => '90210', 'label' => ctrans('texts.postal_code')];
+        $data['$vendor.public_notes'] = $data['$invoice.public_notes'];
+        $data['$vendor.city'] = &$data['$company.city'];
+        $data['$vendor.state'] = &$data['$company.state'];
+        $data['$vendor.id_number'] = &$data['$id_number'];
+        $data['$vendor.vat_number'] = &$data['$vat_number'];
+        $data['$vendor.website'] = &$data['$website'];
+        $data['$vendor.phone'] = &$data['$phone'];
+        $data['$vendor.city_state_postal'] = &$data['$city_state_postal'];
+        $data['$vendor.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$vendor.country'] = &$data['$country'];
+        $data['$vendor.email'] = &$data['$email'];
+        
+        $data['$vendor.billing_address1'] = &$data['$vendor.address1'];
+        $data['$vendor.billing_address2'] = &$data['$vendor.address2'];
+        $data['$vendor.billing_city'] = &$data['$vendor.city'];
+        $data['$vendor.billing_state'] = &$data['$vendor.state'];
+        $data['$vendor.billing_postal_code'] = &$data['$vendor.postal_code'];
+        $data['$vendor.billing_country'] = &$data['$vendor.country'];
+
+
+
         //$data['$paid_to_date'] = ;
         // $data['$your_invoice'] = ;
         // $data['$quote'] = ;

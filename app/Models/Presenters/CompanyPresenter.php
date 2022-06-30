@@ -126,6 +126,26 @@ class CompanyPresenter extends EntityPresenter
         }
     }
 
+    public function address1()
+    {
+        return $this->entity->settings->address1;
+    }
+
+    public function address2()
+    {
+        return $this->entity->settings->address2;
+    }
+
+    public function qr_iban()
+    {
+        return $this->entity->getSetting('qr_iban');
+    }
+
+    public function besr_id()
+    {
+        return $this->entity->getSetting('besr_id');
+    }
+
     public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw, $user_iban)
     {
         $settings = $this->entity->settings;

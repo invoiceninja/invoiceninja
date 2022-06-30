@@ -65,6 +65,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
     public $vendor;
 
+    private string $path = '';
+
+    private string $file_path = '';
+
     /**
      * Create a new job instance.
      *
@@ -90,6 +94,32 @@ class CreatePurchaseOrderPdf implements ShouldQueue
     public function handle()
     {
 
+        $pdf = $this->rawPdf();
+
+        if ($pdf) {
+
+            try{
+                
+                if(!Storage::disk($this->disk)->exists($this->path)) 
+                    Storage::disk($this->disk)->makeDirectory($this->path, 0775);
+
+                Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
+
+            }
+            catch(\Exception $e)
+            {
+
+                throw new FilePermissionsFailure($e->getMessage());
+
+            }
+        }
+        
+        return $this->file_path;
+    }
+
+    public function rawPdf()
+    {
+
         MultiDB::setDb($this->company->db);
 
         /* Forget the singleton*/
@@ -109,10 +139,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $entity_design_id = '';
         
-        $path = $this->vendor->purchase_order_filepath($this->invitation);
+        $this->path = $this->vendor->purchase_order_filepath($this->invitation);
         $entity_design_id = 'purchase_order_design_id';
 
-        $file_path = $path.$this->entity->numberFormatter().'.pdf';
+        $this->file_path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey('Wpmbk5ezJn');
 
@@ -191,25 +221,8 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
-        if ($pdf) {
+        return $pdf;
 
-            try{
-                
-                if(!Storage::disk($this->disk)->exists($path)) 
-                    Storage::disk($this->disk)->makeDirectory($path, 0775);
-
-                Storage::disk($this->disk)->put($file_path, $pdf, 'public');
-
-            }
-            catch(\Exception $e)
-            {
-
-                throw new FilePermissionsFailure($e->getMessage());
-
-            }
-        }
-        
-        return $file_path;
     }
 
     public function failed($e)

@@ -47,6 +47,31 @@ class PreviewTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testPurchaseOrderPreviewRoute()
+    {
+        $data = $this->getData();
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/preview/purchase_order', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testPurchaseOrderPreviewHtmlResponse()
+    {
+        $data = $this->getData();
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/preview/purchase_order?html=true', $data);
+
+        $response->assertStatus(200);
+    }
+
+
     public function testPreviewHtmlResponse()
     {
         $data = $this->getData();
