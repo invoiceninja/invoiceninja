@@ -65,6 +65,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
     public $vendor;
 
+    private string $path = '';
+
+    private string $file_path = '';
+
     /**
      * Create a new job instance.
      *
@@ -110,7 +114,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             }
         }
         
-        return $file_path;
+        return $this->file_path;
     }
 
     public function rawPdf()
