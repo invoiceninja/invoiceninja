@@ -284,11 +284,10 @@ class PreviewController extends BaseController
 
         }
         catch(\Exception $e){
-
+            nlog($e->getMessage());
             DB::connection(config('database.default'))->rollBack();
             return;
         }
-
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
