@@ -90,6 +90,32 @@ class CreatePurchaseOrderPdf implements ShouldQueue
     public function handle()
     {
 
+        $pdf = $this->rawPdf();
+
+        if ($pdf) {
+
+            try{
+                
+                if(!Storage::disk($this->disk)->exists($path)) 
+                    Storage::disk($this->disk)->makeDirectory($path, 0775);
+
+                Storage::disk($this->disk)->put($file_path, $pdf, 'public');
+
+            }
+            catch(\Exception $e)
+            {
+
+                throw new FilePermissionsFailure($e->getMessage());
+
+            }
+        }
+        
+        return $file_path;
+    }
+
+    public function rawPdf()
+    {
+
         MultiDB::setDb($this->company->db);
 
         /* Forget the singleton*/
@@ -191,25 +217,8 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
-        if ($pdf) {
+        return $pdf;
 
-            try{
-                
-                if(!Storage::disk($this->disk)->exists($path)) 
-                    Storage::disk($this->disk)->makeDirectory($path, 0775);
-
-                Storage::disk($this->disk)->put($file_path, $pdf, 'public');
-
-            }
-            catch(\Exception $e)
-            {
-
-                throw new FilePermissionsFailure($e->getMessage());
-
-            }
-        }
-        
-        return $file_path;
     }
 
     public function failed($e)
