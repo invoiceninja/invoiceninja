@@ -128,17 +128,17 @@ class CompanyPresenter extends EntityPresenter
 
     public function address1()
     {
-        return $this->settings->address1;
+        return $this->entity->settings->address1;
     }
 
     public function address2()
     {
-        return $this->settings->address2;
+        return $this->entity->settings->address2;
     }
 
     public function qr_iban()
     {
-        $qr_iban = Helpers::formatCustomFieldValue($this->custom_fields, 'qr_iban')
+        return $this->entity->getSetting('qr_iban');
     }
 
     public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw, $user_iban)
