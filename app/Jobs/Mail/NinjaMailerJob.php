@@ -308,8 +308,9 @@ class NinjaMailerJob implements ShouldQueue
 
     private function preFlightChecksFail()
     {
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->nmo->company->is_disabled && !$this->override) 
+        if($this->nmo->company->is_disabled && !$this->override) 
             return true;
 
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
@@ -322,6 +323,9 @@ class NinjaMailerJob implements ShouldQueue
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
+            return true;
+
+        if(Ninja::isHosted() && $this->company->account && $this->nmo->company->account->is_flagged) 
             return true;
 
         /* Ensure the user has a valid email address */
