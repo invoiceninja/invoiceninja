@@ -228,59 +228,6 @@ trait MakesTemplateData
         $data['$vendor.billing_postal_code'] = &$data['$vendor.postal_code'];
         $data['$vendor.billing_country'] = &$data['$vendor.country'];
 
-
-
-        //$data['$paid_to_date'] = ;
-        // $data['$your_invoice'] = ;
-        // $data['$quote'] = ;
-        // $data['$your_quote'] = ;
-        // $data['$invoice_issued_to'] = ;
-        // $data['$quote_issued_to'] = ;
-        // $data['$rate'] = ;
-        // $data['$hours'] = ;
-        // $data['$from'] = ;
-        // $data['$to'] = ;
-        // $data['$invoice_to'] = ;
-        // $data['$quote_to'] = ;
-        // $data['$details'] = ;
-        // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
-        //$data['$blank'] = ;
-        //$data['$surcharge'] = ;
-        /*
-        $data['$tax_invoice'] =
-        $data['$tax_quote'] =
-        $data['$statement'] = ;
-        $data['$statement_date'] = ;
-        $data['$your_statement'] = ;
-        $data['$statement_issued_to'] = ;
-        $data['$statement_to'] = ;
-        $data['$credit_note'] = ;
-        $data['$credit_date'] = ;
-        $data['$credit_issued_to'] = ;
-        $data['$credit_to'] = ;
-        $data['$your_credit'] = ;
-        $data['$phone'] = ;
-
-        $data['$outstanding'] = ;
-        $data['$invoice_due_date'] = ;
-        $data['$quote_due_date'] = ;
-        $data['$service'] = ;
-        $data['$product_key'] = ;
-        $data['$unit_cost'] = ;
-        $data['$custom_value1'] = ;
-        $data['$custom_value2'] = ;
-        $data['$delivery_note'] = ;
-        $data['$date'] = ;
-        $data['$method'] = ;
-        $data['$payment_date'] = ;
-        $data['$reference'] = ;
-        $data['$amount'] = ;
-        $data['$amount_paid'] =;
-        	*/
-
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 

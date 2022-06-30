@@ -24,11 +24,11 @@ class SwissQrGenerator
 
     protected Company $company;
 
-    protected Invoice $invoice;
+    protected $invoice;
 
     protected Client $client;
 
-    public function __construct(Invoice $invoice, Company $company)
+    public function __construct($invoice, Company $company)
     {
         $this->company = $company;
 
@@ -86,11 +86,11 @@ class SwissQrGenerator
     // They are interchangeable for creditor as well as debtor.
     $qrBill->setUltimateDebtor(
         QrBill\DataGroup\Element\StructuredAddress::createWithStreet(
-            $this->client->present()->name(),
-            $this->client->address1 ?: '',
-            $this->client->address2 ?: '',
-            $this->client->postal_code ?: '',
-            $this->client->city ?: '',
+            substr($this->client->present()->name(), 0 , 70),
+            $this->client->address1 ? substr($this->client->address1, 0 , 70) : '',
+            $this->client->address2 ? substr($this->client->address2, 0 , 16) : '',
+            $this->client->postal_code ? substr($this->client->postal_code, 0, 16) : '',
+            $this->client->city ? substr($this->client->postal_code, 0, 35) : '',
             'CH'
         ));
 
@@ -106,7 +106,7 @@ class SwissQrGenerator
     // This is what you will need to identify incoming payments.
     $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
         $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-        $this->invoice->number // A number to match the payment with your internal data, e.g. an invoice number
+        $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
     );
 
     $qrBill->setPaymentReference(
@@ -124,23 +124,28 @@ class SwissQrGenerator
 
 
     // Now get the QR code image and save it as a file.
-    try {
-        // $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.png');
-        // $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.svg');
-    } catch (\Exception $e) {
-    	foreach($qrBill->getViolations() as $key => $violation) {
-    	}
+        try {
 
-        // return $e->getMessage();
-    }
+            $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, 'en');
 
-    $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, 'en');
+            $html = $output
+                ->setPrintable(false)
+                ->getPaymentPart();
 
-    $html = $output
-        ->setPrintable(false)
-        ->getPaymentPart();
+                return $html;
 
-        return $html;
+        } catch (\Exception $e) {
+
+            foreach($qrBill->getViolations() as $key => $violation) {
+                nlog("qr");
+                nlog($violation);
+            }
+
+            return '';
+            // return $e->getMessage();
+        }
+
+
     }
 
 }
