@@ -141,6 +141,11 @@ class CompanyPresenter extends EntityPresenter
         return $this->entity->getSetting('qr_iban');
     }
 
+    public function besr_id()
+    {
+        return $this->entity->getSetting('besr_id');
+    }
+
     public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw, $user_iban)
     {
         $settings = $this->entity->settings;

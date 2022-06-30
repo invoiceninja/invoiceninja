@@ -11,6 +11,7 @@
 
 namespace App\Helpers\SwissQr;
 
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use Sprain\SwissQrBill as QrBill;
@@ -25,11 +26,26 @@ class SwissQrGenerator
 
     protected Invoice $invoice;
 
+    protected Client $client;
+
     public function __construct(Invoice $invoice, Company $company)
     {
         $this->company = $company;
 
         $this->invoice = $invoice;
+    
+        $this->client = $invoice->client;
+    }
+
+    private function calcDueAmount()
+    {
+        if($this->invoice->partial > 0)
+            return $this->invoice->partial;
+
+        if($this->invoice->status_id == Invoice::STATUS_DRAFT)
+            return $this->invoice->amount;
+
+        return $this->invoice->balance;
     }
 
     public function run()
@@ -45,7 +61,7 @@ class SwissQrGenerator
     // Likely the most common use-case in the business world.
 
     // Create a new instance of QrBill, containing default headers with fixed values
-    $qrBill = \QrBill\QrBill::create();
+    $qrBill = QrBill\QrBill::create();
 
 
     // Add creditor information
@@ -60,21 +76,21 @@ class SwissQrGenerator
 
     $qrBill->setCreditorInformation(
         QrBill\DataGroup\Element\CreditorInformation::create(
-            $this->company->present()->qr_iban() // This is a special QR-IBAN. Classic IBANs will not be valid here.
+            $this->company->present()->qr_iban() ?: '' // This is a special QR-IBAN. Classic IBANs will not be valid here.
         ));
 
     // Add debtor information
     // Who has to pay the invoice? This part is optional.
     //
-    // Notice how you can use two different styles of addresses: CombinedAddress or StructuredAddress.
+    // Notice how you can use two different styles of addresses: CombinedAddress or StructuredAddress
     // They are interchangeable for creditor as well as debtor.
     $qrBill->setUltimateDebtor(
         QrBill\DataGroup\Element\StructuredAddress::createWithStreet(
-            'Pia-Maria Rutschmann-Schnyder',
-            'Grosse Marktgasse',
-            '28',
-            '9400',
-            'Rorschach',
+            $this->client->present()->name(),
+            $this->client->address1 ?: '',
+            $this->client->address2 ?: '',
+            $this->client->postal_code ?: '',
+            $this->client->city ?: '',
             'CH'
         ));
 
@@ -83,14 +99,14 @@ class SwissQrGenerator
     $qrBill->setPaymentAmountInformation(
         QrBill\DataGroup\Element\PaymentAmountInformation::create(
             'CHF',
-            2500.25
+            $this->calcDueAmount()
         ));
 
     // Add payment reference
     // This is what you will need to identify incoming payments.
     $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
-        '210000',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-        '313947143000901' // A number to match the payment with your internal data, e.g. an invoice number
+        $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
+        $this->invoice->number // A number to match the payment with your internal data, e.g. an invoice number
     );
 
     $qrBill->setPaymentReference(
@@ -102,19 +118,20 @@ class SwissQrGenerator
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
         QrBill\DataGroup\Element\AdditionalInformation::create(
-            'Invoice 123456, Gardening work'
+            $this->invoice->public_notes ?: ''
         )
     );
 
+
     // Now get the QR code image and save it as a file.
     try {
-        $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.png');
-        $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.svg');
-    } catch (Exception $e) {
-    	foreach($qrBill->getViolations() as $violation) {
-    		print $violation->getMessage()."\n";
+        // $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.png');
+        // $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.svg');
+    } catch (\Exception $e) {
+    	foreach($qrBill->getViolations() as $key => $violation) {
     	}
-    	exit;
+
+        // return $e->getMessage();
     }
 
     $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, 'en');
@@ -123,11 +140,7 @@ class SwissQrGenerator
         ->setPrintable(false)
         ->getPaymentPart();
 
-    // Next: Output full payment parts, depending on the format you want to use:
-    //
-    // - FpdfOutput/fpdf-example.php
-    // - HtmlOutput/html-example.php
-    // - TcPdfOutput/tcpdf-example.php
+        return $html;
     }
 
 }
