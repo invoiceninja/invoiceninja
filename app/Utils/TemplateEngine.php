@@ -27,6 +27,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
+use App\Utils\VendorHtmlEngine;
 use DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
@@ -157,7 +158,8 @@ class TemplateEngine
         }
         elseif ($this->entity_obj) {
             $this->entityValues($this->entity_obj->client->primary_contact()->first());
-        } else {
+        } 
+        else {
             $this->fakerValues();
         }
 
@@ -184,11 +186,13 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
+        if($this->entity == 'purchase_order')
+            $this->labels_and_values = (new VendorHtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
+        else
+            $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
 
         $this->body = strtr($this->body, $this->labels_and_values['labels']);
         $this->body = strtr($this->body, $this->labels_and_values['values']);
-//        $this->body = str_replace("\n", "<br>", $this->body);
 
         $this->subject = strtr($this->subject, $this->labels_and_values['labels']);
         $this->subject = strtr($this->subject, $this->labels_and_values['values']);
@@ -219,6 +223,7 @@ class TemplateEngine
             $data['whitelabel'] = $this->entity_obj ? $this->entity_obj->company->account->isPaid() : true;
             $data['company'] = $this->entity_obj ? $this->entity_obj->company : '';
             $data['settings'] = $this->settings;
+
         }
 
 
@@ -263,6 +268,9 @@ class TemplateEngine
 
     private function mockEntity()
     {
+        if(!$this->entity && $this->template && str_contains($this->template, 'purchase_order'))
+            $this->entity = 'purchase_order';
+
         DB::connection(config('database.default'))->beginTransaction();
 
         $vendor = false;
