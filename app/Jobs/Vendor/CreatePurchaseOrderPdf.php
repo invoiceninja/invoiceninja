@@ -96,10 +96,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
             try{
                 
-                if(!Storage::disk($this->disk)->exists($path)) 
-                    Storage::disk($this->disk)->makeDirectory($path, 0775);
+                if(!Storage::disk($this->disk)->exists($this->path)) 
+                    Storage::disk($this->disk)->makeDirectory($this->path, 0775);
 
-                Storage::disk($this->disk)->put($file_path, $pdf, 'public');
+                Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
 
             }
             catch(\Exception $e)
@@ -135,10 +135,10 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         $entity_design_id = '';
         
-        $path = $this->vendor->purchase_order_filepath($this->invitation);
+        $this->path = $this->vendor->purchase_order_filepath($this->invitation);
         $entity_design_id = 'purchase_order_design_id';
 
-        $file_path = $path.$this->entity->numberFormatter().'.pdf';
+        $this->file_path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey('Wpmbk5ezJn');
 
