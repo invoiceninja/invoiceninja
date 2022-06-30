@@ -373,6 +373,8 @@ class Account extends BaseModel
 
     public function getDailyEmailLimit()
     {
+        if($this->is_flagged)
+            return 0;
 
         if(Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0)
             return 20;
