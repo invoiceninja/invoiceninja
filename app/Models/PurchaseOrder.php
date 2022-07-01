@@ -153,7 +153,7 @@ class PurchaseOrder extends BaseModel
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function history()
