@@ -633,10 +633,22 @@ class PurchaseOrderController extends BaseController
                 //check query parameter for email_type and set the template else use calculateTemplate
                 PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
 
-
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
+
+            case 'cancel':
+
+                if($purchase_order->status_id <= PurchaseOrder::STATUS_SENT)
+                {
+                    $purchase_order->status_id = PurchaseOrder::STATUS_CANCELLED;
+                    $purchase_order->save();
+                }
+                
+                if (! $bulk) {
+                    return $this->listResponse($purchase_order);
+                }
+                break;
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);

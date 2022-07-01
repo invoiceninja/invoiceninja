@@ -51,7 +51,6 @@ class PurchaseOrderService
 
         // //TODO implement design, footer, terms
 
-
         // /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         // if (!isset($this->purchase_order->exchange_rate) && $this->purchase_order->client->currency()->id != (int)$this->purchase_order->company->settings->currency_id)
         //     $this->purchase_order->exchange_rate = $this->purchase_order->client->currency()->exchange_rate;
@@ -88,7 +87,6 @@ class PurchaseOrderService
 
         return $this;
     }
-
 
     public function touchPdf($force = false)
     {

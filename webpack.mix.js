@@ -11,6 +11,14 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/authorize-credit-card-payment.js"
     )
     .js(
+        "resources/js/clients/payments/forte-credit-card-payment.js",
+        "public/js/clients/payments/forte-credit-card-payment.js"
+    )
+    .js(
+        "resources/js/clients/payments/forte-ach-payment.js",
+        "public/js/clients/payments/forte-ach-payment.js"
+    )
+    .js(
         "resources/js/clients/payments/stripe-ach.js",
         "public/js/clients/payments/stripe-ach.js"
     )

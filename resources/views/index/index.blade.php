@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-user-agent="{{ $user_agent }}" data-login="{{ $login }}">
+<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-user-agent="{{ $user_agent }}" data-login="{{ $login }}" data-signup="{{ $signup }}">
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ config('ninja.app_version') }} -->
@@ -152,6 +152,12 @@
 
   <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
 
+
+  <script type="text/javascript" 
+    src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"
+    integrity="sha384-ggh+EF1aSqm+Y4yvv2n17KpurNcZTeYtUZUvhPziElsstmIEubyEB6AIVpKLuZgr"
+    crossorigin="anonymous">
+  </script>
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
   </center>
