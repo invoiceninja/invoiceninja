@@ -60,6 +60,8 @@ class Design extends BaseDesign
 
     public $company;
 
+    public $client_or_vendor_entity;
+
     /** @var array */
     public $aging = [];
 
@@ -803,7 +805,7 @@ class Design extends BaseDesign
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->client_or_vendor_entity), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
@@ -816,13 +818,13 @@ class Design extends BaseDesign
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->client_or_vendor_entity), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = (int)$this->entity->{$_variable} != 0 || $this->entity->{$_variable} != '0' || !$this->entity->{$_variable};
+                $visible = (int)$this->entity->{$_variable} > 0 || (int)$this->entity->{$_variable} < 0 || !$this->entity->{$_variable};
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
