@@ -109,7 +109,7 @@ class TemplateEngine
             $this->settings_entity = auth()->user()->company();
             $this->settings = $this->settings_entity->settings;
         }
-        elseif ($this->entity_obj) {
+        elseif ($this->entity_obj->client()->exists()) {
             $this->settings_entity = $this->entity_obj->client;
             $this->settings = $this->settings_entity->getMergedSettings();
         } else {
