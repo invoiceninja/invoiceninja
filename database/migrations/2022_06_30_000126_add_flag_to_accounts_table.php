@@ -15,6 +15,7 @@ class AddFlagToAccountsTable extends Migration
     {
         Schema::table('accounts', function (Blueprint $table) {
             $table->boolean('is_flagged')->default(0);
+            $table->boolean('is_verified_account')->default(0);
         });
     }
 

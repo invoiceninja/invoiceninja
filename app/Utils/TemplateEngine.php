@@ -84,6 +84,10 @@ class TemplateEngine
 
     public function build()
     {
+        
+        if ($this->template == 'email_template_null')
+            $this->template = 'email_template_purchase_order';
+
         return $this->setEntity()
                  ->setSettingsObject()
                  ->setTemplates()
@@ -105,11 +109,11 @@ class TemplateEngine
 
     private function setSettingsObject()
     {
-        if($this->entity == 'purchase_order'){
+        if($this->entity == 'purchaseOrder'){
             $this->settings_entity = auth()->user()->company();
             $this->settings = $this->settings_entity->settings;
         }
-        elseif ($this->entity_obj) {
+        elseif ($this->entity_obj->client()->exists()) {
             $this->settings_entity = $this->entity_obj->client;
             $this->settings = $this->settings_entity->getMergedSettings();
         } else {
@@ -153,10 +157,10 @@ class TemplateEngine
         $this->raw_body = $this->body;
         $this->raw_subject  = $this->subject;
 
-        if($this->entity == 'purchase_order'){
+        if($this->entity == 'purchaseOrder'){
             $this->fakerValues();
         }
-        elseif ($this->entity_obj) {
+        elseif ($this->entity_obj->client()->exists()) {
             $this->entityValues($this->entity_obj->client->primary_contact()->first());
         } 
         else {
@@ -186,7 +190,7 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        if($this->entity == 'purchase_order')
+        if($this->entity == 'purchaseOrder')
             $this->labels_and_values = (new VendorHtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
         else
             $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
@@ -214,7 +218,7 @@ class TemplateEngine
         $data['footer'] = '';
         $data['logo'] = auth()->user()->company()->present()->logo();
 
-        if($this->entity_obj->client)
+        if($this->entity_obj->client()->exists())
             $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
         else{
 
@@ -269,7 +273,7 @@ class TemplateEngine
     private function mockEntity()
     {
         if(!$this->entity && $this->template && str_contains($this->template, 'purchase_order'))
-            $this->entity = 'purchase_order';
+            $this->entity = 'purchaseOrder';
 
         DB::connection(config('database.default'))->beginTransaction();
 
@@ -323,7 +327,7 @@ class TemplateEngine
 
 
 
-        if($this->entity == 'purchase_order')
+        if($this->entity == 'purchaseOrder')
         {
 
             $vendor = Vendor::factory()->create([
