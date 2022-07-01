@@ -158,7 +158,7 @@ class UserController extends BaseController
      */
     public function create(CreateUserRequest $request)
     {
-        $user = UserFactory::create(auth()->user()->account->id);
+        $user = UserFactory::create(auth()->user()->account_id);
 
         return $this->itemResponse($user);
     }
@@ -396,7 +396,7 @@ class UserController extends BaseController
             UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
         }
 
-        $user->company_users()->update(["permissions_updated_at" => now()]);        
+       // $user->company_users()->update(["permissions_updated_at" => now()]);        
 
         event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

@@ -20,6 +20,8 @@ Route::get('vendors', [VendorContactLoginController::class, 'catch'])->name('ven
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /*Invitation catches*/
     Route::get('purchase_order/{invitation_key}', [InvitationController::class, 'purchaseOrder']);
+    Route::get('purchase_order/{invitation_key}/download', [InvitationController::class, 'download']);
+
  //   Route::get('purchase_order/{invitation_key}/download_pdf', 'PurchaseOrderController@downloadPdf')->name('recurring_invoice.download_invitation_key');
  //   Route::get('purchase_order/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
 
@@ -39,5 +41,8 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
 
 });
+
+
+
 
 Route::fallback('BaseController@notFoundVendor');

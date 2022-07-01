@@ -235,6 +235,9 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+        if($invitation->contact->trashed())
+            $invitation->contact->restore();
+        
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
         $invoice = $invitation->invoice;

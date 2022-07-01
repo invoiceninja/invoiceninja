@@ -85,6 +85,7 @@
         "setasign/fpdi": "^2.3",
         "socialiteproviders/apple": "^5.2",
         "socialiteproviders/microsoft": "^4.1",
+        "sprain/swiss-qr-bill": "^3.2",
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^5.2",

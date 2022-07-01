@@ -17,11 +17,13 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Services\ClientPortal\InstantPayment;
@@ -95,50 +97,32 @@ class InvitationController extends Controller
 
     }
 
+    public function download(string $invitation_key)
+    {
+        $invitation = PurchaseOrderInvitation::withTrashed()
+                            ->where('key', $invitation_key)
+                            ->with('contact.vendor')
+                            ->firstOrFail();
 
+        if(!$invitation)
+            return response()->json(["message" => "no record found"], 400);
 
-    // public function routerForDownload(string $entity, string $invitation_key)
-    // {
+        $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 
-    //     set_time_limit(45);
+        // $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
 
-    //     if(Ninja::isHosted())
-    //         return $this->returnRawPdf($entity, $invitation_key);
+        $file = (new CreatePurchaseOrderPdf($invitation))->rawPdf();
 
-    //     return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
-    // }
+        $headers = ['Content-Type' => 'application/pdf'];
 
-    // private function returnRawPdf(string $entity, string $invitation_key)
-    // {
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
 
-    //     if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
-    //         return response()->json(['message' => 'Invalid resource request']);
+        return response()->streamDownload(function () use($file) {
+                echo $file;
+        },  $file_name, $headers);
+    }
 
-    //     $key = $entity.'_id';
-
-    //     $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
-
-    //     $invitation = $entity_obj::where('key', $invitation_key)
-    //                                 ->with('contact.client')
-    //                                 ->firstOrFail();
-
-    //     if(!$invitation)
-    //         return response()->json(["message" => "no record found"], 400);
-
-    //     $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
-
-    //     $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
-
-    //     $headers = ['Content-Type' => 'application/pdf'];
-
-    //     if(request()->input('inline') == 'true')
-    //         $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
-
-    //     return response()->streamDownload(function () use($file) {
-    //             echo $file;
-    //     },  $file_name, $headers);
-
-    // }
 
 
 

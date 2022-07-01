@@ -34,7 +34,6 @@ class PurchaseOrder extends BaseModel
         'discount',
         'company_id',
         'status_id',
-        'user_id',
         'last_sent_date',
         'is_deleted',
         'po_number',
@@ -84,7 +83,7 @@ class PurchaseOrder extends BaseModel
         'balance',
         'partial',
         'paid_to_date',
-        'subscription_id',
+        // 'subscription_id',
         'vendor_id',
         'last_viewed'
     ];
@@ -154,7 +153,7 @@ class PurchaseOrder extends BaseModel
 
     public function vendor()
     {
-        return $this->belongsTo(Vendor::class);
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function history()

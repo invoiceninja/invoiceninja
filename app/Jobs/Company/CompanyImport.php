@@ -1423,21 +1423,21 @@ class CompanyImport implements ShouldQueue
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextInvoiceNumber($client = Client::find($obj_array['client_id']),$new_obj);
+                $new_obj->number = $this->getNextInvoiceNumber($client = Client::withTrashed()->find($obj_array['client_id']),$new_obj);
             }
             elseif($class == 'App\Models\Payment' && is_null($obj->{$match_key})){
                 $new_obj = new Payment();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextPaymentNumber($client = Client::find($obj_array['client_id']), $new_obj);
+                $new_obj->number = $this->getNextPaymentNumber($client = Client::withTrashed()->find($obj_array['client_id']), $new_obj);
             }
             elseif($class == 'App\Models\Quote' && is_null($obj->{$match_key})){
                 $new_obj = new Quote();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextQuoteNumber($client = Client::find($obj_array['client_id']), $new_obj);
+                $new_obj->number = $this->getNextQuoteNumber($client = Client::withTrashed()->find($obj_array['client_id']), $new_obj);
             }
             elseif($class == 'App\Models\ClientContact'){
                 $new_obj = new ClientContact();

@@ -124,7 +124,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/expenses/', $data)
+        ])->postJson('/api/v1/expenses/', $data)
             ->assertStatus(200);
 
 
@@ -137,7 +137,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/expenses/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/expenses/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -148,19 +148,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/expenses/bulk?action=archive', $data)
+        ])->postJson('/api/v1/expenses/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/expenses/bulk?action=restore', $data)
+        ])->postJson('/api/v1/expenses/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/expenses/bulk?action=delete', $data)
+        ])->postJson('/api/v1/expenses/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -183,7 +183,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/', $data)
+        ])->postJson('/api/v1/vendors/', $data)
             ->assertStatus(200);
 
 
@@ -197,7 +197,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/vendors/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/vendors/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -208,19 +208,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=archive', $data)
+        ])->postJson('/api/v1/vendors/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=restore', $data)
+        ])->postJson('/api/v1/vendors/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=delete', $data)
+        ])->postJson('/api/v1/vendors/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -245,7 +245,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/tasks/', $data)
+        ])->postJson('/api/v1/tasks/', $data)
         ->assertStatus(200);
 
 
@@ -259,7 +259,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/tasks/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/tasks/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -270,19 +270,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/tasks/bulk?action=archive', $data)
+        ])->postJson('/api/v1/tasks/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/tasks/bulk?action=restore', $data)
+        ])->postJson('/api/v1/tasks/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/tasks/bulk?action=delete', $data)
+        ])->postJson('/api/v1/tasks/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -306,7 +306,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/credits/', $data)
+        ])->postJson('/api/v1/credits/', $data)
         ->assertStatus(200);
 
 
@@ -320,7 +320,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/credits/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/credits/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -331,19 +331,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/credits/bulk?action=archive', $data)
+        ])->postJson('/api/v1/credits/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/credits/bulk?action=restore', $data)
+        ])->postJson('/api/v1/credits/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/credits/bulk?action=delete', $data)
+        ])->postJson('/api/v1/credits/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -368,7 +368,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/', $data)
+        ])->postJson('/api/v1/quotes/', $data)
         ->assertStatus(200);
 
 
@@ -382,7 +382,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/quotes/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/quotes/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -397,25 +397,25 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/bulk?action=archive', $data)
+        ])->postJson('/api/v1/quotes/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/bulk?action=restore', $data)
+        ])->postJson('/api/v1/quotes/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/bulk?action=approve', $data)
+        ])->postJson('/api/v1/quotes/bulk?action=approve', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/bulk?action=delete', $data)
+        ])->postJson('/api/v1/quotes/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -449,7 +449,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments?include=invoices', $data)
+        ])->postJson('/api/v1/payments?include=invoices', $data)
         ->assertStatus(200);
 
         $arr = $response->json();
@@ -461,7 +461,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/payments/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/payments/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
         $data = [
@@ -471,19 +471,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/bulk?action=archive', $data)
+        ])->postJson('/api/v1/payments/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/bulk?action=restore', $data)
+        ])->postJson('/api/v1/payments/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/bulk?action=delete', $data)
+        ])->postJson('/api/v1/payments/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -507,7 +507,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/', $data)
+        ])->postJson('/api/v1/invoices/', $data)
         ->assertStatus(200);
 
 
@@ -521,7 +521,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/invoices/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -532,19 +532,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk?action=archive', $data)
+        ])->postJson('/api/v1/invoices/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk?action=restore', $data)
+        ])->postJson('/api/v1/invoices/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk?action=delete', $data)
+        ])->postJson('/api/v1/invoices/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -571,7 +571,7 @@ class EventTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_invoices/', $data);
+            ])->postJson('/api/v1/recurring_invoices/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
         }
@@ -590,7 +590,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/recurring_invoices/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/recurring_invoices/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -601,19 +601,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/recurring_invoices/bulk?action=archive', $data)
+        ])->postJson('/api/v1/recurring_invoices/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/recurring_invoices/bulk?action=restore', $data)
+        ])->postJson('/api/v1/recurring_invoices/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/recurring_invoices/bulk?action=delete', $data)
+        ])->postJson('/api/v1/recurring_invoices/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -636,7 +636,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/', $data)
+        ])->postJson('/api/v1/clients/', $data)
             ->assertStatus(200);
 
 
@@ -650,7 +650,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/clients/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/clients/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -661,19 +661,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=archive', $data)
+        ])->postJson('/api/v1/clients/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=restore', $data)
+        ])->postJson('/api/v1/clients/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=delete', $data)
+        ])->postJson('/api/v1/clients/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -705,7 +705,7 @@ class EventTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data)
+        ])->postJson('/api/v1/users?include=company_user', $data)
           ->assertStatus(200);
        
         $arr = $response->json();
@@ -725,7 +725,7 @@ class EventTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->put('/api/v1/users/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/users/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -737,21 +737,21 @@ class EventTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users/bulk?action=archive', $data)
+        ])->postJson('/api/v1/users/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users/bulk?action=restore', $data)
+        ])->postJson('/api/v1/users/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users/bulk?action=delete', $data)
+        ])->postJson('/api/v1/users/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -772,7 +772,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions/', $data)
+        ])->postJson('/api/v1/subscriptions/', $data)
             ->assertStatus(200);
 
 
@@ -785,7 +785,7 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/subscriptions/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/subscriptions/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -796,19 +796,19 @@ class EventTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions/bulk?action=archive', $data)
+        ])->postJson('/api/v1/subscriptions/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions/bulk?action=restore', $data)
+        ])->postJson('/api/v1/subscriptions/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions/bulk?action=delete', $data)
+        ])->postJson('/api/v1/subscriptions/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 
@@ -833,7 +833,7 @@ public function PurchaseOrderEvents()
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/purchase_orders/', $data)
+        ])->postJson('/api/v1/purchase_orders/', $data)
         ->assertStatus(200);
 
 
@@ -847,7 +847,7 @@ public function PurchaseOrderEvents()
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
+        ])->putJson('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
         ->assertStatus(200);
 
 
@@ -862,25 +862,25 @@ public function PurchaseOrderEvents()
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/purchase_orders/bulk?action=archive', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=archive', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/purchase_orders/bulk?action=restore', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=restore', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/purchase_orders/bulk?action=approve', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=approve', $data)
         ->assertStatus(200);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/purchase_orders/bulk?action=delete', $data)
+        ])->postJson('/api/v1/purchase_orders/bulk?action=delete', $data)
         ->assertStatus(200);
     }
 

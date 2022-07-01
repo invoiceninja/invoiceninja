@@ -111,6 +111,10 @@ trait AppSetup
                 'subject' => EmailTemplateDefaults::emailCreditSubject(),
                 'body' => EmailTemplateDefaults::emailCreditTemplate(),
             ],
+            'purchase_order' => [
+                'subject' => EmailTemplateDefaults::emailPurchaseOrderSubject(),
+                'body' => EmailTemplateDefaults::emailPurchaseOrderTemplate(),
+            ],
         ];
 
         Cache::forever($name, $data);

@@ -332,11 +332,6 @@ class LoginController extends BaseController
         if (request()->input('provider') == 'google') {
             return $this->handleGoogleOauth();
         } elseif (request()->input('provider') == 'microsoft') {
-            // if (request()->has('token')) {
-            //     return $this->handleSocialiteLogin('microsoft', request()->get('token'));
-            // } else {
-            //     $message = 'Bearer token missing for the microsoft login';
-            // }
             return $this->handleMicrosoftOauth();
         } elseif (request()->input('provider') == 'apple') {
             // if (request()->has('token')) {
@@ -498,8 +493,10 @@ class LoginController extends BaseController
     {
         if(request()->has('accessToken'))
             $accessToken = request()->input('accessToken');
+        elseif(request()->has('access_token'))
+            $accessToken = request()->input('access_token');
         else
-            return response()->json(['message' => 'Invalid response from oauth server'], 400);
+            return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
 
         $graph = new \Microsoft\Graph\Graph();
         $graph->setAccessToken($accessToken);
@@ -510,7 +507,6 @@ class LoginController extends BaseController
 
         if($user){
 
-            $account = request()->input('account');
             $email = $user->getMail() ?: $user->getUserPrincipalName();
 
             $query = [
@@ -550,6 +546,8 @@ class LoginController extends BaseController
             return $this->createNewAccount($new_account);
 
         }
+
+        return response()->json(['message' => 'Unable to authenticate this user'], 400);
 
     }
 
@@ -698,7 +696,7 @@ class LoginController extends BaseController
         }
 
         if($provider == 'microsoft'){
-            $scopes = ['email', 'Mail.ReadWrite', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
+            $scopes = ['email', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
         }
 
@@ -770,6 +768,8 @@ class LoginController extends BaseController
 
         $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 
+        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
 
@@ -783,7 +783,8 @@ class LoginController extends BaseController
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
                 'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token']
+                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
+                'oauth_user_token_expiry' => $oauth_expiry,
             ];
 
             $user->update($update_user);

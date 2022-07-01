@@ -63,34 +63,56 @@ class PasswordProtection
 
             //user is attempting to reauth with OAuth - check the token value
             //todo expand this to include all OAuth providers
-            $user = false;
-            $google = new Google();
-            $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
-            
-            if (is_array($user)) {
-                
-                $query = [
-                    'oauth_user_id' => $google->harvestSubField($user),
-                    'oauth_provider_id'=> 'google'
-                ];
+            if(auth()->user()->oauth_provider_id == 'google')
+            {
+                $user = false;
+                $google = new Google();
+                $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
 
-                //If OAuth and user also has a password set  - check both
-                if ($existing_user = MultiDB::hasUser($query) && auth()->user()->company()->oauth_password_required && auth()->user()->has_password && Hash::check(auth()->user()->password, $x_api_password)) {
+                if (is_array($user)) {
+                    
+                    $query = [
+                        'oauth_user_id' => $google->harvestSubField($user),
+                        'oauth_provider_id'=> 'google'
+                    ];
 
-                    nlog("existing user with password");
+                    //If OAuth and user also has a password set  - check both
+                    if ($existing_user = MultiDB::hasUser($query) && auth()->user()->company()->oauth_password_required && auth()->user()->has_password && Hash::check(auth()->user()->password, $x_api_password)) {
+
+                        nlog("existing user with password");
+
+                        Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+
+                        return $next($request);
+                    }
+                    elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->company()->oauth_password_required){
+
+                        nlog("existing user without password");
+
+                        Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                        return $next($request);                    
+                    }
+                }
+
+            }
+            elseif(auth()->user()->oauth_provider_id == 'microsoft')
+            {
+                try{
+                    $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-','+',explode('.', request()->header('X-API-OAUTH-PASSWORD'))[1]))));
+                }
+                catch(\Exception $e){
+                    nlog("could not decode microsoft response");
+                    return response()->json(['message' => 'Could not decode the response from Microsoft'], 412);
+                }
+
+                if($payload->preferred_username == auth()->user()->email){
 
                     Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
-
                     return $next($request);
                 }
-                elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->company()->oauth_password_required){
-
-                    nlog("existing user without password");
-
-                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
-                    return $next($request);                    
-                }
             }
+
+
 
             return response()->json($error, 412);
 

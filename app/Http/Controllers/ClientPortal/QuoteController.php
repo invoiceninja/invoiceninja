@@ -190,7 +190,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 $quote->service()->approve(auth()->user())->save();
-                event(new QuoteWasApproved(auth()->guard('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
+                // event(new QuoteWasApproved(auth()->guard('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
 
                 if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
                     InjectSignature::dispatch($quote, request()->signature);
