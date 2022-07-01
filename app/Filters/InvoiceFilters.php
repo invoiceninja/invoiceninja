@@ -138,6 +138,14 @@ class InvoiceFilters extends QueryFilters
         });
     }
 
+    public function without_deleted_clients()
+    {
+
+        return $this->builder->whereHas('client', function ($query) {
+                        $query->where('is_deleted',0);
+                       });
+    }
+
     public function upcoming()
     {
         return $this->builder
@@ -212,7 +220,7 @@ class InvoiceFilters extends QueryFilters
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
-        } else {
+        } else {            
             return $this->builder->company()->with(['invitations.company'], ['documents.company']);
         }
 

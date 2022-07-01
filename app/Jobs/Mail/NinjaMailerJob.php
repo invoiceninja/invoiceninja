@@ -318,20 +318,25 @@ class NinjaMailerJob implements ShouldQueue
             return true;
 
         /* GMail users are uncapped */
-        if(Ninja::isHosted() && $this->nmo->settings->email_sending_method == 'gmail')
+        if(Ninja::isHosted() && ($this->nmo->settings->email_sending_method == 'gmail' || $this->nmo->settings->email_sending_method == 'office365')) 
             return false;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
             return true;
 
+        /* To handle spam users we drop all emails from flagged accounts */
         if(Ninja::isHosted() && $this->company->account && $this->nmo->company->account->is_flagged) 
             return true;
 
         /* Ensure the user has a valid email address */
         if(!str_contains($this->nmo->to_user->email, "@"))
             return true;
-        
+     
+        /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
+        if(Ninja::isHosted())
+            return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+
         return false;
     }
 
@@ -373,7 +378,7 @@ class NinjaMailerJob implements ShouldQueue
                 'form_params' => [
                     'client_id' => config('ninja.o365.client_id') ,
                     'client_secret' => config('ninja.o365.client_secret') ,
-                    'scope' => 'email Mail.ReadWrite Mail.Send offline_access profile User.Read openid',
+                    'scope' => 'email Mail.Send offline_access profile User.Read openid',
                     'grant_type' => 'refresh_token',
                     'refresh_token' => $user->oauth_user_refresh_token
                 ],

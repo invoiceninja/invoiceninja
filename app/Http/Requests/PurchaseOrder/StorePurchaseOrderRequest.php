@@ -14,12 +14,15 @@ namespace App\Http\Requests\PurchaseOrder;
 
 use App\Http\Requests\Request;
 use App\Models\PurchaseOrder;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class StorePurchaseOrderRequest extends Request
 {
     use MakesHash;
+    use CleanLineItems;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -43,8 +46,6 @@ class StorePurchaseOrderRequest extends Request
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)];
         $rules['discount']  = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-
-
         $rules['line_items'] = 'array';
 
         return $rules;
@@ -55,6 +56,12 @@ class StorePurchaseOrderRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
+
+        if (isset($input['line_items']) && is_array($input['line_items'])) 
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+
+        $input['amount'] = 0;
+        $input['balance'] = 0;
 
         $this->replace($input);
     }

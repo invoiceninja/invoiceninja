@@ -14,6 +14,7 @@ namespace App\Http\Requests\PurchaseOrder;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
@@ -21,6 +22,7 @@ class UpdatePurchaseOrderRequest extends Request
 {
     use ChecksEntityStatus;
     use MakesHash;
+    use CleanLineItems;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -56,6 +58,10 @@ class UpdatePurchaseOrderRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->purchase_order->id;
+
+        if (isset($input['line_items']) && is_array($input['line_items'])) {
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         $this->replace($input);
     }
