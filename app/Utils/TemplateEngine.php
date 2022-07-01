@@ -105,7 +105,7 @@ class TemplateEngine
 
     private function setSettingsObject()
     {
-        if($this->entity == 'purchase_order'){
+        if($this->entity == 'purchaseOrder'){
             $this->settings_entity = auth()->user()->company();
             $this->settings = $this->settings_entity->settings;
         }
@@ -153,7 +153,7 @@ class TemplateEngine
         $this->raw_body = $this->body;
         $this->raw_subject  = $this->subject;
 
-        if($this->entity == 'purchase_order'){
+        if($this->entity == 'purchaseOrder'){
             $this->fakerValues();
         }
         elseif ($this->entity_obj) {
@@ -269,7 +269,7 @@ class TemplateEngine
     private function mockEntity()
     {
         if(!$this->entity && $this->template && str_contains($this->template, 'purchase_order'))
-            $this->entity = 'purchase_order';
+            $this->entity = 'purchaseOrder';
 
         DB::connection(config('database.default'))->beginTransaction();
 
