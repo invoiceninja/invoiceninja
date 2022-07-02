@@ -60,6 +60,8 @@ class Design extends BaseDesign
 
     public $company;
 
+    public $client_or_vendor_entity;
+
     /** @var array */
     public $aging = [];
 
@@ -173,7 +175,25 @@ class Design extends BaseDesign
                     $this->sharedFooterElements(),
                 ],
             ],
+            // 'swiss-qr' => [
+            //     'id' => 'swiss-qr',
+            //     'elements' => $this->swissQrCodeElement(),
+            // ]
         ];
+    }
+
+
+    public function swissQrCodeElement() :array
+    {
+        if($this->type == self::DELIVERY_NOTE)
+            return [];
+
+        $elements = [];
+
+        if(strlen($this->company->getSetting('qr_iban')) > 5 && strlen($this->company->getSetting('besr_id')) > 1)
+            $elements[] = ['element' => 'qr_code', 'content' => '$swiss_qr', 'show_empty' => false, 'properties' => ['data-ref' => 'swiss-qr-code']];
+
+        return $elements; 
     }
 
     public function companyDetails(): array
@@ -312,7 +332,10 @@ class Design extends BaseDesign
             $_variable = explode('.', $variable)[1];
             $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
 
-            if (in_array($_variable, $_customs)) {
+            /* 2/7/2022 don't show custom values if they are empty */
+            $var = str_replace("custom", "custom_value", $_variable);
+
+            if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
                     ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
@@ -785,7 +808,7 @@ class Design extends BaseDesign
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->client_or_vendor_entity), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
@@ -798,13 +821,13 @@ class Design extends BaseDesign
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->client_or_vendor_entity), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = (int)$this->entity->{$_variable} != 0 || $this->entity->{$_variable} != '0' || !$this->entity->{$_variable};
+                $visible = (int)$this->entity->{$_variable} > 0 || (int)$this->entity->{$_variable} < 0 || !$this->entity->{$_variable};
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],

@@ -11,6 +11,7 @@
 
 namespace App\Factory;
 
+use App\Models\CompanyUser;
 use App\Models\User;
 
 class UserFactory

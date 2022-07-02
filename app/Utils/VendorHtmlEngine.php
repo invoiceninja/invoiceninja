@@ -63,6 +63,11 @@ class VendorHtmlEngine
         
         $this->vendor = $this->contact->vendor->load('company','country');
         
+        if(!$this->vendor->currency_id){
+            $this->vendor->currency_id = $this->company->settings->currency_id;
+            $this->vendor->save();
+        }
+
         $this->entity->load('vendor');
 
         $this->settings = $this->company->settings;

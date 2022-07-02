@@ -255,6 +255,7 @@ class InstantPayment
             'tokens' => $tokens,
             'payment_method_id' => $payment_method_id,
             'amount_with_fee' => $invoice_totals + $fee_totals,
+            'client' => $client,
         ];
 
         if ($is_credit_payment || $totals <= 0) {
