@@ -923,6 +923,9 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
+            if(array_key_exists('next_send_date', $resource))
+                $modified['next_send_date_client'] = $resource['next_send_date'];
+
             if(array_key_exists('created_at', $modified))
                 $modified['created_at'] = Carbon::parse($modified['created_at']);
 
