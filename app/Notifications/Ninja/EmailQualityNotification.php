@@ -11,6 +11,7 @@
 
 namespace App\Notifications\Ninja;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,11 +30,14 @@ class EmailQualityNotification extends Notification
      * @return void
      */
 
-    protected $company;
+    protected Company $company;
 
-    public function __construct($company)
+    protected string $spam_string;
+
+    public function __construct(Company $company, string $spam_string)
     {
         $this->company = $company;
+        $this->spam_string = $spam_string;
     }
 
     /**
@@ -77,7 +81,8 @@ class EmailQualityNotification extends Notification
 
         $owner = $this->company->owner();
 
-        $content .= "Owner {$owner->present()->name() } | {$owner->email}";
+        $content .= "Owner {$owner->present()->name() } | {$owner->email} \n";
+        $content .= "Spam trigger: {$this->spam_string}";
 
         return (new SlackMessage)
                 ->success()
