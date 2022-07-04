@@ -127,7 +127,7 @@ class EmailController extends BaseController
         ];
 
         if($entity == 'purchaseOrder' || $template == 'purchase_order'){
-            PurchaseOrderEmail::dispatch($entity, $entity->company, $data);
+            PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
             return;
         }
 
