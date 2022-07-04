@@ -128,7 +128,7 @@ class EmailController extends BaseController
 
         if($entity == 'purchaseOrder' || $template == 'purchase_order'){
             PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
-            return;
+            return $this->itemResponse($entity_obj);
         }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template) {
