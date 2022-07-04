@@ -84,9 +84,6 @@ class TemplateEngine
 
     public function build()
     {
-        
-        if ($this->template == 'email_template_null')
-            $this->template = 'email_template_purchase_order';
 
         return $this->setEntity()
                  ->setSettingsObject()
