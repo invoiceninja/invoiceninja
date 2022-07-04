@@ -275,7 +275,12 @@ class Import implements ShouldQueue
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
-        unlink($this->file_path);
+        try{
+            unlink($this->file_path);
+        }
+        catch(\Exception $e){
+            nlog("problem unsetting file");
+        }
     }
 
     private function fixData()

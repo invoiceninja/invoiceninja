@@ -399,7 +399,7 @@ class NinjaMailerJob implements ShouldQueue
             return false;
         }
 
-        return $user->oauth_user_refresh_token;
+        return $user->oauth_user_token;
         
     }
 

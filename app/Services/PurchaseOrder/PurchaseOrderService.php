@@ -40,7 +40,7 @@ class PurchaseOrderService
 
     public function applyNumber()
     {
-        $this->invoice = (new ApplyNumber($this->purchase_order->vendor, $this->purchase_order))->run();
+        $this->purchase_order = (new ApplyNumber($this->purchase_order->vendor, $this->purchase_order))->run();
 
         return $this;
     }
