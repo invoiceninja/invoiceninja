@@ -8,12 +8,12 @@ const RESOURCES = {
 "canvaskit/profiling/canvaskit.js": "ae2949af4efc61d28a4a80fffa1db900",
 "canvaskit/profiling/canvaskit.wasm": "95e736ab31147d1b2c7b25f11d4c32cd",
 "canvaskit/canvaskit.wasm": "4b83d89d9fecbea8ca46f2f760c5a9ba",
-"/": "0ba127947d7857ad97e39c264e308461",
+"/": "822ce4d633db3626533357f47cfc8974",
 "flutter.js": "0816e65a103ba8ba51b174eeeeb2cb67",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
-"version.json": "d72bd323e3b8e22ce5acdc247f4e6f62",
+"version.json": "8c5f080db352df2d10c481aab911e2fb",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "95db9098c58fd6db106f1116bae85a0b",
@@ -39,7 +39,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "b62641afc9ab487008e996a5c5865e56",
 "assets/NOTICES": "9b6b63256d3a6491659b71127ee9f3b6",
-"main.dart.js": "739fb98bd5601a93da8be6b4358508d2"
+"main.dart.js": "a94c1dac6570caa3cd122344d13fad8e"
 };
 
 // The application shell files that are downloaded before a service worker can

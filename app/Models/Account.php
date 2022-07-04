@@ -33,7 +33,7 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
-    private $free_plan_email_quota = 100;
+    private $free_plan_email_quota = 50;
 
     private $paid_plan_email_quota = 500;
     /**
