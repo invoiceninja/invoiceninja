@@ -17,6 +17,7 @@ use App\Http\Middleware\UserVerified;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Mail\EntitySentMailer;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -124,6 +125,11 @@ class EmailController extends BaseController
             'subject' => $subject,
             'body' => $body
         ];
+
+        if($entity == 'purchaseOrder' || $template == 'purchase_order'){
+            PurchaseOrderEmail::dispatch($entity, $entity->company, $data);
+            return;
+        }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template) {
 
