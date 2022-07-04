@@ -43,12 +43,10 @@ class ApplyNumber extends AbstractService
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
                 $this->trySaving();
-                // $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
                     $this->trySaving();
-                // $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 }
                 break;
 

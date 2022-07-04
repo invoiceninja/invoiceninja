@@ -13,6 +13,7 @@ namespace App\Http\Requests\Email;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Str;
 
 class SendEmailRequest extends Request
 {
@@ -60,7 +61,7 @@ class SendEmailRequest extends Request
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
         
         if(array_key_exists('entity', $input))
-            $input['entity'] = "App\Models\\".ucfirst($input['entity']);
+            $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
 
         $this->replace($input);
     }

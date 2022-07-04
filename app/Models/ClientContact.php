@@ -210,7 +210,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
         NinjaMailerJob::dispatch($nmo);
 
-        //$this->notify(new ClientContactResetPassword($token));
     }
 
     public function preferredLocale()
