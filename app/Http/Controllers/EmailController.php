@@ -25,6 +25,7 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Ninja;
