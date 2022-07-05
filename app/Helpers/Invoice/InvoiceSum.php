@@ -121,7 +121,7 @@ class InvoiceSum
 
     private function calculateInvoiceTaxes()
     {
-        if (strlen($this->invoice->tax_name1) > 1) {
+        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
@@ -129,7 +129,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
-        if (strlen($this->invoice->tax_name2) > 1) {
+        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate2);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
 
@@ -137,7 +137,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
-        if (strlen($this->invoice->tax_name3) > 1) {
+        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate3);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
 

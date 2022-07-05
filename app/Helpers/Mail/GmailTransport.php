@@ -41,6 +41,7 @@ class GmailTransport extends AbstractTransport
     public function __construct()
     {
         parent::__construct();
+
         $this->gmail = new Mail;
         $this->body = new \Google\Service\Gmail\Message();
 

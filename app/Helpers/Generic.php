@@ -30,9 +30,8 @@ function nlog($output, $context = []): void
         $output = print_r($output, 1);
     }
 
-    $trace = debug_backtrace();
-    //nlog( debug_backtrace()[1]['function']);
-    // \Illuminate\Support\Facades\Log::channel('invoiceninja')->info(print_r($trace[1]['class'],1), []);
+    // $trace = debug_backtrace();
+    
     if (Ninja::isHosted()) {
         try {
             info($output);
@@ -42,10 +41,3 @@ function nlog($output, $context = []): void
         \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
     }
 }
-
-// if (!function_exists('ray'))   {
-// 	function ray($payload)
-// 	{
-// 		return true;
-// 	}
-// }

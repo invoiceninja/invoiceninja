@@ -166,6 +166,6 @@ class EmailEntity implements ShouldQueue
 
     public function failed($e)
     {
-        nlog($e->getMessage());
+        // nlog($e->getMessage());
     }
 }

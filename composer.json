@@ -67,7 +67,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3.1",
-        "livewire/livewire": "^2.6",
+        "livewire/livewire": "^2.10",
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
@@ -95,7 +95,7 @@
     "require-dev": {
         "php": "^7.4|^8.0",
         "anahkiasen/former": "^4.2",
-        "barryvdh/laravel-debugbar": "^3.4",
+        "barryvdh/laravel-debugbar": "^3.6",
         "brianium/paratest": "^6.1",
         "darkaonline/l5-swagger": "8.1.0",
         "fakerphp/faker": "^1.14",
@@ -103,7 +103,8 @@
         "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
-        "phpunit/phpunit": "^9.5.10"
+        "phpunit/phpunit": "^9.5.10",
+        "spatie/laravel-ignition": "^1.0"
     },
     "autoload": {
         "psr-4": {
