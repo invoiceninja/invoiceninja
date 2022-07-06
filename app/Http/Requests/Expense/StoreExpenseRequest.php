@@ -62,7 +62,7 @@ class StoreExpenseRequest extends Request
             $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
         }
 
-        if (! array_key_exists('purchase_order_id', $input) || strlen($input['purchase_order_id']) == 0) {
+        if (array_key_exists('purchase_order_id', $input) && is_string($input['purchase_order_id'])) {
             $input['purchase_order_id'] = $this->decodePrimaryKey($input['purchase_order_id']);
         }
 
