@@ -291,7 +291,10 @@ class CompanySettings extends BaseSettings
     public $email_from_name = '';
     public $auto_archive_invoice_cancelled = false;
 
+    public $vendor_portal_enable_uploads=false;
+
     public static $casts = [
+        'vendor_portal_enable_uploads'       => 'bool',
         'besr_id'                            => 'string',
         'qr_iban'                            => 'string',
         'email_subject_purchase_order'       => 'string',

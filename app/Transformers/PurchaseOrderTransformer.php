@@ -14,6 +14,7 @@ namespace App\Transformers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderTransformer extends EntityTransformer
@@ -22,6 +23,7 @@ class PurchaseOrderTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'invitations',
+        'documents'
     ];
 
     public function includeInvitations(PurchaseOrder $purchase_order)
@@ -31,6 +33,14 @@ class PurchaseOrderTransformer extends EntityTransformer
         return $this->includeCollection($purchase_order->invitations, $transformer, PurchaseOrderInvitation::class);
     }
 
+
+    public function includeDocuments(PurchaseOrder $purchase_order)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
+    }
+    
     public function transform(PurchaseOrder $purchase_order)
     {
         return [

@@ -10,7 +10,7 @@
  */
 
 
-namespace App\Http\Requests\ClientPortal\Uploads;
+namespace App\Http\Requests\VendorPortal\Uploads;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +23,7 @@ class StoreUploadRequest extends FormRequest
      */
     public function authorize()
     {
-        return (bool) auth()->guard('contact')->user()->client->getSetting('client_portal_enable_uploads');
+        return (bool) auth()->guard('vendor')->user()->vendor->company->getSetting('vendor_portal_enable_uploads');
     }
 
     /**

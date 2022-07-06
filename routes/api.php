@@ -212,6 +212,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
     Route::resource('purchase_orders', 'PurchaseOrderController');
     Route::post('purchase_orders/bulk', 'PurchaseOrderController@bulk')->name('purchase_orders.bulk');
+    Route::put('purchase_orders/{purchase_order}/upload', 'PurchaseOrderController@upload');
+
     Route::get('purchase_orders/{purchase_order}/{action}', 'PurchaseOrderController@action')->name('purchase_orders.action');
 
     Route::get('users', 'UserController@index');
