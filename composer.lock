@@ -15242,5 +15242,5 @@
     "platform-dev": {
         "php": "^7.4|^8.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }

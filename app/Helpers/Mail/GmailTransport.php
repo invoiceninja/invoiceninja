@@ -18,6 +18,7 @@ use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\MessageConverter;
+
 /**
  * GmailTransport.
  */
@@ -53,12 +54,9 @@ class GmailTransport extends AbstractTransport
         $message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $token = $message->getHeaders()->get('GmailToken')->getValue();
-        // $message->getHeaders()->remove('GmailToken');
-
-
-
-
+        $message->getHeaders()->remove('GmailToken');
         // $this->beforeSendPerformed($message);
+
         $this->gmail->using($token);
         $this->gmail->to($message->getTo()[0]->getAddress(), $message->getTo()[0]->getName());
         $this->gmail->from($message->getFrom()[0]->getAddress(), $message->getFrom()[0]->getName());
