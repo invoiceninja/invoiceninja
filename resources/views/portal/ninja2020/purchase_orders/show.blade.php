@@ -12,7 +12,7 @@
 
 @section('body')
 
-    @if($purchase_order->company->getSetting('vendor_portal_enable_uploads') || true)
+    @if($purchase_order->company->getSetting('vendor_portal_enable_uploads'))
         @component('portal.ninja2020.purchase_orders.includes.upload', ['purchase_order' => $purchase_order]) @endcomponent
     @endif
 
