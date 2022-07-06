@@ -29,8 +29,10 @@ use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\Expense;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
+use App\Transformers\ExpenseTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -640,6 +642,16 @@ class PurchaseOrderController extends BaseController
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
+                break;
+
+            case 'expense':
+
+                if($purchase_order->expense()->exists())
+                    return response()->json(['message' => ctrans('texts.purchase_order_already_expensed')], 400);
+                    
+                $expense = $purchase_order->service()->expense();
+
+                return $this->itemResponse($purchase_order);
 
             case 'cancel':
 

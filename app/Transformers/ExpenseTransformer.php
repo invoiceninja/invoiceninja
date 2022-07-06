@@ -78,7 +78,6 @@ class ExpenseTransformer extends EntityTransformer
             'transaction_reference' => (string) $expense->transaction_reference ?: '',
             'transaction_id' => (string) $expense->transaction_id ?: '',
             'date' => $expense->date ?: '',
-            //'expense_date' => $expense->date ?: '',
             'number' => (string)$expense->number ?: '',
             'payment_date' => $expense->payment_date ?: '',
             'custom_value1' => $expense->custom_value1 ?: '',
@@ -95,6 +94,7 @@ class ExpenseTransformer extends EntityTransformer
             'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
             'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
             'entity_type' => 'expense',
+            'purchase_order_id' => (string) $this->encodePrimaryKey($expense->purchase_order_id),
         ];
     }
 }

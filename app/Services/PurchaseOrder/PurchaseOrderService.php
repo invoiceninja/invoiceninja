@@ -16,6 +16,7 @@ use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrder\ApplyNumber;
 use App\Services\PurchaseOrder\CreateInvitations;
 use App\Services\PurchaseOrder\GetPurchaseOrderPdf;
+use App\Services\PurchaseOrder\PurchaseOrderExpense;
 use App\Services\PurchaseOrder\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
@@ -113,6 +114,15 @@ class PurchaseOrderService
         }
 
         return $this;
+    }
+
+    public function expense()
+    {
+        $this->markSent();
+        
+        $expense = (new PurchaseOrderExpense($this->purchase_order))->run();
+
+        return $expense;
     }
 
     /**

@@ -72,10 +72,6 @@ class PurchaseOrder extends BaseModel
         'custom_surcharge2',
         'custom_surcharge3',
         'custom_surcharge4',
-//        'custom_surcharge_tax1',
-//        'custom_surcharge_tax2',
-//        'custom_surcharge_tax3',
-//        'custom_surcharge_tax4',
         'design_id',
         'invoice_id',
         'assigned_user_id',
@@ -83,7 +79,6 @@ class PurchaseOrder extends BaseModel
         'balance',
         'partial',
         'paid_to_date',
-        // 'subscription_id',
         'vendor_id',
         'last_viewed'
     ];
@@ -169,6 +164,11 @@ class PurchaseOrder extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function expense()
+    {
+        return $this->hasOne(Expense::class);
     }
 
     public function user()

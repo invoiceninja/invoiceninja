@@ -102,6 +102,11 @@ class Expense extends BaseModel
         return $this->belongsTo(Client::class);
     }
 
+    public function purchase_order()
+    {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
+
     public function translate_entity()
     {
         return ctrans('texts.expense');
