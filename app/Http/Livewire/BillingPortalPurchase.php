@@ -360,7 +360,7 @@ class BillingPortalPurchase extends Component
 
         $this->invoice = $this->subscription
             ->service()
-            ->createInvoice($data)
+            ->createInvoice($data, $this->quantity)
             ->service()
             ->markSent()
             ->fillDefaults()
