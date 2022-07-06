@@ -14,6 +14,7 @@ namespace App\Http\Requests\Expense;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
 use App\Models\Expense;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
@@ -41,6 +42,9 @@ class StoreExpenseRequest extends Request
         if(!empty($this->client_id))
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
+        if(!empty($this->purchase_order_id))
+            $rules['purchase_order_id'] = 'bail|sometimes|exists:purchase_orders,id,company_id,'.auth()->user()->company()->id;
+
         return $this->globalRules($rules);
     }
 
@@ -56,6 +60,10 @@ class StoreExpenseRequest extends Request
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
             $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
+        }
+
+        if (! array_key_exists('purchase_order_id', $input) || strlen($input['purchase_order_id']) == 0) {
+            $input['purchase_order_id'] = $this->decodePrimaryKey($input['purchase_order_id']);
         }
 
         if(array_key_exists('color', $input) && is_null($input['color']))

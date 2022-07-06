@@ -644,6 +644,12 @@ class PurchaseOrderController extends BaseController
                 }
                 break;
 
+            case 'add_to_inventory':
+
+                $purchase_order->service()->add_to_inventory();
+
+                return $this->itemResponse($purchase_order);
+
             case 'expense':
 
                 if($purchase_order->expense()->exists())

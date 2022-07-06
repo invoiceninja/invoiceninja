@@ -56,6 +56,7 @@ class Expense extends BaseModel
         'tax_amount3',
         'uses_inclusive_taxes',
         'calculate_tax_by_amount',
+        'purchase_order_id',
     ];
 
     protected $casts = [

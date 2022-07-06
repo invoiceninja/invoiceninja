@@ -116,6 +116,13 @@ class PurchaseOrderService
         return $this;
     }
 
+    public function add_to_inventory()
+    {
+        $this->purchase_order (new PurchaseOrderInventory($this->purchase_order))->run();
+
+        return $this;
+    }
+
     public function expense()
     {
         $this->markSent();
