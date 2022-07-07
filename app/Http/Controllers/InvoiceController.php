@@ -745,13 +745,7 @@ class InvoiceController extends BaseController
                     $this->itemResponse($invoice);
                 }
                 break;
-            // case 'reverse':
-            //     $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
 
-            //     if (! $bulk) {
-            //         $this->itemResponse($invoice);
-            //     }
-            //     break;
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
@@ -768,6 +762,24 @@ class InvoiceController extends BaseController
                     return response()->json(['message' => 'email sent'], 200);
                 }
                 break;
+
+            case 'send_email':
+                //check query parameter for email_type and set the template else use calculateTemplate
+
+
+                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
+                    $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
+                } else {
+                    $this->reminder_template = $invoice->calculateTemplate('invoice');
+                }
+
+                BulkInvoiceJob::dispatch($invoice, $this->reminder_template);
+
+                if (! $bulk) {
+                    return response()->json(['message' => 'email sent'], 200);
+                }
+                break;
+
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
