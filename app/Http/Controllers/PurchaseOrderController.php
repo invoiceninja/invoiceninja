@@ -367,6 +367,10 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $this->purchase_order_repository->save($request->all(), $purchase_order);
 
+        $purchase_order = $purchase_order->service()
+            ->triggeredActions($request)
+            ->save();
+
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order);
