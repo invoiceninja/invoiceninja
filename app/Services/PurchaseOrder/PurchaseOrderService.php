@@ -118,7 +118,10 @@ class PurchaseOrderService
 
     public function add_to_inventory()
     {
-        $this->purchase_order (new PurchaseOrderInventory($this->purchase_order))->run();
+        if($this->purchase_order->status_id >= PurchaseOrder::STATUS_RECEIVED)
+            return $this->purchase_order;
+
+        $this->purchase_order = (new PurchaseOrderInventory($this->purchase_order))->run();
 
         return $this;
     }

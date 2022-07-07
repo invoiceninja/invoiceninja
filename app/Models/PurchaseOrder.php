@@ -96,7 +96,8 @@ class PurchaseOrder extends BaseModel
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
     const STATUS_ACCEPTED = 3;
-    const STATUS_CANCELLED = 4;
+    const STATUS_RECEIVED = 4;
+    const STATUS_CANCELLED = 5;
 
     public static function stringStatus(int $status)
     {

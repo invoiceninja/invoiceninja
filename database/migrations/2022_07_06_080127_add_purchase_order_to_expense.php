@@ -1,11 +1,23 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+use App\Models\Language;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class AddPurchaseOrderToExpense extends Migration
 {
+    use AppSetup;
     /**
      * Run the migrations.
      *
@@ -16,6 +28,16 @@ class AddPurchaseOrderToExpense extends Migration
         Schema::table('expenses', function (Blueprint $table) {
             $table->unsignedInteger('purchase_order_id')->nullable()->index();
         });
+
+        PurchaseOrder::withTrashed()->where('status_id', 4)->update(['status_id' => 5]);
+
+        $l = new Language();
+        $l->name = "Bulgarian";
+        $l->locale = "bg";
+        $l->save();
+
+        $this->buildCache(true);
+
     }
 
     /**

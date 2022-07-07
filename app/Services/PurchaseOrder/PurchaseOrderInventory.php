@@ -47,6 +47,9 @@ class PurchaseOrderInventory
 
         }
 
+        $this->purchase_order->status_id = PurchaseOrder::STATUS_RECEIVED;
+        $this->purchase_order->save();
+
         return $this->purchase_order;
 
     }
