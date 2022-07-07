@@ -31,12 +31,23 @@ class AddPurchaseOrderToExpense extends Migration
 
         PurchaseOrder::withTrashed()->where('status_id', 4)->update(['status_id' => 5]);
 
-        $l = new Language();
-        $l->name = "Bulgarian";
-        $l->locale = "bg";
-        $l->save();
 
-        $this->buildCache(true);
+        $language = Language::find(33);
+
+        if(!$language)
+        {
+            Language::unguard();
+
+            $l = new Language();
+            $l->id = 33;
+            $l->name = "Bulgarian";
+            $l->locale = "bg";
+            $l->save();
+
+            Language::reguard();
+            
+            $this->buildCache(true);
+        }
 
     }
 
