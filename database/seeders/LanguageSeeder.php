@@ -56,7 +56,6 @@ class LanguageSeeder extends Seeder
             ['id' => 30, 'name' => 'Arabic', 'locale' => 'ar'],
             ['id' => 31, 'name' => 'Persian', 'locale' => 'fa'],
             ['id' => 32, 'name' => 'Latvian', 'locale' => 'lv_LV'],
-            ['id' => 33, 'name' => 'Bulgarian', 'locale' => 'bg'],
         ];
 
         foreach ($languages as $language) {

@@ -105,7 +105,7 @@ class Expense extends BaseModel
 
     public function purchase_order()
     {
-        return $this->belongsTo(PurchaseOrder::class);
+        return $this->hasOne(PurchaseOrder::class);
     }
 
     public function translate_entity()

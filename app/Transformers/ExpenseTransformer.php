@@ -94,7 +94,6 @@ class ExpenseTransformer extends EntityTransformer
             'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
             'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
             'entity_type' => 'expense',
-            'purchase_order_id' => (string) $this->encodePrimaryKey($expense->purchase_order_id),
         ];
     }
 }

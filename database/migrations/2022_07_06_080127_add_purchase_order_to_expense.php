@@ -25,26 +25,22 @@ class AddPurchaseOrderToExpense extends Migration
      */
     public function up()
     {
-        Schema::table('expenses', function (Blueprint $table) {
-            $table->unsignedInteger('purchase_order_id')->nullable()->index();
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $table->unsignedInteger('expense_id')->nullable()->index();
         });
 
         PurchaseOrder::withTrashed()->where('status_id', 4)->update(['status_id' => 5]);
 
 
-        $language = Language::find(33);
+        $language = Language::where('locale', 'bg')->first();
 
         if(!$language)
         {
-            Language::unguard();
 
             $l = new Language();
-            $l->id = 33;
             $l->name = "Bulgarian";
             $l->locale = "bg";
             $l->save();
-
-            Language::reguard();
             
             $this->buildCache(true);
         }

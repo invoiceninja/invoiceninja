@@ -169,7 +169,7 @@ class PurchaseOrder extends BaseModel
 
     public function expense()
     {
-        return $this->hasOne(Expense::class);
+        return $this->belongsTo(Expense::class);
     }
 
     public function user()

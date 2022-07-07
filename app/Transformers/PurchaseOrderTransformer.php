@@ -26,6 +26,10 @@ class PurchaseOrderTransformer extends EntityTransformer
         'documents'
     ];
 
+    protected $availableIncludes = [
+        'expense'
+    ];
+
     public function includeInvitations(PurchaseOrder $purchase_order)
     {
         $transformer = new PurchaseOrderInvitationTransformer($this->serializer);
@@ -41,6 +45,13 @@ class PurchaseOrderTransformer extends EntityTransformer
         return $this->includeCollection($purchase_order->documents, $transformer, Document::class);
     }
     
+    public function includeExpense(PurchaseOrder $purchase_order)
+    {
+        $transformer = new ExpenseTransformer($this->serializer);
+
+        return $this->includeItem($purchase_order->expense, $transformer, Document::class);
+    }
+
     public function transform(PurchaseOrder $purchase_order)
     {
         return [
@@ -103,6 +114,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'exchange_rate' => (float)$purchase_order->exchange_rate,
             'paid_to_date' => (float)$purchase_order->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($purchase_order->subscription_id),
+            'expense_id' => $this->encodePrimaryKey($purchase_order->expense_id),
         ];
     }
 
