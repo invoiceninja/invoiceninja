@@ -8,12 +8,16 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+use App\Models\Language;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFlagToAccountsTable extends Migration
+class AddPurchaseOrderToExpense extends Migration
 {
+    use AppSetup;
     /**
      * Run the migrations.
      *
@@ -21,10 +25,23 @@ class AddFlagToAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function (Blueprint $table) {
-            $table->boolean('is_flagged')->default(0);
-            $table->boolean('is_verified_account')->default(0);
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $table->unsignedInteger('expense_id')->nullable()->index();
         });
+
+        PurchaseOrder::withTrashed()->where('status_id', 4)->update(['status_id' => 5]);
+
+        $language = Language::find(36);
+
+        if(!$language){
+
+            Language::unguard();
+            Language::create(['id' => 36, 'name' => 'Bulgarian', 'locale' => 'bg']);
+
+            $this->buildCache(true);
+
+        }
+
     }
 
     /**
@@ -34,6 +51,5 @@ class AddFlagToAccountsTable extends Migration
      */
     public function down()
     {
-        
     }
 }
