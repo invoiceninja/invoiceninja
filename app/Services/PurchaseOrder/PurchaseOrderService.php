@@ -130,6 +130,9 @@ class PurchaseOrderService
     {
         $this->markSent();
         
+        if($this->purchase_order->expense()->exists())
+            return $this;
+
         $expense = (new PurchaseOrderExpense($this->purchase_order))->run();
 
         return $expense;
