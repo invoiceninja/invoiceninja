@@ -36,11 +36,23 @@ class PurchaseOrderExpense
         $expense->public_notes = $this->purchase_order->public_notes;
         $expense->uses_inclusive_taxes = $this->purchase_order->uses_inclusive_taxes;
         $expense->calculate_tax_by_amount = true;
+        $expense->private_notes = ctrans('texts.purchase_order_number_short') . " " . $this->purchase_order->number;
+
+        $line_items = $this->purchase_order->line_items;
+
+        $expense->public_notes = '';
+        
+        foreach($line_items as $line_item){
+            $expense->public_notes .= $line_item->quantity . " x " . $line_item->product_key. " [ " .$line_item->notes . " ]\n";
+        }
 
         $tax_map = $this->purchase_order->calc()->getTaxMap();
 
-        $expense->tax_amount1 = $this->purchase_order->total_taxes;
-        $expense->tax_name1 = ctrans("texts.tax");
+        if($this->purchase_order->total_taxes > 0)
+        {
+            $expense->tax_amount1 = $this->purchase_order->total_taxes;
+            $expense->tax_name1 = ctrans("texts.tax");
+        }
 
         $expense->save();
 
