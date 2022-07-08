@@ -16,6 +16,7 @@ use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrder\ApplyNumber;
 use App\Services\PurchaseOrder\CreateInvitations;
 use App\Services\PurchaseOrder\GetPurchaseOrderPdf;
+use App\Services\PurchaseOrder\PurchaseOrderExpense;
 use App\Services\PurchaseOrder\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
@@ -113,6 +114,28 @@ class PurchaseOrderService
         }
 
         return $this;
+    }
+
+    public function add_to_inventory()
+    {
+        if($this->purchase_order->status_id >= PurchaseOrder::STATUS_RECEIVED)
+            return $this->purchase_order;
+
+        $this->purchase_order = (new PurchaseOrderInventory($this->purchase_order))->run();
+
+        return $this;
+    }
+
+    public function expense()
+    {
+        $this->markSent();
+        
+        if($this->purchase_order->expense()->exists())
+            return $this;
+
+        $expense = (new PurchaseOrderExpense($this->purchase_order))->run();
+
+        return $expense;
     }
 
     /**

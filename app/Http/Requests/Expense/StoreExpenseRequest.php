@@ -14,6 +14,7 @@ namespace App\Http\Requests\Expense;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
 use App\Models\Expense;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 

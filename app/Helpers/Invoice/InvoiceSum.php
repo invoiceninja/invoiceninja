@@ -101,16 +101,12 @@ class InvoiceSum
     private function calculateCustomValues()
     {
 
-        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
@@ -155,7 +151,7 @@ class InvoiceSum
      */
     private function calculateBalance()
     {
-        //$this->invoice->balance = $this->balance($this->getTotal(), $this->invoice);
+
         $this->setCalculatedAttributes();
 
         return $this;
@@ -173,22 +169,6 @@ class InvoiceSum
     private function calculateTotals()
     {
         $this->total += $this->total_taxes;
-
-        // if (is_numeric($this->invoice->custom_value1)) {
-        //     $this->total += $this->invoice->custom_value1;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value2)) {
-        //     $this->total += $this->invoice->custom_value2;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value3)) {
-        //     $this->total += $this->invoice->custom_value3;
-        // }
-
-        // if (is_numeric($this->invoice->custom_value4)) {
-        //     $this->total += $this->invoice->custom_value4;
-        // }
 
         return $this;
     }

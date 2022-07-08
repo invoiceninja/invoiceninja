@@ -144,7 +144,7 @@ class BillingPortalPurchase extends Component
      *
      * @var int
      */
-    public $quantity = 1;
+    public $quantity;
 
     /**
      * First-hit request data (queries, locales...).
@@ -182,6 +182,8 @@ class BillingPortalPurchase extends Component
     public function mount()
     {
         MultiDB::setDb($this->company->db);
+
+        $this->quantity = 1;
 
         $this->price = $this->subscription->price;
 
@@ -358,7 +360,7 @@ class BillingPortalPurchase extends Component
 
         $this->invoice = $this->subscription
             ->service()
-            ->createInvoice($data)
+            ->createInvoice($data, $this->quantity)
             ->service()
             ->markSent()
             ->fillDefaults()
@@ -433,13 +435,14 @@ class BillingPortalPurchase extends Component
 
         if ($option == 'increment') {
             $this->quantity++;
-            return $this->price = (int)$this->price + $this->subscription->product->price;
+            $this->price = $this->subscription->promo_price * $this->quantity;
+            return $this->quantity;
         }
 
-        $this->quantity--;
-        $this->price = (int)$this->price - $this->subscription->product->price;
+            $this->quantity--;
+            $this->price = $this->subscription->promo_price * $this->quantity;
 
-        return 0;
+            return $this->quantity;
     }
 
     public function handleCoupon()
