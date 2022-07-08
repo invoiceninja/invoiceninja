@@ -781,6 +781,14 @@ class Design extends BaseDesign
             }
         }
 
+        if ($this->entity instanceof Credit) {
+            // We don't want to show Balanace due on the quotes.
+            if (in_array('$paid_to_date', $variables)) {
+                $variables = \array_diff($variables, ['$paid_to_date']);
+            }
+
+        }
+
         foreach (['discount'] as $property) {
             $variable = sprintf('%s%s', '$', $property);
 
