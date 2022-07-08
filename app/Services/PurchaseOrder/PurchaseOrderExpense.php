@@ -13,9 +13,11 @@ namespace App\Services\PurchaseOrder;
 
 use App\Factory\ExpenseFactory;
 use App\Models\PurchaseOrder;
+use App\Utils\Traits\GeneratesCounter;
 
 class PurchaseOrderExpense
 {
+    use GeneratesCounter;
 
     private PurchaseOrder $purchase_order;
 
@@ -41,7 +43,7 @@ class PurchaseOrderExpense
         $line_items = $this->purchase_order->line_items;
 
         $expense->public_notes = '';
-        
+
         foreach($line_items as $line_item){
             $expense->public_notes .= $line_item->quantity . " x " . $line_item->product_key. " [ " .$line_item->notes . " ]\n";
         }
@@ -53,6 +55,8 @@ class PurchaseOrderExpense
             $expense->tax_amount1 = $this->purchase_order->total_taxes;
             $expense->tax_name1 = ctrans("texts.tax");
         }
+
+        $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;        
 
         $expense->save();
 
