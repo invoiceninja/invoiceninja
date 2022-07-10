@@ -443,12 +443,17 @@ trait GenerateMigrationResources
         if(!Utils::isNinja())
             return $transformed;
         
-        $ninja_client = Client::where('public_id', $this->account->id)->first();
+        $db = DB_NINJA_1;
+
+        if($this->account->id > 1000000)
+            $db = DB_NINJA_2;
+
+        $ninja_client = Client::on($db)->where('public_id', $this->account->id)->first();
 
         if(!$ninja_client)
             return $transformed;
 
-        $agts = AccountGatewayToken::where('client_id', $ninja_client->id)->get();
+        $agts = AccountGatewayToken::on($db)->where('client_id', $ninja_client->id)->get();
         $is_default = true;
 
         if(count($agts) == 0) {
@@ -464,7 +469,7 @@ trait GenerateMigrationResources
             if(!$payment_method)
                 continue;
 
-            $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
+            $contact = Contact::on($db)->where('id', $payment_method->contact_id)->withTrashed()->first();
 
             $transformed[] = [
                 'id' => $payment_method->id,
