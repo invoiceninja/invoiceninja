@@ -10,33 +10,49 @@
  */
 
 namespace App\Helpers\Mail;
+
 use Illuminate\Support\Str;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\UploadSession;
-use Swift_Mime_SimpleMessage;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\MessageConverter;
 
 class Office365MailTransport extends AbstractTransport
 {
+
     public function __construct()
     {
+        parent::__construct();
     }
 
-    public function doSend(SentMessage $message, &$failedRecipients = null)
+    protected function doSend(SentMessage $message): void
     {
 
-        $message = MessageConverter::toEmail($message->getOriginalMessage());
-
-
-        $this->beforeSendPerformed($message);
+        $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $graph = new Graph();
-        $token = $message->getHeaders()->get('GmailToken')->getValue();
+        $token = $symfony_message->getHeaders()->get('GmailToken')->getValue();
 
         $graph->setAccessToken($token);
 
+
+        // foreach ($message->getAttachments() as $child) 
+        // {
+
+        //     if($child->getContentType() != 'text/plain')
+        //     {
+
+        //         $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getName() ));
+            
+        //     }
+
+        // } 
+
+
         // Special treatment if the message has too large attachments
-        $messageBody = $this->getBody($message, true);
+        $messageBody = $this->getBody($symfony_message, true);
         $messageBodySizeMb = json_encode($messageBody);
         $messageBodySizeMb = strlen($messageBodySizeMb);
         $messageBodySizeMb = $messageBodySizeMb / 1048576; //byte -> mb
@@ -138,7 +154,7 @@ class Office365MailTransport extends AbstractTransport
 
         $this->sendPerformed($message);
 
-        return $this->numberOfRecipients($message);
+        // return $this->numberOfRecipients($message);
     }
 
     /**
@@ -148,7 +164,7 @@ class Office365MailTransport extends AbstractTransport
      * @param bool $withAttachments
      * @return array
      */
-    protected function getBody(Swift_Mime_SimpleMessage $message, $withAttachments = false)
+    protected function getBody(Email $message, $withAttachments = false)
     {
         $messageData = [
             'from' => [
@@ -163,7 +179,7 @@ class Office365MailTransport extends AbstractTransport
             'replyTo' => $this->getReplyTo($message),
             'subject' => $message->getSubject(),
             'body' => [
-                'contentType' => $message->getBodyContentType() == 'text/html' ? 'html' : 'text',
+                'contentType' => $message->getHtmlBody() == 'text/html' ? 'html' : 'text',
                 'content' => $message->getBody(),
             ],
         ];
