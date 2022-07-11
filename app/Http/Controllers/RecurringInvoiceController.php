@@ -699,6 +699,15 @@ class RecurringInvoiceController extends BaseController
                 }
 
                 break;
+
+            case 'send_now':
+                $recurring_invoice = $recurring_invoice->service()->sendNow();
+
+                if (! $bulk) {
+                    $this->itemResponse($recurring_invoice);
+                }
+                
+                break;
             default:
                 // code...
                 break;
