@@ -334,11 +334,12 @@ class LoginController extends BaseController
         } elseif (request()->input('provider') == 'microsoft') {
             return $this->handleMicrosoftOauth();
         } elseif (request()->input('provider') == 'apple') {
-            // if (request()->has('token')) {
-            //     return $this->handleSocialiteLogin('apple', request()->get('token'));
-            // } else {
-            //     $message = 'Token is missing for the apple login';
-            // }
+            if (request()->has('token') || request()->has('auth_code')) {
+                $token = request()->has('token') ? request()->input('token') : request()->input('auth_code');
+                return $this->handleSocialiteLogin('apple', $token);
+            } else {
+                $message = 'Token is missing for the apple login';
+            }
         }
 
         return response()
@@ -355,6 +356,7 @@ class LoginController extends BaseController
     private function handleSocialiteLogin($provider, $token)
     {
         $user = $this->getSocialiteUser($provider, $token);
+        nlog($user);
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
         }
