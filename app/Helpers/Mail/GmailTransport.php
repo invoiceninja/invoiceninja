@@ -24,12 +24,6 @@ use Symfony\Component\Mime\MessageConverter;
 class GmailTransport extends AbstractTransport
 {
 
-    /**
-     * Create a new Gmail transport instance.
-     *
-     * @param Mail $gmail
-     * @param string $token
-     */
     public function __construct()
     {
         parent::__construct();
