@@ -83,7 +83,7 @@ class PaymentRepository extends BaseRepository {
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
-            // elseif($data['amount'] >0){
+
             else{
                 //this fixes an edge case with unapplied payments
                 $client->service()->updatePaidToDate($data['amount'])->save();

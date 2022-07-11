@@ -220,8 +220,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
 
-        if(config('ninja.notification.slack'))
-            $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
+        // if(config('ninja.notification.slack'))
+            // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
 
     }
 
