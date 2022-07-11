@@ -41,9 +41,12 @@ class TaskTransformer extends EntityTransformer
         return $this->includeCollection($task->documents, $transformer, Document::class);
     }
 
-    public function includeClient(Task $task): Item
+    public function includeClient(Task $task): ?Item
     {
         $transformer = new ClientTransformer($this->serializer);
+
+        if(!$task->client)
+            return null;
 
         return $this->includeItem($task->client, $transformer, Client::class);
     }
