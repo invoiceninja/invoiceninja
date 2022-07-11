@@ -18,7 +18,7 @@ class PaymentType extends StaticModel
      */
     public $timestamps = false;
 
-    const CREDIT = 1;
+    const CREDIT = 32;
     const ACH = 4;
     const VISA = 5;
     const MASTERCARD = 6;
