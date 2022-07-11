@@ -1437,7 +1437,7 @@ trait GenerateMigrationResources
             case PAYMENT_TYPE_BITCOIN:
                 return 31;
             case 2:
-                return 4;
+                return 1;
                 
             default:
                 return $payment_type_id;
