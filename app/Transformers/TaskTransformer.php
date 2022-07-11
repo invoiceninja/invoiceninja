@@ -14,7 +14,6 @@ namespace App\Transformers;
 use App\Models\Document;
 use App\Models\Task;
 use App\Utils\Traits\MakesHash;
-use League\Fractal\Resource\Item;
 
 /**
  * class TaskTransformer.
@@ -30,22 +29,13 @@ class TaskTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
-        'client',
-    ];
+    protected $availableIncludes = [];
 
     public function includeDocuments(Task $task)
     {
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($task->documents, $transformer, Document::class);
-    }
-
-    public function includeClient(Task $task): Item
-    {
-        $transformer = new ClientTransformer($this->serializer);
-
-        return $this->includeItem($task->client, $transformer, Client::class);
     }
 
     public function transform(Task $task)
