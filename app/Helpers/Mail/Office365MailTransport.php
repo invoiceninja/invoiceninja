@@ -10,21 +10,24 @@
  */
 
 namespace App\Helpers\Mail;
-
-use Illuminate\Mail\Transport\Transport;
 use Illuminate\Support\Str;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\UploadSession;
 use Swift_Mime_SimpleMessage;
+use Symfony\Component\Mailer\Transport\AbstractTransport;
 
-class Office365MailTransport extends Transport
+class Office365MailTransport extends AbstractTransport
 {
     public function __construct()
     {
     }
 
-    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
+    public function doSend(SentMessage $message, &$failedRecipients = null)
     {
+
+        $message = MessageConverter::toEmail($message->getOriginalMessage());
+
+
         $this->beforeSendPerformed($message);
 
         $graph = new Graph();
@@ -291,4 +294,10 @@ class Office365MailTransport extends Transport
             (array) $message->getReplyTo()
         );
     }
+
+     public function __toString(): string
+    {
+        return 'office365';
+    }
+
 }
