@@ -302,7 +302,7 @@ class BaseRepository
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
 
-            if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT && $model->status_id != Invoice::STATUS_PAID)) {
+            if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
                 //10-07-2022
                 $model->service()->updateStatus()->save();

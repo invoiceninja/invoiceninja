@@ -123,8 +123,10 @@ class RecurringService
     public function sendNow()
     {
     
-        if($this->recurring_entity instanceof RecurringInvoice)
+        if($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT){
+            $this->start()->save();
             SendRecurring::dispatchNow($this->recurring_entity, $this->recurring_entity->company->db); 
+        }
 
         return $this->recurring_entity;
 
