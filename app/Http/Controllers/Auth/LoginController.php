@@ -344,11 +344,11 @@ nlog($token);
 
 $response = Http::withHeaders(["Content-Type" => "application/x-www-form-urlencoded"])
 ->post("https://appleid.apple.com/auth/oauth2/token", [
-    'grant_type' => 'authorization_code',
-    'code' => $token,
-    'redirect_url' => config('ninja.ninja_apple_redirect_url'),
-    'client_id' => config('ninja.ninja_apple_client_id'),
-    'client_secret' => config('ninja.ninja_apple_client_secret'),
+    "grant_type" => "authorization_code",
+    "code" => $token,
+    "redirect_uri" => config('ninja.ninja_apple_redirect_url'),
+    "client_id" => config('ninja.ninja_apple_client_id'),
+    "client_secret" => config('ninja.ninja_apple_client_secret'),
   ]);
 
 nlog($response->json());
