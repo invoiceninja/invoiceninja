@@ -342,8 +342,8 @@ class LoginController extends BaseController
 
 nlog($token);
 
-$response = Http::withHeaders(["Content-Type: application/x-www-form-urlencoded"])
-->post("https://appleid.apple.com/auth/token", [
+$response = Http::withHeaders(["Content-Type" => "application/x-www-form-urlencoded"])
+->post("https://appleid.apple.com/auth/oauth2/token", [
     'grant_type' => 'authorization_code',
     'code' => $token,
     'redirect_url' => config('ninja.ninja_apple_redirect_url'),
