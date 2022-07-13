@@ -366,10 +366,6 @@ nlog($response);
 
     private function getSocialiteUser(string $provider, string $token)
     {
-        
-        if($provider == 'apple')
-            return Socialite::driver($provider)->getAccessToken($token);
-
         return Socialite::driver($provider)->userFromToken($token);
     }
 
