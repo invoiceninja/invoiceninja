@@ -46,6 +46,8 @@ use Laravel\Socialite\Facades\Socialite;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
 use Microsoft\Graph\Model;
+use Illuminate\Support\Facades\Http;
+
 
 class LoginController extends BaseController
 {
@@ -336,7 +338,20 @@ class LoginController extends BaseController
         } elseif (request()->input('provider') == 'apple') {
             if (request()->has('token') || request()->has('auth_code')) {
                 $token = request()->has('token') ? request()->input('token') : request()->input('auth_code');
-                return $this->handleSocialiteLogin('apple', $token);
+
+
+
+$response = Http::post('https://appleid.apple.com/auth/token', [
+    'grant_type' => 'authorization_code',
+    'code' => $token,
+    'redirect_uri' => config('ninja.ninja_apple_redirect_url'),
+    'client_id' => config('ninja.ninja_apple_client_id'),
+    'client_secret' => config('ninja.ninja_apple_client_secret'),
+  ]);
+
+nlog($response);
+
+                return $this->handleSocialiteLogin('apple', $response);
             } else {
                 $message = 'Token is missing for the apple login';
             }

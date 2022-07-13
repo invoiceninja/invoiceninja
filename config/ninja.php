@@ -194,5 +194,8 @@ return [
     'ninja_apple_bundle_id' => env('APPLE_BUNDLE_ID', false),
     'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false),
     'react_app_enabled' => env('REACT_APP_ENABLED', false),
+    'ninja_apple_client_id' => env('APPLE_CLIENT_ID', false),
+    'ninja_apple_client_secret' => env('APPLE_CLIENT_SECRET',false),
+    'ninja_apple_redirect_url' => env('APPLE_REDIRECT_URI',false),
 ];
 
