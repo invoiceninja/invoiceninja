@@ -341,8 +341,8 @@ class LoginController extends BaseController
 
 
 
-$response = Http::withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
-->post('https://appleid.apple.com/auth/token', [
+$response = Http::withHeaders(["Content-Type" => "application/x-www-form-urlencoded"])
+->post("https://appleid.apple.com/auth/token", [
     'grant_type' => 'authorization_code',
     'code' => $token,
     'redirect_uri' => config('ninja.ninja_apple_redirect_url'),
@@ -352,7 +352,7 @@ $response = Http::withHeaders(['Content-Type' => 'application/x-www-form-urlenco
 
 nlog($response->json());
 
-                return $this->handleSocialiteLogin('apple', $token);
+                return $this->handleSocialiteLogin('apple', $response->json());
             } else {
                 $message = 'Token is missing for the apple login';
             }
