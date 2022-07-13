@@ -350,7 +350,7 @@ $response = Http::withHeaders(['Content-Type' => 'application/x-www-form-urlenco
     'client_secret' => config('ninja.ninja_apple_client_secret'),
   ]);
 
-nlog($response);
+nlog($response->json());
 
                 return $this->handleSocialiteLogin('apple', $token);
             } else {
