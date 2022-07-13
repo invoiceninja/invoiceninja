@@ -341,17 +341,17 @@ class LoginController extends BaseController
 
 
 
-$response = Http::post('https://appleid.apple.com/auth/token', [
-    'grant_type' => 'authorization_code',
-    'code' => $token,
-    'redirect_uri' => config('ninja.ninja_apple_redirect_url'),
-    'client_id' => config('ninja.ninja_apple_client_id'),
-    'client_secret' => config('ninja.ninja_apple_client_secret'),
-  ]);
+// $response = Http::post('https://appleid.apple.com/auth/token', [
+//     'grant_type' => 'authorization_code',
+//     'code' => $token,
+//     'redirect_uri' => config('ninja.ninja_apple_redirect_url'),
+//     'client_id' => config('ninja.ninja_apple_client_id'),
+//     'client_secret' => config('ninja.ninja_apple_client_secret'),
+//   ]);
 
-nlog($response);
+// nlog($response);
 
-                return $this->handleSocialiteLogin('apple', $response);
+                return $this->handleSocialiteLogin('apple', $token);
             } else {
                 $message = 'Token is missing for the apple login';
             }
@@ -365,6 +365,10 @@ nlog($response);
 
     private function getSocialiteUser(string $provider, string $token)
     {
+        
+        if($provider == 'apple')
+            return Socialite::driver($provider)->getAccessToken($token);
+
         return Socialite::driver($provider)->userFromToken($token);
     }
 
