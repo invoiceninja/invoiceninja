@@ -336,24 +336,24 @@ class LoginController extends BaseController
         } elseif (request()->input('provider') == 'microsoft') {
             return $this->handleMicrosoftOauth();
         } elseif (request()->input('provider') == 'apple') {
-            if (request()->has('token') || request()->has('auth_code')) {
-                $token = request()->has('token') ? request()->input('token') : request()->input('auth_code');
+            if (request()->has('token') || request()->has('auth_code') || request()->has('id_token')) {
+                // $token = request()->has('token') ? request()->input('token') : request()->input('auth_code');
+                $token = request()->input('id_token');
 
+// nlog($token);
 
-nlog($token);
+// $response = Http::withHeaders(["Accept" => "application/x-www-form-urlencoded"])
+// ->post("https://appleid.apple.com/auth/oauth2/token", [
+//     "grant_type" => "authorization_code",
+//     "code" => $token,
+//     "redirect_uri" => config('ninja.ninja_apple_redirect_url'),
+//     "client_id" => config('ninja.ninja_apple_client_id'),
+//     "client_secret" => config('ninja.ninja_apple_client_secret'),
+//   ]);
 
-$response = Http::withHeaders(["Accept" => "application/x-www-form-urlencoded"])
-->post("https://appleid.apple.com/auth/oauth2/token", [
-    "grant_type" => "authorization_code",
-    "code" => $token,
-    "redirect_uri" => config('ninja.ninja_apple_redirect_url'),
-    "client_id" => config('ninja.ninja_apple_client_id'),
-    "client_secret" => config('ninja.ninja_apple_client_secret'),
-  ]);
+// nlog($response->json());
 
-nlog($response->json());
-
-                return $this->handleSocialiteLogin('apple', $response->json());
+                return $this->handleSocialiteLogin('apple', $token);
             } else {
                 $message = 'Token is missing for the apple login';
             }
