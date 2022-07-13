@@ -341,7 +341,7 @@ class LoginController extends BaseController
 
 
 
-$response = Http::withHeaders('Content-Type:' => 'application/x-www-form-urlencoded')
+$response = Http::withHeaders(['Content-Type:' => 'application/x-www-form-urlencoded'])
 ->post('https://appleid.apple.com/auth/token', [
     'grant_type' => 'authorization_code',
     'code' => $token,
