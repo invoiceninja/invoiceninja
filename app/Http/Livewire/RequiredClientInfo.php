@@ -73,6 +73,7 @@ class RequiredClientInfo extends Component
         'state',
         'postal_code',
         'country_id',
+        'shipping_country_id',
     ];
 
     protected $rules = [
