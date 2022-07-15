@@ -23,7 +23,7 @@ class ExpenseTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
-
+    
     protected $defaultIncludes = [
         'documents',
     ];
@@ -78,8 +78,7 @@ class ExpenseTransformer extends EntityTransformer
             'transaction_reference' => (string) $expense->transaction_reference ?: '',
             'transaction_id' => (string) $expense->transaction_id ?: '',
             'date' => $expense->date ?: '',
-            //'expense_date' => $expense->date ?: '',
-            'number' => (string) $expense->number ?: '',
+            'number' => (string)$expense->number ?: '',
             'payment_date' => $expense->payment_date ?: '',
             'custom_value1' => $expense->custom_value1 ?: '',
             'custom_value2' => $expense->custom_value2 ?: '',

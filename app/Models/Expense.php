@@ -56,6 +56,7 @@ class Expense extends BaseModel
         'tax_amount3',
         'uses_inclusive_taxes',
         'calculate_tax_by_amount',
+        'purchase_order_id',
     ];
 
     protected $casts = [
@@ -100,6 +101,11 @@ class Expense extends BaseModel
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function purchase_order()
+    {
+        return $this->hasOne(PurchaseOrder::class);
     }
 
     public function translate_entity()

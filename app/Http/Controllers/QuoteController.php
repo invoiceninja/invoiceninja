@@ -723,6 +723,13 @@ class QuoteController extends BaseController
 
                 return response()->json(['message'=> ctrans('texts.sent_message')], 200);
                 break;
+
+            case 'send_email':
+                $quote->service()->sendEmail();
+
+                return response()->json(['message'=> ctrans('texts.sent_message')], 200);
+                break;
+
             case 'mark_sent':
                 $quote->service()->markSent()->save();
 

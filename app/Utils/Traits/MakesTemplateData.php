@@ -200,56 +200,33 @@ trait MakesTemplateData
         $data['$task.tax_name3'] = ['value' => 'CA Sales Tax', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '$100.00', 'label' => ctrans('texts.line_total')];
 
-        //$data['$paid_to_date'] = ;
-        // $data['$your_invoice'] = ;
-        // $data['$quote'] = ;
-        // $data['$your_quote'] = ;
-        // $data['$invoice_issued_to'] = ;
-        // $data['$quote_issued_to'] = ;
-        // $data['$rate'] = ;
-        // $data['$hours'] = ;
-        // $data['$from'] = ;
-        // $data['$to'] = ;
-        // $data['$invoice_to'] = ;
-        // $data['$quote_to'] = ;
-        // $data['$details'] = ;
-        // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
-        //$data['$blank'] = ;
-        //$data['$surcharge'] = ;
-        /*
-        $data['$tax_invoice'] =
-        $data['$tax_quote'] =
-        $data['$statement'] = ;
-        $data['$statement_date'] = ;
-        $data['$your_statement'] = ;
-        $data['$statement_issued_to'] = ;
-        $data['$statement_to'] = ;
-        $data['$credit_note'] = ;
-        $data['$credit_date'] = ;
-        $data['$credit_issued_to'] = ;
-        $data['$credit_to'] = ;
-        $data['$your_credit'] = ;
-        $data['$phone'] = ;
+        $data['$vendor_name'] = ['value' => 'Joey Diaz Denkins', 'label' => ctrans('texts.vendor_name')];;
+        $data['$vendor.name'] = &$data['$vendor_name'];
+        $data['$vendor'] = &$data['$vendor_name'];
 
-        $data['$outstanding'] = ;
-        $data['$invoice_due_date'] = ;
-        $data['$quote_due_date'] = ;
-        $data['$service'] = ;
-        $data['$product_key'] = ;
-        $data['$unit_cost'] = ;
-        $data['$custom_value1'] = ;
-        $data['$custom_value2'] = ;
-        $data['$delivery_note'] = ;
-        $data['$date'] = ;
-        $data['$method'] = ;
-        $data['$payment_date'] = ;
-        $data['$reference'] = ;
-        $data['$amount'] = ;
-        $data['$amount_paid'] =;
-        	*/
+        $data['$vendor.address1'] = &$data['$address1'];
+        $data['$vendor.address2'] = &$data['$address2'];
+        $data['$vendor_address'] = ['value' => '5 Kalamazoo Way\n Jimbuckeroo\n USA 90210', 'label' => ctrans('texts.address')];
+        $data['$vendor.address'] = &$data['$vendor_address'];
+        $data['$vendor.postal_code'] = ['value' => '90210', 'label' => ctrans('texts.postal_code')];
+        $data['$vendor.public_notes'] = $data['$invoice.public_notes'];
+        $data['$vendor.city'] = &$data['$company.city'];
+        $data['$vendor.state'] = &$data['$company.state'];
+        $data['$vendor.id_number'] = &$data['$id_number'];
+        $data['$vendor.vat_number'] = &$data['$vat_number'];
+        $data['$vendor.website'] = &$data['$website'];
+        $data['$vendor.phone'] = &$data['$phone'];
+        $data['$vendor.city_state_postal'] = &$data['$city_state_postal'];
+        $data['$vendor.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$vendor.country'] = &$data['$country'];
+        $data['$vendor.email'] = &$data['$email'];
+        
+        $data['$vendor.billing_address1'] = &$data['$vendor.address1'];
+        $data['$vendor.billing_address2'] = &$data['$vendor.address2'];
+        $data['$vendor.billing_city'] = &$data['$vendor.city'];
+        $data['$vendor.billing_state'] = &$data['$vendor.state'];
+        $data['$vendor.billing_postal_code'] = &$data['$vendor.postal_code'];
+        $data['$vendor.billing_country'] = &$data['$vendor.country'];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

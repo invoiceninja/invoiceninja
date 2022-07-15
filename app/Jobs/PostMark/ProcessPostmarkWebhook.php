@@ -49,7 +49,6 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private array $request;
 
     public $invitation;
-
     /**
      * Create a new job instance.
      *
@@ -71,19 +70,19 @@ class ProcessPostmarkWebhook implements ShouldQueue
      */
     public function handle()
     {
-        MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
 
+        MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
+        
         $this->invitation = $this->discoverInvitation($this->request['MessageID']);
 
-        if (! $this->invitation) {
+        if(!$this->invitation)
             return;
-        }
 
-        if (array_key_exists('Details', $this->request)) {
+        if(array_key_exists('Details', $this->request))
             $this->invitation->email_error = $this->request['Details'];
-        }
-
-        switch ($this->request['RecordType']) {
+        
+        switch ($this->request['RecordType']) 
+        {
             case 'Delivery':
                 return $this->processDelivery();
             case 'Bounce':
@@ -93,32 +92,33 @@ class ProcessPostmarkWebhook implements ShouldQueue
             case 'Open':
                 return $this->processOpen();
             default:
-                // code...
+                # code...
                 break;
         }
+
     }
 
-    // {
-    //   "Metadata": {
+// {
+//   "Metadata": {
 //     "example": "value",
 //     "example_2": "value"
-    //   },
-    //   "RecordType": "Open",
-    //   "FirstOpen": true,
-    //   "Client": {
+//   },
+//   "RecordType": "Open",
+//   "FirstOpen": true,
+//   "Client": {
 //     "Name": "Chrome 35.0.1916.153",
 //     "Company": "Google",
 //     "Family": "Chrome"
-    //   },
-    //   "OS": {
+//   },
+//   "OS": {
 //     "Name": "OS X 10.7 Lion",
 //     "Company": "Apple Computer, Inc.",
 //     "Family": "OS X 10"
-    //   },
-    //   "Platform": "WebMail",
-    //   "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
-    //   "ReadSeconds": 5,
-    //   "Geo": {
+//   },
+//   "Platform": "WebMail",
+//   "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
+//   "ReadSeconds": 5,
+//   "Geo": {
 //     "CountryISOCode": "RS",
 //     "Country": "Serbia",
 //     "RegionISOCode": "VO",
@@ -127,81 +127,83 @@ class ProcessPostmarkWebhook implements ShouldQueue
 //     "Zip": "21000",
 //     "Coords": "45.2517,19.8369",
 //     "IP": "188.2.95.4"
-    //   },
-    //   "MessageID": "00000000-0000-0000-0000-000000000000",
-    //   "MessageStream": "outbound",
-    //   "ReceivedAt": "2022-02-06T06:37:48Z",
-    //   "Tag": "welcome-email",
-    //   "Recipient": "john@example.com"
-    // }
+//   },
+//   "MessageID": "00000000-0000-0000-0000-000000000000",
+//   "MessageStream": "outbound",
+//   "ReceivedAt": "2022-02-06T06:37:48Z",
+//   "Tag": "welcome-email",
+//   "Recipient": "john@example.com"
+// }    
 
     private function processOpen()
     {
+
         $this->invitation->opened_date = now();
         $this->invitation->save();
 
-        SystemLogger::dispatch($this->request,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_OPENED,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
+        SystemLogger::dispatch($this->request, 
+            SystemLog::CATEGORY_MAIL, 
+            SystemLog::EVENT_MAIL_OPENED, 
+            SystemLog::TYPE_WEBHOOK_RESPONSE, 
             $this->invitation->contact->client,
             $this->invitation->company
         );
+
     }
 
-    // {
-    //   "RecordType": "Delivery",
-    //   "ServerID": 23,
-    //   "MessageStream": "outbound",
-    //   "MessageID": "00000000-0000-0000-0000-000000000000",
-    //   "Recipient": "john@example.com",
-    //   "Tag": "welcome-email",
-    //   "DeliveredAt": "2021-02-21T16:34:52Z",
-    //   "Details": "Test delivery webhook details",
-    //   "Metadata": {
+// {
+//   "RecordType": "Delivery",
+//   "ServerID": 23,
+//   "MessageStream": "outbound",
+//   "MessageID": "00000000-0000-0000-0000-000000000000",
+//   "Recipient": "john@example.com",
+//   "Tag": "welcome-email",
+//   "DeliveredAt": "2021-02-21T16:34:52Z",
+//   "Details": "Test delivery webhook details",
+//   "Metadata": {
 //     "example": "value",
 //     "example_2": "value"
-    //   }
-    // }
+//   }
+// }
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
         $this->invitation->save();
 
-        SystemLogger::dispatch($this->request,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_DELIVERY,
-            SystemLog::TYPE_WEBHOOK_RESPONSE,
+        SystemLogger::dispatch($this->request, 
+            SystemLog::CATEGORY_MAIL, 
+            SystemLog::EVENT_MAIL_DELIVERY, 
+            SystemLog::TYPE_WEBHOOK_RESPONSE, 
             $this->invitation->contact->client,
             $this->invitation->company
         );
     }
 
-    // {
-    //   "Metadata": {
+// {
+//   "Metadata": {
 //     "example": "value",
 //     "example_2": "value"
-    //   },
-    //   "RecordType": "Bounce",
-    //   "ID": 42,
-    //   "Type": "HardBounce",
-    //   "TypeCode": 1,
-    //   "Name": "Hard bounce",
-    //   "Tag": "Test",
-    //   "MessageID": "00000000-0000-0000-0000-000000000000",
-    //   "ServerID": 1234,
-    //   "MessageStream": "outbound",
-    //   "Description": "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
-    //   "Details": "Test bounce details",
-    //   "Email": "john@example.com",
-    //   "From": "sender@example.com",
-    //   "BouncedAt": "2021-02-21T16:34:52Z",
-    //   "DumpAvailable": true,
-    //   "Inactive": true,
-    //   "CanActivate": true,
-    //   "Subject": "Test subject",
-    //   "Content": "Test content"
-    // }
+//   },
+//   "RecordType": "Bounce",
+//   "ID": 42,
+//   "Type": "HardBounce",
+//   "TypeCode": 1,
+//   "Name": "Hard bounce",
+//   "Tag": "Test",
+//   "MessageID": "00000000-0000-0000-0000-000000000000",
+//   "ServerID": 1234,
+//   "MessageStream": "outbound",
+//   "Description": "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
+//   "Details": "Test bounce details",
+//   "Email": "john@example.com",
+//   "From": "sender@example.com",
+//   "BouncedAt": "2021-02-21T16:34:52Z",
+//   "DumpAvailable": true,
+//   "Inactive": true,
+//   "CanActivate": true,
+//   "Subject": "Test subject",
+//   "Content": "Test content"
+// }
 
     private function processBounce()
     {
@@ -218,38 +220,39 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
 
-        if (config('ninja.notification.slack')) {
-            $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
-        }
+        // if(config('ninja.notification.slack'))
+            // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
+
     }
 
-    // {
-    //   "Metadata": {
+// {
+//   "Metadata": {
 //     "example": "value",
 //     "example_2": "value"
-    //   },
-    //   "RecordType": "SpamComplaint",
-    //   "ID": 42,
-    //   "Type": "SpamComplaint",
-    //   "TypeCode": 100001,
-    //   "Name": "Spam complaint",
-    //   "Tag": "Test",
-    //   "MessageID": "00000000-0000-0000-0000-000000000000",
-    //   "ServerID": 1234,
-    //   "MessageStream": "outbound",
-    //   "Description": "The subscriber explicitly marked this message as spam.",
-    //   "Details": "Test spam complaint details",
-    //   "Email": "john@example.com",
-    //   "From": "sender@example.com",
-    //   "BouncedAt": "2021-02-21T16:34:52Z",
-    //   "DumpAvailable": true,
-    //   "Inactive": true,
-    //   "CanActivate": false,
-    //   "Subject": "Test subject",
-    //   "Content": "Test content"
-    // }
+//   },
+//   "RecordType": "SpamComplaint",
+//   "ID": 42,
+//   "Type": "SpamComplaint",
+//   "TypeCode": 100001,
+//   "Name": "Spam complaint",
+//   "Tag": "Test",
+//   "MessageID": "00000000-0000-0000-0000-000000000000",
+//   "ServerID": 1234,
+//   "MessageStream": "outbound",
+//   "Description": "The subscriber explicitly marked this message as spam.",
+//   "Details": "Test spam complaint details",
+//   "Email": "john@example.com",
+//   "From": "sender@example.com",
+//   "BouncedAt": "2021-02-21T16:34:52Z",
+//   "DumpAvailable": true,
+//   "Inactive": true,
+//   "CanActivate": false,
+//   "Subject": "Test subject",
+//   "Content": "Test content"
+// }
     private function processSpamComplaint()
     {
+
         $this->invitation->email_status = 'spam';
         $this->invitation->save();
 
@@ -263,25 +266,24 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
 
-        if (config('ninja.notification.slack')) {
+        if(config('ninja.notification.slack'))
             $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
-        }
+
     }
 
     private function discoverInvitation($message_id)
     {
         $invitation = false;
 
-        if ($invitation = InvoiceInvitation::where('message_id', $message_id)->first()) {
+        if($invitation = InvoiceInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        } elseif ($invitation = QuoteInvitation::where('message_id', $message_id)->first()) {
+        elseif($invitation = QuoteInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        } elseif ($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first()) {
+        elseif($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        } elseif ($invitation = CreditInvitation::where('message_id', $message_id)->first()) {
+        elseif($invitation = CreditInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        } else {
+        else
             return $invitation;
-        }
     }
 }

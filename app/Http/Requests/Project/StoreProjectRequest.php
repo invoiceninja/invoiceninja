@@ -58,6 +58,6 @@ class StoreProjectRequest extends Request
 
     public function getClient($client_id)
     {
-        return Client::find($client_id);
+        return Client::withTrashed()->find($client_id);
     }
 }

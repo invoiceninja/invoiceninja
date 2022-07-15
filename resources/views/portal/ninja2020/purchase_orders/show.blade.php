@@ -3,7 +3,7 @@
 
 @push('head')
     <meta name="show-purchase_order-terms" content="false">
-    <meta name="require-purchase_order-signature" content="{{ $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_purchase_order_signature }}">
+    <meta name="require-purchase_order-signature" content="{{ $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && property_exists($settings, 'require_purchase_order_signature') && $settings->require_purchase_order_signature }}">
     @include('portal.ninja2020.components.no-cache')
     
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
@@ -12,11 +12,16 @@
 
 @section('body')
 
+    @if($purchase_order->company->getSetting('vendor_portal_enable_uploads'))
+        @component('portal.ninja2020.purchase_orders.includes.upload', ['purchase_order' => $purchase_order]) @endcomponent
+    @endif
+
     @if(in_array($purchase_order->status_id, [\App\Models\PurchaseOrder::STATUS_SENT, \App\Models\PurchaseOrder::STATUS_DRAFT]))
     <div class="mb-4">
         @include('portal.ninja2020.purchase_orders.includes.actions', ['purchase_order' => $purchase_order])
     </div>
     @else
+        <input type="hidden" id="approve-button">
         <div class="bg-white shadow sm:rounded-lg mb-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">

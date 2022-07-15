@@ -18,7 +18,7 @@ class ShowRecurringInvoiceRequest extends Request
 {
     public function authorize() : bool
     {
-        return auth()->guard('contact')->user()->client->id === $this->recurring_invoice->client_id
+        return auth()->guard('contact')->user()->client->id == $this->recurring_invoice->client_id
             && auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES;
     }
 

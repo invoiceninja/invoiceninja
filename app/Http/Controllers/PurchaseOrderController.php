@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
@@ -22,26 +23,30 @@ use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
+use App\Models\Account;
 use App\Models\Client;
+use App\Models\Expense;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
+use App\Transformers\ExpenseTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = PurchaseOrder::class;
-
     protected $entity_transformer = PurchaseOrderTransformer::class;
-
     protected $purchase_order_repository;
 
     public function __construct(PurchaseOrderRepository $purchase_order_repository)
@@ -50,7 +55,6 @@ class PurchaseOrderController extends BaseController
 
         $this->purchase_order_repository = $purchase_order_repository;
     }
-
     /**
      * Show the list of Purchase Orders.
      *
@@ -97,7 +101,6 @@ class PurchaseOrderController extends BaseController
 
         return $this->listResponse($purchase_orders);
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -143,7 +146,6 @@ class PurchaseOrderController extends BaseController
 
         return $this->itemResponse($purchase_order);
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -185,6 +187,7 @@ class PurchaseOrderController extends BaseController
      */
     public function store(StorePurchaseOrderRequest $request)
     {
+
         $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $purchase_order = $purchase_order->service()
@@ -196,7 +199,6 @@ class PurchaseOrderController extends BaseController
 
         return $this->itemResponse($purchase_order);
     }
-
     /**
      * Display the specified resource.
      *
@@ -252,7 +254,6 @@ class PurchaseOrderController extends BaseController
     {
         return $this->itemResponse($purchase_order);
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -307,7 +308,6 @@ class PurchaseOrderController extends BaseController
     {
         return $this->itemResponse($purchase_order);
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -367,11 +367,14 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $this->purchase_order_repository->save($request->all(), $purchase_order);
 
+        $purchase_order = $purchase_order->service()
+            ->triggeredActions($request)
+            ->save();
+
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($purchase_order);
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -481,6 +484,7 @@ class PurchaseOrderController extends BaseController
      */
     public function bulk()
     {
+        
         $action = request()->input('action');
 
         $ids = request()->input('ids');
@@ -498,8 +502,7 @@ class PurchaseOrderController extends BaseController
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
-                    nlog('access denied');
-
+                    nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -594,7 +597,7 @@ class PurchaseOrderController extends BaseController
     }
 
     private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)
-    {
+    {   
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'mark_sent':
@@ -608,9 +611,9 @@ class PurchaseOrderController extends BaseController
 
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
 
-                return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use($file) {
+                        echo Storage::get($file);
+                },  basename($file), ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -635,7 +638,7 @@ class PurchaseOrderController extends BaseController
                     return $this->listResponse($purchase_order);
                 }
                 break;
-
+            
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
                 PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
@@ -643,10 +646,113 @@ class PurchaseOrderController extends BaseController
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
+                break;
+
+            case 'send_email':
+                //check query parameter for email_type and set the template else use calculateTemplate
+                PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
+
+                if (! $bulk) {
+                    return response()->json(['message' => 'email sent'], 200);
+                }
+                break;
+
+            case 'add_to_inventory':
+
+                $purchase_order->service()->add_to_inventory();
+
+                return $this->itemResponse($purchase_order);
+
+            case 'expense':
+
+                if($purchase_order->expense()->exists())
+                    return response()->json(['message' => ctrans('texts.purchase_order_already_expensed')], 400);
+                    
+                $expense = $purchase_order->service()->expense();
+
+                return $this->itemResponse($purchase_order);
+
+            case 'cancel':
+
+                if($purchase_order->status_id <= PurchaseOrder::STATUS_SENT)
+                {
+                    $purchase_order->status_id = PurchaseOrder::STATUS_CANCELLED;
+                    $purchase_order->save();
+                }
+                
+                if (! $bulk) {
+                    return $this->listResponse($purchase_order);
+                }
+                break;
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
                 break;
         }
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadPurchaseOrderRequest $request
+     * @param PurchaseOrder $purchase_order
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/purchase_orders/{id}/upload",
+     *      operationId="uploadPurchaseOrder",
+     *      tags={"purchase_orders"},
+     *      summary="Uploads a document to a purchase_orders",
+     *      description="Handles the uploading of a document to a purchase_order",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Purchase Order Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Purchase Order object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadPurchaseOrderRequest $request, PurchaseOrder $purchase_order)
+    {
+
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $purchase_order);
+
+        return $this->itemResponse($purchase_order->fresh());
+
+    } 
+
 }

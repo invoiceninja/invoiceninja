@@ -60,51 +60,52 @@ class BaseController extends Controller
     protected $manager;
 
     private $first_load = [
-        'account',
-        'user.company_user',
-        'token.company_user',
-        'company.activities',
-        'company.designs.company',
-        'company.task_statuses',
-        'company.expense_categories',
-        'company.documents',
-        'company.users.company_user',
-        'company.clients.contacts.company',
-        'company.clients.gateway_tokens',
-        'company.clients.documents',
-        'company.company_gateways.gateway',
-        'company.credits.invitations.contact',
-        'company.credits.invitations.company',
-        'company.credits.documents',
-        'company.expenses.documents',
-        'company.groups.documents',
-        'company.invoices.invitations.contact',
-        'company.invoices.invitations.company',
-        'company.invoices.documents',
-        'company.products',
-        'company.products.documents',
-        'company.payments.paymentables',
-        'company.payments.documents',
-        'company.purchase_orders.documents',
-        'company.payment_terms.company',
-        'company.projects.documents',
-        'company.recurring_expenses',
-        'company.recurring_invoices',
-        'company.recurring_invoices.invitations.contact',
-        'company.recurring_invoices.invitations.company',
-        'company.recurring_invoices.documents',
-        'company.quotes.invitations.contact',
-        'company.quotes.invitations.company',
-        'company.quotes.documents',
-        'company.tasks.documents',
-        'company.subscriptions',
-        'company.tax_rates',
-        'company.tokens_hashed',
-        'company.vendors.contacts.company',
-        'company.vendors.documents',
-        'company.webhooks',
-        'company.system_logs',
-    ];
+          'account',
+          'user.company_user',
+          'token.company_user',
+          'company.activities',
+          'company.designs.company',
+          'company.task_statuses',
+          'company.expense_categories',
+          'company.documents',
+          'company.users.company_user',
+          'company.clients.contacts.company',
+          'company.clients.gateway_tokens',
+          'company.clients.documents',
+          'company.company_gateways.gateway',
+          'company.credits.invitations.contact',
+          'company.credits.invitations.company',
+          'company.credits.documents',
+          'company.expenses.documents',
+          'company.groups.documents',
+          'company.invoices.invitations.contact',
+          'company.invoices.invitations.company',
+          'company.purchase_orders.invitations',
+          'company.invoices.documents',
+          'company.products',
+          'company.products.documents',
+          'company.payments.paymentables',
+          'company.payments.documents',
+          'company.purchase_orders.documents',
+          'company.payment_terms.company',
+          'company.projects.documents',
+          'company.recurring_expenses',
+          'company.recurring_invoices',
+          'company.recurring_invoices.invitations.contact',
+          'company.recurring_invoices.invitations.company',
+          'company.recurring_invoices.documents',
+          'company.quotes.invitations.contact',
+          'company.quotes.invitations.company',
+          'company.quotes.documents',
+          'company.tasks.documents',
+          'company.subscriptions',
+          'company.tax_rates',
+          'company.tokens_hashed',
+          'company.vendors.contacts.company',
+          'company.vendors.documents',
+          'company.webhooks',
+          'company.system_logs',
+        ];
 
     private $mini_load = [
         'account',
@@ -767,6 +768,10 @@ class BaseController extends Controller
                 return redirect('/')->with(['login' => 'true']);
             }
 
+            if (request()->has('signup') && request()->input('signup') == 'true') {
+                return redirect('/')->with(['signup' => 'true']);
+            }
+
             $data = [];
 
             //pass report errors bool to front end
@@ -776,9 +781,14 @@ class BaseController extends Controller
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
             $data['login'] = request()->has('login') ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
 
             if (request()->session()->has('login')) {
                 $data['login'] = 'true';
+            }
+
+            if(request()->session()->has('signup')){
+                $data['signup'] = 'true';
             }
 
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');

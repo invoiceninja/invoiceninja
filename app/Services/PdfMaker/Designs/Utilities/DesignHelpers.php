@@ -32,10 +32,12 @@ trait DesignHelpers
 
         if (isset($this->context['vendor'])) {
             $this->vendor = $this->context['vendor'];
+            $this->client_or_vendor_entity = $this->context['vendor'];
         }
 
         if (isset($this->context['client'])) {
             $this->client = $this->context['client'];
+            $this->client_or_vendor_entity = $this->context['client'];
         }
 
         if (isset($this->context['entity'])) {

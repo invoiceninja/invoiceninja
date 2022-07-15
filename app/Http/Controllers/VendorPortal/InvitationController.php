@@ -17,11 +17,13 @@ use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Services\ClientPortal\InstantPayment;
@@ -43,37 +45,35 @@ class InvitationController extends Controller
 
     public function purchaseOrder(string $invitation_key)
     {
+
         Auth::logout();
 
         $invitation = PurchaseOrderInvitation::withTrashed()
                                     ->where('key', $invitation_key)
                                     ->whereHas('purchase_order', function ($query) {
-                                        $query->where('is_deleted', 0);
+                                         $query->where('is_deleted',0);
                                     })
                                     ->with('contact.vendor')
                                     ->first();
 
-        if (! $invitation) {
-            return abort(404, 'The resource is no longer available.');
-        }
+        if(!$invitation)
+            return abort(404,'The resource is no longer available.');
 
-        if ($invitation->contact->trashed()) {
+        if($invitation->contact->trashed())
             $invitation->contact->restore();
-        }
 
         $vendor_contact = $invitation->contact;
         $entity = 'purchase_order';
 
-        if (empty($vendor_contact->email)) {
-            $vendor_contact->email = Str::random(15).'@example.com';
-        }
-        $vendor_contact->save();
+        if(empty($vendor_contact->email))
+            $vendor_contact->email = Str::random(15) . "@example.com"; $vendor_contact->save();
 
         if (request()->has('vendor_hash') && request()->input('vendor_hash') == $invitation->contact->vendor->vendor_hash) {
             request()->session()->invalidate();
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
+
         } else {
-            nlog('else - default - login contact');
+            nlog("else - default - login contact");
             request()->session()->invalidate();
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
         }
@@ -81,55 +81,49 @@ class InvitationController extends Controller
         session()->put('is_silent', request()->has('silent'));
 
         if (auth()->guard('vendor')->user() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+
             $invitation->markViewed();
             event(new InvitationWasViewed($invitation->purchase_order, $invitation, $invitation->company, Ninja::eventVars()));
-        } else {
+            
+        }
+        else{
+
             return redirect()->route('vendor.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->purchase_order_id), 'silent' => session()->get('is_silent')]);
+
         }
 
         return redirect()->route('vendor.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->purchase_order_id)]);
+
+
     }
 
-    // public function routerForDownload(string $entity, string $invitation_key)
-    // {
+    public function download(string $invitation_key)
+    {
+        $invitation = PurchaseOrderInvitation::withTrashed()
+                            ->where('key', $invitation_key)
+                            ->with('contact.vendor')
+                            ->firstOrFail();
 
-    //     set_time_limit(45);
+        if(!$invitation)
+            return response()->json(["message" => "no record found"], 400);
 
-    //     if(Ninja::isHosted())
-    //         return $this->returnRawPdf($entity, $invitation_key);
+        $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 
-    //     return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
-    // }
+        // $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
 
-    // private function returnRawPdf(string $entity, string $invitation_key)
-    // {
+        $file = (new CreatePurchaseOrderPdf($invitation))->rawPdf();
 
-    //     if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
-    //         return response()->json(['message' => 'Invalid resource request']);
+        $headers = ['Content-Type' => 'application/pdf'];
 
-    //     $key = $entity.'_id';
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
 
-    //     $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        return response()->streamDownload(function () use($file) {
+                echo $file;
+        },  $file_name, $headers);
+    }
 
-    //     $invitation = $entity_obj::where('key', $invitation_key)
-    //                                 ->with('contact.client')
-    //                                 ->firstOrFail();
 
-    //     if(!$invitation)
-    //         return response()->json(["message" => "no record found"], 400);
 
-    //     $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 
-    //     $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
-
-    //     $headers = ['Content-Type' => 'application/pdf'];
-
-    //     if(request()->input('inline') == 'true')
-    //         $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
-
-    //     return response()->streamDownload(function () use($file) {
-    //             echo $file;
-    //     },  $file_name, $headers);
-
-    // }
 }

@@ -68,7 +68,7 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function number(string $number) :Builder
+    public function number(string $number = '') :Builder
     {
         return $this->builder->where('number', $number);
     }
@@ -136,6 +136,14 @@ class InvoiceFilters extends QueryFilters
                 $query->orWhere($table.'.is_deleted', '=', 1);
             }
         });
+    }
+
+    public function without_deleted_clients()
+    {
+
+        return $this->builder->whereHas('client', function ($query) {
+                        $query->where('is_deleted',0);
+                       });
     }
 
     public function upcoming()
@@ -213,7 +221,7 @@ class InvoiceFilters extends QueryFilters
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
-        } else {
+        } else {            
             return $this->builder->company()->with(['invitations.company'], ['documents.company']);
         }
 

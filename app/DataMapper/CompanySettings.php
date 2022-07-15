@@ -25,6 +25,9 @@ class CompanySettings extends BaseSettings
     /*Invoice*/
     public $auto_archive_invoice = false; // @implemented
 
+    public $qr_iban = ''; //@implemented
+    public $besr_id = ''; //@implemented
+
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
@@ -433,7 +436,12 @@ class CompanySettings extends BaseSettings
 
     public $auto_archive_invoice_cancelled = false;
 
+    public $vendor_portal_enable_uploads=false;
+
     public static $casts = [
+        'vendor_portal_enable_uploads'       => 'bool',
+        'besr_id'                            => 'string',
+        'qr_iban'                            => 'string',
         'email_subject_purchase_order'       => 'string',
         'email_template_purchase_order'      => 'string',
         'require_purchase_order_signature'   => 'bool',

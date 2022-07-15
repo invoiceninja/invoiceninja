@@ -39,7 +39,7 @@ class VersionCheck implements ShouldQueue
 
         nlog("latest version = {$version_file}");
 
-        if ($version_file) {
+        if (Ninja::isSelfHost() && $version_file) {
             Account::whereNotNull('id')->update(['latest_version' => $version_file]);
         }
 

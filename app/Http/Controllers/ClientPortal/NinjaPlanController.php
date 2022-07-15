@@ -25,6 +25,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
+use App\Notifications\Ninja\NewAccountNotification;
 use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -155,6 +156,9 @@ class NinjaPlanController extends Controller
         LightLogs::create(new TrialStarted())
                  ->increment()
                  ->queue();
+
+        $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
+        $ninja_company->notification(new NewAccountNotification($account, $client))->ninja();
 
         return $this->render('plan.trial_confirmed', $data);
     }

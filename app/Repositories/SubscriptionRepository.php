@@ -27,6 +27,8 @@ class SubscriptionRepository extends BaseRepository
 {
     use CleanLineItems;
 
+    public int $quantity = 1;
+
     public function save($data, Subscription $subscription): ?Subscription
     {
         $subscription->fill($data);
@@ -119,7 +121,7 @@ class SubscriptionRepository extends BaseRepository
     private function makeLineItem($product, $multiplier)
     {
         $item = new InvoiceItem;
-        $item->quantity = $product->quantity;
+        $item->quantity = $this->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
         $item->cost = $product->price * $multiplier;
