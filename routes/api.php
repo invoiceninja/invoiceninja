@@ -42,6 +42,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/{client}/purge', 'ClientController@purge')->name('clients.purge')->middleware('password_protected');
+    Route::post('clients/{client}/{mergeable_client}/merge', 'ClientController@merge')->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
