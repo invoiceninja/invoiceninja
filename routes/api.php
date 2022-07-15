@@ -158,7 +158,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', 'RecurringQuoteController@upload');
 
-    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:150,3');
+    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:300,3');
 
     Route::post('reports/clients', 'Reports\ClientReportController');
     Route::post('reports/contacts', 'Reports\ClientContactReportController');

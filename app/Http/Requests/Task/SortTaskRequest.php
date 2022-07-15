@@ -1,10 +1,10 @@
 <?php
 /**
- * Quote Ninja (https://paymentninja.com).
+ * Invoice Ninja (https://paymentninja.com).
  *
  * @link https://github.com/paymentninja/paymentninja source repository
  *
- * @copyright Copyright (c) 2022. Quote Ninja LLC (https://paymentninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://paymentninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,7 +24,7 @@ class SortTaskRequest extends Request
     {
 
         return true;
-//        return auth()->user()->can('edit', $this->task);
+
     }
 
     public function rules()
