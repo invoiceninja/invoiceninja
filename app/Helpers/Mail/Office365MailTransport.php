@@ -34,30 +34,25 @@ class Office365MailTransport extends AbstractTransport
 
         $graph = new Graph();
         $token = $symfony_message->getHeaders()->get('GmailToken')->getValue();
-        $message->getHeaders()->remove('GmailToken');
+        $symfony_message->getHeaders()->remove('GmailToken');
 
         $graph->setAccessToken($token);
 
             try {
-                $graphMessage = $graph->createRequest('POST', '/users/'.$this->getFrom().'/sendmail')
+                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
                     ->attachBody(base64_encode($message->toString()))
                     ->addHeaders(['Content-Type' => 'text/plain'])
                     ->setReturnType(\Microsoft\Graph\Model\Message::class)
                     ->execute();
             } catch (\Exception $e) {
                 sleep(5);
-                $graphMessage = $graph->createRequest('POST', '/users/'.$this->getFrom().'/sendmail')
+                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
                     ->attachBody(base64_encode($message->toString()))
                     ->addHeaders(['Content-Type' => 'text/plain'])
                     ->setReturnType(\Microsoft\Graph\Model\Message::class)
                     ->execute();
             }
         
-    }
-
-    private function getFrom()
-    {
-        return 'turbo124@outlook.com.au';
     }
 
     private function base64_encode($data)
