@@ -486,7 +486,7 @@ class LoginController extends BaseController
 
     private function handleMicrosoftOauth()
     {
-        if (request()->has('accessToken')) {
+        if (request()->has('accessToken')) 
             $accessToken = request()->input('accessToken');
         elseif(request()->has('access_token'))
             $accessToken = request()->input('access_token');

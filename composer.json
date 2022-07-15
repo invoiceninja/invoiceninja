@@ -113,7 +113,11 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
         },
-        "files": []
+        "files": [
+            "app/Helpers/TranslationHelper.php",
+            "app/Helpers/Generic.php",
+            "app/Helpers/ClientPortal.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
