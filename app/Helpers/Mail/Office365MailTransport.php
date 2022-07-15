@@ -55,11 +55,6 @@ class Office365MailTransport extends AbstractTransport
         
     }
 
-    private function base64_encode($data)
-    {
-        return rtrim(strtr(base64_encode($data), ['+' => '-', '/' => '_']), '=');
-    }
-
     public function __toString(): string
     {
         return 'office365';
