@@ -271,4 +271,8 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.purchase_order');
+    }
 }
