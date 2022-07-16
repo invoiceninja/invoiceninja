@@ -42,6 +42,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/{client}/purge', 'ClientController@purge')->name('clients.purge')->middleware('password_protected');
+    Route::post('clients/{client}/{mergeable_client}/merge', 'ClientController@merge')->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
@@ -157,7 +158,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', 'RecurringQuoteController@upload');
 
-    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:150,3');
+    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:300,3');
 
     Route::post('reports/clients', 'Reports\ClientReportController');
     Route::post('reports/contacts', 'Reports\ClientContactReportController');

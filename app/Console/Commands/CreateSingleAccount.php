@@ -400,6 +400,7 @@ class CreateSingleAccount extends Command
         $vendor = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
+                'client_id' => $client->id,
             ]);
     }
 

@@ -32,7 +32,6 @@ class PurchaseOrder extends BaseModel
     protected $fillable = [
         'number',
         'discount',
-        'company_id',
         'status_id',
         'last_sent_date',
         'is_deleted',
