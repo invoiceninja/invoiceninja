@@ -97,8 +97,20 @@ class PaymentController extends Controller
         $client = $invoice ? $invoice->client : auth()->guard('contact')->user()->client;
 
         // 09-07-2022 catch duplicate responses for invoices that already paid here.
-        if($invoice && $invoice->status_id == Invoice::STATUS_PAID)
-            abort(400, 'Invoice paid. Duplicate submission');
+        if($invoice && $invoice->status_id == Invoice::STATUS_PAID){
+
+            $data = [
+                'invoice' => $invoice,
+                'key' => false
+            ];
+
+            if ($request->query('mode') === 'fullscreen') {
+                return render('invoices.show-fullscreen', $data);
+            }
+
+            return $this->render('invoices.show', $data);
+
+        }
 
             return $gateway
                 ->driver($client)

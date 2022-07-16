@@ -123,7 +123,7 @@ class Request extends FormRequest
             }
         }
 
-        if (isset($input['invitations'])) {
+        if (isset($input['invitations']) && is_array($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
                 if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
