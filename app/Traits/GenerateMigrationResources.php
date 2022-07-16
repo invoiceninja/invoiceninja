@@ -444,11 +444,14 @@ trait GenerateMigrationResources
             return $transformed;
         
         $db = DB_NINJA_1;
+        $account_id = 20432;
 
-        if($this->account->id > 1000000)
+        if($this->account->id > 1000000){
             $db = DB_NINJA_2;
+            $account_id = 1000002;
+        }
 
-        $ninja_client = Client::on($db)->where('public_id', $this->account->id)->first();
+        $ninja_client = Client::on($db)->where('public_id', $this->account->id)->where('account_id', $account_id)->first();
 
         if(!$ninja_client)
             return $transformed;
@@ -458,7 +461,7 @@ trait GenerateMigrationResources
 
         if(count($agts) == 0) {
             $transformed[] = [
-                'client' => $ninja_client
+                'client' => $ninja_client->toArray()
             ];
         }
 
@@ -481,7 +484,7 @@ trait GenerateMigrationResources
                 'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
                 'meta' => $this->convertMeta($payment_method),
-                'client' => $contact->client->toArray(),
+                'client' => $ninja_client->toArray(),
                 'contacts' => $contact->client->contacts->toArray(),
             ];
         }
