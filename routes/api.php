@@ -31,6 +31,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FilterController;
 use App\Http\Controllers\GroupSettingController;
 use App\Http\Controllers\HostedMigrationController;

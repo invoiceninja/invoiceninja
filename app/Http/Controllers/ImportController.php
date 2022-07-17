@@ -105,7 +105,7 @@ class ImportController extends Controller
     public function import(ImportRequest $request)
     {
         $data = $request->all();
-
+nlog($data);
         if (empty($data['hash'])) {
             // Create a reference
             $data['hash'] = $hash = Str::random(32);
@@ -120,7 +120,6 @@ class ImportController extends Controller
         }
 
         unset($data['files']);
-        // CSVImport::dispatch( $data, auth()->user()->company() );
         CSVIngest::dispatch($data, auth()->user()->company());
 
         return response()->json(['message' => ctrans('texts.import_started')], 200);
