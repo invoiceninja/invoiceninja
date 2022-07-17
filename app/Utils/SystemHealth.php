@@ -34,7 +34,7 @@ class SystemHealth
         'bcmath',
     ];
 
-    private static $php_version = 7.4;
+    private static $php_version = 8.1;
 
     /**
      * Check loaded extensions / PHP version / DB Connections.
