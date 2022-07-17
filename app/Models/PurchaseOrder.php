@@ -32,7 +32,6 @@ class PurchaseOrder extends BaseModel
     protected $fillable = [
         'number',
         'discount',
-        'company_id',
         'status_id',
         'last_sent_date',
         'is_deleted',
@@ -272,4 +271,8 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.purchase_order');
+    }
 }

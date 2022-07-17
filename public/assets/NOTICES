@@ -5978,6 +5978,10 @@ google_sign_in_platform_interface
 google_sign_in_web
 image_picker_for_web
 image_picker_platform_interface
+in_app_purchase
+in_app_purchase_android
+in_app_purchase_platform_interface
+in_app_purchase_storekit
 local_auth
 package_info
 path_provider
