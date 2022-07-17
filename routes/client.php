@@ -132,6 +132,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 
 });
 
-Route::get('phantom/{entity}/{invitation_key}', [\App\Utils\PhantomJS\Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
+Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 
 Route::fallback([BaseController::class, 'notFoundClient']);

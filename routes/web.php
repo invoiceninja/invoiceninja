@@ -1,17 +1,13 @@
 <?php
 
-use App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
-use App\Http\Controllers\Gateways;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;
 use App\Http\Controllers\Gateways\Mollie3dsController;
-use App\Http\Controllers\SelfUpdateController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StripeConnectController;
 use App\Http\Controllers\UserController;

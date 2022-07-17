@@ -75,6 +75,7 @@ use App\Http\Controllers\Reports\TaskReportController;
 use App\Http\Controllers\SchedulerController;
 use App\Http\Controllers\SelfUpdateController;
 use App\Http\Controllers\StaticController;
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SubdomainController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Support\Messages\SendingController;
@@ -98,7 +99,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
 });
 
 Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
-    Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');;
+    Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
@@ -257,7 +258,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', [Support\Messages\SendingController::class]);
+    Route::post('support/messages/send', [SendingController::class]);
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);
