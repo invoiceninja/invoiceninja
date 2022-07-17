@@ -94,6 +94,9 @@ class QuoteFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
+        if($sort_col[0] == 'valid_until')
+            $sort_col[0] = 'due_date';
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 

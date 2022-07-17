@@ -90,14 +90,29 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
-        
+
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
-        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
+        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
         $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
-        $client = $invoice ? $invoice->client : auth()->user()->client;
+        $client = $invoice ? $invoice->client : auth()->guard('contact')->user()->client;
+
+        // 09-07-2022 catch duplicate responses for invoices that already paid here.
+        if($invoice && $invoice->status_id == Invoice::STATUS_PAID){
+
+            $data = [
+                'invoice' => $invoice,
+                'key' => false
+            ];
+
+            if ($request->query('mode') === 'fullscreen') {
+                return render('invoices.show-fullscreen', $data);
+            }
+
+            return $this->render('invoices.show', $data);
+
+        }
 
             return $gateway
-                // ->driver(auth()->user()->client)
                 ->driver($client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)

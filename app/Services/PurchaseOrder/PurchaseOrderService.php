@@ -48,19 +48,27 @@ class PurchaseOrderService
 
     public function fillDefaults()
     {
-        // $settings = $this->purchase_order->client->getMergedSettings();
 
-        // //TODO implement design, footer, terms
+        $settings = $this->purchase_order->company->settings;
 
-        // /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
-        // if (!isset($this->purchase_order->exchange_rate) && $this->purchase_order->client->currency()->id != (int)$this->purchase_order->company->settings->currency_id)
-        //     $this->purchase_order->exchange_rate = $this->purchase_order->client->currency()->exchange_rate;
+        if (! $this->purchase_order->design_id) 
+            $this->purchase_order->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+        
+        if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
+            $this->purchase_order->footer = $settings->purchase_order_footer;
 
-        // if (!isset($this->purchase_order->public_notes))
-        //     $this->purchase_order->public_notes = $this->purchase_order->client->public_notes;
+        if (!isset($this->purchase_order->terms)  || empty($this->purchase_order->terms)) 
+            $this->purchase_order->terms = $settings->purchase_order_terms;
 
+        if (!isset($this->purchase_order->public_notes)  || empty($this->purchase_order->public_notes)) 
+            $this->purchase_order->public_notes = $this->purchase_order->vendor->public_notes;
+        
+        if($settings->counter_number_applied == 'when_saved'){
+            $this->applyNumber()->save();
+        }
 
         return $this;
+
     }
 
     public function triggeredActions($request)

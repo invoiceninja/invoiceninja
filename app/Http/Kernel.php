@@ -44,6 +44,7 @@ use App\Http\Middleware\UrlSetDb;
 use App\Http\Middleware\UserVerified;
 use App\Http\Middleware\VendorLocale;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\VerifyHash;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -161,6 +162,7 @@ class Kernel extends HttpKernel
         'locale' => Locale::class,
         'vendor_locale' => VendorLocale::class,
         'contact_register' => ContactRegister::class,
+        'verify_hash' => VerifyHash::class,
         'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,

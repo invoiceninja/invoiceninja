@@ -40,6 +40,11 @@
                             </span>
                         </th>
                         <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                            <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
+                                {{ ctrans('texts.po_number') }}
+                            </span>
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                             <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                                 {{ ctrans('texts.invoice_date') }}
                             </span>
@@ -77,6 +82,9 @@
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $invoice->number }}
+                            </td>
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
+                                {{ $invoice->po_number }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}

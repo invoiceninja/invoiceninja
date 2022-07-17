@@ -491,4 +491,24 @@ class Account extends BaseModel
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
+    public function getTrialDays()
+    {
+        if($this->payment_id)
+            return 0;
+
+        $plan_expires = Carbon::parse($this->plan_expires);
+
+        if(!$this->payment_id && $plan_expires->gt(now())){
+
+            $diff = $plan_expires->diffInDays();
+            
+            if($diff > 14);
+                return 0;
+
+            return $diff;
+        }
+
+        return 0;
+    }
+
 }
