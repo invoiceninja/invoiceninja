@@ -62,9 +62,6 @@ class UpdateInvoiceRequest extends Request
         $rules['discount']  = 'sometimes|numeric';
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
-        // if($this->input('status_id') != Invoice::STATUS_DRAFT)
-        //     $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());
-
         return $rules;
     }
 
