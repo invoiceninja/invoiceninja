@@ -309,7 +309,6 @@ class BaseRepository
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
                 $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
 
-
             }
 
             if (! $model->design_id) 
