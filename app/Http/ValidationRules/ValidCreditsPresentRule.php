@@ -44,7 +44,7 @@ class ValidCreditsPresentRule implements Rule
     {
         //todo need to ensure the clients credits are here not random ones!
 
-        if (request()->input('credits') && is_array(request()->input('credits'))) {
+        if (request()->input('credits') && is_array(request()->input('credits')) && count(request()->input('credits')) > 0) {
             $credit_collection = Credit::whereIn('id', $this->transformKeys(array_column(request()->input('credits'), 'credit_id')))
                                        ->count();
 

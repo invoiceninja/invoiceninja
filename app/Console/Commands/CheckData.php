@@ -105,9 +105,9 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        $this->checkInvoiceBalances();        
+        $this->checkInvoiceBalances();    
+        $this->checkClientBalanceEdgeCases();    
         $this->checkPaidToDatesNew();
-
         $this->checkContacts();
         $this->checkVendorContacts();
         $this->checkEntityInvitations();
@@ -653,6 +653,39 @@ class CheckData extends Command
         }
 
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect client balances");
+    }
+
+    private function checkClientBalanceEdgeCases()
+    {
+        Client::query()
+              ->where('is_deleted',false)
+              ->where('balance', '!=', 0)
+              ->cursor()
+              ->each(function ($client){
+
+                $count = Invoice::withTrashed()
+                            ->where('client_id', $client->id)
+                            ->where('is_deleted',false)
+                            ->whereIn('status_id', [2,3])
+                            ->count();
+
+                if($count == 0){
+                    $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be 0");
+
+                    if($this->option('client_balance')){
+                        
+                        $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to 0");
+
+                        $client->balance = 0;
+                        $client->save();
+
+                    }
+
+
+                }
+
+              });
+
     }
 
     private function invoiceBalanceQuery()

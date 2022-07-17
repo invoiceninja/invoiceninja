@@ -13,6 +13,8 @@ namespace App\Transformers;
 
 use App\Models\Document;
 use App\Models\Task;
+use App\Models\TaskStatus;
+use App\Transformers\TaskStatusTransformer;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 
@@ -32,6 +34,7 @@ class TaskTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'client',
+        'status'
     ];
 
     public function includeDocuments(Task $task)
@@ -41,12 +44,26 @@ class TaskTransformer extends EntityTransformer
         return $this->includeCollection($task->documents, $transformer, Document::class);
     }
 
-    public function includeClient(Task $task): Item
+    public function includeClient(Task $task): ?Item
     {
         $transformer = new ClientTransformer($this->serializer);
 
+        if(!$task->client)
+            return null;
+
         return $this->includeItem($task->client, $transformer, Client::class);
     }
+
+    public function includeStatus(Task $task): ?Item
+    {
+        $transformer = new TaskStatusTransformer($this->serializer);
+
+        if(!$task->status)
+            return null;
+
+        return $this->includeItem($task->status, $transformer, TaskStatus::class);
+    }
+
 
     public function transform(Task $task)
     {

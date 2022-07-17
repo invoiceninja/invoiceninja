@@ -656,4 +656,84 @@ class ClientController extends BaseController
         //todo add an event here using the client name as reference for purge event
     }
 
+/**
+     * Update the specified resource in storage.
+     *
+     * @param PurgeClientRequest $request
+     * @param Client $client
+     * @param string $mergeable client hashed_id
+     * @return Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/clients/{id}/{mergaeble_client_hashed_id}/merge",
+     *      operationId="mergeClient",
+     *      tags={"clients"},
+     *      summary="Merges two clients",
+     *      description="Handles merging 2 clients",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Client Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Parameter(
+     *          name="mergeable_client_hashedid",
+     *          in="path",
+     *          description="The Mergeable Client Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit")
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+
+    public function merge(PurgeClientRequest $request, Client $client, string $mergeable_client)
+    {
+        
+        $m_client = Client::withTrashed()
+                            ->where('id', $this->decodePrimaryKey($mergeable_client))
+                            ->where('company_id', auth()->user()->company()->id)
+                            ->first();
+
+        if(!$m_client)
+            return response()->json(['message' => "Client not found"]);
+
+        $merged_client = $client->service()->merge($m_client)->save();
+
+        return $this->itemResponse($merged_client);
+
+    }
+
 }

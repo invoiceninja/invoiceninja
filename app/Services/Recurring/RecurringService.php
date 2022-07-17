@@ -11,6 +11,7 @@
 
 namespace App\Services\Recurring;
 
+use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\RecurringInvoice;
 use App\Services\Recurring\GetInvoicePdf;
@@ -106,6 +107,10 @@ class RecurringService
             $this->stop();
         }
         
+        if ($request->has('send_now') && $request->input('send_now') == 'true' && $this->recurring_entity->invoices()->count() == 0) {
+            $this->sendNow();
+        }
+
         if(isset($this->recurring_entity->client))
         {
             $offset = $this->recurring_entity->client->timezone_offset();
@@ -113,6 +118,18 @@ class RecurringService
         }
 
         return $this;
+    }
+
+    public function sendNow()
+    {
+    
+        if($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT){
+            $this->start()->save();
+            SendRecurring::dispatchNow($this->recurring_entity, $this->recurring_entity->company->db); 
+        }
+
+        return $this->recurring_entity;
+
     }
 
     public function fillDefaults()

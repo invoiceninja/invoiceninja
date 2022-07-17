@@ -20,6 +20,7 @@ use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
@@ -32,8 +33,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyExport implements ShouldQueue
 {
@@ -424,9 +425,9 @@ class CompanyExport implements ShouldQueue
         $this->export_data['vendor_contacts'] = VendorContact::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($vendor){
 
             $vendor = $this->transformBasicEntities($vendor);
-            $vendor->vendor_id = $this->encodePrimaryKey($vendor->vendor_id);
+            $vendor = $this->transformArrayOfKeys($vendor, ['vendor_id']);
 
-            return $vendor->makeVisible(['id']);
+            return $vendor->makeVisible(['id','user_id']);
 
         })->all();
 
@@ -438,6 +439,31 @@ class CompanyExport implements ShouldQueue
             return $hook;
 
         })->makeHidden(['id'])->all();
+
+        $this->export_data['purchase_orders'] = $this->company->purchase_orders()->orderBy('number', 'DESC')->cursor()->map(function ($purchase_order){
+
+            $purchase_order = $this->transformBasicEntities($purchase_order);
+            $purchase_order = $this->transformArrayOfKeys($purchase_order, ['expense_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','project_id']);
+
+            return $purchase_order->makeVisible(['id',
+                                        'private_notes',
+                                        'user_id',
+                                        'client_id',
+                                        'vendor_id',
+                                        'company_id',]);
+
+        })->all();
+
+
+        $this->export_data['purchase_order_invitations'] = PurchaseOrderInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($purchase_order){
+
+            $purchase_order = $this->transformArrayOfKeys($purchase_order, ['company_id', 'user_id', 'vendor_contact_id', 'purchase_order_id']);
+
+            return $purchase_order->makeVisible(['id']);
+
+        })->all();
+
+
 
         //write to tmp and email to owner();
         

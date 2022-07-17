@@ -53,8 +53,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index')->middleware('portal_enabled');
     Route::get('payments/{payment}', 'ClientPortal\PaymentController@show')->name('payments.show');
-    Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
-    Route::get('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response.get');
+
+    // Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response');
+    // Route::get('payments/process/response', 'ClientPortal\PaymentController@response')->name('payments.response.get');
 
     Route::get('profile/{client_contact}/edit', 'ClientPortal\ProfileController@edit')->name('profile.edit');
     Route::put('profile/{client_contact}/edit', 'ClientPortal\ProfileController@update')->name('profile.update');
@@ -98,6 +99,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 
 });
+
+Route::post('payments/process/response', 'ClientPortal\PaymentController@response')->name('client.payments.response')->middleware(['locale', 'domain_db', 'verify_hash']);
+Route::get('payments/process/response', 'ClientPortal\PaymentController@response')->name('client.payments.response.get')->middleware(['locale', 'domain_db', 'verify_hash']);
 
 Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');
 

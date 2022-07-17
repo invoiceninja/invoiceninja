@@ -204,4 +204,9 @@ class BaseModel extends Model
         return $formatted_number;
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.item');
+    }
+
 }
