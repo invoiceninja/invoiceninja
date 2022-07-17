@@ -46,7 +46,7 @@ class ApplyNumber extends AbstractService
                 $this->trySaving();
                 break;
             case 'when_sent':
-                if ($this->invoice->status_id == PurchaseOrder::STATUS_SENT) {
+                if ($this->purchase_order->status_id == PurchaseOrder::STATUS_SENT) {
                     $this->trySaving();
                 }
                 break;
