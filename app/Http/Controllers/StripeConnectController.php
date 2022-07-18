@@ -120,7 +120,7 @@ class StripeConnectController extends BaseController
         $company_gateway->setConfig($payload);
         $company_gateway->save();
 
-        StripeWebhook::dispatch($company->company_key, $company_gateway->id);
+        // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
 
         //response here
         return view('auth.connect.completed');

@@ -458,7 +458,7 @@ class CompanyImport implements ShouldQueue
         $settings->ticket_number_counter = 1;
         $settings->payment_number_counter = 1;
         $settings->project_number_counter = 1;
-        $settings->purchase_order_counter = 1;
+        $settings->purchase_order_number_counter = 1;
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
