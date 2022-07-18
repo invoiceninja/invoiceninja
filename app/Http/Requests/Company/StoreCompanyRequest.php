@@ -63,10 +63,6 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
-        //https not sure i should be forcing this.
-        // if(array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1)
-        //     $input['portal_domain'] = str_replace("http:", "https:", $input['portal_domain']);
-
         if (array_key_exists('google_analytics_url', $input)) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }
