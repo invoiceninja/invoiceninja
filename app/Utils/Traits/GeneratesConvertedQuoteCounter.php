@@ -51,7 +51,7 @@ trait GeneratesConvertedQuoteCounter
         return $this->getNextEntityNumber($invoice, $client, intval($counter));
     }
 
-    private function getNextEntityNumber($invoice, Client $client, $counter)
+    private function getNextEntityNumber($invoice, Client $client, $counter='')
     {
         $settings = $client->getMergedSettings();
 
@@ -365,9 +365,9 @@ trait GeneratesConvertedQuoteCounter
             return (bool) $client->getSetting('shared_invoice_quote_counter');
         }
 
-        if ($type == 'credit') {
+        //if ($type == 'credit') {
             return (bool) $client->getSetting('shared_invoice_credit_counter');
-        }
+        
     }
 
     /**

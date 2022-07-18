@@ -70,7 +70,7 @@ class SystemHealth
             ],
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
-            'simple_db_check' => (bool) self::simpleDbCheck(),
+            'simple_db_check' => self::simpleDbCheck(),
             'cache_enabled' => self::checkConfigCache(),
             'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
             'exec' => (bool) self::checkExecWorks(),
@@ -226,10 +226,10 @@ class SystemHealth
         if (! config('ninja.db.multi_db_enabled')) {
             try {
                 $pdo = DB::connection()->getPdo();
-                $result[] = [DB::connection()->getDatabaseName() => true];
+                $x = DB::connection()->getDatabaseName();
                 $result['success'] = true;
             } catch (Exception $e) {
-                $result[] = [config('database.connections.'.config('database.default').'.database') => false];
+                // $x = [config('database.connections.'.config('database.default').'.database') => false];
                 $result['success'] = false;
                 $result['message'] = $e->getMessage();
             }
@@ -239,10 +239,10 @@ class SystemHealth
 
                 try {
                     $pdo = DB::connection()->getPdo();
-                    $result[] = [DB::connection()->getDatabaseName() => true];
+                    $x = DB::connection()->getDatabaseName();
                     $result['success'] = true;
                 } catch (Exception $e) {
-                    $result[] = [config('database.connections.'.config('database.default').'.database') => false];
+                   // $x = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
                     $result['message'] = $e->getMessage();
                 }
