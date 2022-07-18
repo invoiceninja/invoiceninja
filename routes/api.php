@@ -322,7 +322,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
     Route::resource('subscriptions', SubscriptionController::class);
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
-    Route::get('statics', [StaticController::class]);
+    Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
 
 });
