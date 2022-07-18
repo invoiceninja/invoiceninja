@@ -137,7 +137,7 @@ class VendorHtmlEngine
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$poNumber'] = ['value' => $this->entity->po_number, 'label' => ctrans('texts.po_number')];
 
-        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format(), $this->company->locale()), 'label' => ctrans('texts.date')];
+        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format()), 'label' => ctrans('texts.date')];
 
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
         $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];

@@ -70,7 +70,7 @@ trait MakesDates
 
     /**
      * Formats a datedate.
-     * @param  Carbon|string $date   Carbon object or date string
+     * @param  $date   Carbon object or date string
      * @param  string $format The date display format
      * @return string         The formatted date
      */

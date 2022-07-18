@@ -63,7 +63,7 @@ trait MakesInvoiceHtml
                 ob_end_clean();
             }
 
-            throw new \Exception($e);
+            throw new \Exception($e->getMessage());
         }
 
         return ob_get_clean();

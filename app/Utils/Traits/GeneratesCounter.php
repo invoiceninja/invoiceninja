@@ -122,7 +122,7 @@ trait GeneratesCounter
         switch ($entity) {
             case Invoice::class:
                 return 'invoice_number_counter';
-                break;
+                
             case Quote::class:
 
                 if ($this->hasSharedCounter($client, 'quote')) {
@@ -130,40 +130,35 @@ trait GeneratesCounter
                 }
 
                 return 'quote_number_counter';
-                break;
+                
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
-                break;
+                
             case RecurringQuote::class:
                 return 'recurring_quote_number_counter';
-                break;
+                
             case RecurringExpense::class:
                 return 'recurring_expense_number_counter';
-                break;
+                
             case Payment::class:
                 return 'payment_number_counter';
-                break;
+                
             case Credit::class:
                 if ($this->hasSharedCounter($client, 'credit')) {
                     return 'invoice_number_counter';
                 }
 
                 return 'credit_number_counter';
-                break;
+                
             case Project::class:
                 return 'project_number_counter';
-                break;
+                
             case PurchaseOrder::class:
                 return 'purchase_order_number_counter';
-                break;
-
-            case PurchaseOrder::class:
-                return 'purchase_order_number_counter';
-                break;
 
             default:
                 return 'default_number_counter';
-                break;
+
         }
     }
 
@@ -401,9 +396,8 @@ trait GeneratesCounter
             return (bool) $client->getSetting('shared_invoice_quote_counter');
         }
 
-        if ($type == 'credit') {
-            return (bool) $client->getSetting('shared_invoice_credit_counter');
-        }
+        //credit
+        return (bool) $client->getSetting('shared_invoice_credit_counter');    
     }
 
     /**
