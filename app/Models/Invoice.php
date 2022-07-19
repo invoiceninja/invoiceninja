@@ -581,8 +581,6 @@ class Invoice extends BaseModel
             }
 
         }
-
-        nlog($line_items);
             
         return Expense::whereIn('id', $this->transformKeys($expense_ids))
                            ->where('invoice_documents', 1)
@@ -608,8 +606,6 @@ class Invoice extends BaseModel
 
         }
             
-        nlog($task_ids);
-
         return Task::whereIn('id', $this->transformKeys($task_ids))
                            ->whereHas('company', function($query){
                                 $query->where('invoice_task_documents', 1);
