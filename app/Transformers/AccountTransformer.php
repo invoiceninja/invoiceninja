@@ -86,7 +86,8 @@ class AccountTransformer extends EntityTransformer
             'hosted_client_count' => (int) $account->hosted_client_count,
             'hosted_company_count' => (int) $account->hosted_company_count,
             'is_hosted' => (bool) Ninja::isHosted(),
-            'set_react_as_default_ap' => (bool) $account->set_react_as_default_ap
+            'set_react_as_default_ap' => (bool) $account->set_react_as_default_ap,
+            'trial_days_left' => Ninja::isHosted() ? (int) $account->getTrialDays() : 0,
         ];
     }
 
@@ -110,6 +111,5 @@ class AccountTransformer extends EntityTransformer
 
         return $this->includeItem(auth()->user(), $transformer, User::class);
 
-//        return $this->includeItem($account->default_company->owner(), $transformer, User::class);
     }
 }

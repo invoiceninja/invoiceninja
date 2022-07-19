@@ -21,6 +21,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\PaymentDrivers\Stripe\Connect\Account;
+use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use Exception;
 use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
@@ -118,6 +119,8 @@ class StripeConnectController extends BaseController
 
         $company_gateway->setConfig($payload);
         $company_gateway->save();
+
+        // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
 
         //response here
         return view('auth.connect.completed');

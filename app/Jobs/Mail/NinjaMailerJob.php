@@ -334,8 +334,8 @@ class NinjaMailerJob implements ShouldQueue
             return true;
      
         /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
-        // if(Ninja::isHosted())
-        //     return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+        if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
+            return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
 
         return false;
     }
@@ -399,7 +399,7 @@ class NinjaMailerJob implements ShouldQueue
             return false;
         }
 
-        return $user->oauth_user_refresh_token;
+        return $user->oauth_user_token;
         
     }
 

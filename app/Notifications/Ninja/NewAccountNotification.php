@@ -78,10 +78,10 @@ class NewAccountNotification extends Notification
     public function toSlack($notifiable)
     {
         $content = "New Trial Started\n";
-        $content = "{$this->client->name}\n";
-        $content = "Account key: {$this->account->key}\n";
-        $content = "Users: {$this->account->users()->pluck('email')}\n";
-        $content = "Contacts: {$this->client->contacts()->pluck('email')}\n";
+        $content .= "{$this->client->name}\n";
+        $content .= "Account key: {$this->account->key}\n";
+        $content .= "Users: {$this->account->users()->pluck('email')}\n";
+        $content .= "Contacts: {$this->client->contacts()->pluck('email')}\n";
         
 
         return (new SlackMessage)

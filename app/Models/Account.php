@@ -33,7 +33,7 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
-    private $free_plan_email_quota = 100;
+    private $free_plan_email_quota = 50;
 
     private $paid_plan_email_quota = 500;
     /**
@@ -489,6 +489,26 @@ class Account extends BaseModel
 
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    }
+
+    public function getTrialDays()
+    {
+        if($this->payment_id)
+            return 0;
+
+        $plan_expires = Carbon::parse($this->plan_expires);
+
+        if(!$this->payment_id && $plan_expires->gt(now())){
+
+            $diff = $plan_expires->diffInDays();
+            
+            if($diff > 14);
+                return 0;
+
+            return $diff;
+        }
+
+        return 0;
     }
 
 }

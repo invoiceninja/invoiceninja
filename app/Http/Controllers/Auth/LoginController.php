@@ -46,6 +46,8 @@ use Laravel\Socialite\Facades\Socialite;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
 use Microsoft\Graph\Model;
+use Illuminate\Support\Facades\Http;
+
 
 class LoginController extends BaseController
 {
@@ -334,11 +336,12 @@ class LoginController extends BaseController
         } elseif (request()->input('provider') == 'microsoft') {
             return $this->handleMicrosoftOauth();
         } elseif (request()->input('provider') == 'apple') {
-            // if (request()->has('token')) {
-            //     return $this->handleSocialiteLogin('apple', request()->get('token'));
-            // } else {
-            //     $message = 'Token is missing for the apple login';
-            // }
+            if (request()->has('id_token')) {
+                $token = request()->input('id_token');
+                return $this->handleSocialiteLogin('apple', $token);
+            } else {
+                $message = 'Token is missing for the apple login';
+            }
         }
 
         return response()
@@ -355,6 +358,7 @@ class LoginController extends BaseController
     private function handleSocialiteLogin($provider, $token)
     {
         $user = $this->getSocialiteUser($provider, $token);
+        nlog($user);
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
         }

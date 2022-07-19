@@ -83,7 +83,6 @@
                                     @enderror
                                 </div>
 
-
                             </div>
                         </div>
 
@@ -158,6 +157,15 @@
                                 @endforeach
                             </select>
                             @error('country')
+                            <div class="validation validation-fail">
+                                {{ $message }}
+                            </div>
+                            @enderror
+                        </div>
+                         <div class="col-span-6 sm:col-span-6">
+                            <label for="public_notes" class="input-label w-full">{{ ctrans('texts.notes') }}</label>
+                            <textarea rows="4" id="public_notes" class="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="public_notes" value="{{ $vendor->public_notes }}" />{{ $vendor->public_notes}}</textarea>
+                            @error('public_notes')
                             <div class="validation validation-fail">
                                 {{ $message }}
                             </div>

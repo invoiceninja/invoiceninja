@@ -16,6 +16,7 @@ use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrder\ApplyNumber;
 use App\Services\PurchaseOrder\CreateInvitations;
 use App\Services\PurchaseOrder\GetPurchaseOrderPdf;
+use App\Services\PurchaseOrder\PurchaseOrderExpense;
 use App\Services\PurchaseOrder\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
@@ -40,26 +41,34 @@ class PurchaseOrderService
 
     public function applyNumber()
     {
-        $this->invoice = (new ApplyNumber($this->purchase_order->vendor, $this->purchase_order))->run();
+        $this->purchase_order = (new ApplyNumber($this->purchase_order->vendor, $this->purchase_order))->run();
 
         return $this;
     }
 
     public function fillDefaults()
     {
-        // $settings = $this->purchase_order->client->getMergedSettings();
 
-        // //TODO implement design, footer, terms
+        $settings = $this->purchase_order->company->settings;
 
-        // /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
-        // if (!isset($this->purchase_order->exchange_rate) && $this->purchase_order->client->currency()->id != (int)$this->purchase_order->company->settings->currency_id)
-        //     $this->purchase_order->exchange_rate = $this->purchase_order->client->currency()->exchange_rate;
+        if (! $this->purchase_order->design_id) 
+            $this->purchase_order->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+        
+        if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
+            $this->purchase_order->footer = $settings->purchase_order_footer;
 
-        // if (!isset($this->purchase_order->public_notes))
-        //     $this->purchase_order->public_notes = $this->purchase_order->client->public_notes;
+        if (!isset($this->purchase_order->terms)  || empty($this->purchase_order->terms)) 
+            $this->purchase_order->terms = $settings->purchase_order_terms;
 
+        if (!isset($this->purchase_order->public_notes)  || empty($this->purchase_order->public_notes)) 
+            $this->purchase_order->public_notes = $this->purchase_order->vendor->public_notes;
+        
+        if($settings->counter_number_applied == 'when_saved'){
+            $this->applyNumber()->save();
+        }
 
         return $this;
+
     }
 
     public function triggeredActions($request)
@@ -113,6 +122,28 @@ class PurchaseOrderService
         }
 
         return $this;
+    }
+
+    public function add_to_inventory()
+    {
+        if($this->purchase_order->status_id >= PurchaseOrder::STATUS_RECEIVED)
+            return $this->purchase_order;
+
+        $this->purchase_order = (new PurchaseOrderInventory($this->purchase_order))->run();
+
+        return $this;
+    }
+
+    public function expense()
+    {
+        $this->markSent();
+        
+        if($this->purchase_order->expense()->exists())
+            return $this;
+
+        $expense = (new PurchaseOrderExpense($this->purchase_order))->run();
+
+        return $expense;
     }
 
     /**

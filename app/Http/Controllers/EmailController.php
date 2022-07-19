@@ -17,12 +17,15 @@ use App\Http\Middleware\UserVerified;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Mail\EntitySentMailer;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Ninja;
@@ -125,6 +128,10 @@ class EmailController extends BaseController
             'body' => $body
         ];
 
+        if($entity == 'purchaseOrder' || $template == 'purchase_order'){
+            return $this->sendPurchaseOrder($entity_obj, $data);
+        }
+
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template) {
 
             if (!$invitation->contact->trashed() && $invitation->contact->email) {
@@ -175,5 +182,18 @@ class EmailController extends BaseController
         }
 
         return $this->itemResponse($entity_obj->fresh());
+    }
+
+    private function sendPurchaseOrder($entity_obj, $data)
+    {
+
+        $this->entity_type = PurchaseOrder::class;
+
+        $this->entity_transformer = PurchaseOrderTransformer::class;
+
+        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
+        
+        return $this->itemResponse($entity_obj);
+
     }
 }

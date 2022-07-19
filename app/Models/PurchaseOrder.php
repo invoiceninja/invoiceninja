@@ -32,7 +32,6 @@ class PurchaseOrder extends BaseModel
     protected $fillable = [
         'number',
         'discount',
-        'company_id',
         'status_id',
         'last_sent_date',
         'is_deleted',
@@ -72,10 +71,6 @@ class PurchaseOrder extends BaseModel
         'custom_surcharge2',
         'custom_surcharge3',
         'custom_surcharge4',
-//        'custom_surcharge_tax1',
-//        'custom_surcharge_tax2',
-//        'custom_surcharge_tax3',
-//        'custom_surcharge_tax4',
         'design_id',
         'invoice_id',
         'assigned_user_id',
@@ -83,7 +78,6 @@ class PurchaseOrder extends BaseModel
         'balance',
         'partial',
         'paid_to_date',
-        // 'subscription_id',
         'vendor_id',
         'last_viewed'
     ];
@@ -101,7 +95,8 @@ class PurchaseOrder extends BaseModel
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
     const STATUS_ACCEPTED = 3;
-    const STATUS_CANCELLED = 4;
+    const STATUS_RECEIVED = 4;
+    const STATUS_CANCELLED = 5;
 
     public static function stringStatus(int $status)
     {
@@ -169,6 +164,11 @@ class PurchaseOrder extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class);
     }
 
     public function user()
@@ -271,4 +271,8 @@ class PurchaseOrder extends BaseModel
         return $purchase_order_calc->build();
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.purchase_order');
+    }
 }

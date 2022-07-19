@@ -190,7 +190,7 @@ class Import implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->account->key)];
+        return [new WithoutOverlapping($this->company->company_key)];
     }
 
     /**
@@ -275,7 +275,12 @@ class Import implements ShouldQueue
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
-        unlink($this->file_path);
+        try{
+            unlink($this->file_path);
+        }
+        catch(\Exception $e){
+            nlog("problem unsetting file");
+        }
     }
 
     private function fixData()
@@ -922,6 +927,9 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
+
+            if(array_key_exists('next_send_date', $resource))
+                $modified['next_send_date_client'] = $resource['next_send_date'];
 
             if(array_key_exists('created_at', $modified))
                 $modified['created_at'] = Carbon::parse($modified['created_at']);

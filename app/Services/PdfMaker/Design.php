@@ -332,7 +332,10 @@ class Design extends BaseDesign
             $_variable = explode('.', $variable)[1];
             $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
 
-            if (in_array($_variable, $_customs)) {
+            /* 2/7/2022 don't show custom values if they are empty */
+            $var = str_replace("custom", "custom_value", $_variable);
+
+            if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
                 $elements[] = ['element' => 'tr', 'elements' => [
                     ['element' => 'th', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
                     ['element' => 'th', 'content' => $variable, 'properties' => ['data-ref' => 'entity_details-' . substr($variable, 1)]],
@@ -776,6 +779,14 @@ class Design extends BaseDesign
             if ($this->entity->partial > 0) {
                 $variables[] = '$partial_due';
             }
+        }
+
+        if ($this->entity instanceof Credit) {
+            // We don't want to show Balanace due on the quotes.
+            if (in_array('$paid_to_date', $variables)) {
+                $variables = \array_diff($variables, ['$paid_to_date']);
+            }
+
         }
 
         foreach (['discount'] as $property) {

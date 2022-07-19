@@ -41,7 +41,20 @@ class ApplyNumber extends AbstractService
             return $this->purchase_order;
         }
 
-        $this->trySaving();
+        switch ($this->vendor->company->getSetting('counter_number_applied')) {
+            case 'when_saved':
+                $this->trySaving();
+                break;
+            case 'when_sent':
+                if ($this->purchase_order->status_id == PurchaseOrder::STATUS_SENT) {
+                    $this->trySaving();
+                }
+                break;
+
+            default:
+                break;
+        }
+
 
         return $this->purchase_order;
     }

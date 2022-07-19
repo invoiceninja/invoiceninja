@@ -45,6 +45,8 @@ use App\Models\PaymentTerm;
 use App\Models\Paymentable;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
@@ -74,7 +76,6 @@ use Illuminate\Support\Str;
 use JsonMachine\JsonDecoder\ExtJsonDecoder;
 use JsonMachine\JsonMachine;
 use ZipArchive;
-
 use function GuzzleHttp\json_encode;
 
 class CompanyImport implements ShouldQueue
@@ -122,6 +123,7 @@ class CompanyImport implements ShouldQueue
         'clients',
         'client_contacts',
         'vendors',
+        'vendor_contacts',
         'projects',
         'products',
         'company_gateways',
@@ -147,6 +149,8 @@ class CompanyImport implements ShouldQueue
         'documents',
         'webhooks',
         'system_logs',
+        'purchase_orders',
+        'purchase_order_invitations'
     ];
 
     private $company_properties = [
@@ -454,7 +458,7 @@ class CompanyImport implements ShouldQueue
         $settings->ticket_number_counter = 1;
         $settings->payment_number_counter = 1;
         $settings->project_number_counter = 1;
-
+        $settings->purchase_order_number_counter = 1;
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
@@ -471,6 +475,7 @@ class CompanyImport implements ShouldQueue
         $this->company->vendors()->forceDelete();
         $this->company->expenses()->forceDelete();
         $this->company->subscriptions()->forceDelete();
+        $this->company->purchase_orders()->forceDelete();
 
         $this->company->save();
 
@@ -649,6 +654,19 @@ class CompanyImport implements ShouldQueue
         return $this;
     }
 
+    private function import_vendor_contacts()
+    {
+
+        $this->genericImport(VendorContact::class, 
+            ['user_id', 'company_id', 'id', 'hashed_id','company','assigned_user_id'], 
+            [['users' => 'user_id'], ['vendors' => 'vendor_id']], 
+            'vendor_contacts',
+            'email');
+
+        return $this;
+        
+    }
+
     private function import_projects()
     {
 
@@ -795,6 +813,42 @@ class CompanyImport implements ShouldQueue
 
         return $this;        
     }
+
+    private function import_purchase_orders()
+    {
+
+        $this->genericImport(PurchaseOrder::class, 
+            ['user_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status', 'vendor_id', 'subscription_id','client_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'purchase_orders',
+            'number');
+
+        return $this;        
+    }
+
+    private function import_purchase_order_invitations()
+    {
+
+
+        $this->genericImport(PurchaseOrderInvitation::class, 
+            ['user_id', 'vendor_contact_id', 'company_id', 'id', 'hashed_id', 'purchase_order_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['purchase_orders' => 'purchase_order_id'],
+                ['vendor_contacts' => 'vendor_contact_id'],
+            ], 
+            'purchase_order_invitations',
+            'key');
+
+        return $this;        
+    }
+
 
     private function import_quotes()
     {
@@ -1425,6 +1479,13 @@ class CompanyImport implements ShouldQueue
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextInvoiceNumber($client = Client::withTrashed()->find($obj_array['client_id']),$new_obj);
             }
+            elseif($class == 'App\Models\PurchaseOrder' && is_null($obj->{$match_key})){
+                $new_obj = new PurchaseOrder();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextPurchaseOrderNumber($new_obj);
+            }
             elseif($class == 'App\Models\Payment' && is_null($obj->{$match_key})){
                 $new_obj = new Payment();
                 $new_obj->company_id = $this->company->id;
@@ -1441,6 +1502,12 @@ class CompanyImport implements ShouldQueue
             }
             elseif($class == 'App\Models\ClientContact'){
                 $new_obj = new ClientContact();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+            }
+            elseif($class == 'App\Models\VendorContact'){
+                $new_obj = new VendorContact();
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
@@ -1465,6 +1532,13 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextTaskNumber($new_obj);   
+            }
+            elseif($class == 'App\Models\Vendor' && is_null($obj->{$match_key})){
+                $new_obj = new Vendor();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextVendorNumber($new_obj);   
             }
             elseif($class == 'App\Models\CompanyLedger'){
                 $new_obj = $class::firstOrNew(

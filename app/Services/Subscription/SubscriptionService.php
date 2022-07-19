@@ -706,11 +706,12 @@ class SubscriptionService
      * @param  array $data
      * @return Invoice
      */
-    public function createInvoice($data): ?\App\Models\Invoice
+    public function createInvoice($data, $quantity = 1): ?\App\Models\Invoice
     {
 
         $invoice_repo = new InvoiceRepository();
         $subscription_repo = new SubscriptionRepository();
+        $subscription_repo->quantity = $quantity;
 
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);

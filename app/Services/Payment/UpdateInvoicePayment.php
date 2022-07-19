@@ -14,6 +14,7 @@ namespace App\Services\Payment;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Ninja\TransactionLog;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -48,8 +49,6 @@ class UpdateInvoicePayment
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices, $client) {
 
-            $client = $client->fresh();
-
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
@@ -63,9 +62,15 @@ class UpdateInvoicePayment
                 $paid_amount = $paid_invoice->amount;
             }
 
-            $client->paid_to_date += $paid_amount;
-            $client->balance -= $paid_amount;
-            $client->save();
+            \DB::connection(config('database.default'))->transaction(function () use($client, $paid_amount){
+
+                $update_client = Client::withTrashed()->where('id', $client->id)->lockForUpdate()->first();
+
+                $update_client->paid_to_date += $paid_amount;
+                $update_client->balance -= $paid_amount;
+                $update_client->save();
+
+            }, 1);
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
             if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
