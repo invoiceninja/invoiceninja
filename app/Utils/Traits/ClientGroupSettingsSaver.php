@@ -89,8 +89,9 @@ trait ClientGroupSettingsSaver
         if(property_exists($settings, 'translations'))
             unset($settings->translations);
 
+        //18-07-2022 removed || empty($settings->{$key}) from this check to allow "0" values to persist
         foreach ($settings as $key => $value) {
-            if (! isset($settings->{$key}) || empty($settings->{$key}) || (! is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
+            if (! isset($settings->{$key}) || (! is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
                 unset($settings->{$key});
             }
         }
