@@ -4712,6 +4712,7 @@ $LANG = array(
     'view_map' => 'View Map',
     'set_default_design' => 'Set Default Design',
     'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments',
+    'purchase_order_issued_to' => 'Purchase Order issued to',
 );
 
 return $LANG;
