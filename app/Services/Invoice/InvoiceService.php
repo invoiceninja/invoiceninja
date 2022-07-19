@@ -310,6 +310,9 @@ class InvoiceService
         elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
+        elseif ($this->invoice->balance < 0) {
+            $this->invoice->status_id = Invoice::STATUS_SENT;
+        }
 
         return $this;
     }
