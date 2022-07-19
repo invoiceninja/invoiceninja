@@ -21,7 +21,7 @@ class InvoiceArchivedActivity implements ShouldQueue
 {
     protected $activity_repo;
 
-    public $delay = 5;
+    public $delay = 15;
     
     /**
      * Create the event listener.
