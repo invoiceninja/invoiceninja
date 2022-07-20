@@ -155,6 +155,7 @@ class VendorHtmlEngine
         $data['$purchase_order.date'] = &$data['$date'];
         $data['$purchase_order.po_number'] = &$data['$poNumber'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
+        $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.purchase_order_issued_to")];
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
