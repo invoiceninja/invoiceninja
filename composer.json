@@ -94,7 +94,6 @@
     },
     "require-dev": {
         "php": "^7.4|^8.0",
-        "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.6",
         "brianium/paratest": "^6.1",
         "darkaonline/l5-swagger": "8.1.0",

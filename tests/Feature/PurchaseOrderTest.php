@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests;
+namespace Tests\Feature;
 
 use App\Models\Client;
 use App\Models\PurchaseOrder;
@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 class PurchaseOrderTest extends TestCase
 {
