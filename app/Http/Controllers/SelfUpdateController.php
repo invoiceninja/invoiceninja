@@ -262,10 +262,7 @@ class SelfUpdateController extends BaseController
                 continue;
             }
 
-            //nlog($file->getPathname());
-
             if ($file->isFile() && ! $file->isWritable()) {
-                // throw new FilePermissionsFailure($file);
                 nlog("Cannot update system because {$file->getFileName()} is not writable");
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
 

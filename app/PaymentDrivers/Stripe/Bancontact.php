@@ -81,7 +81,7 @@ class Bancontact
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if ($request->redirect_status == 'succeeded') {
+        if (in_array($request->redirect_status,  ['succeeded','pending'])) {
             return $this->processSuccessfulPayment($request->payment_intent);
         }
 

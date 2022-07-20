@@ -32,6 +32,11 @@ class Approve {
             }
         );
 
+        signaturePad.onEnd = function(){  
+            document.getElementById("signature-next-step").disabled = false;
+        };
+
+
         this.signaturePad = signaturePad;
     }
 
@@ -41,6 +46,16 @@ class Approve {
     }
 
     handle() {
+
+        document.getElementById("signature-next-step").disabled = true;
+        document.getElementById("close_button").addEventListener('click', () => {
+            const approveButton = document.getElementById("approve-button");
+
+            if(approveButton)
+                approveButton.disabled = false;
+
+        });
+
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {

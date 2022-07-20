@@ -21,8 +21,8 @@ class InvoicePaidActivity implements ShouldQueue
 {
     protected $activity_repo;
 
-    public $delay = 5;
-
+    public $delay = 10;
+    
     /**
      * Create the event listener.
      *
@@ -41,6 +41,7 @@ class InvoicePaidActivity implements ShouldQueue
      */
     public function handle($event)
     {
+
         MultiDB::setDb($event->company->db);
 
         $fields = new stdClass;
@@ -52,10 +53,11 @@ class InvoicePaidActivity implements ShouldQueue
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::PAID_INVOICE;
         $fields->payment_id = $event->payment->id;
-
+        
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
 
-        if ($event->invoice->subscription()->exists()) {
+        if($event->invoice->subscription()->exists())
+        {
             $event->invoice->subscription->service()->planPaid($event->invoice);
         }
 

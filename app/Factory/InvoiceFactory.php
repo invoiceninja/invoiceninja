@@ -49,7 +49,8 @@ class InvoiceFactory
         $invoice->user_id = $user_id;
         $invoice->company_id = $company_id;
         $invoice->recurring_id = null;
-
+        $invoice->exchange_rate = 1;
+        
         return $invoice;
     }
 }
