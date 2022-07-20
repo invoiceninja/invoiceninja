@@ -4713,6 +4713,9 @@ $LANG = array(
     'set_default_design' => 'Set Default Design',
     'add_gateway_help_message' => 'Add a payment gateway (ie. Stripe, WePay or PayPal) to accept online payments',
     'purchase_order_issued_to' => 'Purchase Order issued to',
+    'archive_task_status' => 'Archive Task Status',
+    'delete_task_status' => 'Delete Task Status',
+    'restore_task_status' => 'Restore Task Status',
 );
 
 return $LANG;

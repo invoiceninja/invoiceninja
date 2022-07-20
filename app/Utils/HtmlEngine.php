@@ -408,6 +408,8 @@ class HtmlEngine
 
         $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
 
+        $data['$portal_button'] = ['value' => '<a class="button" href="'.$this->contact->getLoginLink().'?client_hash='.$this->client->client_hash.'">'.ctrans('texts.view_client_portal').'</a>', 'label' => ctrans('view_client_portal')];
+        $data['$contact.portal_button'] = &$data['$portal_button'];
 
         $data['$contact.custom1'] = ['value' => isset($this->contact) ? $this->contact->custom_value1 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact1')];
         $data['$contact.custom2'] = ['value' => isset($this->contact) ? $this->contact->custom_value2 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact2')];
