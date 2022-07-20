@@ -469,6 +469,7 @@ class CompanyImport implements ShouldQueue
     private function purgeCompanyData()
     {
         $this->company->clients()->forceDelete();
+        $this->company->all_activities()->forceDelete();
         $this->company->products()->forceDelete();
         $this->company->projects()->forceDelete();
         $this->company->tasks()->forceDelete();

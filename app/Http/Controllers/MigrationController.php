@@ -180,6 +180,7 @@ class MigrationController extends BaseController
         $company->vendors()->forceDelete();
         $company->expenses()->forceDelete();
         $company->purchase_orders()->forceDelete();
+        $company->all_activities()->forceDelete();
 
         $settings = $company->settings;
 
