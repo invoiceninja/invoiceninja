@@ -17,6 +17,8 @@ class Payment {
     }
 
     handleMethodSelect(element) {
+        document.getElementById('signature-next-step').disabled = true;
+
         document.getElementById("company_gateway_id").value =
             element.dataset.companyGatewayId;
         document.getElementById("payment_method_id").value =
@@ -89,7 +91,10 @@ class Payment {
             {
                 penColor: "rgb(0, 0, 0)"
             }
-        );
+        ).addEventListener("beginStroke", () => {
+            document.getElementById('signature-next-step').disabled = false;
+        }, { once: true });
+
 
         this.signaturePad = signaturePad;
     }
