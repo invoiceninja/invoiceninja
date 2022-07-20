@@ -32,6 +32,10 @@ class Accept {
             }
         );
 
+        signaturePad.onEnd = function(){  
+            document.getElementById("signature-next-step").disabled = false;
+        };
+
         this.signaturePad = signaturePad;
     }
 
@@ -41,6 +45,9 @@ class Accept {
     }
 
     handle() {
+
+        document.getElementById("signature-next-step").disabled = true;
+
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {

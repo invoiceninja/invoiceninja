@@ -17,7 +17,6 @@ class Payment {
     }
 
     handleMethodSelect(element) {
-        document.getElementById('signature-next-step').disabled = true;
 
         document.getElementById("company_gateway_id").value =
             element.dataset.companyGatewayId;
@@ -25,6 +24,10 @@ class Payment {
             element.dataset.gatewayTypeId;
 
         if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+
+            if(this.signaturePad.isEmpty())
+                alert("Please sign");
+
             this.displayTerms();
 
             document
@@ -91,15 +94,18 @@ class Payment {
             {
                 penColor: "rgb(0, 0, 0)"
             }
-        ).addEventListener("beginStroke", () => {
-            document.getElementById('signature-next-step').disabled = false;
-        }, { once: true });
+        );
 
+        signaturePad.onEnd = function(){  
+            document.getElementById("signature-next-step").disabled = false;
+        };
 
         this.signaturePad = signaturePad;
     }
 
     handle() {
+        document.getElementById("signature-next-step").disabled = true;
+
         document
             .querySelectorAll(".dropdown-gateway-button")
             .forEach(element => {
