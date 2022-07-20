@@ -13,6 +13,7 @@ namespace App\Utils;
 
 use App\Models\Company;
 use App\Models\Currency;
+use App\Models\Vendor;
 
 /**
  * Class Number.
@@ -118,6 +119,7 @@ class Number
      */
     public static function formatMoney($value, $entity) :string
     {
+
         $currency = $entity->currency();
 
         $thousand = $currency->thousand_separator;
