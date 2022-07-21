@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use League\Fractal\Resource\Item;
@@ -34,6 +35,7 @@ class ExpenseTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'client',
+        'vendor',
     ];
 
     public function includeDocuments(Expense $expense)
@@ -52,6 +54,17 @@ class ExpenseTransformer extends EntityTransformer
         }
 
         return $this->includeItem($expense->client, $transformer, Client::class);
+    }
+
+    public function includeVendor(Expense $expense): ?Item
+    {
+        $transformer = new VendorTransformer($this->serializer);
+
+        if (!$expense->vendor) {
+            return null;
+        }
+
+        return $this->includeItem($expense->vendor, $transformer, Vendor::class);
     }
 
     /**
