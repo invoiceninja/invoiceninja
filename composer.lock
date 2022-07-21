@@ -378,16 +378,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.231.9",
+            "version": "3.231.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "fbda3e544226b44f79ead89de78f220d30ef3796"
+                "reference": "e46b7c5fcb70fadf38079755982cc1d3f0583c41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/fbda3e544226b44f79ead89de78f220d30ef3796",
-                "reference": "fbda3e544226b44f79ead89de78f220d30ef3796",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e46b7c5fcb70fadf38079755982cc1d3f0583c41",
+                "reference": "e46b7c5fcb70fadf38079755982cc1d3f0583c41",
                 "shasum": ""
             },
             "require": {
@@ -464,9 +464,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.231.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.231.10"
             },
-            "time": "2022-07-19T18:14:37+00:00"
+            "time": "2022-07-20T18:17:18+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -878,16 +878,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.3.2",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "fd5dd441932a7e10ca6e5b490e272d34c8430640"
+                "reference": "30897edbfb15e784fe55587b4f73ceefd3c4d98c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/fd5dd441932a7e10ca6e5b490e272d34c8430640",
-                "reference": "fd5dd441932a7e10ca6e5b490e272d34c8430640",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/30897edbfb15e784fe55587b4f73ceefd3c4d98c",
+                "reference": "30897edbfb15e784fe55587b4f73ceefd3c4d98c",
                 "shasum": ""
             },
             "require": {
@@ -934,7 +934,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.3.2"
+                "source": "https://github.com/composer/ca-bundle/tree/1.3.3"
             },
             "funding": [
                 {
@@ -950,7 +950,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:56:16+00:00"
+            "time": "2022-07-20T07:14:26+00:00"
         },
         {
             "name": "dasprid/enum",
@@ -1844,16 +1844,16 @@
         },
         {
             "name": "fakerphp/faker",
-            "version": "v1.19.0",
+            "version": "v1.20.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FakerPHP/Faker.git",
-                "reference": "d7f08a622b3346766325488aa32ddc93ccdecc75"
+                "reference": "37f751c67a5372d4e26353bd9384bc03744ec77b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FakerPHP/Faker/zipball/d7f08a622b3346766325488aa32ddc93ccdecc75",
-                "reference": "d7f08a622b3346766325488aa32ddc93ccdecc75",
+                "url": "https://api.github.com/repos/FakerPHP/Faker/zipball/37f751c67a5372d4e26353bd9384bc03744ec77b",
+                "reference": "37f751c67a5372d4e26353bd9384bc03744ec77b",
                 "shasum": ""
             },
             "require": {
@@ -1880,7 +1880,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "v1.19-dev"
+                    "dev-main": "v1.20-dev"
                 }
             },
             "autoload": {
@@ -1905,9 +1905,9 @@
             ],
             "support": {
                 "issues": "https://github.com/FakerPHP/Faker/issues",
-                "source": "https://github.com/FakerPHP/Faker/tree/v1.19.0"
+                "source": "https://github.com/FakerPHP/Faker/tree/v1.20.0"
             },
-            "time": "2022-02-02T17:38:57+00:00"
+            "time": "2022-07-20T13:12:54+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -3478,16 +3478,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v9.21.0",
+            "version": "v9.21.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "a8a529d371faaa38bde087aa6171a5b53a6a8760"
+                "reference": "66bfa61e61ffceddb6370b57306c76ead7667622"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/a8a529d371faaa38bde087aa6171a5b53a6a8760",
-                "reference": "a8a529d371faaa38bde087aa6171a5b53a6a8760",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/66bfa61e61ffceddb6370b57306c76ead7667622",
+                "reference": "66bfa61e61ffceddb6370b57306c76ead7667622",
                 "shasum": ""
             },
             "require": {
@@ -3654,7 +3654,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-07-19T14:12:19+00:00"
+            "time": "2022-07-20T18:00:32+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -4879,16 +4879,16 @@
         },
         {
             "name": "microsoft/microsoft-graph",
-            "version": "1.72.0",
+            "version": "1.73.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/microsoftgraph/msgraph-sdk-php.git",
-                "reference": "2cf18e6f3e4519a2a749ce4656b6d3bcae1e1ac4"
+                "reference": "a867c548899436d5279d191d5163a831ac9ea672"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/2cf18e6f3e4519a2a749ce4656b6d3bcae1e1ac4",
-                "reference": "2cf18e6f3e4519a2a749ce4656b6d3bcae1e1ac4",
+                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/a867c548899436d5279d191d5163a831ac9ea672",
+                "reference": "a867c548899436d5279d191d5163a831ac9ea672",
                 "shasum": ""
             },
             "require": {
@@ -4924,9 +4924,9 @@
             "homepage": "https://developer.microsoft.com/en-us/graph",
             "support": {
                 "issues": "https://github.com/microsoftgraph/msgraph-sdk-php/issues",
-                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.72.0"
+                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.73.0"
             },
-            "time": "2022-07-12T16:45:29+00:00"
+            "time": "2022-07-20T14:56:50+00:00"
         },
         {
             "name": "mollie/mollie-api-php",
