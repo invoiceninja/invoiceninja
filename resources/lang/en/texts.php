@@ -4716,6 +4716,8 @@ $LANG = array(
     'archive_task_status' => 'Archive Task Status',
     'delete_task_status' => 'Delete Task Status',
     'restore_task_status' => 'Restore Task Status',
+    'lang_Hebrew' => 'Hebrew',
+
 );
 
 return $LANG;
