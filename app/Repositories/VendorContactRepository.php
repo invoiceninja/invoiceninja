@@ -32,7 +32,7 @@ class VendorContactRepository extends BaseRepository
         }
 
         /* Get array of IDs which have been removed from the contacts array and soft delete each contact */
-        $vendor->contacts->pluck('hashed_id')->diff($contacts->pluck('id'))->each(function ($contact) {
+        $vendor->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
             VendorContact::destroy($contact);
         });
 
@@ -50,7 +50,7 @@ class VendorContactRepository extends BaseRepository
             $update_contact = null;
 
             if (isset($contact['id'])) {
-                $update_contact = VendorContact::find($this->decodePrimaryKey($contact['id']));
+                $update_contact = VendorContact::find($contact['id']);
             }
 
             if (! $update_contact) {
