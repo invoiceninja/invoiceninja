@@ -227,6 +227,9 @@ class Account extends BaseModel
             return false;
         }
 
+        if($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()))
+            return false;
+
         return $this->plan == 'pro' || $this->plan == 'enterprise';
     }
 
@@ -236,7 +239,10 @@ class Account extends BaseModel
             return false;
         }
 
-        return $this->plan == 'free' || is_null($this->plan);
+        if($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()))
+            return true;
+
+        return $this->plan == 'free' || is_null($this->plan) || empty($this->plan);
     }
 
     public function isEnterpriseClient()

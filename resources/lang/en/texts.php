@@ -4717,7 +4717,17 @@ $LANG = array(
     'delete_task_status' => 'Delete Task Status',
     'restore_task_status' => 'Restore Task Status',
     'lang_Hebrew' => 'Hebrew',
-
+    'price_change_accepted' => 'Price change accepted',
+    'price_change_failed' => 'Price change failed with code',
+    'restore_purchases' => 'Restore Purchases',
+    'activate' => 'Activate',
+    'connect_apple' => 'Connect Apple',
+    'disconnect_apple' => 'Disconnect Apple',
+    'disconnected_apple' => 'Successfully disconnected Apple',
+    'send_now' => 'Send Now',
+    'received' => 'Received',
+    'converted_to_expense' => 'Successfully converted to expense',
+    'converted_to_expenses' => 'Successfully converted to expenses',
 );
 
 return $LANG;
