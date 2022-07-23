@@ -17,12 +17,15 @@ use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Models\Expense;
 use App\Models\Presenters\InvoicePresenter;
+use App\Models\Task;
 use App\Services\Invoice\InvoiceService;
 use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
@@ -560,6 +563,56 @@ class Invoice extends BaseModel
             'invoice_paid_to_date' => $invoice->paid_to_date ?: 0,
             'invoice_status' => $invoice->status_id ?: 1,
         ];
+    }
+
+    public function expense_documents()
+    {
+
+        $line_items = $this->line_items;
+            
+        $expense_ids = [];
+
+        foreach($line_items as $item)
+        {
+
+            if(property_exists($item, 'expense_id'))
+            {
+                $expense_ids[] = $item->expense_id;
+            }
+
+        }
+            
+        return Expense::whereIn('id', $this->transformKeys($expense_ids))
+                           ->where('invoice_documents', 1)
+                           ->where('company_id', $this->company_id)
+                           ->cursor();
+            
+    }
+
+    public function task_documents()
+    {
+
+        $line_items = $this->line_items;
+            
+        $task_ids = [];
+
+        foreach($line_items as $item)
+        {
+
+            if(property_exists($item, 'task_id'))
+            {
+                $task_ids[] = $item->task_id;
+            }
+
+        }
+            
+        return Task::whereIn('id', $this->transformKeys($task_ids))
+                           ->whereHas('company', function($query){
+                                $query->where('invoice_task_documents', 1);
+                           })
+                           ->where('company_id', $this->company_id)
+                           ->cursor();
+
     }
 
     public function translate_entity()
