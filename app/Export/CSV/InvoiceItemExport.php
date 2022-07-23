@@ -147,7 +147,12 @@ class InvoiceItemExport extends BaseExport
                 if(str_contains($key, "item.")){
 
                     $key = str_replace("item.", "", $key);
-                    $item_array[$key] = $item->{$key};
+
+                    if(property_exists($item, $key))
+                        $item_array[$key] = $item->{$key};
+                    else
+                        $item_array[$key] = '';
+                    
                 }
 
             }

@@ -301,11 +301,6 @@ class CompanyGateway extends BaseModel
 
         $fee = $this->calcGatewayFee($amount, $gateway_type_id);
 
-        // if ($fee > 0) {
-        //     $fee =  Number::formatMoney(round($fee, 2), $client);
-        //     $label = ' - '.$fee.' '.ctrans('texts.fee');
-        // }
-
         if($fee > 0) {
 
             $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};

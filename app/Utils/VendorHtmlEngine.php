@@ -155,6 +155,7 @@ class VendorHtmlEngine
         $data['$purchase_order.date'] = &$data['$date'];
         $data['$purchase_order.po_number'] = &$data['$poNumber'];
         $data['$purchase_order.due_date'] = &$data['$due_date'];
+        $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.purchase_order_issued_to")];
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
@@ -390,8 +391,9 @@ class VendorHtmlEngine
         $data['$autoBill'] = ['value' => ctrans('texts.auto_bill_notification_placeholder'), 'label' => ''];
         $data['$auto_bill'] = &$data['$autoBill'];
 
-        $data['$dir'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
-        $data['$dir_text_align'] = ['value' => optional($this->company->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
+        $data['$dir'] = ['value' => in_array(optional($this->company->language())->locale, ['ar', 'he']) ? 'rtl' : 'ltr', 'label' => ''];
+        $data['$dir_text_align'] = ['value' => in_array(optional($this->company->language())->locale, ['ar', 'he']) ? 'right' : 'left', 'label' => ''];
+
 
         $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
         $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];

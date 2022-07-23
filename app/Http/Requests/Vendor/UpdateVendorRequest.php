@@ -66,6 +66,8 @@ class UpdateVendorRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
+        $input = $this->decodePrimaryKeys($input);
+
         $this->replace($input);
     }
 }
