@@ -4728,6 +4728,7 @@ $LANG = array(
     'received' => 'Received',
     'converted_to_expense' => 'Successfully converted to expense',
     'converted_to_expenses' => 'Successfully converted to expenses',
+    'entity_removed' => 'This document has been removed, please contact the vendor for further information',
 );
 
 return $LANG;
