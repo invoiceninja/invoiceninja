@@ -44,9 +44,6 @@ class UploadAvatar implements ShouldQueue
 
         $path = Storage::putFile($this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
 
-        // info($path);
-        // info($tmp_file);
-
         $url = Storage::url($path);
 
         //return file path

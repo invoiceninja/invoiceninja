@@ -35,7 +35,7 @@ class VersionCheck implements ShouldQueue
      */
     public function handle()
     {
-        $version_file = trim(file_get_contents(config('ninja.version_url')));
+        $version_file = trim(@file_get_contents(config('ninja.version_url')));
 
         nlog("latest version = {$version_file}");
 

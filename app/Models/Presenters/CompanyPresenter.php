@@ -13,6 +13,7 @@ namespace App\Models\Presenters;
 
 use App\Models\Country;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class CompanyPresenter.
@@ -46,6 +47,24 @@ class CompanyPresenter extends EntityPresenter
 
     }
 
+    public function logoDocker($settings = null)
+    {
+        
+        if (! $settings) {
+            $settings = $this->entity->settings;
+        }
+
+        $basename = basename($this->settings->company_logo);
+
+        $logo = Storage::get("{$this->company_key}/{$basename}");
+
+        if(!$logo)
+            return $this->logo($settings);
+
+        return "data:image/png;base64, ". base64_encode($logo);
+
+    }
+
     /**
      * Test for using base64 encoding
      */
@@ -56,7 +75,7 @@ class CompanyPresenter extends EntityPresenter
         }
 
         if(config('ninja.is_docker') || config('ninja.local_download'))
-            return $this->logo($settings);
+            return $this->logoDocker($settings);
 
         $context_options =array(
             "ssl"=>array(

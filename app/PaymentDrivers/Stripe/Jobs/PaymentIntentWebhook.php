@@ -148,6 +148,17 @@ class PaymentIntentWebhook implements ShouldQueue
 
         }
 
+
+        SystemLogger::dispatch(
+            ['response' => $this->stripe_request, 'data' => []],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            null,
+            $company,
+        );
+
+
     }
 
     private function updateCreditCardPayment($payment_hash, $client)
