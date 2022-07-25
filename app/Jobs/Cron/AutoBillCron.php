@@ -24,7 +24,7 @@ class AutoBillCron
     use Dispatchable;
 
     public $tries = 1;
-    
+
     private $counter = 1;
 
     /**
@@ -46,10 +46,9 @@ class AutoBillCron
         set_time_limit(0);
 
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        info("Performing Autobilling ".Carbon::now()->format('Y-m-d h:i:s'));
+        info('Performing Autobilling '.Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
-
             $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
@@ -57,16 +56,16 @@ class AutoBillCron
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
                                         ->whereHas('company', function ($query) {
-                                             $query->where('is_disabled',0);
+                                            $query->where('is_disabled', 0);
                                         })
                                         ->orderBy('id', 'DESC')
                                         ->with('company');
 
-                                        nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
+            nlog($auto_bill_partial_invoices->count().' partial invoices to auto bill');
 
-                                        $auto_bill_partial_invoices->cursor()->each(function ($invoice){
-                                                AutoBill::dispatch($invoice, false);
-                                        });
+            $auto_bill_partial_invoices->cursor()->each(function ($invoice) {
+                AutoBill::dispatch($invoice, false);
+            });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
@@ -75,24 +74,21 @@ class AutoBillCron
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
                                         ->whereHas('company', function ($query) {
-                                             $query->where('is_disabled',0);
+                                            $query->where('is_disabled', 0);
                                         })
                                         ->orderBy('id', 'DESC')
                                         ->with('company');
 
-                                        nlog($auto_bill_invoices->count(). " full invoices to auto bill");
-                                        
-                                        $auto_bill_invoices->cursor()->each(function ($invoice){
-                                                AutoBill::dispatch($invoice, false);
-                                        });
+            nlog($auto_bill_invoices->count().' full invoices to auto bill');
 
-
+            $auto_bill_invoices->cursor()->each(function ($invoice) {
+                AutoBill::dispatch($invoice, false);
+            });
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
-        
                 MultiDB::setDB($db);
-                
+
                 $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
@@ -100,16 +96,16 @@ class AutoBillCron
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
-                                                 $query->where('is_disabled',0);
+                                                $query->where('is_disabled', 0);
                                             })
                                             ->orderBy('id', 'DESC')
                                             ->with('company');
 
-                                            nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
+                nlog($auto_bill_partial_invoices->count()." partial invoices to auto bill db = {$db}");
 
-                                            $auto_bill_partial_invoices->cursor()->each(function ($invoice) use($db){
-                                                AutoBill::dispatch($invoice, $db);
-                                            });
+                $auto_bill_partial_invoices->cursor()->each(function ($invoice) use ($db) {
+                    AutoBill::dispatch($invoice, $db);
+                });
 
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
@@ -118,26 +114,21 @@ class AutoBillCron
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
-                                                 $query->where('is_disabled',0);
+                                                $query->where('is_disabled', 0);
                                             })
                                             ->orderBy('id', 'DESC')
                                             ->with('company');
 
-                                            nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
+                nlog($auto_bill_invoices->count()." full invoices to auto bill db = {$db}");
 
-                                            $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
-
-                                                nlog($this->counter);
-                                                AutoBill::dispatch($invoice, $db);
-                                                $this->counter++;
-                                            });
-
-
-
+                $auto_bill_invoices->cursor()->each(function ($invoice) use ($db) {
+                    nlog($this->counter);
+                    AutoBill::dispatch($invoice, $db);
+                    $this->counter++;
+                });
             }
 
-            nlog("Auto Bill - fine");
+            nlog('Auto Bill - fine');
         }
     }
-
 }

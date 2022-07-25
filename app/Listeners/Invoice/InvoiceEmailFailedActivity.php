@@ -22,7 +22,7 @@ class InvoiceEmailFailedActivity implements ShouldQueue
     protected $activity_repo;
 
     public $delay = 5;
-    
+
     /**
      * Create the event listener.
      *
@@ -43,8 +43,9 @@ class InvoiceEmailFailedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        if(strpos($event->message, 'shared/public') !== false)
-            $event->message = "Unable to open attachment file for reading"; 
+        if (strpos($event->message, 'shared/public') !== false) {
+            $event->message = 'Unable to open attachment file for reading';
+        }
 
         $fields = new stdClass;
 

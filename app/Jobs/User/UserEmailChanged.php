@@ -54,8 +54,8 @@ class UserEmailChanged implements ShouldQueue
 
     public function handle()
     {
-        nlog("notifying user of email change");
-        
+        nlog('notifying user of email change');
+
         //Set DB
         MultiDB::setDb($this->company->db);
 
@@ -68,7 +68,7 @@ class UserEmailChanged implements ShouldQueue
         $mail_obj->data = $this->getData();
 
         //Send email via a Mailable class
-        
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new UserNotificationMailer($mail_obj);
         $nmo->settings = $this->settings;
@@ -78,7 +78,6 @@ class UserEmailChanged implements ShouldQueue
         NinjaMailerJob::dispatch($nmo, true);
 
         $this->new_user->service()->invite($this->company);
-
     }
 
     private function getData()
@@ -88,8 +87,8 @@ class UserEmailChanged implements ShouldQueue
             'message' => ctrans(
                 'texts.email_address_changed_message',
                 ['old_email' => $this->old_user->email,
-                'new_email' => $this->new_user->email,
-            ]
+                    'new_email' => $this->new_user->email,
+                ]
             ),
             'url' => config('ninja.app_url'),
             'button' => ctrans('texts.account_login'),

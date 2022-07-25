@@ -19,7 +19,6 @@ use App\Utils\Ninja;
  */
 class DocumentRepository extends BaseRepository
 {
-
     public function delete($document)
     {
         $document->deleteFile();
@@ -28,18 +27,15 @@ class DocumentRepository extends BaseRepository
 
     public function restore($document)
     {
-        return;
+
         // if (! $document->trashed()) {
         //     return;
         // }
 
         // $document->restore();
-
     }
 
     public function archive($document)
     {
-        return;
     }
-
 }

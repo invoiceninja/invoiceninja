@@ -27,7 +27,6 @@ use Illuminate\Support\Str;
 
 class CreditCard
 {
-
     public $payfast;
 
     public function __construct(PayFastPaymentDriver $payfast)
@@ -35,57 +34,57 @@ class CreditCard
         $this->payfast = $payfast;
     }
 
-/*
-        $data = array();
-        $data['merchant_id'] = $this->getMerchantId();
-        $data['merchant_key'] = $this->getMerchantKey();
-        $data['return_url'] = $this->getReturnUrl();
-        $data['cancel_url'] = $this->getCancelUrl();
-        $data['notify_url'] = $this->getNotifyUrl();
+    /*
+            $data = array();
+            $data['merchant_id'] = $this->getMerchantId();
+            $data['merchant_key'] = $this->getMerchantKey();
+            $data['return_url'] = $this->getReturnUrl();
+            $data['cancel_url'] = $this->getCancelUrl();
+            $data['notify_url'] = $this->getNotifyUrl();
 
-        if ($this->getCard()) {
-            $data['name_first'] = $this->getCard()->getFirstName();
-            $data['name_last'] = $this->getCard()->getLastName();
-            $data['email_address'] = $this->getCard()->getEmail();
-        }
+            if ($this->getCard()) {
+                $data['name_first'] = $this->getCard()->getFirstName();
+                $data['name_last'] = $this->getCard()->getLastName();
+                $data['email_address'] = $this->getCard()->getEmail();
+            }
 
-        $data['m_payment_id'] = $this->getTransactionId();
-        $data['amount'] = $this->getAmount();
-        $data['item_name'] = $this->getDescription();
-        $data['custom_int1'] = $this->getCustomInt1();
-        $data['custom_int2'] = $this->getCustomInt2();
-        $data['custom_int3'] = $this->getCustomInt3();
-        $data['custom_int4'] = $this->getCustomInt4();
-        $data['custom_int5'] = $this->getCustomInt5();
-        $data['custom_str1'] = $this->getCustomStr1();
-        $data['custom_str2'] = $this->getCustomStr2();
-        $data['custom_str3'] = $this->getCustomStr3();
-        $data['custom_str4'] = $this->getCustomStr4();
-        $data['custom_str5'] = $this->getCustomStr5();
+            $data['m_payment_id'] = $this->getTransactionId();
+            $data['amount'] = $this->getAmount();
+            $data['item_name'] = $this->getDescription();
+            $data['custom_int1'] = $this->getCustomInt1();
+            $data['custom_int2'] = $this->getCustomInt2();
+            $data['custom_int3'] = $this->getCustomInt3();
+            $data['custom_int4'] = $this->getCustomInt4();
+            $data['custom_int5'] = $this->getCustomInt5();
+            $data['custom_str1'] = $this->getCustomStr1();
+            $data['custom_str2'] = $this->getCustomStr2();
+            $data['custom_str3'] = $this->getCustomStr3();
+            $data['custom_str4'] = $this->getCustomStr4();
+            $data['custom_str5'] = $this->getCustomStr5();
 
-        if ($this->getPaymentMethod()) {
-            $data['payment_method'] = $this->getPaymentMethod();
-        }
+            if ($this->getPaymentMethod()) {
+                $data['payment_method'] = $this->getPaymentMethod();
+            }
 
-        if (1 == $this->getSubscriptionType()) {
-            $data['subscription_type'] = $this->getSubscriptionType();
-            $data['billing_date'] = $this->getBillingDate();
-            $data['recurring_amount'] = $this->getRecurringAmount();
-            $data['frequency'] = $this->getFrequency();
-            $data['cycles'] = $this->getCycles();
-        }
-        if (2 == $this->getSubscriptionType()) {
-            $data['subscription_type'] = $this->getSubscriptionType();
-        }
+            if (1 == $this->getSubscriptionType()) {
+                $data['subscription_type'] = $this->getSubscriptionType();
+                $data['billing_date'] = $this->getBillingDate();
+                $data['recurring_amount'] = $this->getRecurringAmount();
+                $data['frequency'] = $this->getFrequency();
+                $data['cycles'] = $this->getCycles();
+            }
+            if (2 == $this->getSubscriptionType()) {
+                $data['subscription_type'] = $this->getSubscriptionType();
+            }
 
-        $data['passphrase'] = $this->getParameter('passphrase'); 123456789012aV
-        $data['signature'] = $this->generateSignature($data);
- */
+            $data['passphrase'] = $this->getParameter('passphrase'); 123456789012aV
+            $data['signature'] = $this->generateSignature($data);
+     */
 
     public function authorizeView($data)
     {
         $hash = Str::random(32);
-        
+
         Cache::put($hash, 'cc_auth', 300);
 
         $data = [
@@ -100,7 +99,7 @@ class CreditCard
             'item_description' => 'Credit Card Pre Authorization',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
-        ];        
+        ];
 
         $data['signature'] = $this->payfast->generateSignature($data);
         $data['gateway'] = $this->payfast;
@@ -112,7 +111,7 @@ class CreditCard
     /*
       'm_payment_id' => NULL,
       'pf_payment_id' => '1409993',
-      'payment_status' => 'COMPLETE', 
+      'payment_status' => 'COMPLETE',
       'item_name' => 'pre-auth',
       'item_description' => NULL,
       'amount_gross' => '5.00',
@@ -137,8 +136,8 @@ class CreditCard
       'signature' => 'ebdb4ca937d0e3f43462841c0afc6ad9',
       'q' => '/payment_notification_webhook/EhbnVYyzJZyccY85hcHIkIzNPI2rtHzznAyyyG73oSxZidAdN9gf8BvAKDomqeHp/4openRe7Az/WPe99p3eLy',
      */
- 	public function authorizeResponse($request)
- 	{
+    public function authorizeResponse($request)
+    {
         $data = $request->all();
 
         $cgt = [];
@@ -157,12 +156,10 @@ class CreditCard
         $token = $this->payfast->storeGatewayToken($cgt, []);
 
         return response()->json([], 200);
-
- 	}  
+    }
 
     public function paymentView($data)
     {
-
         $payfast_data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
@@ -172,16 +169,15 @@ class CreditCard
             'm_payment_id' => $data['payment_hash'],
             'amount' => $data['amount_with_fee'],
             'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
+            'item_description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
-        ];  
+        ];
 
         $payfast_data['signature'] = $this->payfast->generateSignature($payfast_data);
         $payfast_data['gateway'] = $this->payfast;
         $payfast_data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
         return render('gateways.payfast.pay', array_merge($data, $payfast_data));
-
     }
 
     /*
@@ -225,20 +221,17 @@ class CreditCard
         $this->payfast->payment_hash->data = array_merge((array) $this->payfast->payment_hash->data, $state);
         $this->payfast->payment_hash->save();
 
-        if($response_array['payment_status'] == 'COMPLETE') {
-
+        if ($response_array['payment_status'] == 'COMPLETE') {
             $this->payfast->logSuccessfulGatewayResponse(['response' => $response_array, 'data' => $this->payfast->payment_hash], SystemLog::TYPE_PAYFAST);
 
             return $this->processSuccessfulPayment($response_array);
-        }
-        else {
+        } else {
             $this->processUnsuccessfulPayment($response_array);
         }
     }
 
     private function processSuccessfulPayment($response_array)
     {
-
         $payment_record = [];
         $payment_record['amount'] = $response_array['amount_gross'];
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
@@ -253,7 +246,7 @@ class CreditCard
     private function processUnsuccessfulPayment($server_response)
     {
         $this->payfast->sendFailureMail($server_response->cancellation_reason);
-        
+
         $message = [
             'server_response' => $server_response,
             'data' => $this->payfast->payment_hash->data,
@@ -270,5 +263,4 @@ class CreditCard
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-
 }

@@ -50,38 +50,35 @@ class PayFastPaymentDriver extends BaseDriver
         $types = [];
 
         // if($this->client->currency()->code == 'ZAR' || $this->client->currency()->code == 'USD')
-        if($this->client->currency()->code == 'ZAR')
+        if ($this->client->currency()->code == 'ZAR') {
             $types[] = GatewayType::CREDIT_CARD;
+        }
 
         return $types;
     }
 
     public function endpointUrl()
     {
-        if($this->company_gateway->getConfigField('testMode'))
+        if ($this->company_gateway->getConfigField('testMode')) {
             return 'https://sandbox.payfast.co.za/eng/process';
+        }
 
         return 'https://www.payfast.co.za/eng/process';
     }
 
     public function init()
     {
-
-        try{
-
+        try {
             $this->payfast = new \PayFast\PayFastPayment(
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
                     'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
                     'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
-                    'testMode' => $this->company_gateway->getConfigField('testMode')
+                    'testMode' => $this->company_gateway->getConfigField('testMode'),
                 ]
             );
-
-        } catch(\Exception $e) {
-
+        } catch (\Exception $e) {
             nlog('##PAYFAST## There was an exception: '.$e->getMessage());
-
         }
 
         return $this;
@@ -91,6 +88,7 @@ class PayFastPaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -138,56 +136,56 @@ class PayFastPaymentDriver extends BaseDriver
             'itn',
             'm_payment_id',
             'cc_css',
-            'split_payment'
+            'split_payment',
         ];
 
-        foreach($keys as $key)
-        {
-            if (!empty($data[$key])) {
+        foreach ($keys as $key) {
+            if (! empty($data[$key])) {
                 $fields[$key] = $data[$key];
             }
         }
 
-        if($this->company_gateway->getConfigField('passphrase'))
+        if ($this->company_gateway->getConfigField('passphrase')) {
             $fields['passphrase'] = $this->company_gateway->getConfigField('passphrase');
+        }
 
         return md5(http_build_query($fields));
     }
 
     public function generateSignature($data)
     {
-        $fields = array();
+        $fields = [];
 
         // specific order required by PayFast
         // @see https://developers.payfast.co.za/documentation/#checkout-page
-        foreach (array('merchant_id', 'merchant_key', 'return_url', 'cancel_url', 'notify_url', 'name_first',
-                     'name_last', 'email_address', 'cell_number',
-                    /**
-                     * Transaction Details
-                     */
-                    'm_payment_id', 'amount', 'item_name', 'item_description',
-                    /**
-                     * Custom return data
-                     */
-                    'custom_int1', 'custom_int2', 'custom_int3', 'custom_int4', 'custom_int5',
-                    'custom_str1', 'custom_str2', 'custom_str3', 'custom_str4', 'custom_str5',
-                    /**
-                     * Email confirmation
-                     */
-                    'email_confirmation', 'confirmation_address',
-                    /**
-                     * Payment Method
-                     */
-                    'payment_method',
-                    /**
-                     * Subscriptions
-                     */
-                    'subscription_type', 'billing_date', 'recurring_amount', 'frequency', 'cycles',
-                    /**
-                     * Passphrase for md5 signature generation
-                     */
-                    'passphrase') as $key) {
-            if (!empty($data[$key])) {
+        foreach (['merchant_id', 'merchant_key', 'return_url', 'cancel_url', 'notify_url', 'name_first',
+            'name_last', 'email_address', 'cell_number',
+            /**
+             * Transaction Details
+             */
+            'm_payment_id', 'amount', 'item_name', 'item_description',
+            /**
+             * Custom return data
+             */
+            'custom_int1', 'custom_int2', 'custom_int3', 'custom_int4', 'custom_int5',
+            'custom_str1', 'custom_str2', 'custom_str3', 'custom_str4', 'custom_str5',
+            /**
+             * Email confirmation
+             */
+            'email_confirmation', 'confirmation_address',
+            /**
+             * Payment Method
+             */
+            'payment_method',
+            /**
+             * Subscriptions
+             */
+            'subscription_type', 'billing_date', 'recurring_amount', 'frequency', 'cycles',
+            /**
+             * Passphrase for md5 signature generation
+             */
+            'passphrase', ] as $key) {
+            if (! empty($data[$key])) {
                 $fields[$key] = $data[$key];
             }
         }
@@ -197,25 +195,20 @@ class PayFastPaymentDriver extends BaseDriver
         return md5(http_build_query($fields));
     }
 
-
     public function processWebhookRequest(Request $request, Payment $payment = null)
     {
-
         $data = $request->all();
         // nlog("payfast");
         // nlog($data);
 
-        if(array_key_exists('m_payment_id', $data))
-        {
-
+        if (array_key_exists('m_payment_id', $data)) {
             $hash = Cache::get($data['m_payment_id']);
 
-            switch ($hash)
-            {
+            switch ($hash) {
                 case 'cc_auth':
                     $this->setPaymentMethod(GatewayType::CREDIT_CARD)
                          ->authorizeResponse($request);
-                    
+
                     return response()->json([], 200);
 
                     break;
@@ -227,16 +220,13 @@ class PayFastPaymentDriver extends BaseDriver
                     $this->setPaymentMethod(GatewayType::CREDIT_CARD)
                          ->setPaymentHash($payment_hash)
                          ->processPaymentResponse($request);
-            
+
                     return response()->json([], 200);
 
                     break;
             }
-
-
         }
 
         return response()->json([], 200);
-
     }
 }

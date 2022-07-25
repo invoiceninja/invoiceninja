@@ -28,39 +28,39 @@ class StoreSetupRequest extends Request
     public function rules()
     {
         $rules = [
-			/*System*/
-			'url'              => 'required',
-			/*Mail driver*/
-			'mail_driver'      => 'required',
-			'encryption'       => 'required_unless:mail_driver,log',
-			'mail_host'        => 'required_unless:mail_driver,log',
-			'mail_username'    => 'required_unless:mail_driver,log',
-			'mail_name'        => 'required_unless:mail_driver,log',
-			'mail_address'     => 'required_unless:mail_driver,log',
-			'mail_password'    => 'required_unless:mail_driver,log',
-			/*user registration*/
-			'privacy_policy'   => 'required',
-			'terms_of_service' => 'required',
-			'first_name'       => 'required',
-			'last_name'        => 'required',
-			'email'            => 'required|email:rfc,dns',
-			'password'         => 'required',
-		];
+            /*System*/
+            'url'              => 'required',
+            /*Mail driver*/
+            'mail_driver'      => 'required',
+            'encryption'       => 'required_unless:mail_driver,log',
+            'mail_host'        => 'required_unless:mail_driver,log',
+            'mail_username'    => 'required_unless:mail_driver,log',
+            'mail_name'        => 'required_unless:mail_driver,log',
+            'mail_address'     => 'required_unless:mail_driver,log',
+            'mail_password'    => 'required_unless:mail_driver,log',
+            /*user registration*/
+            'privacy_policy'   => 'required',
+            'terms_of_service' => 'required',
+            'first_name'       => 'required',
+            'last_name'        => 'required',
+            'email'            => 'required|email:rfc,dns',
+            'password'         => 'required',
+        ];
 
-		if ( ! config( 'ninja.preconfigured_install' ) ) {
-			$rules = array_merge( $rules, [
-				/*Database*/
-				'db_host'     => 'required',
-				'db_database' => 'required',
-				'db_username' => 'required',
-				'db_password' => '',
-			] );
-		}
+        if (! config('ninja.preconfigured_install')) {
+            $rules = array_merge($rules, [
+                /*Database*/
+                'db_host'     => 'required',
+                'db_database' => 'required',
+                'db_username' => 'required',
+                'db_password' => '',
+            ]);
+        }
 
-		return $rules;
-	}
+        return $rules;
+    }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

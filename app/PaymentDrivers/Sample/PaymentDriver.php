@@ -50,7 +50,7 @@ class PaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
@@ -60,6 +60,7 @@ class PaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 

@@ -116,16 +116,15 @@ class DocumentController extends BaseController
 
     public function download(ShowDocumentRequest $request, Document $document)
     {
-
         $headers = [];
 
-        if(request()->input('inline') == 'true')
+        if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
 
         return response()->streamDownload(function () use ($document) {
             echo file_get_contents($document->generateUrl());
         }, basename($document->generateUrl()), $headers);
-
     }
 
     /**
@@ -178,10 +177,9 @@ class DocumentController extends BaseController
             return response()->json(['message' => ctrans('texts.no_documents_found')]);
         }
 
-        if($action == 'download'){
-
+        if ($action == 'download') {
             ZipDocuments::dispatch($documents->pluck('id'), auth()->user()->company(), auth()->user());
-            
+
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
         /*

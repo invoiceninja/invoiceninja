@@ -49,7 +49,6 @@ class CompanyGatewayController extends BaseController
 
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
-
     /**
      * CompanyGatewayController constructor.
      * @param CompanyRepository $company_repo
@@ -200,8 +199,7 @@ class CompanyGatewayController extends BaseController
         $company_gateway->save();
 
         /*Always ensure at least one fees and limits object is set per gateway*/
-        if(!isset($company_gateway->fees_and_limits)) {
-
+        if (! isset($company_gateway->fees_and_limits)) {
             $gateway_types = $company_gateway->driver(new Client)->gatewayTypes();
 
             $fees_and_limits = new \stdClass;
@@ -213,8 +211,7 @@ class CompanyGatewayController extends BaseController
 
         ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
 
-        if(in_array($company_gateway->gateway_key, $this->stripe_keys))
-        {
+        if (in_array($company_gateway->gateway_key, $this->stripe_keys)) {
             StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         }
 
@@ -448,14 +445,12 @@ class CompanyGatewayController extends BaseController
      */
     public function destroy(DestroyCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
         $company_gateway->driver(new Client)
                          ->disconnect();
 
         $company_gateway->delete();
 
         return $this->itemResponse($company_gateway->fresh());
-        
     }
 
     /**

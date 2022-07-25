@@ -15,8 +15,6 @@ use App\Models\CompanyToken;
 
 class TokenRepository extends BaseRepository
 {
-
-
     /**
      * Saves the companytoken.
      *

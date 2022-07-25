@@ -94,7 +94,6 @@ class PaymentFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
-
     public function number(string $number) : Builder
     {
         return $this->builder->where('number', $number);

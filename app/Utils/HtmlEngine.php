@@ -540,8 +540,8 @@ class HtmlEngine
         /*Payment Aliases*/
         $data['$paymentLink'] = &$data['$payment_link'];
         $data['$payment_url'] = &$data['$payment_link'];
-        $data['$portalButton'] = &$data['$paymentLink'];
-
+        $data['$portalButton'] = &$data['$portal_button'];
+        
         $data['$dir'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'rtl' : 'ltr', 'label' => ''];
         $data['$dir_text_align'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'right' : 'left', 'label' => ''];
 

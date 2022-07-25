@@ -44,8 +44,8 @@ class UpdatedUserActivity implements ShouldQueue
         $fields = new stdClass;
         $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->creating_user->id;
 
-        $fields->user_id = $user_id;   
-        $fields->notes = $event->creating_user->present()->name() . " Updated user " . $event->user->present()->name();
+        $fields->user_id = $user_id;
+        $fields->notes = $event->creating_user->present()->name().' Updated user '.$event->user->present()->name();
 
         $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::UPDATE_USER;

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Jobs\Entity\EmailEntity;
@@ -28,7 +29,7 @@ class InvoiceEmailTest extends TestCase
     use DatabaseTransactions;
     use GeneratesCounter;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -60,7 +61,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatch($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -88,7 +89,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatch($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -116,7 +117,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatch($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }
@@ -139,7 +140,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->invoice->invitations->each(function ($invitation) {
             if ($invitation->contact->send_email && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company);
+                EmailEntity::dispatch($invitation, $invitation->company);
 
                 $this->expectsJobs(EmailEntity::class);
             }

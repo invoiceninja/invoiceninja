@@ -95,7 +95,7 @@ class UserTransformer extends EntityTransformer
 
     public function includeCompanyUser(User $user)
     {
-        if (!$user->company_id && request()->header('X-API-TOKEN')) {
+        if (! $user->company_id && request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::where('token', request()->header('X-API-TOKEN'))->first();
             $user->company_id = $company_token->company_id;
         }

@@ -32,7 +32,6 @@ class VerifyCsrfToken extends Middleware
         // 'livewire/message/*'
     ];
 
-
     // public function handle($request, \Closure $next) {
 
     //     try {
@@ -43,5 +42,4 @@ class VerifyCsrfToken extends Middleware
 
     //     }
     // }
-
 }

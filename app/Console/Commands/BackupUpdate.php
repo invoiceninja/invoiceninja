@@ -66,39 +66,25 @@ class BackupUpdate extends Command
                 $this->handleOnDb();
             }
 
-        MultiDB::setDB($current_db);
-        
+            MultiDB::setDB($current_db);
         }
-
-
     }
 
     private function handleOnDb()
     {
         set_time_limit(0);
-        
-        Backup::whereHas('activity')->whereRaw('html_backup IS NOT NULL')->cursor()->each( function ($backup) {
 
-                
-                if(strlen($backup->html_backup) > 1 && $backup->activity->invoice->exists()){
-
-                    $client = $backup->activity->invoice->client;
-                    $backup->storeRemotely($backup->html_backup, $client);
-
-                }else if(strlen($backup->html_backup) > 1 && $backup->activity->quote->exists()){
-
-                    $client = $backup->activity->quote->client;
-                    $backup->storeRemotely($backup->html_backup, $client);
-
-                }else if(strlen($backup->html_backup) > 1 && $backup->activity->credit->exists()){
-
-                    $client = $backup->activity->credit->client;
-                    $backup->storeRemotely($backup->html_backup, $client);
-
-                }
-
-            
+        Backup::whereHas('activity')->whereRaw('html_backup IS NOT NULL')->cursor()->each(function ($backup) {
+            if (strlen($backup->html_backup) > 1 && $backup->activity->invoice->exists()) {
+                $client = $backup->activity->invoice->client;
+                $backup->storeRemotely($backup->html_backup, $client);
+            } elseif (strlen($backup->html_backup) > 1 && $backup->activity->quote->exists()) {
+                $client = $backup->activity->quote->client;
+                $backup->storeRemotely($backup->html_backup, $client);
+            } elseif (strlen($backup->html_backup) > 1 && $backup->activity->credit->exists()) {
+                $client = $backup->activity->credit->client;
+                $backup->storeRemotely($backup->html_backup, $client);
+            }
         });
-
     }
 }

@@ -42,28 +42,24 @@ class AdjustEmailQuota implements ShouldQueue
      */
     public function handle()
     {
-        if(!Ninja::isHosted())
+        if (! Ninja::isHosted()) {
             return;
+        }
 
         //multiDB environment, need to
         foreach (MultiDB::$dbs as $db) {
-
             MultiDB::setDB($db);
 
             $this->adjust();
-
         }
-        
     }
 
     public function adjust()
     {
-
-        Account::query()->cursor()->each(function ($account){
+        Account::query()->cursor()->each(function ($account) {
             nlog("resetting email quota for {$account->key}");
             Cache::forget($account->key);
             Cache::forget("throttle_notified:{$account->key}");
         });
-
     }
 }

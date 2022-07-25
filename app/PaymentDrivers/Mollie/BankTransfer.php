@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -24,6 +23,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Exception;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Mollie\Api\Resources\Payment as ResourcesPayment;
@@ -112,9 +112,8 @@ class BankTransfer implements MethodInterface
      * @throws PaymentFailed
      * @return void
      */
-    public function processUnsuccessfulPayment(\Exception $e): void
+    public function processUnsuccessfulPayment(Exception $e): void
     {
-
         $this->mollie->sendFailureMail($e->getMessage());
 
         SystemLogger::dispatch(
@@ -139,7 +138,7 @@ class BankTransfer implements MethodInterface
     {
         if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
             return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: ' . $this->mollie->payment_hash->hash)
+                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
             );
         }
 
@@ -171,7 +170,7 @@ class BankTransfer implements MethodInterface
      * @param string $status
      * @return RedirectResponse
      */
-    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, $status = 'paid'): RedirectResponse
+    public function processSuccessfulPayment(ResourcesPayment $payment, $status = 'paid'): RedirectResponse
     {
         $data = [
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
@@ -203,7 +202,7 @@ class BankTransfer implements MethodInterface
      * @param ResourcesPayment $payment
      * @return RedirectResponse
      */
-    public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
+    public function processOpenPayment(ResourcesPayment $payment): RedirectResponse
     {
         return $this->processSuccessfulPayment($payment, 'open');
     }

@@ -31,8 +31,8 @@
                                 {{ ctrans('texts.type') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ optional($payment_method->meta)->brand }}
-                                {{ optional($payment_method->meta)->scheme }}
+                                {{ $payment_method->meta?->brand }}
+                                {{ $payment_method->meta?->scheme }}
                             </dd>
                         </div>
                     @endif
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        @if((optional($payment_method->meta)->state === 'unauthorized' || optional($payment_method->meta)->state === 'pending')  && $payment_method->gateway_type_id === \App\Models\GatewayType::BANK_TRANSFER)
+        @if(($payment_method->meta?->state === 'unauthorized' || $payment_method->meta?->state === 'pending')  && $payment_method->gateway_type_id === \App\Models\GatewayType::BANK_TRANSFER)
             <div class="mt-4 mb-4 bg-white shadow sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">

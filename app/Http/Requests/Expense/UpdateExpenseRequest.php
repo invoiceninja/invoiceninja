@@ -56,7 +56,7 @@ class UpdateExpenseRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -71,7 +71,7 @@ class UpdateExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
         $this->replace($input);

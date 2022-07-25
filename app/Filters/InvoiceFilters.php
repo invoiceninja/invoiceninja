@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
 class InvoiceFilters extends QueryFilters
 {
     use MakesHash;
+
     /**
      * Filter based on client status.
      *
@@ -98,7 +99,6 @@ class InvoiceFilters extends QueryFilters
         });
     }
 
-
     /**
      * Filters the list based on the status
      * archived, active, deleted - legacy from V1.
@@ -161,7 +161,7 @@ class InvoiceFilters extends QueryFilters
         $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->where('is_deleted', 0)
                 ->where(function ($query) {
-                        $query->where('due_date', '<', now())
+                    $query->where('due_date', '<', now())
                         ->orWhere('partial_due_date', '<', now());
                 })
                 ->orderBy('due_date', 'ASC');
@@ -190,8 +190,9 @@ class InvoiceFilters extends QueryFilters
         $sort_col = explode('|', $sort);
 
         //catch invalid explode array count
-        if(count($sort_col) == 1)
+        if (count($sort_col) == 1) {
             return $this->builder;
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

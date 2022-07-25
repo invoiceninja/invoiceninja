@@ -11,8 +11,6 @@
 
 namespace App\Repositories;
 
-
 class TaskSchedulerRepository extends BaseRepository
 {
-
 }

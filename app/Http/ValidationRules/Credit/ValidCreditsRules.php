@@ -44,7 +44,6 @@ class ValidCreditsRules implements Rule
     private function checkCreditsAreHomogenous()
     {
         if (! array_key_exists('client_id', $this->input)) {
-
             $this->error_msg = ctrans('texts.client_id_required');
 
             return false;
@@ -83,7 +82,6 @@ class ValidCreditsRules implements Rule
         }
 
         if (count($this->input['credits']) >= 1) {
-
         }
 
         return true;

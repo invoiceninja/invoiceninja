@@ -34,7 +34,6 @@ use Illuminate\Support\Facades\Validator;
 
 class Wave extends BaseImport implements ImportInterface
 {
-
     public array $entity_count = [];
 
     public function import(string $entity)
@@ -67,6 +66,7 @@ class Wave extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
+
             return;
         }
 
@@ -82,20 +82,19 @@ class Wave extends BaseImport implements ImportInterface
         $client_count = $this->ingest($data, $entity_type);
 
         $this->entity_count['clients'] = $client_count;
-
     }
 
-
-    public function product() {
+    public function product()
+    {
 
         //done automatically inside the invoice() method as we need to harvest the products from the line items
-
     }
 
-    public function invoice() {
+    public function invoice()
+    {
 
         //make sure we update and create products with wave
-        $initial_update_products_value = $this->company->update_products; 
+        $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;
 
         $this->company->save();
@@ -108,6 +107,7 @@ class Wave extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['invoices'] = 0;
+
             return;
         }
 
@@ -125,29 +125,29 @@ class Wave extends BaseImport implements ImportInterface
         $this->entity_count['invoices'] = $invoice_count;
 
         $this->company->update_products = $initial_update_products_value;
-        $this->company->save();    
-
+        $this->company->save();
     }
 
-    public function payment() 
+    public function payment()
     {
         //these are pulled in when processing invoices
     }
 
-    public function vendor() 
+    public function vendor()
     {
-
         $entity_type = 'vendor';
 
         $data = $this->getCsvData($entity_type);
 
-        if(!is_array($data))
+        if (! is_array($data)) {
             return;
-        
+        }
+
         $data = $this->preTransform($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['vendors'] = 0;
+
             return;
         }
 
@@ -163,10 +163,9 @@ class Wave extends BaseImport implements ImportInterface
         $vendor_count = $this->ingest($data, $entity_type);
 
         $this->entity_count['vendors'] = $vendor_count;
-
     }
 
-    public function expense() 
+    public function expense()
     {
         $entity_type = 'expense';
 
@@ -175,6 +174,7 @@ class Wave extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['expense'] = 0;
+
             return;
         }
 
@@ -190,22 +190,21 @@ class Wave extends BaseImport implements ImportInterface
         $expense_count = $this->ingestExpenses($data, $entity_type);
 
         $this->entity_count['expenses'] = $expense_count;
-
     }
 
-    public function transform(array $data){}
-
+    public function transform(array $data)
+    {
+    }
 
     private function groupExpenses($csvData)
     {
-
         $grouped_expense = [];
         $key = 'Transaction ID';
 
-        foreach($csvData as $expense)
-        {
-            if($expense['Account Group'] == 'Expense')
-                $grouped[$expense[$key]][] = $expense; 
+        foreach ($csvData as $expense) {
+            if ($expense['Account Group'] == 'Expense') {
+                $grouped[$expense[$key]][] = $expense;
+            }
         }
 
         return $grouped;
@@ -223,13 +222,11 @@ class Wave extends BaseImport implements ImportInterface
         $expenses = $this->groupExpenses($data);
 
         foreach ($expenses as $raw_expense) {
-
             try {
-
                 $expense_data = $expense_transformer->transform($raw_expense);
 
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
-                if (empty($expense_data['vendor_id'])                ) {
+                if (empty($expense_data['vendor_id'])) {
                     $vendor_data['user_id'] = $this->getUserIDForRecord($expense_data);
 
                     $vendor_repository->save(
@@ -258,7 +255,6 @@ class Wave extends BaseImport implements ImportInterface
                     );
 
                     $expense_repository->save($expense_data, $expense);
-
                 }
             } catch (\Exception $ex) {
                 if ($ex instanceof ImportException) {
@@ -275,5 +271,4 @@ class Wave extends BaseImport implements ImportInterface
             }
         }
     }
-    
 }

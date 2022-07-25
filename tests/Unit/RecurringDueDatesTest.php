@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Unit;
@@ -22,7 +22,6 @@ use Tests\TestCase;
 class RecurringDueDatesTest extends TestCase
 {
     use HasRecurrence;
-
 
     public function testFirstDate()
     {
@@ -41,7 +40,6 @@ class RecurringDueDatesTest extends TestCase
 
         $this->assertEquals('2020-03-01', $due_date->format('Y-m-d'));
     }
-
 
     public function testFirstOfMonthOnLast()
     {
@@ -105,7 +103,6 @@ class RecurringDueDatesTest extends TestCase
 
         $this->assertEquals('2020-03-01', $due_date->format('Y-m-d'));
     }
-
 
     public function testDayOfMonthWithOverflow()
     {

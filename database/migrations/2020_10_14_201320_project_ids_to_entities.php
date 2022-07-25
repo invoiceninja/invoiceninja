@@ -6,16 +6,14 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ProjectIdsToEntities extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -46,4 +44,4 @@ class ProjectIdsToEntities extends Migration
     public function down()
     {
     }
-}
+};

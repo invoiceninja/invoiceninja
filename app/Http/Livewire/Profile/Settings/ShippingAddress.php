@@ -9,10 +9,15 @@ class ShippingAddress extends Component
     public $profile;
 
     public $shipping_address1;
+
     public $shipping_address2;
+
     public $shipping_city;
+
     public $shipping_state;
+
     public $shipping_postal_code;
+
     public $shipping_country_id;
 
     public $countries;

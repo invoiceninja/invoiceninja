@@ -56,7 +56,7 @@ class CreditCard
             ->withData('gateway_type_id', GatewayType::CREDIT_CARD)
             ->withData('client_id', $this->mollie->client->id);
 
-        if (!empty($request->token)) {
+        if (! empty($request->token)) {
             try {
                 $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
 
@@ -93,8 +93,6 @@ class CreditCard
                     return redirect($payment->getCheckoutUrl());
                 }
             } catch (\Exception $e) {
-
-
                 return $this->processUnsuccessfulPayment($e);
             }
         }
@@ -113,11 +111,11 @@ class CreditCard
                 ]),
                 'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
                 'metadata' => [
-                        'client_id' => $this->mollie->client->hashed_id,
-                        'hash' => $this->mollie->payment_hash->hash,
-                        'gateway_type_id' => GatewayType::CREDIT_CARD,
-                        'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
-                    ],
+                    'client_id' => $this->mollie->client->hashed_id,
+                    'hash' => $this->mollie->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                    'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+                ],
                 'cardToken' => $request->gateway_response,
             ];
 
@@ -126,7 +124,7 @@ class CreditCard
                     'name' => $this->mollie->client->name,
                     'email' => $this->mollie->client->present()->email(),
                     'metadata' => [
-                        'id' => $this->mollie->client->hashed_id
+                        'id' => $this->mollie->client->hashed_id,
                     ],
                 ]);
 
@@ -155,7 +153,6 @@ class CreditCard
                 return redirect($payment->getCheckoutUrl());
             }
         } catch (\Exception $e) {
-
             $this->processUnsuccessfulPayment($e);
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
@@ -210,7 +207,6 @@ class CreditCard
 
     public function processUnsuccessfulPayment(\Exception $e)
     {
-
         $this->mollie->sendFailureMail($e->getMessage());
 
         SystemLogger::dispatch(

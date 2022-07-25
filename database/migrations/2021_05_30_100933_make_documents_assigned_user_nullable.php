@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class MakeDocumentsAssignedUserNullable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,18 +14,17 @@ class MakeDocumentsAssignedUserNullable extends Migration
      */
     public function up()
     {
-        Schema::table('documents', function (Blueprint $table){
+        Schema::table('documents', function (Blueprint $table) {
             $table->unsignedInteger('assigned_user_id')->nullable()->change();
         });
 
         Document::where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
 
-        if(config('ninja.db.multi_db_enabled')){
+        if (config('ninja.db.multi_db_enabled')) {
             foreach (MultiDB::$dbs as $db) {
                 Document::on($db)->where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
             }
-        }
-        else{
+        } else {
             Document::where('assigned_user_id', 0)->update(['assigned_user_id' => null]);
         }
     }
@@ -40,4 +38,4 @@ class MakeDocumentsAssignedUserNullable extends Migration
     {
         //
     }
-}
+};

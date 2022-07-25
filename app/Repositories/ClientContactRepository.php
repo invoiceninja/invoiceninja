@@ -39,15 +39,16 @@ class ClientContactRepository extends BaseRepository
         });
 
         /* Ensure send_email always exists in at least one contact */
-        if(!$contacts->contains('send_email', true))
+        if (! $contacts->contains('send_email', true)) {
             $this->set_send_email_on_contact = true;
+        }
 
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
 
-            if($this->set_send_email_on_contact){
+            if ($this->set_send_email_on_contact) {
                 $contact['send_email'] = true;
                 $this->set_send_email_on_contact = false;
             }
@@ -66,13 +67,14 @@ class ClientContactRepository extends BaseRepository
             if (! $update_contact) {
                 $update_contact = ClientContactFactory::create($client->company_id, $client->user_id);
             }
-            
+
             //10-09-2021 - enforce the client->id and remove client_id from fillables
             $update_contact->client_id = $client->id;
 
             /* We need to set NULL email addresses to blank strings to pass authentication*/
-            if(array_key_exists('email', $contact) && is_null($contact['email']))
+            if (array_key_exists('email', $contact) && is_null($contact['email'])) {
                 $contact['email'] = '';
+            }
 
             $update_contact->fill($contact);
 
@@ -82,8 +84,9 @@ class ClientContactRepository extends BaseRepository
                 $client->company->client_contacts()->where('email', $update_contact->email)->update(['password' => $update_contact->password]);
             }
 
-            if(array_key_exists('email', $contact))
+            if (array_key_exists('email', $contact)) {
                 $update_contact->email = trim($contact['email']);
+            }
 
             $update_contact->save();
         });

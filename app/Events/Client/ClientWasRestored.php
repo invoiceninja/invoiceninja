@@ -28,7 +28,7 @@ class ClientWasRestored
     public $client;
 
     public $fromDeleted;
-    
+
     public $company;
 
     public $event_vars;

@@ -44,6 +44,7 @@ class WebhookHandler implements ShouldQueue
     public $deleteWhenMissingModels = true;
 
     private string $includes;
+
     /**
      * Create a new job instance.
      *
@@ -72,7 +73,6 @@ class WebhookHandler implements ShouldQueue
             return true;
         }
 
-
         $subscriptions = Webhook::where('company_id', $this->company->id)
                                     ->where('event_id', $this->event_id)
                                     ->get();
@@ -80,7 +80,7 @@ class WebhookHandler implements ShouldQueue
         if (! $subscriptions || $subscriptions->count() == 0) {
             return;
         }
-        
+
         $subscriptions->each(function ($subscription) {
             $this->process($subscription);
         });
@@ -89,7 +89,7 @@ class WebhookHandler implements ShouldQueue
     private function process($subscription)
     {
         $this->entity->refresh();
-        
+
         // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
@@ -115,13 +115,12 @@ class WebhookHandler implements ShouldQueue
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
         try {
-
             $response = $client->post($subscription->target_url, [
                 RequestOptions::JSON => $data, // or 'json' => [...]
             ]);
 
             SystemLogger::dispatch(
-                array_merge((array)$response,$data),
+                array_merge((array) $response, $data),
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
@@ -131,13 +130,10 @@ class WebhookHandler implements ShouldQueue
 
             // if ($response->getStatusCode() == 410)
             //      return true; $subscription->delete();
-
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
             nlog($e->getMessage());
 
-                SystemLogger::dispatch(
+            SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
@@ -145,15 +141,13 @@ class WebhookHandler implements ShouldQueue
                 $this->resolveClient(),
                 $this->company,
             );
-
         }
-
     }
 
     private function resolveClient()
     {
         //make sure it isn't an instance of the Client Model
-        if((!$this->entity instanceof ClientModel) && $this->entity->client()->exists()){
+        if ((! $this->entity instanceof ClientModel) && $this->entity->client()->exists()) {
             return $this->entity->client;
         }
 

@@ -77,7 +77,7 @@ class ClientStatementController extends BaseController
      *                     property="show_payments_table",
      *                     description="Flag which determines if the payments table is shown",
      *                     type="boolean",
-     *                 ),     
+     *                 ),
      *                 @OA\Property(
      *                     property="show_aging_table",
      *                     description="Flag which determines if the aging table is shown",
@@ -107,17 +107,16 @@ class ClientStatementController extends BaseController
      *       ),
      *     )
      */
-
     public function statement(CreateStatementRequest $request)
-    { 
+    {
         $pdf = $request->client()->service()->statement(
             $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
         );
-    
+
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf;
-            }, ctrans('texts.statement') . '.pdf', ['Content-Type' => 'application/pdf']);
+            }, ctrans('texts.statement').'.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         return response()->json(['message' => 'Something went wrong. Please check logs.']);

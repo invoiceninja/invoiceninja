@@ -51,7 +51,7 @@ class PaymentMap
             11 => 'texts.client',
             12 => 'texts.invoice_number',
             13 => 'texts.date',
-            14 => 'texts.method'
+            14 => 'texts.method',
         ];
     }
 }

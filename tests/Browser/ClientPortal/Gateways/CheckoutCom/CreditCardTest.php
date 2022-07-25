@@ -106,8 +106,8 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('Payment method has been successfully removed.');
         });
     }
-    
-    public function testAddingCreditCardStandalone() 
+
+    public function testAddingCreditCardStandalone()
     {
         $this->browse(function (Browser $browser) {
             $browser

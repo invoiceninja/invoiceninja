@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 
 class TestMailServer extends Mailable
 {
- //   use Queueable, SerializesModels;
+    //   use Queueable, SerializesModels;
 
     public $support_messages;
 
@@ -29,7 +29,6 @@ class TestMailServer extends Mailable
         $this->from_email = $from_email;
     }
 
-
     /**
      * Test Server mail.
      *
@@ -37,9 +36,8 @@ class TestMailServer extends Mailable
      */
     public function build()
     {
-
         $settings = new \stdClass;
-        $settings->primary_color = "#4caf50";
+        $settings->primary_color = '#4caf50';
         $settings->email_style = 'dark';
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))

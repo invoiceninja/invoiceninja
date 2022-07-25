@@ -32,65 +32,99 @@ class SystemLog extends Model
 
     /* Category IDs */
     const CATEGORY_GATEWAY_RESPONSE = 1;
+
     const CATEGORY_MAIL = 2;
+
     const CATEGORY_WEBHOOK = 3;
+
     const CATEGORY_PDF = 4;
+
     const CATEGORY_SECURITY = 5;
 
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
+
     const EVENT_PAYMENT_RECONCILIATION_SUCCESS = 11;
 
     const EVENT_GATEWAY_SUCCESS = 21;
+
     const EVENT_GATEWAY_FAILURE = 22;
+
     const EVENT_GATEWAY_ERROR = 23;
 
     const EVENT_MAIL_SEND = 30;
+
     const EVENT_MAIL_RETRY_QUEUE = 31; //we use this to queue emails that are spooled and not sent due to the email queue quota being exceeded.
+
     const EVENT_MAIL_BOUNCED = 32;
+
     const EVENT_MAIL_SPAM_COMPLAINT = 33;
+
     const EVENT_MAIL_DELIVERY = 34;
+
     const EVENT_MAIL_OPENED = 35;
 
     const EVENT_WEBHOOK_RESPONSE = 40;
+
     const EVENT_WEBHOOK_SUCCESS = 41;
+
     const EVENT_PDF_RESPONSE = 50;
 
     const EVENT_AUTHENTICATION_FAILURE = 60;
+
     const EVENT_USER = 61;
 
     /*Type IDs*/
     const TYPE_PAYPAL = 300;
+
     const TYPE_STRIPE = 301;
+
     const TYPE_LEDGER = 302;
+
     const TYPE_FAILURE = 303;
+
     const TYPE_CHECKOUT = 304;
+
     const TYPE_AUTHORIZE = 305;
+
     const TYPE_CUSTOM = 306;
+
     const TYPE_BRAINTREE = 307;
+
     const TYPE_WEPAY = 309;
+
     const TYPE_PAYFAST = 310;
+
     const TYPE_PAYTRACE = 311;
+
     const TYPE_MOLLIE = 312;
+
     const TYPE_EWAY = 313;
+
     const TYPE_SQUARE = 320;
+
     const TYPE_GOCARDLESS = 321;
+
     const TYPE_RAZORPAY = 322;
 
     const TYPE_QUOTA_EXCEEDED = 400;
+
     const TYPE_UPSTREAM_FAILURE = 401;
 
     const TYPE_WEBHOOK_RESPONSE = 500;
 
     const TYPE_PDF_FAILURE = 600;
+
     const TYPE_PDF_SUCCESS = 601;
 
     const TYPE_MODIFIED = 701;
+
     const TYPE_DELETED = 702;
 
     const TYPE_LOGIN_SUCCESS = 800;
+
     const TYPE_LOGIN_FAILURE = 801;
-    
+
     protected $fillable = [
         'client_id',
         'company_id',
@@ -125,16 +159,16 @@ class SystemLog extends Model
     {
         switch ($this->category_id) {
             case self::CATEGORY_GATEWAY_RESPONSE:
-                return "Gateway";
+                return 'Gateway';
             case self::CATEGORY_MAIL:
-                return "Mail";
+                return 'Mail';
             case self::CATEGORY_WEBHOOK:
-                return "Webhook";            
+                return 'Webhook';
             case self::CATEGORY_PDF:
-                return "PDF";
+                return 'PDF';
             case self::CATEGORY_SECURITY:
-                return "Security";
-                        
+                return 'Security';
+
             default:
                 return 'undefined';
         }
@@ -144,33 +178,33 @@ class SystemLog extends Model
     {
         switch ($this->event_id) {
             case self::EVENT_PAYMENT_RECONCILIATION_FAILURE:
-                return "Payment reco failure";
+                return 'Payment reco failure';
             case self::EVENT_PAYMENT_RECONCILIATION_SUCCESS:
-                return "Payment reco success";
+                return 'Payment reco success';
             case self::EVENT_GATEWAY_SUCCESS:
-                return "Success";            
+                return 'Success';
             case self::EVENT_GATEWAY_FAILURE:
-                return "Failure";
+                return 'Failure';
             case self::EVENT_GATEWAY_ERROR:
-                return "Error";
+                return 'Error';
             case self::EVENT_MAIL_SEND:
-                return "Send";
+                return 'Send';
             case self::EVENT_MAIL_RETRY_QUEUE:
-                return "Retry";
+                return 'Retry';
             case self::EVENT_MAIL_BOUNCED:
-                return "Bounced";
+                return 'Bounced';
             case self::EVENT_MAIL_SPAM_COMPLAINT:
-                return "Spam";
+                return 'Spam';
             case self::EVENT_MAIL_DELIVERY:
-                return "Delivery";
+                return 'Delivery';
             case self::EVENT_WEBHOOK_RESPONSE:
-                return "Webhook Response";
+                return 'Webhook Response';
             case self::EVENT_PDF_RESPONSE:
-                return "Pdf Response";
+                return 'Pdf Response';
             case self::EVENT_AUTHENTICATION_FAILURE:
-                return "Auth Failure";
+                return 'Auth Failure';
             case self::EVENT_USER:
-                return "User";                                                
+                return 'User';
             default:
                 return 'undefined';
         }
@@ -180,47 +214,45 @@ class SystemLog extends Model
     {
         switch ($this->type_id) {
             case self::TYPE_QUOTA_EXCEEDED:
-                return "Quota Exceeded";
+                return 'Quota Exceeded';
             case self::TYPE_UPSTREAM_FAILURE:
-                return "Upstream Failure";
+                return 'Upstream Failure';
             case self::TYPE_WEBHOOK_RESPONSE:
-                return "Webhook";            
+                return 'Webhook';
             case self::TYPE_PDF_FAILURE:
-                return "Failure";
+                return 'Failure';
             case self::TYPE_PDF_SUCCESS:
-                return "Success";
+                return 'Success';
             case self::TYPE_MODIFIED:
-                return "Modified";
+                return 'Modified';
             case self::TYPE_DELETED:
-                return "Deleted";  
+                return 'Deleted';
             case self::TYPE_LOGIN_SUCCESS:
-                return "Login Success";    
+                return 'Login Success';
             case self::TYPE_LOGIN_FAILURE:
-                return "Login Failure";
+                return 'Login Failure';
             case self::TYPE_PAYPAL:
-                return "PayPal";
+                return 'PayPal';
             case self::TYPE_STRIPE:
-                return "Stripe";
+                return 'Stripe';
             case self::TYPE_LEDGER:
-                return "Ledger";
+                return 'Ledger';
             case self::TYPE_FAILURE:
-                return "Failure";
+                return 'Failure';
             case self::TYPE_CHECKOUT:
-                return "Checkout";
+                return 'Checkout';
             case self::TYPE_AUTHORIZE:
-                return "Auth.net";
+                return 'Auth.net';
             case self::TYPE_CUSTOM:
-                return "Custom";
+                return 'Custom';
             case self::TYPE_BRAINTREE:
-                return "Braintree";
+                return 'Braintree';
             case self::TYPE_WEPAY:
-                return "WePay";
+                return 'WePay';
             case self::TYPE_PAYFAST:
-                return "Payfast";
+                return 'Payfast';
             default:
                 return 'undefined';
         }
     }
 }
-
-    

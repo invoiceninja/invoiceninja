@@ -23,7 +23,7 @@ class TaskStatusFactory
         $task_status->name = '';
         $task_status->color = '';
         $task_status->status_order = 9999;
-        
+
         return $task_status;
     }
 }

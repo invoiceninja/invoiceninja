@@ -40,7 +40,7 @@ class InvoiceItemFactory
         $item->custom_value2 = '';
         $item->custom_value3 = '';
         $item->custom_value4 = '';
-        $item->type_id = "1";
+        $item->type_id = '1';
 
         return $item;
     }
@@ -71,7 +71,7 @@ class InvoiceItemFactory
             // $item->custom_value4 = $faker->realText(10);
             $item->tax_name1 = 'GST';
             $item->tax_rate1 = 10.00;
-            $item->type_id = "1";
+            $item->type_id = '1';
 
             $data[] = $item;
         }
@@ -105,7 +105,7 @@ class InvoiceItemFactory
             // $item->custom_value4 = $faker->realText(10);
             $item->tax_name1 = '';
             $item->tax_rate1 = 0;
-            $item->type_id = "1";
+            $item->type_id = '1';
 
             $data[] = $item;
         }

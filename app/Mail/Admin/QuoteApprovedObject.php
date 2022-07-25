@@ -21,7 +21,6 @@ use stdClass;
 
 class QuoteApprovedObject
 {
-
     public $quote;
 
     public $company;
@@ -38,8 +37,9 @@ class QuoteApprovedObject
     {
         MultiDB::setDb($this->company->db);
 
-        if(!$this->quote)
+        if (! $this->quote) {
             return;
+        }
 
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
@@ -68,11 +68,11 @@ class QuoteApprovedObject
     {
         return
             ctrans(
-                "texts.notification_quote_approved_subject",
+                'texts.notification_quote_approved_subject',
                 [
-                        'client' => $this->quote->client->present()->name(),
-                        'invoice' => $this->quote->number,
-                    ]
+                    'client' => $this->quote->client->present()->name(),
+                    'invoice' => $this->quote->number,
+                ]
             );
     }
 
@@ -83,7 +83,7 @@ class QuoteApprovedObject
         $data = [
             'title' => $this->getSubject(),
             'message' => ctrans(
-                "texts.notification_quote_approved",
+                'texts.notification_quote_approved',
                 [
                     'amount' => $this->getAmount(),
                     'client' => $this->quote->client->present()->name(),
@@ -91,7 +91,7 @@ class QuoteApprovedObject
                 ]
             ),
             'url' => $this->quote->invitations->first()->getAdminLink(),
-            'button' => ctrans("texts.view_quote"),
+            'button' => ctrans('texts.view_quote'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,

@@ -28,8 +28,7 @@ trait CompanyGatewayFeesAndLimitsSaver
             $fee_and_limit = (object) $fee_and_limit;
 
             foreach ($casts as $key => $value) {
-
-                if($value == 'float' && property_exists($fee_and_limit, $key)){
+                if ($value == 'float' && property_exists($fee_and_limit, $key)) {
                     $fee_and_limit->{$key} = floatval($fee_and_limit->{$key});
                 }
 
@@ -63,10 +62,10 @@ trait CompanyGatewayFeesAndLimitsSaver
             case 'real':
             case 'float':
             case 'double':
-               return !is_string($value) && (is_float($value) || is_numeric(strval($value)));
+               return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
            //     return is_float($value) || is_numeric(strval($value));
             case 'string':
-                return ( is_string( $value ) && method_exists($value, '__toString') ) || is_null($value) || is_string($value);
+                return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
                 return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);

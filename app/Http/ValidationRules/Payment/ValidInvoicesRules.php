@@ -44,51 +44,44 @@ class ValidInvoicesRules implements Rule
     private function checkInvoicesAreHomogenous()
     {
         if (! array_key_exists('client_id', $this->input)) {
-
             $this->error_msg = ctrans('texts.client_id_required');
 
             return false;
         }
 
         $unique_array = [];
-        
+
         //todo optimize this into a single query
         foreach ($this->input['invoices'] as $invoice) {
-
             $unique_array[] = $invoice['invoice_id'];
 
-            if(!array_key_exists('amount', $invoice)){
-                $this->error_msg = ctrans('texts.amount') . " required";
+            if (! array_key_exists('amount', $invoice)) {
+                $this->error_msg = ctrans('texts.amount').' required';
+
                 return false;
             }
 
             $inv = Invoice::withTrashed()->whereId($invoice['invoice_id'])->first();
 
             if (! $inv) {
-
                 $this->error_msg = ctrans('texts.invoice_not_found');
 
                 return false;
             }
 
             if ($inv->client_id != $this->input['client_id']) {
-
                 $this->error_msg = ctrans('texts.invoices_dont_match_client');
 
                 return false;
             }
 
-            if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] <= $inv->amount){
+            if ($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] <= $inv->amount) {
                 //catch here nothing to do - we need this to prevent the last elseif triggering
-            }
-            else if($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)){
-
+            } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
                 $this->error_msg = 'Amount cannot be greater than invoice balance';
 
                 return false;
-            }
-            else if(floatval($invoice['amount']) > floatval($inv->balance)) {
-
+            } elseif (floatval($invoice['amount']) > floatval($inv->balance)) {
                 $this->error_msg = ctrans('texts.amount_greater_than_balance_v5');
 
                 return false;

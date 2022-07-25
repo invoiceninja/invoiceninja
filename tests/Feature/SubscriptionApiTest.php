@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature;
@@ -35,7 +35,7 @@ class SubscriptionApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -60,17 +60,16 @@ class SubscriptionApiTest extends TestCase
         $billing_subscription = Subscription::factory()->create([
             'product_ids' => $product->id,
             'company_id' => $this->company->id,
-            'name' => Str::random(5)
+            'name' => Str::random(5),
         ]);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/subscriptions/' . $this->encodePrimaryKey($billing_subscription->id));
-        
+        ])->get('/api/v1/subscriptions/'.$this->encodePrimaryKey($billing_subscription->id));
+
         // nlog($response);
-        
+
         $response->assertStatus(200);
     }
 
@@ -98,19 +97,19 @@ class SubscriptionApiTest extends TestCase
         ]);
 
         $response1 = $this
-            ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
+            ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
             ->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 
         // try {
-            $response2 = $this
-            ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->put('/api/v1/subscriptions/' . $response1['data']['id'], ['allow_cancellation' => true])
+        $response2 = $this
+            ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
+            ->put('/api/v1/subscriptions/'.$response1['data']['id'], ['allow_cancellation' => true])
             ->assertStatus(200)
             ->json();
-            // }catch(ValidationException $e) {
-            //    nlog($e->validator->getMessageBag());
+        // }catch(ValidationException $e) {
+        //    nlog($e->validator->getMessageBag());
         // }
 
         $this->assertNotEquals($response1['data']['allow_cancellation'], $response2['data']['allow_cancellation']);
@@ -118,7 +117,6 @@ class SubscriptionApiTest extends TestCase
 
     public function testSubscriptionDeleted()
     {
-
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -127,14 +125,13 @@ class SubscriptionApiTest extends TestCase
         $billing_subscription = Subscription::factory()->create([
             'product_ids' => $product->id,
             'company_id' => $this->company->id,
-            'name' => Str::random(5)
+            'name' => Str::random(5),
         ]);
 
         $response = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->delete('/api/v1/subscriptions/' . $this->encodePrimaryKey($billing_subscription->id))
+            ->delete('/api/v1/subscriptions/'.$this->encodePrimaryKey($billing_subscription->id))
             ->assertStatus(200)
             ->json();
-
     }
 }

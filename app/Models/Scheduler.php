@@ -17,15 +17,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * @property boolean paused
- * @property boolean is_deleted
+ * @property bool paused
+ * @property bool is_deleted
  * @property \Carbon\Carbon|mixed start_from
  * @property string repeat_every
  * @property \Carbon\Carbon|mixed scheduled_run
- * @property integer company_id
- * @property integer updated_at
- * @property integer created_at
- * @property integer deleted_at
+ * @property int company_id
+ * @property int updated_at
+ * @property int created_at
+ * @property int deleted_at
  * @property string action_name
  * @property mixed company
  * @property array parameters
@@ -43,7 +43,7 @@ class Scheduler extends BaseModel
         'action_class',
         'action_name',
         'parameters',
-        'company_id'
+        'company_id',
     ];
 
     protected $casts = [
@@ -57,29 +57,45 @@ class Scheduler extends BaseModel
         'parameters' => 'array',
     ];
 
-
     const DAILY = 'DAY';
+
     const WEEKLY = 'WEEK';
+
     const BIWEEKLY = 'BIWEEKLY';
+
     const MONTHLY = 'MONTH';
+
     const QUARTERLY = '3MONTHS';
+
     const ANNUALLY = 'YEAR';
 
     const CREATE_CLIENT_REPORT = 'create_client_report';
-    const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
-    const CREATE_CREDIT_REPORT = 'create_credit_report';
-    const CREATE_DOCUMENT_REPORT = 'create_document_report';
-    const CREATE_EXPENSE_REPORT = 'create_expense_report';
-    const CREATE_INVOICE_ITEM_REPORT = 'create_invoice_item_report';
-    const CREATE_INVOICE_REPORT = 'create_invoice_report';
-    const CREATE_PAYMENT_REPORT = 'create_payment_report';
-    const CREATE_PRODUCT_REPORT = 'create_product_report';
-    const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
-    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
-    const CREATE_QUOTE_REPORT = 'create_quote_report';
-    const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
-    const CREATE_TASK_REPORT = 'create_task_report';
 
+    const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
+
+    const CREATE_CREDIT_REPORT = 'create_credit_report';
+
+    const CREATE_DOCUMENT_REPORT = 'create_document_report';
+
+    const CREATE_EXPENSE_REPORT = 'create_expense_report';
+
+    const CREATE_INVOICE_ITEM_REPORT = 'create_invoice_item_report';
+
+    const CREATE_INVOICE_REPORT = 'create_invoice_report';
+
+    const CREATE_PAYMENT_REPORT = 'create_payment_report';
+
+    const CREATE_PRODUCT_REPORT = 'create_product_report';
+
+    const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
+
+    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
+
+    const CREATE_QUOTE_REPORT = 'create_quote_report';
+
+    const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
+
+    const CREATE_TASK_REPORT = 'create_task_report';
 
     /**
      * Service entry points.
@@ -89,16 +105,13 @@ class Scheduler extends BaseModel
         return new TaskSchedulerService($this);
     }
 
-
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-
     public function nextScheduledDate(): ?Carbon
     {
-
         $offset = 0;
 
         $entity_send_time = $this->company->settings->entity_send_time;
@@ -115,8 +128,9 @@ class Scheduler extends BaseModel
         to add ON a day - a day = 86400 seconds
         */
 
-        if ($offset < 0)
+        if ($offset < 0) {
             $offset += 86400;
+        }
 
         switch ($this->repeat_every) {
             case self::DAILY:

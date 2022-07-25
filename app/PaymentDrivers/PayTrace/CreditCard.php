@@ -41,7 +41,6 @@ class CreditCard
 
     public function authorizeView($data)
     {
-        
         $data['client_key'] = $this->paytrace->getAuthToken();
         $data['gateway'] = $this->paytrace;
 
@@ -55,17 +54,16 @@ class CreditCard
 
     //if(!$response->success)
     //handle failure
-        
- 	public function authorizeResponse($request)
- 	{
+
+    public function authorizeResponse($request)
+    {
         $data = $request->all();
-        
-        $response = $this->createCustomer($data);   
+
+        $response = $this->createCustomer($data);
 
         return redirect()->route('client.payment_methods.index');
+    }
 
- 	}  
-    
     //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
     //   "company_gateway_id" => "1"
     //   "HPF_Token" => "e484a92c-90ed-4468-ac4d-da66824c75de"
@@ -86,7 +84,7 @@ class CreditCard
     //     "state":"WA",
     //     "zip":"85284"
     // }
-    
+
     private function createCustomer($data)
     {
         $post_data = [
@@ -99,16 +97,12 @@ class CreditCard
 
         $response = $this->paytrace->gatewayRequest('/v1/customer/pt_protect_create', $post_data);
 
-        if(!$response->success)
-        {
-
+        if (! $response->success) {
             $error = 'Error creating customer in gateway';
             $error_code = isset($response->response_code) ? $response->response_code : 'PT_ERR';
 
-            if(isset($response->errors))
-            {
-                foreach($response->errors as $err)
-                {
+            if (isset($response->errors)) {
+                foreach ($response->errors as $err) {
                     $error = end($err);
                 }
             }
@@ -150,43 +144,40 @@ class CreditCard
         ]);
 
         return $profile->customers[0];
-        
     }
 
     private function buildBillingAddress()
     {
         return [
-                'name' => $this->paytrace->client->present()->name(),
-                'street_address' => $this->paytrace->client->address1,
-                'city' => $this->paytrace->client->city,
-                'state' => $this->paytrace->client->state,
-                'zip' => $this->paytrace->client->postal_code
-            ];
+            'name' => $this->paytrace->client->present()->name(),
+            'street_address' => $this->paytrace->client->address1,
+            'city' => $this->paytrace->client->city,
+            'state' => $this->paytrace->client->state,
+            'zip' => $this->paytrace->client->postal_code,
+        ];
     }
 
     public function paymentView($data)
     {
-
         $data['client_key'] = $this->paytrace->getAuthToken();
         $data['gateway'] = $this->paytrace;
 
         return render('gateways.paytrace.pay', $data);
-
     }
 
     public function paymentResponse(Request $request)
     {
         $response_array = $request->all();
 
-        if($request->token){
+        if ($request->token) {
             $token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+
             return $this->processTokenPayment($token->token, $request);
         }
 
         if ($request->has('store_card') && $request->input('store_card') === true) {
-
             $response = $this->createCustomer($request->all());
-            
+
             return $this->processTokenPayment($response->customer_id, $request);
         }
 
@@ -198,20 +189,19 @@ class CreditCard
             'billing_address' => $this->buildBillingAddress(),
             'amount' => $request->input('amount_with_fee'),
             'invoice_id' => $this->harvestInvoiceId(),
-        ];        
+        ];
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
 
-        if($response->success)
+        if ($response->success) {
             return $this->processSuccessfulPayment($response);
+        }
 
         return $this->processUnsuccessfulPayment($response);
-
     }
 
     public function processTokenPayment($token, $request)
     {
-
         $data = [
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
@@ -220,7 +210,7 @@ class CreditCard
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        if($response->success){
+        if ($response->success) {
             $this->paytrace->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace->payment_hash], SystemLog::TYPE_PAYTRACE);
 
             return $this->processSuccessfulPayment($response);
@@ -228,16 +218,17 @@ class CreditCard
 
         return $this->processUnsuccessfulPayment($response);
     }
-    
+
     private function harvestInvoiceId()
     {
         $_invoice = collect($this->paytrace->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
-        if($invoice)
-            return ctrans('texts.invoice_number') . "# " . $invoice->number;
+        if ($invoice) {
+            return ctrans('texts.invoice_number').'# '.$invoice->number;
+        }
 
-        return ctrans('texts.invoice_number') . "####";
+        return ctrans('texts.invoice_number').'####';
     }
 
     private function processSuccessfulPayment($response)
@@ -253,16 +244,15 @@ class CreditCard
         $payment = $this->paytrace->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-
     }
 
     private function processUnsuccessfulPayment($response)
     {
-        
         $error = $response->status_message;
 
-        if(property_exists($response, 'approval_message') && $response->approval_message)
+        if (property_exists($response, 'approval_message') && $response->approval_message) {
             $error .= " - {$response->approval_message}";
+        }
 
         $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
 
@@ -273,7 +263,5 @@ class CreditCard
         ];
 
         return $this->paytrace->processUnsuccessfulTransaction($data);
-
     }
-
 }

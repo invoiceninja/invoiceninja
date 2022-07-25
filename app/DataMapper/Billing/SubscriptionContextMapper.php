@@ -12,7 +12,6 @@
 
 namespace App\DataMapper\Billing;
 
-
 class SubscriptionContextMapper
 {
     /**

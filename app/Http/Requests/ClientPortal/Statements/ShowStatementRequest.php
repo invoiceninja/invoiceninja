@@ -34,7 +34,7 @@ class ShowStatementRequest extends FormRequest
      *
      * @return void
      */
-    protected function prepareForValidation(): void
+    public function prepareForValidation(): void
     {
         $this->merge([
             'show_payments_table' => $this->has('show_payments_table') ? \boolval($this->show_payments_table) : false,

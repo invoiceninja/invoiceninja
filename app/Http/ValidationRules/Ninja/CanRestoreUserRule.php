@@ -20,7 +20,6 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class CanRestoreUserRule implements Rule
 {
-
     public function __construct()
     {
     }
@@ -32,8 +31,7 @@ class CanRestoreUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-
-          $count = CompanyUser::query()
+        $count = CompanyUser::query()
                               ->where('company_user.account_id', auth()->user()->account_id)
                               ->join('users', 'users.id', '=', 'company_user.user_id')
                               ->whereNull('users.deleted_at')
@@ -42,7 +40,6 @@ class CanRestoreUserRule implements Rule
                               ->count('company_user.user_id');
 
         return $count < auth()->user()->company()->account->num_users;
-
     }
 
     /**

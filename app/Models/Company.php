@@ -38,16 +38,27 @@ class Company extends BaseModel
     use \Awobaz\Compoships\Compoships;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
+
     const ENTITY_CREDIT = 'credit';
+
     const ENTITY_QUOTE = 'quote';
+
     const ENTITY_TASK = 'task';
+
     const ENTITY_EXPENSE = 'expense';
+
     const ENTITY_PROJECT = 'project';
+
     const ENTITY_VENDOR = 'vendor';
+
     const ENTITY_TICKET = 'ticket';
+
     const ENTITY_PROPOSAL = 'proposal';
+
     const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
+
     const ENTITY_RECURRING_TASK = 'task';
+
     const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = CompanyPresenter::class;
@@ -107,7 +118,7 @@ class Company extends BaseModel
         'enable_applying_payments',
         'track_inventory',
         'inventory_notification_threshold',
-        'stock_notification'
+        'stock_notification',
     ];
 
     protected $hidden = [
@@ -187,7 +198,7 @@ class Company extends BaseModel
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
-    
+
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class)->withTrashed();
@@ -207,6 +218,7 @@ class Company extends BaseModel
     {
         return $this->hasMany(Client::class)->withTrashed();
     }
+
     /**
      * @return HasMany
      */
@@ -240,7 +252,6 @@ class Company extends BaseModel
     {
         return $this->hasMany(Activity::class);
     }
-
 
     public function activities()
     {
@@ -340,11 +351,11 @@ class Company extends BaseModel
 
     public function timezone()
     {
-
         $timezones = Cache::get('timezones');
 
-        if(!$timezones)
+        if (! $timezones) {
             $this->buildCache(true);
+        }
 
         return $timezones->filter(function ($item) {
             return $item->id == $this->settings->timezone_id;
@@ -378,16 +389,15 @@ class Company extends BaseModel
      */
     public function language()
     {
-        
         $languages = Cache::get('languages');
 
-        if(!$languages)
+        if (! $languages) {
             $this->buildCache(true);
+        }
 
         return $languages->filter(function ($item) {
             return $item->id == $this->settings->language_id;
         })->first();
-
 
         // return Language::find($this->settings->language_id);
     }
@@ -506,11 +516,11 @@ class Company extends BaseModel
     public function domain()
     {
         if (Ninja::isHosted()) {
-
-            if($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3)
+            if ($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3) {
                 return $this->portal_domain;
+            }
 
-            return "https://{$this->subdomain}." . config('ninja.app_domain');
+            return "https://{$this->subdomain}.".config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -550,7 +560,6 @@ class Company extends BaseModel
         return $data;
     }
 
-
     private function createRBit($type, $source, $properties)
     {
         $data = new \stdClass;
@@ -575,12 +584,12 @@ class Company extends BaseModel
     {
         $date_formats = Cache::get('date_formats');
 
-        if(!$date_formats)
+        if (! $date_formats) {
             $this->buildCache(true);
-        
+        }
+
         return $date_formats->filter(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
     }
-
 }

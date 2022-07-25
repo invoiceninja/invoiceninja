@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
@@ -42,24 +43,22 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
         Session::start();
         $this->faker = \Faker\Factory::create();
         Model::reguard();
-
     }
 
     public function testCounterExtraction()
     {
-
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000
+            'hosted_company_count' => 1000,
         ]);
-        
+
         $this->account->num_users = 3;
         $this->account->save();
 
@@ -74,22 +73,22 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         }
 
         $user_id = $user->id;
-        
+
         $this->company = Company::factory()->create([
-                'account_id' => $this->account->id,
-            ]);
+            'account_id' => $this->account->id,
+        ]);
 
         $this->client = Client::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
         ]);
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $user_id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $user_id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
 
         $settings = $this->client->getMergedSettings();
@@ -105,9 +104,9 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->client->save();
 
         $quote = Quote::factory()->create([
-            'user_id' => $this->client->user_id, 
-            'company_id' => $this->client->company_id, 
-            'client_id' => $this->client->id
+            'user_id' => $this->client->user_id,
+            'company_id' => $this->client->company_id,
+            'client_id' => $this->client->id,
         ]);
 
         $quote = $quote->service()->markSent()->convert()->save();
@@ -118,7 +117,6 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
 
         $this->assertEquals('2022-Q0001', $quote->number);
         $this->assertEquals('2022-I0001', $invoice->number);
-
 
         $settings = $this->client->getMergedSettings();
         $settings->invoice_number_counter = 100;
@@ -133,9 +131,9 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->client->save();
 
         $quote = Quote::factory()->create([
-            'user_id' => $this->client->user_id, 
-            'company_id' => $this->client->company_id, 
-            'client_id' => $this->client->id
+            'user_id' => $this->client->user_id,
+            'company_id' => $this->client->company_id,
+            'client_id' => $this->client->id,
         ]);
 
         $quote = $quote->service()->markSent()->convert()->save();
@@ -146,8 +144,5 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
 
         $this->assertEquals('Q0100', $quote->number);
         $this->assertEquals('I0100', $invoice->number);
-
     }
-
-
 }

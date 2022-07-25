@@ -32,11 +32,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use \Illuminate\Support\Facades\DB;
 
 /**
  * Class SetupController.
@@ -48,14 +48,15 @@ class SetupController extends Controller
     public function index()
     {
         $check = SystemHealth::check(false);
-        
+
         if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::first()) {
             return redirect('/');
         }
 
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             return redirect('/');
-      
+        }
+
         return view('setup.index', ['check' => $check]);
     }
 
@@ -139,15 +140,15 @@ class SetupController extends Controller
             Artisan::call('optimize');
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
-            
+
             Storage::disk('local')->delete('test.pdf');
 
             /* Create the first account. */
             if (Account::count() == 0) {
-                CreateAccount::dispatchNow($request->all(), $request->getClientIp());
+                CreateAccount::dispatchSync($request->all(), $request->getClientIp());
             }
 
-            VersionCheck::dispatchNow();
+            VersionCheck::dispatchSync();
 
             $this->buildCache(true);
 
@@ -263,47 +264,46 @@ class SetupController extends Controller
 
     public function clearCompiledCache()
     {
- 
-       $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) {
-            unlink ($cacheCompiled);
+            unlink($cacheCompiled);
         }
 
         $cacheServices = base_path('bootstrap/cache/packages.php');
         if (file_exists($cacheServices)) {
-            unlink ($cacheServices);
+            unlink($cacheServices);
         }
 
         $cacheServices = base_path('bootstrap/cache/services.php');
         if (file_exists($cacheServices)) {
-            unlink ($cacheServices);
+            unlink($cacheServices);
         }
 
         $cacheRoute = base_path('bootstrap/cache/routes-v7.php');
         if (file_exists($cacheRoute)) {
-            unlink ($cacheRoute);
-        }  
+            unlink($cacheRoute);
+        }
     }
 
     public function update()
     {
-
-        if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+        if (! request()->has('secret') || (request()->input('secret') != config('ninja.update_secret'))) {
             return redirect('/');
+        }
 
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) {
-            unlink ($cacheCompiled);
+            unlink($cacheCompiled);
         }
 
         $cacheServices = base_path('bootstrap/cache/services.php');
         if (file_exists($cacheServices)) {
-            unlink ($cacheServices);
+            unlink($cacheServices);
         }
 
         $cacheRoute = base_path('bootstrap/cache/routes-v7.php');
         if (file_exists($cacheRoute)) {
-            unlink ($cacheRoute);
+            unlink($cacheRoute);
         }
 
         Artisan::call('clear-compiled');
@@ -316,9 +316,8 @@ class SetupController extends Controller
 
         $this->buildCache(true);
 
-        SchedulerCheck::dispatchNow();
-        
-        return redirect('/');
+        SchedulerCheck::dispatchSync();
 
+        return redirect('/');
     }
 }

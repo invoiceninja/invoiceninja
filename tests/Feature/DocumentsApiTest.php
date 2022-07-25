@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Utils\Traits\MakesHash;
@@ -27,7 +28,7 @@ class DocumentsApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -43,74 +44,69 @@ class DocumentsApiTest extends TestCase
     public function testClientDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/clients');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/clients');
 
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
-
 
     public function testInvoiceDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/invoices');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices');
 
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
-
 
     public function testProjectsDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/projects');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/projects');
 
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
-
 
     public function testExpenseDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/expenses');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/expenses');
 
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
-
 
     public function testVendorDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/vendors');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/vendors');
 
         $response->assertStatus(200);
         $arr = $response->json();
         $this->assertArrayHasKey('documents', $arr['data'][0]);
     }
 
-
     public function testProductDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/products');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/products');
 
         $response->assertStatus(200);
         $arr = $response->json();
@@ -120,9 +116,9 @@ class DocumentsApiTest extends TestCase
     public function testTaskDocuments()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tasks');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tasks');
 
         $response->assertStatus(200);
         $arr = $response->json();

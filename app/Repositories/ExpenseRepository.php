@@ -24,21 +24,21 @@ class ExpenseRepository extends BaseRepository
 {
     use GeneratesCounter;
 
-
     /**
      * Saves the expense and its contacts.
      *
      * @param      array  $data    The data
      * @param      \App\Models\Expense              $expense  The expense
      *
-     * @return     \App\Models\Expense|Null  expense Object
+     * @return     \App\Models\Expense|null  expense Object
      */
     public function save(array $data, Expense $expense) : ?Expense
     {
         $expense->fill($data);
 
-        if(!$expense->id)
+        if (! $expense->id) {
             $expense = $this->processExchangeRates($data, $expense);
+        }
 
         $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;
         $expense->save();
@@ -66,8 +66,7 @@ class ExpenseRepository extends BaseRepository
 
     public function processExchangeRates($data, $expense)
     {
-
-        if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1){
+        if (array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1) {
             return $expense;
         }
 
@@ -75,15 +74,13 @@ class ExpenseRepository extends BaseRepository
         $company_currency = $expense->company->settings->currency_id;
 
         if ($company_currency != $expense_currency) {
-
             $exchange_rate = new CurrencyApi();
 
             $expense->exchange_rate = $exchange_rate->exchangeRate($expense_currency, $company_currency, Carbon::parse($expense->date));
 
             return $expense;
         }
-        
+
         return $expense;
     }
-
 }

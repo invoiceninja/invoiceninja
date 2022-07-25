@@ -52,15 +52,10 @@ class ParallelCheckData extends Command
 
     public function handle()
     {
-    
-    	$hash = Str::random(32);
+        $hash = Str::random(32);
 
-    	Company::cursor()->each(function ($company) use ($hash){
-
-    		CheckCompanyData::dispatch($company, $hash)->onQueue('checkdata');
-    		
-    	});
-
+        Company::cursor()->each(function ($company) use ($hash) {
+            CheckCompanyData::dispatch($company, $hash)->onQueue('checkdata');
+        });
     }
-
 }

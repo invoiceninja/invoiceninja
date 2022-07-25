@@ -19,9 +19,9 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\App;
 
 class ContactRegisterController extends Controller
 {
@@ -34,11 +34,11 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key = '')
     {
-
-        if(strlen($company_key) > 2)
+        if (strlen($company_key) > 2) {
             $key = $company_key;
-        else
+        } else {
             $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
+        }
 
         $company = Company::where('company_key', $key)->firstOrFail();
 
@@ -63,7 +63,6 @@ class ContactRegisterController extends Controller
 
     private function getClient(array $data)
     {
-
         $client = ClientFactory::create($data['company']->id, $data['company']->owner()->id);
 
         $client->fill($data);
@@ -71,10 +70,8 @@ class ContactRegisterController extends Controller
         $client->number = $this->getNextClientNumber($client);
         $client->save();
 
-        if(!array_key_exists('country_id', $data) && strlen($client->company->settings->country_id) > 1){
-
+        if (! array_key_exists('country_id', $data) && strlen($client->company->settings->country_id) > 1) {
             $client->update(['country_id' => $client->company->settings->country_id]);
-        
         }
 
         return $client;
@@ -88,8 +85,9 @@ class ContactRegisterController extends Controller
         $client_contact->client_id = $client->id;
         $client_contact->is_primary = true;
 
-        if(array_key_exists('password', $data))
+        if (array_key_exists('password', $data)) {
             $client_contact->password = Hash::make($data['password']);
+        }
 
         $client_contact->save();
 

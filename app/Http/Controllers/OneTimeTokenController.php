@@ -23,7 +23,6 @@ use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {
-
     private $contexts = [
     ];
 
@@ -75,10 +74,9 @@ class OneTimeTokenController extends BaseController
             'context' => $request->input('context'),
         ];
 
-        Cache::put( $hash, $data, 3600);
+        Cache::put($hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);
-
     }
 
     public function router(OneTimeRouterRequest $request)
@@ -92,13 +90,11 @@ class OneTimeTokenController extends BaseController
         // Cache::forget($request->input('hash'));
 
         $this->sendTo($data['context']);
-
     }
 
     /* We need to merge all contexts here and redirect to the correct location */
     private function sendTo($context)
     {
-
         return redirect();
     }
 }

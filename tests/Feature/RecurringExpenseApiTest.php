@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\RecurringInvoice;
@@ -29,7 +30,7 @@ class RecurringExpenseApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -45,19 +46,19 @@ class RecurringExpenseApiTest extends TestCase
     public function testRecurringExpenseGet()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/recurring_expenses/');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_expenses/');
 
         $response->assertStatus(200);
     }
 
-   public function testRecurringExpenseGetSingleExpense()
+    public function testRecurringExpenseGetSingleExpense()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id);
 
         $response->assertStatus(200);
     }
@@ -72,12 +73,12 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses', $data);
 
         $response->assertStatus(200);
-   
+
         $arr = $response->json();
 
         $response = $this->withHeaders([
@@ -85,16 +86,14 @@ class RecurringExpenseApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->put('/api/v1/recurring_expenses/'.$arr['data']['id'], $data)->assertStatus(200);
 
-        try{
-        $response = $this->withHeaders([
+        try {
+            $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/recurring_expenses', $data);
-        }
-        catch(ValidationException $e){
+            ])->post('/api/v1/recurring_expenses', $data);
+        } catch (ValidationException $e) {
             $response->assertStatus(302);
         }
-
     }
 
     public function testRecurringExpensePut()
@@ -105,20 +104,19 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id), $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id), $data);
 
         $response->assertStatus(200);
     }
 
-
     public function testRecurringExpenseNotArchived()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id));
 
         $arr = $response->json();
 
@@ -132,9 +130,9 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=archive', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=archive', $data);
 
         $arr = $response->json();
 
@@ -148,9 +146,9 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=restore', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -164,9 +162,9 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=delete', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=delete', $data);
 
         $arr = $response->json();
 
@@ -180,15 +178,14 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
 
         $arr = $response->json();
 
         $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data'][0]['status_id']);
     }
-
 
     public function testRecurringExpensePaused()
     {
@@ -197,14 +194,14 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses/bulk?action=stop', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses/bulk?action=stop', $data);
 
         $arr = $response->json();
 
@@ -218,23 +215,22 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?start=true', []);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?start=true', []);
 
         $arr = $response->json();
 
         $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data']['status_id']);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?stop=true', []);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?stop=true', []);
 
         $arr = $response->json();
 
         $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data']['status_id']);
-
     }
 
     public function testRecurringExpensePostWithStartAction()
@@ -244,22 +240,20 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5
+            'remaining_cycles' =>5,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses?start=true', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses?start=true', $data);
 
         $response->assertStatus(200);
-   
+
         $arr = $response->json();
 
         $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data']['status_id']);
-
     }
-
 
     public function testRecurringExpensePostWithStopAction()
     {
@@ -271,16 +265,14 @@ class RecurringExpenseApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_expenses?stop=true', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses?stop=true', $data);
 
         $response->assertStatus(200);
-   
+
         $arr = $response->json();
 
         $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data']['status_id']);
-
     }
-
 }

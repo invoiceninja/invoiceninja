@@ -29,15 +29,15 @@ class GetInvoicePdf extends AbstractService
 
     public function run()
     {
-
         if (! $this->contact) {
             $this->contact = $this->invoice->client->primary_contact()->first() ?: $this->invoice->client->contacts()->first();
         }
 
         $invitation = $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        if(!$invitation)
+        if (! $invitation) {
             $invitation = $this->invoice->invitations->first();
+        }
 
         $path = $this->invoice->client->invoice_filepath($invitation);
 
@@ -49,10 +49,9 @@ class GetInvoicePdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateEntityPdf::dispatchNow($invitation);
+            $file_path = (new CreateEntityPdf($invitation))->handle();
         }
 
         return $file_path;
-        
     }
 }

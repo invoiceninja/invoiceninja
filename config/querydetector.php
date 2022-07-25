@@ -66,5 +66,5 @@ return [
         //\BeyondCode\QueryDetector\Outputs\Alert::class,
         \BeyondCode\QueryDetector\Outputs\Log::class,
         //\BeyondCode\QueryDetector\Outputs\Json::class,
-    ]
+    ],
 ];

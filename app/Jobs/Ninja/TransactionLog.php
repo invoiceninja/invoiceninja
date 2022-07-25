@@ -38,7 +38,6 @@ class TransactionLog implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
     private array $payload;
 
     private string $db;
@@ -76,7 +75,6 @@ class TransactionLog implements ShouldQueue
         $this->db = $db;
         $this->event = $event;
         $this->data = $data;
-
     }
 
     /**
@@ -91,11 +89,10 @@ class TransactionLog implements ShouldQueue
 
         $this->setTransformer();
 
-        $this->payload =  $this->event_transformer->transform($this->data);
+        $this->payload = $this->event_transformer->transform($this->data);
 
         $this->persist();
     }
-
 
     private function setTransformer()
     {
@@ -105,7 +102,6 @@ class TransactionLog implements ShouldQueue
 
         return $this;
     }
-
 
     private function persist()
     {

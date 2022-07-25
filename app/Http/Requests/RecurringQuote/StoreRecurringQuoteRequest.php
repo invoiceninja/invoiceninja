@@ -44,7 +44,6 @@ class StoreRecurringQuoteRequest extends Request
             foreach (range(0, $documents) as $index) {
                 $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
-
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
@@ -60,13 +59,13 @@ class StoreRecurringQuoteRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        
+
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         } else {
@@ -75,7 +74,7 @@ class StoreRecurringQuoteRequest extends Request
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
             }
         }
-    
+
         $this->replace($input);
     }
 
@@ -86,7 +85,6 @@ class StoreRecurringQuoteRequest extends Request
         }
 
         return false;
-        
     }
 
     public function messages()

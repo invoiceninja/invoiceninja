@@ -20,9 +20,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 //@deprecated
-class VerifyUser extends Notification 
+class VerifyUser extends Notification
 {
-  //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.

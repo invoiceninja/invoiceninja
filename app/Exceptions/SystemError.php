@@ -13,12 +13,9 @@ class SystemError extends Exception
 
     public function render($request)
     {
-
         return view('errors.guest', [
             'message' => $this->getMessage(),
             'code' => $this->getCode(),
         ]);
-        
-
     }
 }

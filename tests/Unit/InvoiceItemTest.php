@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
@@ -25,7 +26,7 @@ class InvoiceItemTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -72,8 +73,6 @@ class InvoiceItemTest extends TestCase
         $this->assertEquals($item_calc->getGrossLineTotal(), 11);
     }
 
-
-
     public function testInvoiceItemTotalSimpleWithDiscount()
     {
         $item = InvoiceItemFactory::create();
@@ -114,8 +113,7 @@ class InvoiceItemTest extends TestCase
 
         $this->assertEquals($item_calc->getLineTotal(), 8);
         $this->assertEquals($item_calc->getGrossLineTotal(), 8.8);
-
-    }    
+    }
 
     public function testInvoiceItemTotalSimpleWithDiscountWithPrecision()
     {
@@ -208,9 +206,9 @@ class InvoiceItemTest extends TestCase
         $item->cost = 10;
         $item->is_amount_discount = true;
         $item->discount = 2.521254522145214511;
-        $item->tax_name1 = "GST";
+        $item->tax_name1 = 'GST';
         $item->tax_rate1 = 10;
-        $item->tax_name2 = "VAT";
+        $item->tax_name2 = 'VAT';
         $item->tax_rate2 = 17.5;
 
         $this->invoice->line_items = [$item];

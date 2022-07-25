@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class InvoicePaymentTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_PAYMENT_APPLIED; 
-
+    public $event_id = TransactionEvent::INVOICE_PAYMENT_APPLIED;
 }

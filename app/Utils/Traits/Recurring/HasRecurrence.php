@@ -15,7 +15,6 @@ use Illuminate\Support\Carbon;
 
 trait HasRecurrence
 {
-
     /**
      * Calculates the first day of the month, this will ALWAYS
      * be the first of NEXT month
@@ -49,12 +48,12 @@ trait HasRecurrence
      * Sets the day of the month, if in the past we ADD a month
      *
      * @param Carbon $date              The start date
-     * @param String|Int $day_of_month  The day of the month
+     * @param string|int $day_of_month  The day of the month
      */
     public function setDayOfMonth($date, $day_of_month)
     {
         $carbon_date = Carbon::parse($date);
-        
+
         $set_date = $carbon_date->copy()->setUnitNoOverflow('day', $day_of_month, 'month');
 
         //If the set date is less than the original date we need to add a month.
@@ -66,7 +65,6 @@ trait HasRecurrence
         if ($day_of_month == '31') {
             $set_date->endOfMonth();
         }
-
 
         return $set_date;
     }

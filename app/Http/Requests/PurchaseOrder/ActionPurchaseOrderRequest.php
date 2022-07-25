@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 class ActionPurchaseOrderRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,26 +29,26 @@ class ActionPurchaseOrderRequest extends Request
     // private $invoice;
 
     public function authorize() : bool
-    { 
+    {
         return auth()->user()->can('edit', $this->purchase_order);
     }
 
     public function rules()
     {
         return [
-            'action' => 'required'
+            'action' => 'required',
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
-        if($this->action){
+        if ($this->action) {
             $input['action'] = $this->action;
-        } elseif (!array_key_exists('action', $input) ) {
+        } elseif (! array_key_exists('action', $input)) {
             $this->error_msg = 'Action is a required field';
-        } 
+        }
 
         $this->replace($input);
     }

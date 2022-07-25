@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\App;
 class SendRemindersCron extends Command
 {
     use MakesReminders, MakesDates;
+
     /**
      * The name and signature of the console command.
      *
@@ -60,56 +61,49 @@ class SendRemindersCron extends Command
      */
     public function handle()
     {
-
         Invoice::where('next_send_date', '<=', now()->toDateTimeString())
                  ->whereNull('deleted_at')
                  ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                  ->where('balance', '>', 0)
                  ->whereHas('client', function ($query) {
-                     $query->where('is_deleted',0)
-                           ->where('deleted_at', NULL);
+                     $query->where('is_deleted', 0)
+                           ->where('deleted_at', null);
                  })
                  ->whereHas('company', function ($query) {
-                     $query->where('is_disabled',0);
+                     $query->where('is_disabled', 0);
                  })
                  ->with('invitations')->cursor()->each(function ($invoice) {
+                     if ($invoice->isPayable()) {
+                         $reminder_template = $invoice->calculateTemplate('invoice');
+                         $invoice->service()->touchReminder($reminder_template)->save();
+                         $invoice = $this->calcLateFee($invoice, $reminder_template);
 
-            if ($invoice->isPayable()) {
-                $reminder_template = $invoice->calculateTemplate('invoice');
-                $invoice->service()->touchReminder($reminder_template)->save();
-                $invoice = $this->calcLateFee($invoice, $reminder_template);
+                         //check if this reminder needs to be emailed
+                         if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3']) && $invoice->client->getSetting('enable_'.$reminder_template)) {
+                             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
+                                 EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
+                                 nlog("Firing reminder email for invoice {$invoice->number}");
+                             });
 
-                //check if this reminder needs to be emailed
-                if(in_array($reminder_template, ['reminder1','reminder2','reminder3']) && $invoice->client->getSetting("enable_".$reminder_template))
-                {
-                    $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                        EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                        nlog("Firing reminder email for invoice {$invoice->number}");
-                    });
+                             if ($invoice->invitations->count() > 0) {
+                                 event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
+                             }
+                         }
+                         $invoice->service()->setReminder()->save();
+                     } else {
+                         $invoice->next_send_date = null;
+                         $invoice->save();
+                     }
+                 });
 
-                    if ($invoice->invitations->count() > 0) {
-                        event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
-                    }
-                }
-                $invoice->service()->setReminder()->save();
-                
-            } else {
-                $invoice->next_send_date = null;
-                $invoice->save();
-            }
-
-        });
-
-
-       //  SendReminders::dispatchNow();
+        //  SendReminders::dispatchNow();
 
        // $this->webHookOverdueInvoices();
        // $this->webHookExpiredQuotes();
     }
 
-
- private function calcLateFee($invoice, $template) :Invoice
+    private function calcLateFee($invoice, $template) :Invoice
     {
         $late_fee_amount = 0;
         $late_fee_percent = 0;
@@ -151,7 +145,6 @@ class SendRemindersCron extends Command
      */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
-
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
@@ -187,49 +180,20 @@ class SendRemindersCron extends Command
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
         $invoice->service()->deletePdf();
-        
+
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;
         $client = $client->fresh();
 
-        nlog("adjusting client balance and invoice balance by ". ($invoice->balance - $temp_invoice_balance));
+        nlog('adjusting client balance and invoice balance by '.($invoice->balance - $temp_invoice_balance));
         $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         return $invoice;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private function webHookOverdueInvoices()
     {
-
-
         if (! config('ninja.db.multi_db_enabled')) {
             $this->executeWebhooks();
         } else {
@@ -240,12 +204,10 @@ class SendRemindersCron extends Command
                 $this->executeWebhooks();
             }
         }
-
     }
 
     private function webHookExpiredQuotes()
     {
-        
     }
 
     private function executeWebhooks()
@@ -255,21 +217,18 @@ class SendRemindersCron extends Command
                           ->where('balance', '>', 0)
                           ->whereDate('due_date', '<=', now()->subDays(1)->startOfDay())
                           ->cursor();
-    
+
         $invoices->each(function ($invoice) {
             WebhookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
-            
         });
 
         $quotes = Quote::where('is_deleted', 0)
                           ->where('status_id', Quote::STATUS_SENT)
                           ->whereDate('due_date', '<=', now()->subDays(1)->startOfDay())
                           ->cursor();
-    
+
         $quotes->each(function ($quote) {
             WebhookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
         });
     }
-
-
 }

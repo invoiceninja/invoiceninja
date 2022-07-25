@@ -2,7 +2,7 @@
 
 return [
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | Password Reminder Language Lines
 |--------------------------------------------------------------------------
@@ -13,12 +13,12 @@ return [
 |
 */
 
-'password' => 'As palavras-passe devem conter no mínimo seis caracteres e devem ser iguais.',
+    'password' => 'Senhas devem possuir no mínimo seis caracteres e devem ser iguais.',
 
-'user' => 'Não foi encontrado um utilizador com o endereço de email indicado.',
+    'user' => 'Não foi encontrado um usuário com o endereço de e-mail informado.',
 
-'token' => 'Este token de redefinição de palavra-passe é inválido.',
+    'token' => 'Este token de redefinição de senha é inválido.',
 
-'sent' => 'Lembrete de palavra-passe enviado!',
+    'sent' => 'Lembrete de senha enviado!',
 
 ];

@@ -12,8 +12,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class SetAccountFlagForReact extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -22,7 +21,6 @@ class SetAccountFlagForReact extends Migration
     public function up()
     {
         Illuminate\Support\Facades\Artisan::call('ninja:design-update');
-
     }
 
     /**
@@ -34,4 +32,4 @@ class SetAccountFlagForReact extends Migration
     {
         //
     }
-}
+};

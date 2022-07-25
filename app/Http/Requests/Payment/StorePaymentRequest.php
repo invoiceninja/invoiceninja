@@ -36,7 +36,7 @@ class StorePaymentRequest extends Request
         return auth()->user()->can('create', Payment::class);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -55,9 +55,9 @@ class StorePaymentRequest extends Request
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
 
-                if(array_key_exists('amount', $value))
+                if (array_key_exists('amount', $value)) {
                     $invoices_total += $value['amount'];
-
+                }
             }
         }
 

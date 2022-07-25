@@ -41,7 +41,7 @@ class ApplyNumber
                 break;
             case 'when_sent':
                 if ($quote->status_id == Quote::STATUS_SENT) {
-                $quote = $this->trySaving($quote);
+                    $quote = $this->trySaving($quote);
                     // $quote->number = $this->getNextQuoteNumber($this->client, $quote);
                 }
                 break;
@@ -56,30 +56,22 @@ class ApplyNumber
 
     private function trySaving($quote)
     {
+        $x = 1;
 
-        $x=1;
-
-        do{
-
-            try{
-
+        do {
+            try {
                 $quote->number = $this->getNextQuoteNumber($this->client, $quote);
                 $quote->saveQuietly();
 
                 $this->completed = false;
-                
-
-            }
-            catch(QueryException $e){
-
+            } catch (QueryException $e) {
                 $x++;
 
-                if($x>10)
+                if ($x > 10) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
+        } while ($this->completed);
 
         return $quote;
     }

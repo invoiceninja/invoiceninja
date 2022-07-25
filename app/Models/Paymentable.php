@@ -43,5 +43,4 @@ class Paymentable extends Pivot
     {
         return $this->belongsTo(Payment::class);
     }
-
 }

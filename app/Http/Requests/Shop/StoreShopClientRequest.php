@@ -55,15 +55,15 @@ class StoreShopClientRequest extends Request
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
         $rules['contacts.*.password'] = [
-                                        'nullable',
-                                        'sometimes',
-                                        'string',
-                                        'min:7',             // must be at least 10 characters in length
-                                        'regex:/[a-z]/',      // must contain at least one lowercase letter
-                                        'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                                        'regex:/[0-9]/',      // must contain at least one digit
-                                        //'regex:/[@$!%*#?&.]/', // must contain a special character
-                                        ];
+            'nullable',
+            'sometimes',
+            'string',
+            'min:7',             // must be at least 10 characters in length
+            'regex:/[a-z]/',      // must contain at least one lowercase letter
+            'regex:/[A-Z]/',      // must contain at least one uppercase letter
+            'regex:/[0-9]/',      // must contain at least one digit
+            //'regex:/[@$!%*#?&.]/', // must contain a special character
+        ];
 
         if ($this->company->account->isFreeHostedClient()) {
             $rules['hosted_clients'] = new CanStoreClientsRule($this->company->id);
@@ -72,7 +72,7 @@ class StoreShopClientRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $this->company = Company::where('company_key', request()->header('X-API-COMPANY-KEY'))->firstOrFail();
 

@@ -32,7 +32,6 @@ class TokenAuth
     public function handle($request, Closure $next)
     {
         if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
-            
             $user = $company_token->user;
 
             $error = [
@@ -44,13 +43,12 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
-            if(Ninja::isHosted() && $company_token->is_system == 0 && !$user->account->isPaid()){
-                
+            if (Ninja::isHosted() && $company_token->is_system == 0 && ! $user->account->isPaid()) {
                 $error = [
                     'message' => 'Feature not available with free / unpaid account.',
                     'errors' => new stdClass,
                 ];
-                
+
                 return response()->json($error, 403);
             }
 
@@ -60,7 +58,7 @@ class TokenAuth
             $truth->setUser($company_token->user);
             $truth->setCompany($company_token->company);
             $truth->setCompanyToken($company_token);
-            
+
             /*
             |
             | Necessary evil here: As we are authenticating on CompanyToken,
@@ -86,7 +84,6 @@ class TokenAuth
             //stateless, don't remember the user.
             auth()->login($user, false);
             auth()->user()->setCompany($company_token->company);
-
         } else {
             $error = [
                 'message' => 'Invalid token',

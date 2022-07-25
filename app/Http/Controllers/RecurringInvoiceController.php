@@ -452,7 +452,6 @@ class RecurringInvoiceController extends BaseController
         return $this->itemResponse($recurring_invoice->fresh());
     }
 
-
     /**
      * @OA\Get(
      *      path="/api/v1/recurring_invoice/{invitation_key}/download",
@@ -505,10 +504,9 @@ class RecurringInvoiceController extends BaseController
 
         $file = $recurring_invoice->service()->getInvoicePdf($contact);
 
-        return response()->streamDownload(function () use($file) {
-                echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
-
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**
@@ -714,7 +712,7 @@ class RecurringInvoiceController extends BaseController
         }
     }
 
-/**
+    /**
      * Update the specified resource in storage.
      *
      * @param UploadRecurringInvoiceRequest $request
@@ -767,14 +765,14 @@ class RecurringInvoiceController extends BaseController
      */
     public function upload(UploadRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $recurring_invoice);
+        }
 
         return $this->itemResponse($recurring_invoice->fresh());
-
-    }  
+    }
 }

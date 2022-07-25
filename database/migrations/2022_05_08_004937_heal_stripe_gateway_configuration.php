@@ -8,9 +8,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class HealStripeGatewayConfiguration extends Migration
-{
-
+return new class extends Migration {
     use AppSetup;
 
     /**
@@ -20,18 +18,15 @@ class HealStripeGatewayConfiguration extends Migration
      */
     public function up()
     {
-
-        if(Ninja::isSelfHost())
-        {
-     
+        if (Ninja::isSelfHost()) {
             Model::unguard();
 
             $stripe = [
-                'name' => 'Stripe', 
-                'provider' => 'Stripe', 
-                'sort_order' => 1, 
-                'key' => 'd14dd26a37cecc30fdd65700bfb55b23', 
-                'fields' => '{"publishableKey":"","apiKey":"","appleDomainVerification":""}'
+                'name' => 'Stripe',
+                'provider' => 'Stripe',
+                'sort_order' => 1,
+                'key' => 'd14dd26a37cecc30fdd65700bfb55b23',
+                'fields' => '{"publishableKey":"","apiKey":"","appleDomainVerification":""}',
             ];
 
             $record = Gateway::find(20);
@@ -41,8 +36,7 @@ class HealStripeGatewayConfiguration extends Migration
                 $record->save();
             }
 
-        $this->buildCache(true);
-
+            $this->buildCache(true);
         }
     }
 
@@ -55,4 +49,4 @@ class HealStripeGatewayConfiguration extends Migration
     {
         //
     }
-}
+};

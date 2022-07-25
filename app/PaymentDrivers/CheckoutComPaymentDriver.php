@@ -33,17 +33,17 @@ use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
+use Checkout\Common\CustomerRequest;
 use Checkout\Environment;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Refund;
-use Exception;
 use Checkout\Payments\Four\Request\PaymentRequest;
 use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
 use Checkout\Payments\PaymentRequest as PaymentsPaymentRequest;
-use Checkout\Payments\Source\RequestIdSource;
-use Checkout\Common\CustomerRequest;
 use Checkout\Payments\RefundRequest;
+use Checkout\Payments\Source\RequestIdSource;
+use Exception;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -90,7 +90,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $types = [];
 
         $types[] = GatewayType::CREDIT_CARD;
-        
+
         return $types;
     }
 
@@ -99,7 +99,7 @@ class CheckoutComPaymentDriver extends BaseDriver
      * @param int|null $payment_method
      * @return CheckoutComPaymentDriver
      */
-    public function setPaymentMethod($payment_method = null): CheckoutComPaymentDriver
+    public function setPaymentMethod($payment_method = null): self
     {
         // At the moment Checkout.com payment
         // driver only supports payments using credit card.
@@ -123,20 +123,18 @@ class CheckoutComPaymentDriver extends BaseDriver
             'sandbox' => $this->company_gateway->getConfigField('testMode'),
         ];
 
-
-        if(strlen($config['secret']) <= 38){
+        if (strlen($config['secret']) <= 38) {
             $this->is_four_api = true;
             $builder = CheckoutFourSdk::staticKeys();
             $builder->setPublicKey($config['public']); // optional, only required for operations related with tokens
             $builder->setSecretKey($config['secret']);
-            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox(): Environment::production());
+            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox() : Environment::production());
             $this->gateway = $builder->build();
-        }
-        else    {
+        } else {
             $builder = CheckoutDefaultSdk::staticKeys();
             $builder->setPublicKey($config['public']); // optional, only required for operations related with tokens
             $builder->setSecretKey($config['secret']);
-            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox(): Environment::production());
+            $builder->setEnvironment($config['sandbox'] ? Environment::sandbox() : Environment::production());
             $this->gateway = $builder->build();
         }
 
@@ -181,7 +179,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code) {
+        if ($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -238,7 +236,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->init();
 
         $request = new RefundRequest();
-        $request->reference = "{$payment->transaction_reference} " . now();
+        $request->reference = "{$payment->transaction_reference} ".now();
         $request->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
 
         try {
@@ -252,7 +250,6 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'description' => $response['reference'],
                 'code' => 202,
             ];
-
         } catch (CheckoutApiException $e) {
             // API error
             $request_id = $e->request_id;
@@ -279,49 +276,38 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'code' => $e->getCode(),
             ];
         }
-
     }
 
     public function getCustomer()
     {
-        try{
-        
-        $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
-            
-            return $response;
-        }
-        catch(\Exception $e){
+        try {
+            $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
 
+            return $response;
+        } catch (\Exception $e) {
             $request = new CustomerRequest();
             $request->email = $this->client->present()->email();
             $request->name = $this->client->present()->name();
+
             return $request;
         }
     }
 
     public function bootTokenRequest($token)
     {
-
-        if($this->is_four_api){
-
+        if ($this->is_four_api) {
             $token_source = new SourceRequestIdSource();
             $token_source->id = $token;
             $request = new PaymentRequest();
             $request->source = $token_source;
-
-
-        }
-        else {
-
+        } else {
             $token_source = new RequestIdSource();
             $token_source->id = $token;
             $request = new PaymentsPaymentRequest();
             $request->source = $token_source;
-
         }
 
         return $request;
-
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -333,9 +319,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $paymentRequest = $this->bootTokenRequest($cgt->token);
         $paymentRequest->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        $paymentRequest->reference = '#' . $invoice->number . ' - ' . now();
+        $paymentRequest->reference = '#'.$invoice->number.' - '.now();
         $paymentRequest->customer = $this->getCustomer();
-        $paymentRequest->metadata = ['udf1' => "Invoice Ninja"];
+        $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
         $paymentRequest->currency = $this->client->getCurrencyCode();
 
         $request = new PaymentResponseRequest();
@@ -372,7 +358,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             if ($response['status'] == 'Declined') {
                 $this->unWindGatewayFees($payment_hash);
 
-                $this->sendFailureMail($response['status'] . " " . $response['response_summary']);
+                $this->sendFailureMail($response['status'].' '.$response['response_summary']);
 
                 $message = [
                     'server_response' => $response,
@@ -404,11 +390,11 @@ class CheckoutComPaymentDriver extends BaseDriver
             $this->sendFailureMail($message);
 
             SystemLogger::dispatch(
-                $data, 
-                SystemLog::CATEGORY_GATEWAY_RESPONSE, 
-                SystemLog::EVENT_GATEWAY_FAILURE, 
-                SystemLog::TYPE_CHECKOUT, 
-                $this->client, 
+                $data,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $this->client,
                 $this->client->company
             );
         }
@@ -421,7 +407,6 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
     {
-
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
 

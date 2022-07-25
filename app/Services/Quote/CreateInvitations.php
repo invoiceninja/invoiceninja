@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 class CreateInvitations
 {
     use MakesHash;
-    
+
     public $quote;
 
     public function __construct(Quote $quote)
@@ -31,17 +31,16 @@ class CreateInvitations
 
     public function run()
     {
+        $contacts = $this->quote->client->contacts;
 
-       $contacts = $this->quote->client->contacts;
-
-        if($contacts->count() == 0){
+        if ($contacts->count() == 0) {
             $this->createBlankContact();
 
             $this->quote->refresh();
             $contacts = $this->quote->client->contacts;
         }
 
-        $contacts->each(function ($contact){
+        $contacts->each(function ($contact) {
             $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereQuoteId($this->quote->id)
@@ -59,31 +58,30 @@ class CreateInvitations
             }
         });
 
-        if($this->quote->invitations()->count() == 0) {
-            
-            if($contacts->count() == 0){
+        if ($this->quote->invitations()->count() == 0) {
+            if ($contacts->count() == 0) {
                 $contact = $this->createBlankContact();
-            }
-            else{
+            } else {
                 $contact = $contacts->first();
 
-                            $invitation = QuoteInvitation::where('company_id', $this->quote->company_id)
+                $invitation = QuoteInvitation::where('company_id', $this->quote->company_id)
                                         ->where('client_contact_id', $contact->id)
                                         ->where('quote_id', $this->quote->id)
                                         ->withTrashed()
                                         ->first();
 
-                            if($invitation){
-                                $invitation->restore();
-                                return $this->quote;
-                            }
+                if ($invitation) {
+                    $invitation->restore();
+
+                    return $this->quote;
+                }
             }
 
-                $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
-                $ii->key = $this->createDbHash($this->quote->company->db);
-                $ii->quote_id = $this->quote->id;
-                $ii->client_contact_id = $contact->id;
-                $ii->save();
+            $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
+            $ii->key = $this->createDbHash($this->quote->company->db);
+            $ii->quote_id = $this->quote->id;
+            $ii->client_contact_id = $contact->id;
+            $ii->save();
         }
 
         return $this->quote->fresh();
@@ -97,5 +95,4 @@ class CreateInvitations
         $new_contact->is_primary = true;
         $new_contact->save();
     }
-
 }

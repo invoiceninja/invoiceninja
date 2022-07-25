@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class InvoiceDeletedTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_DELETED; 
-
+    public $event_id = TransactionEvent::INVOICE_DELETED;
 }

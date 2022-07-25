@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RecurringExpensesSchema extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,7 +13,6 @@ class RecurringExpensesSchema extends Migration
     public function up()
     {
         Schema::create('recurring_expenses', function ($table) {
-            
             $table->increments('id');
             $table->timestamps(6);
             $table->softDeletes();
@@ -75,7 +73,6 @@ class RecurringExpensesSchema extends Migration
             // Relations
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
         });
 
         Schema::table('activities', function (Blueprint $table) {
@@ -83,14 +80,14 @@ class RecurringExpensesSchema extends Migration
             $table->unsignedInteger('recurring_quote_id')->nullable();
         });
 
-        Schema::table('recurring_quotes', function ($table){
+        Schema::table('recurring_quotes', function ($table) {
             $table->string('auto_bill')->default('off');
             $table->boolean('auto_bill_enabled')->default(0);
             $table->decimal('paid_to_date', 20, 6)->default(0);
-            $table->decimal('custom_surcharge1', 20,6)->nullable();
-            $table->decimal('custom_surcharge2', 20,6)->nullable();
-            $table->decimal('custom_surcharge3', 20,6)->nullable();
-            $table->decimal('custom_surcharge4', 20,6)->nullable();
+            $table->decimal('custom_surcharge1', 20, 6)->nullable();
+            $table->decimal('custom_surcharge2', 20, 6)->nullable();
+            $table->decimal('custom_surcharge3', 20, 6)->nullable();
+            $table->decimal('custom_surcharge4', 20, 6)->nullable();
             $table->boolean('custom_surcharge_tax1')->default(false);
             $table->boolean('custom_surcharge_tax2')->default(false);
             $table->boolean('custom_surcharge_tax3')->default(false);
@@ -98,7 +95,7 @@ class RecurringExpensesSchema extends Migration
             $table->string('due_date_days')->nullable();
             $table->decimal('exchange_rate', 13, 6)->default(1);
             $table->decimal('partial', 16, 4)->nullable();
-            $table->date('partial_due_date')->nullable();                        
+            $table->date('partial_due_date')->nullable();
             $table->unsignedInteger('remaining_cycles')->nullable()->change();
             $table->unsignedInteger('subscription_id')->nullable();
             $table->dropColumn('start_date');
@@ -135,17 +132,6 @@ class RecurringExpensesSchema extends Migration
             $t->index(['deleted_at', 'recurring_quote_id', 'company_id'], 'rec_co_del_q');
             $t->unique(['client_contact_id', 'recurring_quote_id'], 'cli_rec_q');
         });
-
-
-
-
-
-
-
-
-
-
-
     }
 
     /**
@@ -157,4 +143,4 @@ class RecurringExpensesSchema extends Migration
     {
         //
     }
-}
+};

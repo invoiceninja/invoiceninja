@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeEnglishLanguagesTables extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,8 +13,7 @@ class ChangeEnglishLanguagesTables extends Migration
      */
     public function up()
     {
-        if($language = Language::find(1))
-        {
+        if ($language = Language::find(1)) {
             $language->name = 'English - United States';
             $language->save();
         }
@@ -30,4 +28,4 @@ class ChangeEnglishLanguagesTables extends Migration
     {
         //
     }
-}
+};

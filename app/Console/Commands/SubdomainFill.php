@@ -40,25 +40,17 @@ class SubdomainFill extends Command
      */
     public function handle()
     {
-
         $c1 = Company::on('db-ninja-01')->whereNull('subdomain')->orWhere('subdomain', '')->get();
         $c2 = Company::on('db-ninja-02')->whereNull('subdomain')->orWhere('subdomain', '')->get();
 
-
-        $c1->each(function ($company){
-
+        $c1->each(function ($company) {
             $company->subdomain = MultiDB::randomSubdomainGenerator();
             $company->save();
-
         });
 
-        $c2->each(function ($company){
-
+        $c2->each(function ($company) {
             $company->subdomain = MultiDB::randomSubdomainGenerator();
             $company->save();
-
         });
-
     }
-
 }

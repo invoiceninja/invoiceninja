@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers;
@@ -42,7 +42,7 @@ class RazorpayPaymentDriver extends BaseDriver
     public function init(): self
     {
         $this->gateway = new \Razorpay\Api\Api(
-            $this->company_gateway->getConfigField('apiKey'), 
+            $this->company_gateway->getConfigField('apiKey'),
             $this->company_gateway->getConfigField('apiSecret'),
         );
 
@@ -85,15 +85,19 @@ class RazorpayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function refund(Payment $payment, $amount, $return_client_response = false) {}
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+    }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash) {}
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+    }
 
     /**
      * Convert the amount to the format that Razorpay supports.
-     * 
-     * @param mixed|float $amount 
-     * @return int 
+     *
+     * @param mixed|float $amount
+     * @return int
      */
     public function convertToRazorpayAmount($amount): int
     {

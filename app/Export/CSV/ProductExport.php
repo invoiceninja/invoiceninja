@@ -66,7 +66,6 @@ class ProductExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -76,8 +75,9 @@ class ProductExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -87,49 +87,42 @@ class ProductExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query->cursor()
-              ->each(function ($entity){
+              ->each(function ($entity) {
+                  $this->csv->insertOne($this->buildRow($entity));
+              });
 
-            $this->csv->insertOne($this->buildRow($entity)); 
-
-        });
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Product $product) :array
     {
-
         $transformed_entity = $this->entity_transformer->transform($product);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_entity))
+            if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
-            else
+            } else {
                 $entity[$keyval] = '';
-        
-        
+            }
         }
 
         return $this->decorateAdvancedFields($product, $entity);
-
     }
 
     private function decorateAdvancedFields(Product $product, array $entity) :array
     {
-
-        if(in_array('vendor_id', $this->input['report_keys']))
+        if (in_array('vendor_id', $this->input['report_keys'])) {
             $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
+        }
 
-        if(array_key_exists('project_id', $this->input['report_keys']))
+        if (array_key_exists('project_id', $this->input['report_keys'])) {
             $entity['project'] = $product->project()->exists() ? $product->project->name : '';
+        }
 
         return $entity;
     }
-
 }

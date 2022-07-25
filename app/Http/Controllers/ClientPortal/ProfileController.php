@@ -63,7 +63,7 @@ class ProfileController extends Controller
 
         //update avatar if needed
         if ($request->file('logo')) {
-            $path = UploadAvatar::dispatchNow($request->file('logo'), auth()->user()->client->client_hash);
+            $path = (new UploadAvatar($request->file('logo'), auth()->user()->client->client_hash))->handle();
 
             if ($path) {
                 $client->logo = $path;

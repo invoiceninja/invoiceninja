@@ -121,11 +121,11 @@ class EmailController extends BaseController
         $subject = $request->has('subject') ? $request->input('subject') : '';
         $body = $request->has('body') ? $request->input('body') : '';
         $entity_string = strtolower(class_basename($entity_obj));
-        $template = str_replace("email_template_", "", $request->input('template'));
+        $template = str_replace('email_template_', '', $request->input('template'));
 
         $data = [
             'subject' => $subject,
-            'body' => $body
+            'body' => $body,
         ];
 
         if($entity == 'purchaseOrder' || $template == 'purchase_order'){
@@ -133,15 +133,11 @@ class EmailController extends BaseController
         }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template) {
-
-            if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                
+            if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
                 EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
-                
             }
-
         });
 
         $entity_obj->last_sent_date = now();
@@ -153,27 +149,27 @@ class EmailController extends BaseController
             $this->entity_type = Invoice::class;
             $this->entity_transformer = InvoiceTransformer::class;
 
-            if ($entity_obj->invitations->count() >= 1) 
+            if ($entity_obj->invitations->count() >= 1) {
                 $entity_obj->entityEmailEvent($entity_obj->invitations->first(), 'invoice', $template);
-            
+            }
         }
 
         if ($entity_obj instanceof Quote) {
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
 
-            if ($entity_obj->invitations->count() >= 1) 
+            if ($entity_obj->invitations->count() >= 1) {
                 event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'quote'));
-            
+            }
         }
 
         if ($entity_obj instanceof Credit) {
             $this->entity_type = Credit::class;
             $this->entity_transformer = CreditTransformer::class;
 
-            if ($entity_obj->invitations->count() >= 1) 
+            if ($entity_obj->invitations->count() >= 1) {
                 event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
-            
+            }
         }
 
         if ($entity_obj instanceof RecurringInvoice) {

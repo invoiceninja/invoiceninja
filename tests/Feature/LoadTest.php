@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
@@ -44,13 +45,12 @@ use Tests\TestCase;
  */
 class LoadTest extends TestCase
 {
-
     use MakesHash;
     use GeneratesCounter;
 
     public int $count = 1;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -59,7 +59,6 @@ class LoadTest extends TestCase
 
     public function testLoad()
     {
-
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
@@ -95,34 +94,28 @@ class LoadTest extends TestCase
             'is_admin' => 1,
             'is_locked' => 0,
             'notifications' => CompanySettings::notificationDefaults(),
-           // 'permissions' => '',
+            // 'permissions' => '',
             'settings' => null,
         ]);
 
-        dispatch(function () use($user, $company){
-
+        dispatch(function () use ($user, $company) {
             Product::factory()->count(500)->create([
-                    'user_id' => $user->id,
-                    'company_id' => $company->id,
-                ]);
-
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+            ]);
         });
 
         for ($x = 0; $x < $this->count * 100; $x++) {
             $z = $x + 1;
 
             $this->createClient($company, $user);
-
         }
 
-            do{
-                sleep(3);
-            }
-            while($company->clients()->count() != 500);
+        do {
+            sleep(3);
+        } while ($company->clients()->count() != 500);
 
-
-        for ($x = 0; $x < $this->count * 100 ; $x++) {
-
+        for ($x = 0; $x < $this->count * 100; $x++) {
             $client = $company->clients->random();
 
             $this->createInvoice($client);
@@ -151,127 +144,109 @@ class LoadTest extends TestCase
 
             $this->createProject($client);
         }
-
     }
-
 
     private function createClient($company, $user)
     {
-
-
-    dispatch(function () use ($company, $user){
-
-        $client = Client::factory()->create([
+        dispatch(function () use ($company, $user) {
+            $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
                 'country_id' => 840,
             ]);
 
-
-        Document::factory()->count(2)->create([
+            Document::factory()->count(2)->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
                 'documentable_type' => Client::class,
-                'documentable_id' => $client->id
+                'documentable_id' => $client->id,
             ]);
 
-        ClientContact::factory()->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                    'is_primary' => 1,
-                ]);
+            ClientContact::factory()->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id,
+                'is_primary' => 1,
+            ]);
 
-        ClientContact::factory()->count(2)->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                ]);
+            ClientContact::factory()->count(2)->create([
+                'user_id' => $user->id,
+                'client_id' => $client->id,
+                'company_id' => $company->id,
+            ]);
 
-        $client->number = Str::random(28);
+            $client->number = Str::random(28);
 
-        $settings = $client->settings;
-        $settings->currency_id = (string) rand(1, 79);
-        $client->settings = $settings;
-        $client->save();
-
-    });
-
+            $settings = $client->settings;
+            $settings->currency_id = (string) rand(1, 79);
+            $client->settings = $settings;
+            $client->save();
+        });
     }
 
     private function createExpense($client)
     {
-        dispatch(function () use($client){
+        dispatch(function () use ($client) {
             Expense::factory()->count(rand(1, 5))->create([
-                    'user_id' => $client->user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $client->company->id,
-                ]);
+                'user_id' => $client->user->id,
+                'client_id' => $client->id,
+                'company_id' => $client->company->id,
+            ]);
         });
     }
 
     private function createVendor($client)
     {
-       
-        dispatch(function () use($client){
-       
-        $vendor = Vendor::factory()->create([
+        dispatch(function () use ($client) {
+            $vendor = Vendor::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
 
-        Document::factory()->count(2)->create([
+            Document::factory()->count(2)->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
                 'documentable_type' => Vendor::class,
-                'documentable_id' => $vendor->id
+                'documentable_id' => $vendor->id,
             ]);
 
-        VendorContact::factory()->create([
+            VendorContact::factory()->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
                 'is_primary' => 1,
             ]);
 
-        VendorContact::factory()->count(rand(1, 500))->create([
+            VendorContact::factory()->count(rand(1, 500))->create([
                 'user_id' => $client->user->id,
                 'vendor_id' => $vendor->id,
                 'company_id' => $client->company->id,
                 'is_primary' => 0,
             ]);
-
-    });
-
+        });
     }
 
     private function createTask($client)
     {
-        
-        dispatch(function () use($client){
-       
-        $vendor = Task::factory()->create([
+        dispatch(function () use ($client) {
+            $vendor = Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
 
-
-        Document::factory()->count(5)->create([
+            Document::factory()->count(5)->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
                 'documentable_type' => Task::class,
-                'documentable_id' => $vendor->id
+                'documentable_id' => $vendor->id,
             ]);
-
         });
     }
 
     private function createProject($client)
     {
-        
-        dispatch(function () use($client){
-       
-        $vendor = Project::factory()->create([
+        dispatch(function () use ($client) {
+            $vendor = Project::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company->id,
             ]);
@@ -280,16 +255,13 @@ class LoadTest extends TestCase
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
                 'documentable_type' => Project::class,
-                'documentable_id' => $vendor->id
+                'documentable_id' => $vendor->id,
             ]);
-
         });
-
     }
 
     private function createInvoice($client)
     {
-
         $faker = \Faker\Factory::create();
 
         $invoice = InvoiceFactory::create($client->company->id, $client->user->id); //stub the company and user_id
@@ -315,7 +287,7 @@ class LoadTest extends TestCase
             $invoice->tax_rate3 = 5;
         }
 
-        $invoice->custom_value1 = $faker->date;
+        $invoice->custom_value1 = $faker->date();
         $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
@@ -337,17 +309,13 @@ class LoadTest extends TestCase
             $invoice = $invoice->service()->markPaid()->save();
         }
 
-            Document::factory()->count(5)->create([
-                'user_id' => $invoice->user->id,
-                'company_id' => $invoice->company_id,
-                'documentable_type' => Invoice::class,
-                'documentable_id' => $invoice->id
-            ]);
-
-        
-
+        Document::factory()->count(5)->create([
+            'user_id' => $invoice->user->id,
+            'company_id' => $invoice->company_id,
+            'documentable_type' => Invoice::class,
+            'documentable_id' => $invoice->id,
+        ]);
     }
-
 
     private function createCredit($client)
     {

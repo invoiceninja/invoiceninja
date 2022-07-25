@@ -27,5 +27,4 @@ class ContactPasswordResetRequest extends FormRequest
             'email' => 'required',
         ];
     }
-
 }

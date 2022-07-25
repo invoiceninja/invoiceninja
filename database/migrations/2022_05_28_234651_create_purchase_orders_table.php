@@ -12,8 +12,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePurchaseOrdersTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -54,7 +53,6 @@ class CreatePurchaseOrdersTable extends Migration
 
             $table->string('tax_name1')->nullable();
 
-
             $table->decimal('tax_rate1', 20, 6)->default(0);
 
             $table->string('tax_name2')->nullable();
@@ -62,7 +60,6 @@ class CreatePurchaseOrdersTable extends Migration
 
             $table->string('tax_name3')->nullable();
             $table->decimal('tax_rate3', 20, 6)->default(0);
-
 
             $table->decimal('total_taxes', 20, 6)->default(0);
             $table->boolean('uses_inclusive_taxes')->default(0);
@@ -77,22 +74,17 @@ class CreatePurchaseOrdersTable extends Migration
             $table->text('custom_value3')->nullable();
             $table->text('custom_value4')->nullable();
 
-
             $table->datetime('next_send_date')->nullable();
 
-
-
-            $table->decimal('custom_surcharge1', 20,6)->nullable();
-            $table->decimal('custom_surcharge2', 20,6)->nullable();
-            $table->decimal('custom_surcharge3', 20,6)->nullable();
-            $table->decimal('custom_surcharge4', 20,6)->nullable();
-
+            $table->decimal('custom_surcharge1', 20, 6)->nullable();
+            $table->decimal('custom_surcharge2', 20, 6)->nullable();
+            $table->decimal('custom_surcharge3', 20, 6)->nullable();
+            $table->decimal('custom_surcharge4', 20, 6)->nullable();
 
             $table->boolean('custom_surcharge_tax1')->default(false);
             $table->boolean('custom_surcharge_tax2')->default(false);
             $table->boolean('custom_surcharge_tax3')->default(false);
             $table->boolean('custom_surcharge_tax4')->default(false);
-
 
             $table->decimal('exchange_rate', 20, 6)->default(1);
             $table->decimal('balance', 20, 6);
@@ -111,7 +103,6 @@ class CreatePurchaseOrdersTable extends Migration
 
             $table->softDeletes();
             $table->timestamps();
-
         });
     }
 
@@ -123,4 +114,4 @@ class CreatePurchaseOrdersTable extends Migration
     public function down()
     {
     }
-}
+};

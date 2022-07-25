@@ -55,7 +55,6 @@ class ZipDocuments implements ShouldQueue
      * @param $email
      * @deprecated confirm to be deleted
      * Create a new job instance.
-     *
      */
     public function __construct($document_ids, Company $company, User $user)
     {
@@ -76,7 +75,6 @@ class ZipDocuments implements ShouldQueue
      * @throws \ZipStream\Exception\FileNotReadableException
      * @throws \ZipStream\Exception\OverflowException
      */
-    
     public function handle()
     {
         MultiDB::setDb($this->company->db);
@@ -86,19 +84,16 @@ class ZipDocuments implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        # create new zip object
+        // create new zip object
         $zipFile = new \PhpZip\ZipFile();
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.documents')).'.zip';
         $path = $this->company->file_path();
 
-        try{
-            
+        try {
             $documents = Document::whereIn('id', $this->document_ids)->get();
 
             foreach ($documents as $document) {
-
                 $zipFile->addFromString($this->buildFileName($document), $document->getFile());
-
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
@@ -108,21 +103,16 @@ class ZipDocuments implements ShouldQueue
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
-            
+
             NinjaMailerJob::dispatch($nmo);
-            
+
             UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
-            
-        }
-        catch(\PhpZip\Exception\ZipException $e){
-            nlog("could not make zip => ". $e->getMessage());
-        }
-        finally{
+        } catch (\PhpZip\Exception\ZipException $e) {
+            nlog('could not make zip => '.$e->getMessage());
+        } finally {
             $zipFile->close();
         }
-
     }
-
 
     private function buildFileName($document) :string
     {
@@ -130,10 +120,11 @@ class ZipDocuments implements ShouldQueue
 
         $date = $this->formatDate(Carbon::createFromTimestamp($document->created_at), 'Y-m-d');
 
-        $number = "_";
+        $number = '_';
 
-        if(isset($document->documentable->number))
-            $number = "_".$document->documentable->number;
+        if (isset($document->documentable->number)) {
+            $number = '_'.$document->documentable->number;
+        }
 
         return "{$date}_{$document->documentable->translate_entity()}{$number}_{$filename}";
     }

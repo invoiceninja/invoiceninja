@@ -40,8 +40,9 @@ class UnlinkFile implements ShouldQueue
     public function handle()
     {
         /* Do not delete files if we are on the sync queue*/
-        if(config('queue.default') == 'sync')
+        if (config('queue.default') == 'sync') {
             return;
+        }
 
         Storage::disk($this->disk)->delete($this->file_path);
     }

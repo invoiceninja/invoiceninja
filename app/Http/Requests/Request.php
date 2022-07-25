@@ -20,6 +20,7 @@ class Request extends FormRequest
 {
     use MakesHash;
     use RuntimeFormRequest;
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -41,8 +42,9 @@ class Request extends FormRequest
         }
 
         //01-02-2022 needed for CSV Imports
-        if(!$merge_rules)
+        if (! $merge_rules) {
             return $rules;
+        }
 
         return array_merge($merge_rules, $rules);
     }
@@ -50,11 +52,11 @@ class Request extends FormRequest
     private function assigned_user_id($rules)
     {
         $rules['assigned_user_id'] = [
-            'bail' ,
+            'bail',
             'sometimes',
             'nullable',
-                new RelatedUserRule($this->all())
-            ];
+            new RelatedUserRule($this->all()),
+        ];
 
         return $rules;
     }
@@ -75,6 +77,10 @@ class Request extends FormRequest
 
     public function decodePrimaryKeys($input)
     {
+        if (array_key_exists('group_settings_id', $input) && is_string($input['group_settings_id'])) {
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+        }
+        
         if (array_key_exists('group_id', $input) && is_string($input['group_id'])) {
             $input['group_id'] = $this->decodePrimaryKey($input['group_id']);
         }
@@ -141,9 +147,9 @@ class Request extends FormRequest
 
         if (isset($input['contacts']) && is_array($input['contacts'])) {
             foreach ($input['contacts'] as $key => $contact) {
-
-                if(!is_array($contact))
+                if (! is_array($contact)) {
                     continue;
+                }
 
                 if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {
                     unset($input['contacts'][$key]['id']);
@@ -164,18 +170,16 @@ class Request extends FormRequest
                     }
                 }
 
-                if (array_key_exists('email', $contact)) 
+                if (array_key_exists('email', $contact)) {
                     $input['contacts'][$key]['email'] = trim($contact['email']);
-
-
+                }
             }
         }
-        
+
         return $input;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
-
     }
 }

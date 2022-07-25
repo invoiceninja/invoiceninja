@@ -53,7 +53,6 @@ class ContactPasswordlessLogin extends Mailable
      */
     public function build()
     {
-        
         App::setLocale($this->company->getLocale());
 
         return $this

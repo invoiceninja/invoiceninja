@@ -48,7 +48,7 @@ class EwayPaymentDriver extends BaseDriver
         $apiEndpoint = $this->company_gateway->getConfigField('testMode') ? \Eway\Rapid\Client::MODE_SANDBOX : \Eway\Rapid\Client::MODE_PRODUCTION;
         $this->eway = \Eway\Rapid::createClient($apiKey, $apiPassword, $apiEndpoint);
 
-        return $this; 
+        return $this;
     }
 
     /* Returns an array of gateway types for the payment gateway */
@@ -56,7 +56,7 @@ class EwayPaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
@@ -66,6 +66,7 @@ class EwayPaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -92,11 +93,10 @@ class EwayPaymentDriver extends BaseDriver
     /* We need PCI compliance prior to enabling this */
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-
         $refund = [
             'Refund' => [
                 'TransactionID' => $payment->transaction_reference,
-                'TotalAmount' => $this->convertAmount($amount)
+                'TotalAmount' => $this->convertAmount($amount),
             ],
         ];
 
@@ -105,7 +105,7 @@ class EwayPaymentDriver extends BaseDriver
         $transaction_reference = '';
         $refund_status = true;
         $refund_message = '';
-        
+
         if ($response->TransactionStatus) {
             $transaction_reference = $response->TransactionID;
         } else {
@@ -142,15 +142,17 @@ class EwayPaymentDriver extends BaseDriver
     {
         $precision = $this->client->currency()->precision;
 
-        if($precision == 0)
+        if ($precision == 0) {
             return $amount;
+        }
 
-        if($precision == 1)
-            return $amount*10;
+        if ($precision == 1) {
+            return $amount * 10;
+        }
 
-        if($precision == 2)
-            return $amount*100;
-
+        if ($precision == 2) {
+            return $amount * 100;
+        }
 
         return $amount;
     }
@@ -177,8 +179,9 @@ class EwayPaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code)
+        if ($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        }
 
         if ($this->company_gateway->require_shipping_address) {
             $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
@@ -187,7 +190,6 @@ class EwayPaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
         }
-
 
         return $fields;
     }

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Jobs\Util\UpdateExchangeRates;
@@ -31,7 +32,7 @@ class UpdateExchangeRatesTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -54,7 +55,7 @@ class UpdateExchangeRatesTest extends TestCase
 
             $currency_api = json_decode($response->getBody());
 
-            UpdateExchangeRates::dispatchNow();
+            UpdateExchangeRates::dispatchSync();
 
             $currencies = Cache::get('currencies');
 

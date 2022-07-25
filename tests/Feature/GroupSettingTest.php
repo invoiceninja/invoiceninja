@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Utils\Traits\MakesHash;
@@ -20,10 +21,11 @@ use Tests\TestCase;
 class GroupSettingTest extends TestCase
 {
     use MakesHash;
+
     //use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -49,7 +51,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings', $data);
+        ])->postJson('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
 
@@ -72,7 +74,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings', $data);
+        ])->postJson('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
 
@@ -86,7 +88,7 @@ class GroupSettingTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/group_settings/bulk', $data);
+        ])->postJson('/api/v1/group_settings/bulk', $data);
 
         $response->assertStatus(200);
 

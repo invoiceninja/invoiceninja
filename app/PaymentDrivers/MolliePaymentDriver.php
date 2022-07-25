@@ -39,7 +39,7 @@ class MolliePaymentDriver extends BaseDriver
     use MakesHash;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $refundable = true;
 
@@ -294,7 +294,7 @@ class MolliePaymentDriver extends BaseDriver
         }
 
         $this->init();
-        
+
         $codes = [
             'open' => Payment::STATUS_PENDING,
             'canceled' => Payment::STATUS_CANCELLED,
@@ -310,23 +310,21 @@ class MolliePaymentDriver extends BaseDriver
             $payment = $this->gateway->payments->get($request->id);
             $record = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
 
-            if($record){
+            if ($record) {
                 $client = $record->client;
                 $this->client = $client;
-            }
-            else{
-
+            } else {
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
                 $this->client = $client;
-                // sometimes if the user is not returned to the site with a response from Mollie 
+                // sometimes if the user is not returned to the site with a response from Mollie
                 // we may not have a payment record - in these cases we need to re-construct the payment
                 // record from the meta data in the payment hash.
 
-                if($payment && property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
-                    
+                if ($payment && property_exists($payment->metadata, 'hash') && $payment->metadata->hash) {
+
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
-                    
+
                     /* If we are here, then we do not have access to the class payment hash, so lets set it here*/
                     $this->payment_hash = $payment_hash;
 
@@ -336,12 +334,11 @@ class MolliePaymentDriver extends BaseDriver
                         'payment_type' => $payment->metadata->payment_type_id,
                         'transaction_reference' => $payment->id,
                     ];
-                    
+
                     $record = $this->createPayment(
                         $data,
                         $codes[$payment->status]
                     );
-                
                 }
             }
 
@@ -352,10 +349,10 @@ class MolliePaymentDriver extends BaseDriver
 
             $response = SystemLog::EVENT_GATEWAY_FAILURE;
 
-            if($record){
-
-                if(in_array($payment->status, ['canceled','expired','failed']))
+            if ($record) {
+                if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
                     $record->service()->deletePayment();
+                }
 
                 $record->status_id = $codes[$payment->status];
                 $record->save();
@@ -372,7 +369,6 @@ class MolliePaymentDriver extends BaseDriver
             );
 
             return response()->json([], 200);
-
         } catch (ApiException $e) {
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
         }
@@ -416,9 +412,9 @@ class MolliePaymentDriver extends BaseDriver
 
     /**
      * Convert the amount to the format that Mollie supports.
-     * 
-     * @param mixed|float $amount 
-     * @return string 
+     *
+     * @param mixed|float $amount
+     * @return string
      */
     public function convertToMollieAmount($amount): string
     {

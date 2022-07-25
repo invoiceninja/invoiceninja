@@ -17,21 +17,19 @@ trait Utilities
     /*Helpers for currency conversions, NOTE* for some currencies we need to change behaviour */
     public function convertFromStripeAmount($amount, $precision, $currency)
     {
-
-       if(in_array($currency->code, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
+        if (in_array($currency->code, ['BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'])) {
             return $amount;
+        }
 
         return $amount / pow(10, $precision);
-
     }
 
     public function convertToStripeAmount($amount, $precision, $currency)
     {
+        if (in_array($currency->code, ['BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF'])) {
+            return $amount;
+        }
 
-       if(in_array($currency->code, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
-            return $amount; 
-
-        return round(($amount * pow(10, $precision)),0);
-
+        return round(($amount * pow(10, $precision)), 0);
     }
 }

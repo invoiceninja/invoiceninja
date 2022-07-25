@@ -150,5 +150,4 @@ class ActivityTransformer extends EntityTransformer
 
         return $this->includeItem($activity->task, $transformer, Task::class);
     }
-
 }

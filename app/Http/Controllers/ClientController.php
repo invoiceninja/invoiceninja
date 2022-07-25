@@ -38,6 +38,7 @@ use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+
 /**
  * Class ClientController.
  * @covers App\Http\Controllers\ClientController
@@ -277,7 +278,6 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-
         if ($request->entityIsDeleted($client)) {
             return $request->disallowUpdate();
         }
@@ -383,10 +383,8 @@ class ClientController extends BaseController
         $client->load('contacts', 'primary_contact');
 
         /* Set the client country to the company if none is set */
-        if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
-
+        if (! $client->country_id && strlen($client->company->settings->country_id) > 1) {
             $client->update(['country_id' => $client->company->settings->country_id]);
-        
         }
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
@@ -448,11 +446,9 @@ class ClientController extends BaseController
      */
     public function destroy(DestroyClientRequest $request, Client $client)
     {
+        $this->client_repo->delete($client);
 
-       $this->client_repo->delete($client);
-
-       return $this->itemResponse($client->fresh());
-
+        return $this->itemResponse($client->fresh());
     }
 
     /**
@@ -513,8 +509,9 @@ class ClientController extends BaseController
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
-        if(!in_array($action, ['restore','archive','delete']))
+        if (! in_array($action, ['restore', 'archive', 'delete'])) {
             return response()->json(['message' => 'That action is not available.'], 400);
+        }
 
         $clients->each(function ($client, $key) use ($action) {
             if (auth()->user()->can('edit', $client)) {
@@ -578,15 +575,15 @@ class ClientController extends BaseController
      */
     public function upload(UploadClientRequest $request, Client $client)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $client);
+        }
 
         return $this->itemResponse($client->fresh());
-
     }
 
     /**
@@ -642,10 +639,8 @@ class ClientController extends BaseController
     public function purge(PurgeClientRequest $request, Client $client)
     {
         //delete all documents
-        $client->documents->each(function ($document){
-
+        $client->documents->each(function ($document) {
             Storage::disk(config('filesystems.default'))->delete($document->url);
-
         });
 
         //force delete the client

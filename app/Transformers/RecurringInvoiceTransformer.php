@@ -36,20 +36,20 @@ class RecurringInvoiceTransformer extends EntityTransformer
         'activities',
         'client',
     ];
-   
+
     public function includeHistory(RecurringInvoice $invoice)
     {
         $transformer = new InvoiceHistoryTransformer($this->serializer);
 
         return $this->includeCollection($invoice->history, $transformer, Backup::class);
     }
-       
+
     public function includeActivities(RecurringInvoice $invoice)
     {
         $transformer = new ActivityTransformer($this->serializer);
 
         return $this->includeCollection($invoice->activities, $transformer, Activity::class);
-    }   
+    }
 
     public function includeInvitations(RecurringInvoice $invoice)
     {
@@ -64,7 +64,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
-    
+
     public function includeClient(RecurringInvoice $invoice)
     {
         $transformer = new ClientTransformer($this->serializer);
@@ -74,7 +74,6 @@ class RecurringInvoiceTransformer extends EntityTransformer
 
     public function transform(RecurringInvoice $invoice)
     {
-        
         $data = [
             'id' => $this->encodePrimaryKey($invoice->id),
             'user_id' => $this->encodePrimaryKey($invoice->user_id),
@@ -96,7 +95,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
             // 'next_send_date' => $invoice->next_send_date ?: '',
-            'next_send_date' => $invoice->next_send_date_client ?: '',  
+            'next_send_date' => $invoice->next_send_date_client ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
@@ -137,14 +136,14 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
             'due_date_days' => (string) $invoice->due_date_days ?: '',
             'paid_to_date' => (float) $invoice->paid_to_date,
-            'subscription_id' => (string)$this->encodePrimaryKey($invoice->subscription_id),
-            'recurring_dates' => (array) [],        
+            'subscription_id' => (string) $this->encodePrimaryKey($invoice->subscription_id),
+            'recurring_dates' => (array) [],
         ];
 
-        
-        if(request()->has('show_dates') && request()->query('show_dates') == 'true')
+        if (request()->has('show_dates') && request()->query('show_dates') == 'true') {
             $data['recurring_dates'] = (array) $invoice->recurringDates();
+        }
 
-             return $data;
+        return $data;
     }
 }

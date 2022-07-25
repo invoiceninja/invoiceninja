@@ -74,7 +74,7 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
-        // \Fruitcake\Cors\HandleCors::class,
+        // \Illuminate\Http\Middleware\HandleCors::class,
         Cors::class,
 
     ];
@@ -171,7 +171,6 @@ class Kernel extends HttpKernel
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,
     ];
-
 
     protected $middlewarePriority = [
         EncryptCookies::class,

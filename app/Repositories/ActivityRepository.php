@@ -70,15 +70,15 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        if ($entity instanceof User || $entity->company->is_disabled)
+        if ($entity instanceof User || $entity->company->is_disabled) {
             return;
+        }
 
-        if (get_class($entity) == Invoice::class 
-            || get_class($entity) == Quote::class 
-            || get_class($entity) == Credit::class 
+        if (get_class($entity) == Invoice::class
+            || get_class($entity) == Quote::class
+            || get_class($entity) == Credit::class
             || get_class($entity) == RecurringInvoice::class
         ) {
-
             $backup = new Backup();
             $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
@@ -90,8 +90,6 @@ class ActivityRepository extends BaseRepository
 
             $backup->storeRemotely($this->generateHtml($entity), $entity->client);
         }
-
-
     }
 
     public function getTokenId(array $event_vars)
@@ -112,14 +110,13 @@ class ActivityRepository extends BaseRepository
         $entity_design_id = '';
         $entity_type = '';
 
-        if ($entity instanceof Invoice ) {
+        if ($entity instanceof Invoice) {
             $entity_type = 'invoice';
             $entity_design_id = 'invoice_design_id';
-        } elseif ($entity instanceof RecurringInvoice){
+        } elseif ($entity instanceof RecurringInvoice) {
             $entity_type = 'recurring_invoice';
             $entity_design_id = 'invoice_design_id';
-        } 
-        elseif ($entity instanceof Quote) {
+        } elseif ($entity instanceof Quote) {
             $entity_type = 'quote';
             $entity_design_id = 'quote_design_id';
         } elseif ($entity instanceof Credit) {
@@ -133,19 +130,20 @@ class ActivityRepository extends BaseRepository
 
         $design = Design::find($entity_design_id);
 
-        if(!$entity->invitations()->exists() || !$design){
+        if (! $entity->invitations()->exists() || ! $design) {
             nlog("No invitations for entity {$entity->id} - {$entity->number}");
+
             return '';
         }
 
         $entity->load('client.company', 'invitations');
 
-        $html = new HtmlEngine($entity->invitations->first()->load($entity_type, "contact"));
+        $html = new HtmlEngine($entity->invitations->first()->load($entity_type, 'contact'));
 
         if ($design->is_custom) {
             $options = [
-            'custom_partials' => json_decode(json_encode($design->design), true)
-          ];
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
             $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
             $template = new PdfMakerDesign(strtolower($design->name));

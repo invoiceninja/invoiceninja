@@ -32,17 +32,13 @@ class BlackListRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        
-    $parts = explode("@", $value);
+        $parts = explode('@', $value);
 
-        if(is_array($parts))
-        {
+        if (is_array($parts)) {
             return ! in_array($parts[1], $this->blacklist);
-        }
-        else
+        } else {
             return true;
-
-
+        }
     }
 
     /**
@@ -50,8 +46,6 @@ class BlackListRule implements Rule
      */
     public function message()
     {
-        return "This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com";
+        return 'This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com';
     }
-
-
 }

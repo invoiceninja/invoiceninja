@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\ClientFactory;
@@ -32,7 +33,7 @@ class FactoryCreationTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -141,7 +142,7 @@ class FactoryCreationTest extends TestCase
     public function testUserCreate()
     {
         $new_user = UserFactory::create($this->account->id);
-        $new_user->email = $this->faker->freeEmail;
+        $new_user->email = $this->faker->freeEmail();
         $new_user->save();
 
         $this->assertNotNull($new_user);

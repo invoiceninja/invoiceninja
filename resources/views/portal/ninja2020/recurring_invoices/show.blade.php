@@ -76,7 +76,7 @@
             </div>
         @endif
 
-        @if($invoice->subscription && optional($invoice->subscription)->allow_cancellation)
+        @if($invoice->subscription && $invoice->subscription?->allow_cancellation)
         {{-- INV2-591 --}}
         {{-- @if(false) --}}
         <div class="bg-white shadow sm:rounded-lg mt-4">

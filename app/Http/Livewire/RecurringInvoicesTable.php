@@ -25,7 +25,7 @@ class RecurringInvoicesTable extends Component
     public $per_page = 10;
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);

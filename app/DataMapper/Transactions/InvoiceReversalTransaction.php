@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class InvoiceReversalTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_REVERSED; 
-
+    public $event_id = TransactionEvent::INVOICE_REVERSED;
 }

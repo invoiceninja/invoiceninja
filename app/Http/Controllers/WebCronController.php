@@ -16,11 +16,9 @@ use Illuminate\Support\Facades\Artisan;
 
 class WebCronController extends Controller
 {
-
     public function __construct()
     {
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -56,20 +54,18 @@ class WebCronController extends Controller
      */
     public function index(Request $request)
     {
-
         set_time_limit(0);
 
-        if(!config('ninja.webcron_secret'))
+        if (! config('ninja.webcron_secret')) {
             return response()->json(['message' => 'Web cron has not been configured'], 403);
+        }
 
-        if($request->has('secret') && (config('ninja.webcron_secret') == $request->query('secret')))
-        {
+        if ($request->has('secret') && (config('ninja.webcron_secret') == $request->query('secret'))) {
             Artisan::call('schedule:run');
 
             return response()->json(['message' => 'Executing web cron'], 200);
         }
 
         return response()->json(['message' => 'Invalid secret'], 403);
-        
     }
 }

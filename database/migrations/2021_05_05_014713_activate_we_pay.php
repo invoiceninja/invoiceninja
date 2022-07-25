@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ActivateWePay extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,8 +14,9 @@ class ActivateWePay extends Migration
      */
     public function up()
     {
-        if(Gateway::count() >=1 && Ninja::isHosted())
+        if (Gateway::count() >= 1 && Ninja::isHosted()) {
             Gateway::whereIn('id', [49])->update(['visible' => true]);
+        }
     }
 
     /**
@@ -28,4 +28,4 @@ class ActivateWePay extends Migration
     {
         //
     }
-}
+};

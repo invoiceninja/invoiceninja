@@ -22,7 +22,6 @@ class RecurringInvoiceRepository extends BaseRepository
 {
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
-
         $invoice = $this->alternativeSave($data, $invoice);
 
         return $invoice;

@@ -16,46 +16,39 @@ use GuzzleHttp\RequestOptions;
 /**
  * Class SubscriptionHooker.
  */
-trait  SubscriptionHooker
+trait SubscriptionHooker
 {
-
-	public function sendLoad($subscription, $body)
-	{
-
+    public function sendLoad($subscription, $body)
+    {
         $headers = [
             'Content-Type' => 'application/json',
             'X-Requested-With' => 'XMLHttpRequest',
         ];
 
-        if(count($subscription->webhook_configuration['post_purchase_headers']) >= 1)
-        	$headers = array_merge($headers, $subscription->webhook_configuration['post_purchase_headers']);
+        if (count($subscription->webhook_configuration['post_purchase_headers']) >= 1) {
+            $headers = array_merge($headers, $subscription->webhook_configuration['post_purchase_headers']);
+        }
 
-        $client =  new \GuzzleHttp\Client(
+        $client = new \GuzzleHttp\Client(
         [
             'headers' => $headers,
         ]);
 
-        nlog("method name must be a string");
+        nlog('method name must be a string');
         nlog($subscription->webhook_configuration['post_purchase_rest_method']);
         nlog($subscription->webhook_configuration['post_purchase_url']);
-        
-        $post_purchase_rest_method = (string)$subscription->webhook_configuration['post_purchase_rest_method'];
-        $post_purchase_url = (string)$subscription->webhook_configuration['post_purchase_url'];
+
+        $post_purchase_rest_method = (string) $subscription->webhook_configuration['post_purchase_rest_method'];
+        $post_purchase_url = (string) $subscription->webhook_configuration['post_purchase_url'];
 
         try {
-            $response = $client->{$post_purchase_rest_method}($post_purchase_url,[
-                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
+            $response = $client->{$post_purchase_rest_method}($post_purchase_url, [
+                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
-            return array_merge($body, json_decode($response->getBody(),true));
-        }
-        catch(\Exception $e)
-        {
-
+            return array_merge($body, json_decode($response->getBody(), true));
+        } catch (\Exception $e) {
             return array_merge($body, ['message' => $e->getMessage(), 'status_code' => 500]);
-
         }
-
-	}
+    }
 }
-  

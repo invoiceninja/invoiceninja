@@ -4,8 +4,7 @@ use App\Models\Gateway;
 use App\Models\GatewayType;
 use Illuminate\Database\Migrations\Migration;
 
-class Razorpay extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -30,4 +29,4 @@ class Razorpay extends Migration
         $gateway->default_gateway_type_id = GatewayType::HOSTED_PAGE;
         $gateway->save();
     }
-}
+};

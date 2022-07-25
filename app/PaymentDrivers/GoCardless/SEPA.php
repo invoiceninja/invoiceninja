@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\GoCardless;
@@ -87,7 +87,7 @@ class SEPA implements MethodInterface
      * @param Exception $exception
      * @return void
      */
-    public function processUnsuccessfulAuthorization(\Exception $exception): void
+    public function processUnsuccessfulAuthorization(Exception $exception): void
     {
         $this->go_cardless->sendFailureMail($exception->getMessage());
 
@@ -115,7 +115,7 @@ class SEPA implements MethodInterface
             $redirect_flow = $this->go_cardless->gateway->redirectFlows()->complete(
                 $request->redirect_flow_id,
                 ['params' => [
-                    'session_token' => $request->session_token
+                    'session_token' => $request->session_token,
                 ]],
             );
 
@@ -167,10 +167,11 @@ class SEPA implements MethodInterface
                           ->withTrashed()
                           ->first();
 
-        if($invoice)
+        if ($invoice) {
             $description = "Invoice {$invoice->number} for {$request->amount} for client {$this->go_cardless->client->present()->name()}";
-        else
+        } else {
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
+        }
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([

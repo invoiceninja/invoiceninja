@@ -25,15 +25,15 @@ use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
-use Tests\TestCase;
 use function now;
+use Tests\TestCase;
 
 class CreditsTest extends TestCase
 {
     use DatabaseTransactions;
     use AppSetup;
-    
-    public function setUp(): void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -46,18 +46,18 @@ class CreditsTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
         $company->settings = CompanySettings::defaults();
-        $company->settings->language_id = "1";
+        $company->settings->language_id = '1';
         $company->save();
 
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
         $client->settings = ClientSettings::defaults();
         $settings = $client->settings;
-        $settings->language_id = "1";
+        $settings->language_id = '1';
         $client->settings = $settings;
         $client->save();
 
@@ -111,16 +111,15 @@ class CreditsTest extends TestCase
         $account = Account::factory()->create();
 
         $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail()]
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
 
-
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
         $client->settings = ClientSettings::defaults();
         $settings = $client->settings;
-        $settings->language_id = "1";
+        $settings->language_id = '1';
         $client->settings = $settings;
         $client->save();
 
@@ -173,5 +172,4 @@ class CreditsTest extends TestCase
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
     }
-
 }

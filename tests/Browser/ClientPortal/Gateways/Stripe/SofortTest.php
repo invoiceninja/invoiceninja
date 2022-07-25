@@ -67,6 +67,6 @@ class SofortTest extends DuskTestCase
                 ->waitForText('Sofort test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
-      });
+        });
     }
 }

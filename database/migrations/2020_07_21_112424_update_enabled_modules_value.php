@@ -6,15 +6,13 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateEnabledModulesValue extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -37,4 +35,4 @@ class UpdateEnabledModulesValue extends Migration
     {
         //
     }
-}
+};

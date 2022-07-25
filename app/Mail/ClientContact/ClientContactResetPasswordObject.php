@@ -16,16 +16,12 @@ use Illuminate\Support\Facades\App;
 
 class ClientContactResetPasswordObject
 {
-
     public $client_contact;
 
     public $token;
 
     private $company;
-    
-    /**
-     *
-     */
+
     public function __construct($token, $client_contact)
     {
         $this->token = $token;
@@ -35,7 +31,6 @@ class ClientContactResetPasswordObject
 
     public function build()
     {
-
         $settings = $this->client_contact->client->getMergedSettings();
         App::forgetInstance('translator');
         $t = app('translator');
@@ -55,10 +50,11 @@ class ClientContactResetPasswordObject
 
         $email_from_name = config('mail.from.name');
 
-        if(property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1)
+        if (property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1) {
             $email_from_name = $settings->email_from_name;
-        else
+        } else {
             $email_from_name = $this->company->present()->name();
+        }
 
         $mail_obj = new \stdClass;
         $mail_obj->subject = ctrans('texts.your_password_reset_link');

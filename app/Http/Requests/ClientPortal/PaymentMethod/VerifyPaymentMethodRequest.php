@@ -25,7 +25,7 @@ class VerifyPaymentMethodRequest extends FormRequest
     public function rules()
     {
         return [
-            'transactions.*' => 'integer'
+            'transactions.*' => 'integer',
         ];
     }
 }

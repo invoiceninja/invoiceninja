@@ -22,9 +22,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class QuoteEmailedNotification implements ShouldQueue
 {
-
     public $delay = 5;
-        
+
     use UserNotifies;
 
     public function __construct()
@@ -48,10 +47,9 @@ class QuoteEmailedNotification implements ShouldQueue
         $quote->saveQuietly();
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'quote', $event->template))->build() );
+        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'quote', $event->template))->build());
         $nmo->company = $quote->company;
         $nmo->settings = $quote->company->settings;
-
 
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
@@ -63,11 +61,10 @@ class QuoteEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 // $first_notification_sent = false;
             }
 

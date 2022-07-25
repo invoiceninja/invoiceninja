@@ -71,26 +71,27 @@ class HostedMigrations extends Command
     public function handle()
     {
         $this->buildCache();
-    
-        if(!MultiDB::userFindAndSetDb($this->option('email'))){
-            $this->info("Could not find a user with that email address");
+
+        if (! MultiDB::userFindAndSetDb($this->option('email'))) {
+            $this->info('Could not find a user with that email address');
+
             return;
         }
 
         $user = User::where('email', $this->option('email'))->first();
 
-        if(!$user){
-            $this->info("There was a problem getting the user, did you set the right DB?");
+        if (! $user) {
+            $this->info('There was a problem getting the user, did you set the right DB?');
+
             return;
         }
 
         $path = public_path('storage/migrations/import');
-        
+
         $directory = new DirectoryIterator($path);
 
         foreach ($directory as $file) {
             if ($file->getExtension() === 'zip') {
-
                 $company = $user->companies()->first();
 
                 $this->info('Started processing: '.$file->getBasename().' at '.now());
@@ -104,14 +105,13 @@ class HostedMigrations extends Command
                     }
 
                     $filename = pathinfo($file->getRealPath(), PATHINFO_FILENAME);
-                        
+
                     $zip->extractTo(public_path("storage/migrations/{$filename}"));
                     $zip->close();
 
                     $import_file = public_path("storage/migrations/$filename/migration.json");
 
                     Import::dispatch($import_file, $user->companies()->first(), $user);
-
                 } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
                     \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
@@ -122,5 +122,4 @@ class HostedMigrations extends Command
             }
         }
     }
-
 }

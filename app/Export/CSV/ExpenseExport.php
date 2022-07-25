@@ -82,7 +82,6 @@ class ExpenseExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -92,8 +91,9 @@ class ExpenseExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -102,69 +102,67 @@ class ExpenseExport extends BaseExport
                         ->with('client')
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted',0);
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
         $query->cursor()
-                ->each(function ($expense){
+                ->each(function ($expense) {
+                    $this->csv->insertOne($this->buildRow($expense));
+                });
 
-                    $this->csv->insertOne($this->buildRow($expense)); 
-
-        });
-
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Expense $expense) :array
     {
-
         $transformed_expense = $this->expense_transformer->transform($expense);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_expense))
+            if (array_key_exists($key, $transformed_expense)) {
                 $entity[$keyval] = $transformed_expense[$key];
-            else
+            } else {
                 $entity[$keyval] = '';
-
+            }
         }
 
         return $this->decorateAdvancedFields($expense, $entity);
-
     }
 
     private function decorateAdvancedFields(Expense $expense, array $entity) :array
     {
-        if(in_array('currency_id', $this->input['report_keys']))
-            $entity['currency'] = $expense->currency ? $expense->currency->code : "";
+        if (in_array('currency_id', $this->input['report_keys'])) {
+            $entity['currency'] = $expense->currency ? $expense->currency->code : '';
+        }
 
-        if(in_array('client_id', $this->input['report_keys']))
-            $entity['client'] = $expense->client ? $expense->client->present()->name() : "";
+        if (in_array('client_id', $this->input['report_keys'])) {
+            $entity['client'] = $expense->client ? $expense->client->present()->name() : '';
+        }
 
-        if(in_array('invoice_id', $this->input['report_keys']))
-            $entity['invoice'] = $expense->invoice ? $expense->invoice->number : "";
+        if (in_array('invoice_id', $this->input['report_keys'])) {
+            $entity['invoice'] = $expense->invoice ? $expense->invoice->number : '';
+        }
 
-        if(in_array('category_id', $this->input['report_keys']))
-            $entity['category'] = $expense->category ? $expense->category->name : "";
+        if (in_array('category_id', $this->input['report_keys'])) {
+            $entity['category'] = $expense->category ? $expense->category->name : '';
+        }
 
-        if(in_array('vendor_id', $this->input['report_keys']))
-            $entity['vendor'] = $expense->vendor ? $expense->vendor->name : "";
+        if (in_array('vendor_id', $this->input['report_keys'])) {
+            $entity['vendor'] = $expense->vendor ? $expense->vendor->name : '';
+        }
 
-        if(in_array('payment_type_id', $this->input['report_keys']))
-            $entity['payment_type'] = $expense->payment_type ? $expense->payment_type->name : "";
+        if (in_array('payment_type_id', $this->input['report_keys'])) {
+            $entity['payment_type'] = $expense->payment_type ? $expense->payment_type->name : '';
+        }
 
-        if(in_array('project_id', $this->input['report_keys']))
-            $entity['project'] = $expense->project ? $expense->project->name : "";
-
+        if (in_array('project_id', $this->input['report_keys'])) {
+            $entity['project'] = $expense->project ? $expense->project->name : '';
+        }
 
         return $entity;
     }
-
 }

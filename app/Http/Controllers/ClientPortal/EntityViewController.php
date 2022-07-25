@@ -45,7 +45,6 @@ class EntityViewController extends Controller
 
         $key = $entity_type.'_id';
 
-
         $invitation = $invitation_entity::where('key', $invitation_key)
                                         ->with('contact.client')
                                         ->firstOrFail();
@@ -139,7 +138,7 @@ class EntityViewController extends Controller
 
         $invitation = $entity_obj::where('key', $request->invitation_key)
                                     ->whereHas($request->entity_type, function ($query) {
-                                         $query->where('is_deleted',0);
+                                        $query->where('is_deleted', 0);
                                     })
                                     ->with('contact.client')
                                     ->first();
@@ -154,15 +153,16 @@ class EntityViewController extends Controller
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            if(!session()->get('is_silent'))
+            if (! session()->get('is_silent')) {
                 event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
+            }
 
-            if(!session()->get('is_silent'))
+            if (! session()->get('is_silent')) {
                 $this->fireEntityViewedEvent($invitation, $request->entity_type);
+            }
         }
-        
+
         return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
-        
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)
@@ -182,5 +182,4 @@ class EntityViewController extends Controller
                 break;
         }
     }
-
 }

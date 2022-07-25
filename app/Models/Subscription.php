@@ -85,7 +85,6 @@ class Subscription extends BaseModel
 
     public function nextDateByInterval($date, $frequency_id)
     {
-
         switch ($frequency_id) {
 
             case RecurringInvoice::FREQUENCY_DAILY:
@@ -116,5 +115,4 @@ class Subscription extends BaseModel
                 return null;
         }
     }
-
 }

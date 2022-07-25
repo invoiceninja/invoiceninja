@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Jobs\Invoice\CreateUbl;
@@ -25,7 +26,7 @@ class UBLInvoiceTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -37,8 +38,7 @@ class UBLInvoiceTest extends TestCase
 
     public function testUblGenerates()
     {
-        $ubl = CreateUbl::dispatchNow($this->invoice);
-
+        $ubl = (new CreateUbl($this->invoice))->handle();
         $this->assertNotNull($ubl);
     }
 }

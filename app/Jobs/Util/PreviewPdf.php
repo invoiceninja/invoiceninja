@@ -51,9 +51,10 @@ class PreviewPdf implements ShouldQueue
 
         $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-        if($numbered_pdf)
+        if ($numbered_pdf) {
             $pdf = $numbered_pdf;
-        
+        }
+
         return $pdf;
     }
 }

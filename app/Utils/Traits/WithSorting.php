@@ -15,6 +15,7 @@ namespace App\Utils\Traits;
 trait WithSorting
 {
     public $sort_field = 'id'; // Default sortBy. Feel free to change or pull from client/company settings.
+
     public $sort_asc = true;
 
     public function sortBy($field)

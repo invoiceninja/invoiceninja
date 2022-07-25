@@ -47,6 +47,7 @@ class ACSS
 
         return render('gateways.stripe.acss.authorize', array_merge($data));
     }
+
     public function authorizeResponse(Request $request)
     {
         $stripe_response = json_decode($request->input('gateway_response'));
@@ -128,7 +129,7 @@ class ACSS
     public function paymentView(array $data)
     {
         $this->stripe->init();
-        
+
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -142,7 +143,7 @@ class ACSS
             'setup_future_usage' => 'off_session',
             'payment_method_types' => ['acss_debit'],
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::ACSS,
@@ -152,11 +153,11 @@ class ACSS
                     'mandate_options' => [
                         'payment_schedule' => 'combined',
                         'interval_description' => 'when any invoice becomes due',
-                        'transaction_type' => 'personal' // TODO: check if is company or personal https://stripe.com/docs/payments/acss-debit
+                        'transaction_type' => 'personal', // TODO: check if is company or personal https://stripe.com/docs/payments/acss-debit
                     ],
-                'verification_method' => 'instant',
-                ]
-            ]
+                    'verification_method' => 'instant',
+                ],
+            ],
         ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
@@ -187,6 +188,7 @@ class ACSS
             // $this->storePaymentMethod($gateway_response);
             return $this->processSuccessfulPayment($gateway_response->id);
         }
+
         return $this->processUnsuccessfulPayment();
     }
 
@@ -244,7 +246,6 @@ class ACSS
 
     private function storePaymentMethod($intent)
     {
-
         try {
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 

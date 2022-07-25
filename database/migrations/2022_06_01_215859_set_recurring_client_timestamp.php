@@ -15,18 +15,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class SetRecurringClientTimestamp extends Migration
-{
-
+return new class extends Migration {
     /**
      * Run the migrations.
-     *
      */
     public function up()
     {
-    
         set_time_limit(0);
-    
+
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->datetime('next_send_date_client')->nullable();
         });
@@ -35,18 +31,16 @@ class SetRecurringClientTimestamp extends Migration
             $table->datetime('next_send_date_client')->nullable();
         });
 
-
-        RecurringInvoice::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_invoice){
+        RecurringInvoice::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_invoice) {
 
             // $offset = $recurring_invoice->client->timezone_offset();
             // $re = Carbon::parse($recurring_invoice->next_send_date)->subSeconds($offset)->format('Y-m-d');
             $re = Carbon::parse($recurring_invoice->next_send_date)->format('Y-m-d');
             $recurring_invoice->next_send_date_client = $re;
             $recurring_invoice->saveQuietly();
-
         });
-    
-        RecurringExpense::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_expense){
+
+        RecurringExpense::withTrashed()->whereNotNull('next_send_date')->cursor()->each(function ($recurring_expense) {
             $recurring_expense->next_send_date_client = $recurring_expense->next_send_date;
             $recurring_expense->saveQuietly();
         });
@@ -61,4 +55,4 @@ class SetRecurringClientTimestamp extends Migration
     {
         //
     }
-}
+};

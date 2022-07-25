@@ -18,14 +18,11 @@ use App\Models\ClientGatewayToken;
  */
 class ClientGatewayTokenRepository extends BaseRepository
 {
+    public function save(array $data, ClientGatewayToken $client_gateway_token) :ClientGatewayToken
+    {
+        $client_gateway_token->fill($data);
+        $client_gateway_token->save();
 
-	public function save(array $data, ClientGatewayToken $client_gateway_token) :ClientGatewayToken
-	{
-
-		$client_gateway_token->fill($data);
-		$client_gateway_token->save();
-
-		return $client_gateway_token->fresh();		
-	}
-
+        return $client_gateway_token->fresh();
+    }
 }

@@ -60,7 +60,7 @@ class UpdateRecurringExpenseRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -68,8 +68,8 @@ class UpdateRecurringExpenseRequest extends Request
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }   
-        
+        }
+
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
@@ -79,7 +79,7 @@ class UpdateRecurringExpenseRequest extends Request
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
         $this->replace($input);

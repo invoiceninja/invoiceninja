@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\DataMapper\CompanySettings;
@@ -45,7 +46,7 @@ class CompanyLedgerTest extends TestCase
 
     public $account;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -132,17 +133,17 @@ class CompanyLedgerTest extends TestCase
         $company_token->save();
 
         $this->client = Client::factory()->create([
-                'user_id' => $user->id,
-                'company_id' => $this->company->id,
-            ]);
+            'user_id' => $user->id,
+            'company_id' => $this->company->id,
+        ]);
 
         ClientContact::factory()->create([
-                'user_id' => $user->id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
-            ]);
+            'user_id' => $user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
     }
 
     public function testBaseLine()
@@ -155,14 +156,14 @@ class CompanyLedgerTest extends TestCase
     public function testLedger()
     {
         $this->markTestSkipped();
-        
+
         $line_items = [];
 
         $item = [];
         $item['quantity'] = 1;
         $item['cost'] = 10;
-        $item['type_id'] = "1";
-        
+        $item['type_id'] = '1';
+
         $line_items[] = $item;
 
         $data = [
@@ -218,8 +219,8 @@ class CompanyLedgerTest extends TestCase
             'amount' => $invoice->balance,
             'invoices' => [
                 [
-                'invoice_id' => $this->encodePrimaryKey($invoice->id),
-                'amount' => $invoice->balance,
+                    'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                    'amount' => $invoice->balance,
                 ],
             ],
             'date' => '2020/12/11',
@@ -227,9 +228,9 @@ class CompanyLedgerTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             nlog(print_r($e->validator->getMessageBag(), 1));
         }
@@ -258,8 +259,8 @@ class CompanyLedgerTest extends TestCase
             'amount' => $refund,
             'invoices' => [
                 [
-                'invoice_id' => $this->encodePrimaryKey($invoice->id),
-                'amount' => $refund,
+                    'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                    'amount' => $refund,
                 ],
             ],
             'date' => '2020/12/11',
@@ -275,6 +276,5 @@ class CompanyLedgerTest extends TestCase
         $invoice = Invoice::find($invoice->id);
 
         $this->assertEquals($refund, $invoice->balance);
-
     }
 }

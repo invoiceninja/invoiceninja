@@ -25,7 +25,7 @@ class InvoiceFailedEmailNotification
     use UserNotifies;
 
     public $delay = 5;
-    
+
     public function __construct()
     {
     }
@@ -38,7 +38,6 @@ class InvoiceFailedEmailNotification
      */
     public function handle($event)
     {
-    
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -47,7 +46,7 @@ class InvoiceFailedEmailNotification
         $invoice->update(['last_sent_date' => now()]);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build() );
+        $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());
         $nmo->company = $invoice->company;
         $nmo->settings = $invoice->company->settings;
 
@@ -65,8 +64,6 @@ class InvoiceFailedEmailNotification
 
                 $first_notification_sent = false;
             }
-
-
         }
     }
 }

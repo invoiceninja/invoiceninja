@@ -52,10 +52,11 @@ class InvoiceItemSum
 
         $this->invoice = $invoice;
 
-        if($this->invoice->client)
+        if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
-        else
+        } else {
             $this->currency = $this->invoice->vendor->currency();
+        }
 
         $this->line_items = [];
     }
@@ -98,7 +99,7 @@ class InvoiceItemSum
     }
 
     private function sumLineItem()
-    {   
+    {
         $this->setLineTotal($this->item->cost * $this->item->quantity);
 
         return $this;
@@ -134,23 +135,26 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate1_total;
 
-        // if($item_tax_rate1_total != 0)           
-        if (strlen($this->item->tax_name1) > 1) 
-              $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
-        
+        // if($item_tax_rate1_total != 0)
+        if (strlen($this->item->tax_name1) > 1) {
+            $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
+        }
+
         $item_tax_rate2_total = $this->calcAmountLineTax($this->item->tax_rate2, $amount);
 
         $item_tax += $item_tax_rate2_total;
 
-        if (strlen($this->item->tax_name2) > 1) 
+        if (strlen($this->item->tax_name2) > 1) {
             $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
-        
+        }
+
         $item_tax_rate3_total = $this->calcAmountLineTax($this->item->tax_rate3, $amount);
 
         $item_tax += $item_tax_rate3_total;
 
-        if (strlen($this->item->tax_name3) > 1) 
+        if (strlen($this->item->tax_name3) > 1) {
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
+        }
 
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
@@ -280,7 +284,6 @@ class InvoiceItemSum
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
-
         }
 
         $this->setTotalTaxes($item_tax);

@@ -55,10 +55,8 @@ class ExportController extends BaseController
      */
     public function index(StoreExportRequest $request)
     {
-
         CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user());
 
         return response()->json(['message' => 'Processing'], 200);
-
     }
 }
