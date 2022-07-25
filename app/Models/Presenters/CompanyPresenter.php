@@ -13,6 +13,7 @@ namespace App\Models\Presenters;
 
 use App\Models\Country;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class CompanyPresenter.

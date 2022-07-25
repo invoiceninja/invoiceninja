@@ -81,15 +81,16 @@ class InvitationController extends Controller
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
         $invitation = $entity_obj::withTrashed()
+                                    ->with($entity)
                                     ->where('key', $invitation_key)
-                                    ->whereHas($entity, function ($query) {
-                                         $query->where('is_deleted',0);
-                                    })
+                                    // ->whereHas($entity, function ($query) {
+                                    //      $query->where('is_deleted',0);
+                                    // })
                                     ->with('contact.client')
                                     ->first();
 
-        if(!$invitation)
-            return abort(404,'The resource is no longer available.');
+        if($invitation->{$entity}->is_deleted)
+            return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
 
         /* 12/01/2022 Clean up an edge case where if the contact is trashed, restore if a invitation comes back. */
         if($invitation->contact->trashed())
