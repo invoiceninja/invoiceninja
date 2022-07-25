@@ -66,7 +66,7 @@ class CreateRawPdf implements ShouldQueue
     public function __construct($invitation, $db)
     {
         MultiDB::setDb($db);
-        
+
         $this->invitation = $invitation;
 
         if ($invitation instanceof InvoiceInvitation) {
@@ -86,12 +86,11 @@ class CreateRawPdf implements ShouldQueue
         $this->company = $invitation->company;
 
         $this->contact = $invitation->contact;
-
     }
 
     public function handle()
     {
-        
+
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
@@ -126,15 +125,16 @@ class CreateRawPdf implements ShouldQueue
         $design = Design::find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
-        if(!$design)
+        if (! $design) {
             $design = Design::find(2);
+        }
 
         $html = new HtmlEngine($this->invitation);
 
         if ($design->is_custom) {
             $options = [
-            'custom_partials' => json_decode(json_encode($design->design), true)
-          ];
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
             $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
             $template = new PdfMakerDesign(strtolower($design->name));
@@ -167,34 +167,30 @@ class CreateRawPdf implements ShouldQueue
         $pdf = null;
 
         try {
-
-            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
                 $finfo = new \finfo(FILEINFO_MIME);
 
                 //fallback in case hosted PDF fails.
-                if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
-                {
+                if ($finfo->buffer($pdf) != 'application/pdf; charset=binary') {
                     $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
 
                     $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-                        if($numbered_pdf)
-                            $pdf = $numbered_pdf;
-
+                    if ($numbered_pdf) {
+                        $pdf = $numbered_pdf;
+                    }
                 }
-
-            }
-            else {
+            } else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
-                    
-                    $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
-                        if($numbered_pdf)
-                            $pdf = $numbered_pdf;
+                $numbered_pdf = $this->pageNumbering($pdf, $this->company);
+
+                if ($numbered_pdf) {
+                    $pdf = $numbered_pdf;
+                }
             }
-
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
         }
@@ -203,16 +199,14 @@ class CreateRawPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
-        if ($pdf) 
+        if ($pdf) {
             return $pdf;
+        }
 
-        throw new FilePermissionsFailure("Unable to generate the raw PDF");
-
+        throw new FilePermissionsFailure('Unable to generate the raw PDF');
     }
 
     public function failed($e)
     {
-
     }
-    
 }

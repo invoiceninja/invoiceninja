@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 abstract class QueryFilters
 {
     use MakesHash;
-    
+
     /**
      * active status.
      */
@@ -168,7 +168,7 @@ abstract class QueryFilters
 
     public function created_at($value)
     {
-        $created_at = $value ? (int)$value : 0;
+        $created_at = $value ? (int) $value : 0;
 
         $created_at = date('Y-m-d H:i:s', $value);
 
@@ -177,11 +177,11 @@ abstract class QueryFilters
 
     public function is_deleted($value)
     {
-        if($value == 'true')
+        if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
+        }
 
         return $this->builder->where('is_deleted', $value);
-
     }
 
     public function client_id(string $client_id = '') :Builder
@@ -191,20 +191,14 @@ abstract class QueryFilters
         }
 
         return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
-        
     }
 
     public function filter_deleted_clients($value)
     {
-
-        if($value == 'true'){
-
+        if ($value == 'true') {
             return $this->builder->whereHas('client', function (Builder $query) {
-
-              $query->where('is_deleted', 0);
-              
+                $query->where('is_deleted', 0);
             });
-
         }
 
         return $this->builder;
@@ -212,11 +206,8 @@ abstract class QueryFilters
 
     public function with_trashed($value)
     {
-
-        if($value == 'false'){
-
+        if ($value == 'false') {
             return $this->builder->where('is_deleted', 0);
-
         }
 
         // if($value == 'true'){
@@ -226,6 +217,5 @@ abstract class QueryFilters
         // }
 
         return $this->builder;
-
     }
 }

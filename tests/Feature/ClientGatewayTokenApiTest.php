@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\CompanyGateway;
@@ -29,7 +30,7 @@ class ClientGatewayTokenApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -106,21 +107,18 @@ class ClientGatewayTokenApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/client_gateway_tokens', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/client_gateway_tokens', $data);
 
         $response->assertStatus(200);
         $arr = $response->json();
 
         $this->assertNotNull($arr['data']['token']);
-
     }
 
     public function testClientPut()
     {
-
-
         $data = [
             'client_id' => $this->client->hashed_id,
             'company_gateway_id' => $this->cg->hashed_id,
@@ -129,9 +127,9 @@ class ClientGatewayTokenApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/client_gateway_tokens', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/client_gateway_tokens', $data);
 
         $arr = $response->json();
 
@@ -142,9 +140,9 @@ class ClientGatewayTokenApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/client_gateway_tokens/'.$arr['data']['id'], $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/client_gateway_tokens/'.$arr['data']['id'], $data);
 
         $response->assertStatus(200);
 
@@ -155,7 +153,6 @@ class ClientGatewayTokenApiTest extends TestCase
 
     public function testClientGet()
     {
-
         $data = [
             'client_id' => $this->client->hashed_id,
             'company_gateway_id' => $this->cg->hashed_id,
@@ -164,18 +161,17 @@ class ClientGatewayTokenApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/client_gateway_tokens', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/client_gateway_tokens', $data);
 
         $arr = $response->json();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/client_gateway_tokens/'.$arr['data']['id']);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/client_gateway_tokens/'.$arr['data']['id']);
 
         $response->assertStatus(200);
     }
-
 }

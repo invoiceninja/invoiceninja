@@ -38,7 +38,6 @@ trait BulkOptions
      * Available bulk options - used in requests (eg. BulkClientRequests).
      *
      * @return array
-     * @var array
      */
     public function getBulkOptions()
     {
@@ -51,7 +50,6 @@ trait BulkOptions
      * Shared rules for bulk requests.
      *
      * @return array
-     * @var array
      */
     public function getGlobalRules()
     {

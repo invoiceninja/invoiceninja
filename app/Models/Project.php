@@ -18,8 +18,6 @@ class Project extends BaseModel
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
     /**
      * @var array
      */
@@ -70,7 +68,7 @@ class Project extends BaseModel
 
     public function project()
     {
-        return $this->belongsTo(Project::class)->withTrashed();
+        return $this->belongsTo(self::class)->withTrashed();
     }
 
     public function documents()
@@ -87,7 +85,7 @@ class Project extends BaseModel
     {
         return $this->hasMany(Task::class);
     }
-    
+
     public function translate_entity()
     {
         return ctrans('texts.project');

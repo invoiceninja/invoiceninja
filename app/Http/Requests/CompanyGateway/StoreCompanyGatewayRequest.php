@@ -25,7 +25,6 @@ class StoreCompanyGatewayRequest extends Request
      *
      * @return bool
      */
-    
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
@@ -41,39 +40,31 @@ class StoreCompanyGatewayRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
-        
-        if($gateway = Gateway::where('key', $input['gateway_key'])->first())
-        {
-
+        if ($gateway = Gateway::where('key', $input['gateway_key'])->first()) {
             $default_gateway_fields = json_decode($gateway->fields);
 
             /*Force gateway properties */
             if (isset($input['config']) && is_object(json_decode($input['config']))) {
-
                 foreach (json_decode($input['config']) as $key => $value) {
-
                     $default_gateway_fields->{$key} = $value;
-
                 }
 
                 $input['config'] = json_encode($default_gateway_fields);
-
             }
 
-            if (isset($input['config'])) 
+            if (isset($input['config'])) {
                 $input['config'] = encrypt($input['config']);
-            
-            if (isset($input['fees_and_limits'])) 
+            }
+
+            if (isset($input['fees_and_limits'])) {
                 $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
-        
+            }
         }
 
         $this->replace($input);
     }
-
-
 }

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Factory\ClientFactory;
@@ -36,7 +37,7 @@ class RefundTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -65,11 +66,11 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
@@ -120,9 +121,9 @@ class RefundTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
         }
@@ -148,13 +149,12 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
-
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -185,8 +185,8 @@ class RefundTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -221,9 +221,9 @@ class RefundTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -246,11 +246,11 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
@@ -273,8 +273,8 @@ class RefundTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -304,8 +304,8 @@ class RefundTest extends TestCase
             'amount' => 50,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -330,13 +330,12 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
-
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -358,8 +357,8 @@ class RefundTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -389,8 +388,8 @@ class RefundTest extends TestCase
             'amount' => 50,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 100,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 100,
                 ],
             ],
             'date' => '2020/12/12',
@@ -400,9 +399,9 @@ class RefundTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -424,13 +423,12 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
-
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -452,8 +450,8 @@ class RefundTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -498,8 +496,8 @@ class RefundTest extends TestCase
             'amount' => 50,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -509,9 +507,9 @@ class RefundTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
 
@@ -542,13 +540,12 @@ class RefundTest extends TestCase
         $client->save();
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
-
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -581,14 +578,14 @@ class RefundTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'credits' => [
                 [
-                'credit_id' => $this->credit->hashed_id,
-                'amount' => $this->credit->amount,
+                    'credit_id' => $this->credit->hashed_id,
+                    'amount' => $this->credit->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -626,8 +623,8 @@ class RefundTest extends TestCase
             'amount' => 50,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -637,9 +634,9 @@ class RefundTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             \Log::error('refund message error');

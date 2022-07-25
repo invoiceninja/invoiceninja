@@ -28,9 +28,9 @@ class ContactSetDb
     public function handle($request, Closure $next)
     {
         $error = [
-                'message' => 'Invalid Token',
-                'errors' => new stdClass,
-            ];
+            'message' => 'Invalid Token',
+            'errors' => new stdClass,
+        ];
 
         if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {
             if (! MultiDB::contactFindAndSetDb($request->header('X-API-TOKEN'))) {

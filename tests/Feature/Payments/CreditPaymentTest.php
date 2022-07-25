@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature\Payments;
 
 use App\DataMapper\ClientSettings;
@@ -43,7 +44,7 @@ class CreditPaymentTest extends TestCase
     use MockUnitData;
     use WithoutEvents;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -61,9 +62,8 @@ class CreditPaymentTest extends TestCase
         );
     }
 
-   public function testRegularPayment()
+    public function testRegularPayment()
     {
-
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $invoice->line_items = $this->buildLineItems();
@@ -81,8 +81,7 @@ class CreditPaymentTest extends TestCase
         $invoice->setRelation('company', $this->company);
         $invoice->service()->markSent()->createInvitations()->save();
 
-
-       $data = [
+        $data = [
             'amount' => 0,
             'client_id' => $this->client->hashed_id,
             'invoices' => [
@@ -98,9 +97,9 @@ class CreditPaymentTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($e->validator->getMessageBag());
@@ -116,14 +115,10 @@ class CreditPaymentTest extends TestCase
 
         $this->assertEquals($payment->amount, 10);
         $this->assertEquals($payment->applied, 10);
-
     }
-
-
 
     public function testCreditPayments()
     {
-
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $invoice->line_items = $this->buildLineItems();
@@ -159,8 +154,7 @@ class CreditPaymentTest extends TestCase
         $credit->setRelation('company', $this->company);
         $credit->service()->markSent()->save();
 
-
-       $data = [
+        $data = [
             'amount' => 0,
             'client_id' => $this->client->hashed_id,
             'invoices' => [
@@ -172,8 +166,8 @@ class CreditPaymentTest extends TestCase
             'credits' => [
                 [
                     'credit_id' => $credit->hashed_id,
-                    'amount' => 5
-                ]
+                    'amount' => 5,
+                ],
             ],
             'date' => '2019/12/12',
         ];
@@ -182,9 +176,9 @@ class CreditPaymentTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($e->validator->getMessageBag());
@@ -200,14 +194,13 @@ class CreditPaymentTest extends TestCase
 
         $this->assertEquals($payment->amount, 5);
         $this->assertEquals($payment->applied, 5);
-
     }
 
     /*
 
     public function testDoublePaymentTestWithInvalidAmounts()
     {
- 
+
         $data = [
             'amount' => 15.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -285,6 +278,4 @@ class CreditPaymentTest extends TestCase
         }
     }
     */
-
 }
-

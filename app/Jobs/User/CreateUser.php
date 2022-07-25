@@ -66,8 +66,9 @@ class CreateUser
         $user->last_login = now();
         $user->ip = request()->ip();
 
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             $user->email_verified_at = now();
+        }
 
         $user->save();
 
@@ -82,7 +83,7 @@ class CreateUser
             'settings' => null,
         ]);
 
-        if(!Ninja::isSelfHost()) {
+        if (! Ninja::isSelfHost()) {
             event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
 

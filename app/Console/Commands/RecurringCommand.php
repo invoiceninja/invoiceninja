@@ -47,6 +47,6 @@ class RecurringCommand extends Command
      */
     public function handle()
     {
-        RecurringInvoicesCron::dispatchNow();
+        RecurringInvoicesCron::dispatchSync();
     }
 }

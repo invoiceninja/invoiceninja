@@ -33,12 +33,12 @@ class DefaultDesignRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-        
+
         $this->replace($input);
     }
 }

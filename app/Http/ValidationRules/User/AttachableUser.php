@@ -25,6 +25,7 @@ class AttachableUser implements Rule
     public function __construct()
     {
     }
+
     /**
      * @param string $attribute
      * @param mixed $value
@@ -55,24 +56,27 @@ class AttachableUser implements Rule
 
         $user = User::where('email', $email)->first();
 
-        if(!$user)
+        if (! $user) {
             return true;
+        }
 
         $user_already_attached = CompanyUser::query()
                                     ->where('user_id', $user->id)
-                                    ->where('account_id',$user->account_id)
+                                    ->where('account_id', $user->account_id)
                                     ->where('company_id', auth()->user()->company()->id)
                                     ->exists();
 
         //If the user is already attached or isn't link to this account - return false
-        if($user_already_attached) {
+        if ($user_already_attached) {
             $this->message = ctrans('texts.user_duplicate_error');
-            return false;
-        } 
 
-        if($user->account_id != auth()->user()->account_id){
+            return false;
+        }
+
+        if ($user->account_id != auth()->user()->account_id) {
             $this->message = ctrans('texts.user_cross_linked_error');
-            return false;            
+
+            return false;
         }
 
         return true;

@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Braintree;
 
-
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
@@ -63,8 +62,8 @@ class CreditCard
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
             $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
-                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId')
-            ]); 
+                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
+            ]);
         }
 
         return render('gateways.braintree.credit_card.pay', $data);
@@ -87,7 +86,7 @@ class CreditCard
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        $this->braintree->payment_hash->data = array_merge((array)$this->braintree->payment_hash->data, $state);
+        $this->braintree->payment_hash->data = array_merge((array) $this->braintree->payment_hash->data, $state);
         $this->braintree->payment_hash->save();
 
         $customer = $this->braintree->findOrCreateCustomer();
@@ -99,7 +98,7 @@ class CreditCard
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
-                'submitForSettlement' => true
+                'submitForSettlement' => true,
             ],
         ];
 
@@ -110,9 +109,8 @@ class CreditCard
 
         try {
             $result = $this->braintree->gateway->transaction()->sale($data);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if ($e instanceof \Braintree\Exception\Authorization) {
-
                 $this->braintree->sendFailureMail(ctrans('texts.generic_gateway_error'));
 
                 throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
@@ -122,7 +120,6 @@ class CreditCard
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
-        
 
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
@@ -137,14 +134,13 @@ class CreditCard
         }
 
         $error = $result ?: 'Undefined gateway error';
-        
-        return $this->processUnsuccessfulPayment($error);
 
+        return $this->processUnsuccessfulPayment($error);
     }
 
     private function getPaymentToken(array $data, $customerId): ?string
     {
-        if (array_key_exists('token', $data) && !is_null($data['token'])) {
+        if (array_key_exists('token', $data) && ! is_null($data['token'])) {
             return $data['token'];
         }
 
@@ -162,7 +158,7 @@ class CreditCard
             /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
             $data['options']['verificationMerchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
         }
-        
+
         $response = $this->braintree->gateway->paymentMethod()->create($data);
 
         if ($response->success) {
@@ -204,7 +200,6 @@ class CreditCard
      */
     private function processUnsuccessfulPayment($response)
     {
-
         $this->braintree->sendFailureMail($response->transaction->additionalProcessorResponse);
 
         $message = [
@@ -228,10 +223,10 @@ class CreditCard
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->exp_month = (string)$method->expirationMonth;
-            $payment_meta->exp_year = (string)$method->expirationYear;
-            $payment_meta->brand = (string)$method->cardType;
-            $payment_meta->last4 = (string)$method->last4;
+            $payment_meta->exp_month = (string) $method->expirationMonth;
+            $payment_meta->exp_year = (string) $method->expirationYear;
+            $payment_meta->brand = (string) $method->cardType;
+            $payment_meta->last4 = (string) $method->last4;
             $payment_meta->type = GatewayType::CREDIT_CARD;
 
             $data = [

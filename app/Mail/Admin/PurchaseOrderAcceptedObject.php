@@ -21,7 +21,6 @@ use stdClass;
 
 class PurchaseOrderAcceptedObject
 {
-
     public $purchase_order;
 
     public $company;
@@ -38,8 +37,9 @@ class PurchaseOrderAcceptedObject
     {
         MultiDB::setDb($this->company->db);
 
-        if(!$this->purchase_order)
+        if (! $this->purchase_order) {
             return;
+        }
 
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
@@ -68,11 +68,11 @@ class PurchaseOrderAcceptedObject
     {
         return
             ctrans(
-                "texts.notification_purchase_order_accepted_subject",
+                'texts.notification_purchase_order_accepted_subject',
                 [
-                        'vendor' => $this->purchase_order->vendor->present()->name(),
-                        'purchase_order' => $this->purchase_order->number,
-                    ]
+                    'vendor' => $this->purchase_order->vendor->present()->name(),
+                    'purchase_order' => $this->purchase_order->number,
+                ]
             );
     }
 
@@ -83,7 +83,7 @@ class PurchaseOrderAcceptedObject
         $data = [
             'title' => $this->getSubject(),
             'message' => ctrans(
-                "texts.notification_purchase_order_accepted",
+                'texts.notification_purchase_order_accepted',
                 [
                     'amount' => $this->getAmount(),
                     'vendor' => $this->purchase_order->vendor->present()->name(),
@@ -91,7 +91,7 @@ class PurchaseOrderAcceptedObject
                 ]
             ),
             'url' => $this->purchase_order->invitations->first()->getAdminLink(),
-            'button' => ctrans("texts.view_purchase_order"),
+            'button' => ctrans('texts.view_purchase_order'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,

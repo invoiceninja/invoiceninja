@@ -26,8 +26,11 @@ class PaymentWasRestored
      * @var Payment
      */
     public $payment;
+
     public $fromDeleted;
+
     public $company;
+
     public $event_vars;
 
     /**

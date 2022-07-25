@@ -14,8 +14,8 @@ namespace App\Http\Controllers;
 use App\Models\CompanyToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use stdClass;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LogoutController extends BaseController
 {
@@ -63,12 +63,11 @@ class LogoutController extends BaseController
                     ->where('token', $request->header('X-API-TOKEN'))
                     ->first();
 
-                    $ct->company
+        $ct->company
                     ->tokens()
                     ->where('is_system', true)
                     ->forceDelete();
 
         return response()->json(['message' => 'All tokens deleted'], 200);
     }
-
 }

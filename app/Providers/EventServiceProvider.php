@@ -164,8 +164,8 @@ use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceCreatedNotification;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceFailedEmailNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
@@ -175,8 +175,8 @@ use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Mail\MailSentListener;
 use App\Listeners\Misc\InvitationViewedListener;
-use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
+use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
@@ -219,8 +219,8 @@ use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
-use App\Listeners\User\UpdateUserLastLogin;
 use App\Listeners\User\UpdatedUserActivity;
+use App\Listeners\User\UpdateUserLastLogin;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
@@ -394,7 +394,7 @@ class EventServiceProvider extends ServiceProvider
             ExpenseDeletedActivity::class,
         ],
         ExpenseWasRestored::class => [
-            ExpenseRestoredActivity::class
+            ExpenseRestoredActivity::class,
         ],
         //Invoices
         InvoiceWasMarkedSent::class => [
@@ -476,7 +476,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         PurchaseOrderWasAccepted::class => [
             PurchaseOrderAcceptedActivity::class,
-            PurchaseOrderAcceptedNotification::class
+            PurchaseOrderAcceptedNotification::class,
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
@@ -524,7 +524,7 @@ class EventServiceProvider extends ServiceProvider
             RecurringExpenseDeletedActivity::class,
         ],
         RecurringExpenseWasRestored::class => [
-            RecurringExpenseRestoredActivity::class
+            RecurringExpenseRestoredActivity::class,
         ],
         RecurringQuoteWasUpdated::class => [
             UpdateRecurringQuoteActivity::class,
@@ -603,8 +603,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.
-            \SocialiteProviders\Apple\AppleExtendSocialite::class . '@handle',
-            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class . '@handle',
+            \SocialiteProviders\Apple\AppleExtendSocialite::class.'@handle',
+            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class.'@handle',
         ],
 
     ];
@@ -644,5 +644,15 @@ class EventServiceProvider extends ServiceProvider
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
         PurchaseOrder::observe(PurchaseOrderObserver::class);
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     *
+     * @return bool
+     */
+    public function shouldDiscoverEvents()
+    {
+        return false;
     }
 }

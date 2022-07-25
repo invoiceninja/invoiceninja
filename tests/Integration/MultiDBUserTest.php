@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Factory\CompanyUserFactory;
@@ -30,7 +31,7 @@ use Tests\TestCase;
  */
 class MultiDBUserTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -74,7 +75,7 @@ class MultiDBUserTest extends TestCase
             'remember_token' => \Illuminate\Support\Str::random(10),
             'email' => 'db1@example.com',
             'oauth_user_id' => '123',
-       //     'account_id' => $account->id,
+            //     'account_id' => $account->id,
         ];
 
         $user2 = [
@@ -87,7 +88,7 @@ class MultiDBUserTest extends TestCase
             'remember_token'    => \Illuminate\Support\Str::random(10),
             'email'             => 'db2@example.com',
             'oauth_user_id'     => 'abc',
-      //      'account_id' => $account2->id,
+            //      'account_id' => $account2->id,
 
         ];
 
@@ -116,7 +117,6 @@ class MultiDBUserTest extends TestCase
             'is_owner' => true,
             'is_admin' => true,
         ]);
-
 
         $this->token = \Illuminate\Support\Str::random(40);
 
@@ -188,10 +188,10 @@ class MultiDBUserTest extends TestCase
             'last_name' => 'you',
             'email' => 'db2@example.com',
             'company_user' => [
-                    'is_admin' => true,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
+                'is_admin' => true,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
         ];
 
         $response = false;
@@ -244,12 +244,11 @@ class MultiDBUserTest extends TestCase
     //     }
     // }
 
-    public function tearDown() :void
+    protected function tearDown() :void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();
 
         config(['database.default' => config('ninja.db.default')]);
-
     }
 }

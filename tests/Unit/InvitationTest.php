@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\InvoiceInvitationFactory;
@@ -24,8 +25,8 @@ class InvitationTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     use MakesHash;
-    
-    public function setUp() :void
+
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -36,12 +37,10 @@ class InvitationTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
-
     }
 
     public function testInvitationSanity()
     {
-        
         $this->assertEquals($this->invoice->invitations->count(), 2);
 
         $invitations = $this->invoice->invitations()->get();
@@ -59,13 +58,11 @@ class InvitationTest extends TestCase
         $response = null;
 
         try {
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
         } catch (ValidationException $e) {
-
             nlog($e->getMessage());
         }
 

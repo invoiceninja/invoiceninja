@@ -22,6 +22,7 @@ class DesignTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
+
     /**
      * @var array
      */

@@ -37,8 +37,9 @@ trait MakesHash
      */
     public function createDbHash($db) : string
     {
-        if(config('ninja.db.multi_db_enabled'))
-            return  $this->getDbCode($db).'-'. Str::random(config('ninja.key_length'));
+        if (config('ninja.db.multi_db_enabled')) {
+            return  $this->getDbCode($db).'-'.Str::random(config('ninja.key_length'));
+        }
 
         return Str::random(config('ninja.key_length'));
     }
@@ -69,7 +70,7 @@ trait MakesHash
             $decoded_array = $hashids->decode($value);
 
             if (! is_array($decoded_array)) {
-                throw new \Exception("Invalid Primary Key");
+                throw new \Exception('Invalid Primary Key');
                 //response()->json(['error'=>'Invalid primary key'], 400);
             }
 

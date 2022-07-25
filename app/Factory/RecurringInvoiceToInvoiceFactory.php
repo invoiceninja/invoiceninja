@@ -67,24 +67,21 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->auto_bill_enabled = $recurring_invoice->auto_bill_enabled;
         $invoice->paid_to_date = 0;
         $invoice->design_id = $recurring_invoice->design_id;
-        
+
         return $invoice;
     }
 
     private static function transformItems($recurring_invoice, $client)
     {
-        
         $line_items = $recurring_invoice->line_items;
 
-        foreach($line_items as $key => $item){
-
-            if(property_exists($line_items[$key], 'notes'))
+        foreach ($line_items as $key => $item) {
+            if (property_exists($line_items[$key], 'notes')) {
                 $line_items[$key]->notes = Helpers::processReservedKeywords($item->notes, $client);
-
+            }
         }
 
         return $line_items;
-
     }
 
     private static function tranformObject($object, $client)

@@ -57,7 +57,7 @@
                         data-token="{{ $token->token }}"
                         name="payment-type"
                         class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token toggle-payment-with-token"/>
-                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                 </label>
             </li>
             @endforeach

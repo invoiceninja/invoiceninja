@@ -143,30 +143,28 @@ class AccountController extends BaseController
      */
     public function store(CreateAccountRequest $request)
     {
-        $account = CreateAccount::dispatchNow($request->all(), $request->getClientIp());
-
+        $account = (new CreateAccount($request->all(), $request->getClientIp()))->handle();
         if (! ($account instanceof Account)) {
             return $account;
         }
 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
 
-            $truth = app()->make(TruthSource::class);
-            $truth->setCompanyUser($ct->first());
-            $truth->setUser(auth()->user());
-            $truth->setCompany($ct->first()->company);
-
+        $truth = app()->make(TruthSource::class);
+        $truth->setCompanyUser($ct->first());
+        $truth->setUser(auth()->user());
+        $truth->setCompany($ct->first()->company);
 
         return $this->listResponse($ct);
     }
 
     public function update(UpdateAccountRequest $request, Account $account)
     {
-
         $fi = new \FilesystemIterator(public_path('react'), \FilesystemIterator::SKIP_DOTS);
 
-        if(iterator_count($fi) < 30)
+        if (iterator_count($fi) < 30) {
             return response()->json(['message' => 'React App Not Installed, Please install the React app before attempting to switch.'], 400);
+        }
 
         $account->fill($request->all());
         $account->save();

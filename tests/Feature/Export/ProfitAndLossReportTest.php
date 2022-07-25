@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature\Export;
 
 use App\DataMapper\ClientSettings;
@@ -42,7 +43,7 @@ class ProfitAndLossReportTest extends TestCase
 
     public $faker;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -53,7 +54,6 @@ class ProfitAndLossReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
-
     }
 
     public $company;
@@ -63,60 +63,56 @@ class ProfitAndLossReportTest extends TestCase
     public $payload;
 
     public $account;
-/**
- *
- *      start_date - Y-m-d
-        end_date - Y-m-d
-        date_range - 
-            all
-            last7
-            last30
-            this_month
-            last_month
-            this_quarter
-            last_quarter
-            this_year
-            custom
-        is_income_billed - true = Invoiced || false = Payments
-        expense_billed - true = Expensed || false = Expenses marked as paid
-        include_tax - true tax_included || false - tax_excluded
 
-*/
-
+    /**
+     *      start_date - Y-m-d
+            end_date - Y-m-d
+            date_range -
+                all
+                last7
+                last30
+                this_month
+                last_month
+                this_quarter
+                last_quarter
+                this_year
+                custom
+            is_income_billed - true = Invoiced || false = Payments
+            expense_billed - true = Expensed || false = Expenses marked as paid
+            include_tax - true tax_included || false - tax_excluded
+     */
     private function buildData()
     {
-
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000
+            'hosted_company_count' => 1000,
         ]);
-        
+
         $this->account->num_users = 3;
         $this->account->save();
-        
+
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail(),
         ]);
 
         $settings = CompanySettings::defaults();
-        $settings->client_online_payment_notification = false; 
-        $settings->client_manual_payment_notification = false; 
+        $settings->client_online_payment_notification = false;
+        $settings->client_manual_payment_notification = false;
 
         $this->company = Company::factory()->create([
-                'account_id' => $this->account->id,
-                'settings' => $settings
-            ]);
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
 
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
             'is_income_billed' => true,
-            'include_tax' => false
+            'include_tax' => false,
         ];
-
     }
 
     public function testProfitLossInstance()
@@ -135,10 +131,10 @@ class ProfitAndLossReportTest extends TestCase
         $this->buildData();
 
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'is_deleted' => 0,
-            ]);
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+        ]);
 
         Invoice::factory()->count(2)->create([
             'client_id' => $client->id,
@@ -163,7 +159,6 @@ class ProfitAndLossReportTest extends TestCase
         $pl = new ProfitLoss($this->company, $this->payload);
         $pl->build();
 
-
         $this->assertEquals(20.0, $pl->getIncome());
         $this->assertEquals(2, $pl->getIncomeTaxes());
 
@@ -175,10 +170,10 @@ class ProfitAndLossReportTest extends TestCase
         $this->buildData();
 
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'is_deleted' => 0,
-            ]);
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+        ]);
 
         Invoice::factory()->count(2)->create([
             'client_id' => $client->id,
@@ -194,7 +189,7 @@ class ProfitAndLossReportTest extends TestCase
             'tax_rate1' => 10,
             'tax_rate2' => 0,
             'tax_rate3' => 0,
-            'tax_name1' => "GST",
+            'tax_name1' => 'GST',
             'tax_name2' => '',
             'tax_name3' => '',
             'uses_inclusive_taxes' => true,
@@ -203,27 +198,25 @@ class ProfitAndLossReportTest extends TestCase
         $pl = new ProfitLoss($this->company, $this->payload);
         $pl->build();
 
-
         $this->assertEquals(18.0, $pl->getIncome());
         $this->assertEquals(2, $pl->getIncomeTaxes());
 
         $this->account->delete();
     }
 
-
     public function testSimpleInvoiceIncomeWithForeignExchange()
     {
         $this->buildData();
 
         $settings = ClientSettings::defaults();
-        $settings->currency_id = "2";
+        $settings->currency_id = '2';
 
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'is_deleted' => 0,
-                'settings' => $settings,
-            ]);
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+            'settings' => $settings,
+        ]);
 
         Invoice::factory()->count(2)->create([
             'client_id' => $client->id,
@@ -239,11 +232,11 @@ class ProfitAndLossReportTest extends TestCase
             'tax_rate1' => 10,
             'tax_rate2' => 0,
             'tax_rate3' => 0,
-            'tax_name1' => "GST",
+            'tax_name1' => 'GST',
             'tax_name2' => '',
             'tax_name3' => '',
             'uses_inclusive_taxes' => true,
-            'exchange_rate' => 0.5
+            'exchange_rate' => 0.5,
         ]);
 
         $pl = new ProfitLoss($this->company, $this->payload);
@@ -255,7 +248,6 @@ class ProfitAndLossReportTest extends TestCase
         $this->account->delete();
     }
 
-
     public function testSimpleInvoicePaymentIncome()
     {
         $this->buildData();
@@ -265,22 +257,21 @@ class ProfitAndLossReportTest extends TestCase
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
             'is_income_billed' => false,
-            'include_tax' => false
+            'include_tax' => false,
         ];
 
-
         $settings = ClientSettings::defaults();
-        $settings->currency_id = "1";
+        $settings->currency_id = '1';
 
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'is_deleted' => 0,
-                'settings' => $settings,
-            ]);
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+            'settings' => $settings,
+        ]);
 
         $contact = ClientContact::factory()->create([
-            'client_id' => $client->id
+            'client_id' => $client->id,
         ]);
 
         $i = Invoice::factory()->create([
@@ -297,11 +288,11 @@ class ProfitAndLossReportTest extends TestCase
             'tax_rate1' => 0,
             'tax_rate2' => 0,
             'tax_rate3' => 0,
-            'tax_name1' => "",
+            'tax_name1' => '',
             'tax_name2' => '',
             'tax_name3' => '',
             'uses_inclusive_taxes' => true,
-            'exchange_rate' => 1
+            'exchange_rate' => 1,
         ]);
 
         $i->service()->markPaid()->save();
@@ -310,10 +301,9 @@ class ProfitAndLossReportTest extends TestCase
         $pl->build();
 
         $this->assertEquals(10.0, $pl->getIncome());
-        
+
         $this->account->delete();
     }
-
 
     public function testSimpleExpense()
     {
@@ -336,7 +326,6 @@ class ProfitAndLossReportTest extends TestCase
         $this->assertEquals(10, $expense->total);
 
         $this->account->delete();
-
     }
 
     public function testSimpleExpenseAmountTax()
@@ -361,7 +350,6 @@ class ProfitAndLossReportTest extends TestCase
         $this->assertEquals(10, $expense->tax);
 
         $this->account->delete();
-
     }
 
     public function testSimpleExpenseTaxRateExclusive()
@@ -387,7 +375,6 @@ class ProfitAndLossReportTest extends TestCase
         $this->assertEquals(1, $expense->tax);
 
         $this->account->delete();
-
     }
 
     public function testSimpleExpenseTaxRateInclusive()
@@ -413,9 +400,7 @@ class ProfitAndLossReportTest extends TestCase
         $this->assertEquals(1, $expense->tax);
 
         $this->account->delete();
-
     }
-
 
     public function testSimpleExpenseBreakdown()
     {
@@ -427,7 +412,7 @@ class ProfitAndLossReportTest extends TestCase
             'user_id' => $this->user->id,
             'date' => '2022-01-01',
             'exchange_rate' => 1,
-            'currency_id' => $this->company->settings->currency_id
+            'currency_id' => $this->company->settings->currency_id,
         ]);
 
         $pl = new ProfitLoss($this->company, $this->payload);
@@ -437,12 +422,10 @@ class ProfitAndLossReportTest extends TestCase
 
         $bd = $pl->getExpenseBreakDown();
 
-        $this->assertEquals(array_sum(array_column($bd,'total')), 10);
+        $this->assertEquals(array_sum(array_column($bd, 'total')), 10);
 
         $this->account->delete();
-
     }
-
 
     public function testSimpleExpenseCategoriesBreakdown()
     {
@@ -459,14 +442,13 @@ class ProfitAndLossReportTest extends TestCase
             'user_id' => $this->user->id,
             'date' => '2022-01-01',
             'exchange_rate' => 1,
-            'currency_id' => $this->company->settings->currency_id
+            'currency_id' => $this->company->settings->currency_id,
         ]);
-
 
         $ec = ExpenseCategoryFactory::create($this->company->id, $this->user->id);
         $ec->name = 'Fuel';
         $ec->save();
-        
+
         $e = Expense::factory(2)->create([
             'category_id' => $ec->id,
             'amount' => 10,
@@ -474,9 +456,8 @@ class ProfitAndLossReportTest extends TestCase
             'user_id' => $this->user->id,
             'date' => '2022-01-01',
             'exchange_rate' => 1,
-            'currency_id' => $this->company->settings->currency_id
+            'currency_id' => $this->company->settings->currency_id,
         ]);
-
 
         $pl = new ProfitLoss($this->company, $this->payload);
         $pl->build();
@@ -485,22 +466,20 @@ class ProfitAndLossReportTest extends TestCase
 
         $bd = $pl->getExpenseBreakDown();
 
-        $this->assertEquals(array_sum(array_column($bd,'total')), 30);
+        $this->assertEquals(array_sum(array_column($bd, 'total')), 30);
 
         $this->account->delete();
-
     }
-
 
     public function testCsvGeneration()
     {
         $this->buildData();
 
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'is_deleted' => 0,
-            ]);
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+        ]);
 
         Invoice::factory()->count(1)->create([
             'client_id' => $client->id,
@@ -516,7 +495,7 @@ class ProfitAndLossReportTest extends TestCase
             'tax_rate1' => 10,
             'tax_rate2' => 0,
             'tax_rate3' => 0,
-            'tax_name1' => "GST",
+            'tax_name1' => 'GST',
             'tax_name2' => '',
             'tax_name3' => '',
             'uses_inclusive_taxes' => true,
@@ -533,14 +512,13 @@ class ProfitAndLossReportTest extends TestCase
             'user_id' => $this->user->id,
             'date' => '2022-01-01',
             'exchange_rate' => 1,
-            'currency_id' => $this->company->settings->currency_id
+            'currency_id' => $this->company->settings->currency_id,
         ]);
-
 
         $ec = ExpenseCategoryFactory::create($this->company->id, $this->user->id);
         $ec->name = 'Fuel';
         $ec->save();
-        
+
         $e = Expense::factory(2)->create([
             'category_id' => $ec->id,
             'amount' => 10,
@@ -548,9 +526,8 @@ class ProfitAndLossReportTest extends TestCase
             'user_id' => $this->user->id,
             'date' => '2022-01-01',
             'exchange_rate' => 1,
-            'currency_id' => $this->company->settings->currency_id
+            'currency_id' => $this->company->settings->currency_id,
         ]);
-
 
         $pl = new ProfitLoss($this->company, $this->payload);
         $pl->build();
@@ -558,7 +535,5 @@ class ProfitAndLossReportTest extends TestCase
         $this->assertNotNull($pl->getCsv());
 
         $this->account->delete();
-
     }
-
 }

@@ -34,6 +34,7 @@ class PurchaseOrderWasAccepted
     public $event_vars;
 
     public $contact;
+
     /**
      * Create a new event instance.
      *

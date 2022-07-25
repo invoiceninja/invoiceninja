@@ -60,12 +60,12 @@ class ForgotPasswordController extends Controller
         // need to show to the user. Finally, we'll send out a proper response.
         $response = $this->broker()->sendResetLink(
             $this->credentials($request)
-        );        
+        );
 
         if ($request->ajax()) {
-
-            if($response == Password::RESET_THROTTLED)
+            if ($response == Password::RESET_THROTTLED) {
                 return response()->json(['message' => ctrans('passwords.throttled'), 'status' => false], 429);
+            }
 
             return $response == Password::RESET_LINK_SENT
                 ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
@@ -79,16 +79,15 @@ class ForgotPasswordController extends Controller
 
     public function showLinkRequestForm(Request $request)
     {
-        if($request->has('company_key')){
+        if ($request->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
             $account = $company->account;
-        }
-        else{
+        } else {
             $account_id = $request->get('account_id');
             $account = Account::find($account_id);
         }
-        
+
         return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
     }
 }

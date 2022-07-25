@@ -4,8 +4,7 @@ use App\Models\GatewayType;
 use App\Models\PaymentType;
 use Illuminate\Database\Migrations\Migration;
 
-class AddHostedPageToPaymentTypes extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -21,4 +20,4 @@ class AddHostedPageToPaymentTypes extends Migration
 
         $type->save();
     }
-}
+};

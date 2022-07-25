@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\GoCardless;
@@ -56,20 +56,20 @@ class ACH implements MethodInterface
 
         try {
             $redirect = $this->go_cardless->gateway->redirectFlows()->create([
-                "params" => [
-                    "scheme" => "ach",
-                    "session_token" => $session_token,
-                    "success_redirect_url" => route('client.payment_methods.confirm', [
+                'params' => [
+                    'scheme' => 'ach',
+                    'session_token' => $session_token,
+                    'success_redirect_url' => route('client.payment_methods.confirm', [
                         'method' => GatewayType::BANK_TRANSFER,
                         'session_token' => $session_token,
                     ]),
-                    "prefilled_customer" => [
-                        "given_name" => auth()->guard('contact')->user()->first_name,
-                        "family_name" => auth()->guard('contact')->user()->last_name,
-                        "email" => auth()->guard('contact')->user()->email,
-                        "address_line1" => auth()->guard('contact')->user()->client->address1,
-                        "city" => auth()->guard('contact')->user()->client->city,
-                        "postal_code" => auth()->guard('contact')->user()->client->postal_code,
+                    'prefilled_customer' => [
+                        'given_name' => auth()->guard('contact')->user()->first_name,
+                        'family_name' => auth()->guard('contact')->user()->last_name,
+                        'email' => auth()->guard('contact')->user()->email,
+                        'address_line1' => auth()->guard('contact')->user()->client->address1,
+                        'city' => auth()->guard('contact')->user()->client->city,
+                        'postal_code' => auth()->guard('contact')->user()->client->postal_code,
                     ],
                 ],
             ]);
@@ -89,7 +89,7 @@ class ACH implements MethodInterface
      * @throws PaymentFailed
      * @return void
      */
-    public function processUnsuccessfulAuthorization(\Exception $exception): void
+    public function processUnsuccessfulAuthorization(Exception $exception): void
     {
         SystemLogger::dispatch(
             $exception->getMessage(),
@@ -115,7 +115,7 @@ class ACH implements MethodInterface
             $redirect_flow = $this->go_cardless->gateway->redirectFlows()->complete(
                 $request->redirect_flow_id,
                 ['params' => [
-                    'session_token' => $request->session_token
+                    'session_token' => $request->session_token,
                 ]],
             );
 
@@ -161,17 +161,17 @@ class ACH implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $this->go_cardless->ensureMandateIsReady($request->source);
 
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
                           ->withTrashed()
                           ->first();
 
-        if($invoice)
+        if ($invoice) {
             $description = "Invoice {$invoice->number} for {$request->amount} for client {$this->go_cardless->client->present()->name()}";
-        else
+        } else {
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
+        }
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
@@ -187,7 +187,6 @@ class ACH implements MethodInterface
                     ],
                 ],
             ]);
-
 
             if ($payment->status === 'pending_submission') {
                 return $this->processPendingPayment($payment);
@@ -206,7 +205,7 @@ class ACH implements MethodInterface
      * @param array $data
      * @return RedirectResponse
      */
-    public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    public function processPendingPayment(ResourcesPayment $payment, array $data = [])
     {
         $data = [
             'payment_type' => PaymentType::ACH,
@@ -235,10 +234,10 @@ class ACH implements MethodInterface
      * @param ResourcesPayment $payment
      * @return never
      */
-    public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
+    public function processUnsuccessfulPayment(ResourcesPayment $payment)
     {
         $this->go_cardless->sendFailureMail($payment->status);
-        
+
         $message = [
             'server_response' => $payment,
             'data' => $this->go_cardless->payment_hash->data,

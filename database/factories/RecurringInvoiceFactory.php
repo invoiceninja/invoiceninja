@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Factories;
 
 use App\Models\RecurringInvoice;
@@ -15,13 +16,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RecurringInvoiceFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = RecurringInvoice::class;
-
     /**
      * Define the model's default state.
      *

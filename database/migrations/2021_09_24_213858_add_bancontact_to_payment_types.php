@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddBancontactToPaymentTypes extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -23,4 +22,4 @@ class AddBancontactToPaymentTypes extends Migration
 
         $type->save();
     }
-}
+};

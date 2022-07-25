@@ -26,7 +26,7 @@ class TaskTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-        'documents'
+        'documents',
     ];
 
     /**
@@ -92,7 +92,7 @@ class TaskTransformer extends EntityTransformer
             'status_id' => $this->encodePrimaryKey($task->status_id) ?: '',
             'status_sort_order' => (int) $task->status_sort_order, //deprecated 5.0.34
             'is_date_based' => (bool) $task->is_date_based,
-            'status_order' => is_null($task->status_order) ? null : (int)$task->status_order,
+            'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
         ];
     }
 }

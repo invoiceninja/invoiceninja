@@ -29,7 +29,7 @@ class TaskStatusTransformer extends EntityTransformer
             'created_at'  => (int) $task_status->created_at,
             'updated_at'  => (int) $task_status->updated_at,
             'archived_at' => (int) $task_status->deleted_at,
-            'status_order' => is_null($task_status->status_order) ? null : (int)$task_status->status_order,
+            'status_order' => is_null($task_status->status_order) ? null : (int) $task_status->status_order,
         ];
     }
 }

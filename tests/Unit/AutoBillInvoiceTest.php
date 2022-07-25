@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Models\Invoice;
@@ -24,7 +25,7 @@ class AutoBillInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -33,7 +34,6 @@ class AutoBillInvoiceTest extends TestCase
 
     public function testAutoBillFunctionality()
     {
-
         $this->assertEquals($this->client->balance, 10);
         $this->assertEquals($this->client->paid_to_date, 0);
         $this->assertEquals($this->client->credit_balance, 10);
@@ -48,13 +48,12 @@ class AutoBillInvoiceTest extends TestCase
         $this->assertEquals($this->client->fresh()->credit_balance, 0);
     }
 
-
     // public function testAutoBillSetOffFunctionality()
     // {
 
     //     $settings = $this->company->settings;
     //     $settings->use_credits_payment = 'off';
-        
+
     //     $this->company->settings = $settings;
     //     $this->company->save();
 
@@ -70,6 +69,6 @@ class AutoBillInvoiceTest extends TestCase
     //     $this->assertEquals($this->client->balance, 10);
     //     $this->assertEquals($this->client->paid_to_date, 0);
     //     $this->assertEquals($this->client->credit_balance, 10);
-    
+
     // }
 }

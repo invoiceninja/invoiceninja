@@ -30,9 +30,9 @@ interface EngineInterface
     public function setViewLink($link);
 
     public function setViewText($text);
-    
+
     public function getSubject();
-    
+
     public function getBody();
 
     public function getAttachments();
@@ -48,5 +48,4 @@ interface EngineInterface
     public function build();
 
     public function getTextBody();
-
 }

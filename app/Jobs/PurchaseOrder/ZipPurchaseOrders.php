@@ -51,7 +51,6 @@ class ZipPurchaseOrders implements ShouldQueue
      * @param $email
      * @deprecated confirm to be deleted
      * Create a new job instance.
-     *
      */
     public function __construct($purchase_orders, Company $company, User $user)
     {
@@ -72,31 +71,25 @@ class ZipPurchaseOrders implements ShouldQueue
      * @throws \ZipStream\Exception\FileNotReadableException
      * @throws \ZipStream\Exception\OverflowException
      */
-    
     public function handle()
     {
         MultiDB::setDb($this->company->db);
 
-        # create new zip object
+        // create new zip object
         $zipFile = new \PhpZip\ZipFile();
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
         $invitation = $this->purchase_orders->first()->invitations->first();
         $path = $this->purchase_orders->first()->vendor->purchase_order_filepath($invitation);
 
-        $this->purchase_orders->each(function ($purchase_order){
-
-            CreatePurchaseOrderPdf::dispatchNow($purchase_order->invitations()->first());
-
+        $this->purchase_orders->each(function ($purchase_order) {
+            CreatePurchaseOrderPdf::dispatchSync($purchase_order->invitations()->first());
         });
 
-        try{
-            
+        try {
             foreach ($this->purchase_orders as $purchase_order) {
-        
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
                 $zip_file_name = basename($file);
                 $zipFile->addFromString($zip_file_name, Storage::get($file));
-
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
@@ -106,21 +99,14 @@ class ZipPurchaseOrders implements ShouldQueue
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
-            
-            NinjaMailerJob::dispatch($nmo);
-            
-            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
-            
 
-        }
-        catch(\PhpZip\Exception\ZipException $e){
-            nlog("could not make zip => ". $e->getMessage());
-        }
-        finally{
+            NinjaMailerJob::dispatch($nmo);
+
+            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+        } catch (\PhpZip\Exception\ZipException $e) {
+            nlog('could not make zip => '.$e->getMessage());
+        } finally {
             $zipFile->close();
         }
-
-
     }
-
 }

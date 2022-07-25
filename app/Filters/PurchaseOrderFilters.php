@@ -11,8 +11,6 @@
 
 namespace App\Filters;
 
-
-
 use App\Models\PurchaseOrder;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -157,7 +155,6 @@ class PurchaseOrderFilters extends QueryFilters
      *
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
-     *
      */
     public function entityFilter()
     {

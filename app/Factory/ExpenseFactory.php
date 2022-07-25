@@ -42,7 +42,7 @@ class ExpenseFactory
         $expense->tax_amount1 = 0;
         $expense->tax_amount2 = 0;
         $expense->tax_amount3 = 0;
-        
+
         return $expense;
     }
 }

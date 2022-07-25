@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\PaymentDrivers\Braintree;
-
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
@@ -63,7 +61,7 @@ class PayPal
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
-        $this->braintree->payment_hash->data = array_merge((array)$this->braintree->payment_hash->data, $state);
+        $this->braintree->payment_hash->data = array_merge((array) $this->braintree->payment_hash->data, $state);
         $this->braintree->payment_hash->save();
 
         $customer = $this->braintree->findOrCreateCustomer();
@@ -75,10 +73,10 @@ class PayPal
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
-                'submitForSettlement' => True,
+                'submitForSettlement' => true,
                 'paypal' => [
                     'description' => 'Meaningful description.',
-                ]
+                ],
             ],
         ]);
 
@@ -102,7 +100,7 @@ class PayPal
 
     private function getPaymentToken(array $data, string $customerId)
     {
-        if (array_key_exists('token', $data) && !is_null($data['token'])) {
+        if (array_key_exists('token', $data) && ! is_null($data['token'])) {
             return $data['token'];
         }
 
@@ -172,7 +170,7 @@ class PayPal
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->email = (string)$method->email;
+            $payment_meta->email = (string) $method->email;
             $payment_meta->type = GatewayType::PAYPAL;
 
             $data = [

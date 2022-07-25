@@ -1,6 +1,6 @@
 <style>
     :root {
-        --primary-color: {{ isset($settings) ? optional($settings)->primary_color : '#1c64f2' }};
+        --primary-color: {{ isset($settings) ? $settings?->primary_color : '#1c64f2' }};
     }
 
     .bg-primary {

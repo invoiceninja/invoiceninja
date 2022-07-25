@@ -38,7 +38,7 @@ class StoreVendorRequest extends Request
         //$rules['name'] = 'required|min:1';
         // $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
-        
+
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
 
         if (isset($this->number)) {
@@ -52,12 +52,12 @@ class StoreVendorRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-        
+
         $this->replace($input);
     }
 

@@ -6,16 +6,14 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsPublicToDocumentsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -84,7 +82,7 @@ class AddIsPublicToDocumentsTable extends Migration
         Schema::table('companies', function ($table) {
             $table->enum('default_auto_bill', ['off', 'always', 'optin', 'optout'])->default('off');
         });
-    
+
         Schema::create('recurring_invoice_invitations', function ($t) {
             $t->increments('id');
             $t->unsignedInteger('company_id');
@@ -114,4 +112,4 @@ class AddIsPublicToDocumentsTable extends Migration
     public function down()
     {
     }
-}
+};

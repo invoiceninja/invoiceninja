@@ -59,7 +59,7 @@ class AuthorizePaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
@@ -120,7 +120,7 @@ class AuthorizePaymentDriver extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $this->init();
-        
+
         $this->setPaymentMethod($cgt->gateway_type_id);
 
         return $this->payment_method->tokenBilling($cgt, $payment_hash);
@@ -163,7 +163,6 @@ class AuthorizePaymentDriver extends BaseDriver
                                  ->where('company_gateway_id', $this->company_gateway->id)
                                  ->first();
     }
-
 
     /**
      * Detach payment method from Authorize.net.

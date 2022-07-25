@@ -18,6 +18,7 @@ use App\Models\Webhook;
 class ProjectObserver
 {
     public $afterCommit = true;
+
     /**
      * Handle the product "created" event.
      *
@@ -31,7 +32,6 @@ class ProjectObserver
                             ->exists();
 
         if ($subscriptions) {
-    
             WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
         }
     }
@@ -49,7 +49,6 @@ class ProjectObserver
                             ->exists();
 
         if ($subscriptions) {
-    
             WebhookHandler::dispatch(Webhook::EVENT_PROJECT_UPDATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
         }
     }

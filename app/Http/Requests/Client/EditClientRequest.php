@@ -24,5 +24,4 @@ class EditClientRequest extends Request
     {
         return auth()->user()->can('edit', $this->client);
     }
-
 }

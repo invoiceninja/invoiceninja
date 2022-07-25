@@ -16,16 +16,12 @@ use Illuminate\Support\Facades\App;
 
 class ClientContactRequestCancellationObject
 {
-
     public $recurring_invoice;
 
     public $client_contact;
 
     private $company;
 
-    /**
-     *
-     */
     public function __construct($recurring_invoice, $client_contact)
     {
         $this->recurring_invoice = $recurring_invoice;
@@ -35,7 +31,6 @@ class ClientContactRequestCancellationObject
 
     public function build()
     {
-
         App::forgetInstance('translator');
         App::setLocale($this->company->getLocale());
 
@@ -51,7 +46,6 @@ class ClientContactRequestCancellationObject
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
         ];
-
 
         $mail_obj = new \stdClass;
         $mail_obj->subject = ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]);

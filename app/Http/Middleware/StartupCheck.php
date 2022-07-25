@@ -60,53 +60,50 @@ class StartupCheck
             }
         }
 
-
         /*Build template cache*/
         if ($request->has('clear_cache') || ! Cache::has('templates')) {
             $this->buildTemplates();
         }
 
         return $next($request);
-
     }
-
 
     private function buildTemplates($name = 'templates')
     {
         $data = [
 
-        'invoice' => [
-            'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
-            'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
+            'invoice' => [
+                'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
+                'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
             ],
-        
-        'quote' => [
-            'subject' => EmailTemplateDefaults::emailQuoteSubject(),
-            'body' => EmailTemplateDefaults::emailQuoteTemplate(),
+
+            'quote' => [
+                'subject' => EmailTemplateDefaults::emailQuoteSubject(),
+                'body' => EmailTemplateDefaults::emailQuoteTemplate(),
             ],
-        'payment' => [
-            'subject' => EmailTemplateDefaults::emailPaymentSubject(),
-            'body' => EmailTemplateDefaults::emailPaymentTemplate(),
+            'payment' => [
+                'subject' => EmailTemplateDefaults::emailPaymentSubject(),
+                'body' => EmailTemplateDefaults::emailPaymentTemplate(),
             ],
-        'reminder1' => [
-            'subject' => EmailTemplateDefaults::emailReminder1Subject(),
-            'body' => EmailTemplateDefaults::emailReminder1Template(),
+            'reminder1' => [
+                'subject' => EmailTemplateDefaults::emailReminder1Subject(),
+                'body' => EmailTemplateDefaults::emailReminder1Template(),
             ],
-        'reminder2' => [
-            'subject' => EmailTemplateDefaults::emailReminder2Subject(),
-            'body' => EmailTemplateDefaults::emailReminder2Template(),
+            'reminder2' => [
+                'subject' => EmailTemplateDefaults::emailReminder2Subject(),
+                'body' => EmailTemplateDefaults::emailReminder2Template(),
             ],
-        'reminder3' => [
-            'subject' => EmailTemplateDefaults::emailReminder3Subject(),
-            'body' => EmailTemplateDefaults::emailReminder3Template(),
+            'reminder3' => [
+                'subject' => EmailTemplateDefaults::emailReminder3Subject(),
+                'body' => EmailTemplateDefaults::emailReminder3Template(),
             ],
-        'reminder_endless' => [
-            'subject' => EmailTemplateDefaults::emailReminderEndlessSubject(),
-            'body' => EmailTemplateDefaults::emailReminderEndlessTemplate(),
+            'reminder_endless' => [
+                'subject' => EmailTemplateDefaults::emailReminderEndlessSubject(),
+                'body' => EmailTemplateDefaults::emailReminderEndlessTemplate(),
             ],
-        'statement' => [
-            'subject' => EmailTemplateDefaults::emailStatementSubject(),
-            'body' => EmailTemplateDefaults::emailStatementTemplate(),
+            'statement' => [
+                'subject' => EmailTemplateDefaults::emailStatementSubject(),
+                'body' => EmailTemplateDefaults::emailStatementTemplate(),
             ],
         ];
 

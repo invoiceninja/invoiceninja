@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Seeders;
 
 use App\DataMapper\CompanySettings;
@@ -50,13 +51,13 @@ class UsersTableSeeder extends Seeder
         ]);
 
         $userPermissions = collect([
-                                    'view_invoice',
-                                    'view_client',
-                                    'edit_client',
-                                    'edit_invoice',
-                                    'create_invoice',
-                                    'create_client',
-                                ]);
+            'view_invoice',
+            'view_client',
+            'edit_client',
+            'edit_invoice',
+            'create_invoice',
+            'create_client',
+        ]);
 
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
@@ -74,8 +75,8 @@ class UsersTableSeeder extends Seeder
         ]);
 
         ClientContact::create([
-            'first_name' => $faker->firstName,
-            'last_name' => $faker->lastName,
+            'first_name' => $faker->firstName(),
+            'last_name' => $faker->lastName(),
             'email' => config('ninja.testvars.clientname'),
             'company_id' => $company->id,
             'password' => Hash::make(config('ninja.testvars.password')),

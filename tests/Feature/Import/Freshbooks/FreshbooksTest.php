@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature\Import\Freshbooks;
@@ -37,7 +37,7 @@ class FreshbooksTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -53,7 +53,7 @@ class FreshbooksTest extends TestCase
     public function testClientFreshbooksImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/freshbooks_clients.csv'
+            base_path().'/tests/Feature/Import/freshbooks_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -68,7 +68,7 @@ class FreshbooksTest extends TestCase
             7 => 'Province/State',
             8 => 'Country',
             9 => 'Postal Code',
-            10 => 'Notes',     
+            10 => 'Notes',
         ];
 
         $data = [
@@ -78,7 +78,7 @@ class FreshbooksTest extends TestCase
             'import_type' => 'freshbooks',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Freshbooks($data, $this->company);
 
@@ -96,14 +96,12 @@ class FreshbooksTest extends TestCase
         $this->assertInstanceOf(Client::class, $client);
         $this->assertEquals('840', $client->country_id);
         $this->assertEquals('867-5309', $client->phone);
-
-        
     }
 
     public function testInvoiceZohoImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/freshbooks_clients.csv'
+            base_path().'/tests/Feature/Import/freshbooks_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -118,7 +116,7 @@ class FreshbooksTest extends TestCase
             7 => 'Province/State',
             8 => 'Country',
             9 => 'Postal Code',
-            10 => 'Notes',     
+            10 => 'Notes',
         ];
 
         $data = [
@@ -128,7 +126,7 @@ class FreshbooksTest extends TestCase
             'import_type' => 'freshbooks',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Freshbooks($data, $this->company);
 
@@ -150,7 +148,7 @@ class FreshbooksTest extends TestCase
         //now import the invoices
 
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/freshbooks_invoices.csv'
+            base_path().'/tests/Feature/Import/freshbooks_invoices.csv'
         );
         $hash = Str::random(32);
 
@@ -171,7 +169,7 @@ class FreshbooksTest extends TestCase
             13 => 'Tax 2 Type',
             14 => 'Tax 2 Amount',
             15 => 'Line Total',
-            16 => 'Currency', 
+            16 => 'Currency',
         ];
 
         $data = [
@@ -181,7 +179,7 @@ class FreshbooksTest extends TestCase
             'import_type' => 'freshbooks',
         ];
 
-        Cache::put($hash . '-invoice', base64_encode($csv), 360);
+        Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
         $csv_importer = new Freshbooks($data, $this->company);
 
@@ -189,19 +187,15 @@ class FreshbooksTest extends TestCase
 
         $base_transformer = new BaseTransformer($this->company);
 
-        $this->assertTrue($base_transformer->hasInvoice("0000001"));
-        $invoice_id = $base_transformer->getInvoiceId("0000001");
+        $this->assertTrue($base_transformer->hasInvoice('0000001'));
+        $invoice_id = $base_transformer->getInvoiceId('0000001');
         $invoice = Invoice::find($invoice_id);
 
-        $this->assertEquals(7890 , $invoice->amount);
-        $this->assertEquals(2 , $invoice->status_id);
-        $this->assertEquals(7890 , $invoice->balance);
-        $this->assertEquals(3 , count($invoice->line_items));
+        $this->assertEquals(7890, $invoice->amount);
+        $this->assertEquals(2, $invoice->status_id);
+        $this->assertEquals(7890, $invoice->balance);
+        $this->assertEquals(3, count($invoice->line_items));
 
         $this->assertFalse($invoice->payments()->exists());
-
     }
-
-
 }
-

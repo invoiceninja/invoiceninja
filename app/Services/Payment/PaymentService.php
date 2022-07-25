@@ -20,7 +20,7 @@ use App\Utils\Traits\MakesHash;
 class PaymentService
 {
     use MakesHash;
-    
+
     private $payment;
 
     public function __construct($payment)
@@ -61,16 +61,13 @@ class PaymentService
         $client = $this->payment->client;
 
         $invoices->each(function ($invoice) {
-            
             if ($invoice->pivot->amount > 0) {
-
                 $invoice->service()
                         ->updateBalance($invoice->pivot->amount)
-                        ->updatePaidToDate($invoice->pivot->amount*-1)
+                        ->updatePaidToDate($invoice->pivot->amount * -1)
                         ->setStatus(Invoice::STATUS_SENT)
                         ->save();
             }
-
         });
 
         $this->payment
@@ -111,16 +108,14 @@ class PaymentService
     {
         /* Iterate through the invoices and apply credits to them */
         collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment_hash) {
-
             $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($payable_invoice->invoice_id));
-            
+
             $amount = $payable_invoice->amount;
 
             $credits = $payment_hash->fee_invoice
                                     ->client
                                     ->service()
                                     ->getCredits();
-
 
             foreach ($credits as $credit) {
                 //starting invoice balance
@@ -136,13 +131,13 @@ class PaymentService
                 $amount -= $remaining_balance;
 
                 //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
-                if (!$invoice->isPayable() || (int)$amount == 0) {
+                if (! $invoice->isPayable() || (int) $amount == 0) {
                     break;
                 }
             }
         });
 
-        return $this; 
+        return $this;
     }
 
     public function save()

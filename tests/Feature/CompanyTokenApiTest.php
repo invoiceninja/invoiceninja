@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Http\Middleware\PasswordProtection;
@@ -30,7 +31,7 @@ class CompanyTokenApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -65,14 +66,14 @@ class CompanyTokenApiTest extends TestCase
         $this->withoutMiddleware(PasswordProtection::class);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tokens', $data);
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tokens', $data);
 
         $response->assertStatus(200);
     }
@@ -88,10 +89,10 @@ class CompanyTokenApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id), $data);
 
         $response->assertStatus(200);
         $arr = $response->json();
@@ -106,10 +107,10 @@ class CompanyTokenApiTest extends TestCase
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
 
         $response->assertStatus(200);
     }
@@ -121,10 +122,10 @@ class CompanyTokenApiTest extends TestCase
         $company_token = CompanyToken::whereCompanyId($this->company->id)->first();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tokens/'.$this->encodePrimaryKey($company_token->id));
 
         $arr = $response->json();
 

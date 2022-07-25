@@ -11,92 +11,54 @@
 
 namespace App\Helpers\Mail;
 
-use App\Utils\TempFile;
-use Dacastro4\LaravelGmail\Facade\LaravelGmail;
-use Dacastro4\LaravelGmail\Services\Message\Mail;
-use Illuminate\Mail\Transport\Transport;
-use Swift_Mime_SimpleMessage;
+use Google\Service\Gmail;
+use Google\Service\Gmail\Message;
+use Google\Client;
+use Symfony\Component\Mailer\SentMessage;
+use Symfony\Component\Mailer\Transport\AbstractTransport;
+use Symfony\Component\Mime\MessageConverter;
 
 /**
  * GmailTransport.
  */
-class GmailTransport extends Transport
+class GmailTransport extends AbstractTransport
 {
-    /**
-     * The Gmail instance.
-     *
-     * @var Mail
-     */
-    protected $gmail;
 
-    /**
-     * Create a new Gmail transport instance.
-     *
-     * @param Mail $gmail
-     * @param string $token
-     */
-    public function __construct(Mail $gmail)
+    public function __construct()
     {
-        $this->gmail = $gmail;
+        parent::__construct();
     }
 
-    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
+    protected function doSend(SentMessage $message): void
     {
-        /* For some reason the Injected Mail class carries cached tokens, so we need to reinit the Mail class*/
-        $this->gmail = null;
-        $this->gmail = new Mail;
+        nlog("in Do Send");
+        $message = MessageConverter::toEmail($message->getOriginalMessage());
 
-        /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();
-        
         $message->getHeaders()->remove('GmailToken');
 
-        $this->beforeSendPerformed($message);
+        $client = new Client();
+        $client->setClientId(config('ninja.auth.google.client_id'));
+        $client->setClientSecret(config('ninja.auth.google.client_secret'));
+        $client->setAccessToken($token);
+        
+        $service = new Gmail($client);
 
-        $this->gmail->using($token);
-        $this->gmail->to($message->getTo());
-        $this->gmail->from($message->getFrom());
-        $this->gmail->subject($message->getSubject());
-        $this->gmail->message($message->getBody());
+        $body = new Message();
+        $body->setRaw($this->base64_encode($message->toString()));
 
-        $this->gmail->cc($message->getCc());
-
-        if(is_array($message->getBcc()))
-            $this->gmail->bcc(array_keys($message->getBcc()));
-
-        foreach ($message->getChildren() as $child) 
-        {
-
-            if($child->getContentType() != 'text/plain')
-            {
-
-                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
-            
-            }
-
-        } 
-
-        /**
-         * Google is very strict with their
-         * sending limits, if we hit 429s, sleep and
-         * retry again later.
-         */
-        try{
-
-            $this->gmail->send();
-
-        }
-        catch(\Google\Service\Exception $e)
-        {
-            nlog("gmail exception");
-            nlog($e->getErrors());
-
-            sleep(5);
-            $this->gmail->send();
-        }
-
-        $this->sendPerformed($message);
-
-        return $this->numberOfRecipients($message);
+        $service->users_messages->send('me', $body, []);
+        
     }
+ 
+    private function base64_encode($data)
+    {
+        return rtrim(strtr(base64_encode($data), ['+' => '-', '/' => '_']), '=');
+    }
+
+    public function __toString(): string
+    {
+        return 'gmail';
+    }
+
 }

@@ -51,7 +51,7 @@ class TaskArchivedActivity implements ShouldQueue
         $fields->user_id = $user_id;
         $fields->company_id = $task->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_TASK;
-        
+
         $this->activity_repo->save($fields, $task, $event->event_vars);
     }
 }

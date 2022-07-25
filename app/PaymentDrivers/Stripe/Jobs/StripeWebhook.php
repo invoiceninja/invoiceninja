@@ -33,7 +33,7 @@ class StripeWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Utilities;
 
-    public $tries = 1; 
+    public $tries = 1;
 
     public $deleteWhenMissingModels = true;
 
@@ -48,7 +48,7 @@ class StripeWebhook implements ShouldQueue
         'charge.succeeded',
         'charge.failed',
         'payment_intent.succeeded',
-        'payment_intent.payment_failed'
+        'payment_intent.payment_failed',
     ];
 
     public function __construct(string $company_key, int $company_gateway_id)
@@ -59,7 +59,6 @@ class StripeWebhook implements ShouldQueue
 
     public function handle()
     {
-
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
@@ -72,30 +71,20 @@ class StripeWebhook implements ShouldQueue
 
         $webhook_url = $company_gateway->webhookUrl();
 
-        foreach($endpoints['data'] as $endpoint)
-        {
-
-            if($endpoint->url === $webhook_url)
-            {
-
+        foreach ($endpoints['data'] as $endpoint) {
+            if ($endpoint->url === $webhook_url) {
                 \Stripe\WebhookEndpoint::update($endpoint->id, ['enabled_events' => $this->events], $stripe->stripe_connect_auth);
 
                 $this->url_found = true;
-                
             }
-
         }
 
         /* Add new webhook */
-        if(!$this->url_found)
-        {
-
+        if (! $this->url_found) {
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
             ], $stripe->stripe_connect_auth);
-
         }
     }
-
 }

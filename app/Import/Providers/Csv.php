@@ -43,7 +43,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Csv extends BaseImport implements ImportInterface
 {
-
     public array $entity_count = [];
 
     public function import(string $entity)
@@ -60,7 +59,6 @@ class Csv extends BaseImport implements ImportInterface
         ) {
             $this->{$entity}();
         }
-        
     }
 
     public function client()
@@ -69,11 +67,13 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
+
             return;
         }
 
@@ -97,11 +97,13 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['products'] = 0;
+
             return;
         }
 
@@ -125,11 +127,13 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['invoices'] = 0;
+
             return;
         }
 
@@ -153,14 +157,16 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['payments'] = 0;
+
             return;
         }
-
+        
         $this->request_name = StorePaymentRequest::class;
         $this->repository_name = PaymentRepository::class;
         $this->factory_name = PaymentFactory::class;
@@ -181,11 +187,13 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['vendors'] = 0;
+
             return;
         }
 
@@ -209,11 +217,13 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if(is_array($data))
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+        }
 
         if (empty($data)) {
             $this->entity_count['expenses'] = 0;
+
             return;
         }
 
@@ -228,17 +238,15 @@ class Csv extends BaseImport implements ImportInterface
 
         $expense_count = $this->ingest($data, $entity_type);
 
-        $this->entity_count['expenses'] = $expense_count;        
+        $this->entity_count['expenses'] = $expense_count;
     }
 
     public function quote()
     {
-
     }
 
     public function task()
     {
-        
     }
 
     public function transform(array $data)

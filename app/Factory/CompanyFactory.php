@@ -37,12 +37,13 @@ class CompanyFactory
         //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
         $company->custom_fields = (object) [];
         $company->client_registration_fields = ClientRegistrationFields::generate();
-        
-        if(Ninja::isHosted())
+
+        if (Ninja::isHosted()) {
             $company->subdomain = MultiDB::randomSubdomainGenerator();
-        else 
+        } else {
             $company->subdomain = '';
-        
+        }
+
         $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095
         $company->default_password_timeout = 1800000;
         $company->markdown_email_enabled = false;

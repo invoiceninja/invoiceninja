@@ -62,7 +62,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $this->resolvePaymentTemplate();
 
-        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
+        if (is_array($this->template_data) && array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
         } elseif (strlen($this->client->getSetting($this->payment_template_body)) > 0) {
             $body_template = $this->client->getSetting($this->payment_template_body);
@@ -70,7 +70,7 @@ class PaymentEmailEngine extends BaseEmailEngine
             $body_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_body, $this->client->locale());
         }
 
-        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
+        if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
         } elseif (strlen($this->client->getSetting($this->payment_template_subject)) > 0) {
             $subject_template = $this->client->getSetting($this->payment_template_subject);
@@ -88,16 +88,13 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-
-            $this->payment->invoices->each(function ($invoice){
-                
-                if(Ninja::isHosted())
+            $this->payment->invoices->each(function ($invoice) {
+                if (Ninja::isHosted()) {
                     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first(), 'url', true)]);
-                else
+                } else {
                     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
-
+                }
             });
-
         }
 
         return $this;
@@ -107,35 +104,29 @@ class PaymentEmailEngine extends BaseEmailEngine
      * Helper method to resolve which payment template
      * to use. We need to check the invoice balances to
      * determine if this is a partial payment, or full payment.
-     *     
+     *
      * @return $this
      */
-    private function resolvePaymentTemplate() 
+    private function resolvePaymentTemplate()
     {
-
-        $partial = $this->payment->invoices->contains(function ($invoice){
-
+        $partial = $this->payment->invoices->contains(function ($invoice) {
             return $invoice->balance > 0;
-
         });
 
-        if($partial){
-            $this->payment_template_body = "email_template_payment_partial";
-            $this->payment_template_subject = "email_subject_payment_partial";
-        }
-        else {
-            $this->payment_template_body = "email_template_payment";
-            $this->payment_template_subject = "email_subject_payment";
+        if ($partial) {
+            $this->payment_template_body = 'email_template_payment_partial';
+            $this->payment_template_subject = 'email_subject_payment_partial';
+        } else {
+            $this->payment_template_body = 'email_template_payment';
+            $this->payment_template_subject = 'email_subject_payment';
         }
 
         return $this;
     }
 
-
     public function makePaymentVariables()
     {
         $data = [];
-
 
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
@@ -193,7 +184,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $data['$contact.full_name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : '', 'label' => ctrans('texts.name')];
         $data['$contact.email'] = ['value' => isset($this->contact) ? $this->contact->email : '', 'label' => ctrans('texts.email')];
-        $data['$contact.phone'] = ['value' => isset($this->contact) ? $this->contact->phone: '', 'label' => ctrans('texts.phone')];
+        $data['$contact.phone'] = ['value' => isset($this->contact) ? $this->contact->phone : '', 'label' => ctrans('texts.phone')];
 
         $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
         $data['$contact.first_name'] = ['value' => isset($this->contact) ? $this->contact->first_name : '', 'label' => ctrans('texts.first_name')];
@@ -233,7 +224,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$view_button'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login')."</a>", 'label' =>''];
+        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login').'</a>', 'label' =>''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -249,7 +240,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
-        
+
         return $data;
     }
 
@@ -257,8 +248,9 @@ class PaymentEmailEngine extends BaseEmailEngine
     {
         $invoice = '';
 
-        if($this->payment->invoices()->exists())
-            $invoice = ctrans('texts.invoice_number_short') . implode(",", $this->payment->invoices->pluck('number')->toArray());
+        if ($this->payment->invoices()->exists()) {
+            $invoice = ctrans('texts.invoice_number_short').implode(',', $this->payment->invoices->pluck('number')->toArray());
+        }
 
         return $invoice;
     }
@@ -267,8 +259,9 @@ class PaymentEmailEngine extends BaseEmailEngine
     {
         $invoice = '';
 
-        if($this->payment->invoices()->exists())
-            $invoice = ctrans('texts.po_number_short') . implode(",", $this->payment->invoices->pluck('po_number')->toArray());
+        if ($this->payment->invoices()->exists()) {
+            $invoice = ctrans('texts.po_number_short').implode(',', $this->payment->invoices->pluck('po_number')->toArray());
+        }
 
         return $invoice;
     }
@@ -278,7 +271,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} - " . Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} - ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
         }
 
         return $invoice_list;
@@ -286,21 +279,17 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceReferences()
     {
-
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            
-            $invoice_list .= ctrans('texts.po_number'). " {$invoice->po_number} <br>";
-            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} <br>";
-            $invoice_list .= ctrans('texts.invoice_amount') ." ". Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
-            $invoice_list .= ctrans('texts.invoice_balance') ." ". Number::formatMoney($invoice->fresh()->balance, $this->client) . "<br>";
-            $invoice_list .= "-----<br>";
-
+            $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} <br>";
+            $invoice_list .= ctrans('texts.invoice_amount').' '.Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_balance').' '.Number::formatMoney($invoice->fresh()->balance, $this->client).'<br>';
+            $invoice_list .= '-----<br>';
         }
 
         return $invoice_list;
-
     }
 
     public function makeValues() :array

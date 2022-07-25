@@ -62,30 +62,21 @@ class ApplyRecurringNumber extends AbstractService
 
     private function trySaving()
     {
+        $x = 1;
 
-        $x=1;
-
-        do{
-
-            try{
-
+        do {
+            try {
                 $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;
-                
-
-            }
-            catch(QueryException $e){
-
+            } catch (QueryException $e) {
                 $x++;
 
-                if($x>10)
+                if ($x > 10) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
-
+        } while ($this->completed);
     }
 }

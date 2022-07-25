@@ -37,7 +37,7 @@ class ExistingMigration extends Mailable
     public function build()
     {
         App::setLocale($this->company->getLocale());
-        
+
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->company_name = $this->company->present()->name();

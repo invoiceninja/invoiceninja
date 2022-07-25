@@ -30,6 +30,7 @@ class ClientSettings extends BaseSettings
      * Settings which which are unique to client settings.
      */
     public $industry_id;
+
     public $size_id;
 
     public static $casts = [

@@ -118,7 +118,7 @@ class ClientTransformer extends EntityTransformer
             'last_login' => (int) $client->last_login,
             'size_id' => (string) $client->size_id,
             'public_notes' => $client->public_notes ?: '',
-            'client_hash' => (string)$client->client_hash,
+            'client_hash' => (string) $client->client_hash,
             'address1' => $client->address1 ?: '',
             'address2' => $client->address2 ?: '',
             'phone' => $client->phone ?: '',

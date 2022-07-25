@@ -9,14 +9,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\Export;
 
 use App\Http\Requests\Request;
 
 class StoreExportRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *

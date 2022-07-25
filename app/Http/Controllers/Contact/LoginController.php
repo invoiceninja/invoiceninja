@@ -94,9 +94,9 @@ class LoginController extends BaseController
     {
         //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
         $scopes = [];
-        
-        if($provider == 'google'){
-            $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+
+        if ($provider == 'google') {
+            $scopes = ['https://www.googleapis.com/auth/gmail.send', 'email', 'profile', 'openid'];
         }
 
         if (request()->has('code')) {
@@ -235,6 +235,4 @@ class LoginController extends BaseController
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
     }
-
-
 }

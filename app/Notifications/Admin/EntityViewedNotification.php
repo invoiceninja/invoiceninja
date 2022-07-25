@@ -23,7 +23,6 @@ use Illuminate\Queue\SerializesModels;
 
 class EntityViewedNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
@@ -110,9 +109,9 @@ class EntityViewedNotification extends Notification
             ->attachment(function ($attachment) use ($amount) {
                 $attachment->title(ctrans('texts.entity_number_placeholder', ['entity' => ucfirst($this->entity_name), 'entity_number' => $this->entity->number]), $this->invitation->getAdminLink())
                            ->fields([
-                                ctrans('texts.client') => $this->contact->present()->name(),
-                                ctrans('texts.status_viewed') => $this->invitation->viewed_date,
-                            ]);
+                               ctrans('texts.client') => $this->contact->present()->name(),
+                               ctrans('texts.status_viewed') => $this->invitation->viewed_date,
+                           ]);
             });
     }
 
@@ -146,9 +145,9 @@ class EntityViewedNotification extends Notification
         $subject = ctrans(
             "texts.notification_{$this->entity_name}_viewed_subject",
             [
-            'client' => $this->contact->present()->name(),
-            $this->entity_name => $this->entity->number,
-        ]
+                'client' => $this->contact->present()->name(),
+                $this->entity_name => $this->entity->number,
+            ]
         );
 
         return $subject;

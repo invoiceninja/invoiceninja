@@ -54,7 +54,7 @@ class HandleCancellation extends AbstractService
         $this->invoice->fresh();
 
         $this->invoice->service()->workFlow()->save();
-        
+
         event(new InvoiceWasCancelled($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $transaction = [
@@ -80,7 +80,7 @@ class HandleCancellation extends AbstractService
 
         $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} reversal");
         $this->invoice->fresh();
-        
+
         /* Reverse the invoice status and balance */
         $this->invoice->balance += $adjustment;
         $this->invoice->status_id = $cancellation->status_id;
@@ -93,7 +93,7 @@ class HandleCancellation extends AbstractService
         $this->invoice->backup = $backup;
         $this->invoice->saveQuietly();
         $this->invoice->fresh();
-        
+
         return $this->invoice;
     }
 

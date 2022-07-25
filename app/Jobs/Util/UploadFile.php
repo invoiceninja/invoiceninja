@@ -27,6 +27,7 @@ class UploadFile implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
     const IMAGE = 1;
+
     const DOCUMENT = 2;
 
     const PROPERTIES = [
@@ -39,9 +40,13 @@ class UploadFile implements ShouldQueue
     ];
 
     protected $file;
+
     protected $user;
+
     protected $company;
+
     protected $type;
+
     protected $is_public;
 
     public $entity;
@@ -66,8 +71,9 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
-        if(is_array($this->file)) //return early if the payload is just JSON
+        if (is_array($this->file)) { //return early if the payload is just JSON
             return null;
+        }
 
         $path = self::PROPERTIES[$this->type]['path'];
 
@@ -78,7 +84,7 @@ class UploadFile implements ShouldQueue
         $instance = Storage::disk($this->disk)->putFileAs(
             $path,
             $this->file,
-            $this->file->hashName() 
+            $this->file->hashName()
         );
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {

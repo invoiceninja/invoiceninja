@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\PaymentTermFactory;
+use App\Filters\PaymentTermFilters;
 use App\Http\Requests\PaymentTerm\CreatePaymentTermRequest;
 use App\Http\Requests\PaymentTerm\DestroyPaymentTermRequest;
 use App\Http\Requests\PaymentTerm\ShowPaymentTermRequest;
@@ -14,7 +15,6 @@ use App\Transformers\PaymentTermTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Filters\PaymentTermFilters;
 
 class PaymentTermController extends BaseController
 {

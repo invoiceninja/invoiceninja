@@ -32,7 +32,6 @@ class ExpenseCategoryTransformer extends EntityTransformer
     protected $availableIncludes = [
     ];
 
-
     /**
      * @param ExpenseCategory $expense_category
      *

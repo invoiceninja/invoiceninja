@@ -22,14 +22,13 @@ class RecurringExpenseRepository extends BaseRepository
 {
     use GeneratesCounter;
 
-
     /**
      * Saves the recurring_expense and its contacts.
      *
      * @param      array  $data    The data
      * @param      \App\Models\RecurringExpense              $recurring_expense  The recurring_expense
      *
-     * @return     \App\Models\RecurringExpense|Null  recurring_expense Object
+     * @return     \App\Models\RecurringExpense|null  recurring_expense Object
      */
     public function save(array $data, RecurringExpense $recurring_expense) : ?RecurringExpense
     {

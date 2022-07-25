@@ -57,19 +57,18 @@ class ResetPasswordController extends Controller
     public function showResetForm(Request $request, $token = null)
     {
         $company = false;
-        
-        if(Ninja::isHosted()){
 
+        if (Ninja::isHosted()) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->session()->get('company_key'))->first();
-
         }
 
-        if($company)
+        if ($company) {
             $account = $company->account;
-        else
+        } else {
             $account = Account::first();
-        
+        }
+
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
     }
 

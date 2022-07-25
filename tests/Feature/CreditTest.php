@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Client;
@@ -26,7 +27,7 @@ class CreditTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -71,7 +72,7 @@ class CreditTest extends TestCase
     public function testCreditRESTEndPoints()
     {
         $response = $this->withHeaders([
-        'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));
 
@@ -125,9 +126,9 @@ class CreditTest extends TestCase
     public function testDeleteCredit()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->delete('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->delete('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));
 
         $response->assertStatus(200);
     }
@@ -151,18 +152,18 @@ class CreditTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/credits', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits', $data);
 
-        $response->assertStatus(200);   
+        $response->assertStatus(200);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/credits', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits', $data);
 
-        $response->assertStatus(302);       
+        $response->assertStatus(302);
     }
 
     public function testCreditPut()
@@ -184,16 +185,16 @@ class CreditTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
 
         $response->assertStatus(200);
 
@@ -204,7 +205,4 @@ class CreditTest extends TestCase
 
         $response->assertStatus(302);
     }
-
-
-
 }

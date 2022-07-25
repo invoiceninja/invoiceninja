@@ -64,7 +64,7 @@ class Vendor extends BaseModel
     protected $touches = [];
 
     protected $with = [
-    //    'contacts',
+        //    'contacts',
     ];
 
     protected $presenter = VendorPresenter::class;
@@ -78,7 +78,6 @@ class Vendor extends BaseModel
     {
         return $this->hasMany(VendorContact::class)->where('is_primary', true);
     }
-
 
     public function documents()
     {
@@ -104,17 +103,18 @@ class Vendor extends BaseModel
     {
         $currencies = Cache::get('currencies');
 
-        if(!$currencies)
+        if (! $currencies) {
             $this->buildCache(true);
+        }
 
-        if(!$this->currency_id)
+        if (! $this->currency_id) {
             $this->currency_id = 1;
+        }
 
         return $currencies->filter(function ($item) {
             return $item->id == $this->currency_id;
         })->first();
     }
-
 
     public function company()
     {
@@ -158,9 +158,7 @@ class Vendor extends BaseModel
     {
         if ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
-        }
-
-        elseif( property_exists(CompanySettings::defaults(), $setting) ) {
+        } elseif (property_exists(CompanySettings::defaults(), $setting)) {
             return CompanySettings::defaults()->{$setting};
         }
 
@@ -168,9 +166,9 @@ class Vendor extends BaseModel
     }
 
     public function purchase_order_filepath($invitation)
-    {   
+    {
         $contact_key = $invitation->contact->contact_key;
-        
+
         return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
     }
 
@@ -178,6 +176,4 @@ class Vendor extends BaseModel
     {
         return $this->belongsTo(Country::class);
     }
-
-
 }

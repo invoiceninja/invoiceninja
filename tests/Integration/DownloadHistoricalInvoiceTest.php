@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Repositories\ActivityRepository;
@@ -27,7 +28,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -69,9 +70,9 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $this->mockActivity();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
 
         $response->assertStatus(200);
     }
@@ -84,9 +85,9 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $backup->forceDelete();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
 
         $response->assertStatus(404);
     }

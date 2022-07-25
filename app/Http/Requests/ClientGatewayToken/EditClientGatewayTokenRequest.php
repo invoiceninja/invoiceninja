@@ -24,5 +24,4 @@ class EditClientGatewayTokenRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

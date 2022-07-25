@@ -65,12 +65,13 @@ class CreateCompany
         $company->default_password_timeout = 1800000;
         $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->markdown_email_enabled = false;
-        
-        if(Ninja::isHosted())
+
+        if (Ninja::isHosted()) {
             $company->subdomain = MultiDB::randomSubdomainGenerator();
-        else 
+        } else {
             $company->subdomain = '';
-        
+        }
+
         $company->save();
 
         return $company;

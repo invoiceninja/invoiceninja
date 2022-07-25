@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Unit\Migration;
@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class FeesAndLimitsTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
     }
@@ -36,7 +36,7 @@ class FeesAndLimitsTest extends TestCase
         $data['fee_tax_name3'] = '';
         $data['fee_tax_rate3'] = 0;
         $data['fee_cap'] = 0;
-        
+
         $fees_and_limits_array = [];
         $fees_and_limits_array[] = $data;
 

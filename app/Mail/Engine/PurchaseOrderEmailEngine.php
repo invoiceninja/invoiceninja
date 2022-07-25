@@ -55,12 +55,11 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
     public function build()
     {
-
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->vendor->company->settings));
 
-        if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
+        if (is_array($this->template_data) && array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
         } elseif (strlen($this->vendor->getSetting('email_template_'.$this->reminder_template)) > 0) {
             $body_template = $this->vendor->getSetting('email_template_'.$this->reminder_template);
@@ -82,7 +81,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             );
 
             $body_template .= '<div class="center">$view_button</div>';
-
         }
         $text_body = trans(
                 'texts.purchase_order_message',
@@ -93,15 +91,14 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
                 ],
                 null,
                 $this->vendor->company->locale()
-            ) . "\n\n" . $this->invitation->getLink();
+            )."\n\n".$this->invitation->getLink();
 
-        if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
+        if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
         } elseif (strlen($this->vendor->getSetting('email_subject_'.$this->reminder_template)) > 0) {
             $subject_template = $this->vendor->getSetting('email_subject_'.$this->reminder_template);
         } else {
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->vendor->company->locale());
-
         }
 
         if (iconv_strlen($subject_template) == 0) {
@@ -128,28 +125,26 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-
-            if(Ninja::isHosted())
+            if (Ninja::isHosted()) {
                 $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation, 'url', true)]);
-            else
+            } else {
                 $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation)]);
-
+            }
         }
 
         //attach third party documents
-        if($this->vendor->getSetting('document_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
+        if ($this->vendor->getSetting('document_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
             // Storage::url
-            foreach($this->purchase_order->documents as $document){
+            foreach ($this->purchase_order->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
 
-            foreach($this->purchase_order->company->documents as $document){
+            foreach ($this->purchase_order->company->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
 
             // $line_items = $this->purchase_order->line_items;
-            
 
             // foreach($line_items as $item)
             // {
@@ -184,7 +179,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             //     }
 
             //     if(count($task_ids) > 0 && $this->purchase_order->company->purchase_order_task_documents){
-                    
+
             //         $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
             //                            ->cursor()
             //                            ->each(function ($task){
@@ -198,8 +193,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             //     }
 
             // }
-
-
         }
 
         return $this;

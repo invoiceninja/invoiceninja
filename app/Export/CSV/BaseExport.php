@@ -15,28 +15,22 @@ use Illuminate\Support\Carbon;
 
 class BaseExport
 {
-
     protected function addDateRange($query)
     {
-
         $date_range = $this->input['date_range'];
 
-        if(array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1)
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1) {
             $this->date_key = $this->input['date_key'];
-        
-        try{
-
-            $custom_start_date = Carbon::parse($this->input['start_date']);
-            $custom_end_date = Carbon::parse($this->input['end_date']);    
-
         }
-        catch(\Exception $e){
 
+        try {
+            $custom_start_date = Carbon::parse($this->input['start_date']);
+            $custom_end_date = Carbon::parse($this->input['end_date']);
+        } catch (\Exception $e) {
             $custom_start_date = now()->startOfYear();
             $custom_end_date = now();
-
         }
-        
+
         switch ($date_range) {
 
             case 'all':
@@ -61,22 +55,19 @@ class BaseExport
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
 
         }
-
     }
 
     protected function buildHeader() :array
     {
-
         $header = [];
 
-        foreach($this->input['report_keys'] as $value){
+        foreach ($this->input['report_keys'] as $value) {
+            $key = array_search($value, $this->entity_keys);
 
-            $key = array_search ($value, $this->entity_keys);
-            
-            $key = str_replace("item.", "", $key);
-            $key = str_replace("invoice.", "", $key);
-            $key = str_replace("client.", "", $key);
-            $key = str_replace("contact.", "", $key);
+            $key = str_replace('item.', '', $key);
+            $key = str_replace('invoice.', '', $key);
+            $key = str_replace('client.', '', $key);
+            $key = str_replace('contact.', '', $key);
 
             $header[] = ctrans("texts.{$key}");
         }

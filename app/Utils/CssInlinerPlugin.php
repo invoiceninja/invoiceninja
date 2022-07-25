@@ -69,7 +69,7 @@ class CssInlinerPlugin implements \Swift_Events_SendListener
     {
         $output = '';
         foreach ($cssResources as $cssResource) {
-            $output.= $this->fetchCss($cssResource);
+            $output .= $this->fetchCss($cssResource);
         }
 
         return $output;
@@ -84,7 +84,7 @@ class CssInlinerPlugin implements \Swift_Events_SendListener
         $fixedFilename = $filename;
         // Fix relative protocols on hrefs. Assume https.
         if (substr($filename, 0, 2) === '//') {
-            $fixedFilename = 'https:' . $filename;
+            $fixedFilename = 'https:'.$filename;
         }
 
         $content = file_get_contents($fixedFilename);

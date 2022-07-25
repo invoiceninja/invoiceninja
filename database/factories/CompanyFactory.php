@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Factories;
 
 use App\DataMapper\CompanySettings;
@@ -18,12 +19,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CompanyFactory extends Factory
 {
     use MakesHash;
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = Company::class;
 
     /**
      * Define the model's default state.
@@ -33,13 +28,13 @@ class CompanyFactory extends Factory
     public function definition()
     {
         return [
-            //'name' => $this->faker->name,
+            //'name' => $this->faker->name(),
             'company_key' => strtolower(\Illuminate\Support\Str::random(config('ninja.key_length'))),
-            'ip' => $this->faker->ipv4,
+            'ip' => $this->faker->ipv4(),
             'db' => config('database.default'),
             'settings' => CompanySettings::defaults(),
             'is_large' => false,
-            'default_password_timeout' => 30*60000,
+            'default_password_timeout' => 30 * 60000,
             'enabled_modules' => config('ninja.enabled_modules'),
             'custom_fields' => (object) [
             ],

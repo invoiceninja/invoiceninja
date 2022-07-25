@@ -74,7 +74,6 @@ class ApplyCreditPayment implements ShouldQueue
                 ->adjustBalance($this->amount * -1)
                 ->updatePaidToDate($this->amount)
                 ->save();
-
         } elseif ($this->amount < $credit_balance) { //compare number appropriately
 
             $this->credit

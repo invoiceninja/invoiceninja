@@ -78,8 +78,7 @@ class AuthorizeCreditCard
         if ($request->has('store_card') && $request->input('store_card') === true) {
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
-        }
-        else{
+        } else {
             //remove the payment profile if we are not storing tokens in our system
             $this->removePaymentProfile($gateway_customer_reference, $payment_profile_id);
         }
@@ -89,22 +88,20 @@ class AuthorizeCreditCard
 
     private function removePaymentProfile($customer_profile_id, $customer_payment_profile_id)
     {
-        
-      $request = new DeleteCustomerPaymentProfileRequest();
-      $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-      $request->setCustomerProfileId($customer_profile_id);
-      $request->setCustomerPaymentProfileId($customer_payment_profile_id);
-      $controller = new DeleteCustomerPaymentProfileController($request);
-      $response = $controller->executeWithApiResponse($this->authorize->mode());
-        
-        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-        {
-          nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
-        }
-        else
-            nlog("unable to delete profile {$customer_profile_id} with payment id {$customer_payment_profile_id}");
+        $request = new DeleteCustomerPaymentProfileRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setCustomerProfileId($customer_profile_id);
+        $request->setCustomerPaymentProfileId($customer_payment_profile_id);
+        $controller = new DeleteCustomerPaymentProfileController($request);
+        $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-      // Delete a customer profile  
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+            nlog('SUCCESS: Delete Customer Payment Profile  SUCCESS');
+        } else {
+            nlog("unable to delete profile {$customer_profile_id} with payment id {$customer_payment_profile_id}");
+        }
+
+        // Delete a customer profile
       // $request = new DeleteCustomerProfileRequest();
       // $request->setMerchantAuthentication($this->authorize->merchant_authentication);
       // $request->setCustomerProfileId( $customer_profile_id );
@@ -117,8 +114,6 @@ class AuthorizeCreditCard
       // }
       // else
       //   nlog("unable to delete profile {$customer_profile_id}");
-
-
     }
 
     private function processTokenPayment($request)
@@ -128,7 +123,7 @@ class AuthorizeCreditCard
             ->where('company_id', auth()->guard('contact')->user()->client->company->id)
             ->first();
 
-        if (!$client_gateway_token) {
+        if (! $client_gateway_token) {
             throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
         }
 
@@ -143,11 +138,10 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
-       $response = $data['response'];
+        $response = $data['response'];
 
         // if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
         if ($response != null && $response->getMessages() != null) {
-
             $this->storePayment($payment_hash, $data);
 
             $vars = [
@@ -164,7 +158,6 @@ class AuthorizeCreditCard
 
             return true;
         } else {
-
             $vars = [
                 'invoices' => $payment_hash->invoices(),
                 'amount' => $amount,
@@ -175,8 +168,8 @@ class AuthorizeCreditCard
                 'data' => $this->formatGatewayResponse($data, $vars),
             ];
 
-            $code = "Error";
-            $description = "There was an error processing the payment";
+            $code = 'Error';
+            $description = 'There was an error processing the payment';
 
             if ($response->getErrors() != null) {
                 $code = $response->getErrors()[0]->getErrorCode();
@@ -190,7 +183,6 @@ class AuthorizeCreditCard
             return false;
         }
     }
-
 
     private function handleResponse($data, $request)
     {
@@ -254,16 +246,16 @@ class AuthorizeCreditCard
         $amount = array_key_exists('amount_with_fee', $data) ? $data['amount_with_fee'] : 0;
 
         $code = 1;
-        $description = "There was an error processing the payment";
+        $description = 'There was an error processing the payment';
 
         if ($response && $response->getErrors() != null) {
-            $code = (int)$response->getErrors()[0]->getErrorCode();
+            $code = (int) $response->getErrors()[0]->getErrorCode();
             $description = $response->getErrors()[0]->getErrorText();
         }
 
         $this->authorize->sendFailureMail($description);
 
-        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail(); 
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
 
         $vars = [
             'invoices' => $payment_hash->invoices(),
@@ -285,7 +277,6 @@ class AuthorizeCreditCard
         );
 
         throw new PaymentFailed($description, $code);
-
     }
 
     private function formatGatewayResponse($data, $vars)
@@ -295,7 +286,7 @@ class AuthorizeCreditCard
         $code = '';
         $description = '';
 
-        if($response->getMessages() !== null){
+        if ($response->getMessages() !== null) {
             $code = $response->getMessages()[0]->getCode();
             $description = $response->getMessages()[0]->getDescription();
         }

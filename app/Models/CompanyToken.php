@@ -25,7 +25,7 @@ class CompanyToken extends BaseModel
 
     protected $with = [
         'company',
-        'user'
+        'user',
     ];
 
     protected $touches = [];
@@ -62,6 +62,5 @@ class CompanyToken extends BaseModel
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
             ->where('company_id', $this->company_id)
             ->where('user_id', $this->user_id);
-            
     }
 }

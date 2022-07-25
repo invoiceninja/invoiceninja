@@ -24,7 +24,6 @@ class ConvertableQuoteRule implements Rule
 
     public function __construct()
     {
-
     }
 
     /**
@@ -54,14 +53,12 @@ class ConvertableQuoteRule implements Rule
 
         $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        foreach($quotes as $quote){
-
-            if(!$quote->service()->isConvertable())
+        foreach ($quotes as $quote) {
+            if (! $quote->service()->isConvertable()) {
                 return false;
-
+            }
         }
 
         return true;
-
     }
 }

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddNumberFieldToClientsAndVendors extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -29,9 +28,7 @@ class AddNumberFieldToClientsAndVendors extends Migration
         Schema::table('vendors', function (Blueprint $table) {
             $table->string('id_number')->nullable();
             $table->unique(['company_id', 'number']);
-
         });
-
     }
 
     /**
@@ -41,6 +38,5 @@ class AddNumberFieldToClientsAndVendors extends Migration
      */
     public function down()
     {
-
     }
-}
+};

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Client;
@@ -30,7 +31,7 @@ class ClientDeletedInvoiceCreationTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -45,7 +46,7 @@ class ClientDeletedInvoiceCreationTest extends TestCase
 
     public function testClientedDeletedAttemptingToCreateInvoice()
     {
-                /* Test fire new invoice */
+        /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
             'number' => 'dude',
@@ -60,7 +61,6 @@ class ClientDeletedInvoiceCreationTest extends TestCase
         $this->client->is_deleted = true;
         $this->client->save();
 
-
         $data = [
             'client_id' => $this->client->hashed_id,
             'number' => 'dude2',
@@ -71,8 +71,5 @@ class ClientDeletedInvoiceCreationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(302);
-
-
     }
-
 }

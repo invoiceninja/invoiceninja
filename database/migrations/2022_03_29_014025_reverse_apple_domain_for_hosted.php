@@ -8,8 +8,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ReverseAppleDomainForHosted extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -17,41 +16,33 @@ class ReverseAppleDomainForHosted extends Migration
      */
     public function up()
     {
-    
-        if(Ninja::isHosted())
-        {
-
+        if (Ninja::isHosted()) {
             $stripe_connect = Gateway::find(56);
 
-            if($stripe_connect){
+            if ($stripe_connect) {
                 $stripe_connect->fields = '{"account_id":""}';
                 $stripe_connect->save();
             }
         }
 
-        Company::cursor()->each(function ($company){
+        Company::cursor()->each(function ($company) {
             $company->update(['markdown_email_enabled' => true]);
         });
 
         $chf = Currency::find(17);
-        
-        if($chf)
-        {
+
+        if ($chf) {
             $chf->symbol = 'CHF';
             $chf->save();
         }
 
-        if(Ninja::isSelfHost())
-        {
-
+        if (Ninja::isSelfHost()) {
             $gateway = Gateway::find(20);
 
-            if($gateway)
-            {
+            if ($gateway) {
                 $gateway->fields = '{"publishableKey":"","apiKey":"","appleDomainVerification":""}';
                 $gateway->save();
             }
-            
         }
     }
 
@@ -64,4 +55,4 @@ class ReverseAppleDomainForHosted extends Migration
     {
         //
     }
-}
+};

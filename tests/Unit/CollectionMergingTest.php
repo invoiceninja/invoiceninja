@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\ClientContactFactory;
@@ -21,8 +22,7 @@ use Tests\TestCase;
  */
 class CollectionMergingTest extends TestCase
 {
-
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }
@@ -64,55 +64,50 @@ class CollectionMergingTest extends TestCase
 
     public function testExistenceInCollection()
     {
-
         $items = InvoiceItemFactory::generate(5);
 
-        $this->assertFalse(collect($items)->contains('type_id', "3"));
+        $this->assertFalse(collect($items)->contains('type_id', '3'));
         $this->assertFalse(collect($items)->contains('type_id', 3));
 
         $item = InvoiceItemFactory::create();
-        $item->type_id = "3";
+        $item->type_id = '3';
         $items[] = $item;
 
-        $this->assertTrue(collect($items)->contains('type_id', "3"));
+        $this->assertTrue(collect($items)->contains('type_id', '3'));
         $this->assertTrue(collect($items)->contains('type_id', 3));
-
     }
 
     public function testClientContactSendEmailExists()
     {
         $new_collection = collect();
 
-        $cc = ClientContactFactory::create(1,1);
+        $cc = ClientContactFactory::create(1, 1);
         $cc->send_email = true;
 
         $new_collection->push($cc);
 
-        $cc_false = ClientContactFactory::create(1,1);
+        $cc_false = ClientContactFactory::create(1, 1);
         $cc_false->send_email = false;
 
         $new_collection->push($cc_false);
 
         $this->assertTrue($new_collection->contains('send_email', true));
-
     }
 
     public function testClientContactSendEmailDoesNotExists()
     {
         $new_collection = collect();
 
-        $cc = ClientContactFactory::create(1,1);
+        $cc = ClientContactFactory::create(1, 1);
         $cc->send_email = false;
 
         $new_collection->push($cc);
 
-        $cc_false = ClientContactFactory::create(1,1);
+        $cc_false = ClientContactFactory::create(1, 1);
         $cc_false->send_email = false;
 
         $new_collection->push($cc_false);
 
         $this->assertFalse($new_collection->contains('send_email', true));
-
     }
-
 }

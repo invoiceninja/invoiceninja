@@ -43,6 +43,6 @@ class QueueSize implements ShouldQueue
     public function handle()
     {
         LightLogs::create(new QueueSizeAnalytic(Queue::size()))
-         ->queue();        
+         ->queue();
     }
 }

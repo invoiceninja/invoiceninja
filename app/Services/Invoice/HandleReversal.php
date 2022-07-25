@@ -40,12 +40,14 @@ class HandleReversal extends AbstractService
     public function run()
     {
         /* Check again!! */
-        if (! $this->invoice->invoiceReversable($this->invoice)) 
+        if (! $this->invoice->invoiceReversable($this->invoice)) {
             return $this->invoice;
+        }
 
         /* If the invoice has been cancelled - we need to unwind the cancellation before reversing*/
-        if ($this->invoice->status_id == Invoice::STATUS_CANCELLED) 
+        if ($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice = $this->invoice->service()->reverseCancellation()->save();
+        }
 
         $balance_remaining = $this->invoice->balance;
 
@@ -60,7 +62,7 @@ class HandleReversal extends AbstractService
 
             //new concept - when reversing, we unwind the payments
             $payment = Payment::withTrashed()->find($paymentable->payment_id);
-            
+
             $reversable_amount = $paymentable->amount - $paymentable->refunded;
             $total_paid -= $reversable_amount;
 
@@ -69,20 +71,19 @@ class HandleReversal extends AbstractService
 
             $paymentable->amount = $paymentable->refunded;
             $paymentable->save();
-
         });
 
         /* Generate a credit for the $total_paid amount */
         $notes = 'Credit for reversal of '.$this->invoice->number;
         $credit = false;
-        
+
         // if ($total_paid > 0) {
 
         //     $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
         //     $credit->client_id = $this->invoice->client_id;
         //     $credit->invoice_id = $this->invoice->id;
         //     $credit->date = now();
-            
+
         //     $item = InvoiceItemFactory::create();
         //     $item->quantity = 1;
         //     $item->cost = (float) $total_paid;
@@ -124,7 +125,7 @@ class HandleReversal extends AbstractService
 
         $this->invoice->balance = 0;
         $this->invoice->paid_to_date = 0;
-        
+
         /* Set invoice status to reversed... somehow*/
         $this->invoice->service()->setStatus(Invoice::STATUS_REVERSED)->save();
 

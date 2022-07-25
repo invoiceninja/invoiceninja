@@ -42,8 +42,8 @@ class SendEmail
         }
 
         $this->quote->invitations->each(function ($invitation) {
-            if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                EmailEntity::dispatchNow($invitation, $invitation->company, $this->reminder_template);
+            if (! $invitation->contact->trashed() && $invitation->contact->email) {
+                EmailEntity::dispatchSync($invitation, $invitation->company, $this->reminder_template);
             }
         });
 

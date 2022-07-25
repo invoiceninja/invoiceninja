@@ -23,7 +23,7 @@ class ExpenseCategoryFactory
         $expense->name = '';
         $expense->is_deleted = false;
         $expense->color = '';
-        
+
         return $expense;
     }
 }

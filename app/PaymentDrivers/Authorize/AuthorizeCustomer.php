@@ -49,57 +49,44 @@ class AuthorizeCustomer
         $request->setMerchantAuthentication($this->authorize->merchant_authentication);
         $controller = new GetCustomerProfileIdsController($request);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
-        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-        {
-
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             return $response->getIds();
-
-        }
-        else
-        {
+        } else {
             return [];
 
-            nlog( "GetCustomerProfileId's ERROR :  Invalid response");
+            nlog("GetCustomerProfileId's ERROR :  Invalid response");
             $errorMessages = $response->getMessages()->getMessage();
-            nlog( "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText());
+            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
         }
-
     }
 
     private function getCustomerProfile($customer_profile_id)
     {
+        $request = new GetCustomerProfileRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setCustomerProfileId($customer_profile_id);
+        $controller = new GetCustomerProfileController($request);
+        $response = $controller->executeWithApiResponse($this->authorize->mode());
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+            $profileSelected = $response->getProfile();
+            $paymentProfilesSelected = $profileSelected->getPaymentProfiles();
 
-      $request = new GetCustomerProfileRequest();
-      $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-      $request->setCustomerProfileId($customer_profile_id);
-      $controller = new GetCustomerProfileController($request);
-      $response = $controller->executeWithApiResponse($this->authorize->mode());
-      if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-      {
-        $profileSelected = $response->getProfile();
-        $paymentProfilesSelected = $profileSelected->getPaymentProfiles();
+            return [
+                'email' => $profileSelected->getEmail(),
+                'payment_profiles' => $paymentProfilesSelected,
+                'error' => '',
+            ];
+        } else {
+            nlog('ERROR :  GetCustomerProfile: Invalid response');
+            $errorMessages = $response->getMessages()->getMessage();
+            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
 
-        return [
-            'email' => $profileSelected->getEmail(),
-            'payment_profiles' => $paymentProfilesSelected,
-            'error' => ''
-        ];
-
-      }
-      else
-      {
-
-        nlog("ERROR :  GetCustomerProfile: Invalid response");
-        $errorMessages = $response->getMessages()->getMessage();
-        nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText());
-
-        return [
-            'profile' => NULL,
-            'payment_profiles' => NULL,
-            'error' => $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText(),
-        ];
-
-      }
+            return [
+                'profile' => null,
+                'payment_profiles' => null,
+                'error' => $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText(),
+            ];
+        }
     }
 
     public function importCustomers()
@@ -108,28 +95,25 @@ class AuthorizeCustomer
         $company = $this->authorize->company_gateway->company;
         $user = $company->owner();
 
-        foreach($auth_customers as $gateway_customer_reference)
-        {
-
+        foreach ($auth_customers as $gateway_customer_reference) {
             $profile = $this->getCustomerProfile($gateway_customer_reference);
 
             //if the profile ID already exists in ClientGatewayToken we continue else - add.
-            if($client_gateway_token = ClientGatewayToken::where('company_id', $company->id)->where('gateway_customer_reference', $gateway_customer_reference)->first()){
+            if ($client_gateway_token = ClientGatewayToken::where('company_id', $company->id)->where('gateway_customer_reference', $gateway_customer_reference)->first()) {
                 // nlog("found client");
                 $client = $client_gateway_token->client;
-            }
-            elseif($client_contact = ClientContact::where('company_id', $company->id)->where('email', $profile['email'])->first()){
+            } elseif ($client_contact = ClientContact::where('company_id', $company->id)->where('email', $profile['email'])->first()) {
                 $client = $client_contact->client;
-                // nlog("found client through contact");
-            }
-            else {
+            // nlog("found client through contact");
+            } else {
                 // nlog("creating client");
 
                 $first_payment_profile = $profile['payment_profiles'][0];
 
-                if(!$first_payment_profile)
+                if (! $first_payment_profile) {
                     continue;
-                
+                }
+
                 $client = ClientFactory::create($company->id, $user->id);
                 $billTo = $first_payment_profile->getBillTo();
                 $client->address1 = $billTo->getAddress();
@@ -148,19 +132,17 @@ class AuthorizeCustomer
                 $client_contact->save();
             }
 
-            if($client && is_array($profile['payment_profiles'])){
-
+            if ($client && is_array($profile['payment_profiles'])) {
                 $this->authorize->setClient($client);
 
-                foreach($profile['payment_profiles'] as $payment_profile)
-                {
-                    
+                foreach ($profile['payment_profiles'] as $payment_profile) {
                     $token_exists = ClientGatewayToken::where('company_id', $company->id)
                                                       ->where('token', $payment_profile->getCustomerPaymentProfileId())
                                                       ->where('gateway_customer_reference', $gateway_customer_reference)
                                                       ->exists();
-                    if($token_exists)
+                    if ($token_exists) {
                         continue;
+                    }
 
 //                    $expiry = $payment_profile->getPayment()->getCreditCard()->getExpirationDate();
 
@@ -177,12 +159,9 @@ class AuthorizeCustomer
                     $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
                     $this->authorize->storeGatewayToken($data, $additional);
-
                 }
             }
-
         }
-       
     }
 
     private function getCountryCode($country_code)
@@ -195,6 +174,4 @@ class AuthorizeCustomer
 
         return (string) $country->id;
     }
-}    
-
-
+}

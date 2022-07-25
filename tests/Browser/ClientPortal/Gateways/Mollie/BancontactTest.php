@@ -14,8 +14,8 @@ namespace Tests\Browser\ClientPortal\Gateways\Mollie;
 
 use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
-use Tests\DuskTestCase;
 use Tests\Browser\Pages\ClientPortal\Login;
+use Tests\DuskTestCase;
 
 class BancontactTest extends DuskTestCase
 {

@@ -15,7 +15,6 @@ use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
 
 class QueueSize extends GenericMixedMetric
 {
-
     /**
      * The type of Sample.
      *
@@ -72,8 +71,8 @@ class QueueSize extends GenericMixedMetric
      */
     public $string_metric7 = '';
 
-    public function __construct($int_metric1) {
+    public function __construct($int_metric1)
+    {
         $this->int_metric1 = $int_metric1;
     }
-    
 }

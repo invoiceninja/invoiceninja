@@ -27,5 +27,4 @@ use Laracasts\Presenter\PresentableTrait;
  */
 class RecurringInvoicePresenter extends InvoicePresenter
 {
-
 }

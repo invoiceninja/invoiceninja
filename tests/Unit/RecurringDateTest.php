@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Models\Invoice;
@@ -24,7 +25,7 @@ class RecurringDateTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -33,12 +34,12 @@ class RecurringDateTest extends TestCase
 
     public function testNextDay()
     {
-    	$trial = 60*60*24;
+        $trial = 60 * 60 * 24;
 
-    	$now = Carbon::parse('2021-12-01');
+        $now = Carbon::parse('2021-12-01');
 
-    	$trial_ends = $now->addSeconds($trial)->addDays(1);
+        $trial_ends = $now->addSeconds($trial)->addDays(1);
 
-    	$this->assertequals($trial_ends->format('Y-m-d'), '2021-12-03');
+        $this->assertequals($trial_ends->format('Y-m-d'), '2021-12-03');
     }
 }

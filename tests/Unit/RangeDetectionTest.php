@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -18,8 +19,7 @@ use Tests\TestCase;
  */
 class RangeDetectionTest extends TestCase
 {
-
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }
@@ -33,9 +33,8 @@ class RangeDetectionTest extends TestCase
 
         $expanded_ranges = [];
 
-        foreach($ranges as $range)
-        {
-            $expanded_ranges = array_merge(array_values($expanded_ranges),array_values($this->makeRanges($range)));
+        foreach ($ranges as $range) {
+            $expanded_ranges = array_merge(array_values($expanded_ranges), array_values($this->makeRanges($range)));
         }
 
         $value_count_array = array_count_values($expanded_ranges);
@@ -45,11 +44,8 @@ class RangeDetectionTest extends TestCase
         $this->assertEquals(count($value_count_array), 1);
     }
 
-
     private function makeRanges(array $range)
     {
         return range($range[0], $range[1]);
-
     }
-
 }

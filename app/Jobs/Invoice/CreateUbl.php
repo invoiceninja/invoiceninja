@@ -37,6 +37,7 @@ class CreateUbl implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     const INVOICE_TYPE_STANDARD = 380;
+
     const INVOICE_TYPE_CREDIT = 381;
 
     public $invoice;
@@ -84,8 +85,7 @@ class CreateUbl implements ShouldQueue
         $taxtotal = new TaxTotal();
         $taxAmount1 = $taxAmount2 = $taxAmount3 = 0;
 
-        
-        if (strlen($invoice->tax_name1) > 1){
+        if (strlen($invoice->tax_name1) > 1) {
             $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
         }
 
@@ -152,15 +152,15 @@ class CreateUbl implements ShouldQueue
         $taxtotal = new TaxTotal();
         $itemTaxAmount1 = $itemTaxAmount2 = $itemTaxAmount3 = 0;
 
-        if(strlen($item->tax_name1) > 1){
+        if (strlen($item->tax_name1) > 1) {
             $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
         }
 
-        if(strlen($item->tax_name2) > 1){
+        if (strlen($item->tax_name2) > 1) {
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 
-        if(strlen($item->tax_name3) > 1){
+        if (strlen($item->tax_name3) > 1) {
             $itemTaxAmount3 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate3, $item->tax_name3);
         }
 

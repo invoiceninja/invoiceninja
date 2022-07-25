@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Client;
@@ -33,7 +34,7 @@ class CompanyGatewayResolutionTest extends TestCase
 
     public $cg1;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -112,7 +113,6 @@ class CompanyGatewayResolutionTest extends TestCase
     /**
      * @covers \App|Models\Client::validGatewayForAmount()
      */
-
     public function testValidationForGatewayAmount()
     {
         $this->assertTrue($this->client->validGatewayForAmount($this->cg->fees_and_limits->{1}, 10));
@@ -123,7 +123,7 @@ class CompanyGatewayResolutionTest extends TestCase
     {
         $amount = 10;
 
-        $this->assertInstanceOf("\\stdClass", $this->cg->fees_and_limits);
+        $this->assertInstanceOf('\\stdClass', $this->cg->fees_and_limits);
         $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
 
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
@@ -134,7 +134,7 @@ class CompanyGatewayResolutionTest extends TestCase
     public function testRemoveMethods()
     {
         $amount = 10;
-        
+
         CompanyGateway::whereNotNull('id')->delete();
 
         $data = [];
@@ -184,13 +184,10 @@ class CompanyGatewayResolutionTest extends TestCase
         // nlog($this->client->service()->getPaymentMethods($amount));
 
         $this->assertEquals(2, count($this->client->service()->getPaymentMethods($amount)));
-
     }
-
 
     public function testEnableFeeAdjustment()
     {
-
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -235,9 +232,7 @@ class CompanyGatewayResolutionTest extends TestCase
         $this->cg->fees_and_limits = $data;
         $this->cg->save();
 
-
         $fee = $this->cg->calcGatewayFee(89, GatewayType::CREDIT_CARD, false);
         $this->assertEquals(1.89, $fee);
-
     }
 }

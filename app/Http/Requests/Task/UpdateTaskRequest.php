@@ -42,16 +42,17 @@ class UpdateTaskRequest extends Request
         return $this->globalRules($rules);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
 
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }
-        
-        if(array_key_exists('color', $input) && is_null($input['color']))
+
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
 
         $this->replace($input);
     }

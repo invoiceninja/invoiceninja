@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddPriceColumnToSubscriptionsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -31,7 +30,6 @@ class AddPriceColumnToSubscriptionsTable extends Migration
             $table->unsignedInteger('frequency_id')->nullable()->change();
             $table->text('plan_map')->nullable()->change();
         });
-
     }
 
     /**
@@ -42,4 +40,4 @@ class AddPriceColumnToSubscriptionsTable extends Migration
     public function down()
     {
     }
-}
+};

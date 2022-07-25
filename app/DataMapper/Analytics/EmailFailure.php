@@ -71,7 +71,8 @@ class EmailFailure extends GenericMixedMetric
      */
     public $string_metric7 = '';
 
-    public function __construct($string_metric7) {
+    public function __construct($string_metric7)
+    {
         $this->string_metric7 = $string_metric7;
     }
 }

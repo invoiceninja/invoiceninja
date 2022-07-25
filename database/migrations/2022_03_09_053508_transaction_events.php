@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class TransactionEvents extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -41,7 +40,6 @@ class TransactionEvents extends Migration
             $table->unsignedInteger('credit_status')->nullable();
 
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
-
         });
     }
 
@@ -54,5 +52,4 @@ class TransactionEvents extends Migration
     {
         //
     }
-}
-
+};

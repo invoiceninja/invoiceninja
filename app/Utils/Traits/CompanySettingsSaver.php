@@ -59,23 +59,17 @@ trait CompanySettingsSaver
             }
         }
 
-        if(property_exists($settings, 'translations'))
-        {
-        //this pass will handle any null values that are in the translations
+        if (property_exists($settings, 'translations')) {
+            //this pass will handle any null values that are in the translations
             foreach ($settings->translations as $key => $value) {
-
-                if(is_array($settings->translations))
-                {
+                if (is_array($settings->translations)) {
                     if (is_null($settings->translations[$key])) {
                         $settings->translations[$key] = '';
                     }
-                }
-                elseif(is_object($settings->translations)){
-                    
+                } elseif (is_object($settings->translations)) {
                     if (is_null($settings->translations->{$key})) {
                         $settings->translations->{$key} = '';
                     }
-                    
                 }
             }
 
@@ -187,8 +181,9 @@ trait CompanySettingsSaver
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = 'integer';
 
-                if($key == 'gmail_sending_user_id')
+                if ($key == 'gmail_sending_user_id') {
                     $value = 'string';
+                }
 
                 if($key == 'besr_id')
                     $value = 'string';
@@ -211,7 +206,7 @@ trait CompanySettingsSaver
             }
 
             //try casting floats here
-            if($value == 'float' && property_exists($settings, $key)){
+            if ($value == 'float' && property_exists($settings, $key)) {
                 $settings->{$key} = floatval($settings->{$key});
             }
 
@@ -246,12 +241,12 @@ trait CompanySettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                return ctype_digit(strval(abs((int)$value)));
+                return ctype_digit(strval(abs((int) $value)));
                 // return is_int($value) || ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':
-                return !is_string($value) && (is_float($value) || is_numeric(strval($value)));
+                return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
 //                return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);

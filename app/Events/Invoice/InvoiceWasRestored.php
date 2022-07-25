@@ -32,7 +32,7 @@ class InvoiceWasRestored
     public $company;
 
     public $event_vars;
-    
+
     /**
      * Create a new event instance.
      *

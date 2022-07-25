@@ -28,7 +28,7 @@ class InvoicesTable extends Component
     public $status = [];
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -43,7 +43,7 @@ class InvoicesTable extends Component
         $local_status = [];
 
         $query = Invoice::query()
-            ->with('client.gateway_tokens','client.contacts')
+            ->with('client.gateway_tokens', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false);
@@ -83,7 +83,7 @@ class InvoicesTable extends Component
 
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
-            'gateway_available' => !empty(auth()->user()->client->service()->getPaymentMethods(-1)),
+            'gateway_available' => ! empty(auth()->user()->client->service()->getPaymentMethods(-1)),
         ]);
     }
 }

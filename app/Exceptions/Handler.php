@@ -62,6 +62,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontFlash = [
+        'current_password',
         'password',
         'password_confirmation',
     ];
@@ -77,37 +78,33 @@ class Handler extends ExceptionHandler
     {
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
+
             return;
         }
 
-        if(Ninja::isHosted() && !($exception instanceof ValidationException)){
-
+        if (Ninja::isHosted() && ! ($exception instanceof ValidationException)) {
             app('sentry')->configureScope(function (Scope $scope): void {
-
                 $name = 'hosted@invoiceninja.com';
 
-                if(auth()->guard('contact') && auth()->guard('contact')->user()){
-                    $name = "Contact = ".auth()->guard('contact')->user()->email;
+                if (auth()->guard('contact') && auth()->guard('contact')->user()) {
+                    $name = 'Contact = '.auth()->guard('contact')->user()->email;
                     $key = auth()->guard('contact')->user()->company->account->key;
-                }
-                elseif (auth()->guard('user') && auth()->guard('user')->user()){
-                    $name = "Admin = ".auth()->guard('user')->user()->email;                    
+                } elseif (auth()->guard('user') && auth()->guard('user')->user()) {
+                    $name = 'Admin = '.auth()->guard('user')->user()->email;
                     $key = auth()->user()->account->key;
-                } 
-                else
+                } else {
                     $key = 'Anonymous';
-                
-                 $scope->setUser([
-                        'id'    => $key,
-                        'email' => 'hosted@invoiceninja.com',
-                        'name'  => $name,
-                    ]);
+                }
+
+                $scope->setUser([
+                    'id'    => $key,
+                    'email' => 'hosted@invoiceninja.com',
+                    'name'  => $name,
+                ]);
             });
 
-                app('sentry')->captureException($exception);
-
-        }
-        elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
+            app('sentry')->captureException($exception);
+        } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
@@ -130,28 +127,33 @@ class Handler extends ExceptionHandler
         }
 
         parent::report($exception);
-
     }
 
     private function validException($exception)
     {
-        if (strpos($exception->getMessage(), 'file_put_contents') !== false) 
+        if (strpos($exception->getMessage(), 'file_put_contents') !== false) {
             return false;
+        }
 
-        if (strpos($exception->getMessage(), 'Permission denied') !== false) 
+        if (strpos($exception->getMessage(), 'Permission denied') !== false) {
             return false;
-        
-        if (strpos($exception->getMessage(), 'flock') !== false) 
-            return false;
+        }
 
-        if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) 
+        if (strpos($exception->getMessage(), 'flock') !== false) {
             return false;
+        }
 
-        if (strpos($exception->getMessage(), 'fwrite()') !== false)
+        if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) {
             return false;
-        
-        if(strpos($exception->getMessage(), 'LockableFile') !== false)
+        }
+
+        if (strpos($exception->getMessage(), 'fwrite()') !== false) {
             return false;
+        }
+
+        if (strpos($exception->getMessage(), 'LockableFile') !== false) {
+            return false;
+        }
 
         return true;
     }
@@ -168,11 +170,11 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof ModelNotFoundException && $request->expectsJson()) {
             return response()->json(['message'=>$exception->getMessage()], 400);
-        }elseif($exception instanceof InternalPDFFailure && $request->expectsJson()){
+        } elseif ($exception instanceof InternalPDFFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 500);
-        }elseif($exception instanceof PhantomPDFFailure && $request->expectsJson()){
+        } elseif ($exception instanceof PhantomPDFFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 500);
-        }elseif($exception instanceof FilePermissionsFailure) {
+        } elseif ($exception instanceof FilePermissionsFailure) {
             return response()->json(['message' => $exception->getMessage()], 500);
         } elseif ($exception instanceof ThrottleRequestsException && $request->expectsJson()) {
             return response()->json(['message'=>'Too many requests'], 429);
@@ -202,7 +204,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
-        } 
+        }
 
         return parent::render($request, $exception);
     }

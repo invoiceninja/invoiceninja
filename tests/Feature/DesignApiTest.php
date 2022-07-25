@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Design;
@@ -30,7 +31,7 @@ class DesignApiTest extends TestCase
 
     public $id;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -55,14 +56,14 @@ class DesignApiTest extends TestCase
         ];
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/designs', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/designs', $data);
 
         $response->assertStatus(200);
 
@@ -73,18 +74,18 @@ class DesignApiTest extends TestCase
         $this->assertEquals($data['name'], $arr['data']['name']);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/designs');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/designs');
 
         $response->assertStatus(200);
 
         $arr = $response->json();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/designs/'.$this->id);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/designs/'.$this->id);
 
         $response->assertStatus(200);
 
@@ -93,14 +94,14 @@ class DesignApiTest extends TestCase
         $this->assertEquals($this->id, $arr['data']['id']);
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/designs/'.$this->id, $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/designs/'.$this->id, $data);
 
         $response->assertStatus(200);
 
@@ -136,14 +137,14 @@ class DesignApiTest extends TestCase
         ];
 
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
             'design' => $design,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/designs', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/designs', $data);
 
         $response->assertStatus(200);
 

@@ -9,6 +9,7 @@ use App\Utils\Traits\MakesHash;
 class CreateStatementRequest extends Request
 {
     use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -19,7 +20,6 @@ class CreateStatementRequest extends Request
         // return auth()->user()->isAdmin();
 
         return auth()->user()->can('view', $this->client());
-
     }
 
     /**
@@ -32,14 +32,14 @@ class CreateStatementRequest extends Request
         return [
             'start_date' => 'required|date_format:Y-m-d',
             'end_date'   => 'required|date_format:Y-m-d',
-            'client_id'  => 'bail|required|exists:clients,id,company_id,' . auth()->user()->company()->id,
+            'client_id'  => 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id,
             'show_payments_table' => 'boolean',
             'show_aging_table' => 'boolean',
             'status' => 'string',
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

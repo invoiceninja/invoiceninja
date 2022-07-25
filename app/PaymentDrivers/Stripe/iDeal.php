@@ -38,7 +38,7 @@ class iDeal
     public function paymentView(array $data)
     {
         $this->stripe->init();
-        
+
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -51,7 +51,7 @@ class iDeal
             'currency' => 'eur',
             'payment_method_types' => ['ideal'],
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::IDEAL,
@@ -97,7 +97,7 @@ class iDeal
         if (Payment::where('transaction_reference', $payment_intent)->exists()) {
             return redirect()->route('client.payments.index');
         }
-        
+
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::IDEAL,

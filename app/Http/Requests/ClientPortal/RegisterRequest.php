@@ -40,7 +40,7 @@ class RegisterRequest extends FormRequest
                 $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:255']);
             }
 
-            if ($field === 'password') {
+            if ($field === 'current_password') {
                 $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
             }
         }
@@ -56,24 +56,25 @@ class RegisterRequest extends FormRequest
     {
 
         //this should be all we need, the rest SHOULD be redundant because of our Middleware
-        if ($this->key)
+        if ($this->key) {
             return Company::where('company_key', $this->key)->first();
+        }
 
         if ($this->company_key) {
             return Company::where('company_key', $this->company_key)->firstOrFail();
         }
 
-        if (!$this->route()->parameter('company_key') && Ninja::isSelfHost()) {
+        if (! $this->route()->parameter('company_key') && Ninja::isSelfHost()) {
             $company = Account::first()->default_company;
 
-            if(!$company->client_can_register)
-                abort(403, "This page is restricted");
+            if (! $company->client_can_register) {
+                abort(403, 'This page is restricted');
+            }
 
             return $company;
         }
 
         if (Ninja::isHosted()) {
-
             $subdomain = explode('.', $this->getHost())[0];
 
             $query = [
@@ -81,17 +82,18 @@ class RegisterRequest extends FormRequest
                 'portal_mode' => 'subdomain',
             ];
 
-            if($company = MultiDB::findAndSetDbByDomain($query))
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
                 return $company;
+            }
 
             $query = [
                 'portal_domain' => $this->getSchemeAndHttpHost(),
                 'portal_mode' => 'domain',
             ];
 
-            if($company = MultiDB::findAndSetDbByDomain($query))
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
                 return $company;
-
+            }
         }
 
         abort(400, 'Register request not found.');

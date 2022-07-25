@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\Login;
 
 use App\Http\Requests\Request;
@@ -19,7 +18,6 @@ use App\Utils\Ninja;
 
 class LoginRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,11 +35,11 @@ class LoginRequest extends Request
      */
     public function rules()
     {
-
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             $email_rules = ['required', new BlackListRule, new EmailBlackListRule];
-        else
+        } else {
             $email_rules = 'required';
+        }
 
         return [
             'email' => $email_rules,
@@ -49,7 +47,7 @@ class LoginRequest extends Request
         ];
     }
 
-    // protected function prepareForValidation()
+    // public function prepareForValidation()
     // {
     //     $input = $this->all();
 
@@ -57,7 +55,7 @@ class LoginRequest extends Request
     //     //     $input['password'] = base64_decode($input['password']);
 
     //     // nlog($input['password']);
-        
+
     //     $this->replace($input);
     // }
 }

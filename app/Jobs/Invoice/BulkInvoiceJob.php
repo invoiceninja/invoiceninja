@@ -55,7 +55,6 @@ class BulkInvoiceJob implements ShouldQueue
      */
     public function handle()
     {
-
         $this->invoice->service()->touchReminder($this->reminder_template)->markSent()->save();
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) {
@@ -65,7 +64,5 @@ class BulkInvoiceJob implements ShouldQueue
         if ($this->invoice->invitations->count() >= 1) {
             $this->invoice->entityEmailEvent($this->invoice->invitations->first(), 'invoice', $this->reminder_template);
         }
-
     }
-
 }

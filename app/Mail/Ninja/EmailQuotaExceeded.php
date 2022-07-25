@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\App;
 
 class EmailQuotaExceeded extends Mailable
 {
-
     public $company;
 
     public $settings;

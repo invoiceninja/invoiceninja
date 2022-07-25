@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @OA\Schema(
  *   schema="TaskSchedulerSchema",
@@ -28,7 +27,6 @@
  * )
  */
 
-
 /**
  * @OA\Schema(
  *   schema="UpdateTaskSchedulerSchema",
@@ -53,4 +51,3 @@
  *
  * )
  */
-

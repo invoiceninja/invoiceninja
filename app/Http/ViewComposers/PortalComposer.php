@@ -23,19 +23,33 @@ use Illuminate\View\View;
 class PortalComposer
 {
     public const MODULE_RECURRING_INVOICES = 1;
+
     public const MODULE_CREDITS = 2;
+
     public const MODULE_QUOTES = 4;
+
     public const MODULE_TASKS = 8;
+
     public const MODULE_EXPENSES = 16;
+
     public const MODULE_PROJECTS = 32;
+
     public const MODULE_VENDORS = 64;
+
     public const MODULE_TICKETS = 128;
+
     public const MODULE_PROPOSALS = 256;
+
     public const MODULE_RECURRING_EXPENSES = 512;
+
     public const MODULE_RECURRING_TASKS = 1024;
+
     public const MODULE_RECURRING_QUOTES = 2048;
+
     public const MODULE_INVOICES = 4096;
+
     public const MODULE_PROFORMAL_INVOICES = 8192;
+
     public const MODULE_PURCHASE_ORDERS = 16384;
 
     public $settings;
@@ -48,7 +62,6 @@ class PortalComposer
      */
     public function compose(View $view) :void
     {
-
         $view->with($this->portalData());
 
         if (auth()->guard('contact')->user()) {
@@ -120,11 +133,11 @@ class PortalComposer
 
         $data[] = ['title' => ctrans('texts.statement'), 'url' => 'client.statement', 'icon' => 'activity'];
 
-        if(Ninja::isHosted() && auth()->guard('contact')->user()->company->id == config('ninja.ninja_default_company_id'))
+        if (Ninja::isHosted() && auth()->guard('contact')->user()->company->id == config('ninja.ninja_default_company_id')) {
             $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card'];
-        else
+        } else {
             $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
-
+        }
 
         return $data;
     }

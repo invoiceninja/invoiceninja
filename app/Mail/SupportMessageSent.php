@@ -11,7 +11,7 @@ use SplFileObject;
 
 class SupportMessageSent extends Mailable
 {
- //   use Queueable, SerializesModels;
+    //   use Queueable, SerializesModels;
 
     public $data;
 
@@ -46,8 +46,8 @@ class SupportMessageSent extends Mailable
 
             $log_file->seek(PHP_INT_MAX);
             $last_line = $log_file->key();
-            
-            $lines = new LimitIterator($log_file, max(0,$last_line - 100), $last_line);
+
+            $lines = new LimitIterator($log_file, max(0, $last_line - 100), $last_line);
             $log_lines = iterator_to_array($lines);
         }
 
@@ -57,24 +57,26 @@ class SupportMessageSent extends Mailable
         $plan = $account->plan ?: 'customer support';
         $plan = ucfirst($plan);
 
-        if(strlen($account->plan) > 1)
+        if (strlen($account->plan) > 1) {
             $priority = '[PRIORITY] ';
+        }
 
         $company = auth()->user()->company();
         $user = auth()->user();
-        $db = str_replace("db-ninja-", "", $company->db);
-        $is_large = $company->is_large ? "L" : "S";
-        $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : "U";
-        $migrated = strlen($company->company_key) == 32 ? "M" : ""; 
-        $trial = $account->isTrial() ? "T" : "";
-        $plan = str_replace("_", " ", $plan);
-        
-        if(Ninja::isHosted())
-            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: ".date('M jS, g:ia');
-        else
-            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: ".date('M jS, g:ia');
+        $db = str_replace('db-ninja-', '', $company->db);
+        $is_large = $company->is_large ? 'L' : 'S';
+        $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : 'U';
+        $migrated = strlen($company->company_key) == 32 ? 'M' : '';
+        $trial = $account->isTrial() ? 'T' : '';
+        $plan = str_replace('_', ' ', $plan);
 
-        return $this->from(config('mail.from.address'), $user->present()->name()) 
+        if (Ninja::isHosted()) {
+            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: ".date('M jS, g:ia');
+        } else {
+            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: ".date('M jS, g:ia');
+        }
+
+        return $this->from(config('mail.from.address'), $user->present()->name())
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
@@ -82,7 +84,7 @@ class SupportMessageSent extends Mailable
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),
-                    'settings' => $company->settings
+                    'settings' => $company->settings,
                 ]);
     }
 }

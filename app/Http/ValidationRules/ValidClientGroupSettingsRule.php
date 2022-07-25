@@ -20,6 +20,7 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidClientGroupSettingsRule implements Rule
 {
     use ClientGroupSettingsSaver;
+
     /**
      * @param string $attribute
      * @param mixed $value

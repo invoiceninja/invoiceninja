@@ -120,7 +120,7 @@ class RecurringExpense extends BaseModel
 
     public function nextSendDate() :?Carbon
     {
-        if (!$this->next_send_date) {
+        if (! $this->next_send_date) {
             return null;
         }
 
@@ -154,10 +154,9 @@ class RecurringExpense extends BaseModel
         }
     }
 
-
     public function nextSendDateClient() :?Carbon
     {
-        if (!$this->next_send_date) {
+        if (! $this->next_send_date) {
             return null;
         }
 
@@ -208,7 +207,7 @@ class RecurringExpense extends BaseModel
         /* Return early if nothing to send back! */
         if ($this->status_id == RecurringInvoice::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||
-            !$this->next_send_date) {
+            ! $this->next_send_date) {
             return [];
         }
 
@@ -221,20 +220,19 @@ class RecurringExpense extends BaseModel
 
         $data = [];
 
-        if (!Carbon::parse($this->next_send_date)) {
+        if (! Carbon::parse($this->next_send_date)) {
             return $data;
         }
 
         $next_send_date = Carbon::parse($this->next_send_date)->copy();
 
-        for ($x=0; $x<$iterations; $x++) {
+        for ($x = 0; $x < $iterations; $x++) {
             // we don't add the days... we calc the day of the month!!
             $this->nextDateByFrequency($next_send_date);
 
             $data[] = [
                 'send_date' => $next_send_date->format('Y-m-d'),
             ];
-
         }
 
         return $data;
@@ -244,8 +242,9 @@ class RecurringExpense extends BaseModel
     {
         $offset = 0;
 
-        if($this->client)
+        if ($this->client) {
             $offset = $this->client->timezone_offset();
+        }
 
         switch ($this->frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:

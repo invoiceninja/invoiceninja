@@ -92,7 +92,7 @@ class TemplateController extends BaseController
         $subject = request()->has('subject') ? request()->input('subject') : '';
         $body = request()->has('body') ? request()->input('body') : '';
         $template = request()->has('template') ? request()->input('template') : '';
-        
+
         $data = (new TemplateEngine($body, $subject, $entity, $entity_id, $template))->build();
 
         return response()->json($data, 200);

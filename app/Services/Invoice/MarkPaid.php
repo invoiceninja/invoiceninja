@@ -62,13 +62,15 @@ class MarkPaid extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
 
-        if($this->invoice->company->timezone())
+        if ($this->invoice->company->timezone()) {
             $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
+        }
 
         $payment_type_id = $this->invoice->client->getSetting('payment_type_id');
 
-        if((int)$payment_type_id > 0)
-            $payment->type_id = (int)$payment_type_id;
+        if ((int) $payment_type_id > 0) {
+            $payment->type_id = (int) $payment_type_id;
+        }
 
         $payment->saveQuietly();
 
@@ -82,7 +84,7 @@ class MarkPaid extends AbstractService
         event('eloquent.created: App\Models\Payment', $payment);
 
         $this->invoice->next_send_date = null;
-        
+
         $this->invoice
                 ->service()
                 ->setExchangeRate()
@@ -100,14 +102,13 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
-        \DB::connection(config('database.default'))->transaction(function () use($payment){
+        \DB::connection(config('database.default'))->transaction(function () use ($payment) {
 
         /* Get the last record for the client and set the current balance*/
             $client = Client::withTrashed()->where('id', $this->invoice->client_id)->lockForUpdate()->first();
             $client->paid_to_date += $payment->amount;
             $client->balance -= $payment->amount;
             $client->save();
-
         }, 1);
 
         $this->invoice = $this->invoice
@@ -134,24 +135,21 @@ class MarkPaid extends AbstractService
 
     private function setExchangeRate(Payment $payment)
     {
-
-        if($payment->exchange_rate != 1)
+        if ($payment->exchange_rate != 1) {
             return;
+        }
 
         $client_currency = $payment->client->getSetting('currency_id');
         $company_currency = $payment->client->company->settings->currency_id;
 
         if ($company_currency != $client_currency) {
-
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
             //$payment->exchange_currency_id = $client_currency; // 23/06/2021
             $payment->exchange_currency_id = $company_currency;
-        
+
             $payment->saveQuietly();
-
         }
-
     }
 }

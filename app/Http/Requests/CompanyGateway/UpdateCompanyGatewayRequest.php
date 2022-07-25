@@ -39,7 +39,7 @@ class UpdateCompanyGatewayRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -61,8 +61,9 @@ class UpdateCompanyGatewayRequest extends Request
             $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
         }
 
-        if (isset($input['token_billing']) && $input['token_billing'] == 'disabled') 
+        if (isset($input['token_billing']) && $input['token_billing'] == 'disabled') {
             $input['token_billing'] = 'off';
+        }
 
         $this->replace($input);
     }

@@ -22,17 +22,15 @@ trait Uploadable
 {
     public function removeLogo($company)
     {
-
         if (Storage::exists($company->settings->company_logo)) {
-            UnlinkFile::dispatchNow(config('filesystems.default'), $company->settings->company_logo);
+            UnlinkFile::dispatchSync(config('filesystems.default'), $company->settings->company_logo);
         }
     }
 
     public function uploadLogo($file, $company, $entity)
     {
         if ($file) {
-            $path = UploadAvatar::dispatchNow($file, $company->company_key);
-
+            $path = (new UploadAvatar($file, $company->company_key))->handle();
             if ($path) {
                 $settings = $entity->settings;
                 $settings->company_logo = $path;
@@ -40,7 +38,5 @@ trait Uploadable
                 $entity->save();
             }
         }
-
     }
-
 }

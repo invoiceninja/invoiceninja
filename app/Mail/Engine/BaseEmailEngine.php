@@ -32,7 +32,7 @@ class BaseEmailEngine implements EngineInterface
     public $text;
 
     public $invitation;
-    
+
     public $text_body;
 
     public $text_footer;
@@ -68,7 +68,7 @@ class BaseEmailEngine implements EngineInterface
 
         return $this;
     }
-    
+
     public function setBody($body)
     {
         if (! empty($this->variables)) {
@@ -80,7 +80,7 @@ class BaseEmailEngine implements EngineInterface
 
         return $this;
     }
-    
+
     public function setTemplate($template_style)
     {
         $this->template_style = $template_style;
@@ -94,21 +94,21 @@ class BaseEmailEngine implements EngineInterface
 
         return $this;
     }
-    
+
     public function setViewLink($link)
     {
         $this->link = $link;
 
         return $this;
     }
-    
+
     public function setViewText($text)
     {
         $this->text = $text;
 
         return $this;
     }
-    
+
     public function setTextBody($text)
     {
         $this->text_body = $text;
@@ -120,7 +120,7 @@ class BaseEmailEngine implements EngineInterface
     {
         return $this->subject;
     }
-    
+
     public function getBody()
     {
         return $this->body;
@@ -130,12 +130,12 @@ class BaseEmailEngine implements EngineInterface
     {
         return $this->attachments;
     }
-    
+
     public function getFooter()
     {
         return $this->footer;
     }
-    
+
     public function getTemplate()
     {
         return $this->template_style;
@@ -145,13 +145,12 @@ class BaseEmailEngine implements EngineInterface
     {
         return $this->link;
     }
-    
 
     public function getViewText()
     {
         return $this->text;
     }
-    
+
     public function build()
     {
     }
@@ -192,4 +191,3 @@ class BaseEmailEngine implements EngineInterface
         return str_replace($find, $replace, $content);
     }
 }
-

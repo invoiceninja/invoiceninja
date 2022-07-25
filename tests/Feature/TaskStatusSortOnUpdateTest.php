@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Project;
@@ -28,7 +29,7 @@ class TaskStatusSortOnUpdateTest extends TestCase
     use MockAccountData;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -41,7 +42,7 @@ class TaskStatusSortOnUpdateTest extends TestCase
 
     // public function testTasksSort()
     // {
-        
+
     //     $project = Project::factory()->create([
     //         'user_id' => $this->user->id,
     //         'company_id' => $this->company->id,
@@ -60,9 +61,8 @@ class TaskStatusSortOnUpdateTest extends TestCase
     //         $task->save();
     //     }
 
-
     //     $this->assertTrue($task->project()->exists());
-    //     $this->assertEquals($task->project->tasks->count(), 10);    
+    //     $this->assertEquals($task->project->tasks->count(), 10);
 
     //     $task->status_order = 1;
 
@@ -74,7 +74,6 @@ class TaskStatusSortOnUpdateTest extends TestCase
     //     $response->assertStatus(200);
 
     //     $this->assertEquals($task->fresh()->status_order, 1);
-
 
     //     $task->status_order = 10;
 
@@ -90,5 +89,4 @@ class TaskStatusSortOnUpdateTest extends TestCase
     //     $this->assertEquals($task->fresh()->status_order, 9);
 
     // }
-
 }

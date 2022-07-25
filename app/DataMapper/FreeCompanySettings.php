@@ -20,67 +20,123 @@ use stdClass;
 class FreeCompanySettings extends BaseSettings
 {
     use MakesHash;
+
     /*Group settings based on functionality*/
     public $credit_design_id = 'VolejRejNm';
+
     public $client_number_pattern = '';
+
     public $client_number_counter = 1;
+
     public $credit_number_pattern = '';
+
     public $credit_number_counter = 1;
+
     public $currency_id = '1';
+
     public $custom_value1 = '';
+
     public $custom_value2 = '';
+
     public $custom_value3 = '';
+
     public $custom_value4 = '';
+
     public $date_format_id = '';
+
 //    public $enabled_item_tax_rates          = 0;
     public $expense_number_pattern = '';
+
     public $expense_number_counter = 1;
+
     public $inclusive_taxes = false;
+
     public $invoice_design_id = 'VolejRejNm';
+
     public $invoice_number_pattern = '';
+
     public $invoice_number_counter = 1;
+
     public $invoice_taxes = 0;
+
     public $language_id = '';
+
     public $military_time = false;
+
     public $payment_number_pattern = '';
+
     public $payment_number_counter = 1;
+
     public $payment_terms = '';
+
     public $payment_type_id = '0';
+
     public $portal_design_id = '1';
+
     public $quote_design_id = 'VolejRejNm';
+
     public $quote_number_pattern = '';
+
     public $quote_number_counter = 1;
+
     public $timezone_id = '';
+
     public $show_currency_code = false;
+
     public $company_gateway_ids = '';
+
     public $task_number_pattern = '';
+
     public $task_number_counter = 1;
+
     public $tax_name1 = '';
+
     public $tax_rate1 = 0;
+
     public $tax_name2 = '';
+
     public $tax_rate2 = 0;
+
     public $tax_name3 = '';
+
     public $tax_rate3 = 0;
+
     public $ticket_number_pattern = '';
+
     public $ticket_number_counter = 1;
+
     public $translations;
+
     public $vendor_number_pattern = '';
+
     public $vendor_number_counter = 1;
 
     /* Company Meta data that we can use to build sub companies*/
 
     public $address1 = '';
+
     public $address2 = '';
+
     public $city = '';
+
     public $company_logo = '';
+
     public $country_id;
+
     public $email = '';
+
     public $id_number = '';
+
     public $name = '';
+
     public $phone = '';
+
     public $postal_code = '';
+
     public $state = '';
+
     public $vat_number = '';
+
     public $website = '';
 
     public static $casts = [

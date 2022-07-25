@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Jobs\Util;
 
 use App\Libraries\MultiDB;
@@ -19,7 +20,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-
 class ImportStripeCustomers implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -30,7 +30,6 @@ class ImportStripeCustomers implements ShouldQueue
 
     public $tries = 1;
 
-    
     /**
      * Create a new job instance.
      *
@@ -49,25 +48,21 @@ class ImportStripeCustomers implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDb($this->company->db);
 
-    	MultiDB::setDb($this->company->db);
+        $cgs = CompanyGateway::where('company_id', $this->company->id)
+                            ->where('is_deleted', 0)
+                            ->whereIn('gateway_key', $this->stripe_keys)
+                            ->get();
 
-    	$cgs = CompanyGateway::where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-    						->whereIn('gateway_key', $this->stripe_keys)
-    						->get();
-
-		$cgs->each(function ($company_gateway){
-
-			$company_gateway->driver(new Client)->importCustomers();
-
-		});
-
+        $cgs->each(function ($company_gateway) {
+            $company_gateway->driver(new Client)->importCustomers();
+        });
     }
 
     public function failed($exception)
     {
-    	nlog("Stripe import customer methods exception");
+        nlog('Stripe import customer methods exception');
         nlog($exception->getMessage());
     }
 }

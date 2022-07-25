@@ -20,8 +20,8 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\EwayPaymentDriver;
 use App\PaymentDrivers\Eway\ErrorCode;
+use App\PaymentDrivers\EwayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 
 class Token
 {
-	use MakesHash;
+    use MakesHash;
 
     public $eway_driver;
 
@@ -40,45 +40,43 @@ class Token
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-
 
         $invoice_numbers = '';
 
-        if($this->eway_driver->payment_hash->data)
-            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
-        
+        if ($this->eway_driver->payment_hash->data) {
+            $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        }
+
         $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
 
         $this->eway_driver->payment_hash = $payment_hash;
 
-    	$transaction = [
-		    'Customer' => [
-		        'TokenCustomerID' => $cgt->token,
-		    ],
-		    'Payment' => [
-		        'TotalAmount' => $this->eway_driver->convertAmount($amount),
+        $transaction = [
+            'Customer' => [
+                'TokenCustomerID' => $cgt->token,
+            ],
+            'Payment' => [
+                'TotalAmount' => $this->eway_driver->convertAmount($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
-                'InvoiceDescription' => substr($description, 0,63),
-		    ],
-		    'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
-		];
+                'InvoiceDescription' => substr($description, 0, 63),
+            ],
+            'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
+        ];
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if(!$response_status['success'])
-          return $this->processUnsuccessfulPayment($response);
+        if (! $response_status['success']) {
+            return $this->processUnsuccessfulPayment($response);
+        }
 
-      	$payment = $this->processSuccessfulPayment($response, $cgt);
+        $payment = $this->processSuccessfulPayment($response, $cgt);
 
-      	return $payment;
-
+        return $payment;
     }
-
 
     private function processSuccessfulPayment($response, $cgt)
     {
@@ -90,7 +88,7 @@ class Token
             'transaction_reference' => $response->TransactionID,
             'amount' => $amount,
         ];
-        
+
         $payment = $this->eway_driver->createPayment($data);
         $payment->meta = $cgt->meta;
         $payment->save();
@@ -99,17 +97,15 @@ class Token
         $this->eway_driver->payment_hash->save();
 
         return $payment;
-
     }
 
     private function processUnsuccessfulPayment($response)
     {
-
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-    	$error = $response_status['message'];
-    	$error_code = $response->ResponseMessage;
-    	
+        $error = $response_status['message'];
+        $error_code = $response->ResponseMessage;
+
         $data = [
             'response' => $response,
             'error' => $error,
@@ -117,7 +113,5 @@ class Token
         ];
 
         return $this->eway_driver->processUnsuccessfulTransaction($data);
-
     }
-
 }

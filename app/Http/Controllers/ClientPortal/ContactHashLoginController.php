@@ -18,7 +18,6 @@ use Auth;
 
 class ContactHashLoginController extends Controller
 {
-
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
@@ -26,23 +25,20 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
-        if(request()->has('subscription') && request()->subscription == 'true') {
-
+        if (request()->has('subscription') && request()->subscription == 'true') {
             $recurring_invoice = RecurringInvoice::where('client_id', auth()->guard('contact')->client->id)
                                                  ->whereNotNull('subscription_id')
                                                  ->whereNull('deleted_at')
                                                  ->first();
 
             return redirect()->route('client.recurring_invoice.show', $recurring_invoice->hashed_id);
-
         }
 
-       return redirect($this->setRedirectPath());
+        return redirect($this->setRedirectPath());
     }
 
     public function magicLink(string $magic_link)
     {
-
         return redirect($this->setRedirectPath());
     }
 
@@ -53,20 +49,18 @@ class ContactHashLoginController extends Controller
 
     private function setRedirectPath()
     {
-
-        if(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)
+        if (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
             return '/client/invoices';
-        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES) {
             return '/client/recurring_invoices';
-        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES) {
             return '/client/quotes';
-        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS) {
             return '/client/credits';
-        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS) {
             return '/client/tasks';
-        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES) {
             return '/client/expenses';
-
+        }
     }
-
 }

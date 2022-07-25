@@ -20,15 +20,13 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class WePayFailureNotification extends Notification 
+class WePayFailureNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-
     protected $company_id;
 
     public function __construct($company_id)
@@ -72,15 +70,16 @@ class WePayFailureNotification extends Notification
 
     public function toSlack($notifiable)
     {
-        $ip = "";
- 
-        if(request())
-            $ip = request()->getClientIp();
+        $ip = '';
 
-       return  (new SlackMessage)
+        if (request()) {
+            $ip = request()->getClientIp();
+        }
+
+        return  (new SlackMessage)
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')
-                ->content("New WePay ACH Failure from Company ID: {$this->company_id} IP: {$ip}" );
+                ->content("New WePay ACH Failure from Company ID: {$this->company_id} IP: {$ip}");
     }
 }

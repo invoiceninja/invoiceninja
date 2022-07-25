@@ -69,6 +69,7 @@ class SquarePaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
@@ -190,7 +191,6 @@ class SquarePaymentDriver extends BaseDriver
     {
     }
 
-
     public function getClientRequiredFields(): array
     {
         $fields = [];
@@ -231,7 +231,6 @@ class SquarePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-
         return $fields;
     }
 
@@ -244,11 +243,11 @@ class SquarePaymentDriver extends BaseDriver
         }
 
         if ($precision == 1) {
-            return $amount*10;
+            return $amount * 10;
         }
 
         if ($precision == 2) {
-            return $amount*100;
+            return $amount * 100;
         }
 
         return $amount;

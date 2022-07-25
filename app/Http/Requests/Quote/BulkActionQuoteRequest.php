@@ -32,10 +32,10 @@ class BulkActionQuoteRequest extends Request
 
         $rules = [];
 
-        if($input['action'] == 'convert_to_invoice')
-            $rules['action'] = [new ConvertableQuoteRule()]; 
+        if ($input['action'] == 'convert_to_invoice') {
+            $rules['action'] = [new ConvertableQuoteRule()];
+        }
 
         return $rules;
     }
-
 }

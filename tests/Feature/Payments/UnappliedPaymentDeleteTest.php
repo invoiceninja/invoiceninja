@@ -6,10 +6,10 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-namespace Tests\Feature\Payments;
 
+namespace Tests\Feature\Payments;
 
 use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
@@ -34,7 +34,7 @@ class UnappliedPaymentDeleteTest extends TestCase
     use MockUnitData;
     use WithoutEvents;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -48,9 +48,8 @@ class UnappliedPaymentDeleteTest extends TestCase
         );
     }
 
-   public function testUnappliedPaymentDelete()
-   {
-
+    public function testUnappliedPaymentDelete()
+    {
         $data = [
             'amount' => 1000,
             'client_id' => $this->client->hashed_id,
@@ -72,11 +71,10 @@ class UnappliedPaymentDeleteTest extends TestCase
             $this->assertNotNull($message);
         }
 
-        if ($response){
+        if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
-            
-        
+
             $payment_id = $arr['data']['id'];
             $payment = Payment::with('client')->find($this->decodePrimaryKey($payment_id));
 
@@ -87,7 +85,7 @@ class UnappliedPaymentDeleteTest extends TestCase
                 $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
-                ])->delete('/api/v1/payments/'. $payment_id);
+                ])->delete('/api/v1/payments/'.$payment_id);
             } catch (ValidationException $e) {
                 $message = json_decode($e->validator->getMessageBag(), 1);
                 $this->assertNotNull($message);
@@ -96,22 +94,19 @@ class UnappliedPaymentDeleteTest extends TestCase
             $response->assertStatus(200);
 
             $this->assertEquals(0, $this->client->fresh()->paid_to_date);
-
         }
+    }
 
-   }
-
-   public function testUnappliedPaymentWithPaidInvoice()
-   {
-
+    public function testUnappliedPaymentWithPaidInvoice()
+    {
         $data = [
             'name' => 'A Nice Client',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -119,7 +114,7 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -130,13 +125,13 @@ class UnappliedPaymentDeleteTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -151,17 +146,17 @@ class UnappliedPaymentDeleteTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
@@ -171,15 +166,14 @@ class UnappliedPaymentDeleteTest extends TestCase
         $this->assertEquals(20, $invoice->balance);
         $this->assertEquals(20, $invoice->client->balance);
 
-
         $data = [
             'amount' => 30,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
                     'invoice_id' => $invoice->hashed_id,
-                    'amount' => 20
-                ]
+                    'amount' => 20,
+                ],
             ],
             'date' => '2020/12/12',
 
@@ -213,20 +207,18 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $client->fresh()->paid_to_date);
         $this->assertEquals(20, $client->fresh()->balance);
+    }
 
-   }
-
-   public function testRefundPartialPaymentDeletion()
-   {
-
+    public function testRefundPartialPaymentDeletion()
+    {
         $data = [
             'name' => 'A Nice Client',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -234,7 +226,7 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -245,13 +237,13 @@ class UnappliedPaymentDeleteTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -266,17 +258,17 @@ class UnappliedPaymentDeleteTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
@@ -293,8 +285,8 @@ class UnappliedPaymentDeleteTest extends TestCase
             'invoices' => [
                 [
                     'invoice_id' => $invoice->hashed_id,
-                    'amount' => 20
-                ]
+                    'amount' => 20,
+                ],
             ],
         ];
 
@@ -321,8 +313,8 @@ class UnappliedPaymentDeleteTest extends TestCase
             'invoices' => [
                 [
                     'invoice_id' => $invoice->hashed_id,
-                    'amount' => 20
-                ]
+                    'amount' => 20,
+                ],
             ],
         ];
 
@@ -330,9 +322,9 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
         }
@@ -352,7 +344,5 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $client->fresh()->paid_to_date);
         $this->assertEquals(20, $client->fresh()->balance);
-
-   }
-
+    }
 }

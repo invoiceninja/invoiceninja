@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
@@ -36,7 +37,7 @@ class InvitationTest extends TestCase
     use DatabaseTransactions;
     // use RefreshDatabase;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }
@@ -45,8 +46,8 @@ class InvitationTest extends TestCase
     {
         $account = Account::factory()->create();
         $company = Company::factory()->create([
-                    'account_id' => $account->id,
-                ]);
+            'account_id' => $account->id,
+        ]);
 
         $account->default_company_id = $company->id;
         $account->save();
@@ -61,13 +62,13 @@ class InvitationTest extends TestCase
         }
 
         $userPermissions = collect([
-                                    'view_invoice',
-                                    'view_client',
-                                    'edit_client',
-                                    'edit_invoice',
-                                    'create_invoice',
-                                    'create_client',
-                                ]);
+            'view_invoice',
+            'view_client',
+            'edit_client',
+            'edit_invoice',
+            'create_invoice',
+            'create_client',
+        ]);
 
         $userSettings = DefaultSettings::userSettings();
 

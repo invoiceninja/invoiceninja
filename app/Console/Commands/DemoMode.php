@@ -73,8 +73,9 @@ class DemoMode extends Command
     {
         set_time_limit(0);
 
-        if(config('ninja.is_docker'))
+        if (config('ninja.is_docker')) {
             return;
+        }
 
         $this->invoice_repo = new InvoiceRepository();
 
@@ -111,9 +112,9 @@ class DemoMode extends Command
         $this->info('Seeding Random Data');
         $this->createSmallAccount();
 
-        VersionCheck::dispatchNow();
+        VersionCheck::dispatchSync();
 
-        CompanySizeCheck::dispatchNow();
+        CompanySizeCheck::dispatchSync();
     }
 
     private function createSmallAccount()
@@ -136,15 +137,15 @@ class DemoMode extends Command
 
         $settings = $company->settings;
 
-        $settings->name = $faker->company;
-        $settings->address1 = $faker->buildingNumber;
-        $settings->address2 = $faker->streetAddress;
-        $settings->city = $faker->city;
-        $settings->state = $faker->state;
-        $settings->postal_code = $faker->postcode;
-        $settings->website = $faker->url;
+        $settings->name = $faker->company();
+        $settings->address1 = $faker->buildingNumber();
+        $settings->address2 = $faker->streetAddress();
+        $settings->city = $faker->city();
+        $settings->state = $faker->state();
+        $settings->postal_code = $faker->postcode();
+        $settings->website = $faker->url();
         $settings->vat_number = (string) $faker->numberBetween(123456789, 987654321);
-        $settings->phone = (string) $faker->phoneNumber;
+        $settings->phone = (string) $faker->phoneNumber();
 
         $company->settings = $settings;
         $company->save();
@@ -163,8 +164,8 @@ class DemoMode extends Command
             ]);
         }
 
-        CreateCompanyPaymentTerms::dispatchNow($company, $user);
-        CreateCompanyTaskStatuses::dispatchNow($company, $user);
+        CreateCompanyPaymentTerms::dispatchSync($company, $user);
+        CreateCompanyTaskStatuses::dispatchSync($company, $user);
 
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;
@@ -182,7 +183,7 @@ class DemoMode extends Command
             'is_admin' => 1,
             'is_locked' => 0,
             'notifications' => CompanySettings::notificationDefaults(),
-           // 'permissions' => '',
+            // 'permissions' => '',
             'settings' => null,
         ]);
 
@@ -217,9 +218,9 @@ class DemoMode extends Command
         }
 
         Product::factory()->count(50)->create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-            ]);
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
 
         $this->info('Creating '.$this->count.' clients');
 
@@ -265,22 +266,22 @@ class DemoMode extends Command
 
         // });
         $client = Client::factory()->create([
-                'user_id' => $user->id,
-                'company_id' => $company->id,
-            ]);
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
 
         ClientContact::factory()->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                    'is_primary' => 1,
-                ]);
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+            'is_primary' => 1,
+        ]);
 
         ClientContact::factory()->count(rand(1, 5))->create([
-                    'user_id' => $user->id,
-                    'client_id' => $client->id,
-                    'company_id' => $company->id,
-                ]);
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
 
         $client->number = $this->getNextClientNumber($client);
 
@@ -299,41 +300,37 @@ class DemoMode extends Command
     private function createExpense($client)
     {
         Expense::factory()->count(rand(1, 5))->create([
-                'user_id' => $client->user_id,
-                'client_id' => $client->id,
-                'company_id' => $client->company_id,
-            ]);
+            'user_id' => $client->user_id,
+            'client_id' => $client->id,
+            'company_id' => $client->company_id,
+        ]);
 
-        Expense::all()->each(function ($expense){
-
+        Expense::all()->each(function ($expense) {
             $expense->number = $this->getNextExpenseNumber($expense);
             $expense->save();
-
         });
-        
     }
 
     private function createVendor($client, $assigned_user_id = null)
     {
         $vendor = Vendor::factory()->create([
-                'user_id' => $client->user_id,
-                'company_id' => $client->company_id,
-            ]);
+            'user_id' => $client->user_id,
+            'company_id' => $client->company_id,
+        ]);
 
         VendorContact::factory()->create([
-                'user_id' => $client->user->id,
-                'vendor_id' => $vendor->id,
-                'company_id' => $client->company_id,
-                'is_primary' => 1,
-            ]);
+            'user_id' => $client->user->id,
+            'vendor_id' => $vendor->id,
+            'company_id' => $client->company_id,
+            'is_primary' => 1,
+        ]);
 
         VendorContact::factory()->count(rand(1, 5))->create([
-                'user_id' => $client->user->id,
-                'vendor_id' => $vendor->id,
-                'company_id' => $client->company_id,
-                'is_primary' => 0,
-            ]);
-
+            'user_id' => $client->user->id,
+            'vendor_id' => $vendor->id,
+            'company_id' => $client->company_id,
+            'is_primary' => 0,
+        ]);
 
         $vendor->number = $this->getNextVendorNumber($vendor);
         $vendor->save();
@@ -342,25 +339,24 @@ class DemoMode extends Command
     private function createTask($client, $assigned_user_id = null)
     {
         $task = Task::factory()->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company_id,
-                'client_id' => $client->id
-            ]);
+            'user_id' => $client->user->id,
+            'company_id' => $client->company_id,
+            'client_id' => $client->id,
+        ]);
 
         $task->status_id = TaskStatus::all()->random()->id;
 
         $task->number = $this->getNextTaskNumber($task);
         $task->save();
-
     }
 
     private function createProject($client, $assigned_user_id = null)
     {
         $project = Project::factory()->create([
-                'user_id' => $client->user->id,
-                'company_id' => $client->company_id,
-                'client_id' => $client->id,
-            ]);
+            'user_id' => $client->user->id,
+            'company_id' => $client->company_id,
+            'client_id' => $client->id,
+        ]);
 
         $project->number = $this->getNextProjectNumber($project);
         $project->save();
@@ -399,7 +395,7 @@ class DemoMode extends Command
         //     $invoice->tax_rate3 = 5;
         // }
 
-        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value1 = $faker->date();
         // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();
@@ -466,7 +462,7 @@ class DemoMode extends Command
         //     $invoice->tax_rate3 = 5;
         // }
 
-        // $invoice->custom_value1 = $faker->date;
+        // $invoice->custom_value1 = $faker->date();
         // $invoice->custom_value2 = rand(0, 1) ? 'yes' : 'no';
 
         $invoice->save();

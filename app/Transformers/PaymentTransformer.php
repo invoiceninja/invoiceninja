@@ -30,8 +30,8 @@ class PaymentTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-         'client',
-         'invoices',
+        'client',
+        'invoices',
     ];
 
     public function __construct($serializer = null)
