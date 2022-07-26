@@ -13,14 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        $df = App\Models\DateFormat::find(7);
-        $df->format_moment = 'ddd MMM D, YYYY';
-        $df->save();
+        if($df = App\Models\DateFormat::find(7))
+        {
 
-        $df = App\Models\DateFormat::find(14);
-        $df->format_moment = 'DD/MM/YYYY';
-        $df->save();
+            $df->format_moment = 'ddd MMM D, YYYY';
+            $df->save();
+        }
 
+        if($df = App\Models\DateFormat::find(14))
+        {
+        
+            $df->format_moment = 'DD/MM/YYYY';
+            $df->save();
+            
+        }
     }
 
     /**
