@@ -43,9 +43,19 @@ class TwilioController extends BaseController
 
         $twilio = new Client($sid, $token);
 
-        $verification = $twilio->verify->v2->services(config('ninja.twilio_verify_sid'))
-                                           ->verifications
-                                           ->create($request->phone, "sms");
+
+        try {
+            $verification = $twilio->verify
+                                   ->v2
+                                   ->services(config('ninja.twilio_verify_sid'))
+                                   ->verifications
+                                   ->create($request->phone, "sms");
+        }
+        catch(\Exception $e) {
+
+            return response()->json(['message' => 'Phone number format is incorrect, please use international number format and try again.'], 400);
+
+        }
 
         $account->account_sms_verification_code = $verification->sid;
         $account->account_sms_verification_number = $request->phone;

@@ -32,7 +32,7 @@ class GenerateSmsRequest extends Request
     {
 
         return [
-            'phone' => 'required|regex:^\+[1-9]\d{1,14}$',
+            'phone' => 'required|regex:^\+[1-9]\d{1,14}$^',
         ];
         
     }
