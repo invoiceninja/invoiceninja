@@ -108,6 +108,9 @@ class EmailEntity implements ShouldQueue
         /* Set DB */
         MultiDB::setDB($this->company->db);
 
+        if(Ninja::isHosted() && !$this->company->account->account_sms_verified)
+            return;
+
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->invitation->contact->preferredLocale());

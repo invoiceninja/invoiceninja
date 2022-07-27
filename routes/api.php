@@ -86,6 +86,7 @@ use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\TokenController;
+use App\Http\Controllers\TwilioController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
@@ -285,6 +286,10 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('settings/enable_two_factor', [TwoFactorController::class, 'enableTwoFactor']);
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
 
+
+    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate');
+    Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
+    
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', [VendorController::class, 'upload']);

@@ -507,6 +507,9 @@ class CreditController extends BaseController
 
         $ids = request()->input('ids');
 
+        if(Ninja::isHosted() && in_array('email', $action) && !auth()->user()->company()->account->account_sms_verified)
+            return response(['message' => 'Please verify your account to send emails.'], 400);
+
         $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $credits) {
