@@ -564,7 +564,9 @@ class DesignController extends BaseController
             case 'credit':
                 $company->credits()->update(['design_id' => $design_id]);
                 break;
-
+            case 'purchase_order':
+                $company->purchase_orders()->update(['design_id' => $design_id]);
+                break;
             default:
                 // code...
                 break;

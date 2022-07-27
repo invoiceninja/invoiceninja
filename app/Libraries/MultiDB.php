@@ -423,7 +423,7 @@ class MultiDB
      * @param array $data
      * @return User|null
      */
-    public static function hasPhoneNumber(string $phone) : ?User
+    public static function hasPhoneNumber(string $phone) : bool
     {
         if (! config('ninja.db.multi_db_enabled')) 
             return Account::where('account_sms_verification_number', $phone)->where('account_sms_verified', true)->exists();
