@@ -10,7 +10,6 @@
 |
 */
 use App\Http\Controllers\Auth\VendorContactLoginController;
-use App\Http\Controllers\VendorPortal\DocumentController;
 use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
 use App\Http\Controllers\VendorPortal\UploadController;
@@ -42,7 +41,10 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
     Route::post('purchase_order/upload/{purchase_order}', [UploadController::class,'upload'])->name('upload.store');
-    Route::resource('documents', DocumentController::class)->only(['index', 'show']);
+
+    Route::post('documents/download_multiple', [App\Http\Controllers\VendorPortal\DocumentController::class, 'downloadMultiple'])->name('documents.download_multiple');
+    Route::get('documents/{document}/download', [App\Http\Controllers\VendorPortal\DocumentController::class, 'download'])->name('documents.download');
+    Route::resource('documents', App\Http\Controllers\VendorPortal\DocumentController::class)->only(['index', 'show']);
 
 });
 

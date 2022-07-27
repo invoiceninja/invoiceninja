@@ -27,6 +27,8 @@ class DocumentController extends Controller
 {
     use MakesHash;
 
+    public const MODULE_PURCHASE_ORDERS = 16384;
+
     /**
      * @return Factory|View
      */
@@ -42,11 +44,33 @@ class DocumentController extends Controller
      */
     public function show(ShowDocumentRequest $request, Document $document)
     {
-        return render('documents.show', [
+        return render('documents.vendor_show', [
             'document' => $document,
-            'settings' => auth()->guard('vendor')->user()->company->settings
+            'settings' => auth()->guard('vendor')->user()->company->settings,
+            'sidebar' => $this->sidebarMenu(),
+            'company' => auth()->guard('vendor')->user()->company,
         ]);
     }
+
+
+    private function sidebarMenu() :array
+    {
+        $enabled_modules = auth()->guard('vendor')->user()->company->enabled_modules;
+        $data = [];
+
+        // TODO: Enable dashboard once it's completed.
+        // $this->settings->enable_client_portal_dashboard
+        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+
+        if (self::MODULE_PURCHASE_ORDERS & $enabled_modules) {
+            $data[] = ['title' => ctrans('texts.purchase_orders'), 'url' => 'vendor.purchase_orders.index', 'icon' => 'file-text'];
+        }
+
+        // $data[] = ['title' => ctrans('texts.documents'), 'url' => 'client.documents.index', 'icon' => 'download'];
+
+        return $data;
+    }
+
 
     public function download(ShowDocumentRequest $request, Document $document)
     {
