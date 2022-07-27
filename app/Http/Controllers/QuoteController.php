@@ -694,7 +694,6 @@ class QuoteController extends BaseController
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
 
-               //return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 break;
             case 'restore':
