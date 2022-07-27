@@ -76,6 +76,8 @@ class CreditCard implements MethodInterface
     {
         $client = new \stdClass;
 
+        $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
+
         $client->addressLines = [$this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
         $client->givenName = $this->square_driver->client->present()->first_name();
         $client->familyName = $this->square_driver->client->present()->last_name();
@@ -83,7 +85,7 @@ class CreditCard implements MethodInterface
         $client->phone = $this->square_driver->client->phone;
         $client->city = $this->square_driver->client->city;
         $client->region = $this->square_driver->client->state;
-        $client->country = $this->square_driver->client->country->iso_3166_2;
+        $client->country = $country;
 
         return (array) $client;
     }
@@ -202,6 +204,8 @@ class CreditCard implements MethodInterface
     private function createClient()
     {
 
+        $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
+
         /* Step two - create the customer */
         $billing_address = new \Square\Models\Address();
         $billing_address->setAddressLine1($this->square_driver->client->address1);
@@ -209,7 +213,7 @@ class CreditCard implements MethodInterface
         $billing_address->setLocality($this->square_driver->client->city);
         $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
         $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
+        $billing_address->setCountry($country);
 
         $body = new \Square\Models\CreateCustomerRequest();
         $body->setGivenName($this->square_driver->client->present()->name());
