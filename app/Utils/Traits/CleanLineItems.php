@@ -63,6 +63,10 @@ trait CleanLineItems
             if (! array_key_exists('type_id', $item)) {
                 $item['type_id'] = '1';
             }
+
+            // if($item['type_id'] == '2'){
+            //     str_replace()
+            // }
         }
 
         if (array_key_exists('id', $item)) {
