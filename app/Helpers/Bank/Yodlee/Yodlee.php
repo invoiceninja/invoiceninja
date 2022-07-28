@@ -45,9 +45,12 @@ class Yodlee
 
     }
 
-    public function getAccessToken()
+    public function getAccessToken($user = false)
     {
-        $response = $this->bankFormRequest('/auth/token', 'post');
+        if(!$user)
+            $user = $this->admin_name;
+
+        $response = $this->bankFormRequest('/auth/token', 'post', [],  ['loginName' => $user]);
 
         return $response->token->accessToken;
     }
@@ -55,47 +58,31 @@ class Yodlee
 
     public function createUser()
     {
-        //         {
-        //   "user": {
-        //     "preferences": {
-        //       "dateFormat": "string",
-        //       "timeZone": "string",
-        //       "currency": "USD",
-        //       "locale": "en_US"
-        //     },
-        //     "address": {
-        //       "zip": "string",
-        //       "country": "string",
-        //       "address3": "string",
-        //       "address2": "string",
-        //       "city": "string",
-        //       "address1": "string",
-        //       "state": "string"
-        //     },
-        //     "loginName": "string",
-        //     "name": {
-        //       "middle": "string",
-        //       "last": "string",
-        //       "fullName": "string",
-        //       "first": "string"
-        //     },
-        //     "email": "string",
-        //     "segmentName": "string"
-        //   }
-        // }
+
+        $token = $this->getAccessToken();
 
         $user['user'] = [
             'loginName' => 'test123',
         ];
 
-        return $this->bankRequest('/user/register', 'post', $user);
+        return $this->bankRequest('/user/register', 'post', $user, ['Authorization' => $token]);
 
     }
 
-    private function bankRequest(string $uri, string $verb, array $data = [])
+    public function getAccounts($token)
     {
 
-        $response = Http::withHeaders($this->getHeaders(['loginName' => $this->admin_name]))->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+        $response = $this->bankRequest('/accounts', 'get', [],  ['Authorization' => $token]);
+
+        return $response;
+
+    }
+
+
+    private function bankRequest(string $uri, string $verb, array $data = [], array $headers = [])
+    {
+
+        $response = Http::withHeaders($this->getHeaders($headers))->{$verb}($this->api_endpoint . $uri, $this->buildBody());
 
         if($response->successful())
             return $response->object();
@@ -105,10 +92,10 @@ class Yodlee
 
     }
 
-    private function bankFormRequest(string $uri, string $verb, array $data = [])
+    private function bankFormRequest(string $uri, string $verb, array $data = [], array $headers)
     {
 
-        $response = Http::withHeaders($this->getFormHeaders(['loginName' => $this->admin_name]))->asForm()->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+        $response = Http::withHeaders($this->getFormHeaders($headers))->asForm()->{$verb}($this->api_endpoint . $uri, $this->buildBody());
 
         if($response->successful())
             return $response->object();

@@ -23,6 +23,9 @@ class YodleeApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->markTestSkipped('Skip test no company gateways installed');
+        
     }
 
     public function testAccessTokenGeneration()
@@ -30,21 +33,37 @@ class YodleeApiTest extends TestCase
 
         $yodlee = new Yodlee(true);
 
-        $access_token = $yodlee->getAccessToken();
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
 
         nlog($access_token);
 
         $this->assertNotNull($access_token);
     }
 
-    public function testCreateUser()
+    public function testGetAccounts()
     {
+
         $yodlee = new Yodlee(true);
 
-        $create_user = $yodlee->createUser();
+        // $data = [
+        //     'providerAccountId' => 11308693,
+        // ];
+   
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
 
-        nlog($create_user);
-        
+        $accounts = $yodlee->getAccounts($access_token);
+
+        nlog($accounts);
     }
+
+    // public function testCreateUser()
+    // {
+    //     $yodlee = new Yodlee(true);
+
+    //     $create_user = $yodlee->createUser();
+
+    //     nlog($create_user);
+        
+    // }
 
 }

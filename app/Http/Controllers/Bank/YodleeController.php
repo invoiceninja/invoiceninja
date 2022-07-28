@@ -24,7 +24,7 @@ class YodleeController extends BaseController
         $yodlee = new Yodlee(true);
 
         $data = [
-            'access_token' => $yodlee->getAccessToken(),
+            'access_token' => $yodlee->getAccessToken('sbMem62e1e69547bfb1'),
             'fasttrack_url' => $yodlee->fast_track_url
         ];
 
