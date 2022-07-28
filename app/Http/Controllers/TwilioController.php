@@ -53,7 +53,7 @@ class TwilioController extends BaseController
         }
         catch(\Exception $e) {
 
-            return response()->json(['message' => 'Phone number format is incorrect, please use international number format and try again.'], 400);
+            return response()->json(['message' => 'Invalid phone number please use + country code + number ie. +15552343334'], 400);
 
         }
 
