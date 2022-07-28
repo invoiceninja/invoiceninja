@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers\Bank;
 
+use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 
@@ -20,10 +21,11 @@ class YodleeController extends BaseController
     public function auth(Request $request)
     {
 
-        $yodlee = new Yodlee();
+        $yodlee = new Yodlee(true);
 
         $data = [
-            'access_token' => $yodlee->getAccessToken()
+            'access_token' => $yodlee->getAccessToken(),
+            'fasttrack_url' => $yodlee->fast_track_url
         ];
 
         return view('bank.yodlee.auth', $data);

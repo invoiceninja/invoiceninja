@@ -37,4 +37,14 @@ class YodleeApiTest extends TestCase
         $this->assertNotNull($access_token);
     }
 
+    public function testCreateUser()
+    {
+        $yodlee = new Yodlee(true);
+
+        $create_user = $yodlee->createUser();
+
+        nlog($create_user);
+        
+    }
+
 }

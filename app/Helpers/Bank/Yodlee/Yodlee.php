@@ -22,7 +22,7 @@ class Yodlee
 
     private string $test_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
 
-    protected string $fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
+    public string $fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
 
     protected string $client_id;
 
@@ -47,16 +47,68 @@ class Yodlee
 
     public function getAccessToken()
     {
-        return $this->bankRequest('/auth/token', 'post');
+        $response = $this->bankFormRequest('/auth/token', 'post');
+
+        return $response->token->accessToken;
+    }
+
+
+    public function createUser()
+    {
+        //         {
+        //   "user": {
+        //     "preferences": {
+        //       "dateFormat": "string",
+        //       "timeZone": "string",
+        //       "currency": "USD",
+        //       "locale": "en_US"
+        //     },
+        //     "address": {
+        //       "zip": "string",
+        //       "country": "string",
+        //       "address3": "string",
+        //       "address2": "string",
+        //       "city": "string",
+        //       "address1": "string",
+        //       "state": "string"
+        //     },
+        //     "loginName": "string",
+        //     "name": {
+        //       "middle": "string",
+        //       "last": "string",
+        //       "fullName": "string",
+        //       "first": "string"
+        //     },
+        //     "email": "string",
+        //     "segmentName": "string"
+        //   }
+        // }
+
+        $user['user'] = [
+            'loginName' => 'test123',
+        ];
+
+        return $this->bankRequest('/user/register', 'post', $user);
+
     }
 
     private function bankRequest(string $uri, string $verb, array $data = [])
     {
-        nlog($this->getHeaders());
-        nlog($this->buildBody());
-        nlog($this->api_endpoint . $uri);
 
-        $response = Http::withHeaders($this->getHeaders())->asForm()->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+        $response = Http::withHeaders($this->getHeaders(['loginName' => $this->admin_name]))->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+
+        if($response->successful())
+            return $response->object();
+
+        if($response->failed())
+            return $response->body();
+
+    }
+
+    private function bankFormRequest(string $uri, string $verb, array $data = [])
+    {
+
+        $response = Http::withHeaders($this->getFormHeaders(['loginName' => $this->admin_name]))->asForm()->{$verb}($this->api_endpoint . $uri, $this->buildBody());
 
         if($response->successful())
             return $response->object();
@@ -70,7 +122,15 @@ class Yodlee
     {
         return array_merge($data, [
             'Api-Version' => '1.1',
-            'loginName' => $this->admin_name
+            'ContentType' => 'application/json'
+        ]);
+    }
+
+
+    private function getFormHeaders($data = [])
+    {
+        return array_merge($data, [
+            'Api-Version' => '1.1',
         ]);
     }
 

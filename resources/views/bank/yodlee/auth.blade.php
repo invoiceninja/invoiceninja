@@ -27,10 +27,10 @@
         'click', 
         function() {
             window.fastlink.open({
-              fastLinkURL: 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink',
+              fastLinkURL: '{{ $fasttrack_url }}',
               accessToken: 'Bearer {{ $access_token }}',
               params: {
-                configName : '<config-name-from-config-tool>'
+                configName : 'Example2'
               },
               onSuccess: function (data) {
                 // will be called on success. For list of possible message, refer to onSuccess(data) Method.
