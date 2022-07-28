@@ -53,6 +53,13 @@ abstract class QueryFilters
     protected $builder;
 
     /**
+     * The "with" filter property column.
+     * 
+     * var string
+     */
+    protected $with_property = 'id';
+
+    /**
      * Create a new QueryFilters instance.
      *
      * @param Request $request
@@ -217,5 +224,12 @@ abstract class QueryFilters
         // }
 
         return $this->builder;
+    }
+
+    public function with(string $value): Builder
+    {
+        return $this->builder
+            ->orWhere($this->with_property, $value)
+            ->orderByRaw("{$this->with_property} = ? DESC", [$value]);
     }
 }
