@@ -119,6 +119,7 @@ class Company extends BaseModel
         'track_inventory',
         'inventory_notification_threshold',
         'stock_notification',
+        'enabled_expense_tax_rates',
     ];
 
     protected $hidden = [
