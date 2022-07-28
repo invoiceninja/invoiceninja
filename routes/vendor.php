@@ -42,6 +42,10 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
     Route::post('purchase_order/upload/{purchase_order}', [UploadController::class,'upload'])->name('upload.store');
 
+    Route::post('documents/download_multiple', [App\Http\Controllers\VendorPortal\DocumentController::class, 'downloadMultiple'])->name('documents.download_multiple');
+    Route::get('documents/{document}/download', [App\Http\Controllers\VendorPortal\DocumentController::class, 'download'])->name('documents.download');
+    Route::resource('documents', App\Http\Controllers\VendorPortal\DocumentController::class)->only(['index', 'show']);
+
 });
 
 

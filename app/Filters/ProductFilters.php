@@ -42,6 +42,15 @@ class ProductFilters extends QueryFilters
         });
     }
 
+    public function product_key(string $filter = '') : Builder
+    {
+        if (strlen($filter) == 0) {
+            return $this->builder;
+        }
+
+        return  $this->builder->where('product_key', $filter);
+    }
+
     /**
      * Filters the list based on the status
      * archived, active, deleted.

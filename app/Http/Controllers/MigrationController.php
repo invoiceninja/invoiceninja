@@ -311,7 +311,7 @@ class MigrationController extends BaseController
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
                     $nmo->to_user = $user;
-                    NinjaMailerJob::dispatch($nmo);
+                    NinjaMailerJob::dispatch($nmo, true);
 
                     return;
                 } elseif ($existing_company && $company_count > 10) {
@@ -320,7 +320,7 @@ class MigrationController extends BaseController
                     $nmo->company = $user->account->companies()->first();
                     $nmo->settings = $user->account->companies()->first()->settings;
                     $nmo->to_user = $user;
-                    NinjaMailerJob::dispatch($nmo);
+                    NinjaMailerJob::dispatch($nmo, true);
 
                     return;
                 }
@@ -340,7 +340,7 @@ class MigrationController extends BaseController
                     $nmo->settings = $user->account->companies()->first();
                     $nmo->to_user = $user;
 
-                    NinjaMailerJob::dispatch($nmo);
+                    NinjaMailerJob::dispatch($nmo, true);
 
                     return response()->json([
                         '_id' => Str::uuid(),

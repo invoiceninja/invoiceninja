@@ -340,8 +340,21 @@ class Company extends BaseModel
      */
     public function country()
     {
+        $companies = Cache::get('countries');
+
+        if (! $companies) {
+            $this->buildCache(true);
+
+            $companies = Cache::get('countries');
+
+        }
+
+        return $companies->filter(function ($item) {
+            return $item->id == $this->getSetting('country_id');
+        })->first();
+
 //        return $this->belongsTo(Country::class);
-        return Country::find($this->settings->country_id);
+        // return Country::find($this->settings->country_id);
     }
 
     public function group_settings()

@@ -62,7 +62,7 @@ class SendVerificationNotification implements ShouldQueue
             $nmo->company = $event->company;
             $nmo->settings = $event->company->settings;
             $nmo->to_user = $event->creating_user;
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
         }
     }
 }

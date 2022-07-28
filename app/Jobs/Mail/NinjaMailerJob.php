@@ -237,8 +237,6 @@ class NinjaMailerJob implements ShouldQueue
 
     private function setGmailMailer()
     {
-        if(LaravelGmail::check())
-            LaravelGmail::logout();
 
         $sending_user = $this->nmo->settings->gmail_sending_user_id;
 
@@ -265,7 +263,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(2,6));
+            sleep(rand(2,4));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
@@ -346,6 +344,10 @@ class NinjaMailerJob implements ShouldQueue
         /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
         if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
             return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+
+        /* On the hosted platform if the user has not verified their account we fail here */
+        if(Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified)
+            return true;
 
         return false;
     }

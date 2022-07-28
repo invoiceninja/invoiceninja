@@ -88,6 +88,7 @@ class AccountTransformer extends EntityTransformer
             'is_hosted' => (bool) Ninja::isHosted(),
             'set_react_as_default_ap' => (bool) $account->set_react_as_default_ap,
             'trial_days_left' => Ninja::isHosted() ? (int) $account->getTrialDays() : 0,
+            'account_sms_verified' => (bool) $account->account_sms_verified,
         ];
     }
 

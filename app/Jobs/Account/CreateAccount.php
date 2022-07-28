@@ -126,7 +126,7 @@ class CreateAccount
             $nmo->settings = $sp035a66->settings;
             $nmo->to_user = $sp035a66->owner();
 
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
 
             \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
         }

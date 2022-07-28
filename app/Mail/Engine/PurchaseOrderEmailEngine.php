@@ -137,62 +137,13 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->purchase_order->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
 
             foreach ($this->purchase_order->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
 
-            // $line_items = $this->purchase_order->line_items;
-
-            // foreach($line_items as $item)
-            // {
-
-            //     $expense_ids = [];
-
-            //     if(property_exists($item, 'expense_id'))
-            //     {
-            //         $expense_ids[] = $item->expense_id;
-            //     }
-
-            //     if(count($expense_ids) > 0){
-
-            //         $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
-            //                            ->where('invoice_documents', 1)
-            //                            ->cursor()
-            //                            ->each(function ($expense){
-
-            //                                 foreach($expense->documents as $document)
-            //                                 {
-            //                                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
-            //                                 }
-
-            //                            });
-            //     }
-
-            //     $task_ids = [];
-
-            //     if(property_exists($item, 'task_id'))
-            //     {
-            //         $task_ids[] = $item->task_id;
-            //     }
-
-            //     if(count($task_ids) > 0 && $this->purchase_order->company->purchase_order_task_documents){
-
-            //         $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
-            //                            ->cursor()
-            //                            ->each(function ($task){
-
-            //                                 foreach($task->documents as $document)
-            //                                 {
-            //                                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
-            //                                 }
-
-            //                            });
-            //     }
-
-            // }
         }
 
         return $this;

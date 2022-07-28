@@ -170,7 +170,21 @@ class BaseImport
     {
         $count = 0;
 
+        $is_free_hosted_client = $this->company->account->isFreeHostedClient();
+        $hosted_client_count = $this->company->account->hosted_client_count;
+
         foreach ($data as $key => $record) {
+
+            if($this->factory_name instanceof ClientFactory && $is_free_hosted_client && ($this->company->clients()->count() > $hosted_client_count))
+            {
+                $this->error_array[$entity_type][] = [
+                    $entity_type => $record,
+                    'error' => 'Client limit reached',
+                ];
+
+                return $count;
+            }
+
             try {
                 $entity = $this->transformer->transform($record);
                 // $validator = $this->request_name::runFormRequest($entity);
@@ -581,7 +595,7 @@ class BaseImport
         $nmo->settings = $this->company->settings;
         $nmo->to_user = $this->company->owner();
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
     }
 
     public function preTransform(array $data, $entity_type)

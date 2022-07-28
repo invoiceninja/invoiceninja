@@ -128,11 +128,11 @@ class QuoteEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->quote->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
 
             foreach ($this->quote->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
         }
 

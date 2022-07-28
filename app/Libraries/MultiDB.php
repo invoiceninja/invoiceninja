@@ -419,6 +419,34 @@ class MultiDB
         return false;
     }
 
+    /**
+     * @param array $data
+     * @return User|null
+     */
+    public static function hasPhoneNumber(string $phone) : bool
+    {
+        if (! config('ninja.db.multi_db_enabled')) 
+            return Account::where('account_sms_verification_number', $phone)->where('account_sms_verified', true)->exists();
+        
+        $current_db = config('database.default');  
+
+        foreach (self::$dbs as $db) {
+
+            self::setDB($db);
+            if ($exists = Account::where('account_sms_verification_number', $phone)->where('account_sms_verified', true)->exists()) {
+                self::setDb($current_db);
+                return true;
+            }
+            
+        }
+
+        self::setDb($current_db);
+
+        return false;
+    }
+
+    
+
     public static function randomSubdomainGenerator()
     {
         $current_db = config('database.default');

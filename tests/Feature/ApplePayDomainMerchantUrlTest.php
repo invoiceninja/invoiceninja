@@ -56,7 +56,7 @@ class ApplePayDomainMerchantUrlTest extends TestCase
         $cg->require_billing_address = true;
         $cg->require_shipping_address = true;
         $cg->update_details = true;
-        $cg->config = encrypt(json_encode($config));
+        $cg->setConfig($config);
         $cg->fees_and_limits = '';
         $cg->save();
 

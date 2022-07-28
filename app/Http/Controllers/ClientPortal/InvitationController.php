@@ -83,9 +83,6 @@ class InvitationController extends Controller
         $invitation = $entity_obj::withTrashed()
                                     ->with($entity)
                                     ->where('key', $invitation_key)
-                                    // ->whereHas($entity, function ($query) {
-                                    //      $query->where('is_deleted',0);
-                                    // })
                                     ->with('contact.client')
                                     ->first();
 
