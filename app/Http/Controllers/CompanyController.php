@@ -520,7 +520,7 @@ class CompanyController extends BaseController
             $nmo->company = $other_company;
             $nmo->settings = $other_company->settings;
             $nmo->to_user = auth()->user();
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
 
             $company->delete();
 

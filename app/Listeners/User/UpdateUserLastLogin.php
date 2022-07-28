@@ -59,7 +59,7 @@ class UpdateUserLastLogin implements ShouldQueue
             $nmo->company = $user->account->companies->first();
             $nmo->settings = $user->account->companies->first()->settings;
             $nmo->to_user = $user;
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
 
             $user->ip = $ip;
             $user->save();

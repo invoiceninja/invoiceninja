@@ -64,7 +64,7 @@ class Vendor extends BaseModel
     protected $touches = [];
 
     protected $with = [
-        //    'contacts',
+        'company',
     ];
 
     protected $presenter = VendorPresenter::class;

@@ -22,14 +22,17 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesDates;
 use App\Utils\transformTranslations;
 use Exception;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 
 class VendorHtmlEngine
 {
     use MakesDates;
+    use AppSetup;
 
     public $entity;
 
@@ -483,7 +486,27 @@ class VendorHtmlEngine
 
     private function getCountryName() :string
     {
-        $country = Country::find($this->settings->country_id);
+
+        $countries = Cache::get('countries');
+
+        if (! $countries) {
+            $this->buildCache(true);
+
+            $countries = Cache::get('countries');
+
+        }
+
+        if($countries){
+
+         
+            $country = $countries->filter(function ($item) {
+                return $item->id == $this->settings->country_id;
+            })->first();
+
+   
+        }
+        else
+            $country = Country::find($this->settings->country_id);
 
         if ($country) {
             return ctrans('texts.country_' . $country->name);

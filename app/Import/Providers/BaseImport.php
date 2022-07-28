@@ -595,7 +595,7 @@ class BaseImport
         $nmo->settings = $this->company->settings;
         $nmo->to_user = $this->company->owner();
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
     }
 
     public function preTransform(array $data, $entity_type)
