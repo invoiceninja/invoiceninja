@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('client', [ContactLoginController::class, 'showLoginForm'])->name('client.catchall')->middleware(['domain_db', 'contact_account','locale']); //catch all
 
-Route::get('client/login', [ContactLoginController::class, 'showLoginForm'])->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/login', [ContactLoginController::class, 'login'])->name('client.login.submit');
+Route::get('client/login/{company_key?}', [ContactLoginController::class, 'showLoginForm'])->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
+Route::post('client/login/{company_key?}', [ContactLoginController::class, 'login'])->name('client.login.submit');
 
 Route::get('client/register/{company_key?}', [ContactRegisterController::class, 'showRegisterForm'])->name('client.register')->middleware(['domain_db', 'contact_account', 'contact_register','locale']);
 Route::post('client/register/{company_key?}', [ContactRegisterController::class, 'register'])->middleware(['domain_db', 'contact_account', 'contact_register', 'locale', 'throttle:10,1']);
