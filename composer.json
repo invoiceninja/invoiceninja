@@ -36,7 +36,7 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "afosto/yaac": "^1.4",
-        "asm/php-ansible": "^4",
+        "asm/php-ansible": "^4.0",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "bacon/bacon-qr-code": "^2.0",

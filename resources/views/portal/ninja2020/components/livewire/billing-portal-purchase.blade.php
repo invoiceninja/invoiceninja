@@ -20,7 +20,7 @@
                     @foreach($subscription->service()->products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
                             <div>
-                                <p class="text-sm text-gray-800">{{ $product->notes }}</p>
+                                <p class="text-sm text-gray-800">{!! nl2br($product->notes) !!}</p>
                             </div>
                             <div data-ref="price-and-quantity-container">
                                 <span
@@ -40,7 +40,7 @@
 
                     @foreach($subscription->service()->recurring_products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                            <div class="text-sm">{!! $product->notes !!}</div>
+                            <div class="text-sm">{!! nl2br($product->notes) !!}</div>
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
