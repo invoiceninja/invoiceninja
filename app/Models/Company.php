@@ -519,7 +519,7 @@ class Company extends BaseModel
 
     public function owner()
     {
-        return $this->company_users()->withTrashed()->where('is_owner', true)->first()->user;
+        return $this->company_users()->withTrashed()->where('is_owner', true)->first()?->user;
     }
 
     public function resolveRouteBinding($value, $field = null)
