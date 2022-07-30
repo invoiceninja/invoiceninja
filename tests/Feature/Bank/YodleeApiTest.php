@@ -24,7 +24,7 @@ class YodleeApiTest extends TestCase
     {
         parent::setUp();
 
-        $this->markTestSkipped('Skip test no company gateways installed');
+        // $this->markTestSkipped('Skip test no company gateways installed');
         
     }
 

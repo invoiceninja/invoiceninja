@@ -72,7 +72,7 @@ class Yodlee
     public function getAccounts($token)
     {
 
-        $response = $this->bankRequest('/accounts', 'get', [],  ['Authorization' => $token]);
+        $response = $this->bankRequest('/accounts', 'get', [],  ["Authorization" => "Bearer {$token}"]);
 
         return $response;
 
