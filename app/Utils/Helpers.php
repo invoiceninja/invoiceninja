@@ -76,7 +76,7 @@ class Helpers
                 break;
 
             default:
-                return is_null($value) ? '' : $value;
+                return is_null($value) ? '' : $this->processReservedKeywords($value, $entity);
                 break;
         }
     }
