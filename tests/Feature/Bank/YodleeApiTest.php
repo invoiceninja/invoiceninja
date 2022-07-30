@@ -40,20 +40,43 @@ class YodleeApiTest extends TestCase
         $this->assertNotNull($access_token);
     }
 
+    public function testGetCategories()
+    {
+
+
+        $yodlee = new Yodlee(true);
+   
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+
+        $transactions = $yodlee->getTransactionCategories($access_token);
+
+//        nlog($transactions);
+
+    }
+
     public function testGetAccounts()
     {
 
         $yodlee = new Yodlee(true);
-
-        // $data = [
-        //     'providerAccountId' => 11308693,
-        // ];
    
         $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
 
         $accounts = $yodlee->getAccounts($access_token);
 
-        nlog($accounts);
+        // nlog($accounts);
+    }
+
+    public function testGetTransactions()
+    {
+
+        $yodlee = new Yodlee(true);
+   
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+
+        $transactions = $yodlee->getTransactions($access_token);
+
+        nlog($transactions);
+
     }
 
     // public function testCreateUser()

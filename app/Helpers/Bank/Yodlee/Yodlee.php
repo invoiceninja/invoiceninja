@@ -78,6 +78,31 @@ class Yodlee
 
     }
 
+    public function getTransactions($token)
+    {
+
+        //$response = $this->bankRequest('/transactions', 'get', ['categoryId' => '2xx', 'fromDate' => '20xx22-07-29'],  );
+ 
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryId' => '2']);
+
+
+        if($response->successful())
+            return $response->object();
+
+        if($response->failed())
+            return $response->body();
+
+    }
+
+    public function getTransactionCategories($token)
+    {
+
+        $response = $this->bankRequest('/transactions/categories', 'get', [],  ["Authorization" => "Bearer {$token}"]);
+
+        return $response;
+
+    }
+
 
     private function bankRequest(string $uri, string $verb, array $data = [], array $headers = [])
     {
