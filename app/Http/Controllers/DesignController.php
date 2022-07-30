@@ -568,6 +568,10 @@ class DesignController extends BaseController
                 $company->purchase_orders()->update(['design_id' => $design_id]);
                 break;
             default:
+            case 'recurring_invoice':
+                $company->recurring_invoices()->update(['design_id' => $design_id]);
+                break;
+            default:
                 // code...
                 break;
         }
