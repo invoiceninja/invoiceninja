@@ -79,14 +79,5 @@ class YodleeApiTest extends TestCase
 
     }
 
-    // public function testCreateUser()
-    // {
-    //     $yodlee = new Yodlee(true);
-
-    //     $create_user = $yodlee->createUser();
-
-    //     nlog($create_user);
-        
-    // }
 
 }
