@@ -84,7 +84,7 @@ class InvitationController extends Controller
                                     ->with($entity)
                                     ->where('key', $invitation_key)
                                     ->with('contact.client')
-                                    ->first();
+                                    ->firstOrFail();
 
         if($invitation->{$entity}->is_deleted)
             return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
