@@ -332,11 +332,11 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', [PaymentWebhookController::class])
+Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
     ->middleware(['throttle:1000,1','guest'])
     ->name('payment_webhook');
 
-Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', [PaymentNotificationWebhookController::class])
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', PaymentNotificationWebhookController::class)
     ->middleware(['throttle:1000,1', 'guest'])
     ->name('payment_notification_webhook');
 
