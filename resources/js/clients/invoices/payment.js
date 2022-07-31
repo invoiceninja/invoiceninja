@@ -25,7 +25,7 @@ class Payment {
 
         if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
 
-            if(this.signaturePad.isEmpty())
+            if(this.signaturePad && this.signaturePad.isEmpty())
                 alert("Please sign");
 
             this.displayTerms();
