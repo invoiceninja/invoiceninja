@@ -145,10 +145,10 @@ class SetupController extends Controller
 
             /* Create the first account. */
             if (Account::count() == 0) {
-                CreateAccount::dispatchSync($request->all(), $request->getClientIp());
+                (new CreateAccount($request->all(), $request->getClientIp()))->handle();
             }
 
-            VersionCheck::dispatchSync();
+            (new VersionCheck())->handle();
 
             $this->buildCache(true);
 
@@ -316,7 +316,7 @@ class SetupController extends Controller
 
         $this->buildCache(true);
 
-        SchedulerCheck::dispatchSync();
+        (new SchedulerCheck())->handle();
 
         return redirect('/');
     }

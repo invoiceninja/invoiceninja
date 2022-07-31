@@ -130,7 +130,7 @@ class VendorTemplateEmail extends Mailable
                 sleep(2);
 
                 if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    CreatePurchaseOrderPdf::dispatchSync($this->invitation);
+                    (new CreatePurchaseOrderPdf($this->invitation))->handle();
                     sleep(2);
                 }
 

@@ -74,7 +74,7 @@ class RecurringInvoicesCron
                 }
 
                 try {
-                    SendRecurring::dispatchSync($recurring_invoice, $recurring_invoice->company->db);
+                    (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
                 } catch (\Exception $e) {
                     nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
                 }
@@ -114,7 +114,7 @@ class RecurringInvoicesCron
                     }
 
                     try {
-                        SendRecurring::dispatchSync($recurring_invoice, $recurring_invoice->company->db);
+                        (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
                     } catch (\Exception $e) {
                         nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
                     }
