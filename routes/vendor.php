@@ -10,6 +10,7 @@
 |
 */
 use App\Http\Controllers\Auth\VendorContactLoginController;
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\VendorPortal\InvitationController;
 use App\Http\Controllers\VendorPortal\PurchaseOrderController;
 use App\Http\Controllers\VendorPortal\UploadController;
@@ -27,7 +28,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vend
  //   Route::get('purchase_order/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
 
 });
-
 
 Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
 
@@ -48,7 +48,4 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
 });
 
-
-
-
-Route::fallback('BaseController@notFoundVendor');
+Route::fallback([BaseController::class, 'notFoundVendor']);
