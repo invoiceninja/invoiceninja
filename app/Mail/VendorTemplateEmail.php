@@ -116,12 +116,7 @@ class VendorTemplateEmail extends Mailable
             })
             ->tag($this->company->company_key);
 
-        /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
-        // if (Ninja::isHosted()) {
-        //     sleep(1);
-        // }
-
-        if(Ninja::isHosted()){
+        if(Ninja::isHosted() && $this->invitation){
 
             $path = false;
 

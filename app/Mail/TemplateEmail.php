@@ -124,7 +124,7 @@ class TemplateEmail extends Mailable
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-        if(Ninja::isHosted()){
+        if(Ninja::isHosted() && $this->invitation){
 
             $path = false;
 
