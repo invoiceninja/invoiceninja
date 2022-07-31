@@ -105,7 +105,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::get('statement', [App\Http\Controllers\ClientPortal\StatementController::class, 'index'])->name('statement');
     Route::get('statement/raw', [App\Http\Controllers\ClientPortal\StatementController::class, 'raw'])->name('statement.raw');
 
-    Route::post('upload', [App\Http\Controllers\ClientPortal\UploadController::class])->name('upload.store');
+    Route::post('upload', App\Http\Controllers\ClientPortal\UploadController::class)->name('upload.store');
     Route::get('logout', [ContactLoginController::class, 'logout'])->name('logout');
 
 });

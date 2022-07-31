@@ -36,13 +36,13 @@ class MailSentListener implements ShouldQueue
     public function handle(MessageSent $event)
     {
         if (property_exists($event->message, 'invitation') && $event->message->invitation) {
-            MultiDB::setDb($event->message->invitation->company->db);
+            MultiDB::setDb($event->sent->invitation->company->db);
 
             if ($event->message->getHeaders()->get('x-pm-message-id')) {
-                $postmark_id = $event->message->getHeaders()->get('x-pm-message-id')->getValue();
+                $postmark_id = $event->sent->getHeaders()->get('x-pm-message-id')->getValue();
 
                 // nlog($postmark_id);
-                $invitation = $event->message->invitation;
+                $invitation = $event->sent->invitation;
                 $invitation->message_id = $postmark_id;
                 $invitation->save();
             }
