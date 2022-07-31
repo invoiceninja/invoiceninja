@@ -105,7 +105,7 @@ class ImportController extends Controller
     public function import(ImportRequest $request)
     {
         $data = $request->all();
-nlog($data);
+
         if (empty($data['hash'])) {
             // Create a reference
             $data['hash'] = $hash = Str::random(32);
@@ -113,7 +113,6 @@ nlog($data);
             /** @var UploadedFile $file */
             foreach ($request->files->get('files') as $entityType => $file) {
                 $contents = file_get_contents($file->getPathname());
-
                 // Store the csv in cache with an expiry of 10 minutes
                 Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
             }

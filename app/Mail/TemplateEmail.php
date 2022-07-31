@@ -134,6 +134,8 @@ class TemplateEmail extends Mailable
             elseif($this->invitation->credit)
                 $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
 
+            sleep(1);
+
             if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
                 sleep(2);

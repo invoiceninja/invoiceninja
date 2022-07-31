@@ -34,8 +34,8 @@ class GmailTransport extends AbstractTransport
         nlog("in Do Send");
         $message = MessageConverter::toEmail($message->getOriginalMessage());
 
-        $token = $message->getHeaders()->get('GmailToken')->getValue();
-        $message->getHeaders()->remove('GmailToken');
+        $token = $message->getHeaders()->get('gmailtoken')->getValue();
+        $message->getHeaders()->remove('gmailtoken');
 
         $client = new Client();
         $client->setClientId(config('ninja.auth.google.client_id'));

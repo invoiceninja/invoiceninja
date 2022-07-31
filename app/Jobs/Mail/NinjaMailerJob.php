@@ -228,7 +228,7 @@ class NinjaMailerJob implements ShouldQueue
         $this->nmo
              ->mailable
              ->from($user->email, $user->name())
-             ->withSwiftMessage(function ($message) use($token) {
+             ->withSymfonyMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 
@@ -298,7 +298,7 @@ class NinjaMailerJob implements ShouldQueue
         $this->nmo
              ->mailable
              ->from($user->email, $user->name())
-             ->withSwiftMessage(function ($message) use($token) {
+             ->withSymfonyMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 

@@ -127,6 +127,8 @@ class VendorTemplateEmail extends Mailable
             if($this->invitation->purchase_order)
                 $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
 
+            sleep(1);
+
             if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
                 sleep(2);
