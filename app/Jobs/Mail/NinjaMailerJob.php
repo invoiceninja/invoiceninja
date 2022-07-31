@@ -100,6 +100,8 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
+        $this->nmo->mailable->tag($this->company->company_key);
+        
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
@@ -143,7 +145,7 @@ class NinjaMailerJob implements ShouldQueue
                 $this->entityEmailFailed($message);
 
             /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+            if(Ninja::isHosted() && (!$e instanceof ClientException || !$e instanceof \Symfony\Component\Mailer\Exception\HttpTransportException)) 
                 app('sentry')->captureException($e);
         }
     }
