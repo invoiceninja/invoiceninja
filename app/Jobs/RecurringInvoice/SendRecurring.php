@@ -135,7 +135,7 @@ class SendRecurring implements ShouldQueue
             $invoice->invitations->each(function ($invitation) use ($invoice) {
                 if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
                     try {
-                        EmailEntity::dispatch($invitation, $invoice->company);
+                        EmailEntity::dispatch($invitation, $invoice->company)->delay(10);
                     } catch (\Exception $e) {
                         nlog($e->getMessage());
                     }
