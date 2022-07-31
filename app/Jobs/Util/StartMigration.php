@@ -116,7 +116,7 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            Import::dispatchSync($file, $this->company, $this->user);
+            (new Import($file, $this->company, $this->user))->handle();
 
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 

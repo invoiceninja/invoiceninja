@@ -229,7 +229,7 @@ class NinjaMailerJob implements ShouldQueue
              ->mailable
              ->from($user->email, $user->name())
              ->withSymfonyMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
         sleep(rand(1,3));
@@ -299,7 +299,7 @@ class NinjaMailerJob implements ShouldQueue
              ->mailable
              ->from($user->email, $user->name())
              ->withSymfonyMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
     }
