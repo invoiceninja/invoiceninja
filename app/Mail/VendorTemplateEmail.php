@@ -113,7 +113,8 @@ class VendorTemplateEmail extends Mailable
             ->withSymfonyMessage(function ($message) {
                 $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($this->company->company_key);
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
         // if (Ninja::isHosted()) {

@@ -119,7 +119,8 @@ class TemplateEmail extends Mailable
             ->withSymfonyMessage(function ($message) use ($company) {
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($company->company_key);
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
