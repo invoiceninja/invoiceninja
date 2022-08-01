@@ -102,7 +102,6 @@ class RecurringInvoicesCron
                 nlog(now()->format('Y-m-d').' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-                    // nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_invoice->next_send_date.' Recurring #id = '.$recurring_invoice->id);
 
                     nlog("Trying to send {$recurring_invoice->number}");
 
