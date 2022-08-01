@@ -43,13 +43,13 @@ class HostedUsers extends Command
     {
         Company::on('db-ninja-01')->each(function ($company) {
             if (Ninja::isHosted()) {
-                \Modules\Admin\Jobs\Account\NinjaUser::dispatchSync([], $company);
+                (new \Modules\Admin\Jobs\Account\NinjaUser([], $company))->handle();
             }
         });
 
         Company::on('db-ninja-02')->each(function ($company) {
             if (Ninja::isHosted()) {
-                \Modules\Admin\Jobs\Account\NinjaUser::dispatchSync([], $company);
+                (new \Modules\Admin\Jobs\Account\NinjaUser([], $company))->handle();
             }
         });
     }

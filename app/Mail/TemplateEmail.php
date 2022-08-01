@@ -142,7 +142,7 @@ class TemplateEmail extends Mailable
                 sleep(2);
 
                 if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    CreateEntityPdf::dispatchSync($this->invitation);
+                    (new CreateEntityPdf($this->invitation))->handle();
                     sleep(2);
                 }
 
