@@ -31,7 +31,7 @@ class GmailTransport extends AbstractTransport
 
     protected function doSend(SentMessage $message): void
     {
-        nlog("in Do Send");
+        nlog("In Do Send");
         $message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $token = $message->getHeaders()->get('gmailtoken')->getValue();
@@ -45,7 +45,25 @@ class GmailTransport extends AbstractTransport
         $service = new Gmail($client);
 
         $body = new Message();
-        $body->setRaw($this->base64_encode($message->toString()));
+
+        $bccs = $message->getHeaders()->get('Bcc');
+
+        $bcc_list = '';
+
+        if($bccs)
+        {
+            $bcc_list = 'Bcc: ';
+
+            foreach($bccs->getAddresses() as $address){
+
+                $bcc_list .= $address->getAddress() .',';
+
+            }
+
+            $bcc_list = rtrim($bcc_list, ",") . "\r\n";
+        }  
+
+        $body->setRaw($this->base64_encode($bcc_list.$message->toString()));
 
         $service->users_messages->send('me', $body, []);
         
