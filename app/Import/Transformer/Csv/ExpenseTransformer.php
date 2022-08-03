@@ -42,7 +42,7 @@ class ExpenseTransformer extends BaseTransformer
             'client_id' => isset($data['expense.client'])
                 ? $this->getClientId($data['expense.client'])
                 : null,
-            'date' => $clientId,
+            'date' => strlen($this->getString($data, 'expense.date') > 1) ? date('Y-m-d', strtotime($this->getString($data, 'expense.date'))) : now()->format('Y-m-d'),
             'public_notes' => $this->getString($data, 'expense.public_notes'),
             'private_notes' => $this->getString($data, 'expense.private_notes'),
             'category_id' => isset($data['expense.category'])

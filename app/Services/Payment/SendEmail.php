@@ -36,10 +36,7 @@ class SendEmail
 
         $this->payment->client->contacts->each(function ($contact) {
             if ($contact->email) {
-                // dispatchSync always returns 0, in this case we can handle it without returning false;
-                return EmailPayment::dispatchSync($this->payment, $this->payment->company, $contact);
-                //     return false;
-                //11-01-2021 only send payment receipt to the first contact
+                EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
             }
         });
     }

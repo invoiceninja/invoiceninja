@@ -148,13 +148,15 @@ class CreditCard
 
     private function buildBillingAddress()
     {
-        return [
+        $data = [
             'name' => $this->paytrace->client->present()->name(),
             'street_address' => $this->paytrace->client->address1,
             'city' => $this->paytrace->client->city,
             'state' => $this->paytrace->client->state,
             'zip' => $this->paytrace->client->postal_code,
         ];
+
+        nlog($data);
     }
 
     public function paymentView($data)

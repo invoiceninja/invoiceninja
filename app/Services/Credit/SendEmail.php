@@ -45,10 +45,7 @@ class SendEmail
 
         $this->credit->invitations->each(function ($invitation) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
-
-                // $email_builder = (new CreditEmail())->build($invitation, $this->reminder_template);
-                // EmailCredit::dispatchNow($email_builder, $invitation, $invitation->company);
-                EmailEntity::dispatchSync($invitation, $invitation->company, $this->reminder_template);
+                EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
             }
         });
 

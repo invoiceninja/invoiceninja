@@ -259,7 +259,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', [SendingController::class]);
+    Route::post('support/messages/send', SendingController::class);
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);
@@ -287,7 +287,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
 
 
-    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:5,1');
+    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:100,1');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
     
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
@@ -332,12 +332,12 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', [PaymentWebhookController::class])
-    ->middleware(['throttle:1000,1','guest'])
+Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
+    ->middleware('throttle:1000,1')
     ->name('payment_webhook');
 
-Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', [PaymentNotificationWebhookController::class])
-    ->middleware(['throttle:1000,1', 'guest'])
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', PaymentNotificationWebhookController::class)
+    ->middleware('throttle:1000,1')
     ->name('payment_notification_webhook');
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
