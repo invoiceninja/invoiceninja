@@ -130,7 +130,7 @@ class CreditCard
 
     public function processSuccessfulPayment()
     {
-        UpdateCustomer::dispatch($this->stripe->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
+        UpdateCustomer::dispatch($this->stripe->company_gateway->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
 
         $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
