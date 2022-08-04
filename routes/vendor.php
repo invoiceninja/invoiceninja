@@ -19,7 +19,7 @@ use App\Http\Controllers\VendorPortal\VendorContactHashLoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('vendors', [VendorContactLoginController::class, 'catch'])->name('vendor.catchall')->middleware(['domain_db', 'contact_account','vendor_locale']); //catch all
-Route::get('vendor/key_login/{contact_key}', [VendorContactHashLoginController::class, 'login'])->name('contact_login')->middleware(['domain_db','contact_key_login']);
+Route::get('vendor/key_login/{contact_key}', [VendorContactHashLoginController::class, 'login'])->name('contact_login')->middleware(['domain_db','vendor_contact_key_login']);
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'vendor', 'as' => 'vendor.'], function () {
     /*Invitation catches*/

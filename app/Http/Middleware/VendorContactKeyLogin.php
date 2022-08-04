@@ -149,7 +149,7 @@ class VendorContactKeyLogin
     private function setRedirectPath()
     {
 
-        return 'vendors/purchase_orders';
-        
+        return 'vendor/purchase_orders';
+
     }
 }

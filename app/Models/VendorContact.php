@@ -160,7 +160,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
         $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
 
-        return $domain.'/vendors/key_login/'.$this->contact_key;
+        return $domain.'/vendor/key_login/'.$this->contact_key;
 
     }
 }
