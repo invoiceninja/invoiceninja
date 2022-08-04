@@ -44,21 +44,18 @@ class UpdateCustomer implements ShouldQueue
 
     private int $client_id;
 
-    private string $customer_id;
-
-    public function __construct(string $company_key, int $company_gateway_id, int $client_id, string $customer_id)
+    public function __construct(string $company_key, int $company_gateway_id, int $client_id)
     {
         $this->company_key = $company_key;
         $this->company_gateway_id = $company_gateway_id;
         $this->client_id = $client_id;
-        $this->customer_id = $customer_id;
     }
 
     public function handle()
     {
         if($this->company->id !== config('ninja.ninja_default_company_id'))
             return;
-        
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
@@ -67,7 +64,7 @@ class UpdateCustomer implements ShouldQueue
 
         $stripe = $company_gateway->driver()->init();
 
-        $customer = $company_gateway->getCustomer($this->customer_id);
+        $customer = $stripe->findOrCreateCustomer();
 
         $client = Client::withTrashed()->find($this->client_id);
 
@@ -82,7 +79,7 @@ class UpdateCustomer implements ShouldQueue
         $data['address']['state'] = $client->state;
         $data['address']['country'] = $client->country ? $client->country->iso_3166_2 : '';
 
-        \Stripe\Customer::update($this->customer_id, $data, $stripe->stripe_connect_auth);
+        \Stripe\Customer::update($customer->id, $data, $stripe->stripe_connect_auth);
 
     }
 }
