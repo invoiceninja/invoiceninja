@@ -53,12 +53,13 @@ class UpdateCustomer implements ShouldQueue
 
     public function handle()
     {
-        if($this->company->id !== config('ninja.ninja_default_company_id'))
-            return;
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
+
+        if($company->id !== config('ninja.ninja_default_company_id'))
+            return;
 
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
