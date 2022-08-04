@@ -34,10 +34,10 @@ class SendEmail
     {
         $this->payment->load('company', 'client.contacts');
 
-        $this->payment->client->contacts->each(function ($contact) {
-            if ($contact->email) {
-                EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
-            }
-        });
+        $contact = $this->payment->client->contacts()->first();
+
+        if ($contact->email)
+            EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
+         
     }
 }

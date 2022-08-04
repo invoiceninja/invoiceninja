@@ -20,6 +20,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 
@@ -129,6 +130,8 @@ class CreditCard
 
     public function processSuccessfulPayment()
     {
+        UpdateCustomer::dispatch($this->stripe->company_gateway->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
+
         $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
         $data = [
