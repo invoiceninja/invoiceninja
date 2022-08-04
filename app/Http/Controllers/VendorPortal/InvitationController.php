@@ -73,7 +73,6 @@ class InvitationController extends Controller
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
 
         } else {
-            nlog("else - default - login contact");
             request()->session()->invalidate();
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
         }

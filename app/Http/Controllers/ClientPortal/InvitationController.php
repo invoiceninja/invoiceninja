@@ -119,7 +119,6 @@ class InvitationController extends Controller
             return redirect()->route('client.login');
 
         } else {
-            nlog("else - default - login contact");
             request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
