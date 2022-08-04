@@ -62,13 +62,11 @@ class UpdateCustomer implements ShouldQueue
             return;
 
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
-
-        $stripe = $company_gateway->driver()->init();
-
-        $customer = $stripe->findOrCreateCustomer();
-
         $client = Client::withTrashed()->find($this->client_id);
 
+        $stripe = $company_gateway->driver($client)->init();
+
+        $customer = $stripe->findOrCreateCustomer();
         //Else create a new record
         $data['name'] = $client->present()->name();
         $data['phone'] = substr($client->present()->phone(), 0, 20);
@@ -79,6 +77,14 @@ class UpdateCustomer implements ShouldQueue
         $data['address']['postal_code'] = $client->postal_code;
         $data['address']['state'] = $client->state;
         $data['address']['country'] = $client->country ? $client->country->iso_3166_2 : '';
+
+        $data['shipping']['name'] = $client->present()->name();
+        $data['shipping']['address']['line1'] = $client->shipping_address1;
+        $data['shipping']['address']['line2'] = $client->shipping_address2;
+        $data['shipping']['address']['city'] = $client->shipping_city;
+        $data['shipping']['address']['postal_code'] = $client->shipping_postal_code;
+        $data['shipping']['address']['state'] = $client->shipping_state;
+        $data['shipping']['address']['country'] = $client->shipping_country ? $client->shipping_country->iso_3166_2 : '';
 
         \Stripe\Customer::update($customer->id, $data, $stripe->stripe_connect_auth);
 
