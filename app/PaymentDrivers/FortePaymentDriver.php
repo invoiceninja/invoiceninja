@@ -49,7 +49,7 @@ class FortePaymentDriver extends BaseDriver
         return $types;
     }
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_FORTE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     public function setPaymentMethod($payment_method_id)
     {

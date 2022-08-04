@@ -73,6 +73,7 @@ class SystemLog extends Model
     const TYPE_PAYTRACE = 311;
     const TYPE_MOLLIE = 312;
     const TYPE_EWAY = 313;
+    const TYPE_FORTE = 314;
     const TYPE_SQUARE = 320;
     const TYPE_GOCARDLESS = 321;
     const TYPE_RAZORPAY = 322;
@@ -217,6 +218,8 @@ class SystemLog extends Model
                 return "WePay";
             case self::TYPE_PAYFAST:
                 return "Payfast";
+            case self::TYPE_FORTE:
+                return "Forte";
             default:
                 return 'undefined';
         }
