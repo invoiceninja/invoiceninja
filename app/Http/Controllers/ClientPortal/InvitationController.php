@@ -195,7 +195,7 @@ class InvitationController extends Controller
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
 
-        $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
+        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 
