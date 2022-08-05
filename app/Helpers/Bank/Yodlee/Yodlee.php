@@ -80,10 +80,9 @@ class Yodlee
 
     public function getTransactions($token)
     {
-
-        //$response = $this->bankRequest('/transactions', 'get', ['categoryId' => '2xx', 'fromDate' => '20xx22-07-29'],  );
  
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryId' => '2']);
+        // $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryId' => '2']);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions");
 
 
         if($response->successful())
