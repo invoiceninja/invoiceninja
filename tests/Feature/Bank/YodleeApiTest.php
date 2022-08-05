@@ -278,6 +278,57 @@ class YodleeApiTest extends TestCase
                         )
 
                 )
+        [1] => stdClass Object
+                (
+                    [CONTAINER] => bank
+                    [providerAccountId] => 11308693
+                    [accountName] => Joint Savings - 7159
+                    [accountStatus] => ACTIVE
+                    [accountNumber] => xxxx7159
+                    [aggregationSource] => USER
+                    [isAsset] => 1
+                    [balance] => stdClass Object
+                        (
+                            [currency] => USD
+                            [amount] => 186277.45
+                        )
+
+                    [id] => 12331860
+                    [includeInNetWorth] => 1
+                    [providerId] => 18769
+                    [providerName] => Dag Site Captcha
+                    [isManual] => 
+                    [availableBalance] => stdClass Object
+                        (
+                            [currency] => USD
+                            [amount] => 186277.45
+                        )
+
+                    [currentBalance] => stdClass Object
+                        (
+                            [currency] => USD
+                            [amount] => 186277.45
+                        )
+
+                    [accountType] => SAVINGS
+                    [displayedName] => LYDIA
+                    [createdDate] => 2022-07-28T06:55:33Z
+                    [classification] => PERSONAL
+                    [lastUpdated] => 2022-07-28T06:56:09Z
+                    [dataset] => Array
+                        (
+                            [0] => stdClass Object
+                                (
+                                    [name] => BASIC_AGG_DATA
+                                    [additionalStatus] => AVAILABLE_DATA_RETRIEVED
+                                    [updateEligibility] => ALLOW_UPDATE
+                                    [lastUpdated] => 2022-07-28T06:55:50Z
+                                    [lastUpdateAttempt] => 2022-07-28T06:55:50Z
+                                )
+
+                        )
+
+                )
 */
     public function testGetAccounts()
     {
