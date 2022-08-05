@@ -100,6 +100,8 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
+        $this->nmo->mailable->tag($this->company->company_key);
+
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
@@ -115,7 +117,7 @@ class NinjaMailerJob implements ShouldQueue
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
 
-        } catch (\Exception $e) {
+        } catch (\Exception | \RuntimeException $e) {
             
             nlog("error failed with {$e->getMessage()}");
 
@@ -228,8 +230,8 @@ class NinjaMailerJob implements ShouldQueue
         $this->nmo
              ->mailable
              ->from($user->email, $user->name())
-             ->withSwiftMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+             ->withSymfonyMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
         sleep(rand(1,3));
@@ -298,8 +300,8 @@ class NinjaMailerJob implements ShouldQueue
         $this->nmo
              ->mailable
              ->from($user->email, $user->name())
-             ->withSwiftMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+             ->withSymfonyMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
     }

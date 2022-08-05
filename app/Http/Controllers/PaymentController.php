@@ -613,7 +613,6 @@ class PaymentController extends BaseController
                 // code...
                 break;
             case 'email':
-                //dispatch email to queue
                 $payment->service()->sendEmail();
 
                 if (! $bulk) {

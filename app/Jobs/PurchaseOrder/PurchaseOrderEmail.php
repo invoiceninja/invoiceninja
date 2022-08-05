@@ -89,7 +89,7 @@ class PurchaseOrderEmail implements ShouldQueue
             $nmo->reminder_template = 'purchase_order';
             $nmo->entity = $invitation->purchase_order;
 
-            NinjaMailerJob::dispatchSync($nmo);
+            NinjaMailerJob::dispatch($nmo)->delay(5);
         });
 
         if ($this->purchase_order->invitations->count() >= 1) {

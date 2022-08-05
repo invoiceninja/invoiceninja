@@ -113,7 +113,6 @@ class ImportController extends Controller
             /** @var UploadedFile $file */
             foreach ($request->files->get('files') as $entityType => $file) {
                 $contents = file_get_contents($file->getPathname());
-
                 // Store the csv in cache with an expiry of 10 minutes
                 Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
             }

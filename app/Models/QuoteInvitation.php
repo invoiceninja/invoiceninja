@@ -134,7 +134,7 @@ class QuoteInvitation extends BaseModel
 
         if (! Storage::exists($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf')) {
             event(new QuoteWasUpdated($this->quote, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchSync($this);
+            (new CreateEntityPdf($this))->handle();
         }
 
         return $storage_path;

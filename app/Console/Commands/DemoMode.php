@@ -112,9 +112,9 @@ class DemoMode extends Command
         $this->info('Seeding Random Data');
         $this->createSmallAccount();
 
-        VersionCheck::dispatchSync();
+        (new VersionCheck())->handle();
 
-        CompanySizeCheck::dispatchSync();
+        (new CompanySizeCheck())->handle();
     }
 
     private function createSmallAccount()
@@ -164,8 +164,8 @@ class DemoMode extends Command
             ]);
         }
 
-        CreateCompanyPaymentTerms::dispatchSync($company, $user);
-        CreateCompanyTaskStatuses::dispatchSync($company, $user);
+        (new CreateCompanyPaymentTerms($company, $user))->handle();
+        (new CreateCompanyTaskStatuses($company, $user))->handle();
 
         $company_token = new CompanyToken;
         $company_token->user_id = $user->id;

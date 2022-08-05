@@ -16,7 +16,6 @@ use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\UploadSession;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\MessageConverter;
 
 class Office365MailTransport extends AbstractTransport
@@ -33,25 +32,40 @@ class Office365MailTransport extends AbstractTransport
         $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $graph = new Graph();
-        $token = $symfony_message->getHeaders()->get('GmailToken')->getValue();
-        $symfony_message->getHeaders()->remove('GmailToken');
+        $token = $symfony_message->getHeaders()->get('gmailtoken')->getValue();
+        $symfony_message->getHeaders()->remove('gmailtoken');
 
         $graph->setAccessToken($token);
 
-            try {
-                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
-                    ->attachBody(base64_encode($message->toString()))
-                    ->addHeaders(['Content-Type' => 'text/plain'])
-                    ->setReturnType(\Microsoft\Graph\Model\Message::class)
-                    ->execute();
-            } catch (\Exception $e) {
-                sleep(5);
-                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
-                    ->attachBody(base64_encode($message->toString()))
-                    ->addHeaders(['Content-Type' => 'text/plain'])
-                    ->setReturnType(\Microsoft\Graph\Model\Message::class)
-                    ->execute();
+        $bccs = $symfony_message->getHeaders()->get('Bcc');
+
+        $bcc_list = '';
+
+        if($bccs)
+        {
+
+            foreach($bccs->getAddresses() as $address){
+
+                $bcc_list .= 'Bcc: "'.$address->getAddress().'" <'.$address->getAddress().'>\r\n';
+
             }
+
+        }   
+
+        try {
+            $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
+                ->attachBody(base64_encode($bcc_list.$message->toString()))
+                ->addHeaders(['Content-Type' => 'text/plain'])
+                ->setReturnType(\Microsoft\Graph\Model\Message::class)
+                ->execute();
+        } catch (\Exception $e) {
+            sleep(5);
+            $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
+                ->attachBody(base64_encode($bcc_list.$message->toString()))
+                ->addHeaders(['Content-Type' => 'text/plain'])
+                ->setReturnType(\Microsoft\Graph\Model\Message::class)
+                ->execute();
+        }
         
     }
 

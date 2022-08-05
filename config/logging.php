@@ -124,7 +124,6 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
-    ],
 
     'gelf' => [
         'driver' => 'custom',
@@ -188,5 +187,6 @@ return [
         'extra_prefix' => null,
     ],
 
+]
 
 ];

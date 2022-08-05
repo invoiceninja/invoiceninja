@@ -84,6 +84,7 @@ class CreateAccount
         if (Ninja::isHosted()) {
             $sp794f3f->hosted_client_count = config('ninja.quotas.free.clients');
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
+            $sp794f3f->account_sms_verified = true;
             // $sp794f3f->trial_started = now();
             // $sp794f3f->trial_plan = 'pro';
         }
@@ -97,8 +98,8 @@ class CreateAccount
 
         $spaa9f78 = (new CreateUser($this->request, $sp794f3f, $sp035a66, true))->handle();
 
-        CreateCompanyPaymentTerms::dispatchSync($sp035a66, $spaa9f78);
-        CreateCompanyTaskStatuses::dispatchSync($sp035a66, $spaa9f78);
+        (new CreateCompanyPaymentTerms($sp035a66, $spaa9f78))->handle();
+        (new CreateCompanyTaskStatuses($sp035a66, $spaa9f78))->handle();
 
         if ($spaa9f78) {
             auth()->login($spaa9f78, false);

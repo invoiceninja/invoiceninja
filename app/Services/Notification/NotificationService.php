@@ -70,7 +70,6 @@ class NotificationService extends AbstractService
     public function ninja()
     {
         Notification::route('slack', config('ninja.notification.slack'))
-            ->route('mail', config('ninja.notification.mail'))
             ->notify($this->notification);
     }
 }

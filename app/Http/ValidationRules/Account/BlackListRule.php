@@ -23,7 +23,8 @@ class BlackListRule implements Rule
         'candassociates.com',
         'vusra.com',
         'fourthgenet.com',
-        'arxxwalls.com'
+        'arxxwalls.com',
+        'superhostforumla.com'
     ];
 
     /**

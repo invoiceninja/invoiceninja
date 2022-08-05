@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class ProductFilters extends QueryFilters
 {
+    protected $with_property = 'product_key';
+
     /**
      * Filter based on search text.
      *

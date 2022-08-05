@@ -44,57 +44,56 @@ return [
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('SES_REGION', 'us-east-1'),
+    ],
+    'sparkpost' => [
+        'secret' => env('SPARKPOST_SECRET'),
+    ],
 
-        'sparkpost' => [
-            'secret' => env('SPARKPOST_SECRET'),
-        ],
+    'gmail' => [
+        'token' => '',
+    ],
 
-        'gmail' => [
-            'token' => '',
-        ],
+    'stripe' => [
+        'model'  => App\Models\User::class,
+        'key'    => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+    ],
 
-        'stripe' => [
-            'model'  => App\Models\User::class,
-            'key'    => env('STRIPE_KEY'),
-            'secret' => env('STRIPE_SECRET'),
-        ],
+    'github' => [
+        'client_id' => env('GITHUB_CLIENT_ID'),
+        'client_secret' => env('GITHUB_CLIENT_SECRET'),
+        'redirect' => env('GITHUB_OAUTH_REDIRECT'),
+    ],
 
-        'github' => [
-            'client_id' => env('GITHUB_CLIENT_ID'),
-            'client_secret' => env('GITHUB_CLIENT_SECRET'),
-            'redirect' => env('GITHUB_OAUTH_REDIRECT'),
-        ],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
+    ],
 
-        'google' => [
-            'client_id' => env('GOOGLE_CLIENT_ID'),
-            'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-            'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
-        ],
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
+    ],
 
-        'facebook' => [
-            'client_id' => env('FACEBOOK_CLIENT_ID'),
-            'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-            'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
-        ],
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
+    ],
 
-        'linkedin' => [
-            'client_id' => env('LINKEDIN_CLIENT_ID'),
-            'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-            'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
-        ],
+    'twitter' => [
+        'client_id' => env('TWITTER_CLIENT_ID'),
+        'client_secret' => env('TWITTER_CLIENT_SECRET'),
+        'redirect' => env('TWITTER_OAUTH_REDIRECT'),
+    ],
 
-        'twitter' => [
-            'client_id' => env('TWITTER_CLIENT_ID'),
-            'client_secret' => env('TWITTER_CLIENT_SECRET'),
-            'redirect' => env('TWITTER_OAUTH_REDIRECT'),
-        ],
-
-        'bitbucket' => [
-            'client_id' => env('BITBUCKET_CLIENT_ID'),
-            'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
-            'redirect' => env('BITBUCKET_OAUTH_REDIRECT'),
-        ],
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    'bitbucket' => [
+        'client_id' => env('BITBUCKET_CLIENT_ID'),
+        'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
+        'redirect' => env('BITBUCKET_OAUTH_REDIRECT'),
     ],
 
 ];

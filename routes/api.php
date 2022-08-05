@@ -104,7 +104,7 @@ Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], 
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
-Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
     Route::post('check_subdomain', [SubdomainController::class, 'index'])->name('check_subdomain');
     Route::get('ping', [PingController::class, 'index'])->name('ping');
@@ -239,7 +239,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', [RecurringQuoteController::class, 'bulk'])->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', [RecurringQuoteController::class, 'upload']);
 
-    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:300,3');
+    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:300,2');
 
     Route::post('reports/clients', ClientReportController::class);
     Route::post('reports/contacts', ClientContactReportController::class);
@@ -259,7 +259,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
-    Route::post('support/messages/send', [SendingController::class]);
+    Route::post('support/messages/send', SendingController::class);
 
     Route::post('self-update', [SelfUpdateController::class, 'update'])->middleware('password_protected');
     Route::post('self-update/check_version', [SelfUpdateController::class, 'checkVersion']);
@@ -287,7 +287,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
 
 
-    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate');
+    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:100,1');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
     
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
@@ -332,12 +332,12 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
 });
 
-Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', [PaymentWebhookController::class])
-    ->middleware(['throttle:1000,1','guest'])
+Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
+    ->middleware('throttle:1000,1')
     ->name('payment_webhook');
 
-Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', [PaymentNotificationWebhookController::class])
-    ->middleware(['throttle:1000,1', 'guest'])
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', PaymentNotificationWebhookController::class)
+    ->middleware('throttle:1000,1')
     ->name('payment_notification_webhook');
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');

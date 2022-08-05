@@ -196,7 +196,7 @@ class CreditService
         try {
             if ($force) {
                 $this->credit->invitations->each(function ($invitation) {
-                    CreateEntityPdf::dispatchSync($invitation);
+                    (new CreateEntityPdf($invitation))->handle();
                 });
 
                 return $this;
@@ -243,7 +243,7 @@ class CreditService
     public function deletePdf()
     {
         $this->credit->invitations->each(function ($invitation) {
-            UnlinkFile::dispatchSync(config('filesystems.default'), $this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf');
+            (new UnlinkFile(config('filesystems.default'), $this->credit->client->credit_filepath($invitation).$this->credit->numberFormatter().'.pdf'))->handle();
         });
 
         return $this;

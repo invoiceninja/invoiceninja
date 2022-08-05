@@ -177,6 +177,7 @@ class CompanyTransformer extends EntityTransformer
             'inventory_notification_threshold' => (int) $company->inventory_notification_threshold,
             'track_inventory' => (bool) $company->track_inventory,
             'enable_applying_payments' => (bool) $company->enable_applying_payments,
+            'enabled_expense_tax_rates' => (int) $company->enabled_expense_tax_rates,
         ];
     }
 

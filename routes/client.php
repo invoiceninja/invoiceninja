@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('client', [ContactLoginController::class, 'showLoginForm'])->name('client.catchall')->middleware(['domain_db', 'contact_account','locale']); //catch all
 
-Route::get('client/login', [ContactLoginController::class, 'showLoginForm'])->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/login', [ContactLoginController::class, 'login'])->name('client.login.submit');
+Route::get('client/login/{company_key?}', [ContactLoginController::class, 'showLoginForm'])->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
+Route::post('client/login/{company_key?}', [ContactLoginController::class, 'login'])->name('client.login.submit');
 
 Route::get('client/register/{company_key?}', [ContactRegisterController::class, 'showRegisterForm'])->name('client.register')->middleware(['domain_db', 'contact_account', 'contact_register','locale']);
 Route::post('client/register/{company_key?}', [ContactRegisterController::class, 'register'])->middleware(['domain_db', 'contact_account', 'contact_register', 'locale', 'throttle:10,1']);
@@ -90,7 +90,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::get('credits/{credit_invitation}', [App\Http\Controllers\ClientPortal\CreditController::class,'show'])->name('credits.show_invitation');
 
-    Route::get('client/switch_company/{contact}', [App\Http\Controllers\ClientPortal\SwitchCompanyController::class])->name('switch_company');
+    Route::get('client/switch_company/{contact}', App\Http\Controllers\ClientPortal\SwitchCompanyController::class)->name('switch_company');
 
     Route::post('documents/download_multiple', [App\Http\Controllers\ClientPortal\DocumentController::class, 'downloadMultiple'])->name('documents.download_multiple');
     Route::get('documents/{document}/download', [App\Http\Controllers\ClientPortal\DocumentController::class, 'download'])->name('documents.download');
@@ -105,7 +105,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::get('statement', [App\Http\Controllers\ClientPortal\StatementController::class, 'index'])->name('statement');
     Route::get('statement/raw', [App\Http\Controllers\ClientPortal\StatementController::class, 'raw'])->name('statement.raw');
 
-    Route::post('upload', [App\Http\Controllers\ClientPortal\UploadController::class])->name('upload.store');
+    Route::post('upload', App\Http\Controllers\ClientPortal\UploadController::class)->name('upload.store');
     Route::get('logout', [ContactLoginController::class, 'logout'])->name('logout');
 
 });
