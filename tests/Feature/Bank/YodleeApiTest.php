@@ -394,7 +394,7 @@ class YodleeApiTest extends TestCase
 
         $yodlee = new Yodlee(true);
    
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb3');
 
         $transactions = $yodlee->getTransactions($access_token);
 

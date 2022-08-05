@@ -81,7 +81,7 @@ class Yodlee
     public function getTransactions($token)
     {
  
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryId' => '2']);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryType' => 'EXPENSE']);
         // $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions");
 
 
