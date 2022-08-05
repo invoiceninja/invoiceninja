@@ -36,7 +36,7 @@ class SendEmail
 
         $contact = $this->payment->client->contacts()->first();
 
-        if ($contact->email)
+        if ($contact?->email)
             EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
          
     }
