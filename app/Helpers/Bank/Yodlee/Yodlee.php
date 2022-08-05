@@ -18,7 +18,7 @@ class Yodlee
 
     public bool $test_mode;
 
-    private string $api_endpoint = '';
+    private string $api_endpoint = 'https://production.api.yodlee.com/ysl';
 
     private string $test_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
 
@@ -69,21 +69,26 @@ class Yodlee
 
     }
 
-    public function getAccounts($token)
+    public function getAccounts($token, $params = [])
     {
 
-        $response = $this->bankRequest('/accounts', 'get', [],  ["Authorization" => "Bearer {$token}"]);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/accounts", $params);
+
+        if($response->successful())
+            return $response->object();
+
+        if($response->failed())
+            return $response->body();
+
 
         return $response;
 
     }
 
-    public function getTransactions($token)
+    public function getTransactions($token, $params = [])
     {
  
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", ['categoryType' => 'EXPENSE']);
-        // $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions");
-
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", $params);
 
         if($response->successful())
             return $response->object();
@@ -93,12 +98,16 @@ class Yodlee
 
     }
 
-    public function getTransactionCategories($token)
+    public function getTransactionCategories($token, $params = [])
     {
 
-        $response = $this->bankRequest('/transactions/categories', 'get', [],  ["Authorization" => "Bearer {$token}"]);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions/categories", $params);
 
-        return $response;
+        if($response->successful())
+            return $response->object();
+
+        if($response->failed())
+            return $response->body();
 
     }
 

@@ -221,7 +221,7 @@ class YodleeApiTest extends TestCase
 
         $yodlee = new Yodlee(true);
    
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb2');
 
         $transactions = $yodlee->getTransactionCategories($access_token);
 
@@ -394,9 +394,11 @@ class YodleeApiTest extends TestCase
 
         $yodlee = new Yodlee(true);
    
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb3');
+        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
 
-        $transactions = $yodlee->getTransactions($access_token);
+        nlog($access_token);
+
+        $transactions = $yodlee->getTransactions($access_token, ['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
         nlog($transactions);
 
