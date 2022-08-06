@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasRestored;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -56,10 +57,11 @@ class UserRepository extends BaseRepository
         $account = $company->account;
 
         /* If hosted and Enterprise we need to increment the num_users field on the accounts table*/
-        if (! $user->id && $account->isEnterpriseClient()) {
-            $account->num_users++;
-            $account->save();
-        }
+        // 05-08-2022 This is an error, the num_users should _never_ increment
+        // if (! $user->id && $account->isEnterpriseClient()) {
+        //     $account->num_users++;
+        //     $account->save();
+        // }
 
         $user->fill($details);
 
@@ -94,6 +96,12 @@ class UserRepository extends BaseRepository
                     $cu->restore();
                     $cu->tokens()->restore();
                     $cu->save();
+
+                    //05-08-2022
+                    if($cu->tokens()->count() == 0){
+                        (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
+                    }
+
                 } else {
                     $cu->notifications = $data['company_user']['notifications'];
                     $cu->settings = $data['company_user']['settings'];
