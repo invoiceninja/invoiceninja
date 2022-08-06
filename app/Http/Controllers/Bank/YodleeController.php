@@ -21,6 +21,11 @@ class YodleeController extends BaseController
     public function auth(Request $request)
     {
 
+        // create a user at this point 
+        // use the one time token here to pull in the actual user
+
+        //store the user_account_id on the accounts table
+
         $yodlee = new Yodlee(true);
 
         $data = [
