@@ -36,6 +36,10 @@ return new class extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
+
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->text('bank_integration_account_id')->nullable();
+        });        
     }
 
     /**

@@ -65,7 +65,47 @@ class Yodlee
             'loginName' => 'test123',
         ];
 
-        return $this->bankRequest('/user/register', 'post', $user, ['Authorization' => $token]);
+/*
+{
+  "user": {
+    "preferences": {
+      "dateFormat": "string",
+      "timeZone": "string",
+      "currency": "USD",
+      "locale": "en_US"
+    },
+    "address": {
+      "zip": "string",
+      "country": "string",
+      "address3": "string",
+      "address2": "string",
+      "city": "string",
+      "address1": "string",
+      "state": "string"
+    },
+    "loginName": "string",
+    "name": {
+      "middle": "string",
+      "last": "string",
+      "fullName": "string",
+      "first": "string"
+    },
+    "email": "string",
+    "segmentName": "string"
+  }
+}
+*/
+
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->post($this->api_endpoint. "/user/register", $user);
+
+        if($response->successful())
+            return $response->object();
+
+        if($response->failed())
+            return $response->body();
+
+
+        return $response;
 
     }
 

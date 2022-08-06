@@ -28,6 +28,17 @@ class YodleeApiTest extends TestCase
         
     }
 
+    public function testCreateUser()
+    {
+
+        $yodlee = new Yodlee(true);
+
+        $user = $yodlee->createUser();
+
+        nlog($user);
+
+    }
+
     public function testAccessTokenGeneration()
     {
 

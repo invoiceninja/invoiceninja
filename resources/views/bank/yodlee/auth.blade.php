@@ -27,6 +27,7 @@
         'click', 
         function() {
             window.fastlink.open({
+              flow: 'edit',//flow changes depending on what we are doing sometimes it could be add/edit etc etc
               fastLinkURL: '{{ $fasttrack_url }}',
               accessToken: 'Bearer {{ $access_token }}',
               params: {
