@@ -431,6 +431,10 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function sendFailureMail($error)
     {
+        if(is_object($error)){
+            $error = 'Payment Aborted';
+        }
+
         if (! is_null($this->payment_hash)) {
             $this->unWindGatewayFees($this->payment_hash);
         }

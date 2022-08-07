@@ -167,6 +167,16 @@ class CreditCard
             $this->stripe->client->company,
         );
 
+        //if the user has come from a subscription double check here if we need to redirect
+
+        if($payment->invoices()->whereHas('subscription')->exists()){
+            $subscription = $payment->invoices()->first()->subscription;
+
+            if($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1)
+            return redirect($subscription->webhook_configuration['return_url']);
+
+        }
+
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
