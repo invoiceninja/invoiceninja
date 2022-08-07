@@ -167,8 +167,8 @@ class CreditCard
             $this->stripe->client->company,
         );
 
-        //if the user has come from a subscription double check here if we need to redirect
-
+        //If the user has come from a subscription double check here if we need to redirect.
+        //08-08-2022
         if($payment->invoices()->whereHas('subscription')->exists()){
             $subscription = $payment->invoices()->first()->subscription;
 
@@ -176,6 +176,7 @@ class CreditCard
             return redirect($subscription->webhook_configuration['return_url']);
 
         }
+        //08-08-2022
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
