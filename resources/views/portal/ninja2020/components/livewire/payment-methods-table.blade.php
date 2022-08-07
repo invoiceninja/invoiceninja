@@ -70,7 +70,7 @@
                             {{ App\Models\GatewayType::getAlias($payment_method->gateway_type_id) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ ucfirst($payment_method->meta?->brand) }}
+                            {{ property_exists($payment_method->meta, 'brand') ? ucfirst($payment_method->meta?->brand) : '' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             @if(isset($payment_method->meta->exp_month) && isset($payment_method->meta->exp_year))

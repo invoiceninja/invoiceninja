@@ -100,7 +100,7 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
-        $this->nmo->mailable->tag($this->company->company_key);
+        // $this->nmo->mailable->tag($this->company->company_key);
 
         //send email
         try {
