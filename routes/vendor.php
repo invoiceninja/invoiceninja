@@ -50,4 +50,5 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
 });
 
+
 Route::fallback([BaseController::class, 'notFoundVendor']);
