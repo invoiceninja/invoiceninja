@@ -12,6 +12,7 @@
 namespace App\Mail;
 
 use App\Jobs\Invoice\CreateUbl;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\User;
@@ -24,10 +25,10 @@ use App\Utils\VendorHtmlEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class VendorTemplateEmail extends Mailable
 {
-
     private $build_email;
 
     private $vendor;
@@ -53,14 +54,13 @@ class VendorTemplateEmail extends Mailable
 
     public function build()
     {
-        
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
             $template_name = 'email.template.client';
         }
 
-        if($this->build_email->getTemplate() == 'custom') {
+        if ($this->build_email->getTemplate() == 'custom') {
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
         }
 
@@ -72,23 +72,24 @@ class VendorTemplateEmail extends Mailable
             );
         }
 
-        if($this->invitation)
-        {
+        if ($this->invitation) {
             $html_variables = (new VendorHtmlEngine($this->invitation))->makeValues();
             $signature = str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature);
-        }
-        else
+        } else {
             $signature = $settings->email_signature;
+        }
 
-        if(property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1)
+        if (property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1) {
             $email_from_name = $settings->email_from_name;
-        else
+        } else {
             $email_from_name = $this->company->present()->name();
+        }
 
         $this->from(config('mail.from.address'), $email_from_name);
 
-        if (strlen($settings->bcc_email) > 1)
-            $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
+        if (strlen($settings->bcc_email) > 1) {
+            $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
+        }//remove whitespace if any has been inserted.
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.text', [
@@ -109,23 +110,41 @@ class VendorTemplateEmail extends Mailable
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ])
-            ->withSwiftMessage(function ($message) {
+            ->withSymfonyMessage(function ($message) {
                 $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($this->company->company_key);
 
-            /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
-            if(Ninja::isHosted())
-                sleep(1);
+        if(Ninja::isHosted() && $this->invitation){
 
-            foreach ($this->build_email->getAttachments() as $file) {
+            $path = false;
 
-                if(is_string($file))
-                    $this->attach($file);
-                elseif(is_array($file))
-                    $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
+            if($this->invitation->purchase_order)
+                $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
+
+            sleep(1);
+
+            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
+
+                sleep(2);
+
+                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
+                    (new CreatePurchaseOrderPdf($this->invitation))->handle();
+                    sleep(2);
+                }
 
             }
+
+        }
+
+        foreach ($this->build_email->getAttachments() as $file) {
+            if (is_string($file)) {
+                $this->attach($file);
+            } elseif (is_array($file)) {
+                $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+            }
+        }
 
         return $this;
     }

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Models\Currency;
@@ -22,19 +23,16 @@ use Tests\TestCase;
  */
 class RedisVsDatabaseTest extends TestCase
 {
-
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
         // $this->markTestSkipped('Skip test no company gateways installed');
-
-
     }
 
     public function testRedisSpeed()
     {
-    	$start = microtime(true);
+        $start = microtime(true);
 
         $currencies = Cache::get('currencies');
 
@@ -46,13 +44,12 @@ class RedisVsDatabaseTest extends TestCase
 
         $this->assertTrue(true);
         // nlog($total_time);
-        //0.0012960433959961  
+        //0.0012960433959961
     }
-
 
     public function testDbSpeed()
     {
-    	$start = microtime(true);
+        $start = microtime(true);
 
         $currency = Currency::find(17);
 
@@ -60,15 +57,6 @@ class RedisVsDatabaseTest extends TestCase
 
         $this->assertTrue(true);
         // nlog($total_time);
-		// 0.006152868270874  
-
+        // 0.006152868270874
     }
-
-
-
 }
-
-
-
-
-    

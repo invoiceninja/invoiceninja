@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-
 use App\Models\PurchaseOrder;
 
 class PurchaseOrderObserver
@@ -34,7 +33,6 @@ class PurchaseOrderObserver
      */
     public function updated(PurchaseOrder $purchase_order)
     {
-
     }
 
     /**
@@ -45,7 +43,6 @@ class PurchaseOrderObserver
      */
     public function deleted(PurchaseOrder $purchase_order)
     {
-
     }
 
     /**

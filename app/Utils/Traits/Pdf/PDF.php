@@ -12,29 +12,27 @@
 namespace App\Utils\Traits\Pdf;
 
 use setasign\Fpdi\Fpdi;
- 
+
 class PDF extends FPDI
 {
- 
     public $text_alignment = 'L';
 
-    function Footer()
+    public function Footer()
     {
         $this->SetXY(0, -5);
-        $this->SetFont('Arial','I', 9);
-        $this->SetTextColor(135,135,135);
+        $this->SetFont('Arial', 'I', 9);
+        $this->SetTextColor(135, 135, 135);
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
-        $this->Cell(0,5, $trans ,0,0, $this->text_alignment);
-
+        $this->Cell(0, 5, $trans, 0, 0, $this->text_alignment);
     }
 
     public function setAlignment($alignment)
     {
-        if(in_array($alignment, ['C','L','R']))
+        if (in_array($alignment, ['C', 'L', 'R'])) {
             $this->text_alignment = $alignment;
+        }
 
         return $this;
     }
-
 }

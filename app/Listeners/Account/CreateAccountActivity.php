@@ -45,7 +45,7 @@ class CreateAccountActivity implements ShouldQueue
             $nmo->settings = $event->company->settings;
             $nmo->to_user = $event->user;
 
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
         }
     }
 }

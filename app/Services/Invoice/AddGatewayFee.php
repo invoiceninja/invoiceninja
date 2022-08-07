@@ -45,23 +45,25 @@ class AddGatewayFee extends AbstractService
     {
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id, $this->invoice->uses_inclusive_taxes), $this->invoice->client->currency()->precision);
 
-        if (!$gateway_fee) 
+        if (! $gateway_fee) {
             return $this->invoice;
+        }
 
         // Removes existing stale gateway fees
         $this->cleanPendingGatewayFees();
 
         // If a gateway fee is > 0 insert the line item
-        if ($gateway_fee > 0) 
+        if ($gateway_fee > 0) {
             return $this->processGatewayFee($gateway_fee);
-        
-        // If we have reached this far, then we are apply a gateway discount    
+        }
+
+        // If we have reached this far, then we are apply a gateway discount
         return $this->processGatewayDiscount($gateway_fee);
     }
 
     private function cleanPendingGatewayFees()
     {
-        $invoice_items = (array)$this->invoice->line_items;
+        $invoice_items = (array) $this->invoice->line_items;
 
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
@@ -94,7 +96,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
         }
 
-        $invoice_items = (array)$this->invoice->line_items;
+        $invoice_items = (array) $this->invoice->line_items;
         $invoice_items[] = $invoice_item;
 
         $this->invoice->line_items = $invoice_items;
@@ -104,8 +106,7 @@ class AddGatewayFee extends AbstractService
 
         $new_balance = $this->invoice->balance;
 
-        if(floatval($new_balance) - floatval($balance) != 0)
-        {
+        if (floatval($new_balance) - floatval($balance) != 0) {
             $adjustment = $new_balance - $balance;
 
             $this->invoice
@@ -129,7 +130,7 @@ class AddGatewayFee extends AbstractService
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
-        
+
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.discount');
@@ -143,7 +144,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
         }
 
-        $invoice_items = (array)$this->invoice->line_items;
+        $invoice_items = (array) $this->invoice->line_items;
         $invoice_items[] = $invoice_item;
 
         $this->invoice->line_items = $invoice_items;
@@ -152,9 +153,7 @@ class AddGatewayFee extends AbstractService
 
         $new_balance = $this->invoice->balance;
 
-
-        if(floatval($new_balance) - floatval($balance) != 0)
-        {
+        if (floatval($new_balance) - floatval($balance) != 0) {
             $adjustment = $new_balance - $balance;
 
             $this->invoice
@@ -167,7 +166,6 @@ class AddGatewayFee extends AbstractService
             ->ledger()
             ->updateInvoiceBalance($adjustment * -1, 'Adjustment for adding gateway fee');
         }
-
 
         return $this->invoice;
     }

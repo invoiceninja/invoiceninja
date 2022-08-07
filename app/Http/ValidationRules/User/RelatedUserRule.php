@@ -25,6 +25,7 @@ class RelatedUserRule implements Rule
     {
         $this->input = $input;
     }
+
     /**
      * @param string $attribute
      * @param mixed $value

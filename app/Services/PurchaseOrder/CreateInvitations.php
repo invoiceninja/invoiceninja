@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Services\PurchaseOrder;
 
 use App\Factory\PurchaseOrderInvitationFactory;
@@ -44,13 +43,12 @@ class CreateInvitations extends AbstractService
     {
         $contacts = $this->purchase_order->vendor->contacts()->get();
 
-        if($contacts->count() == 0){
+        if ($contacts->count() == 0) {
             $this->createBlankContact();
 
             $this->purchase_order->refresh();
             $contacts = $this->purchase_order->vendor->contacts;
         }
-
 
         $contacts->each(function ($contact) {
             $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
@@ -60,14 +58,13 @@ class CreateInvitations extends AbstractService
                 ->first();
 
             if (! $invitation) {
-                try{
-                $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
-                $ii->key = $this->createDbHash($this->purchase_order->company->db);
-                $ii->purchase_order_id = $this->purchase_order->id;
-                $ii->vendor_contact_id = $contact->id;
-                $ii->save();
-                }
-                catch(\Exception $e){
+                try {
+                    $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
+                    $ii->key = $this->createDbHash($this->purchase_order->company->db);
+                    $ii->purchase_order_id = $this->purchase_order->id;
+                    $ii->vendor_contact_id = $contact->id;
+                    $ii->save();
+                } catch (\Exception $e) {
                     nlog($e->getMessage());
                 }
             } elseif (! $contact->send_email) {
@@ -75,12 +72,10 @@ class CreateInvitations extends AbstractService
             }
         });
 
-        if($this->purchase_order->invitations()->count() == 0) {
-
-            if($contacts->count() == 0){
+        if ($this->purchase_order->invitations()->count() == 0) {
+            if ($contacts->count() == 0) {
                 $contact = $this->createBlankContact();
-            }
-            else{
+            } else {
                 $contact = $contacts->first();
 
                 $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
@@ -89,8 +84,9 @@ class CreateInvitations extends AbstractService
                     ->withTrashed()
                     ->first();
 
-                if($invitation){
+                if ($invitation) {
                     $invitation->restore();
+
                     return $this->purchase_order;
                 }
             }

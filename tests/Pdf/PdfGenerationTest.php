@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Pdf;
@@ -21,7 +21,7 @@ use Tests\TestCase;
  */
 class PdfGenerationTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
     }

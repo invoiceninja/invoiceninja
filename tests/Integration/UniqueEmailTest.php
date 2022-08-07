@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Http\ValidationRules\NewUniqueUserRule;
@@ -29,7 +30,7 @@ class UniqueEmailTest extends TestCase
 
     protected $rule;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -103,7 +104,7 @@ class UniqueEmailTest extends TestCase
         $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
     }
 
-    public function tearDown() :void
+    protected function tearDown() :void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

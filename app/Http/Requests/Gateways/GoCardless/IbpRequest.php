@@ -12,13 +12,13 @@
 
 namespace App\Http\Requests\Gateways\GoCardless;
 
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Libraries\MultiDB;
 
 class IbpRequest extends FormRequest
 {

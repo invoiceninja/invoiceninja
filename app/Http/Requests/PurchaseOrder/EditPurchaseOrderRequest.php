@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\PurchaseOrder;
 
-
 use App\Http\Requests\Request;
 
 class EditPurchaseOrderRequest extends Request

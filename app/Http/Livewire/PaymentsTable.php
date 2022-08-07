@@ -28,13 +28,12 @@ class PaymentsTable extends Component
     public $user;
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
 
         $this->user = auth()->user();
-
     }
 
     public function render()

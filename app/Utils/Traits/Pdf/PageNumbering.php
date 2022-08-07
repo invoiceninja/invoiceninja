@@ -10,6 +10,7 @@
  */
 
 namespace App\Utils\Traits\Pdf;
+
 use App\Utils\Traits\Pdf\PDF;
 use setasign\Fpdi\PdfParser\StreamReader;
 
@@ -17,12 +18,11 @@ trait PageNumbering
 {
     private function pageNumbering($pdf_data_object, $company)
     {
-
-        if(!property_exists($company->settings, 'page_numbering') || !$company->settings->page_numbering)
+        if (! property_exists($company->settings, 'page_numbering') || ! $company->settings->page_numbering) {
             return $pdf_data_object;
+        }
 
-        try
-        {
+        try {
             $pdf = new PDF();
 
             $pdf->setAlignment($company->getSetting('page_numbering_alignment'));
@@ -31,24 +31,21 @@ trait PageNumbering
 
             $pdf->AliasNbPages();
 
-            for ($i=1; $i <= $pageCount; $i++) { 
+            for ($i = 1; $i <= $pageCount; $i++) {
                 //import a page then get the id and will be used in the template
                 $tplId = $pdf->importPage($i);
 
-                //create a page        
+                //create a page
                 $templateSize = $pdf->getTemplateSize($tplId);
 
                 $pdf->AddPage($templateSize['orientation'], [$templateSize['width'], $templateSize['height']]);
 
                 $pdf->useTemplate($tplId);
             }
-             
-             return $pdf->Output('S');
 
-         }
-         catch(\Exception $e) {
+            return $pdf->Output('S');
+        } catch (\Exception $e) {
             nlog($e->getMessage());
-
-         }
+        }
     }
 }

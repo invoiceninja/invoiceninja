@@ -32,9 +32,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\App;
 
 /*Multi Mailer implemented*/
 
@@ -61,11 +61,11 @@ class EmailEntity implements ShouldQueue
     public $template_data; //The data to be merged into the template
 
     public $tries = 1;
-   
+
     /**
      * EmailEntity constructor.
      *
-     * 
+     *
      * @param Invitation $invitation
      * @param Company    $company
      * @param ?string    $reminder_template
@@ -101,9 +101,10 @@ class EmailEntity implements ShouldQueue
     public function handle()
     {
         /* Don't fire emails if the company is disabled */
-        if ($this->company->is_disabled) 
+        if ($this->company->is_disabled) {
             return true;
-        
+        }
+
         /* Set DB */
         MultiDB::setDB($this->company->db);
 
@@ -114,7 +115,7 @@ class EmailEntity implements ShouldQueue
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
-        
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
         $nmo->company = $this->company;
@@ -124,10 +125,8 @@ class EmailEntity implements ShouldQueue
         $nmo->invitation = $this->invitation;
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity;
-        
-        NinjaMailerJob::dispatchNow($nmo);
 
-
+        (new NinjaMailerJob($nmo))->handle();
     }
 
     private function resolveEntityString() :string
@@ -152,7 +151,7 @@ class EmailEntity implements ShouldQueue
                 break;
 
             default:
-                # code...
+                // code...
                 break;
         }
     }
@@ -160,8 +159,13 @@ class EmailEntity implements ShouldQueue
     /* Builds the email builder object */
     private function resolveEmailBuilder()
     {
-        $class = 'App\Mail\Engine\\' . ucfirst(Str::camel($this->entity_string)) . "EmailEngine";
+        $class = 'App\Mail\Engine\\'.ucfirst(Str::camel($this->entity_string)).'EmailEngine';
 
         return (new $class($this->invitation, $this->reminder_template, $this->template_data))->build();
+    }
+
+    public function failed($e)
+    {
+        // nlog($e->getMessage());
     }
 }

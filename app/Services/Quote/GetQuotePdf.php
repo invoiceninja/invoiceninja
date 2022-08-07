@@ -29,7 +29,7 @@ class GetQuotePdf extends AbstractService
 
     public function run()
     {
-        if (! $this->contact) {
+        if (!$this->contact) {
             $this->contact = $this->quote->client->primary_contact()->first() ?: $this->quote->client->contacts()->first();
         }
 
@@ -37,13 +37,14 @@ class GetQuotePdf extends AbstractService
 
         $path = $this->quote->client->quote_filepath($invitation);
 
-        $file_path = $path.$this->quote->numberFormatter().'.pdf';
+        $file_path = $path . $this->quote->numberFormatter() . '.pdf';
 
         // $disk = 'public';
         $disk = config('filesystems.default');
-        
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
-        
+
+
+        $file_path = (new CreateEntityPdf($invitation))->handle();
+
         return $file_path;
         //return Storage::disk($disk)->path($file_path);
     }

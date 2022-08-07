@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ExpensesTableAdditionalFields extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,7 +12,6 @@ class ExpensesTableAdditionalFields extends Migration
      */
     public function up()
     {
-           
         Schema::table('expenses', function (Blueprint $table) {
             $table->decimal('tax_amount1', 20, 6)->default();
             $table->decimal('tax_amount2', 20, 6)->default();
@@ -21,7 +19,7 @@ class ExpensesTableAdditionalFields extends Migration
             $table->boolean('uses_inclusive_taxes')->default(0);
             $table->boolean('amount_is_pretax')->default(1);
         });
-   
+
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('expense_inclusive_taxes')->default(0);
             $table->boolean('expense_amount_is_pretax')->default(1);
@@ -37,4 +35,4 @@ class ExpensesTableAdditionalFields extends Migration
     {
         //
     }
-}
+};

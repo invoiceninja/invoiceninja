@@ -44,7 +44,7 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markPaid()->save();
         }
 
-        if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid')) ) {
+        if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
             $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'))->save();
         }
 
@@ -59,14 +59,13 @@ class TriggeredActions extends AbstractService
 
         if ($this->request->has('cancel') && $this->request->input('cancel') == 'true') {
             $this->invoice = $this->invoice->service()->handleCancellation()->save();
-        }        
+        }
 
         return $this->invoice;
     }
 
     private function sendEmail()
     {
-
         $reminder_template = $this->invoice->calculateTemplate('invoice');
 
         $this->invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($reminder_template) {

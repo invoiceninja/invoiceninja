@@ -41,8 +41,9 @@ class UpdatePaymentRequest extends Request
             'documents' => 'mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('payments')->where('company_id', auth()->user()->company()->id)->ignore($this->payment->id);
+        }
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
@@ -57,7 +58,7 @@ class UpdatePaymentRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -73,9 +74,9 @@ class UpdatePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-
-                if(array_key_exists('invoice_id', $input['invoices'][$key]))
+                if (array_key_exists('invoice_id', $input['invoices'][$key])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+                }
             }
         }
         $this->replace($input);

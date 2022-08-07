@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class RefactorBillingScriptionsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,7 +12,6 @@ class RefactorBillingScriptionsTable extends Migration
      */
     public function up()
     {
-
         Schema::rename('billing_subscriptions', 'subscriptions');
 
         Schema::table('subscriptions', function (Blueprint $table) {
@@ -28,7 +26,6 @@ class RefactorBillingScriptionsTable extends Migration
             $table->renameColumn('product_id', 'product_ids');
             $table->dropColumn('is_recurring');
         });
-
     }
 
     /**
@@ -40,4 +37,4 @@ class RefactorBillingScriptionsTable extends Migration
     {
         //
     }
-}
+};

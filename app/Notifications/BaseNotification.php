@@ -20,9 +20,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class BaseNotification extends Notification 
+class BaseNotification extends Notification
 {
-  //  use Queueable;
+    //  use Queueable;
     use MakesInvoiceHtml;
 
     /**
@@ -94,11 +94,11 @@ class BaseNotification extends Notification
         }
 
         if ($this->entity instanceof Invoice && $this->settings->ubl_email_attachment) {
-            $ubl_string = CreateUbl::dispatchNow($this->entity);
+            $ubl_string = (new Createubl($this->entity))->handle();
             $mail_message->attachData($ubl_string, $this->entity->getFileName('xml'));
         }
 
-        return $mail_message->withSwiftMessage(function ($message) {
+        return $mail_message->withSymfonyMessage(function ($message) {
             $message->getHeaders()->addTextHeader('Tag', $this->invitation->company->company_key);
         });
     }

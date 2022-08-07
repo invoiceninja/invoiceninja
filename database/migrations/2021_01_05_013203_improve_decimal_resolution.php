@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ImproveDecimalResolution extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,12 +14,11 @@ class ImproveDecimalResolution extends Migration
      */
     public function up()
     {
-   
         Schema::table('company_ledgers', function (Blueprint $table) {
             $table->decimal('balance', 20, 6)->change();
             $table->decimal('adjustment', 20, 6)->change();
         });
-   
+
         Schema::table('credits', function (Blueprint $table) {
             $table->decimal('tax_rate1', 20, 6)->change();
             $table->decimal('tax_rate2', 20, 6)->change();
@@ -110,7 +108,7 @@ class ImproveDecimalResolution extends Migration
             $table->integer('status_sort_order')->nullable()->default(null)->change();
         });
 
-        Schema::table('task_statuses', function (Blueprint $table){
+        Schema::table('task_statuses', function (Blueprint $table) {
             $table->string('color')->default('#fff');
             $table->integer('status_sort_order')->nullable()->default(null)->change();
         });
@@ -124,27 +122,26 @@ class ImproveDecimalResolution extends Migration
             $table->boolean('hide_empty_columns_on_pdf')->false();
         });
 
-        Schema::table('expense_categories', function (Blueprint $table){
+        Schema::table('expense_categories', function (Blueprint $table) {
             $table->string('color')->default('#fff');
         });
 
-        Schema::table('projects', function (Blueprint $table){
+        Schema::table('projects', function (Blueprint $table) {
             $table->string('color')->default('#fff');
         });
 
-
-        Task::query()->update(['status_sort_order' => NULL]);
-        TaskStatus::query()->update(['status_sort_order' => NULL]);
+        Task::query()->update(['status_sort_order' => null]);
+        TaskStatus::query()->update(['status_sort_order' => null]);
 
         Schema::table('tasks', function (Blueprint $table) {
             $table->integer('status_order')->nullable();
         });
 
-        Schema::table('task_statuses', function (Blueprint $table){
+        Schema::table('task_statuses', function (Blueprint $table) {
             $table->integer('status_order')->nullable();
         });
 
-         Schema::table('companies', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('hide_empty_columns_on_pdf');
         });
     }
@@ -158,4 +155,4 @@ class ImproveDecimalResolution extends Migration
     {
         //
     }
-}
+};

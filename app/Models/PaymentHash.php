@@ -20,7 +20,7 @@ class PaymentHash extends Model
     protected $casts = [
         'data' => 'object',
     ];
-    
+
     public function invoices()
     {
         return $this->data->invoices;

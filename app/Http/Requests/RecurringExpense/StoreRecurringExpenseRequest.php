@@ -35,11 +35,13 @@ class StoreRecurringExpenseRequest extends Request
     {
         $rules = [];
 
-        if ($this->number) 
+        if ($this->number) {
             $rules['number'] = Rule::unique('recurring_expenses')->where('company_id', auth()->user()->company()->id);
-        
-        if(!empty($this->client_id))
+        }
+
+        if (! empty($this->client_id)) {
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        }
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
         $rules['tax_amount1'] = 'numeric';
@@ -49,7 +51,7 @@ class StoreRecurringExpenseRequest extends Request
         return $this->globalRules($rules);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -57,22 +59,23 @@ class StoreRecurringExpenseRequest extends Request
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }   
-        
+        }
+
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
-            $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
+            $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
-        if(array_key_exists('color', $input) && is_null($input['color']))
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
 
-        if(array_key_exists('foreign_amount', $input) && is_null($input['foreign_amount']))
+        if (array_key_exists('foreign_amount', $input) && is_null($input['foreign_amount'])) {
             $input['foreign_amount'] = 0;
-
+        }
 
         $this->replace($input);
     }

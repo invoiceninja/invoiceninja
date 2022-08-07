@@ -28,6 +28,7 @@ class CreditWasEmailed
     public $event_vars;
 
     public $template;
+
     /**
      * Create a new event instance.
      *

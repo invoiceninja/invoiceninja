@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration\PaymentDrivers;
 
 use net\authorize\api\contract\v1 as AnetAPI;
@@ -43,14 +44,13 @@ class AuthorizeTest extends TestCase
 
     public $customer_payment_profile = 1512424103;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
         if (! config('ninja.testvars.authorize')) {
             $this->markTestSkipped('authorize.net not configured');
         }
-
     }
 
     public function testUnpackingVars()
@@ -318,8 +318,8 @@ class AuthorizeTest extends TestCase
 
         $code = '';
         $description = '';
-        
-        if($response->getTransactionResponse()->getMessages() !== null){
+
+        if ($response->getTransactionResponse()->getMessages() !== null) {
             $code = $response->getTransactionResponse()->getMessages()[0]->getCode();
             $description = $response->getTransactionResponse()->getMessages()[0]->getDescription();
         }
@@ -330,7 +330,6 @@ class AuthorizeTest extends TestCase
             'code' => $code,
             'description' => $description,
         ];
-
 
         if ($response != null) {
             if ($response->getMessages()->getResultCode() == 'Ok') {

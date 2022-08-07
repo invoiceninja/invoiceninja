@@ -22,31 +22,44 @@ class VendorContactController extends Controller
     use MakesHash;
 
     public const MODULE_RECURRING_INVOICES = 1;
+
     public const MODULE_CREDITS = 2;
+
     public const MODULE_QUOTES = 4;
+
     public const MODULE_TASKS = 8;
+
     public const MODULE_EXPENSES = 16;
+
     public const MODULE_PROJECTS = 32;
+
     public const MODULE_VENDORS = 64;
+
     public const MODULE_TICKETS = 128;
+
     public const MODULE_PROPOSALS = 256;
+
     public const MODULE_RECURRING_EXPENSES = 512;
+
     public const MODULE_RECURRING_TASKS = 1024;
+
     public const MODULE_RECURRING_QUOTES = 2048;
+
     public const MODULE_INVOICES = 4096;
+
     public const MODULE_PROFORMAL_INVOICES = 8192;
+
     public const MODULE_PURCHASE_ORDERS = 16384;
 
     public function edit(VendorContact $vendor_contact)
     {
-
         return $this->render('vendor_profile.edit', [
             'contact' => $vendor_contact,
             'vendor' => $vendor_contact->vendor,
             'settings' => $vendor_contact->vendor->company->settings,
             'company' => $vendor_contact->vendor->company,
             'sidebar' => $this->sidebarMenu(),
-            'countries' => TranslationHelper::getCountries()
+            'countries' => TranslationHelper::getCountries(),
         ]);
     }
 
@@ -56,8 +69,7 @@ class VendorContactController extends Controller
         $vendor_contact->vendor->fill(request()->all());
         $vendor_contact->push();
 
-         return back()->withSuccess(ctrans('texts.profile_updated_successfully'));
-
+        return back()->withSuccess(ctrans('texts.profile_updated_successfully'));
     }
 
     private function sidebarMenu() :array
@@ -77,5 +89,4 @@ class VendorContactController extends Controller
 
         return $data;
     }
-
 }

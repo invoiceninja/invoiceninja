@@ -42,6 +42,7 @@ use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\UrlSetDb;
 use App\Http\Middleware\UserVerified;
+use App\Http\Middleware\VendorContactKeyLogin;
 use App\Http\Middleware\VendorLocale;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\VerifyHash;
@@ -74,7 +75,7 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
-        // \Fruitcake\Cors\HandleCors::class,
+        // \Illuminate\Http\Middleware\HandleCors::class,
         Cors::class,
 
     ];
@@ -166,12 +167,12 @@ class Kernel extends HttpKernel
         'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,
+        'vendor_contact_key_login' => VendorContactKeyLogin::class,
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,
     ];
-
 
     protected $middlewarePriority = [
         EncryptCookies::class,

@@ -44,7 +44,7 @@ class ExpenseController extends BaseController
     use Uploadable;
     use BulkOptions;
     use SavesDocuments;
-    
+
     protected $entity_type = Expense::class;
 
     protected $entity_transformer = ExpenseTransformer::class;
@@ -565,14 +565,14 @@ class ExpenseController extends BaseController
      */
     public function upload(UploadExpenseRequest $request, Expense $expense)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $expense);
+        }
 
         return $this->itemResponse($expense->fresh());
-
-    }    
+    }
 }

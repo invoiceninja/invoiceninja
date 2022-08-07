@@ -49,13 +49,13 @@
                         </div>
                     @endif
 
-                    @if(!empty(optional($payment->type)->name) && !is_null(optional($payment->type)->name))
+                    @if(!empty($payment->type?->name) && !is_null($payment->type?->name))
                         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.method') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ optional($payment->type)->name }}
+                                {{ $payment->type?->name }}
                             </dd>
                         </div>
                     @endif

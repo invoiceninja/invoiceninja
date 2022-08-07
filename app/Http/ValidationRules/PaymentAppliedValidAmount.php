@@ -53,13 +53,13 @@ class PaymentAppliedValidAmount implements Rule
 
         $payment_amounts = $payment->amount - $payment->refunded - $payment->applied;
 
-        if(request()->has('credits') 
-            && is_array(request()->input('credits')) 
-            && count(request()->input('credits')) == 0 
-            && request()->has('invoices') 
-            && is_array(request()->input('invoices')) 
-            && count(request()->input('invoices')) == 0){
-           return true;
+        if (request()->has('credits')
+            && is_array(request()->input('credits'))
+            && count(request()->input('credits')) == 0
+            && request()->has('invoices')
+            && is_array(request()->input('invoices'))
+            && count(request()->input('invoices')) == 0) {
+            return true;
         }
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
@@ -75,6 +75,6 @@ class PaymentAppliedValidAmount implements Rule
         }
 
         // nlog("{round($payment_amounts,3)} >= {round($invoice_amounts,3)}");
-        return  round($payment_amounts,3) >= round($invoice_amounts,3);
+        return  round($payment_amounts, 3) >= round($invoice_amounts, 3);
     }
 }

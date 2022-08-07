@@ -52,7 +52,7 @@ class SendReminders implements ShouldQueue
      */
     public function handle()
     {
-        nlog("Sending reminders ".Carbon::now()->format('Y-m-d h:i:s'));
+        nlog('Sending reminders '.Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->sendReminderEmails();
@@ -65,7 +65,6 @@ class SendReminders implements ShouldQueue
             }
         }
     }
-
 
     private function sendReminderEmails()
     {
@@ -83,7 +82,7 @@ class SendReminders implements ShouldQueue
             $reminder_template = $invoice->calculateTemplate('invoice');
 
             nlog("hitting a reminder for {$invoice->number} with template {$reminder_template}");
-                
+
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'endless_reminder'])) {
                 $this->sendReminder($invoice, $reminder_template);
                 WebhookHandler::dispatch(Webhook::EVENT_REMIND_INVOICE, $invoice, $invoice->company);
@@ -129,42 +128,42 @@ class SendReminders implements ShouldQueue
         $set_reminder2 = false;
         $set_reminder3 = false;
 
-        if ((int)$settings->schedule_reminder1 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder1, (int)$settings->num_days_reminder1);
+        if ((int) $settings->schedule_reminder1 > 0) {
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder1, (int) $settings->num_days_reminder1);
 
             if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
-            if (!$invoice->reminder1_sent) {
+            if (! $invoice->reminder1_sent) {
                 $set_reminder1 = true;
             }
         }
 
-        if ((int)$settings->num_days_reminder2 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder2, (int)$settings->num_days_reminder2);
+        if ((int) $settings->num_days_reminder2 > 0) {
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder2, (int) $settings->num_days_reminder2);
 
             if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
-            if (!$invoice->reminder2_sent) {
+            if (! $invoice->reminder2_sent) {
                 $set_reminder2 = true;
             }
         }
 
-        if ((int)$settings->num_days_reminder3 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder3, (int)$settings->num_days_reminder3);
+        if ((int) $settings->num_days_reminder3 > 0) {
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder3, (int) $settings->num_days_reminder3);
 
             if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
-            if (!$invoice->reminder3_sent) {
+            if (! $invoice->reminder3_sent) {
                 $set_reminder3 = true;
             }
         }
 
         //If all the available reminders have fired, we then start to fire the endless reminders
-        if ((int)$settings->endless_reminder_frequency_id > 0 && !$set_reminder1 && !$set_reminder2 && !$set_reminder3) {
-            $dates->push($this->addTimeInterval($invoice->last_sent_date, (int)$settings->endless_reminder_frequency_id));
+        if ((int) $settings->endless_reminder_frequency_id > 0 && ! $set_reminder1 && ! $set_reminder2 && ! $set_reminder3) {
+            $dates->push($this->addTimeInterval($invoice->last_sent_date, (int) $settings->endless_reminder_frequency_id));
         }
 
         //order the dates ascending and get first one
@@ -213,23 +212,21 @@ class SendReminders implements ShouldQueue
 
             //only send if enable_reminder setting is toggled to yes
             if ($this->checkSendSetting($invoice, $template) && $invoice->company->account->hasFeature(Account::FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
-                nlog("firing email");
+                nlog('firing email');
 
-                EmailEntity::dispatchNow($invitation, $invitation->company, $template);
-                
+                EmailEntity::dispatch($invitation, $invitation->company, $template)->delay(10);
             }
         });
-
 
         if ($this->checkSendSetting($invoice, $template)) {
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
         }
-    
+
         $invoice->last_sent_date = now();
         $invoice->next_send_date = $this->calculateNextSendDate($invoice);
 
         if (in_array($template, ['reminder1', 'reminder2', 'reminder3'])) {
-            $invoice->{$template."_sent"} = now();
+            $invoice->{$template.'_sent'} = now();
         }
         $invoice->service()->touchReminder($template)->save();
 

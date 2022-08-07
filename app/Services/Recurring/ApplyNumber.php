@@ -36,8 +36,9 @@ class ApplyNumber extends AbstractService
     /* Recurring numbers are set when saved */
     public function run()
     {
-        if ($this->recurring_entity->number != '')
+        if ($this->recurring_entity->number != '') {
             return $this->recurring_entity;
+        }
 
         $this->trySaving();
         //$this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
@@ -47,30 +48,21 @@ class ApplyNumber extends AbstractService
 
     private function trySaving()
     {
+        $x = 1;
 
-        $x=1;
-
-        do{
-
-            try{
-
+        do {
+            try {
                 $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
                 $this->recurring_entity->saveQuietly();
 
                 $this->completed = false;
-                
-
-            }
-            catch(QueryException $e){
-
+            } catch (QueryException $e) {
                 $x++;
 
-                if($x>10)
+                if ($x > 10) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
-
+        } while ($this->completed);
     }
 }

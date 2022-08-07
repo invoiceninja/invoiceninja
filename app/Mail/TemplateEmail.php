@@ -11,6 +11,7 @@
 
 namespace App\Mail;
 
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Invoice\CreateUbl;
 use App\Models\Account;
 use App\Models\Client;
@@ -23,10 +24,10 @@ use App\Utils\TemplateEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class TemplateEmail extends Mailable
 {
-
     private $build_email;
 
     private $client;
@@ -52,14 +53,13 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-        
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
             $template_name = 'email.template.client';
         }
 
-        if($this->build_email->getTemplate() == 'custom') {
+        if ($this->build_email->getTemplate() == 'custom') {
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
         }
 
@@ -73,30 +73,28 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        if($this->invitation)
-        {
+        if ($this->invitation) {
             $html_variables = (new HtmlEngine($this->invitation))->makeValues();
             $signature = str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature);
-        }
-        else
+        } else {
             $signature = $settings->email_signature;
+        }
 
-        if(property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1)
+        if (property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1) {
             $email_from_name = $settings->email_from_name;
-        else
+        } else {
             $email_from_name = $this->company->present()->name();
+        }
 
         $this->from(config('mail.from.address'), $email_from_name);
 
-        if (strlen($settings->bcc_email) > 1){
-
-            if(Ninja::isHosted()){
-                $bccs = explode(",",str_replace(" ", "", $settings->bcc_email));
-                $this->bcc(reset($bccs));//remove whitespace if any has been inserted.
-            }
-            else
-                $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
-
+        if (strlen($settings->bcc_email) > 1) {
+            if (Ninja::isHosted()) {
+                $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
+                $this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
+            } else {
+                $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
+            }//remove whitespace if any has been inserted.
         }
 
         $this->subject($this->build_email->getSubject())
@@ -118,31 +116,54 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ])
-            ->withSwiftMessage(function ($message) use($company){
+            ->withSymfonyMessage(function ($message) use ($company) {
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($company->company_key);
 
-            /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
-            if(Ninja::isHosted())
-                sleep(1);
+        /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-            foreach ($this->build_email->getAttachments() as $file) {
+        if(Ninja::isHosted() && $this->invitation){
 
-                if(is_string($file))
-                    $this->attach($file);
-                elseif(is_array($file))
-                    $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
+            $path = false;
+
+            if($this->invitation->invoice)
+                $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
+            elseif($this->invitation->quote)
+                $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
+            elseif($this->invitation->credit)
+                $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
+
+            sleep(1);
+
+            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
+
+                sleep(2);
+
+                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
+                    (new CreateEntityPdf($this->invitation))->handle();
+                    sleep(2);
+                }
 
             }
 
-        if($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)){
+        }
 
-            $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
-            
-            if($ubl_string)
+        foreach ($this->build_email->getAttachments() as $file) {
+            if (is_string($file)) {
+                $this->attach($file);
+            } elseif (is_array($file)) {
+                $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+            }
+        }
+
+        if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            $ubl_string = (new CreateUbl($this->invitation->invoice))->handle();
+
+            if ($ubl_string) {
                 $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
-            
+            }
         }
 
         return $this;

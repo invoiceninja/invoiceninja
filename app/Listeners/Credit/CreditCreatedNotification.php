@@ -43,7 +43,7 @@ class CreditCreatedNotification implements ShouldQueue
         $credit = $event->credit;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntityCreatedObject($credit, 'credit'))->build() );
+        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
         $nmo->company = $credit->company;
         $nmo->settings = $credit->company->settings;
 
@@ -63,11 +63,10 @@ class CreditCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 /* This prevents more than one notification being sent */
                 // $first_notification_sent = false;
             }
@@ -75,7 +74,7 @@ class CreditCreatedNotification implements ShouldQueue
             /* Override the methods in the Notification Class */
             // $notification->method = $methods;
 
-            //  Notify on the alternate channels 
+            //  Notify on the alternate channels
             // $user->notify($notification);
         }
     }

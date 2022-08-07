@@ -56,33 +56,19 @@ class ReactBuilder extends Command
         $directoryIterator = new \RecursiveDirectoryIterator(public_path('react'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-
-          if(str_contains($file->getFileName(), '.js')) {
-
-            if(str_contains($file->getFileName(), 'index.')){            
-
-                $includes .= '<script type="module" crossorigin src="/react/' . $file->getFileName() . '"></script>'."\n";
-
-            }
-            else{
-
-                $includes .= '<link rel="modulepreload" href="/react/' . $file->getFileName() . '">'."\n";
+            if (str_contains($file->getFileName(), '.js')) {
+                if (str_contains($file->getFileName(), 'index.')) {
+                    $includes .= '<script type="module" crossorigin src="/react/'.$file->getFileName().'"></script>'."\n";
+                } else {
+                    $includes .= '<link rel="modulepreload" href="/react/'.$file->getFileName().'">'."\n";
+                }
             }
 
-          }
-
-
-          if(str_contains($file->getFileName(), '.css')) {
-
-            $includes .= '<link rel="stylesheet" href="/react/' . $file->getFileName() . '">'."\n";
-
-          }
-  
+            if (str_contains($file->getFileName(), '.css')) {
+                $includes .= '<link rel="stylesheet" href="/react/'.$file->getFileName().'">'."\n";
+            }
         }
 
         file_put_contents(resource_path('views/react/head.blade.php'), $includes);
-
     }
-
-
 }

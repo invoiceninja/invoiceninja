@@ -56,25 +56,27 @@ class UpdateClientRequest extends Request
         //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
         //$rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
 
-        if($this->id_number)
+        if ($this->id_number) {
             $rules['id_number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
-        
-        if($this->number)
+        }
+
+        if ($this->number) {
             $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
+        }
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts'] = 'array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
-                                        'nullable',
-                                        'sometimes',
-                                        'string',
-                                        'min:7',             // must be at least 10 characters in length
-                                        'regex:/[a-z]/',      // must contain at least one lowercase letter
-                                        'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                                        'regex:/[0-9]/',      // must contain at least one digit
-                                        //'regex:/[@$!%*#?&.]/', // must contain a special character
-                                        ];
+            'nullable',
+            'sometimes',
+            'string',
+            'min:7',             // must be at least 10 characters in length
+            'regex:/[a-z]/',      // must contain at least one lowercase letter
+            'regex:/[A-Z]/',      // must contain at least one uppercase letter
+            'regex:/[0-9]/',      // must contain at least one digit
+            //'regex:/[@$!%*#?&.]/', // must contain a special character
+        ];
 
         return $rules;
     }
@@ -91,16 +93,12 @@ class UpdateClientRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
-        if (isset($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
-        }
-
         /* If the user removes the currency we must always set the default */
-        if (array_key_exists('settings', $input)  && ! array_key_exists('currency_id', $input['settings'])) {
+        if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
@@ -117,7 +115,6 @@ class UpdateClientRequest extends Request
         $this->replace($input);
     }
 
-
     private function getLanguageId($language_code)
     {
         $languages = Cache::get('languages');
@@ -126,12 +123,12 @@ class UpdateClientRequest extends Request
             return $item->locale == $language_code;
         })->first();
 
-        if($language)
+        if ($language) {
             return (string) $language->id;
+        }
 
-        return "";
+        return '';
     }
-
 
     /**
      * For the hosted platform, we restrict the feature settings.
@@ -159,10 +156,9 @@ class UpdateClientRequest extends Request
             }
 
             //26-04-2022 - In case settings are returned as array instead of object
-            if($key == 'default_task_rate' && is_array($settings)){
+            if ($key == 'default_task_rate' && is_array($settings)) {
                 $settings['default_task_rate'] = floatval($value);
-            }
-            elseif($key == 'default_task_rate' && is_object($settings)) {
+            } elseif ($key == 'default_task_rate' && is_object($settings)) {
                 $settings->default_task_rate = floatval($value);
             }
         }

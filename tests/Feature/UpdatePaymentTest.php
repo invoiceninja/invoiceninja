@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
@@ -43,7 +44,7 @@ class UpdatePaymentTest extends TestCase
     use MockAccountData;
     use WithoutEvents;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -64,14 +65,13 @@ class UpdatePaymentTest extends TestCase
 
         //Create new client
         $client = Client::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
         ]);
-
 
         $this->assertEquals(0, $client->balance);
         $this->assertEquals(0, $client->paid_to_date);
-        
+
         //Create Invoice
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -87,9 +87,8 @@ class UpdatePaymentTest extends TestCase
 
         $this->assertEquals(10, $invoice->balance);
 
-
         //create Unapplied payment via API
-        
+
         // $data = [
         //     'amount' => $this->invoice->amount,
         //     'client_id' => $client->hashed_id,
@@ -105,7 +104,7 @@ class UpdatePaymentTest extends TestCase
 
         $data = [
             'amount' => 10,
-            'client_id' => $client->hashed_id
+            'client_id' => $client->hashed_id,
         ];
 
         $response = null;
@@ -120,18 +119,16 @@ class UpdatePaymentTest extends TestCase
             $this->assertNotNull($message);
         }
 
-            // $arr = $response->json();
-            // $response->assertStatus(200);
-            // $payment_id = $arr['data']['id'];
-            // $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
-            // $payment->load('invoices');
+        // $arr = $response->json();
+        // $response->assertStatus(200);
+        // $payment_id = $arr['data']['id'];
+        // $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+        // $payment->load('invoices');
 
-            // $this->assertNotNull($payment);
-            // $this->assertNotNull($payment->invoices());
-            // $this->assertEquals(1, $payment->invoices()->count());
-        
+        // $this->assertNotNull($payment);
+        // $this->assertNotNull($payment->invoices());
+        // $this->assertEquals(1, $payment->invoices()->count());
+
         $this->assertEquals(10, $client->fresh()->paid_to_date);
-        
     }
-
 }

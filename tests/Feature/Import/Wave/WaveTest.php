@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature\Import\Wave;
@@ -36,7 +36,7 @@ class WaveTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -56,7 +56,7 @@ class WaveTest extends TestCase
     //         base_path() . '/tests/Feature/Import/wave_expenses.csv'
     //     );
     //     $hash = Str::random(32);
-    
+
     //     $column_map = [
     //         0 => 'Transaction ID',
     //         1 => 'Transaction Date',
@@ -80,7 +80,7 @@ class WaveTest extends TestCase
     //         19 => 'Transaction Date Last Modified',
     //         20 => 'Account Group',
     //         21 => 'Account Type',
-    //         22 => 'Account ID',    
+    //         22 => 'Account ID',
     //     ];
 
     //     $data = [
@@ -96,13 +96,12 @@ class WaveTest extends TestCase
 
     //     $count = $csv_importer->import('expense');
 
-
     // }
 
     public function testVendorAndExpenseWaveImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/wave_vendors.csv'
+            base_path().'/tests/Feature/Import/wave_vendors.csv'
         );
         $hash = Str::random(32);
 
@@ -123,7 +122,7 @@ class WaveTest extends TestCase
             13 => 'address_line_1',
             14 => 'address_line_2',
             15 => 'city',
-            16 => 'postal_code/zip_code',      
+            16 => 'postal_code/zip_code',
         ];
 
         $data = [
@@ -133,7 +132,7 @@ class WaveTest extends TestCase
             'import_type' => 'waveaccounting',
         ];
 
-        Cache::put($hash . '-vendor', base64_encode($csv), 360);
+        Cache::put($hash.'-vendor', base64_encode($csv), 360);
 
         $csv_importer = new Wave($data, $this->company);
 
@@ -158,11 +157,10 @@ class WaveTest extends TestCase
         $this->assertEquals('lastname', $vendor->contacts->first()->last_name);
         $this->assertEquals('vendor@gmail.com', $vendor->contacts->first()->email);
         $this->assertEquals('phone', $vendor->contacts->first()->phone);
-        
 
         // now lets try importing expenses / bills
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/wave_expenses.csv'
+            base_path().'/tests/Feature/Import/wave_expenses.csv'
         );
         $hash = Str::random(32);
 
@@ -189,7 +187,7 @@ class WaveTest extends TestCase
             19 => 'Transaction Date Last Modified',
             20 => 'Account Group',
             21 => 'Account Type',
-            22 => 'Account ID',    
+            22 => 'Account ID',
         ];
 
         $data = [
@@ -199,7 +197,7 @@ class WaveTest extends TestCase
             'import_type' => 'waveaccounting',
         ];
 
-        Cache::put($hash . '-expense', base64_encode($csv), 360);
+        Cache::put($hash.'-expense', base64_encode($csv), 360);
 
         $csv_importer = new Wave($data, $this->company);
 
@@ -207,16 +205,13 @@ class WaveTest extends TestCase
 
         $base_transformer = new BaseTransformer($this->company);
 
-        $this->assertTrue($base_transformer->hasExpense("66"));
-        
+        $this->assertTrue($base_transformer->hasExpense('66'));
     }
-
-
 
     public function testClientWaveImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/wave_clients.csv'
+            base_path().'/tests/Feature/Import/wave_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -247,7 +242,7 @@ class WaveTest extends TestCase
             23 => 'ship-to_city',
             24 => 'ship-to_postal_code/zip_code',
             25 => 'ship-to_phone',
-            26 => 'delivery_instructions',        
+            26 => 'delivery_instructions',
         ];
 
         $data = [
@@ -257,7 +252,7 @@ class WaveTest extends TestCase
             'import_type' => 'waveaccounting',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Wave($data, $this->company);
 
@@ -285,15 +280,14 @@ class WaveTest extends TestCase
         $this->assertEquals('', $client->contacts->first()->last_name);
         $this->assertEquals('jessica@jones.com', $client->contacts->first()->email);
         $this->assertEquals('555-867-5309', $client->contacts->first()->phone);
-        
     }
 
     public function testInvoiceWaveImport()
     {
         //first import all the clients
 
-                $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/wave_clients.csv'
+        $csv = file_get_contents(
+            base_path().'/tests/Feature/Import/wave_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -324,7 +318,7 @@ class WaveTest extends TestCase
             23 => 'ship-to_city',
             24 => 'ship-to_postal_code/zip_code',
             25 => 'ship-to_phone',
-            26 => 'delivery_instructions',        
+            26 => 'delivery_instructions',
         ];
 
         $data = [
@@ -334,7 +328,7 @@ class WaveTest extends TestCase
             'import_type' => 'waveaccounting',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Wave($data, $this->company);
 
@@ -343,7 +337,7 @@ class WaveTest extends TestCase
         //now import the invoices
 
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/wave_invoices.csv'
+            base_path().'/tests/Feature/Import/wave_invoices.csv'
         );
         $hash = Str::random(32);
 
@@ -370,7 +364,7 @@ class WaveTest extends TestCase
             19 => 'Transaction Date Last Modified',
             20 => 'Account Group',
             21 => 'Account Type',
-            22 => 'Account ID',    
+            22 => 'Account ID',
         ];
 
         $data = [
@@ -380,7 +374,7 @@ class WaveTest extends TestCase
             'import_type' => 'waveaccounting',
         ];
 
-        Cache::put($hash . '-invoice', base64_encode($csv), 360);
+        Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
         $csv_importer = new Wave($data, $this->company);
 
@@ -388,22 +382,20 @@ class WaveTest extends TestCase
 
         $base_transformer = new BaseTransformer($this->company);
 
-        $this->assertTrue($base_transformer->hasInvoice("2"));
-        $this->assertTrue($base_transformer->hasInvoice("3"));
-        $this->assertTrue($base_transformer->hasInvoice("4"));
+        $this->assertTrue($base_transformer->hasInvoice('2'));
+        $this->assertTrue($base_transformer->hasInvoice('3'));
+        $this->assertTrue($base_transformer->hasInvoice('4'));
 
-        $invoice_id = $base_transformer->getInvoiceId("4");
+        $invoice_id = $base_transformer->getInvoiceId('4');
         $invoice = Invoice::find($invoice_id);
 
-        $this->assertEquals(3500.41 , $invoice->amount);
-        $this->assertEquals(0 , $invoice->balance);
-        $this->assertEquals(2 , count($invoice->line_items));
+        $this->assertEquals(3500.41, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(2, count($invoice->line_items));
 
         $this->assertTrue($invoice->payments()->exists());
         $this->assertEquals(3500.41, $invoice->payments->first()->amount);
-
     }
-
 
     // public function testVendorCsvImport()
     // {
@@ -639,7 +631,4 @@ class WaveTest extends TestCase
     //     $this->assertEquals(1, $invoice->payments()->count());
     //     $this->assertEquals(400, $invoice->payments()->sum('payments.amount'));
     // }
-
-
 }
-

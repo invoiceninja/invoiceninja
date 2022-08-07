@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests;
@@ -20,6 +20,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
+
 /**
  * Class MockUnitData.
  */
@@ -41,18 +42,17 @@ trait MockUnitData
 
     public function makeTestData()
     {
-
         $this->faker = \Faker\Factory::create();
 
         $this->account = Account::factory()->create();
 
         $this->user = User::factory()->create([
-            'account_id' => $this->account->id, 
-            'email' => $this->faker->safeEmail
+            'account_id' => $this->account->id,
+            'email' => $this->faker->safeEmail(),
         ]);
 
         $this->company = Company::factory()->create([
-            'account_id' => $this->account->id
+            'account_id' => $this->account->id,
         ]);
 
         $userPermissions = collect([
@@ -76,7 +76,6 @@ trait MockUnitData
             'is_locked' => 0,
         ]);
 
-
         $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = new CompanyToken;
@@ -89,10 +88,10 @@ trait MockUnitData
         $company_token->save();
 
         $this->client = Client::factory()->create([
-            'user_id' => $this->user->id, 
-            'company_id' => $this->company->id
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
         ]);
-            
+
         $this->primary_contact = ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
@@ -105,9 +104,7 @@ trait MockUnitData
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
         ]);
-
     }
-
 
     public function buildLineItems()
     {

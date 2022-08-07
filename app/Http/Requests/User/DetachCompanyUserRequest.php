@@ -20,7 +20,7 @@ class DetachCompanyUserRequest extends Request
 {
     use MakesHash;
     use ChecksEntityStatus;
-    
+
     /**
      * Determine if the user is authorized to make this request.
      *

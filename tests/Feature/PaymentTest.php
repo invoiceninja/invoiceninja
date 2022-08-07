@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
@@ -43,7 +44,7 @@ class PaymentTest extends TestCase
     use MockAccountData;
     use WithoutEvents;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -85,9 +86,9 @@ class PaymentTest extends TestCase
         );
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/payments');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments');
 
         $response->assertStatus(200);
     }
@@ -99,25 +100,23 @@ class PaymentTest extends TestCase
         $Payment = Payment::all()->last();
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id));
 
         $response->assertStatus(200);
 
-
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id), $Payment->toArray());
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id), $Payment->toArray());
 
         $response->assertStatus(200);
 
-
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id).'/edit');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id).'/edit');
 
         $response->assertStatus(200);
     }
@@ -144,8 +143,8 @@ class PaymentTest extends TestCase
             'amount' => $this->invoice->amount,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/11',
@@ -189,8 +188,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -304,8 +303,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -352,12 +351,12 @@ class PaymentTest extends TestCase
         $client->setRelation('company', $this->company);
         $client->save();
 
-        $client_contact =    ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-            ]);
+        $client_contact = ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $client->setRelation('contacts', $client_contact);
 
@@ -386,8 +385,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 6.0,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 6.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -429,19 +428,19 @@ class PaymentTest extends TestCase
         $client->save();
 
         ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
-            ]);
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
 
         ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $client->id,
-                'company_id' => $this->company->id,
-                'send_email' => true,
-            ]);
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'send_email' => true,
+        ]);
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -464,17 +463,17 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments?include=invoices', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments?include=invoices', $data);
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -500,20 +499,20 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $contact =             ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
-            ]);
+        $contact = ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
 
         ClientContact::factory()->create([
-                'user_id' => $this->user->id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'send_email' => true,
-            ]);
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'send_email' => true,
+        ]);
 
         $client->setRelation('contact', $contact);
 
@@ -540,8 +539,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -586,8 +585,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 2.0,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 2.0,
                 ],
             ],
             'date' => '2019/12/12',
@@ -705,11 +704,11 @@ class PaymentTest extends TestCase
             'amount' => 10.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ],
+                [
+                    'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                    'amount' => 10,
                 ],
+            ],
             'date' => '2019/12/12',
         ];
 
@@ -758,11 +757,11 @@ class PaymentTest extends TestCase
             'amount' => 15.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ],
+                [
+                    'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                    'amount' => 10,
                 ],
+            ],
             'date' => '2019/12/12',
         ];
 
@@ -770,9 +769,9 @@ class PaymentTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             \Log::error(print_r($e->validator->getMessageBag(), 1));
@@ -809,11 +808,11 @@ class PaymentTest extends TestCase
             'amount' => 15.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ],
+                [
+                    'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                    'amount' => 10,
                 ],
+            ],
             'date' => '2019/12/12',
         ];
 
@@ -857,11 +856,11 @@ class PaymentTest extends TestCase
             'amount' => 20.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ],
+                [
+                    'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                    'amount' => 10,
                 ],
+            ],
             'date' => '2019/12/12',
         ];
 
@@ -954,8 +953,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1015,8 +1014,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1087,12 +1086,12 @@ class PaymentTest extends TestCase
             'client_id' => $client1->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $invoice1->hashed_id,
-                'amount' => $invoice1->amount,
+                    'invoice_id' => $invoice1->hashed_id,
+                    'amount' => $invoice1->amount,
                 ],
                 [
-                'invoice_id' => $invoice2->hashed_id,
-                'amount' => $invoice2->amount,
+                    'invoice_id' => $invoice2->hashed_id,
+                    'amount' => $invoice2->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1135,12 +1134,12 @@ class PaymentTest extends TestCase
             'client_id' => $client1->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $invoice1->hashed_id,
-                'amount' => 1,
+                    'invoice_id' => $invoice1->hashed_id,
+                    'amount' => 1,
                 ],
                 [
-                'invoice_id' => $invoice1->hashed_id,
-                'amount' => 1,
+                    'invoice_id' => $invoice1->hashed_id,
+                    'amount' => 1,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1202,14 +1201,14 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 5,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 5,
                 ],
             ],
             'credits' => [
                 [
-                'credit_id' => $credit->id,
-                'amount' => 5,
+                    'credit_id' => $credit->id,
+                    'amount' => 5,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1271,8 +1270,8 @@ class PaymentTest extends TestCase
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => $this->invoice->amount,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
@@ -1333,11 +1332,11 @@ class PaymentTest extends TestCase
             'amount' => 20.0,
             'client_id' => $this->encodePrimaryKey($client->id),
             'invoices' => [
-                    [
-                        'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
-                        'amount' => 10,
-                    ],
+                [
+                    'invoice_id' => $this->encodePrimaryKey($this->invoice->id),
+                    'amount' => 10,
                 ],
+            ],
             'date' => '2019/12/12',
         ];
 
@@ -1353,7 +1352,6 @@ class PaymentTest extends TestCase
         $payment_id = $arr['data']['id'];
 
         $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
-
 
         $data = [
             'ids' => [$this->encodePrimaryKey($payment->id)],
@@ -1387,11 +1385,9 @@ class PaymentTest extends TestCase
         $this->assertEquals(1, $arr['data'][0]['is_deleted']);
     }
 
-
     public function testDeleteRefundedPayment()
     {
-
-       $this->invoice = null;
+        $this->invoice = null;
 
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
@@ -1399,18 +1395,17 @@ class PaymentTest extends TestCase
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
 
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->product_key = 'test';
+        $item->notes = 'test';
+        $item->custom_value1 = '';
+        $item->custom_value2 = '';
+        $item->custom_value3 = '';
+        $item->custom_value4 = '';
 
-            $item = InvoiceItemFactory::create();
-            $item->quantity = 1;
-            $item->cost = 10;
-            $item->product_key = 'test';
-            $item->notes = 'test';
-            $item->custom_value1 = '';
-            $item->custom_value2 = '';
-            $item->custom_value3 = '';
-            $item->custom_value4 = '';
-
-            $line_items[] = $item;
+        $line_items[] = $item;
 
         $this->invoice->line_items = $line_items;
         $this->invoice->uses_inclusive_taxes = false;
@@ -1422,8 +1417,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->service()->markSent()->createInvitations()->save(); 
-
+        $this->invoice->service()->markSent()->createInvitations()->save();
 
         $this->assertEquals(10, $this->invoice->balance);
         $this->assertEquals(10, $this->invoice->client->fresh()->balance);
@@ -1443,8 +1437,8 @@ class PaymentTest extends TestCase
             'date' => '2021/12/12',
             'invoices' => [
                 [
-                'invoice_id' => $this->invoice->hashed_id,
-                'amount' => 10,
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 10,
                 ],
             ],
         ];
@@ -1453,9 +1447,9 @@ class PaymentTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/refund', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/refund', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -1476,11 +1470,10 @@ class PaymentTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/payments/bulk?action=delete', $data);
-        
+
         $this->assertEquals(10, $this->invoice->fresh()->balance);
         $this->assertEquals(10, $this->invoice->fresh()->balance);
     }
-
 
     public function testUniquePaymentNumbers()
     {
@@ -1493,9 +1486,9 @@ class PaymentTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -1506,23 +1499,19 @@ class PaymentTest extends TestCase
         $response->assertStatus(200);
 
         $response = false;
-        
+
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments', $data);
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
         }
 
-        if($response)
-        $response->assertStatus(302);
-
-
-
-
+        if ($response) {
+            $response->assertStatus(302);
+        }
     }
 }
-

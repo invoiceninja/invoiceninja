@@ -37,7 +37,6 @@ class Merge extends AbstractService
 
     public function run()
     {
-        
         $this->client->balance += $this->mergable_client->balance;
         $this->client->paid_to_date += $this->mergable_client->paid_to_date;
         $this->client->save();
@@ -58,18 +57,15 @@ class Merge extends AbstractService
         $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
 
         /* Loop through contacts an only merge distinct contacts by email */
-        $this->mergable_client->contacts->each(function ($contact){
-
-            $exist = $this->client->contacts->contains(function ($client_contact) use($contact){
+        $this->mergable_client->contacts->each(function ($contact) {
+            $exist = $this->client->contacts->contains(function ($client_contact) use ($contact) {
                 return $client_contact->email == $contact->email;
             });
 
-            if($exist)
-            {
+            if ($exist) {
                 $contact->delete();
                 $contact->save();
-            }    
-
+            }
         });
 
         $this->mergable_client->forceDelete();
@@ -84,7 +80,7 @@ class Merge extends AbstractService
         $company_ledger = CompanyLedger::whereClientId($this->client->id)
                                 ->orderBy('id', 'DESC')
                                 ->first();
-    
+
         if ($company_ledger) {
             $balance = $company_ledger->balance;
         }
@@ -92,11 +88,9 @@ class Merge extends AbstractService
         $company_ledger = CompanyLedgerFactory::create($this->client->company_id, $this->client->user_id);
         $company_ledger->client_id = $this->client->id;
         $company_ledger->adjustment = $adjustment;
-        $company_ledger->notes = "Balance update after merging " . $this->mergable_client->present()->name();
+        $company_ledger->notes = 'Balance update after merging '.$this->mergable_client->present()->name();
         $company_ledger->balance = $balance + $adjustment;
         $company_ledger->activity_id = Activity::UPDATE_CLIENT;
         $company_ledger->save();
-
     }
-
 }

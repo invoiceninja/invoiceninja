@@ -93,7 +93,7 @@ class Invoice extends BaseModel
         'subscription_id',
         'auto_bill_enabled',
         'uses_inclusive_taxes',
-        'vendor_id'
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -117,13 +117,19 @@ class Invoice extends BaseModel
     ];
 
     const STATUS_DRAFT = 1;
+
     const STATUS_SENT = 2;
+
     const STATUS_PARTIAL = 3;
+
     const STATUS_PAID = 4;
+
     const STATUS_CANCELLED = 5;
+
     const STATUS_REVERSED = 6;
 
     const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
+
     const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
     public function getEntityType()
@@ -245,6 +251,7 @@ class Invoice extends BaseModel
     {
         return $this->hasOne(Expense::class);
     }
+
     /**
      * Service entry points.
      */
@@ -282,7 +289,6 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-
         if ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
@@ -414,55 +420,50 @@ class Invoice extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-
-            if($this->invitations()->exists())
+            if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
-            else{
+            } else {
                 $this->service()->createInvitations();
                 $invitation = $this->invitations()->first();
             }
-
         }
 
-        if(!$invitation)
+        if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
 
         $file_path = $this->client->invoice_filepath($invitation).$this->numberFormatter().'.pdf';
 
         $file_exists = false;
 
         /* Flysystem throws an exception if the path is "corrupted" so lets wrap it in a try catch and return a bool  06/01/2022*/
-        try{
+        try {
             $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
             nlog($e->getMessage());
-
         }
 
-        if(Ninja::isHosted() && $portal && $file_exists){
+        if (Ninja::isHosted() && $portal && $file_exists) {
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        } elseif (Ninja::isHosted()) {
+            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
+
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
-        elseif(Ninja::isHosted()){
-            $file_path = CreateEntityPdf::dispatchNow($invitation, config('filesystems.default'));
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
 
-        try{
+        try {
             $file_exists = Storage::disk('public')->exists($file_path);
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
             nlog($e->getMessage());
-
         }
 
-        if($file_exists)
+        if ($file_exists) {
             return Storage::disk('public')->{$type}($file_path);
+        }
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
-            return Storage::disk('public')->{$type}($file_path);
+        $file_path = (new CreateEntityPdf($invitation))->handle();
+
+        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()
@@ -514,14 +515,17 @@ class Invoice extends BaseModel
 
     public function getPayableAmount()
     {
-        if($this->partial > 0)
+        if ($this->partial > 0) {
             return $this->partial;
+        }
 
-        if($this->balance > 0)
+        if ($this->balance > 0) {
             return $this->balance;
+        }
 
-        if($this->status_id = 1)
+        if ($this->status_id = 1) {
             return $this->amount;
+        }
 
         return 0;
     }
@@ -545,14 +549,13 @@ class Invoice extends BaseModel
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
                 break;
             default:
-                # code...
+                // code...
                 break;
         }
     }
 
     public function transaction_event()
     {
-
         $invoice = $this->fresh();
 
         return [

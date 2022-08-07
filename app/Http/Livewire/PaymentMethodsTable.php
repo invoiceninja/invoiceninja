@@ -1,8 +1,5 @@
 <?php
 
- 
-
-
 namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
@@ -17,14 +14,13 @@ class PaymentMethodsTable extends Component
     use WithSorting;
 
     public $per_page = 10;
-    
+
     public $client;
 
     public $company;
-    
+
     public function mount($client)
     {
-    
         MultiDB::setDb($this->company->db);
 
         $this->client = $client;
@@ -37,8 +33,8 @@ class PaymentMethodsTable extends Component
             ->where('company_id', $this->company->id)
             ->where('client_id', $this->client->id)
             ->whereHas('gateway', function ($query) {
-                 $query->where('is_deleted',0)
-                       ->where('deleted_at', NULL);
+                $query->where('is_deleted', 0)
+                       ->where('deleted_at', null);
             })
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);

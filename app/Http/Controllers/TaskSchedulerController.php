@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 class TaskSchedulerController extends BaseController
 {
     protected $entity_type = Scheduler::class;
+
     protected $entity_transformer = TaskSchedulerTransformer::class;
+
     protected TaskSchedulerRepository $scheduler_repository;
 
     public function __construct(TaskSchedulerRepository $scheduler_repository)
@@ -58,14 +60,11 @@ class TaskSchedulerController extends BaseController
      *       ),
      *     )
      */
-
     public function index()
     {
-
         $schedulers = Scheduler::where('company_id', auth()->user()->company()->id);
 
         return $this->listResponse($schedulers);
-
     }
 
     /**
@@ -101,11 +100,11 @@ class TaskSchedulerController extends BaseController
      *       ),
      *     )
      */
-
     public function store(CreateScheduledTaskRequest $request)
     {
         $scheduler = new Scheduler();
         $scheduler->service()->store($scheduler, $request);
+
         return $this->itemResponse($scheduler);
     }
 
@@ -143,7 +142,6 @@ class TaskSchedulerController extends BaseController
      *       ),
      *     )
      */
-
     public function show(Scheduler $scheduler)
     {
         return $this->itemResponse($scheduler);
@@ -194,10 +192,9 @@ class TaskSchedulerController extends BaseController
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)
     {
         $scheduler->service()->update($scheduler, $request);
+
         return $this->itemResponse($scheduler);
     }
-
-
 
     /**
      * @OA\DELETE(
@@ -236,8 +233,7 @@ class TaskSchedulerController extends BaseController
     public function destroy(Scheduler $scheduler)
     {
         $this->scheduler_repository->delete($scheduler);
+
         return $this->itemResponse($scheduler->fresh());
     }
-
-
 }

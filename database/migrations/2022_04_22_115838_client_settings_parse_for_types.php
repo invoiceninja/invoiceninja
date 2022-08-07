@@ -7,9 +7,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ClientSettingsParseForTypes extends Migration
-{
-        use ClientGroupSettingsSaver;
+return new class extends Migration {
+    use ClientGroupSettingsSaver;
 
     /**
      * Run the migrations.
@@ -18,19 +17,13 @@ class ClientSettingsParseForTypes extends Migration
      */
     public function up()
     {
-        
-
-        if(Ninja::isSelfHost())
-        {
-
-            Client::withTrashed()->cursor()->each( function ($client) {
+        if (Ninja::isSelfHost()) {
+            Client::withTrashed()->cursor()->each(function ($client) {
                 $entity_settings = $this->checkSettingType($client->settings);
                 $entity_settings->md5 = md5(time());
                 $client->settings = $entity_settings;
                 $client->save();
-                
             });
-
         }
     }
 
@@ -43,4 +36,4 @@ class ClientSettingsParseForTypes extends Migration
     {
         //
     }
-}
+};

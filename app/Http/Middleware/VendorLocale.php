@@ -27,12 +27,10 @@ class VendorLocale
      */
     public function handle($request, Closure $next)
     {
-
         if (auth()->guard('contact')->check()) {
             auth()->guard('contact')->logout();
             $request->session()->invalidate();
         }
-
 
         /*LOCALE SET */
         if ($request->has('lang')) {
@@ -41,13 +39,10 @@ class VendorLocale
         } elseif (auth()->guard('vendor')->user()) {
             App::setLocale(auth()->guard('vendor')->user()->company->locale());
         } elseif (auth()->user()) {
-
-            try{
+            try {
                 App::setLocale(auth()->user()->company()->getLocale());
+            } catch (\Exception $e) {
             }
-            catch(\Exception $e){
-            }
-
         } else {
             App::setLocale(config('ninja.i18n.locale'));
         }

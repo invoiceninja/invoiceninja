@@ -19,8 +19,8 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
 
 class ApplePay
@@ -45,14 +45,14 @@ class ApplePay
         $data['stripe_amount'] = $this->stripe_driver->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe_driver->client->currency()->precision, $this->stripe_driver->client->currency());
         $data['invoices'] = $this->stripe_driver->payment_hash->invoices();
 
-        $data['intent'] =  \Stripe\PaymentIntent::create([
-                              'amount' => $data['stripe_amount'],
-                              'currency' => $this->stripe_driver->client->getCurrencyCode(),
-                              'metadata' => [
-                                    'payment_hash' => $this->stripe_driver->payment_hash->hash,
-                                    'gateway_type_id' => GatewayType::APPLE_PAY,
-                                ],
-                            ], $this->stripe_driver->stripe_connect_auth);
+        $data['intent'] = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => $this->stripe_driver->client->getCurrencyCode(),
+            'metadata' => [
+                'payment_hash' => $this->stripe_driver->payment_hash->hash,
+                'gateway_type_id' => GatewayType::APPLE_PAY,
+            ],
+        ], $this->stripe_driver->stripe_connect_auth);
 
         $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe_driver->payment_hash->save();
@@ -60,10 +60,8 @@ class ApplePay
         return render('gateways.stripe.applepay.pay', $data);
     }
 
-
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $this->stripe_driver->init();
 
         $state = [
@@ -83,38 +81,26 @@ class ApplePay
         $response_handler = new CreditCard($this->stripe_driver);
 
         if ($server_response->status == 'succeeded') {
-
             $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $response_handler->processSuccessfulPayment();
         }
 
         return $response_handler->processUnsuccessfulPayment($server_response);
-
-
     }
-
 
     private function registerDomain()
     {
-        if(Ninja::isHosted())
-        {
-        
+        if (Ninja::isHosted()) {
             $domain = isset($this->stripe_driver->company_gateway->company->portal_domain) ? $this->stripe_driver->company_gateway->company->portal_domain : $this->stripe_driver->company_gateway->company->domain();
 
             \Stripe\ApplePayDomain::create([
-              'domain_name' => $domain,
+                'domain_name' => $domain,
             ], $this->stripe_driver->stripe_connect_auth);
-            
-        }
-        else {
-
+        } else {
             \Stripe\ApplePayDomain::create([
-              'domain_name' => config('ninja.app_url'),
+                'domain_name' => config('ninja.app_url'),
             ]);
-
         }
-
-    }   
+    }
 }
-

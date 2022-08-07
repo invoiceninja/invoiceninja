@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class InvoiceCancelledTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_CANCELLED; 
-
+    public $event_id = TransactionEvent::INVOICE_CANCELLED;
 }

@@ -7,7 +7,7 @@ const RESOURCES = {
 "canvaskit/profiling/canvaskit.wasm": "95e736ab31147d1b2c7b25f11d4c32cd",
 "canvaskit/canvaskit.js": "c2b4e5f3d7a3d82aed024e7249a78487",
 "canvaskit/canvaskit.wasm": "4b83d89d9fecbea8ca46f2f760c5a9ba",
-"/": "281d0c5f1f79db642cc08a37b86ad866",
+"/": "784b9b59de6c49b2fa8bc36999656d6a",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "main.dart.js": "819a7e0f760429027b88f15315928b59",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",

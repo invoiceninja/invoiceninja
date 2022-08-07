@@ -34,16 +34,18 @@ class TaskRepository extends BaseRepository
      */
     public function save(array $data, Task $task) : ?Task
     {
-        if($task->id)
+        if ($task->id) {
             $this->new_task = false;
+        }
 
         $task->fill($data);
         $task->save();
 
-        if($this->new_task && !$task->status_id)
+        if ($this->new_task && ! $task->status_id) {
             $this->setDefaultStatus($task);
+        }
 
-        $task->number = empty($task->number) || !array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
+        $task->number = empty($task->number) || ! array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
@@ -137,79 +139,75 @@ class TaskRepository extends BaseRepository
             $task,
             TaskFactory::create(auth()->user()->company()->id, auth()->user()->id)
         );
-
     }
 
     private function setDefaultStatus(Task $task)
     {
         $first_status = $task->company->task_statuses()
                               ->whereNull('deleted_at')
-                              ->orderBy('id','asc')
+                              ->orderBy('id', 'asc')
                               ->first();
 
-        if($first_status)
+        if ($first_status) {
             return $first_status->id;
+        }
 
         return null;
     }
 
     /**
      * Sorts the task status order IF the old status has changed between requests
-     *     
+     *
      * @param  stdCLass $old_task The old task object
      * @param  Task     $new_task The new Task model
      * @return void
      */
     public function sortStatuses($old_task, $new_task)
     {
-
-        if(!$new_task->project()->exists())
+        if (! $new_task->project()->exists()) {
             return;
+        }
 
         $index = $new_task->status_order;
 
-        $tasks = $new_task->project->tasks->reject(function ($task)use($new_task){
+        $tasks = $new_task->project->tasks->reject(function ($task) use ($new_task) {
             return $task->id == $new_task->id;
         });
 
-        $sorted_tasks = $tasks->filter(function($task, $key)use($index){
+        $sorted_tasks = $tasks->filter(function ($task, $key) use ($index) {
             return $key < $index;
-        })->push($new_task)->merge($tasks->filter(function($task, $key)use($index){
+        })->push($new_task)->merge($tasks->filter(function ($task, $key) use ($index) {
             return $key >= $index;
-        }))->each(function ($item,$key){
+        }))->each(function ($item, $key) {
             $item->status_order = $key;
             $item->save();
         });
-
     }
 
     public function start(Task $task)
     {
         //do no allow an task to be restarted if it has been invoiced
-        if($task->invoice_id)
+        if ($task->invoice_id) {
             return;
-
-        if(strlen($task->time_log) < 5)
-        {   
-            $log = [];
-
-            $log = array_merge($log, [[time(),0]]);
-            $task->time_log = json_encode($log);
-            $task->save();
-
         }
 
-        $log = json_decode($task->time_log,true);;
+        if (strlen($task->time_log) < 5) {
+            $log = [];
+
+            $log = array_merge($log, [[time(), 0]]);
+            $task->time_log = json_encode($log);
+            $task->save();
+        }
+
+        $log = json_decode($task->time_log, true);
 
         $last = end($log);
-        
-        if(is_array($last) && $last[1] !== 0){
-            
+
+        if (is_array($last) && $last[1] !== 0) {
             $new = [time(), 0];
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
             $task->save();
-
         }
 
         return $task;
@@ -217,12 +215,11 @@ class TaskRepository extends BaseRepository
 
     public function stop(Task $task)
     {
-        $log = json_decode($task->time_log,true);;
+        $log = json_decode($task->time_log, true);
 
         $last = end($log);
-        
-        if(is_array($last) && $last[1] === 0){
 
+        if (is_array($last) && $last[1] === 0) {
             $last[1] = time();
 
             array_pop($log);
@@ -233,12 +230,10 @@ class TaskRepository extends BaseRepository
         }
 
         return $task;
-
     }
 
     public function triggeredActions($request, $task)
     {
-
         if ($request->has('start') && $request->input('start') == 'true') {
             $task = $this->start($task);
         }
@@ -246,7 +241,7 @@ class TaskRepository extends BaseRepository
         if ($request->has('stop') && $request->input('stop') == 'true') {
             $task = $this->stop($task);
         }
-        
+
         return $task;
     }
 }

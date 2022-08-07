@@ -24,7 +24,6 @@ use Throwable;
  */
 trait MakesInvoiceHtml
 {
-
     private function parseLabelsAndValues($labels, $values, $section) :string
     {
         $section = strtr($section, $labels);
@@ -64,7 +63,7 @@ trait MakesInvoiceHtml
                 ob_end_clean();
             }
 
-            throw new \Exception($e);
+            throw new \Exception($e->getMessage());
         }
 
         return ob_get_clean();

@@ -23,7 +23,7 @@ class ShowPurchaseOrderRequest extends Request
      */
     public function authorize() : bool
     {
-        return (int)auth()->guard('vendor')->user()->vendor_id === (int)$this->purchase_order->vendor_id
-            &&  auth()->guard('vendor')->user()->company->enabled_modules & PortalComposer::MODULE_PURCHASE_ORDERS;
+        return (int) auth()->guard('vendor')->user()->vendor_id === (int) $this->purchase_order->vendor_id
+            && auth()->guard('vendor')->user()->company->enabled_modules & PortalComposer::MODULE_PURCHASE_ORDERS;
     }
 }

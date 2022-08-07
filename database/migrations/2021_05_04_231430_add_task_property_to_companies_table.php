@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddTaskPropertyToCompaniesTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,11 +12,9 @@ class AddTaskPropertyToCompaniesTable extends Migration
      */
     public function up()
     {
-
         Schema::table('company_user', function (Blueprint $table) {
             $table->dropColumn('number_years_active');
         });
-           
     }
 
     /**
@@ -28,4 +25,4 @@ class AddTaskPropertyToCompaniesTable extends Migration
     public function down()
     {
     }
-}
+};

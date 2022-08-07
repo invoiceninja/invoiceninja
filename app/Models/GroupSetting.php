@@ -42,7 +42,7 @@ class GroupSetting extends StaticModel
     {
         return $this->encodePrimaryKey($this->id);
     }
-    
+
     protected $touches = [];
 
     public function company()
@@ -64,7 +64,7 @@ class GroupSetting extends StaticModel
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-    
+
     /**
      * Retrieve the model for a bound value.
      *

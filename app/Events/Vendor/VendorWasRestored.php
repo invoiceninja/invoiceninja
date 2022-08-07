@@ -32,6 +32,7 @@ class VendorWasRestored
     public $event_vars;
 
     public $fromDeleted;
+
     /**
      * Create a new event instance.
      *

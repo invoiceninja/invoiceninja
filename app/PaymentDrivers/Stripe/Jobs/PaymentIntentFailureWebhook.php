@@ -54,75 +54,57 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
     public function handle()
     {
-
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
 
-            foreach ($this->stripe_request as $transaction) {
-
-                if(array_key_exists('payment_intent', $transaction))
-                {
-
-                    $payment = Payment::query()
+        foreach ($this->stripe_request as $transaction) {
+            if (array_key_exists('payment_intent', $transaction)) {
+                $payment = Payment::query()
                         ->where('company_id', $company->id)
                         ->where(function ($query) use ($transaction) {
                             $query->where('transaction_reference', $transaction['payment_intent'])
                                   ->orWhere('transaction_reference', $transaction['id']);
-                                })
+                        })
                         ->first();
-
-                }
-                else
-                {
-
-                     $payment = Payment::query()
+            } else {
+                $payment = Payment::query()
                         ->where('company_id', $company->id)
                         ->where('transaction_reference', $transaction['id'])
                         ->first();
+            }
 
+            if ($payment) {
+                $client = $payment->client;
+
+                if ($payment->status_id == Payment::STATUS_PENDING) {
+                    $payment->service()->deletePayment();
                 }
 
-                if ($payment) {
+                $payment->status_id = Payment::STATUS_FAILED;
+                $payment->save();
 
-                    $client = $payment->client;
+                $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
 
-                    if($payment->status_id == Payment::STATUS_PENDING)
-                        $payment->service()->deletePayment();
-        
-                    $payment->status_id = Payment::STATUS_FAILED;
-                    $payment->save();
+                if ($payment_hash) {
+                    $error = ctrans('texts.client_payment_failure_body', [
+                        'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
+                        'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
+                } else {
+                    $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                }
 
-                    $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                if (array_key_exists('failure_message', $transaction)) {
+                    $error .= "\n\n".$transaction['failure_message'];
+                }
 
-                    if($payment_hash)
-                    {
-
-                        $error = ctrans('texts.client_payment_failure_body', [
-                            'invoice' => implode(",", $payment->invoices->pluck('number')->toArray()), 
-                            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total]);
-
-                    }
-                    else
-                        $error = "Payment for " . $payment->client->present()->name(). " for {$payment->amount} failed";
-
-                    if(array_key_exists('failure_message', $transaction)){
-                        
-                        $error .= "\n\n" .$transaction['failure_message'];
-                    }
-
-                    PaymentFailedMailer::dispatch(
+                PaymentFailedMailer::dispatch(
                         $payment_hash,
                         $client->company,
                         $client,
                         $error
                     );
-
-
-                }
-
             }
-
+        }
     }
-
 }

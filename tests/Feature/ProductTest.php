@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\Product;
@@ -29,7 +30,7 @@ class ProductTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -49,9 +50,9 @@ class ProductTest extends TestCase
     public function testProductList()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/products');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/products');
 
         $response->assertStatus(200);
 
@@ -78,19 +79,17 @@ class ProductTest extends TestCase
         )
             ->assertStatus(200);
 
-
         $arr = $response->json();
         $product = Product::find($this->decodePrimaryKey($arr['data']['id']));
-
 
         $product_update = [
             'notes' => 'CHANGE',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/products/'.$this->encodePrimaryKey($product->id), $product_update)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/products/'.$this->encodePrimaryKey($product->id), $product_update)
             ->assertStatus(200);
 
         $response = $this->withHeaders([

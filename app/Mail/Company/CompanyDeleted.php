@@ -29,6 +29,7 @@ class CompanyDeleted extends Mailable
     public $user;
 
     public $settings;
+
     /**
      * Create a new message instance.
      *

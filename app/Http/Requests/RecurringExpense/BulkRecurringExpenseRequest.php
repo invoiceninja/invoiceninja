@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\RecurringExpense;
 
 use App\Http\Requests\Request;

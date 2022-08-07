@@ -22,10 +22,9 @@ use Auth;
 class PaymentNotificationWebhookController extends Controller
 {
     use MakesHash;
-    
+
     public function __invoke(PaymentNotificationWebhookRequest $request, string $company_key, string $company_gateway_id, string $client_hash)
     {
-
         $company_gateway = CompanyGateway::find($this->decodePrimaryKey($company_gateway_id));
         $client = Client::find($this->decodePrimaryKey($client_hash));
 

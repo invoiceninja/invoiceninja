@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Factory;
 
 use App\Models\PurchaseOrderInvitation;

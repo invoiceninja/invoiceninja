@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
@@ -26,7 +27,7 @@ class InvoiceAmountPaymentTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -39,15 +40,14 @@ class InvoiceAmountPaymentTest extends TestCase
 
     public function testPaymentAmountForInvoice()
     {
-        
         $data = [
             'name' => 'A Nice Client',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -55,7 +55,7 @@ class InvoiceAmountPaymentTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -66,13 +66,13 @@ class InvoiceAmountPaymentTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -87,20 +87,20 @@ class InvoiceAmountPaymentTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices?amount_paid=10', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices?amount_paid=10', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
-        $invoice =  Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
+        $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
 
         $this->assertEquals(10, $invoice->balance);
         $this->assertTrue($invoice->payments()->exists());
@@ -109,20 +109,18 @@ class InvoiceAmountPaymentTest extends TestCase
 
         $this->assertEquals(10, $payment->applied);
         $this->assertEquals(10, $payment->amount);
-        
     }
 
     public function testMarkPaidRemovesUnpaidGatewayFees()
     {
-
         $data = [
             'name' => 'A Nice Client',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -130,7 +128,7 @@ class InvoiceAmountPaymentTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -141,20 +139,20 @@ class InvoiceAmountPaymentTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 5;
-        $item->type_id = "3";
+        $item->type_id = '3';
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -169,17 +167,17 @@ class InvoiceAmountPaymentTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices?mark_sent=true', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices?mark_sent=true', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
@@ -193,8 +191,5 @@ class InvoiceAmountPaymentTest extends TestCase
 
         $this->assertEquals(20, $invoice->amount);
         $this->assertEquals(0, $invoice->balance);
-
     }
-
-
 }

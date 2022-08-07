@@ -77,9 +77,9 @@ class ImportMigrations extends Command
     public function handle()
     {
         $this->buildCache();
-    
+
         $path = $this->option('path') ?? public_path('storage/migrations/import');
-        
+
         $directory = new DirectoryIterator($path);
 
         foreach ($directory as $file) {
@@ -98,7 +98,7 @@ class ImportMigrations extends Command
                     }
 
                     $filename = pathinfo($file->getRealPath(), PATHINFO_FILENAME);
-                        
+
                     $zip->extractTo(public_path("storage/migrations/{$filename}"));
                     $zip->close();
 
@@ -124,7 +124,7 @@ class ImportMigrations extends Command
 
         $user = User::factory()->create([
             'account_id' => $account->id,
-            'email' => Str::random(10) . "@example.com",
+            'email' => Str::random(10).'@example.com',
             'confirmation_code' => $this->createDbHash($company->db),
         ]);
 
@@ -137,7 +137,7 @@ class ImportMigrations extends Command
             'name' => 'First token',
             'token' => Str::random(64),
         ]);
-        
+
         $user->companies()->attach($company->id, [
             'account_id' => $account->id,
             'is_owner' => 1,

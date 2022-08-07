@@ -27,10 +27,8 @@ class DefaultCompanyRequest extends Request
 
     public function rules()
     {
-    	
-    	$rules = [];
+        $rules = [];
 
-    	return $rules;
-
+        return $rules;
     }
 }

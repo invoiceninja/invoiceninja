@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Models\SystemLog;
@@ -26,7 +27,7 @@ class SystemLogApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -48,9 +49,9 @@ class SystemLogApiTest extends TestCase
         SystemLog::create($sl);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/system_logs');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/system_logs');
 
         $response->assertStatus(200);
 
@@ -61,9 +62,9 @@ class SystemLogApiTest extends TestCase
         $hashed_id = $arr['data'][0]['id'];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/system_logs/'.$hashed_id);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/system_logs/'.$hashed_id);
 
         $response->assertStatus(200);
 
@@ -72,14 +73,14 @@ class SystemLogApiTest extends TestCase
         $this->assertEquals($hashed_id, $arr['data']['id']);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/system_logs/'.$hashed_id, $sl)->assertStatus(400);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/system_logs/'.$hashed_id, $sl)->assertStatus(400);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->delete('/api/v1/system_logs/'.$hashed_id)->assertStatus(400);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->delete('/api/v1/system_logs/'.$hashed_id)->assertStatus(400);
     }
 
     public function testStoreRouteFails()

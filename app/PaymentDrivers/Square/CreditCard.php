@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Square;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -22,6 +21,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Square\Http\ApiResponse;
@@ -76,22 +76,24 @@ class CreditCard implements MethodInterface
     {
         $client = new \stdClass;
 
-        $client->addressLines = [ $this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
+        $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
+
+        $client->addressLines = [$this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
         $client->givenName = $this->square_driver->client->present()->first_name();
         $client->familyName = $this->square_driver->client->present()->last_name();
         $client->email = $this->square_driver->client->present()->email;
         $client->phone = $this->square_driver->client->phone;
         $client->city = $this->square_driver->client->city;
         $client->region = $this->square_driver->client->state;
-        $client->country = $this->square_driver->client->country->iso_3166_2;
+        $client->country = $country;
 
-        return (array)$client;
+        return (array) $client;
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $token = $request->sourceId;
-        
+
         $amount = $this->square_driver->convertAmount(
             $this->square_driver->payment_hash->data->amount_with_fee
         );
@@ -159,10 +161,6 @@ class CreditCard implements MethodInterface
         return $this->square_driver->processUnsuccessfulTransaction($data);
     }
 
-
-
-
-
     private function findOrCreateClient()
     {
         $email_address = new \Square\Models\CustomerTextFilter();
@@ -189,13 +187,12 @@ class CreditCard implements MethodInterface
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
 
-            if (count([$api_response->getBody(),1]) == 0) {
+            if (count([$api_response->getBody(), 1]) == 0) {
                 $customers = false;
             }
         } else {
             $errors = $api_response->getErrors();
         }
-
 
         if (property_exists($customers, 'customers')) {
             return $customers->customers[0]->id;
@@ -207,6 +204,8 @@ class CreditCard implements MethodInterface
     private function createClient()
     {
 
+        $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
+
         /* Step two - create the customer */
         $billing_address = new \Square\Models\Address();
         $billing_address->setAddressLine1($this->square_driver->client->address1);
@@ -214,7 +213,7 @@ class CreditCard implements MethodInterface
         $billing_address->setLocality($this->square_driver->client->city);
         $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
         $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
+        $billing_address->setCountry($country);
 
         $body = new \Square\Models\CreateCustomerRequest();
         $body->setGivenName($this->square_driver->client->present()->name());
@@ -233,9 +232,11 @@ class CreditCard implements MethodInterface
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
+
             return $result->getCustomer()->getId();
         } else {
             $errors = $api_response->getErrors();
+
             return $this->processUnsuccessfulPayment($errors);
         }
     }

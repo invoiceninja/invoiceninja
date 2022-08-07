@@ -29,8 +29,7 @@ class InvoiceHistoryTransformer extends EntityTransformer
 
     public function transform(?Backup $backup)
     {
-        if(!$backup){
-            
+        if (! $backup) {
             return [
                 'id' => '',
                 'activity_id' => '',
@@ -40,7 +39,6 @@ class InvoiceHistoryTransformer extends EntityTransformer
                 'created_at' => (int) 0,
                 'updated_at' => (int) 0,
             ];
-
         }
 
         return [

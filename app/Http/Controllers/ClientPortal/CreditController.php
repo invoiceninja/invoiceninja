@@ -34,17 +34,15 @@ class CreditController extends Controller
 
         $data = [
             'credit' => $credit,
-            'key' => $invitation ? $invitation->key : false
+            'key' => $invitation ? $invitation->key : false,
         ];
 
-            if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+            $invitation->markViewed();
 
-                $invitation->markViewed();
-
-                event(new InvitationWasViewed($credit, $invitation, $credit->company, Ninja::eventVars()));
-                event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
-            
-            }
+            event(new InvitationWasViewed($credit, $invitation, $credit->company, Ninja::eventVars()));
+            event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+        }
 
         if ($request->query('mode') === 'fullscreen') {
             return render('credits.show-fullscreen', $data);

@@ -44,7 +44,6 @@ class AutoBillInvoice extends AbstractService
 
     public function run()
     {
-
         MultiDB::setDb($this->db);
 
         $this->client = $this->invoice->client->fresh();
@@ -52,19 +51,22 @@ class AutoBillInvoice extends AbstractService
         $is_partial = false;
 
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable())
+        if (! $this->invoice->isPayable()) {
             return $this->invoice;
+        }
 
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int)$this->invoice->balance == 0)
+        if ((int) $this->invoice->balance == 0) {
             return $this->invoice->service()->markPaid()->save();
+        }
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
-        if ($this->client->getSetting('use_credits_payment') != 'off')
+        if ($this->client->getSetting('use_credits_payment') != 'off') {
             $this->applyCreditPayment();
+        }
 
         $amount = 0;
 
@@ -85,24 +87,27 @@ class AutoBillInvoice extends AbstractService
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing){
-            nlog("Bailing out - no suitable gateway token found.");
+        if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing) {
+            nlog('Bailing out - no suitable gateway token found.');
+
             return $this->invoice;
         }
 
-        nlog("Gateway present - adding gateway fee");
+        nlog('Gateway present - adding gateway fee');
 
         /* $gateway fee */
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
         //change from $this->invoice->amount to $this->invoice->balance
-        if($is_partial)
+        if ($is_partial) {
             $fee = $this->invoice->balance - $invoice_total;
-        else
+        } else {
             $fee = $this->invoice->balance - $amount;
+        }
 
-        if($fee > $amount)
+        if ($fee > $amount) {
             $fee = 0;
+        }
 
         /* Build payment hash */
 
@@ -114,7 +119,7 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
-      
+
         $payment = false;
 
         try {
@@ -123,7 +128,6 @@ class AutoBillInvoice extends AbstractService
                 ->setPaymentHash($payment_hash)
                 ->tokenBilling($gateway_token, $payment_hash);
         } catch (\Exception $e) {
-
             $this->invoice->auto_bill_tries += 1;
 
             if ($this->invoice->auto_bill_tries == 3) {
@@ -131,16 +135,15 @@ class AutoBillInvoice extends AbstractService
                 $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
                 $this->invoice->save();
             }
-            
+
             $this->invoice->save();
-            
-            nlog("payment NOT captured for " . $this->invoice->number . " with error " . $e->getMessage());
+
+            nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
         }
 
         if ($payment) {
-            info("Auto Bill payment captured for " . $this->invoice->number);
+            info('Auto Bill payment captured for '.$this->invoice->number);
         }
-
     }
 
     /**
@@ -175,14 +178,13 @@ class AutoBillInvoice extends AbstractService
             $payment->credits()
                     ->attach($current_credit->id, ['amount' => $credit['amount']]);
 
-            info("adjusting credit balance {$current_credit->balance} by this amount ". $credit['amount']);
+            info("adjusting credit balance {$current_credit->balance} by this amount ".$credit['amount']);
 
             $current_credit->service()
-                           ->adjustBalance($credit['amount']*-1)
+                           ->adjustBalance($credit['amount'] * -1)
                            ->updatePaidToDate($credit['amount'])
                            ->setCalculatedStatus()
                            ->save();
-
         }
 
         $payment->ledger()
@@ -229,7 +231,7 @@ class AutoBillInvoice extends AbstractService
 
         info("available credit balance = {$available_credit_balance}");
 
-        if ((int)$available_credit_balance == 0) {
+        if ((int) $available_credit_balance == 0) {
             return;
         }
 
@@ -283,8 +285,6 @@ class AutoBillInvoice extends AbstractService
         return $this;
     }
 
-
-
     private function applyPaymentToCredit($credit, $amount) :Credit
     {
         $credit_item = new InvoiceItem;
@@ -312,7 +312,6 @@ class AutoBillInvoice extends AbstractService
      * @param  float              $amount The amount to charge
      * @return ClientGatewayToken         The client gateway token
      */
-
     public function getGateway($amount)
     {
 
@@ -320,38 +319,33 @@ class AutoBillInvoice extends AbstractService
         $gateway_tokens = $this->client
                                ->gateway_tokens()
                                ->whereHas('gateway', function ($query) {
-                                    $query->where('is_deleted',0)
-                                          ->where('deleted_at', NULL);
-                             })->orderBy('is_default', 'DESC')
+                                   $query->where('is_deleted', 0)
+                                          ->where('deleted_at', null);
+                               })->orderBy('is_default', 'DESC')
                                ->get();
 
-
-        $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
-
+        $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && !is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
-            {
+            if (isset($company_gateway->fees_and_limits) && ! is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) {
                 //if valid we keep this gateway_token
-                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount))
+                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) {
                     return true;
-                else
+                } else {
                     return false;
-
+                }
             }
-            return true; //if no fees_and_limits set then we automatically must add this gateway
 
+            return true; //if no fees_and_limits set then we automatically must add this gateway
         });
 
-        if($filtered_gateways->count() >= 1)
+        if ($filtered_gateways->count() >= 1) {
             return $filtered_gateways->first();
+        }
 
         return false;
     }
-
-
-
 
     /**
      * Adds a gateway fee to the invoice.
@@ -386,5 +380,4 @@ class AutoBillInvoice extends AbstractService
 
         return $this;
     }
-
 }

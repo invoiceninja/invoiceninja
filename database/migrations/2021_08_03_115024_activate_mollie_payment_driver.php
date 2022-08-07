@@ -15,8 +15,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ActivateMolliePaymentDriver extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -24,8 +23,7 @@ class ActivateMolliePaymentDriver extends Migration
      */
     public function up()
     {
-        if($mollie = Gateway::find(7))
-        {
+        if ($mollie = Gateway::find(7)) {
             $mollie->visible = true;
 
             $fields = json_decode($mollie->fields);
@@ -33,7 +31,7 @@ class ActivateMolliePaymentDriver extends Migration
             $fields->profileId = '';
 
             $mollie->fields = json_encode($fields);
-            
+
             $mollie->save();
         }
     }
@@ -47,4 +45,4 @@ class ActivateMolliePaymentDriver extends Migration
     {
         //
     }
-}
+};

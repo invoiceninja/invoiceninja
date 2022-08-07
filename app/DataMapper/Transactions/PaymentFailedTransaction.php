@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class PaymentFailedTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::PAYMENT_FAILED; 
-
+    public $event_id = TransactionEvent::PAYMENT_FAILED;
 }

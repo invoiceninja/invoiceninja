@@ -24,7 +24,7 @@ class CompanyGatewayFactory
         $company_gateway->require_billing_address = false;
         $company_gateway->require_shipping_address = false;
         $company_gateway->config = encrypt(json_encode(new \stdClass));
-        
+
         return $company_gateway;
     }
 }

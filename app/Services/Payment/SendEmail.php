@@ -34,12 +34,10 @@ class SendEmail
     {
         $this->payment->load('company', 'client.contacts');
 
-        $this->payment->client->contacts->each(function ($contact) {
-            if ($contact->email) {
-                EmailPayment::dispatchNow($this->payment, $this->payment->company, $contact);
-                return false;
-                //11-01-2021 only send payment receipt to the first contact
-            }
-        });
+        $contact = $this->payment->client->contacts()->first();
+
+        if ($contact?->email)
+            EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
+         
     }
 }

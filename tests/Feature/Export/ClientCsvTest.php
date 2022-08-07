@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature\Export;
 
 use App\Models\Invoice;
@@ -26,7 +27,7 @@ class ClientCsvTest extends TestCase
     use MakesHash;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -41,38 +42,33 @@ class ClientCsvTest extends TestCase
 
     public function testClientExportCsv()
     {
-
         $data = [
-            "date_range" => "this_year",
-            "report_keys" => [],
-            "send_email" => false
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/reports/clients' , $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/clients', $data);
 
         $response->assertStatus(200);
-    
     }
 
     public function testContactExportCsv()
     {
-
         $data = [
-            "date_range" => "this_year",
-            "report_keys" => [],
-            "send_email" => false
+            'date_range' => 'this_year',
+            'report_keys' => [],
+            'send_email' => false,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/reports/contacts' , $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/contacts', $data);
 
         $response->assertStatus(200);
-    
     }
-
 }

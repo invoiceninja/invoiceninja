@@ -4,9 +4,9 @@ use App\Models\Currency;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateCanadianDollarSymbol extends Migration
-{
+return new class extends Migration {
     use AppSetup;
+
     /**
      * Run the migrations.
      *
@@ -32,4 +32,4 @@ class UpdateCanadianDollarSymbol extends Migration
     {
         //
     }
-}
+};

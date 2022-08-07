@@ -13,10 +13,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Utils\CurlUtils;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use stdClass;
-use Carbon\Carbon;
 
 class LicenseController extends BaseController
 {
@@ -133,9 +133,9 @@ class LicenseController extends BaseController
                 }
             } else {
                 $error = [
-                        'message' => trans('texts.white_label_license_error'),
-                        'errors' => new stdClass,
-                    ];
+                    'message' => trans('texts.white_label_license_error'),
+                    'errors' => new stdClass,
+                ];
 
                 return response()->json($error, 400);
             }
@@ -153,7 +153,7 @@ class LicenseController extends BaseController
     {
         $account = auth()->user()->account;
 
-        if($account->plan == 'white_label' && Carbon::parse($account->plan_expires)->lt(now())){
+        if ($account->plan == 'white_label' && Carbon::parse($account->plan_expires)->lt(now())) {
             $account->plan = null;
             $account->plan_expires = null;
             $account->save();

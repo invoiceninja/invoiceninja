@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature\Export;
 
 use App\Jobs\Company\CompanyExport;
@@ -27,7 +28,7 @@ class ExportCompanyTest extends TestCase
     use MakesHash;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,14 +42,14 @@ class ExportCompanyTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        if (! config('ninja.testvars.stripe')) {
+        if (!config('ninja.testvars.stripe')) {
             $this->markTestSkipped('Cannot write to TMP - skipping');
         }
     }
 
     public function testCompanyExport()
     {
-        $res = CompanyExport::dispatchNow($this->company, $this->company->users->first());
+        $res = (new CompanyExport($this->company, $this->company->users->first()))->handle();
 
         $this->assertTrue($res);
     }

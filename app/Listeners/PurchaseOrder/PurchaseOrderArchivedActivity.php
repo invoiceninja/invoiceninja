@@ -22,7 +22,7 @@ class PurchaseOrderArchivedActivity implements ShouldQueue
     protected $activity_repo;
 
     public $delay = 5;
-    
+
     /**
      * Create the event listener.
      *
@@ -42,7 +42,7 @@ class PurchaseOrderArchivedActivity implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-        
+
         $fields = new stdClass;
 
         $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->purchase_order->user_id;

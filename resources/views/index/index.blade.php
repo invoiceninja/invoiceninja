@@ -8,9 +8,21 @@
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
   <script src="{{ asset('js/pdf.min.js') }}"></script>
+  @if(\App\Utils\Ninja::isHosted())
   <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+  <script type="text/javascript" 
+    src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"
+    integrity="sha384-ggh+EF1aSqm+Y4yvv2n17KpurNcZTeYtUZUvhPziElsstmIEubyEB6AIVpKLuZgr"
+    crossorigin="anonymous">
+  </script>
+  @endif
   <script type="text/javascript">
     pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ asset('js/pdf.worker.min.js') }}";
+  </script>
+   <script>
+    window.flutterConfiguration = {
+      canvasKitBaseUrl: "/canvaskit/"
+    };
   </script>
 </head>
 <body style="background-color:#888888;">
@@ -153,12 +165,6 @@
 
   <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
 
-
-  <script type="text/javascript" 
-    src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"
-    integrity="sha384-ggh+EF1aSqm+Y4yvv2n17KpurNcZTeYtUZUvhPziElsstmIEubyEB6AIVpKLuZgr"
-    crossorigin="anonymous">
-  </script>
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
   </center>

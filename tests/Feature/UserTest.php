@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Factory\CompanyUserFactory;
@@ -36,7 +37,7 @@ class UserTest extends TestCase
 
     private $default_email = 'attach@gmail.com';
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -63,9 +64,9 @@ class UserTest extends TestCase
     public function testUserList()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->get('/api/v1/users');
 
         $response->assertStatus(200);
@@ -80,16 +81,16 @@ class UserTest extends TestCase
             'last_name' => 'you',
             'email' => 'bob1@good.ole.boys.com',
             'company_user' => [
-                    'is_admin' => false,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
@@ -101,7 +102,6 @@ class UserTest extends TestCase
 
     public function testUserAttachAndDetach()
     {
-
         $this->withoutMiddleware(PasswordProtection::class);
 
         $data = [
@@ -109,16 +109,15 @@ class UserTest extends TestCase
             'last_name' => 'Palloni',
             'email' => $this->default_email,
         ];
-        
+
         $response = false;
 
         try {
-        $response = $this->withHeaders([
+            $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data);
-
+            ])->post('/api/v1/users?include=company_user', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -134,9 +133,9 @@ class UserTest extends TestCase
         // $this->assertEquals($user->company_user->company_id, $this->company->id);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->delete('/api/v1/users/'.$arr['data']['id'].'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
@@ -146,7 +145,7 @@ class UserTest extends TestCase
         $cu = CompanyUser::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
         $ct = CompanyToken::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
         $user = User::find($user_id);
-        
+
         $this->assertNull($cu);
         $this->assertNull($ct);
         $this->assertNotNull($user);
@@ -182,7 +181,7 @@ class UserTest extends TestCase
             'last_name' => 'Palloni',
             'email' => $this->default_email,
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
@@ -199,16 +198,16 @@ class UserTest extends TestCase
             'last_name' => 'you',
             'email' => 'bob@good.ole.boys.co2.com',
             'company_user' => [
-                    'is_admin' => false,
-                    'is_owner' => false,
-                    'permissions' => 'create_client,create_invoice',
-                ],
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $company_token->token,
-            ])->post('/api/v1/users?include=company_user', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+        ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -233,17 +232,17 @@ class UserTest extends TestCase
             'last_name' => 'Morgain',
             'email' => 'bob@good.ole.boys.co2.com',
             'company_user' => [
-                    'is_admin' => true,
-                    'is_owner' => false,
-                    'permissions' => 'create_invoice,create_invoice',
-                ],
+                'is_admin' => true,
+                'is_owner' => false,
+                'permissions' => 'create_invoice,create_invoice',
+            ],
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $company_token->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-            ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
 
         $response->assertStatus(200);
 

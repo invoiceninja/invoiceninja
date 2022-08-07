@@ -22,7 +22,6 @@ class InvoiceRepository extends BaseRepository
 {
     use MakesHash;
 
-
     /**
      * Saves the invoices.
      *
@@ -86,7 +85,7 @@ class InvoiceRepository extends BaseRepository
     public function restore($invoice) :Invoice
     {
         //if we have just archived, only perform a soft restore
-        if (!$invoice->is_deleted) {
+        if (! $invoice->is_deleted) {
             parent::restore($invoice);
 
             return $invoice;

@@ -49,22 +49,23 @@ class UpdateRecurringInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('recurring_invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_invoice->id);
+        }
 
-        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
+        $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }    
-        
+        }
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
@@ -80,7 +81,6 @@ class UpdateRecurringInvoiceRequest extends Request
         if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
             $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
         }
-
 
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
@@ -109,7 +109,7 @@ class UpdateRecurringInvoiceRequest extends Request
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
         }
-        
+
         $this->replace($input);
     }
 
@@ -124,9 +124,10 @@ class UpdateRecurringInvoiceRequest extends Request
      */
     private function setAutoBillFlag($auto_bill) :bool
     {
-        if ($auto_bill == 'always') 
+        if ($auto_bill == 'always') {
             return true;
-        
+        }
+
         return false;
     }
 }

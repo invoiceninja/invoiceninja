@@ -48,14 +48,14 @@ class UpdateRecurringQuoteRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('recurring_quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_quote->id);
-
+        }
 
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
         $input = $this->decodePrimaryKeys($input);
@@ -71,7 +71,7 @@ class UpdateRecurringQuoteRequest extends Request
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
         }
-        
+
         $this->replace($input);
     }
 
@@ -93,7 +93,7 @@ class UpdateRecurringQuoteRequest extends Request
         // if($auto_bill == '')
         // off / optin / optout will reset the status of this field to off to allow
         // the client to choose whether to auto_bill or not.
-        
+
         return false;
     }
 }

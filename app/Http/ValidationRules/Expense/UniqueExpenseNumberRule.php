@@ -58,6 +58,5 @@ class UniqueExpenseNumberRule implements Rule
                           ->withTrashed();
 
         return $expense->exists();
-
     }
 }

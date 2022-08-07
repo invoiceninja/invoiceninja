@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests\Feature\Import\Invoicely;
@@ -37,7 +37,7 @@ class InvoicelyTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -53,7 +53,7 @@ class InvoicelyTest extends TestCase
     public function testClientInvoicelyImport()
     {
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/invoicely_clients.csv'
+            base_path().'/tests/Feature/Import/invoicely_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -61,7 +61,7 @@ class InvoicelyTest extends TestCase
             0 => 'Client Name',
             1 => 'Email',
             2 => 'Phone',
-            3 => 'Country',    
+            3 => 'Country',
         ];
 
         $data = [
@@ -71,7 +71,7 @@ class InvoicelyTest extends TestCase
             'import_type' => 'invoicely',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Invoicely($data, $this->company);
 
@@ -88,15 +88,12 @@ class InvoicelyTest extends TestCase
 
         $this->assertInstanceOf(Client::class, $client);
         $this->assertEquals('5558675309', $client->phone);
-
-        
     }
 
     public function testInvoiceInvoicelyImport()
     {
-
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/invoicely_clients.csv'
+            base_path().'/tests/Feature/Import/invoicely_clients.csv'
         );
         $hash = Str::random(32);
 
@@ -104,7 +101,7 @@ class InvoicelyTest extends TestCase
             0 => 'Client Name',
             1 => 'Email',
             2 => 'Phone',
-            3 => 'Country',    
+            3 => 'Country',
         ];
 
         $data = [
@@ -114,7 +111,7 @@ class InvoicelyTest extends TestCase
             'import_type' => 'invoicely',
         ];
 
-        Cache::put($hash . '-client', base64_encode($csv), 360);
+        Cache::put($hash.'-client', base64_encode($csv), 360);
 
         $csv_importer = new Invoicely($data, $this->company);
 
@@ -134,7 +131,7 @@ class InvoicelyTest extends TestCase
         //now import the invoices
 
         $csv = file_get_contents(
-            base_path() . '/tests/Feature/Import/invoicely_invoices.csv'
+            base_path().'/tests/Feature/Import/invoicely_invoices.csv'
         );
         $hash = Str::random(32);
 
@@ -144,7 +141,7 @@ class InvoicelyTest extends TestCase
             2 => 'Details',
             3 => 'Client',
             4 => 'Status',
-            5 => 'Total', 
+            5 => 'Total',
         ];
 
         $data = [
@@ -154,28 +151,24 @@ class InvoicelyTest extends TestCase
             'import_type' => 'invoicely',
         ];
 
-        Cache::put($hash . '-invoice', base64_encode($csv), 360);
+        Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
         $csv_importer = new Invoicely($data, $this->company);
 
         $count = $csv_importer->import('invoice');
 
         $base_transformer = new BaseTransformer($this->company);
-nlog($count);
-        $this->assertTrue($base_transformer->hasInvoice("INV-1"));
+        nlog($count);
+        $this->assertTrue($base_transformer->hasInvoice('INV-1'));
 
-        $invoice_id = $base_transformer->getInvoiceId("INV-1");
+        $invoice_id = $base_transformer->getInvoiceId('INV-1');
         $invoice = Invoice::find($invoice_id);
 
-        $this->assertEquals(1020 , $invoice->amount);
-        $this->assertEquals(2 , $invoice->status_id);
-        $this->assertEquals(1020 , $invoice->balance);
-        $this->assertEquals(1 , count($invoice->line_items));
+        $this->assertEquals(1020, $invoice->amount);
+        $this->assertEquals(2, $invoice->status_id);
+        $this->assertEquals(1020, $invoice->balance);
+        $this->assertEquals(1, count($invoice->line_items));
 
         $this->assertFalse($invoice->payments()->exists());
-
     }
-
-
 }
-

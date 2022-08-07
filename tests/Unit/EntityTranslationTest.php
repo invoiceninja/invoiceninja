@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Models\Account;
@@ -35,36 +36,34 @@ use Tests\TestCase;
  */
 class EntityTranslationTest extends TestCase
 {
-
     public $faker;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
-         $this->faker = \Faker\Factory::create();
+        $this->faker = \Faker\Factory::create();
     }
 
     public function testTranslations()
     {
         $account = Account::factory()->create([
             'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000
+            'hosted_company_count' => 1000,
         ]);
-        
-        
+
         $company = Company::factory()->create([
-                'account_id' => $account->id,
-            ]);
+            'account_id' => $account->id,
+        ]);
 
         $u = User::factory()->create([
-            'email' => $this->faker->email,
-            'account_id' => $account->id
+            'email' => $this->faker->email(),
+            'account_id' => $account->id,
         ]);
 
         $client = Client::factory()->create([
             'company_id' => $company->id,
-            'user_id' => $u->id
+            'user_id' => $u->id,
         ]);
 
         $credit = Credit::factory()->create([
@@ -90,7 +89,7 @@ class EntityTranslationTest extends TestCase
             'user_id' => $u->id,
             'client_id' => $client->id,
         ]);
-        
+
         $product = Product::factory()->create([
             'company_id' => $company->id,
             'user_id' => $u->id,
@@ -118,24 +117,24 @@ class EntityTranslationTest extends TestCase
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
-        ]);        
+        ]);
 
         $recurring_quote = RecurringQuote::factory()->create([
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
-        ]);  
+        ]);
 
         $task = Task::factory()->create([
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
-        ]);  
+        ]);
 
         $vendor = Vendor::factory()->create([
             'company_id' => $company->id,
             'user_id' => $u->id,
-        ]);          
+        ]);
 
         $this->assertEquals(ctrans('texts.user'), $u->translate_entity());
         $this->assertEquals(ctrans('texts.company'), $company->translate_entity());
@@ -153,5 +152,4 @@ class EntityTranslationTest extends TestCase
         $this->assertEquals(ctrans('texts.task'), $task->translate_entity());
         $this->assertEquals(ctrans('texts.vendor'), $vendor->translate_entity());
     }
-
 }

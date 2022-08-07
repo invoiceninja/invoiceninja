@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Cache;
 
 class TempRouteController extends Controller
 {
-
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key

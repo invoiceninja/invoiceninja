@@ -263,6 +263,17 @@ class BillingPortalPurchase extends Component
             }
         }
 
+        if(array_key_exists('currency_id', $this->request_data)) {
+
+            $currency = Cache::get('currencies')->filter(function ($item){
+                return $item->id == $this->request_data['currency_id'];
+            })->first();
+
+            if($currency)
+                $data['settings']->currency_id = $currency->id;
+
+        }
+
         if (array_key_exists('locale', $this->request_data)) {
             $request = $this->request_data;
 

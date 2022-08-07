@@ -12,8 +12,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ChangeRefreshTokenColumnSize extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -21,12 +20,9 @@ class ChangeRefreshTokenColumnSize extends Migration
      */
     public function up()
     {
-
         Schema::table('users', function (Blueprint $table) {
             $table->text('oauth_user_refresh_token')->change();
         });
-
-        
     }
 
     /**
@@ -38,4 +34,4 @@ class ChangeRefreshTokenColumnSize extends Migration
     {
         //
     }
-}
+};

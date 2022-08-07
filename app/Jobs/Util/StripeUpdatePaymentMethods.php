@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Jobs\Util;
 
 use App\Libraries\MultiDB;
@@ -19,7 +20,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-
 class StripeUpdatePaymentMethods implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -27,6 +27,7 @@ class StripeUpdatePaymentMethods implements ShouldQueue
     public $company;
 
     private $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
+
     /**
      * Create a new job instance.
      *
@@ -45,24 +46,20 @@ class StripeUpdatePaymentMethods implements ShouldQueue
      */
     public function handle()
     {
+        MultiDB::setDb($this->company->db);
 
-    	MultiDB::setDb($this->company->db);
+        $cgs = CompanyGateway::where('company_id', $this->company->id)
+                            ->whereIn('gateway_key', $this->stripe_keys)
+                            ->get();
 
-    	$cgs = CompanyGateway::where('company_id', $this->company->id)
-    						->whereIn('gateway_key', $this->stripe_keys)
-    						->get();
-
-		$cgs->each(function ($company_gateway){
-
-			$company_gateway->driver(new Client)->updateAllPaymentMethods();
-
-		});
-
+        $cgs->each(function ($company_gateway) {
+            $company_gateway->driver(new Client)->updateAllPaymentMethods();
+        });
     }
 
     public function failed($exception)
     {
-    	nlog("Stripe update payment methods exception");
+        nlog('Stripe update payment methods exception');
         nlog($exception->getMessage());
     }
 }

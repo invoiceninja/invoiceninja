@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddClientCountToAccountsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -22,8 +21,8 @@ class AddClientCountToAccountsTable extends Migration
 
         $country = Country::find(250);
 
-        if($country){
-            $country->thousand_separator = " ";
+        if ($country) {
+            $country->thousand_separator = ' ';
             $country->save();
         }
     }
@@ -35,6 +34,5 @@ class AddClientCountToAccountsTable extends Migration
      */
     public function down()
     {
-        
     }
-}
+};

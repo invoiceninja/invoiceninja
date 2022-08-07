@@ -2,8 +2,8 @@
 
 namespace App\Events\Subscription;
 
-use App\Models\Subscription;
 use App\Models\Company;
+use App\Models\Subscription;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;

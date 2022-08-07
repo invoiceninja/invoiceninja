@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\FeesAndLimits;
@@ -32,7 +33,7 @@ class CompanyGatewayApiTest extends TestCase
     use MockAccountData;
     use CompanyGatewayFeesAndLimitsSaver;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -54,14 +55,12 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(302);
-
     }
-
 
     public function testCompanyGatewayEndPointsWithInvalidFields()
     {
@@ -72,15 +71,12 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(302);
-
     }
-
-
 
     public function testCompanyGatewayEndPoints()
     {
@@ -91,9 +87,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $cg = $response->json();
 
@@ -109,16 +105,16 @@ class CompanyGatewayApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/company_gateways/'.$cg_id, $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/company_gateways/'.$cg_id, $data);
 
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->delete("/api/v1/company_gateways/{$cg_id}", $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->delete("/api/v1/company_gateways/{$cg_id}", $data);
 
         $response->assertStatus(200);
     }
@@ -143,9 +139,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $cg = $response->json();
 
@@ -160,9 +156,9 @@ class CompanyGatewayApiTest extends TestCase
         $response->assertStatus(200);
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/company_gateways/'.$this->encodePrimaryKey($cg['data']['id']));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/company_gateways/'.$this->encodePrimaryKey($cg['data']['id']));
 
         $cg = $response->json();
 
@@ -181,7 +177,6 @@ class CompanyGatewayApiTest extends TestCase
         ])->get('/api/v1/company_gateways?filter=x');
 
         $response->assertStatus(200);
-
     }
 
     public function testCompanyGatewayFeesAndLimitsFails()
@@ -198,9 +193,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
     }
@@ -239,9 +234,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -272,9 +267,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -305,9 +300,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -318,7 +313,6 @@ class CompanyGatewayApiTest extends TestCase
 
         $this->assertEquals(10.2, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
-
 
     public function testFeesAndLimitsFeePercentAndAmountCalcuationOneHundredPercent()
     {
@@ -340,9 +334,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -370,9 +364,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -383,7 +377,6 @@ class CompanyGatewayApiTest extends TestCase
 
         $this->assertEquals(1, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
-
 
     public function testFeesAndLimitsFeePercentAndAmountAndTaxCalcuation()
     {
@@ -404,9 +397,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -437,9 +430,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -472,9 +465,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 
@@ -508,9 +501,9 @@ class CompanyGatewayApiTest extends TestCase
 
         /* POST */
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/company_gateways', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
 
         $response->assertStatus(200);
 

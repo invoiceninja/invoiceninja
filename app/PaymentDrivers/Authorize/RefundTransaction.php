@@ -75,7 +75,6 @@ class RefundTransaction
                 $tresponse = $response->getTransactionResponse();
 
                 if ($tresponse != null && $tresponse->getMessages() != null) {
-                
                     $data = [
                         'transaction_reference' => $tresponse->getTransId(),
                         'success' => true,
@@ -88,13 +87,9 @@ class RefundTransaction
 
                     SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
 
-
-                return $data;
-
+                    return $data;
                 } else {
-
                     if ($tresponse->getErrors() != null) {
-
                         $data = [
                             'transaction_reference' => '',
                             'transaction_response' => '',
@@ -114,7 +109,6 @@ class RefundTransaction
                 echo "Transaction Failed \n";
                 $tresponse = $response->getTransactionResponse();
                 if ($tresponse != null && $tresponse->getErrors() != null) {
-
                     $data = [
                         'transaction_reference' => '',
                         'transaction_response' => '',
@@ -128,9 +122,7 @@ class RefundTransaction
                     SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
 
                     return $data;
-
                 } else {
-
                     $data = [
                         'transaction_reference' => '',
                         'transaction_response' => '',
@@ -147,20 +139,19 @@ class RefundTransaction
                 }
             }
         } else {
+            $data = [
+                'transaction_reference' => '',
+                'transaction_response' => '',
+                'success' => false,
+                'description' => 'No response returned',
+                'code' => 'No response returned',
+                'payment_id' => $payment->id,
+                'amount' => $amount,
+            ];
 
-                $data = [
-                    'transaction_reference' => '',
-                    'transaction_response' => '',
-                    'success' => false,
-                    'description' => 'No response returned',
-                    'code' => 'No response returned',
-                    'payment_id' => $payment->id,
-                    'amount' => $amount,
-                ];
-                
-                SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
 
-                return $data;
+            return $data;
         }
 
         $data = [
@@ -174,6 +165,5 @@ class RefundTransaction
         ];
 
         SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
-
     }
 }

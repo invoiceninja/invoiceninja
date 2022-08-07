@@ -16,7 +16,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UpdateInvoiceInvitations implements ShouldQueue
 {
-    
     public $delay = 5;
 
     /**

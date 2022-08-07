@@ -46,31 +46,21 @@ class RefreshPdfs implements ShouldQueue
      */
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
-
         InvoiceInvitation::where('company_id', $this->company->id)->cursor()->each(function ($invitation) {
-            
             nlog("generating invoice pdf for {$invitation->invoice_id}");
             CreateEntityPdf::dispatch($invitation);
-
         });
 
         QuoteInvitation::where('company_id', $this->company->id)->cursor()->each(function ($invitation) {
-            
             nlog("generating quote pdf for {$invitation->quote_id}");
             CreateEntityPdf::dispatch($invitation);
-            
         });
-
 
         CreditInvitation::where('company_id', $this->company->id)->cursor()->each(function ($invitation) {
-            
             nlog("generating credit pdf for {$invitation->credit_id}");
             CreateEntityPdf::dispatch($invitation);
-            
         });
-
     }
 }

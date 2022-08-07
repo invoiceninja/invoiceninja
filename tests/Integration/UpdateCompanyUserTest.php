@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Models\CompanyUser;
@@ -27,7 +28,7 @@ class UpdateCompanyUserTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -59,7 +60,7 @@ class UpdateCompanyUserTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-        
+
         $response->assertStatus(200);
 
         $arr = $response->json();

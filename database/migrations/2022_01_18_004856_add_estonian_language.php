@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddEstonianLanguage extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,12 +13,10 @@ class AddEstonianLanguage extends Migration
      */
     public function up()
     {
-
         $estonia = ['id' => 35, 'name' => 'Estonian', 'locale' => 'et'];
 
         Language::unguard();
         Language::create($estonia);
-
     }
 
     /**
@@ -31,4 +28,4 @@ class AddEstonianLanguage extends Migration
     {
         //
     }
-}
+};

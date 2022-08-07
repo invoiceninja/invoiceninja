@@ -30,7 +30,7 @@ class AttachCompanyUserRequest extends Request
         return auth()->user()->isAdmin();
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $is_admin = request()->has('is_admin') ? request()->input('is_admin') : false;
         $permissions = request()->has('permissions') ? request()->input('permissions') : '';

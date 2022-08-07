@@ -41,7 +41,7 @@ class RefundCancelledAccount implements ShouldQueue
 
         $plan_details = $this->account->getPlanDetails();
 
-        if (!$plan_details) {
+        if (! $plan_details) {
             return;
         }
 
@@ -49,12 +49,11 @@ class RefundCancelledAccount implements ShouldQueue
         if ($plan_details['trial_plan']) {
             return;
         }
-        
+
         /* Is the plan Active? */
         if (! $plan_details['active']) {
             return;
         }
-        
 
         /* Refundable client! */
 

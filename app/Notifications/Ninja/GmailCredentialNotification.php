@@ -20,15 +20,13 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class GmailCredentialNotification extends Notification 
+class GmailCredentialNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-
     protected $account;
 
     public function __construct($account)
@@ -72,7 +70,6 @@ class GmailCredentialNotification extends Notification
 
     public function toSlack($notifiable)
     {
-
         $content = "GMail credentials invalid for Account {$this->account->key} \n";
 
         $owner = $this->account->companies()->first()->owner();

@@ -166,7 +166,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Detaches a payment method from the gateway
-     * 
+     *
      * @param  ClientGatewayToken $token The gateway token
      * @return bool                      boolean response
      */
@@ -193,6 +193,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function setPaymentHash(PaymentHash $payment_hash)
     {
         $this->payment_hash = $payment_hash;
+
         return $this;
     }
 
@@ -227,20 +228,19 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
-
-        if(in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]) )        
+        if (in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
             $this->confirmGatewayFee();
+        }
 
         /*Never create a payment with a duplicate transaction reference*/
-        if(array_key_exists('transaction_reference', $data)){
-
+        if (array_key_exists('transaction_reference', $data)) {
             $_payment = Payment::where('transaction_reference', $data['transaction_reference'])
                                ->where('client_id', $this->client->id)
                                ->first();
 
-           if($_payment)
-            return $_payment;
-        
+            if ($_payment) {
+                return $_payment;
+            }
         }
 
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
@@ -261,28 +261,30 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->saveQuietly();
 
         /* Return early if the payment is not completed or pending*/
-        if(!in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]) )
+        if (! in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
             return $payment;
+        }
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
 
         $this->attachInvoices($payment, $this->payment_hash);
-        
-        if($this->payment_hash->credits_total() > 0)
+
+        if ($this->payment_hash->credits_total() > 0) {
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
+        }
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]))
+        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING])) {
             $payment->service()->sendEmail();
+        }
 
-            //todo
-            //catch any payment failures here also and fire a subsequent failure email if necessary? note only need for delayed payment forms
-            //perhaps this type of functionality should be handled higher up to provide better context?
-
+        //todo
+        //catch any payment failures here also and fire a subsequent failure email if necessary? note only need for delayed payment forms
+        //perhaps this type of functionality should be handled higher up to provide better context?
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -319,7 +321,6 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) use ($fee_total) {
-
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
             }
@@ -333,7 +334,6 @@ class BaseDriver extends AbstractPaymentDriver
             ];
 
             TransactionLog::dispatch(TransactionEvent::INVOICE_FEE_APPLIED, $transaction, $invoice->company->db);
-
         });
     }
 
@@ -403,14 +403,15 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if (!is_null($this->payment_hash)) {
+        if (! is_null($this->payment_hash)) {
             $this->unWindGatewayFees($this->payment_hash);
         }
 
         $error = $e->getMessage();
 
-        if(!$this->payment_hash)
+        if (! $this->payment_hash) {
             throw new PaymentFailed($error, $e->getCode());
+        }
 
         $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 
@@ -430,28 +431,25 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function sendFailureMail($error)
     {
-
-        if (!is_null($this->payment_hash)) {
+        if (! is_null($this->payment_hash)) {
             $this->unWindGatewayFees($this->payment_hash);
         }
 
-        if(!$error)
+        if (! $error) {
             $error = '';
-        
+        }
+
         PaymentFailedMailer::dispatch(
             $this->payment_hash,
             $this->client->company,
             $this->client,
             $error
         );
-
     }
 
     public function clientPaymentFailureMailer($error)
     {
-
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
             $nmo->company = $this->client->company;
@@ -460,23 +458,16 @@ class BaseDriver extends AbstractPaymentDriver
             $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->each(function ($invoice) {
-
                 $invoice->service()->touchPdf();
-                
             });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-
-                if ((bool)$invitation->contact->send_email !== false && $invitation->contact->email) {
-
+                if ((bool) $invitation->contact->send_email !== false && $invitation->contact->email) {
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
                 }
-            
             });
-
         }
-
     }
 
     /**
@@ -505,27 +496,21 @@ class BaseDriver extends AbstractPaymentDriver
         $this->sendFailureMail($error);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
+        $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->each(function ($invoice){
-
+        $invoices->each(function ($invoice) {
             $invoice->service()->touchPdf();
-
         });
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
-
-            if (!$invitation->contact->trashed()) {
-
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
+            if (! $invitation->contact->trashed()) {
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);
-
             }
-
         });
 
         $message = [
@@ -542,12 +527,10 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->company,
         );
 
-        if($client_present)
+        if ($client_present) {
             throw new PaymentFailed($error, 500);
-
+        }
     }
-
-
 
     public function checkRequirements()
     {
@@ -655,7 +638,6 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function logSuccessfulGatewayResponse($response, $gateway_const)
     {
-
         SystemLogger::dispatch(
             $response,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -669,8 +651,8 @@ class BaseDriver extends AbstractPaymentDriver
     public function genericWebhookUrl()
     {
         return route('payment_notification_webhook', [
-            'company_key' => $this->client->company->company_key, 
-            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id), 
+            'company_key' => $this->client->company->company_key,
+            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id),
             'client' => $this->encodePrimaryKey($this->client->id),
         ]);
     }
@@ -691,14 +673,15 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getDescription(bool $abbreviated = true)
     {
-        if(!$this->payment_hash)
-            return "";
+        if (! $this->payment_hash) {
+            return '';
+        }
 
-        if($abbreviated)
+        if ($abbreviated) {
             return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
+        }
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
-
     }
 
     public function disconnect()

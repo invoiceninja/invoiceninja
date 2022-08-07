@@ -66,7 +66,8 @@ class ProfitAndLossController extends BaseController
     public function __invoke(ProfitLossRequest $request)
     {
         if ($request->has('send_email') && $request->get('send_email')) {
-            SendToAdmin::dispatch(auth()->user()->company(),$request->all(),ProfitLoss::class,$this->filename);
+            SendToAdmin::dispatch(auth()->user()->company(), $request->all(), ProfitLoss::class, $this->filename);
+
             return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
@@ -76,17 +77,13 @@ class ProfitAndLossController extends BaseController
 
         $csv = $pnl->getCsv();
 
-        $headers = array(
+        $headers = [
             'Content-Disposition' => 'attachment',
             'Content-Type' => 'text/csv',
-        );
+        ];
 
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
         }, $this->filename, $headers);
-
     }
-
-
-
 }

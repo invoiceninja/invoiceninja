@@ -86,8 +86,9 @@ trait ClientGroupSettingsSaver
 
         ksort($casts);
 
-        if(property_exists($settings, 'translations'))
+        if (property_exists($settings, 'translations')) {
             unset($settings->translations);
+        }
 
         //18-07-2022 removed || empty($settings->{$key}) from this check to allow "0" values to persist
         foreach ($settings as $key => $value) {
@@ -97,8 +98,7 @@ trait ClientGroupSettingsSaver
         }
 
         foreach ($casts as $key => $value) {
-
-            if($value == 'float' && property_exists($settings, $key)){
+            if ($value == 'float' && property_exists($settings, $key)) {
                 $settings->{$key} = floatval($settings->{$key});
             }
 
@@ -114,12 +114,11 @@ trait ClientGroupSettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || 
-                substr($key, -14) == 'number_counter' || 
-                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
-                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {  
-                    
-                    $value = 'integer';
+            elseif (substr($key, -3) == '_id' ||
+                substr($key, -14) == 'number_counter' ||
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) ||
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
+                $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
                     continue;
@@ -161,24 +160,22 @@ trait ClientGroupSettingsSaver
         $casts = CompanySettings::$casts;
 
         foreach ($casts as $key => $value) {
-
-            if($value == 'float' && property_exists($settings, $key)){
+            if ($value == 'float' && property_exists($settings, $key)) {
                 $settings->{$key} = floatval($settings->{$key});
             }
-            
-            /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || 
-                substr($key, -14) == 'number_counter' || 
-                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
-                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {    
 
+            /*Separate loop if it is a _id field which is an integer cast as a string*/
+            if (substr($key, -3) == '_id' ||
+                substr($key, -14) == 'number_counter' ||
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) ||
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
                     continue;
                 } elseif ($this->checkAttribute($value, $settings->{$key})) {
-                    if (substr($key, -3) == '_id'|| 
-                        ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                    if (substr($key, -3) == '_id' ||
+                        ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) ||
                         ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
                         settype($settings->{$key}, 'string');
                     } else {
@@ -226,10 +223,10 @@ trait ClientGroupSettingsSaver
             case 'real':
             case 'float':
             case 'double':
-                return !is_string($value) && (is_float($value) || is_numeric(strval($value)));
+                return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
                 //return is_float($value) || is_numeric(strval($value));
             case 'string':
-                return ( is_string( $value ) && method_exists($value, '__toString') ) || is_null($value) || is_string($value);
+                return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
                 return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -239,6 +236,7 @@ trait ClientGroupSettingsSaver
                 return is_array($value);
             case 'json':
                 json_decode($value);
+
                     return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;

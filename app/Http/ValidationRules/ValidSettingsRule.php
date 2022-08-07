@@ -20,6 +20,7 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidSettingsRule implements Rule
 {
     use SettingsSaver;
+
     /**
      * @param string $attribute
      * @param mixed $value

@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Tests;
@@ -144,13 +144,8 @@ trait MockAccountData
     /**
      * @var
      */
-
     public $tax_rate;
 
-
-    /**
-     *
-     */
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
@@ -183,15 +178,15 @@ trait MockAccountData
 
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000
+            'hosted_company_count' => 1000,
         ]);
 
         $this->account->num_users = 3;
         $this->account->save();
 
         $this->company = Company::factory()->create([
-                'account_id' => $this->account->id,
-            ]);
+            'account_id' => $this->account->id,
+        ]);
 
         $this->company->client_registration_fields = ClientRegistrationFields::generate();
 
@@ -241,7 +236,7 @@ trait MockAccountData
 
         // auth()->login($user);
 
-        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
+        CreateCompanyTaskStatuses::dispatchSync($this->company, $this->user);
 
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;
@@ -264,13 +259,13 @@ trait MockAccountData
         //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
         ]);
 
         $this->client = Client::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
         ]);
 
         Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/invoices', 0755, true);
@@ -278,54 +273,51 @@ trait MockAccountData
         Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/quotes', 0755, true);
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $user_id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $user_id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
 
-
         $contact2 = ClientContact::factory()->create([
-                'user_id' => $user_id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-                'send_email' => true,
+            'user_id' => $user_id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+            'send_email' => true,
         ]);
 
         $this->vendor = Vendor::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
-            'currency_id' => 1
+            'currency_id' => 1,
         ]);
 
-
         $vendor_contact = VendorContact::factory()->create([
-                'user_id' => $user_id,
-                'vendor_id' => $this->vendor->id,
-                'company_id' => $this->company->id,
-                'is_primary' => 1,
-                'send_email' => true,
+            'user_id' => $user_id,
+            'vendor_id' => $this->vendor->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
         ]);
 
         $vendor_contact2 = VendorContact::factory()->create([
-                'user_id' => $user_id,
-                'vendor_id' => $this->vendor->id,
-                'company_id' => $this->company->id,
-                'send_email' => true,
+            'user_id' => $user_id,
+            'vendor_id' => $this->vendor->id,
+            'company_id' => $this->company->id,
+            'send_email' => true,
         ]);
 
         $this->project = Project::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
-                'client_id' => $this->client->id,
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
         ]);
 
         $this->expense = Expense::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
-
 
         $this->recurring_expense = RecurringExpense::factory()->create([
             'user_id' => $user_id,
@@ -394,30 +386,30 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        $this->invoice->load("client");
+        $this->invoice->load('client');
 
         InvoiceInvitation::factory()->create([
-                'user_id' => $this->invoice->user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact->id,
-                'invoice_id' => $this->invoice->id,
-            ]);
+            'user_id' => $this->invoice->user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'invoice_id' => $this->invoice->id,
+        ]);
 
         InvoiceInvitation::factory()->create([
-                'user_id' => $this->invoice->user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact2->id,
-                'invoice_id' => $this->invoice->id,
-            ]);
+            'user_id' => $this->invoice->user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact2->id,
+            'invoice_id' => $this->invoice->id,
+        ]);
 
         $this->invoice->fresh()->service()->markSent();
         // $this->invoice->service()->markSent();
 
         $this->quote = Quote::factory()->create([
-                'user_id' => $user_id,
-                'client_id' => $this->client->id,
-                'company_id' => $this->company->id,
-            ]);
+            'user_id' => $user_id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+        ]);
 
         $this->quote->line_items = $this->buildLineItems();
         $this->quote->uses_inclusive_taxes = false;
@@ -435,18 +427,18 @@ trait MockAccountData
         //$this->quote->service()->createInvitations()->markSent();
 
         QuoteInvitation::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact->id,
-                'quote_id' => $this->quote->id,
-            ]);
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'quote_id' => $this->quote->id,
+        ]);
 
         QuoteInvitation::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact2->id,
-                'quote_id' => $this->quote->id,
-            ]);
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact2->id,
+            'quote_id' => $this->quote->id,
+        ]);
 
         $this->quote->setRelation('client', $this->client);
         $this->quote->setRelation('company', $this->company);
@@ -470,15 +462,12 @@ trait MockAccountData
         $this->purchase_order->uses_inclusive_taxes = false;
         $this->purchase_order->save();
 
-
         PurchaseOrderInvitation::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
             'vendor_contact_id' => $vendor_contact->id,
             'purchase_order_id' => $this->purchase_order->id,
         ]);
-
-
 
         $purchase_order_invitations = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
             ->wherePurchaseOrderId($this->purchase_order->id);
@@ -491,7 +480,6 @@ trait MockAccountData
         $this->purchase_order->setRelation('company', $this->company);
 
         $this->purchase_order->save();
-
 
         $this->credit = CreditFactory::create($this->company->id, $user_id);
         $this->credit->client_id = $this->client->id;
@@ -513,7 +501,6 @@ trait MockAccountData
         $this->credit->uses_inclusive_taxes = false;
         $this->credit->save();
 
-
         $this->credit_calc = new InvoiceSum($this->credit);
         $this->credit_calc->build();
 
@@ -523,20 +510,19 @@ trait MockAccountData
         $this->credit->ledger()->updateCreditBalance($this->credit->balance)->save();
         $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
 
+        CreditInvitation::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'credit_id' => $this->credit->id,
+        ]);
 
         CreditInvitation::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact->id,
-                'credit_id' => $this->credit->id,
-            ]);
-
-        CreditInvitation::factory()->create([
-                'user_id' => $user_id,
-                'company_id' => $this->company->id,
-                'client_contact_id' => $contact2->id,
-                'credit_id' => $this->credit->id,
-            ]);
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact2->id,
+            'credit_id' => $this->credit->id,
+        ]);
 
         $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)
                                         ->whereCreditId($this->credit->id);
@@ -693,7 +679,6 @@ trait MockAccountData
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
         }
-
 
         $this->client = $this->client->fresh();
         $this->invoice = $this->invoice->fresh();

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Seeders;
 
 use App\Models\Currency;
@@ -115,7 +116,7 @@ class CurrenciesSeeder extends Seeder
             ['id' => 91, 'name' => 'Macedonian Denar', 'code' => 'MKD', 'symbol' => 'ден', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 92, 'name' => 'Fijian Dollar', 'code' => 'FJD', 'symbol' => 'FJ$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 93, 'name' => 'Bolivian Boliviano', 'code' => 'BOB', 'symbol' => 'Bs', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['id' => 94,'name' => 'Albanian Lek', 'code' => 'ALL', 'symbol' => 'L ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
+            ['id' => 94, 'name' => 'Albanian Lek', 'code' => 'ALL', 'symbol' => 'L ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['id' => 95, 'name' => 'Serbian Dinar', 'code' => 'RSD', 'symbol' => 'din', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['id' => 96, 'name' => 'Lebanese Pound', 'code' => 'LBP', 'symbol' => 'LL ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 97, 'name' => 'Armenian Dram', 'code' => 'AMD', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],

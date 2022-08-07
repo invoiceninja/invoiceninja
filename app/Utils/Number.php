@@ -68,7 +68,7 @@ class Number
 
         $precision = 10;
 
-        return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), "0"),$decimal);
+        return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), '0'), $decimal);
     }
 
     /**
@@ -86,8 +86,9 @@ class Number
         // remove everything except numbers and dot "."
         $s = preg_replace("/[^0-9\.]/", '', $s);
 
-        if($s < 1)
-            return (float)$s;
+        if ($s < 1) {
+            return (float) $s;
+        }
 
         // remove all seperators from first part and keep the end
         $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
@@ -166,7 +167,7 @@ class Number
         }
     }
 
-/**
+    /**
      * Formats a given value based on the clients currency AND country.
      *
      * @param floatval $value The number to be formatted
@@ -203,11 +204,12 @@ class Number
         }
 
         /* 08-01-2022 allow increased precision for unit price*/
-        $v = rtrim(sprintf('%f', $value),"0");
+        $v = rtrim(sprintf('%f', $value), '0');
         // $precision = strlen(substr(strrchr($v, $decimal), 1));
-        
-        if($v<1)
+
+        if ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
+        }
 
         // if($precision == 1)
         //     $precision = 2;
@@ -227,5 +229,4 @@ class Number
             return self::formatValue($value, $currency);
         }
     }
-
 }

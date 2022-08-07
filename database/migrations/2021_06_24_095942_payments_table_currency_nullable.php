@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class PaymentsTableCurrencyNullable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,10 +12,8 @@ class PaymentsTableCurrencyNullable extends Migration
      */
     public function up()
     {
-        Schema::table('payments', function (Blueprint $table){
-
+        Schema::table('payments', function (Blueprint $table) {
             $table->unsignedInteger('exchange_currency_id')->nullable()->change();
-
         });
     }
 
@@ -29,4 +26,4 @@ class PaymentsTableCurrencyNullable extends Migration
     {
         //
     }
-}
+};

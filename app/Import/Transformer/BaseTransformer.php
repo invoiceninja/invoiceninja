@@ -43,7 +43,7 @@ class BaseTransformer
 
     public function getValueOrNull($data, $field)
     {
-      return isset($data[$field]) && $data[$field] ? $data[$field] : null;
+        return isset($data[$field]) && $data[$field] ? $data[$field] : null;
     }
 
     public function getCurrencyByCode($data, $key = 'client.currency_id')
@@ -65,10 +65,7 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
-
-        if(!empty($client_name))
-        {
-
+        if (! empty($client_name)) {
             $client_id_search = $this->company
                 ->clients()
                 ->where('is_deleted', false)
@@ -87,8 +84,8 @@ class BaseTransformer
                 return $client_name_search->first()->id;
             }
         }
-        if (!empty($client_email)) {
-            $contacts = ClientContact::whereHas('client', function($query){
+        if (! empty($client_email)) {
+            $contacts = ClientContact::whereHas('client', function ($query) {
                 $query->where('is_deleted', false);
             })
             ->where('company_id', $this->company->id)
@@ -234,7 +231,7 @@ class BaseTransformer
             ])
             ->first();
 
-        if (!$contact) {
+        if (! $contact) {
             return null;
         }
 
@@ -445,13 +442,15 @@ class BaseTransformer
 
     public function getVendorIdOrCreate($name)
     {
-        if(empty($name))
+        if (empty($name)) {
             return null;
+        }
 
         $vendor = $this->getVendorId($name);
 
-        if($vendor)
+        if ($vendor) {
             return $vendor;
+        }
 
         $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
         $vendor->name = $name;
@@ -480,19 +479,21 @@ class BaseTransformer
 
     public function getOrCreateExpenseCategry($name)
     {
-        if(empty($name))
+        if (empty($name)) {
             return null;
+        }
 
         $ec = $this->getExpenseCategoryId($name);
 
-        if($ec)
+        if ($ec) {
             return $ec;
+        }
 
         $expense_category = ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
         $expense_category->name = $name;
         $expense_category->save();
 
-        return $expense_category->id; 
+        return $expense_category->id;
     }
 
     /**
@@ -518,11 +519,11 @@ class BaseTransformer
         $project = ProjectFactory::create($this->company->id, $this->company->owner()->id);
         $project->name = $name;
 
-        if($clientId)
+        if ($clientId) {
             $project->client_id = $clientId;
-        
-        $project->saveQuietly();
+        }
 
+        $project->saveQuietly();
 
         return $project->id;
     }
@@ -540,6 +541,4 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
-
-
 }

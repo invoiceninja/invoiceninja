@@ -47,10 +47,11 @@ class SystemMaintenance implements ShouldQueue
     {
         set_time_limit(0);
 
-        nlog("Starting System Maintenance");
+        nlog('Starting System Maintenance');
 
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             return;
+        }
 
         $delete_pdf_days = config('ninja.maintenance.delete_pdfs');
 
@@ -63,70 +64,61 @@ class SystemMaintenance implements ShouldQueue
         $this->maintainPdfs($delete_pdf_days);
 
         $this->maintainBackups($delete_backup_days);
-     
     }
 
     private function maintainPdfs(int $delete_pdf_days)
     {
-        if($delete_pdf_days == 0)
+        if ($delete_pdf_days == 0) {
             return;
+        }
 
         Invoice::with('invitations')
                 ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
-                ->each(function ($invoice){
-
+                ->each(function ($invoice) {
                     nlog("deleting invoice {$invoice->number}");
 
                     $invoice->service()->deletePdf();
-
-               });
+                });
 
         Quote::with('invitations')
                 ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
-                ->each(function ($quote){
-
+                ->each(function ($quote) {
                     nlog("deleting quote {$quote->number}");
 
                     $quote->service()->deletePdf();
-
-               });
+                });
 
         Credit::with('invitations')
                 ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
-                ->each(function ($credit){
-
+                ->each(function ($credit) {
                     nlog("deleting credit {$credit->number}");
-                    
+
                     $credit->service()->deletePdf();
-
-               });
-
-
+                });
     }
 
     private function maintainBackups(int $delete_backup_days)
     {
-        if($delete_backup_days == 0)
+        if ($delete_backup_days == 0) {
             return;
+        }
 
         Backup::where('created_at', '<', now()->subDays($delete_backup_days))
                 ->cursor()
-                ->each(function ($backup){
-                    
+                ->each(function ($backup) {
                     nlog("deleting {$backup->filename}");
 
-                    if($backup->filename)
+                    if ($backup->filename) {
                         $backup->deleteFile();
-                    
+                    }
+
                     $backup->delete();
-
                 });
-
     }
 }

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ReportIncludeDraftsInCompaniesTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,7 +13,7 @@ class ReportIncludeDraftsInCompaniesTable extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->boolean('report_include_drafts')->default(0);            
+            $table->boolean('report_include_drafts')->default(0);
         });
     }
 
@@ -25,6 +24,5 @@ class ReportIncludeDraftsInCompaniesTable extends Migration
      */
     public function down()
     {
-
     }
-}
+};

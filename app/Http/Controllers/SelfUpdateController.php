@@ -88,7 +88,6 @@ class SelfUpdateController extends BaseController
 
     //     $updater->source()->update($release);
 
-            
     //     $cacheCompiled = base_path('bootstrap/cache/compiled.php');
     //     if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
     //     $cacheServices = base_path('bootstrap/cache/services.php');
@@ -105,7 +104,6 @@ class SelfUpdateController extends BaseController
 
     public function update()
     {
-
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
@@ -113,39 +111,30 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        nlog("Test filesystem is writable");
+        nlog('Test filesystem is writable');
 
         $this->testWritable();
-        
-        nlog("Clear cache directory");
+
+        nlog('Clear cache directory');
 
         $this->clearCacheDir();
 
-        nlog("copying release file");
+        nlog('copying release file');
 
-        if(copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))){
-            nlog("Copied file from URL");
-        }
-        else
+        if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
+            nlog('Copied file from URL');
+        } else {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
+        }
 
-        nlog("Finished copying");
+        nlog('Finished copying');
 
         $file = Storage::disk('local')->path('invoiceninja.zip');
 
-        nlog("Extracting zip");
+        nlog('Extracting zip');
 
         //clean up old snappdf installations
         $this->cleanOldSnapChromeBinaries();
-        
-        // try{
-        //     $s = new Snappdf;
-        //     $s->getChromiumPath();
-        //     chmod($this->generatePlatformExecutable($s->getChromiumPath()), 0755);
-        // }
-        // catch(\Exception $e){
-        //     nlog("I could not set the file permissions for chrome");
-        // }
 
         $zipFile = new \PhpZip\ZipFile();
 
@@ -155,28 +144,20 @@ class SelfUpdateController extends BaseController
 
         $zipFile->close();
 
-        // $zip = new \ZipArchive;
-        
-        // $res = $zip->open($file);
-        // if ($res === TRUE) {
-        //     $zip->extractTo(base_path());
-        //     $zip->close();
-        // } 
-
-        nlog("Finished extracting files");
+        nlog('Finished extracting files');
 
         unlink($file);
 
-        nlog("Deleted release zip file");
+        nlog('Deleted release zip file');
 
-        foreach($this->purge_file_list as $purge_file_path)
-        {
+        foreach ($this->purge_file_list as $purge_file_path) {
             $purge_file = base_path($purge_file_path);
-            if (file_exists($purge_file)) { unlink ($purge_file); }
-
+            if (file_exists($purge_file)) {
+                unlink($purge_file);
+            }
         }
 
-        nlog("Removing cache files");
+        nlog('Removing cache files');
 
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
@@ -185,79 +166,74 @@ class SelfUpdateController extends BaseController
         Artisan::call('optimize');
 
         $this->buildCache(true);
-        
-        nlog("Called Artisan commands");
+
+        nlog('Called Artisan commands');
 
         return response()->json(['message' => 'Update completed'], 200);
-
-
     }
 
     private function cleanOldSnapChromeBinaries()
     {
-        $current_revision =  base_path('vendor/beganovich/snappdf/versions/revision.txt');
+        $current_revision = base_path('vendor/beganovich/snappdf/versions/revision.txt');
         $current_revision_text = file_get_contents($current_revision);
 
         $iterator = new \DirectoryIterator(base_path('vendor/beganovich/snappdf/versions'));
 
-        foreach ($iterator as $file) 
-        {
-
-            if($file->isDir() && !$file->isDot() && ($current_revision_text != $file->getFileName()))
-            {
-
+        foreach ($iterator as $file) {
+            if ($file->isDir() && ! $file->isDot() && ($current_revision_text != $file->getFileName())) {
                 $directoryIterator = new \RecursiveDirectoryIterator(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()), \RecursiveDirectoryIterator::SKIP_DOTS);
 
-                foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) 
-                {
-                  unlink($filex->getPathName());
+                foreach (new \RecursiveIteratorIterator($directoryIterator) as $filex) {
+                    unlink($filex->getPathName());
                 }
 
                 $this->deleteDirectory(base_path('vendor/beganovich/snappdf/versions/'.$file->getFileName()));
             }
-
         }
-
     }
 
-    private function deleteDirectory($dir) {
-        if (!file_exists($dir)) return true;
-    
-        if (!is_dir($dir) || is_link($dir)) return unlink($dir);
-            foreach (scandir($dir) as $item) {
-                if ($item == '.' || $item == '..') continue;
-                if (!$this->deleteDirectory($dir . "/" . $item)) {
-                    if (!$this->deleteDirectory($dir . "/" . $item)) return false;
-                };
+    private function deleteDirectory($dir)
+    {
+        if (! file_exists($dir)) {
+            return true;
+        }
+
+        if (! is_dir($dir) || is_link($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
             }
-            return rmdir($dir);
+            if (! $this->deleteDirectory($dir.'/'.$item)) {
+                if (! $this->deleteDirectory($dir.'/'.$item)) {
+                    return false;
+                }
+            }
+        }
+
+        return rmdir($dir);
     }
 
     private function postHookUpdate()
     {
-        if(config('ninja.app_version') == '5.3.82')
-        {
-            Client::withTrashed()->cursor()->each( function ($client) {
+        if (config('ninja.app_version') == '5.3.82') {
+            Client::withTrashed()->cursor()->each(function ($client) {
                 $entity_settings = $this->checkSettingType($client->settings);
                 $entity_settings->md5 = md5(time());
                 $client->settings = $entity_settings;
                 $client->save();
-                
             });
         }
     }
 
     private function clearCacheDir()
     {
-        
         $directoryIterator = new \RecursiveDirectoryIterator(base_path('bootstrap/cache'), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-
             unlink(base_path('bootstrap/cache/').$file->getFileName());
-
         }
-
     }
 
     private function testWritable()
@@ -265,13 +241,14 @@ class SelfUpdateController extends BaseController
         $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-
-            if(strpos($file->getPathname(), '.git') !== false)
+            if (strpos($file->getPathname(), '.git') !== false) {
                 continue;
+            }
 
             if ($file->isFile() && ! $file->isWritable()) {
                 nlog("Cannot update system because {$file->getFileName()} is not writable");
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
+
                 return false;
             }
         }

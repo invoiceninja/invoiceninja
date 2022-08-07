@@ -64,11 +64,8 @@ class DesignUpdate extends Command
                 $this->handleOnDb($db);
             }
 
-        MultiDB::setDB($current_db);
-        
+            MultiDB::setDB($current_db);
         }
-
-
     }
 
     private function handleOnDb()

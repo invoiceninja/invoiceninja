@@ -33,7 +33,7 @@ class CompanyImportFailure extends Mailable
     public $whitelabel;
 
     public $user_message;
-    
+
     /**
      * Create a new message instance.
      *

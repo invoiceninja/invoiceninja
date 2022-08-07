@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Report;
 
-
 use App\Http\Requests\Report\GenericReportRequest;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -29,13 +28,15 @@ class SendToAdmin implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Company $company;
+
     protected array $request;
+
     protected string $report_class;
+
     protected string $file_name;
 
     /**
      * Create a new job instance.
-     *
      */
     public function __construct(Company $company, array $request, $report_class, $file_name)
     {
@@ -43,12 +44,10 @@ class SendToAdmin implements ShouldQueue
         $this->request = $request;
         $this->report_class = $report_class;
         $this->file_name = $file_name;
-
     }
 
     public function handle()
     {
-        
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
         $csv = $export->run();
@@ -60,6 +59,5 @@ class SendToAdmin implements ShouldQueue
         $nmo->to_user = $this->company->owner();
 
         NinjaMailerJob::dispatch($nmo);
-
     }
 }

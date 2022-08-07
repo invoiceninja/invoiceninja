@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\Credit;
 
 use App\Http\Requests\Request;
@@ -53,17 +52,18 @@ class UpdateCreditRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('credits')->where('company_id', auth()->user()->company()->id)->ignore($this->credit->id);
+        }
 
         $rules['line_items'] = 'array';
-        $rules['discount']  = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-        
+
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -72,7 +72,7 @@ class UpdateCreditRequest extends Request
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
-        
+
         $input['id'] = $this->credit->id;
 
         $this->replace($input);

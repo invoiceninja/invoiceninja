@@ -17,9 +17,9 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
+use net\authorize\api\contract\v1\ExtendedAmountType;
 use net\authorize\api\contract\v1\OrderType;
 use net\authorize\api\contract\v1\PaymentProfileType;
-use net\authorize\api\contract\v1\ExtendedAmountType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
@@ -29,7 +29,7 @@ use net\authorize\api\controller\CreateTransactionController;
 class ChargePaymentProfile
 {
     use MakesHash;
-    
+
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
@@ -53,27 +53,27 @@ class ChargePaymentProfile
         $invoiceTotal = 0;
         $invoiceTaxes = 0;
 
-        if($this->authorize->payment_hash->data) {
-            $invoice_numbers =  collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(",");
+        if ($this->authorize->payment_hash->data) {
+            $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
             $invObj = Invoice::whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-            
+
             $invoiceTotal = round($invObj->pluck('amount')->sum(), 2);
             $invoiceTaxes = round($invObj->pluck('total_taxes')->sum(), 2);
-            
+
             if ($invoiceTotal != $amount) {
-                $taxRatio = $amount/$invoiceTotal;
-                $taxAmount = round($invoiceTaxes*$taxRatio, 2);
+                $taxRatio = $amount / $invoiceTotal;
+                $taxAmount = round($invoiceTaxes * $taxRatio, 2);
             } else {
                 $taxAmount = $invoiceTaxes;
             }
         }
-        
+
         $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->authorize->client->present()->name()}";
 
         $order = new OrderType();
-        $order->setInvoiceNumber(substr($invoice_numbers,0,19));
-        $order->setDescription(substr($description,0,255));
-        
+        $order->setInvoiceNumber(substr($invoice_numbers, 0, 19));
+        $order->setDescription(substr($description, 0, 255));
+
         $tax = new ExtendedAmountType();
         $tax->setName('tax');
         $tax->setAmount($taxAmount);
@@ -132,10 +132,10 @@ class ChargePaymentProfile
         }
 
         return [
-          'response'           => $tresponse,
-          'amount'             => $amount,
-          'profile_id'         => $profile_id,
-          'payment_profile_id' => $payment_profile_id,
+            'response'           => $tresponse,
+            'amount'             => $amount,
+            'profile_id'         => $profile_id,
+            'payment_profile_id' => $payment_profile_id,
         ];
     }
 }

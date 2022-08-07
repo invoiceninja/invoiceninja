@@ -42,7 +42,7 @@ class RecurringInvoiceArchivedActivity implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $event->recurring_invoice->service()->deletePdf();
-        
+
         $fields = new stdClass;
         $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->recurring_invoice->user_id;
 

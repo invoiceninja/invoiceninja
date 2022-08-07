@@ -45,7 +45,6 @@ class StoreRecurringInvoiceRequest extends Request
             foreach (range(0, $documents) as $index) {
                 $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
-
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
@@ -56,20 +55,20 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 
-        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
+        $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
 
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }        
+        }
 
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
@@ -90,7 +89,6 @@ class StoreRecurringInvoiceRequest extends Request
         if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
             $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
         }
-
 
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
@@ -117,7 +115,7 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        
+
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         } else {
@@ -126,11 +124,12 @@ class StoreRecurringInvoiceRequest extends Request
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
             }
         }
-    
+
         /* If there is no number, just unset it here. */
-        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+        if (array_key_exists('number', $input) && (is_null($input['number']) || empty($input['number']))) {
             unset($input['number']);
-    
+        }
+
         $this->replace($input);
     }
 
@@ -141,7 +140,6 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         return false;
-        
     }
 
     public function messages()

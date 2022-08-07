@@ -42,25 +42,40 @@ class RecurringQuote extends BaseModel
      * Quote Statuses.
      */
     const STATUS_DRAFT = 1;
+
     const STATUS_ACTIVE = 2;
+
     const STATUS_PAUSED = 3;
+
     const STATUS_COMPLETED = 4;
+
     const STATUS_PENDING = -1;
 
     /**
      * Quote Frequencies.
      */
     const FREQUENCY_DAILY = 1;
+
     const FREQUENCY_WEEKLY = 2;
+
     const FREQUENCY_TWO_WEEKS = 3;
+
     const FREQUENCY_FOUR_WEEKS = 4;
+
     const FREQUENCY_MONTHLY = 5;
+
     const FREQUENCY_TWO_MONTHS = 6;
+
     const FREQUENCY_THREE_MONTHS = 7;
+
     const FREQUENCY_FOUR_MONTHS = 8;
+
     const FREQUENCY_SIX_MONTHS = 9;
+
     const FREQUENCY_ANNUALLY = 10;
+
     const FREQUENCY_TWO_YEARS = 11;
+
     const FREQUENCY_THREE_YEARS = 12;
 
     const RECURS_INDEFINITELY = -1;
@@ -220,18 +235,19 @@ class RecurringQuote extends BaseModel
 
     public function nextSendDate() :?Carbon
     {
-        if (!$this->next_send_date) {
+        if (! $this->next_send_date) {
             return null;
         }
-        
+
         $offset = $this->client->timezone_offset();
 
-        /* 
+        /*
         As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
         to add ON a day - a day = 86400 seconds
         */
-        if($offset < 0)
+        if ($offset < 0) {
             $offset += 86400;
+        }
 
         switch ($this->frequency_id) {
             case self::FREQUENCY_DAILY:
@@ -406,7 +422,7 @@ class RecurringQuote extends BaseModel
         /* Return early if nothing to send back! */
         if ($this->status_id == self::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||
-            !$this->next_send_date) {
+            ! $this->next_send_date) {
             return [];
         }
 
@@ -419,13 +435,13 @@ class RecurringQuote extends BaseModel
 
         $data = [];
 
-        if (!Carbon::parse($this->next_send_date)) {
+        if (! Carbon::parse($this->next_send_date)) {
             return $data;
         }
 
         $next_send_date = Carbon::parse($this->next_send_date)->copy();
 
-        for ($x=0; $x<$iterations; $x++) {
+        for ($x = 0; $x < $iterations; $x++) {
             // we don't add the days... we calc the day of the month!!
             $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
             $next_due_date_string = $next_due_date ? $next_due_date->format('Y-m-d') : '';
@@ -434,20 +450,19 @@ class RecurringQuote extends BaseModel
 
             $data[] = [
                 'send_date' => $next_send_date->format('Y-m-d'),
-                'due_date' => $next_due_date_string
+                'due_date' => $next_due_date_string,
             ];
 
             /* Fixes the timeshift in case the offset is negative which cause a infinite loop due to UTC +0*/
-            if($this->client->timezone_offset() < 0){
+            if ($this->client->timezone_offset() < 0) {
                 $next_send_date = $this->nextDateByFrequency($next_send_date->addDay()->format('Y-m-d'));
-            }
-            else
+            } else {
                 $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));
+            }
         }
 
         return $data;
     }
-
 
     public function calculateDueDate($date)
     {
@@ -465,7 +480,7 @@ class RecurringQuote extends BaseModel
      * Calculates a date based on the client payment terms.
      *
      * @param  Carbon $date A given date
-     * @return NULL|Carbon  The date
+     * @return null|Carbon  The date
      */
     public function calculateDateFromTerms($date)
     {
@@ -492,5 +507,4 @@ class RecurringQuote extends BaseModel
     {
         return ctrans('texts.recurring_quote');
     }
-
 }

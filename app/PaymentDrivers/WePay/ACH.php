@@ -19,8 +19,8 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Notifications\Ninja\WePayFailureNotification;
-use App\PaymentDrivers\WePayPaymentDriver;
 use App\PaymentDrivers\WePay\WePayCommon;
+use App\PaymentDrivers\WePayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\SlackMessage;
@@ -45,13 +45,12 @@ class ACH
         return render('gateways.wepay.authorize.bank_transfer', $data);
     }
 
-
     public function authorizeResponse($request)
     {
         //https://developer.wepay.com/api/api-calls/credit_card#authorize
         $data = $request->all();
         // authorize the credit card
-        
+
         //nlog($data);
         /*
           '_token' => '1Fk5CRj34up5ntKPvrFyMIAJhDdUNF3boqT3iIN3',
@@ -64,15 +63,13 @@ class ACH
           'method' => '1',
          */
 
-        try{
+        try {
             $response = $this->wepay_payment_driver->wepay->request('payment_bank/persist', [
                 'client_id'          => config('ninja.wepay.client_id'),
                 'client_secret'      => config('ninja.wepay.client_secret'),
-                'payment_bank_id'     => (int)$data['bank_account_id'],
+                'payment_bank_id'     => (int) $data['bank_account_id'],
             ]);
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
             $this->wepay_payment_driver->sendFailureMail($e->getMessage());
 
             $message = [
@@ -88,24 +85,22 @@ class ACH
                 $this->wepay_payment_driver->client->company,
             );
 
-        if(config('ninja.notification.slack'))
-            $this->wepay_payment_driver->company_gateway->company->notification(new WePayFailureNotification($this->wepay_payment_driver->company_gateway->company))->ninja();
+            if (config('ninja.notification.slack')) {
+                $this->wepay_payment_driver->company_gateway->company->notification(new WePayFailureNotification($this->wepay_payment_driver->company_gateway->company))->ninja();
+            }
 
             throw new PaymentFailed($e->getMessage(), 400);
         }
         // display the response
         // nlog($response);
-        
-        if(in_array($response->state, ['new', 'pending', 'authorized'])){
 
+        if (in_array($response->state, ['new', 'pending', 'authorized'])) {
             $this->storePaymentMethod($response, GatewayType::BANK_TRANSFER);
 
             return redirect()->route('client.payment_methods.index');
-
         }
-    
-        throw new PaymentFailed("There was a problem adding this payment method.", 400);
-        
+
+        throw new PaymentFailed('There was a problem adding this payment method.', 400);
         /*
             {
                 "payment_bank_id": 12345,
@@ -115,12 +110,10 @@ class ACH
             }
 
             state options: new, pending, authorized, disabled.
-        */    
-    
-    }  
+        */
+    }
 
-
-/* If the bank transfer token is PENDING - we need to verify!! */
+    /* If the bank transfer token is PENDING - we need to verify!! */
 //
 
     public function verificationView(ClientGatewayToken $token)
@@ -153,11 +146,11 @@ class ACH
 
         $transformed_transactions = [];
 
-        foreach($transactions as $transaction)
-            $transformed_transactions[] = (int)$transaction;
+        foreach ($transactions as $transaction) {
+            $transformed_transactions[] = (int) $transaction;
+        }
 
         try {
-        
             $response = $this->wepay_payment_driver->wepay->request('payment_bank/verify', [
                 'client_id'          => config('ninja.wepay.client_id'),
                 'client_secret'      => config('ninja.wepay.client_secret'),
@@ -165,16 +158,12 @@ class ACH
                 'type'               => 'microdeposits',
                 'microdeposits'      => $transformed_transactions,
             ]);
-        
-        }
-        catch(\Exception $e){
-
-            nlog("we pay exception");
+        } catch (\Exception $e) {
+            nlog('we pay exception');
             nlog($e->getMessage());
-            
+
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
                       ->with('error', $e->getMessage());
-        
         }
         /*
         {
@@ -184,30 +173,25 @@ class ACH
             "state": "authorized"
         }
         */
-       nlog($response);
+        nlog($response);
 
-       //$meta = $token->meta;
-        if($response->state == "authorized")
-        {
+        //$meta = $token->meta;
+        if ($response->state == 'authorized') {
             $meta = $token->meta;
             $meta->state = $response->state;
             $token->meta = $meta;
             $token->save();
 
             return redirect()->route('client.payment_methods.index');
-
-        }
-        else{
-         
-          return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
-                      ->with('error', ctrans('texts.verification_failed'));   
+        } else {
+            return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
+                      ->with('error', ctrans('texts.verification_failed'));
         }
     }
 
-///////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////
     public function paymentView(array $data)
     {
-
         $data['gateway'] = $this->wepay_payment_driver;
         $data['currency'] = $this->wepay_payment_driver->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
@@ -216,37 +200,32 @@ class ACH
         return render('gateways.wepay.bank_transfer', $data);
     }
 
-
     public function paymentResponse($request)
     {
-        
         $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
         $token_meta = $token->meta;
 
-        if(!property_exists($token_meta, 'state') || $token_meta->state != "authorized"){
+        if (! property_exists($token_meta, 'state') || $token_meta->state != 'authorized') {
+            $response = $this->wepay_payment_driver->wepay->request('/payment_bank', [
+                'client_id'          => config('ninja.wepay.client_id'),
+                'client_secret'      => config('ninja.wepay.client_secret'),
+                'payment_bank_id'    => $token->token,
+            ]);
 
-                $response = $this->wepay_payment_driver->wepay->request('/payment_bank', [
-                                'client_id'          => config('ninja.wepay.client_id'),
-                                'client_secret'      => config('ninja.wepay.client_secret'),
-                                'payment_bank_id'    => $token->token,
-                            ]);
-                
-                if($response->state == 'authorized')
-                {     
-                    $meta = $token->meta;
-                    $meta->state = $response->state;
-                    $token->meta = $meta;
-                    $token->save();
-                }
-                else
-                    return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
-
+            if ($response->state == 'authorized') {
+                $meta = $token->meta;
+                $meta->state = $response->state;
+                $token->meta = $meta;
+                $token->save();
+            } else {
+                return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+            }
         }
 
         $app_fee = (config('ninja.wepay.fee_ach_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
 
-        try{
-            $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+        try {
+            $response = $this->wepay_payment_driver->wepay->request('checkout/create', [
                 // 'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
                 'unique_id'           => Str::random(40),
                 'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
@@ -258,50 +237,47 @@ class ACH
                     'fee_payer' => config('ninja.wepay.fee_payer'),
                     'app_fee' => $app_fee,
                 ],
-                'payment_method'      => array(
+                'payment_method'      => [
                     'type'            => 'payment_bank',
-                    'payment_bank'     => array(
-                        'id'          => $token->token
-                    )
-                )
-            ));
-        }
-        catch(\Exception $e){
+                    'payment_bank'     => [
+                        'id'          => $token->token,
+                    ],
+                ],
+            ]);
+        } catch (\Exception $e) {
             throw new PaymentFailed($e->getMessage(), 500);
         }
-        
-                /* Merge all data and store in the payment hash*/
+
+        /* Merge all data and store in the payment hash*/
         $state = [
             'server_response' => $response,
             'payment_hash' => $request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
-        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state); 
+        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state);
         $this->wepay_payment_driver->payment_hash->save();
 
-        if(in_array($response->state, ['authorized', 'captured'])){
+        if (in_array($response->state, ['authorized', 'captured'])) {
             //success
-            nlog("success");
+            nlog('success');
             $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
             return $this->processSuccessfulPayment($response, $payment_status, GatewayType::BANK_TRANSFER);
         }
 
-        if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
+        if (in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])) {
             //some type of failure
-            nlog("failure");
+            nlog('failure');
 
             $payment_status = $response->state == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
 
             $this->processUnSuccessfulPayment($response, $payment_status);
         }
-
     }
 
     private function storePaymentMethod($response, $payment_method_id)
     {
-
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = (string) '';
         $payment_meta->exp_year = (string) '';
@@ -317,23 +293,21 @@ class ACH
         ];
 
         $this->wepay_payment_driver->storeGatewayToken($data);
-
-    }     
-
+    }
 
     public function tokenBilling($token, $payment_hash)
     {
-        
         $token_meta = $token->meta;
 
-        if(!property_exists($token_meta, 'state') || $token_meta->state != "authorized")
+        if (! property_exists($token_meta, 'state') || $token_meta->state != 'authorized') {
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+        }
 
         $amount = array_sum(array_column($this->wepay_payment_driver->payment_hash->invoices(), 'amount')) + $this->wepay_payment_driver->payment_hash->fee_total;
 
         $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $amount) + config('ninja.wepay.fee_fixed');
 
-        $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+        $response = $this->wepay_payment_driver->wepay->request('checkout/create', [
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $amount,
@@ -344,43 +318,38 @@ class ACH
                 'fee_payer' => config('ninja.wepay.fee_payer'),
                 'app_fee' => $app_fee,
             ],
-            'payment_method'      => array(
+            'payment_method'      => [
                 'type'            => 'payment_bank',
-                'payment_bank'     => array(
-                    'id'          => $token->token
-                )
-            )
-        ));
+                'payment_bank'     => [
+                    'id'          => $token->token,
+                ],
+            ],
+        ]);
 
-                /* Merge all data and store in the payment hash*/
+        /* Merge all data and store in the payment hash*/
         $state = [
             'server_response' => $response,
             'payment_hash' => $this->wepay_payment_driver->payment_hash,
         ];
 
-        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state); 
+        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state);
         $this->wepay_payment_driver->payment_hash->save();
 
-        if(in_array($response->state, ['authorized', 'captured'])){
+        if (in_array($response->state, ['authorized', 'captured'])) {
             //success
-            nlog("success");
+            nlog('success');
             $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
             return $this->processSuccessfulPayment($response, $payment_status, GatewayType::BANK_TRANSFER, true);
         }
 
-        if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
+        if (in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])) {
             //some type of failure
-            nlog("failure");
+            nlog('failure');
 
             $payment_status = $response->state == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
 
             $this->processUnSuccessfulPayment($response, $payment_status);
         }
-
     }
-
-
-
-
 }

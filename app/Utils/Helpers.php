@@ -24,11 +24,12 @@ class Helpers
 
     public static function sharedEmailVariables(?Client $client, array $settings = null): array
     {
-        if (!$client) {
+        if (! $client) {
             $elements['signature'] = '';
             $elements['settings'] = new stdClass;
             $elements['whitelabel'] = true;
             $elements['company'] = '';
+
             return $elements;
         }
 
@@ -38,7 +39,7 @@ class Helpers
         $elements['settings'] = $_settings;
         $elements['whitelabel'] = $client->company->account->isPaid() ? true : false;
         $elements['company'] = $client->company;
-        
+
         return $elements;
     }
 
@@ -75,7 +76,7 @@ class Helpers
                 break;
 
             default:
-                return is_null($value) ? '' : $value;
+                return is_null($value) ? '' : $this->processReservedKeywords($value, $entity);
                 break;
         }
     }
@@ -102,28 +103,29 @@ class Helpers
 
     /**
      * Process reserved keywords on PDF.
-     *  
-     * @param string $value 
+     *
+     * @param string $value
      * @param Client|Company $entity
-     * @return null|string 
+     * @return null|string
      */
     public static function processReservedKeywords(?string $value, $entity): ?string
     {
-        if(!$value)
+        if (! $value) {
             return '';
-        
+        }
+
         Carbon::setLocale($entity->locale());
 
         $replacements = [
             'literal' => [
                 ':MONTHYEAR' => \sprintf(
-                    '%s %s', 
+                    '%s %s',
                     Carbon::createFromDate(now()->month)->translatedFormat('F'),
                     now()->year,
                 ),
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
-                ':QUARTER' => 'Q' . now()->quarter,
+                ':QUARTER' => 'Q'.now()->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
                     Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
@@ -137,9 +139,9 @@ class Helpers
                     Carbon::now()->addDays(14)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
-                    '%s %s %s', 
-                    Carbon::now()->translatedFormat($entity->date_format()), 
-                    ctrans('texts.to'), 
+                    '%s %s %s',
+                    Carbon::now()->translatedFormat($entity->date_format()),
+                    ctrans('texts.to'),
                     Carbon::now()->addDays(7)->translatedFormat($entity->date_format())
                 ),
             ],
@@ -150,7 +152,7 @@ class Helpers
                 ':QUARTER' => now()->quarter,
             ],
             'ranges' => [
-              'MONTHYEAR' => Carbon::createFromDate(now()->year, now()->month),
+                'MONTHYEAR' => Carbon::createFromDate(now()->year, now()->month),
             ],
             'ranges_raw' => [
                 'MONTH' => now()->month,
@@ -164,7 +166,7 @@ class Helpers
         $matches = array_shift($ranges);
 
         foreach ($matches as $match) {
-            if (!Str::contains($match, '|')) {
+            if (! Str::contains($match, '|')) {
                 continue;
             }
 
@@ -175,7 +177,7 @@ class Helpers
                 $right = substr($parts[1], 0, -1); // MONTH+2
 
                 // If left side is not part of replacements, skip.
-                if (!array_key_exists($left, $replacements['ranges'])) {
+                if (! array_key_exists($left, $replacements['ranges'])) {
                     continue;
                 }
 
@@ -183,7 +185,7 @@ class Helpers
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
-                if (!Str::contains($right, ['-', '+', '/', '*'])) {
+                if (! Str::contains($right, ['-', '+', '/', '*'])) {
                     $_right = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
                 }
 
@@ -206,7 +208,6 @@ class Helpers
             }
         }
 
-
         // Second case with more common calculations.
         preg_match_all('/:([^:\s]+)/', $value, $common);
 
@@ -221,7 +222,7 @@ class Helpers
                 continue;
             }
 
-            if (!Str::contains($match, ['-', '+', '/', '*'])) {
+            if (! Str::contains($match, ['-', '+', '/', '*'])) {
                 $value = preg_replace(
                     sprintf('/%s/', $matches->keys()->first()), $replacements['literal'][$matches->keys()->first()], $value, 1
                 );
@@ -236,26 +237,26 @@ class Helpers
 
                 $raw = strtr($matches->keys()->first(), $replacements['raw']); // :MONTH => 1
 
-                $number = $res = preg_replace("/[^0-9]/", '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
+                $number = $res = preg_replace('/[^0-9]/', '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
 
                 $target = "/{$matches->keys()->first()}\\{$_operation}{$number}/"; // /:$KEYWORD\\$OPERATION$VALUE => /:MONTH\\+1
 
-                $output = (int) $raw + (int)$_value[1];
+                $output = (int) $raw + (int) $_value[1];
 
                 if ($operation == '+') {
-                    $output = (int) $raw + (int)$_value[1]; // 1 (:MONTH) + 4
+                    $output = (int) $raw + (int) $_value[1]; // 1 (:MONTH) + 4
                 }
 
                 if ($_operation == '-') {
-                    $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
+                    $output = (int) $raw - (int) $_value[1]; // 1 (:MONTH) - 4
                 }
 
-                if ($_operation == '/' && (int)$_value[1] != 0) {
-                    $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
+                if ($_operation == '/' && (int) $_value[1] != 0) {
+                    $output = (int) $raw / (int) $_value[1]; // 1 (:MONTH) / 4
                 }
 
                 if ($_operation == '*') {
-                    $output = (int)$raw * (int)$_value[1]; // 1 (:MONTH) * 4
+                    $output = (int) $raw * (int) $_value[1]; // 1 (:MONTH) * 4
                 }
 
                 if ($matches->keys()->first() == ':MONTH') {
@@ -263,15 +264,13 @@ class Helpers
                 }
 
                 if ($matches->keys()->first() == ':MONTHYEAR') {
-                    
-                    $final_date = now()->addMonths($output-now()->month);
+                    $final_date = now()->addMonths($output - now()->month);
 
-                    $output =    \sprintf(
-                            '%s %s', 
+                    $output = \sprintf(
+                            '%s %s',
                             $final_date->translatedFormat('F'),
                             $final_date->year,
                         );
-
                 }
 
                 $value = preg_replace(
@@ -287,9 +286,9 @@ class Helpers
 
     /**
      * Resolve the font from the supported fonts array.
-     * 
-     * @param string $font 
-     * @return array 
+     *
+     * @param string $font
+     * @return array
      */
     public static function resolveFont(string $font = 'Arial'): array
     {

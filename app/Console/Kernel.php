@@ -35,15 +35,6 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        //
-    ];
-
-    /**
      * Define the application's command schedule.
      *
      * @param Schedule $schedule
@@ -51,7 +42,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-
         $schedule->job(new VersionCheck)->daily();
 
         $schedule->job(new DiskCleanup)->daily()->withoutOverlapping();
@@ -78,17 +68,14 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
 
-        if(Ninja::isSelfHost())
-        {
+        if (Ninja::isSelfHost()) {
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
-
         }
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
-
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
 
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
@@ -98,17 +85,13 @@ class Kernel extends ConsoleKernel
             $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:05')->withoutOverlapping();
 
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping();
-
         }
 
-        if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
-
+        if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && ! config('ninja.is_docker')) {
             $schedule->command('queue:work database --stop-when-empty --memory=256')->everyMinute()->withoutOverlapping();
 
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
-
         }
-
     }
 
     /**
@@ -118,7 +101,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

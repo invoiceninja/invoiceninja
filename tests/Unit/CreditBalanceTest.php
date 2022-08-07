@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Models\Account;
@@ -28,22 +29,21 @@ class CreditBalanceTest extends TestCase
     use MockUnitData;
     use AppSetup;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
-        
-        Credit::all()->each(function ($credit){
+
+        Credit::all()->each(function ($credit) {
             $credit->forceDelete();
         });
 
         $this->makeTestData();
-    
+
         $this->buildCache(true);
     }
 
     public function testCreditBalance()
     {
-
         $credit = Credit::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -56,10 +56,8 @@ class CreditBalanceTest extends TestCase
         $this->assertEquals($this->client->service()->getCreditBalance(), 10);
     }
 
-
     public function testExpiredCreditBalance()
     {
-
         $credit = Credit::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -71,6 +69,5 @@ class CreditBalanceTest extends TestCase
         ]);
 
         $this->assertEquals($this->client->service()->getCreditBalance(), 0);
-        
     }
 }

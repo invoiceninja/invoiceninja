@@ -27,8 +27,8 @@ use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Exception;
@@ -43,13 +43,10 @@ use Stripe\StripeClient;
 
 class StripeConnectPaymentDriver extends StripePaymentDriver
 {
-
     public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
     {
-
         parent::__construct($company_gateway, $client, $invitation);
 
         $this->stripe_connect = true;
     }
-
 }

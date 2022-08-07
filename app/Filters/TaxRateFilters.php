@@ -35,7 +35,6 @@ class TaxRateFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('tax_rates.name', 'like', '%'.$filter.'%');
         });
-
     }
 
     /**

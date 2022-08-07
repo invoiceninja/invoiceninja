@@ -22,7 +22,5 @@ use App\Models\TransactionEvent;
  */
 class MarkPaidTransaction extends BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_MARK_PAID; 
-
+    public $event_id = TransactionEvent::INVOICE_MARK_PAID;
 }

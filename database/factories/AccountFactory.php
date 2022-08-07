@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Factories;
 
 use App\Models\Account;
@@ -16,13 +17,6 @@ use Illuminate\Support\Str;
 
 class AccountFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = Account::class;
-
     /**
      * Define the model's default state.
      *

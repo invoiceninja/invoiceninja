@@ -12,7 +12,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 8.1
           extensions: mysql, mysqlnd, sqlite3, bcmath, gd, curl, zip, openssl, mbstring, xml
 
       - name: Checkout code
@@ -50,7 +50,7 @@ jobs:
           cd ..
           rm -rf ui
           php artisan ninja:react
-          
+
       - name: Prepare JS/CSS assets
         run: |
           npm i

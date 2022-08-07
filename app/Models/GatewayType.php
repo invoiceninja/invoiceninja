@@ -18,26 +18,47 @@ class GatewayType extends StaticModel
     public $timestamps = false;
 
     const CREDIT_CARD = 1;
+
     const BANK_TRANSFER = 2;
+
     const PAYPAL = 3;
+
     const CRYPTO = 4;
+
     const CUSTOM = 5;
+
     const ALIPAY = 6;
+
     const SOFORT = 7;
+
     const APPLE_PAY = 8;
+
     const SEPA = 9;
+
     const CREDIT = 10;
+
     const KBC = 11;
+
     const BANCONTACT = 12;
+
     const IDEAL = 13;
+
     const HOSTED_PAGE = 14; // For gateways that contain multiple methods.
+
     const GIROPAY = 15;
+
     const PRZELEWY24 = 16;
+
     const EPS = 17;
+
     const DIRECT_DEBIT = 18;
+
     const ACSS = 19;
+
     const BECS = 20;
+
     const INSTANT_BANK_PAY = 21;
+
     const FPX = 22;
 
     public function gateway()

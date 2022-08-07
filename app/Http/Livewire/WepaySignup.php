@@ -27,21 +27,33 @@ use WePay;
 class WepaySignup extends Component
 {
     public $user;
+
     public $user_id;
+
     public $company_key;
+
     public $first_name;
+
     public $last_name;
+
     public $email;
+
     public $company_name;
+
     public $country;
+
     public $ach;
+
     public $wepay_payment_tos_agree;
+
     public $debit_cards;
 
     public $terms;
+
     public $privacy_policy;
 
     public $saved;
+
     public $company;
 
     protected $rules = [
@@ -61,7 +73,7 @@ class WepaySignup extends Component
 
         $user = User::find($this->user_id);
         $this->company = Company::where('company_key', $this->company->company_key)->first();
-            
+
         $this->fill([
             'wepay_payment_tos_agree' => '',
             'ach' => '',
@@ -79,7 +91,7 @@ class WepaySignup extends Component
 
     public function render()
     {
-      return render('gateways.wepay.signup.wepay-signup');
+        return render('gateways.wepay.signup.wepay-signup');
     }
 
     public function submit()
@@ -93,12 +105,11 @@ class WepaySignup extends Component
                             ->where('company_id', $this->company->id)
                             ->firstOrNew();
 
-        if(!$cg->id) {
-
+        if (! $cg->id) {
             $fees_and_limits = new \stdClass;
             $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
             $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits;
-            
+
             $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
             $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
             $cg->require_cvv = false;
@@ -109,7 +120,6 @@ class WepaySignup extends Component
             $cg->fees_and_limits = $fees_and_limits;
             $cg->token_billing = 'always';
             $cg->save();
-
         }
 
         $this->saved = ctrans('texts.processing');
@@ -139,65 +149,63 @@ class WepaySignup extends Component
 
         $wepay = new WePay($access_token);
 
-            $account_details = [
-                'name' => $data['company_name'],
-                'description' => ctrans('texts.wepay_account_description'),
-                'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
-                'callback_uri' => route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $cg->hashed_id]),
-                'rbits' => $this->company->rBits(),
-                'country' => $data['country'],
-            ];
+        $account_details = [
+            'name' => $data['company_name'],
+            'description' => ctrans('texts.wepay_account_description'),
+            'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
+            'callback_uri' => route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $cg->hashed_id]),
+            'rbits' => $this->company->rBits(),
+            'country' => $data['country'],
+        ];
 
-            if ($data['country'] == 'CA') {
-                $account_details['currencies'] = ['CAD'];
-                $account_details['country_options'] = ['debit_opt_in' => boolval($data['debit_cards'])];
-            } elseif ($data['country'] == 'GB') {
-                $account_details['currencies'] = ['GBP'];
-            }
- 
-            $wepay_account = $wepay->request('account/create/', $account_details);
+        if ($data['country'] == 'CA') {
+            $account_details['currencies'] = ['CAD'];
+            $account_details['country_options'] = ['debit_opt_in' => boolval($data['debit_cards'])];
+        } elseif ($data['country'] == 'GB') {
+            $account_details['currencies'] = ['GBP'];
+        }
 
-            try {
-                $wepay->request('user/send_confirmation/', []);
-                $confirmation_required = true;
-            } catch (\WePayException $ex) {
-                if ($ex->getMessage() == 'This access_token is already approved.') {
-                    $confirmation_required = false;
-                } else {
-                    request()->session()->flash('message', $ex->getMessage());
-                }
+        $wepay_account = $wepay->request('account/create/', $account_details);
 
-                nlog("failed in try catch ");
-                nlog($ex->getMessage());
-            }
-
-            $config = [
-                'userId' => $wepay_user->user_id,
-                'accessToken' => $access_token,
-                'tokenType' => $wepay_user->token_type,
-                'tokenExpires' => $access_token_expires,
-                'accountId' => $wepay_account->account_id,
-                'state' => $wepay_account->state,
-                'testMode' => config('ninja.wepay.environment') == 'staging',
-                'country' => $data['country'],
-            ];
-
-            $cg->setConfig($config);
-            $cg->save();
-
-            if ($confirmation_required) {
-                request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
+        try {
+            $wepay->request('user/send_confirmation/', []);
+            $confirmation_required = true;
+        } catch (\WePayException $ex) {
+            if ($ex->getMessage() == 'This access_token is already approved.') {
+                $confirmation_required = false;
             } else {
-                $update_uri = $wepay->request('/account/get_update_uri', [
-                    'account_id' => $wepay_account->account_id,
-                    'redirect_uri' => config('ninja.app_url'),
-                ]);
-
-                return redirect($update_uri->uri);
+                request()->session()->flash('message', $ex->getMessage());
             }
 
+            nlog('failed in try catch ');
+            nlog($ex->getMessage());
+        }
+
+        $config = [
+            'userId' => $wepay_user->user_id,
+            'accessToken' => $access_token,
+            'tokenType' => $wepay_user->token_type,
+            'tokenExpires' => $access_token_expires,
+            'accountId' => $wepay_account->account_id,
+            'state' => $wepay_account->state,
+            'testMode' => config('ninja.wepay.environment') == 'staging',
+            'country' => $data['country'],
+        ];
+
+        $cg->setConfig($config);
+        $cg->save();
+
+        if ($confirmation_required) {
+            request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
+        } else {
+            $update_uri = $wepay->request('/account/get_update_uri', [
+                'account_id' => $wepay_account->account_id,
+                'redirect_uri' => config('ninja.app_url'),
+            ]);
+
+            return redirect($update_uri->uri);
+        }
 
         return redirect()->to('/wepay/finished');
     }
-
 }

@@ -20,7 +20,7 @@ use Illuminate\Contracts\Validation\Rule;
 class EmailBlackListRule implements Rule
 {
     public array $blacklist = [
-        
+
     ];
 
     /**
@@ -30,9 +30,7 @@ class EmailBlackListRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        
-        return !in_array($value, $this->blacklist);
-
+        return ! in_array($value, $this->blacklist);
     }
 
     /**
@@ -40,8 +38,6 @@ class EmailBlackListRule implements Rule
      */
     public function message()
     {
-        return "This email address is blacklisted, if you think this is in error, please email contact@invoiceninja.com";
+        return 'This email address is blacklisted, if you think this is in error, please email contact@invoiceninja.com';
     }
-
-
 }

@@ -22,8 +22,7 @@ use App\Models\TransactionEvent;
  */
 class BaseTransaction implements TransactionInterface
 {
-    
-    public $event_id = TransactionEvent::INVOICE_MARK_PAID; 
+    public $event_id = TransactionEvent::INVOICE_MARK_PAID;
 
     public array $model = [
         'client_id',
@@ -56,7 +55,7 @@ class BaseTransaction implements TransactionInterface
     {
         // $invoice = $data['invoice'];
         // $payment = $data['payment'];
-        // $client = $data['client']; 
+        // $client = $data['client'];
         // $credit = $data['credit'];
         // $payment_request = $data['payment']['payment_request'];
         // $metadata = $data['metadata'];
@@ -95,6 +94,5 @@ class BaseTransaction implements TransactionInterface
         //     'credit_status' => $credit?->status_id,
         //     'timestamp' => time(),
         // ];
-
     }
 }

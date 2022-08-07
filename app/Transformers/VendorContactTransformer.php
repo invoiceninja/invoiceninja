@@ -42,6 +42,7 @@ class VendorContactTransformer extends EntityTransformer
             'custom_value2' => $vendor->custom_value2 ?: '',
             'custom_value3' => $vendor->custom_value3 ?: '',
             'custom_value4' => $vendor->custom_value4 ?: '',
+            'link' => $vendor->getLoginLink(),
         ];
     }
 }

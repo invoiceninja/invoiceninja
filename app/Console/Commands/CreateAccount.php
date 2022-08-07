@@ -51,10 +51,12 @@ use Illuminate\Support\Str;
 class CreateAccount extends Command
 {
     use MakesHash, GeneratesCounter;
+
     /**
      * @var string
      */
     protected $description = 'Create Single Account';
+
     /**
      * @var string
      */
@@ -82,12 +84,10 @@ class CreateAccount extends Command
         $this->warmCache();
 
         $this->createAccount();
-
     }
 
     private function createAccount()
     {
-
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
@@ -131,10 +131,9 @@ class CreateAccount extends Command
             'settings' => null,
         ]);
 
-        CreateCompanyPaymentTerms::dispatchNow($company, $user);
-        CreateCompanyTaskStatuses::dispatchNow($company, $user);
-        VersionCheck::dispatchNow();
-
+        (new CreateCompanyPaymentTerms($company, $user))->handle();
+        (new CreateCompanyTaskStatuses($company, $user))->handle();
+        (new VersionCheck())->handle();
     }
 
     private function warmCache()
@@ -164,5 +163,4 @@ class CreateAccount extends Command
             }
         }
     }
-
 }

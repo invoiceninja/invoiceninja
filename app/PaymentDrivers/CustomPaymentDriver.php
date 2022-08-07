@@ -68,8 +68,8 @@ class CustomPaymentDriver extends BaseDriver
         }
 
         $variables['values']['$invoices'] = collect($this->payment_hash->invoices())->pluck('invoice_number')->implode(',');
-        $variables['labels']['$invoices_label'] = ctrans('texts.invoice_number_short'); 
-        
+        $variables['labels']['$invoices_label'] = ctrans('texts.invoice_number_short');
+
         $data['title'] = $this->company_gateway->getConfigField('name');
         $data['instructions'] = strtr($this->company_gateway->getConfigField('text'), $variables['values']);
 

@@ -52,7 +52,6 @@ class DocumentExport extends BaseExport
 
     public function run()
     {
-
         MultiDB::setDb($this->company->db);
         App::forgetInstance('translator');
         App::setLocale($this->company->locale());
@@ -62,8 +61,9 @@ class DocumentExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
-        if(count($this->input['report_keys']) == 0)
+        if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
+        }
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -73,47 +73,41 @@ class DocumentExport extends BaseExport
         $query = $this->addDateRange($query);
 
         $query->cursor()
-              ->each(function ($entity){
+              ->each(function ($entity) {
+                  $this->csv->insertOne($this->buildRow($entity));
+              });
 
-            $this->csv->insertOne($this->buildRow($entity)); 
-
-        });
-
-        return $this->csv->toString(); 
-
+        return $this->csv->toString();
     }
 
     private function buildRow(Document $document) :array
     {
-
         $transformed_entity = $this->entity_transformer->transform($document);
 
         $entity = [];
 
-        foreach(array_values($this->input['report_keys']) as $key){
-
+        foreach (array_values($this->input['report_keys']) as $key) {
             $keyval = array_search($key, $this->entity_keys);
 
-            if(array_key_exists($key, $transformed_entity))
+            if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
-            else
-                $entity[$keyval] = '';        
+            } else {
+                $entity[$keyval] = '';
+            }
         }
 
         return $this->decorateAdvancedFields($document, $entity);
-
     }
 
     private function decorateAdvancedFields(Document $document, array $entity) :array
     {
-
-        if(in_array('record_type', $this->input['report_keys']))
+        if (in_array('record_type', $this->input['report_keys'])) {
             $entity['record_type'] = class_basename($document->documentable);
+        }
 
         // if(in_array('record_name', $this->input['report_keys']))
         //     $entity['record_name'] = $document->hashed_id;
 
         return $entity;
     }
-
 }

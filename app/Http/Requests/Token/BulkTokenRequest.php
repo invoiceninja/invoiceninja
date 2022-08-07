@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\Token;
 
 use App\Http\Requests\Request;

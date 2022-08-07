@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Jobs\Util\SendFailedEmails;
@@ -25,7 +26,7 @@ class SendFailedEmailsTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 

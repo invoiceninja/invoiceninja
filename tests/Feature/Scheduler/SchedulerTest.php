@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tests\Feature\Scheduler;
 
 use App\Export\CSV\ClientExport;
@@ -12,9 +11,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockUnitData;
 use Tests\TestCase;
-use Illuminate\Validation\ValidationException;
 
 class SchedulerTest extends TestCase
 {
@@ -23,7 +22,7 @@ class SchedulerTest extends TestCase
     use WithoutEvents;
     // use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,8 +38,7 @@ class SchedulerTest extends TestCase
             ThrottleRequests::class
         );
 
-      //   $this->withoutExceptionHandling();
-
+        //   $this->withoutExceptionHandling();
     }
 
     public function testSchedulerCantBeCreatedWithWrongData()
@@ -61,9 +59,7 @@ class SchedulerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/task_scheduler/', $data);
 
-
         $response->assertSessionHasErrors();
-
     }
 
     public function testSchedulerCanBeUpdated()
@@ -76,12 +72,12 @@ class SchedulerTest extends TestCase
         $scheduler = Scheduler::find($this->decodePrimaryKey($id));
 
         $updateData = [
-            'start_from' => 1655934741
+            'start_from' => 1655934741,
         ];
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id), $updateData);
+        ])->put('/api/v1/task_scheduler/'.$this->encodePrimaryKey($scheduler->id), $updateData);
 
         $responseData = $response->json();
         $this->assertEquals($updateData['start_from'], $responseData['data']['start_from']);
@@ -99,16 +95,11 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id));
+        ])->get('/api/v1/task_scheduler/'.$this->encodePrimaryKey($scheduler->id));
 
         $arr = $response->json();
         $this->assertEquals('create_client_report', $arr['data']['action_name']);
-
-
     }
-
-
-
 
     public function testSchedulerJobCanBeUpdated()
     {
@@ -124,13 +115,13 @@ class SchedulerTest extends TestCase
         $updateData = [
             'job' => Scheduler::CREATE_CREDIT_REPORT,
             'date_range' => 'all',
-            'report_keys' => ['test1']
+            'report_keys' => ['test1'],
         ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id), $updateData);
+        ])->put('/api/v1/task_scheduler/'.$this->encodePrimaryKey($scheduler->id), $updateData);
 
         $updatedSchedulerJob = Scheduler::first()->action_name;
         $arr = $response->json();
@@ -146,7 +137,7 @@ class SchedulerTest extends TestCase
             'date_key' => '123',
             'report_keys' => ['test'],
             'date_range' => 'all',
-            'start_from' => '2022-01-01'
+            'start_from' => '2022-01-01',
         ];
 
         return $response = $this->withHeaders([

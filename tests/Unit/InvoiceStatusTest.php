@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
@@ -32,12 +33,11 @@ class InvoiceStatusTest extends TestCase
 
     public $settings;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
         $this->makeTestData();
-
     }
 
     public function testSentStatus()

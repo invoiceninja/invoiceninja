@@ -46,12 +46,12 @@ class CreateCompanyTaskStatuses
      */
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
-        
-        if(TaskStatus::where('company_id', $this->company->id)->count() > 0)
+
+        if (TaskStatus::where('company_id', $this->company->id)->count() > 0) {
             return;
-        
+        }
+
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->company->locale());
