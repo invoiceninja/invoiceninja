@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 class Yodlee
 {
 
-    public bool $test_mode;
+    public bool $test_mode = false;
 
     private string $api_endpoint = 'https://production.api.yodlee.com/ysl';
 
@@ -30,12 +30,12 @@ class Yodlee
 
     protected string $admin_name;
 
-    public function __construct(bool $test_mode = false)
-    {
-        $this->test_mode = $test_mode;
+    protected ?string $bank_account_id;
 
-        if($this->test_mode)
-            $this->api_endpoint = $this->test_api_endpoint;
+    public function __construct(?string $bank_account_id = null)
+    {
+
+        $this->bank_account_id = $bank_account_id;
 
         $this->client_id = config('ninja.yodlee.client_id');
 
@@ -45,13 +45,34 @@ class Yodlee
 
     }
 
-    public function getAccessToken($user = false)
+    public function setTestMode()
     {
-        if(!$user)
+        $this->test_mode = true;
+
+        return $this;
+    }
+
+    public function getEndpoint()
+    {
+
+        return $this->test_mode ? $this->test_api_endpoint : $this->api_endpoint;
+
+    }
+
+    /**
+     * If we do not pass in a user
+     * we pass in the admin username instead
+     */
+    public function getAccessToken($is_admin = false)
+    {
+        if($is_admin)
             $user = $this->admin_name;
+        else
+            $user = $this->bank_account_id ?: $this->admin_name;
 
         $response = $this->bankFormRequest('/auth/token', 'post', [],  ['loginName' => $user]);
-
+//catch failures here
+        nlog($response);
         return $response->token->accessToken;
     }
 
@@ -59,7 +80,7 @@ class Yodlee
     public function createUser()
     {
 
-        $token = $this->getAccessToken();
+        $token = $this->getAccessToken(true);
 
         $user['user'] = [
             'loginName' => 'test123',
@@ -96,7 +117,7 @@ class Yodlee
 }
 */
 
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->post($this->api_endpoint. "/user/register", $user);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->post($this->getEndpoint(). "/user/register", $user);
 
         if($response->successful())
             return $response->object();
@@ -109,10 +130,12 @@ class Yodlee
 
     }
 
-    public function getAccounts($token, $params = [])
+    public function getAccounts($params = [])
     {
 
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/accounts", $params);
+        $token = $this->getAccessToken();
+
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/accounts", $params);
 
         if($response->successful())
             return $response->object();
@@ -125,10 +148,11 @@ class Yodlee
 
     }
 
-    public function getTransactions($token, $params = [])
+    public function getTransactions($params = [])
     {
+        $token = $this->getAccessToken();
  
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions", $params);
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions", $params);
 
         if($response->successful())
             return $response->object();
@@ -138,24 +162,11 @@ class Yodlee
 
     }
 
-    public function getTransactionCategories($token, $params = [])
+    public function getTransactionCategories($params = [])
     {
+        $token = $this->getAccessToken();
 
-        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->api_endpoint. "/transactions/categories", $params);
-
-        if($response->successful())
-            return $response->object();
-
-        if($response->failed())
-            return $response->body();
-
-    }
-
-
-    private function bankRequest(string $uri, string $verb, array $data = [], array $headers = [])
-    {
-
-        $response = Http::withHeaders($this->getHeaders($headers))->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions/categories", $params);
 
         if($response->successful())
             return $response->object();
@@ -168,7 +179,7 @@ class Yodlee
     private function bankFormRequest(string $uri, string $verb, array $data = [], array $headers)
     {
 
-        $response = Http::withHeaders($this->getFormHeaders($headers))->asForm()->{$verb}($this->api_endpoint . $uri, $this->buildBody());
+        $response = Http::withHeaders($this->getFormHeaders($headers))->asForm()->{$verb}($this->getEndpoint() . $uri, $this->buildBody());
 
         if($response->successful())
             return $response->object();

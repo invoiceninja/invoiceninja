@@ -31,20 +31,23 @@ class YodleeApiTest extends TestCase
     public function testCreateUser()
     {
 
-        $yodlee = new Yodlee(true);
+        $yodlee = new Yodlee();
+        $yodlee->setTestMode();
 
-        $user = $yodlee->createUser();
+        // $user = $yodlee->createUser();
 
-        nlog($user);
+        // nlog($user);
 
+        $this->assertNotNull($yodlee);
     }
 
     public function testAccessTokenGeneration()
     {
 
-        $yodlee = new Yodlee(true);
+        $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+        $yodlee->setTestMode();
 
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+        $access_token = $yodlee->getAccessToken(true);
 
         // nlog($access_token);
 
@@ -230,11 +233,10 @@ class YodleeApiTest extends TestCase
     {
 
 
-        $yodlee = new Yodlee(true);
-   
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb2');
+        $yodlee = new Yodlee('sbMem62e1e69547bfb2');
+        $yodlee->setTestMode();
 
-        $transactions = $yodlee->getTransactionCategories($access_token);
+        $transactions = $yodlee->getTransactionCategories();
 
        // nlog($transactions);
 
@@ -344,11 +346,10 @@ class YodleeApiTest extends TestCase
     public function testGetAccounts()
     {
 
-        $yodlee = new Yodlee(true);
-   
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+        $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+        $yodlee->setTestMode();
 
-        $accounts = $yodlee->getAccounts($access_token);
+        $accounts = $yodlee->getAccounts();
 
         // nlog($accounts);
     }
@@ -403,13 +404,10 @@ class YodleeApiTest extends TestCase
     public function testGetTransactions()
     {
 
-        $yodlee = new Yodlee(true);
-   
-        $access_token = $yodlee->getAccessToken('sbMem62e1e69547bfb1');
+        $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+        $yodlee->setTestMode();
 
-        nlog($access_token);
-
-        $transactions = $yodlee->getTransactions($access_token, ['categoryId' => 2, 'fromDate' => '2000-01-01']);
+        $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
         nlog($transactions);
 

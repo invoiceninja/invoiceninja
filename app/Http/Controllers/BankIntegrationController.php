@@ -12,6 +12,8 @@
 namespace App\Http\Controllers;
 
 use App\Factory\BankIntegrationFactory;
+use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
@@ -413,5 +415,56 @@ class BankIntegrationController extends BaseController
         $this->bank_integration_repo->delete($bank_integration);
 
         return $this->itemResponse($bank_integration->fresh());
+    }
+
+    /**
+     * Return the remote list of accounts stored on the third part provider.
+     *
+     * @return Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/bank_integrations/remote_accounts",
+     *      operationId="getRemoteAccounts",
+     *      tags={"bank_integrations"},
+     *      summary="Gets the list of accounts from the remote server",
+     *      description="Adds an bank_integration to a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved bank_integration object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function remote_accounts(AdminBankIntegrationRequest $request)
+    {
+        // As yodlee is the first integration we don't need to perform switches yet, however
+        // if we add additional providers we can reuse this class
+
+        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+
+        $yodlee = new Yodlee();
+        $yodlee->setTestMode(true);
+
+        $yodlee->getAccounts($bank_account_id); 
     }
 }
