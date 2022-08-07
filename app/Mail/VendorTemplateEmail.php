@@ -113,26 +113,24 @@ class VendorTemplateEmail extends Mailable
             ->withSymfonyMessage(function ($message) {
                 $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($this->company->company_key);
 
-        /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
-        // if (Ninja::isHosted()) {
-        //     sleep(1);
-        // }
-
-        if(Ninja::isHosted()){
+        if(Ninja::isHosted() && $this->invitation){
 
             $path = false;
 
             if($this->invitation->purchase_order)
                 $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
 
+            sleep(1);
+
             if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
                 sleep(2);
 
                 if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    CreatePurchaseOrderPdf::dispatchSync($this->invitation);
+                    (new CreatePurchaseOrderPdf($this->invitation))->handle();
                     sleep(2);
                 }
 

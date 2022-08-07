@@ -8,7 +8,7 @@
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=d4f86ddee4e8a1d6e9719010aa0fe62b",
     "/js/clients/purchase_orders/action-selectors.js": "/js/clients/purchase_orders/action-selectors.js?id=160b8161599fc2429b449b0970d3ba6c",
     "/js/clients/purchase_orders/accept.js": "/js/clients/purchase_orders/accept.js?id=ddd4aa4069ea79411eeec367b7d5986d",
-    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=ada766ace95b727ecdbb6d3a09bf5a8e",
+    "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=28221de8f1cb37f845ba4ec59bcd8867",
     "/js/clients/payments/stripe-sofort.js": "/js/clients/payments/stripe-sofort.js?id=1c5493a4c53a5b862d07ee1818179ea9",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=0274ab4f8d2b411f2a2fe5142301e7af",
     "/js/clients/payments/checkout-credit-card.js": "/js/clients/payments/checkout-credit-card.js?id=4bd34a0b160f6f29b3096d870ac4d308",

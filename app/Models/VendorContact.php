@@ -154,4 +154,13 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this->hasMany(PurchaseOrderInvitation::class);
     }
+
+    public function getLoginLink()
+    {
+
+        $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
+
+        return $domain.'/vendor/key_login/'.$this->contact_key;
+
+    }
 }

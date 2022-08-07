@@ -119,11 +119,12 @@ class TemplateEmail extends Mailable
             ->withSymfonyMessage(function ($message) use ($company) {
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
                 $message->invitation = $this->invitation;
-            });
+            })
+            ->tag($company->company_key);
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-        if(Ninja::isHosted()){
+        if(Ninja::isHosted() && $this->invitation){
 
             $path = false;
 
@@ -134,12 +135,14 @@ class TemplateEmail extends Mailable
             elseif($this->invitation->credit)
                 $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
 
+            sleep(1);
+
             if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
                 sleep(2);
 
                 if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    CreateEntityPdf::dispatchSync($this->invitation);
+                    (new CreateEntityPdf($this->invitation))->handle();
                     sleep(2);
                 }
 

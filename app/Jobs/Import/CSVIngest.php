@@ -72,7 +72,7 @@ class CSVIngest implements ShouldQueue
 
         set_time_limit(0);
 
-        $engine = $this->bootEngine($this->import_type);
+        $engine = $this->bootEngine();
 
         foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'expense'] as $entity) {
             $engine->import($entity);
@@ -106,29 +106,23 @@ class CSVIngest implements ShouldQueue
         }
     }
 
-    private function bootEngine(string $import_type)
+    private function bootEngine()
     {
-        switch ($import_type) {
+        switch ($this->import_type) {
             case 'csv':
                 return new Csv($this->request, $this->company);
-                break;
             case 'waveaccounting':
                 return new Wave($this->request, $this->company);
-                break;
             case 'invoicely':
                 return new Invoicely($this->request, $this->company);
-                break;
             case 'invoice2go':
                 return new Invoice2Go($this->request, $this->company);
-                break;
             case 'zoho':
                 return new Zoho($this->request, $this->company);
-                break;
             case 'freshbooks':
                 return new Freshbooks($this->request, $this->company);
-                break;
             default:
-                // code...
+                nlog("could not return provider");
                 break;
         }
     }

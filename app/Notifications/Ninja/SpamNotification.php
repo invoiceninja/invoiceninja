@@ -29,7 +29,7 @@ class SpamNotification extends Notification
      * @return void
      */
 
-    protected array $spam_list;
+    public array $spam_list;
 
     public function __construct($spam_list)
     {
@@ -74,43 +74,45 @@ class SpamNotification extends Notification
     {
         $content = '';
 
-        foreach($this->spam_list as $spam_list)
-        {
+        // foreach($this->spam_lists as $spam_list)
+        // {
 
-            if(array_key_exists('companies', $spam_list))
+            if(array_key_exists('companies', $this->spam_list))
             {
                 $content .= " Companies \n";
 
-                foreach($spam_list['companies'] as $company)
+                foreach($this->spam_list['companies'] as $company)
                 {
                     $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
                 }
             }
 
-            if(array_key_exists('templates', $spam_list))
+            if(array_key_exists('templates', $this->spam_list))
             {
                 $content .= " Templates \n";
 
-                foreach($spam_list['templates'] as $company)
+                foreach($this->spam_list['templates'] as $company)
                 {
                     $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
                 }
             }
 
 
-            if(array_key_exists('users', $spam_list))
+            if(array_key_exists('users', $this->spam_list))
             {
 
                 $content .= ' Users \n';
 
-                foreach($spam_list['users'] as $user)
+                foreach($this->spam_list['users'] as $user)
                 {
                     $content .= "{$user['email']} - a_key={$user['account_key']} - created={$user['created']} \n";
                 }
 
             }
 
-        }
+        // }
+
+
 
         return (new SlackMessage)
                 ->success()

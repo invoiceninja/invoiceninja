@@ -31,6 +31,8 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
 
     public $client;
 
+    public $deleteWhenMissingModels = true;
+
     public function __construct(Company $company, Client $client)
     {
         $this->company = $company;

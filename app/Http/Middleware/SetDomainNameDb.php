@@ -50,7 +50,6 @@ class SetDomainNameDb
             ];
 
             if ($company = MultiDB::findAndSetDbByDomain($query)) {
-                //$request->merge(['company_key' => $company->company_key]);
                 session()->put('company_key', $company->company_key);
             } else {
                 if ($request->json) {
@@ -68,7 +67,6 @@ class SetDomainNameDb
             ];
 
             if ($company = MultiDB::findAndSetDbByDomain($query)) {
-                //$request->merge(['company_key' => $company->company_key]);
                 session()->put('company_key', $company->company_key);
             } else {
                 if ($request->json) {

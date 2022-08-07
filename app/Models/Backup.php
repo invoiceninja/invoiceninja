@@ -51,6 +51,9 @@ class Backup extends BaseModel
     {
         nlog('deleting => '.$this->filename);
 
+        if(!$this->filename)
+            return;
+
         try {
             Storage::disk(config('filesystems.default'))->delete($this->filename);
         } catch (\Exception $e) {
