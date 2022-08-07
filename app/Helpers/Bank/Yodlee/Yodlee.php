@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Bank\Yodlee;
 
+use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 use Illuminate\Support\Facades\Http;
  
 class Yodlee
@@ -137,8 +138,13 @@ class Yodlee
 
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/accounts", $params);
 
-        if($response->successful())
-            return $response->object();
+
+        if($response->successful()){
+
+            $at = new AccountTransformer();
+            return $at->transform($response->object());
+            // return $response->object();
+        }
 
         if($response->failed())
             return $response->body();

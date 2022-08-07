@@ -350,7 +350,9 @@ class YodleeApiTest extends TestCase
 
         $accounts = $yodlee->getAccounts();
 
-        $this->assertIsArray($accounts->account);
+nlog($accounts);
+
+        $this->assertIsArray($accounts);
     }
 
 
