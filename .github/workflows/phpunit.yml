@@ -107,7 +107,3 @@ jobs:
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
-
-    - name: Run php-cs-fixer
-      run: |
-        PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix
