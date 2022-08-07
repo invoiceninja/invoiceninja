@@ -24,21 +24,20 @@ class YodleeApiTest extends TestCase
     {
         parent::setUp();
 
-        // $this->markTestSkipped('Skip test no company gateways installed');
+        if(!config('ninja.yodlee.client_id'))
+            $this->markTestSkipped('Skip test no Yodlee API credentials found');
         
     }
 
-    public function testCreateUser()
+    public function testYodleeInstance()
     {
 
         $yodlee = new Yodlee();
         $yodlee->setTestMode();
 
-        // $user = $yodlee->createUser();
-
-        // nlog($user);
-
         $this->assertNotNull($yodlee);
+
+        $this->assertInstanceOf(Yodlee::class, $yodlee);
     }
 
     public function testAccessTokenGeneration()
@@ -48,8 +47,6 @@ class YodleeApiTest extends TestCase
         $yodlee->setTestMode();
 
         $access_token = $yodlee->getAccessToken(true);
-
-        // nlog($access_token);
 
         $this->assertNotNull($access_token);
     }
@@ -237,8 +234,10 @@ class YodleeApiTest extends TestCase
         $yodlee->setTestMode();
 
         $transactions = $yodlee->getTransactionCategories();
+// 
+// nlog($transactions);
 
-       // nlog($transactions);
+        $this->assertIsArray($transactions->transactionCategory);
 
     }
 
@@ -351,7 +350,7 @@ class YodleeApiTest extends TestCase
 
         $accounts = $yodlee->getAccounts();
 
-        // nlog($accounts);
+        $this->assertIsArray($accounts->account);
     }
 
 
@@ -409,7 +408,8 @@ class YodleeApiTest extends TestCase
 
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
-        nlog($transactions);
+        $this->assertIsArray($transactions->transaction);
+        //nlog($transactions);
 
     }
 
