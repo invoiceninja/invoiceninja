@@ -96,12 +96,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-            nlog('subject = template data');
         } elseif (strlen($this->client->getSetting('email_subject_'.$this->reminder_template)) > 0) {
             $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
-            nlog('subject = settings var');
         } else {
-            nlog('subject = default template '.'email_subject_'.$this->reminder_template);
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->client->locale());
             // $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
         }
