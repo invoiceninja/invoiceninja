@@ -41,14 +41,17 @@ class GenericReportRequest extends Request
     {
         $input = $this->all();
 
-        if(!array_key_exists('date_range', $input))
+        if (! array_key_exists('date_range', $input)) {
             $input['date_range'] = 'all';
+        }
 
-        if(!array_key_exists('report_keys', $input))
+        if (! array_key_exists('report_keys', $input)) {
             $input['report_keys'] = [];
+        }
 
-        if(!array_key_exists('send_email', $input))
+        if (! array_key_exists('send_email', $input)) {
             $input['send_email'] = true;
+        }
 
         $this->replace($input);
     }

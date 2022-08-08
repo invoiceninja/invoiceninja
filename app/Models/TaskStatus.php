@@ -21,20 +21,18 @@ class TaskStatus extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    
+
     /**
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
     protected $fillable = [
         'name',
         'color',
         'status_order',
     ];
-
 }

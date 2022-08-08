@@ -22,7 +22,6 @@ use stdClass;
 
 class InventoryNotificationObject
 {
-
     public Product $product;
 
     public Company $company;
@@ -40,7 +39,6 @@ class InventoryNotificationObject
 
     public function build()
     {
-
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
         $t = app('translator');
@@ -69,20 +67,19 @@ class InventoryNotificationObject
         return
             ctrans(
                 'texts.inventory_notification_subject',
-                ['product' => $this->product->product_key . ": " . $this->product->notes]
+                ['product' => $this->product->product_key.': '.$this->product->notes]
             );
     }
 
     private function getData()
     {
-
         $data = [
             'title' => $this->getSubject(),
             'content' => ctrans(
                 'texts.inventory_notification_body',
                 ['amount' => $this->getAmount(),
-                'product' => $this->product->product_key . ": " . $this->product->notes,
-            ]
+                    'product' => $this->product->product_key.': '.$this->product->notes,
+                ]
             ),
             'url' => config('ninja.app_url'),
             'button' => ctrans('texts.login'),
@@ -94,6 +91,4 @@ class InventoryNotificationObject
 
         return $data;
     }
-
-
 }

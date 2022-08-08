@@ -25,7 +25,7 @@ class ClientGatewayTokenFactory
         $client_gateway_token->is_deleted = false;
         $client_gateway_token->token = '';
         $client_gateway_token->routing_number = '';
-        
+
         return $client_gateway_token;
     }
 }

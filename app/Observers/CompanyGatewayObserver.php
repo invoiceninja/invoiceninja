@@ -56,8 +56,8 @@ class CompanyGatewayObserver
     {
         //When we restore the gateway, bring back the tokens!
         ClientGatewayToken::where('company_gateway_id', $company_gateway->id)
-                          ->withTrashed()->cursor()->each(function ($cgt){
-                            $cgt->restore();
+                          ->withTrashed()->cursor()->each(function ($cgt) {
+                              $cgt->restore();
                           });
     }
 

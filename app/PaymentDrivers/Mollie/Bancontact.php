@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
-use Illuminate\Http\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
@@ -23,6 +22,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class Bancontact implements MethodInterface
@@ -111,7 +111,6 @@ class Bancontact implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $exception): void
     {
-
         $this->mollie->sendFailureMail($exception->getMessage());
 
         SystemLogger::dispatch(
@@ -126,7 +125,6 @@ class Bancontact implements MethodInterface
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
     }
 
-
     /**
      * Handle the payments for the KBC.
      *
@@ -135,9 +133,9 @@ class Bancontact implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        if (!\property_exists($this->mollie->payment_hash->data, 'payment_id')) {
+        if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
             return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: ' . $this->mollie->payment_hash->hash)
+                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
             );
         }
 

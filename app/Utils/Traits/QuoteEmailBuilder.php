@@ -85,7 +85,7 @@ trait QuoteEmailBuilder
             //$data = Parsedown::instance()->line($data);
 
             $converter = new CommonMarkConverter([
-                 'html_input' => 'allow',
+                'html_input' => 'allow',
                 'allow_unsafe_links' => true,
             ]);
 

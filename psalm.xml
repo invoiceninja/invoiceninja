@@ -15,7 +15,8 @@
 
 <issueHandlers>
   <MissingPropertyType errorLevel="suppress" />
-
+  <TypeDoesNotContainNull errorLevel="suppress" />
+  <TypeDoesNotContainType errorLevel="suppress" />
   <UndefinedFunction>
     <errorLevel type="suppress">
       <directory name="app" /> 

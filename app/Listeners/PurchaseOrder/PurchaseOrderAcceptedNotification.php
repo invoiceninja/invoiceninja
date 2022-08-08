@@ -26,7 +26,7 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
     use UserNotifies;
 
     public $delay = 5;
-    
+
     public function __construct()
     {
     }
@@ -46,7 +46,7 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
         $purchase_order = $event->purchase_order;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new PurchaseOrderAcceptedObject($purchase_order, $event->company))->build() );
+        $nmo->mailable = new NinjaMailer((new PurchaseOrderAcceptedObject($purchase_order, $event->company))->build());
         $nmo->company = $event->company;
         $nmo->settings = $event->company->settings;
 
@@ -56,8 +56,9 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if(!$user)
+            if (! $user) {
                 continue;
+            }
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($purchase_order->invitations()->first(), $company_user, 'purchase_order', ['all_notifications', 'purchase_order_accepted', 'purchase_order_accepted_all']);
@@ -69,11 +70,10 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }
-
         }
     }
 }

@@ -47,7 +47,7 @@ class RecurringExpenseFactory
         $recurring_expense->custom_value4 = '';
         $recurring_expense->uses_inclusive_taxes = true;
         $recurring_expense->calculate_tax_by_amount = true;
-        
+
         return $recurring_expense;
     }
 }

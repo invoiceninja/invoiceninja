@@ -33,27 +33,45 @@ class Payment extends BaseModel
     use SoftDeletes;
     use Refundable;
     use Inviteable;
-    
+
     const STATUS_PENDING = 1;
+
     const STATUS_CANCELLED = 2;
+
     const STATUS_FAILED = 3;
+
     const STATUS_COMPLETED = 4;
+
     const STATUS_PARTIALLY_REFUNDED = 5;
+
     const STATUS_REFUNDED = 6;
 
     const TYPE_CREDIT_CARD = 1;
+
     const TYPE_BANK_TRANSFER = 2;
+
     const TYPE_PAYPAL = 3;
+
     const TYPE_CRYPTO = 4;
+
     const TYPE_DWOLLA = 5;
+
     const TYPE_CUSTOM1 = 6;
+
     const TYPE_ALIPAY = 7;
+
     const TYPE_SOFORT = 8;
+
     const TYPE_SEPA = 9;
+
     const TYPE_GOCARDLESS = 10;
+
     const TYPE_APPLE_PAY = 11;
+
     const TYPE_CUSTOM2 = 12;
+
     const TYPE_CUSTOM3 = 13;
+
     const TYPE_TOKEN = 'token';
 
     protected $fillable = [
@@ -172,11 +190,11 @@ class Payment extends BaseModel
 
     public function translatedType()
     {
-        if(!$this->type)
+        if (! $this->type) {
             return '';
+        }
 
         return ctrans('texts.payment_type_'.$this->type->name);
-
     }
 
     public function gateway_type()
@@ -258,7 +276,6 @@ class Payment extends BaseModel
                 break;
         }
     }
-
 
     public function ledger()
     {
@@ -357,17 +374,13 @@ class Payment extends BaseModel
 
     public function getLink() :string
     {
-
-        if(Ninja::isHosted()){
+        if (Ninja::isHosted()) {
             $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
-        }
-        else
+        } else {
             $domain = config('ninja.app_url');
+        }
 
-        return $domain.'/client/payment/'. $this->client->contacts()->first()->contact_key .'/'. $this->hashed_id."?next=/client/payments/".$this->hashed_id;
-
-        
-
+        return $domain.'/client/payment/'.$this->client->contacts()->first()->contact_key.'/'.$this->hashed_id.'?next=/client/payments/'.$this->hashed_id;
     }
 
     public function transaction_event()
@@ -375,10 +388,10 @@ class Payment extends BaseModel
         $payment = $this->fresh();
 
         return [
-            'payment_id' => $payment->id, 
-            'payment_amount' => $payment->amount ?: 0, 
-            'payment_applied' => $payment->applied ?: 0, 
-            'payment_refunded' => $payment->refunded ?: 0, 
+            'payment_id' => $payment->id,
+            'payment_amount' => $payment->amount ?: 0,
+            'payment_applied' => $payment->applied ?: 0,
+            'payment_refunded' => $payment->refunded ?: 0,
             'payment_status' => $payment->status_id ?: 1,
             'paymentables' => $payment->paymentables->toArray(),
             'payment_request' => request() ? request()->all() : [],

@@ -26,10 +26,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
-use Illuminate\Support\Facades\App;
 
 class StartMigration implements ShouldQueue
 {
@@ -76,8 +76,8 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
-        nlog("Inside Migration Job");
-        
+        nlog('Inside Migration Job');
+
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);
@@ -116,7 +116,7 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            Import::dispatchNow($file, $this->company, $this->user);
+            (new Import($file, $this->company, $this->user))->handle();
 
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 
@@ -126,30 +126,26 @@ class StartMigration implements ShouldQueue
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($this->company->settings));
-
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
-
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
-            if(Ninja::isHosted())
+            if (Ninja::isHosted()) {
                 app('sentry')->captureException($e);
-            
+            }
+
             Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
 
-            if(Ninja::isHosted()){
-
+            if (Ninja::isHosted()) {
                 $migration_failed = new MigrationFailed($e, $this->company, $e->getMessage());
                 $migration_failed->is_system = true;
-                
-                Mail::to('contact@invoiceninja.com', 'Failed Migration')->send($migration_failed);
 
+                Mail::to('contact@invoiceninja.com', 'Failed Migration')->send($migration_failed);
             }
 
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
             }
-            
         }
 
         //always make sure we unset the migration as running

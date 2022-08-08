@@ -20,7 +20,7 @@ class InvoiceTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-    //    'invoice_items',
+        //    'invoice_items',
     ];
 
     protected $availableIncludes = [

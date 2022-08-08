@@ -71,13 +71,11 @@ class CompanyController extends BaseController
      */
     public function __construct(CompanyRepository $company_repo)
     {
-        
         parent::__construct();
 
         $this->company_repo = $company_repo;
 
         $this->middleware('password_protected')->only(['destroy']);
-
     }
 
     /**
@@ -213,10 +211,9 @@ class CompanyController extends BaseController
     {
         $this->forced_includes = ['company_user'];
 
-        $company = CreateCompany::dispatchNow($request->all(), auth()->user()->company()->account);
-
-        CreateCompanyPaymentTerms::dispatchNow($company, auth()->user());
-        CreateCompanyTaskStatuses::dispatchNow($company, auth()->user());
+        $company = (new CreateCompany($request->all(), auth()->user()->company()->account))->handle();
+        (new CreateCompanyPaymentTerms($company, auth()->user()))->handle();
+        (new CreateCompanyTaskStatuses($company, auth()->user()))->handle();
 
         $company = $this->company_repo->save($request->all(), $company);
 
@@ -232,8 +229,7 @@ class CompanyController extends BaseController
             'notifications' => CompanySettings::notificationDefaults(),
         ]);
 
-        if($company->account->companies()->where('is_large', 1)->exists())
-        {
+        if ($company->account->companies()->where('is_large', 1)->exists()) {
             $company->account->companies()->update(['is_large' => true]);
         }
 
@@ -247,8 +243,7 @@ class CompanyController extends BaseController
          */
         $user_agent = request()->has('token_name') ? request()->input('token_name') : request()->server('HTTP_USER_AGENT');
 
-        $company_token = CreateCompanyToken::dispatchNow($company, auth()->user(), $user_agent);
-
+        $company_token = (new CreateCompanyToken($company, auth()->user(), $user_agent))->handle();
         $this->entity_transformer = CompanyUserTransformer::class;
         $this->entity_type = CompanyUser::class;
 
@@ -419,16 +414,18 @@ class CompanyController extends BaseController
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
-        if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings')))) 
+        if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && ! array_key_exists('company_logo', $request->input('settings')))) {
             $this->removeLogo($company);
-        
+        }
+
         $company = $this->company_repo->save($request->all(), $company);
 
         $company->saveSettings($request->input('settings'), $company);
 
-        if ($request->has('documents')) 
+        if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $company, false);
-        
+        }
+
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         return $this->itemResponse($company);
@@ -486,16 +483,15 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-        
-        if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
+        if (Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id) {
             return response()->json(['message' => 'Cannot purge this company'], 400);
-        
+        }
+
         $company_count = $company->account->companies->count();
         $account = $company->account;
         $account_key = $account->key;
 
         if ($company_count == 1) {
-
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
                 $company_user->forceDelete();
@@ -503,28 +499,28 @@ class CompanyController extends BaseController
 
             $account->delete();
 
-            if(Ninja::isHosted())
+            if (Ninja::isHosted()) {
                 \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all());
+            }
 
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->queue();
-
         } else {
             $company_id = $company->id;
 
-            $company->company_users->each(function ($company_user){
+            $company->company_users->each(function ($company_user) {
                 $company_user->forceDelete();
             });
-                
-                $other_company = $company->account->companies->where('id', '!=', $company->id)->first();
 
-                $nmo = new NinjaMailerObject;
-                $nmo->mailable = new CompanyDeleted($company->present()->name, auth()->user(), $company->account, $company->settings);
-                $nmo->company = $other_company;
-                $nmo->settings = $other_company->settings;
-                $nmo->to_user = auth()->user();
-                NinjaMailerJob::dispatch($nmo);
+            $other_company = $company->account->companies->where('id', '!=', $company->id)->first();
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyDeleted($company->present()->name, auth()->user(), $company->account, $company->settings);
+            $nmo->company = $other_company;
+            $nmo->settings = $other_company->settings;
+            $nmo->to_user = auth()->user();
+            NinjaMailerJob::dispatch($nmo, true);
 
             $company->delete();
 
@@ -592,18 +588,18 @@ class CompanyController extends BaseController
      */
     public function upload(UploadCompanyRequest $request, Company $company)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $company);
+        }
 
         return $this->itemResponse($company->fresh());
-
     }
 
-/**
+    /**
      * Update the specified resource in storage.
      *
      * @param UploadCompanyRequest $request
@@ -656,13 +652,10 @@ class CompanyController extends BaseController
      */
     public function default(DefaultCompanyRequest $request, Company $company)
     {
-
         $account = $company->account;
         $account->default_company_id = $company->id;
-        $account->save();  
+        $account->save();
 
         return $this->itemResponse($company->fresh());
-      
     }
-
 }

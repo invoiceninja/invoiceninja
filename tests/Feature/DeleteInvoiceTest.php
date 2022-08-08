@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Factory\InvoiceItemFactory;
@@ -28,8 +29,8 @@ class DeleteInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
     use MakesHash;
-    
-    public function setUp() :void
+
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -47,9 +48,9 @@ class DeleteInvoiceTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -57,7 +58,7 @@ class DeleteInvoiceTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -68,13 +69,13 @@ class DeleteInvoiceTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -89,17 +90,17 @@ class DeleteInvoiceTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
@@ -115,7 +116,6 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(0, $invoice->client->balance);
         $this->assertEquals(20, $invoice->client->paid_to_date);
 
-
         //partially refund payment
         $payment = $invoice->fresh()->payments()->first();
 
@@ -124,12 +124,12 @@ class DeleteInvoiceTest extends TestCase
             'amount' => 10,
             'invoices' => [
                 [
-                'invoice_id' => $invoice->id,
-                'amount' => 10,
+                    'invoice_id' => $invoice->id,
+                    'amount' => 10,
                 ],
             ],
             'date' => '2020/12/12',
-            'gateway_refund' => false
+            'gateway_refund' => false,
         ];
 
         $payment->refund($data);
@@ -154,9 +154,7 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
-
     }
-
 
     /**
      * @covers App\Services\Invoice\MarkInvoiceDeleted
@@ -164,13 +162,13 @@ class DeleteInvoiceTest extends TestCase
     public function testInvoiceDeletion()
     {
         $data = [
-                    'name' => 'A Nice Client',
-                ];
+            'name' => 'A Nice Client',
+        ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -178,7 +176,7 @@ class DeleteInvoiceTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
         //create new invoice.
@@ -189,13 +187,13 @@ class DeleteInvoiceTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -210,17 +208,17 @@ class DeleteInvoiceTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
@@ -236,16 +234,15 @@ class DeleteInvoiceTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/bulk?action=delete', $data)->assertStatus(200);
-
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/bulk?action=delete', $data)->assertStatus(200);
 
         $invoice = $invoice->fresh();
 
         $this->assertEquals(20, $invoice->balance);
         $this->assertEquals(0, $invoice->client->balance);
-        $this->assertTrue((bool)$invoice->is_deleted);
+        $this->assertTrue((bool) $invoice->is_deleted);
         $this->assertNotNull($invoice->deleted_at);
 
         //delete invoice
@@ -262,7 +259,7 @@ class DeleteInvoiceTest extends TestCase
         $invoice = $invoice->fresh();
 
         $this->assertEquals(20, $invoice->balance);
-        $this->assertFalse((bool)$invoice->is_deleted);
+        $this->assertFalse((bool) $invoice->is_deleted);
         $this->assertNull($invoice->deleted_at);
         $this->assertEquals(20, $invoice->client->fresh()->balance);
     }
@@ -273,15 +270,15 @@ class DeleteInvoiceTest extends TestCase
     public function testInvoiceDeletionAndRestoration()
     {
         //create new client
-        
+
         $data = [
             'name' => 'A Nice Client',
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients', $data);
 
         $response->assertStatus(200);
 
@@ -289,7 +286,7 @@ class DeleteInvoiceTest extends TestCase
 
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
-        
+
         //new client
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
@@ -301,13 +298,13 @@ class DeleteInvoiceTest extends TestCase
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10;
 
-        $line_items[] = (array)$item;
+        $line_items[] = (array) $item;
 
         $invoice = [
             'status_id' => 1,
@@ -322,23 +319,23 @@ class DeleteInvoiceTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'client_id' => $client_hash_id,
-            'line_items' => (array)$line_items,
+            'line_items' => (array) $line_items,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
@@ -352,12 +349,12 @@ class DeleteInvoiceTest extends TestCase
             'client_id' => $client_hash_id,
             'invoices' => [
                 [
-                'invoice_id' => $invoice_one_hashed_id,
-                'amount' => 20.0,
+                    'invoice_id' => $invoice_one_hashed_id,
+                    'amount' => 20.0,
                 ],
                 [
-                'invoice_id' => $invoice_two_hashed_id,
-                'amount' => 20.0,
+                    'invoice_id' => $invoice_two_hashed_id,
+                    'amount' => 20.0,
                 ],
             ],
             'date' => '2020/12/01',
@@ -384,7 +381,7 @@ class DeleteInvoiceTest extends TestCase
         $payment = Payment::find($this->decodePrimaryKey($payment_hashed_id));
 
         // $this->assertEquals(20, $invoice_one->company_ledger->sortByDesc('id')->first()->balance);
-        
+
         //test balance
         $this->assertEquals($invoice_one->amount, 20);
         $this->assertEquals($invoice_one->balance, 0);
@@ -397,16 +394,16 @@ class DeleteInvoiceTest extends TestCase
         //hydrate associated payment
         $this->assertEquals($payment->amount, 40);
         $this->assertEquals($payment->applied, 40);
-        
+
         //delete invoice
         $data = [
             'ids' => [$invoice_one_hashed_id],
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/bulk?action=delete', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/bulk?action=delete', $data);
 
         $arr = $response->json();
 
@@ -418,10 +415,10 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(20, $payment->fresh()->amount);
 
         $invoice_one = $invoice_one->fresh();
-        
-        $this->assertTrue((bool)$invoice_one->is_deleted);
+
+        $this->assertTrue((bool) $invoice_one->is_deleted);
         $this->assertNotNull($invoice_one->deleted_at);
-        
+
         //restore invoice
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -433,7 +430,7 @@ class DeleteInvoiceTest extends TestCase
         $this->assertFalse($arr['data'][0]['is_deleted']);
 
         $invoice_one = $invoice_one->fresh();
-        $this->assertFalse((bool)$invoice_one->is_deleted);
+        $this->assertFalse((bool) $invoice_one->is_deleted);
         $this->assertNull($invoice_one->deleted_at);
 
         // $payment = $payment->fresh();
@@ -442,16 +439,4 @@ class DeleteInvoiceTest extends TestCase
         // $this->assertEquals(40, $payment->fresh()->amount);
         // $this->assertEquals(40, $client->fresh()->paid_to_date);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 }

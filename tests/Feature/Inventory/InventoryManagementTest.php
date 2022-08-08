@@ -6,18 +6,20 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature\Inventory;
 
+use App\DataMapper\InvoiceItem;
+use App\Models\Invoice;
+use App\Models\Product;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use App\Models\Product;
-use App\Models\Invoice;
-use App\DataMapper\InvoiceItem;
-use Illuminate\Support\Str;
+
 /**
  * @test
  */
@@ -26,7 +28,7 @@ class InventoryManagementTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -39,24 +41,22 @@ class InventoryManagementTest extends TestCase
 
     public function testInventoryMovements()
     {
-
         $product = Product::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'in_stock_quantity' => 100,
             'stock_notification' => true,
-            'stock_notification_threshold' => 99
+            'stock_notification_threshold' => 99,
         ]);
 
         $invoice = Invoice::factory()->create([
-            'user_id' => $this->user->id, 
-            'company_id' => $this->company->id, 
-            'client_id' => $this->client->id
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
         ]);
 
         $invoice->company->track_inventory = true;
         $invoice->push();
-
 
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = 1;
@@ -75,15 +75,14 @@ class InventoryManagementTest extends TestCase
         $invoice_array['client_id'] = $this->client->hashed_id;
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/invoices/', $invoice_array)
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $invoice_array)
             ->assertStatus(200);
 
         $product = $product->refresh();
 
         $this->assertEquals(90, $product->in_stock_quantity);
-
 
         // $arr = $response->json();
         // $invoice_hashed_id = $arr['data']['id'];

@@ -6,16 +6,14 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class IdNumberFieldsForMissingEntities extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -27,7 +25,7 @@ class IdNumberFieldsForMissingEntities extends Migration
             $table->string('number')->nullable();
             $table->unique(['company_id', 'number']);
         });
-    
+
         Schema::table('tasks', function (Blueprint $table) {
             $table->string('number')->nullable();
             $table->unique(['company_id', 'number']);
@@ -53,4 +51,4 @@ class IdNumberFieldsForMissingEntities extends Migration
     {
         //
     }
-}
+};

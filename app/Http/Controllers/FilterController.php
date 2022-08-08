@@ -11,18 +11,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class FilterController extends BaseController
 {
-
     private array $base_filters = ['archive', 'restore', 'delete'];
 
     public function __construct()
     {
-
     }
 
     /**
@@ -32,7 +30,6 @@ class FilterController extends BaseController
      */
     public function index(Request $request, string $entity)
     {
-
         $entity_filters = [];
 
         switch ($entity) {
@@ -40,7 +37,7 @@ class FilterController extends BaseController
             case 'invoice':
                 $entity_filters = ['bulk_download', 'mark_paid', 'mark_sent', 'download', 'cancel', 'email'];
                 break;
-            
+
             case 'quote':
                 $entity_filters = ['bulk_download', 'convert', 'convert_to_invoice', 'download', 'approve', 'email', 'mark_sent'];
                 break;
@@ -57,11 +54,8 @@ class FilterController extends BaseController
                 $entity_filters = ['bulk_download', 'start', 'stop', 'email'];
                 break;
 
-
         }
 
-        return response()->json( array_merge($this->base_filters, $entity_filters), 200);
+        return response()->json(array_merge($this->base_filters, $entity_filters), 200);
     }
-
-
 }

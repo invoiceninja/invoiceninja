@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Import\Providers;
 
 use App\Factory\ClientFactory;
@@ -21,7 +22,6 @@ use App\Repositories\InvoiceRepository;
 
 class Freshbooks extends BaseImport
 {
-
     public array $entity_count = [];
 
     public function import(string $entity)
@@ -53,6 +53,7 @@ class Freshbooks extends BaseImport
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
+
             return;
         }
 
@@ -68,14 +69,13 @@ class Freshbooks extends BaseImport
         $client_count = $this->ingest($data, $entity_type);
 
         $this->entity_count['clients'] = $client_count;
-
     }
 
-
-    public function invoice() {
+    public function invoice()
+    {
 
         //make sure we update and create products with wave
-        $initial_update_products_value = $this->company->update_products; 
+        $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;
 
         $this->company->save();
@@ -88,6 +88,7 @@ class Freshbooks extends BaseImport
 
         if (empty($data)) {
             $this->entity_count['invoices'] = 0;
+
             return;
         }
 
@@ -105,9 +106,6 @@ class Freshbooks extends BaseImport
         $this->entity_count['invoices'] = $invoice_count;
 
         $this->company->update_products = $initial_update_products_value;
-        $this->company->save();    
-
+        $this->company->save();
     }
-
-
 }

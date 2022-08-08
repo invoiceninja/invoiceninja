@@ -72,7 +72,7 @@ class ApplyPayment
         $this->credit->balance -= $this->amount_applied;
         $this->credit->paid_to_date += $this->amount_applied;
 
-        if ((int)$this->credit->balance == 0) {
+        if ((int) $this->credit->balance == 0) {
             $this->credit->status_id = Credit::STATUS_APPLIED;
         } else {
             $this->credit->status_id = Credit::STATUS_PARTIAL;
@@ -112,11 +112,11 @@ class ApplyPayment
         $this->payment->save();
 
         $this->payment->service()->applyNumber()->save();
-        
+
         $this->payment
              ->invoices()
              ->attach($this->invoice->id, ['amount' => $this->amount_applied]);
-        
+
         $this->payment
              ->credits()
              ->attach($this->credit->id, ['amount' => $this->amount_applied]);
@@ -146,7 +146,7 @@ class ApplyPayment
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        if ((int)$this->invoice->balance == 0) {
+        if ((int) $this->invoice->balance == 0) {
             $this->invoice->service()->deletePdf();
             $this->invoice = $this->invoice->fresh();
             event(new InvoiceWasPaid($this->invoice, $this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

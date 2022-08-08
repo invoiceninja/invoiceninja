@@ -50,7 +50,7 @@ class DeletePayment
     {
         $this->payment->is_deleted = true;
         $this->payment->delete();
-        
+
         return $this;
     }
 
@@ -71,17 +71,14 @@ class DeletePayment
     private function adjustInvoices()
     {
         if ($this->payment->invoices()->exists()) {
-
             $this->payment->invoices()->each(function ($paymentable_invoice) {
-
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
-                
+
                 $client = $this->payment->client->fresh();
 
                 nlog("net deletable amount - refunded = {$net_deletable}");
-                
-                if(!$paymentable_invoice->is_deleted)
-                {
+
+                if (! $paymentable_invoice->is_deleted) {
                     $paymentable_invoice->restore();
 
                     $paymentable_invoice->service()
@@ -102,10 +99,7 @@ class DeletePayment
                     } else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
-
-                }
-                else {
-
+                } else {
                     $paymentable_invoice->restore();
 
                     //If the invoice is deleted we only update the meta data on the invoice
@@ -113,8 +107,6 @@ class DeletePayment
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
-
-
                 }
 
                 $transaction = [
@@ -126,16 +118,14 @@ class DeletePayment
                 ];
 
                 TransactionLog::dispatch(TransactionEvent::PAYMENT_DELETED, $transaction, $paymentable_invoice->company->db);
-
             });
         }
-
 
         $client = $this->payment->client->fresh();
 
         $client
         ->service()
-        ->updatePaidToDate(($this->payment->amount - $this->payment->refunded)*-1)
+        ->updatePaidToDate(($this->payment->amount - $this->payment->refunded) * -1)
         ->save();
 
         $transaction = [
@@ -148,7 +138,6 @@ class DeletePayment
 
         TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $this->payment->company->db);
 
-    
         return $this;
     }
 
@@ -156,15 +145,15 @@ class DeletePayment
     {
         if ($this->payment->credits()->exists()) {
             $this->payment->credits()->each(function ($paymentable_credit) {
-                
                 $multiplier = 1;
 
-                if($paymentable_credit->pivot->amount < 0)
+                if ($paymentable_credit->pivot->amount < 0) {
                     $multiplier = -1;
+                }
 
                 $paymentable_credit->service()
-                                   ->updateBalance($paymentable_credit->pivot->amount*$multiplier*-1)
-                                   ->updatePaidToDate($paymentable_credit->pivot->amount*$multiplier)
+                                   ->updateBalance($paymentable_credit->pivot->amount * $multiplier * -1)
+                                   ->updatePaidToDate($paymentable_credit->pivot->amount * $multiplier)
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
 
@@ -172,9 +161,8 @@ class DeletePayment
 
                 $client
                 ->service()
-                ->updatePaidToDate(($paymentable_credit->pivot->amount)*-1)
+                ->updatePaidToDate(($paymentable_credit->pivot->amount) * -1)
                 ->save();
-
             });
         }
 

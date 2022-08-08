@@ -32,7 +32,7 @@ class UpdateProjectRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('projects')->where('company_id', auth()->user()->company()->id)->ignore($this->project->id);
         }
@@ -40,7 +40,7 @@ class UpdateProjectRequest extends Request
         return $this->globalRules($rules);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
 
@@ -48,8 +48,9 @@ class UpdateProjectRequest extends Request
             unset($input['client_id']);
         }
 
-        if(array_key_exists('color', $input) && is_null($input['color']))
+        if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
+        }
 
         $this->replace($input);
     }

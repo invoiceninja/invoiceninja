@@ -20,62 +20,62 @@ use Illuminate\Support\Carbon;
 
 class ProRata
 {
-
-
     /**
      * Returns the amount to refund based on
      * the time interval and the frequency duration
-     * 
-     * @param float $amount 
-     * @param Carbon $from_date 
-     * @param Carbon $to_date 
-     * @param int $frequency 
-     * @return float 
+     *
+     * @param float $amount
+     * @param Carbon $from_date
+     * @param Carbon $to_date
+     * @param int $frequency
+     * @return float
      */
     public function refund(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
     {
         $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
 
-        return round( (($days/$days_in_frequency) * $amount),2);
+        return round((($days / $days_in_frequency) * $amount), 2);
     }
 
     /**
      * Returns the amount to charge based on
      * the time interval and the frequency duration
-     * 
-     * @param float $amount 
-     * @param Carbon $from_date 
-     * @param Carbon $to_date 
-     * @param int $frequency 
-     * @return float 
+     *
+     * @param float $amount
+     * @param Carbon $from_date
+     * @param Carbon $to_date
+     * @param int $frequency
+     * @return float
      */
     public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
     {
         $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
 
-        return round( (($days/$days_in_frequency) * $amount),2);
+        return round((($days / $days_in_frequency) * $amount), 2);
     }
 
     /**
      * Prepares the line items of an invoice
      * to be pro rata refunded.
-     * 
-     * @param Invoice $invoice 
-     * @param bool $is_credit 
-     * @return array 
-     * @throws Exception 
+     *
+     * @param Invoice $invoice
+     * @param bool $is_credit
+     * @return array
+     * @throws Exception
      */
     public function refundItems(Invoice $invoice, $is_credit = false) :array
     {
-        if(!$invoice)
+        if (! $invoice) {
             return [];
+        }
 
         $recurring_invoice = RecurringInvoice::find($invoice->recurring_id)->first();
 
-        if(!$recurring_invoice)
+        if (! $recurring_invoice) {
             throw new \Exception("Invoice isn't attached to a recurring invoice");
+        }
 
         /* depending on whether we are creating an invoice or a credit*/
         $multiplier = $is_credit ? 1 : -1;
@@ -84,29 +84,22 @@ class ProRata
 
         $line_items = [];
 
-        foreach($invoice->line_items as $item)
-        {
-
-            if($item->product_key != ctrans('texts.refund'))
-            {
+        foreach ($invoice->line_items as $item) {
+            if ($item->product_key != ctrans('texts.refund')) {
                 $item->quantity = 1;
-                $item->cost = $this->refund($item->cost*$multiplier, $start_date, now(), $recurring_invoice->frequency_id);
+                $item->cost = $this->refund($item->cost * $multiplier, $start_date, now(), $recurring_invoice->frequency_id);
                 $item->product_key = ctrans('texts.refund');
-                $item->notes = ctrans('texts.refund') . ": ". $item->notes;
+                $item->notes = ctrans('texts.refund').': '.$item->notes;
 
                 $line_items[] = $item;
-
             }
         }
 
         return $line_items;
-
     }
-
 
     private function getDaysInFrequency($frequency)
     {
-
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
                 return 1;
@@ -135,7 +128,5 @@ class ProRata
             default:
                 return 0;
         }
-
     }
-
 }

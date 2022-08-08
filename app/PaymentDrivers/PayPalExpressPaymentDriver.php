@@ -138,7 +138,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
             SystemLogger::dispatch(
-                ['response' => (array)$response->getData(), 'data' => $data],
+                ['response' => (array) $response->getData(), 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
@@ -149,10 +149,9 @@ class PayPalExpressPaymentDriver extends BaseDriver
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
         }
 
-        if (!$response->isSuccessful()) {
-
+        if (! $response->isSuccessful()) {
             $data = $response->getData();
-            
+
             $this->sendFailureMail($response->getMessage() ?: '');
 
             $message = [
@@ -175,7 +174,6 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function generatePaymentDetails(array $data)
     {
-
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
@@ -186,18 +184,18 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
             // 'amount' => round(($data['total']['amount_with_fee'] + $this->fee),2),
-            'amount' => round($data['total']['amount_with_fee'],2),
+            'amount' => round($data['total']['amount_with_fee'], 2),
             'returnUrl' => route('client.payments.response', [
                 'company_gateway_id' => $this->company_gateway->id,
                 'payment_hash' => $this->payment_hash->hash,
                 'payment_method_id' => GatewayType::PAYPAL,
             ]),
-            'cancelUrl' => $this->client->company->domain() . '/client/invoices',
+            'cancelUrl' => $this->client->company->domain().'/client/invoices',
             'description' => implode(',', collect($this->payment_hash->data->invoices)
                 ->map(function ($invoice) {
                     return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->invoice_number);
                 })->toArray()),
-            'transactionId' => $this->payment_hash->hash . '-' . time(),
+            'transactionId' => $this->payment_hash->hash.'-'.time(),
             'ButtonSource' => 'InvoiceNinja_SP',
             'solutionType' => 'Sole',
         ];
@@ -205,35 +203,31 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function generatePaymentItems(array $data)
     {
-
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         $items = [];
 
         $items[] = new Item([
-                'name' => " ",
-                'description' => ctrans('texts.invoice_number') . "# " . $invoice->number,
-                'price' => $data['total']['amount_with_fee'],
-                'quantity' => 1,
-            ]);
+            'name' => ' ',
+            'description' => ctrans('texts.invoice_number').'# '.$invoice->number,
+            'price' => $data['total']['amount_with_fee'],
+            'quantity' => 1,
+        ]);
 
         return $items;
-
     }
 
     private function feeCalc($invoice, $invoice_total)
     {
-
         $invoice->service()->removeUnpaidGatewayFees();
         $invoice = $invoice->fresh();
-        
+
         $balance = floatval($invoice->balance);
 
         $_updated_invoice = $invoice->service()->addGatewayFee($this->company_gateway, GatewayType::PAYPAL, $invoice_total)->save();
 
-        if(floatval($_updated_invoice->balance) > $balance){
-
+        if (floatval($_updated_invoice->balance) > $balance) {
             $fee = floatval($_updated_invoice->balance) - $balance;
 
             $this->payment_hash->fee_total = $fee;
@@ -244,5 +238,4 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         return 0;
     }
-
 }

@@ -18,9 +18,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
-class BouncedEmail extends Mailable 
+class BouncedEmail extends Mailable
 {
-
     public $invitation;
 
     public function __construct($invitation)
@@ -40,12 +39,10 @@ class BouncedEmail extends Mailable
         $entity_type = class_basename(lcfirst($this->invitation->getEntityType()));
 
         $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $this->invitation->invoice->number]);
-        
+
         return
             $this->from(config('mail.from.address'), config('mail.from.name'))
                 ->text('bounced mail')
                 ->subject($subject);
-
     }
-    
 }

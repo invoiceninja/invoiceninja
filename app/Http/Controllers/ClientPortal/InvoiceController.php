@@ -26,9 +26,9 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
@@ -41,7 +41,6 @@ class InvoiceController extends Controller
      */
     public function index(ShowInvoicesRequest $request)
     {
-
         return $this->render('invoices.index');
     }
 
@@ -61,23 +60,22 @@ class InvoiceController extends Controller
 
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
-            if ($invitation && auth()->guard('contact') && !session()->get('is_silent') && ! $invitation->viewed_date) {
+        if ($invitation && auth()->guard('contact') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
+            $invitation->markViewed();
 
-                $invitation->markViewed();
-
-                event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
-                event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
-            
-            }
+            event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
+            event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+        }
 
         $data = [
             'invoice' => $invoice,
-            'key' => $invitation ? $invitation->key : false
+            'key' => $invitation ? $invitation->key : false,
         ];
 
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
+
         return $this->render('invoices.show', $data);
     }
 
@@ -87,7 +85,6 @@ class InvoiceController extends Controller
      * @param ProcessInvoicesInBulkRequest $request
      * @return mixed
      */
-
     public function catch_bulk()
     {
         return $this->render('invoices.index');
@@ -110,14 +107,14 @@ class InvoiceController extends Controller
 
     public function downloadInvoices($ids)
     {
-
         $data['invoices'] = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->withTrashed()
                             ->get();
 
-        if(count($data['invoices']) == 0)
+        if (count($data['invoices']) == 0) {
             return back()->with(['message' => ctrans('texts.no_items_selected')]);
+        }
 
         return $this->render('invoices.download', $data);
     }
@@ -125,11 +122,13 @@ class InvoiceController extends Controller
     public function download(Request $request)
     {
         $transformed_ids = $this->transformKeys($request->invoices);
+
         return $this->downloadInvoicePDF((array) $transformed_ids);
     }
+
     /**
-     * @param array $ids 
-     * @return Factory|View|RedirectResponse 
+     * @param array $ids
+     * @return Factory|View|RedirectResponse
      */
     private function makePayment(array $ids)
     {
@@ -151,21 +150,19 @@ class InvoiceController extends Controller
 
         //iterate and sum the payable amounts either partial or balance
         $total = 0;
-        foreach($invoices as $invoice)
-        {
-
-            if($invoice->partial > 0)
+        foreach ($invoices as $invoice) {
+            if ($invoice->partial > 0) {
                 $total += $invoice->partial;
-            else
+            } else {
                 $total += $invoice->balance;
-
+            }
         }
 
         //format data
         $invoices->map(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
             $invoice->balance = $invoice->balance > 0 ? Number::formatValue($invoice->balance, $invoice->client->currency()) : 0;
-            $invoice->partial =  $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
+            $invoice->partial = $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
 
             return $invoice;
         });
@@ -212,46 +209,39 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
 
-           $file = $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
+            $file = $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
 
-           // return response()->download(file_get_contents(public_path($file)));
+            // return response()->download(file_get_contents(public_path($file)));
 
-            return response()->streamDownload(function () use($file) {
-                    echo Storage::get($file);
-            },  basename($file), ['Content-Type' => 'application/pdf']);
+            return response()->streamDownload(function () use ($file) {
+                echo Storage::get($file);
+            }, basename($file), ['Content-Type' => 'application/pdf']);
         }
 
         return $this->buildZip($invoices);
-
     }
-
 
     private function buildZip($invoices)
     {
         // create new archive
         $zipFile = new \PhpZip\ZipFile();
-        try{
-            
+        try {
             foreach ($invoices as $invoice) {
 
-                #add it to the zip
+                //add it to the zip
                 $zipFile->addFromString(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
-
             }
 
             $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
-            $filepath = sys_get_temp_dir() . '/' . $filename;
+            $filepath = sys_get_temp_dir().'/'.$filename;
 
-           $zipFile->saveAsFile($filepath) // save the archive to a file
+            $zipFile->saveAsFile($filepath) // save the archive to a file
                    ->close(); // close archive
-                    
-           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
 
-        }
-        catch(\PhpZip\Exception\ZipException $e){
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+        } catch (\PhpZip\Exception\ZipException $e) {
             // handle exception
-        }
-        finally{
+        } finally {
             $zipFile->close();
         }
     }

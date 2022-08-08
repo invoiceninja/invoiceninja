@@ -7,8 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRussianLang extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -16,7 +15,6 @@ class AddRussianLang extends Migration
      */
     public function up()
     {
-
         $russian = ['id' => 29, 'name' => 'Russian (Russia)', 'locale' => 'ru_RU'];
 
         Language::unguard();
@@ -27,7 +25,6 @@ class AddRussianLang extends Migration
         });
 
         Company::whereNotNull('id')->update(['default_password_timeout' => 30]);
-
     }
 
     /**
@@ -39,4 +36,4 @@ class AddRussianLang extends Migration
     {
         //
     }
-}
+};

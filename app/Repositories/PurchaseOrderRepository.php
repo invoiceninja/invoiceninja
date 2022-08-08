@@ -36,54 +36,49 @@ class PurchaseOrderRepository extends BaseRepository
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $purchase_order->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
-
                 $invitation = PurchaseOrderInvitation::where('key', $invitation)->first();
 
-                if ($invitation) 
+                if ($invitation) {
                     $invitation->delete();
-                
+                }
             });
-        
+
             foreach ($data['invitations'] as $invitation) {
 
                 //if no invitations are present - create one.
                 if (! $this->getInvitation($invitation)) {
-
-                    if (isset($invitation['id'])) 
+                    if (isset($invitation['id'])) {
                         unset($invitation['id']);
+                    }
 
                     //make sure we are creating an invite for a contact who belongs to the client only!
                     $contact = VendorContact::find($invitation['vendor_contact_id']);
 
                     if ($contact && $purchase_order->vendor_id == $contact->vendor_id) {
-
                         $new_invitation = PurchaseOrderInvitation::withTrashed()
                                             ->where('vendor_contact_id', $contact->id)
                                             ->where('purchase_order_id', $purchase_order->id)
                                             ->first();
 
                         if ($new_invitation && $new_invitation->trashed()) {
-
                             $new_invitation->restore();
-
                         } else {
-
                             $new_invitation = PurchaseOrderInvitationFactory::create($purchase_order->company_id, $purchase_order->user_id);
                             $new_invitation->purchase_order_id = $purchase_order->id;
                             $new_invitation->vendor_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($purchase_order->company->db);
                             $new_invitation->save();
-
                         }
                     }
                 }
             }
         }
-        
+
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($purchase_order->invitations()->count() == 0) 
+        if ($purchase_order->invitations()->count() == 0) {
             $purchase_order->service()->createInvitations();
-        
+        }
+
         /* Recalculate invoice amounts */
         $purchase_order = $purchase_order->calc()->getPurchaseOrder();
 
@@ -95,14 +90,14 @@ class PurchaseOrderRepository extends BaseRepository
         return PurchaseOrderInvitation::where('key', $key)->first();
     }
 
-    public function getInvitation($invitation, $resource=null)
+    public function getInvitation($invitation, $resource = null)
     {
-        if (is_array($invitation) && ! array_key_exists('key', $invitation))
+        if (is_array($invitation) && ! array_key_exists('key', $invitation)) {
             return false;
-        
+        }
+
         $invitation = PurchaseOrderInvitation::where('key', $invitation['key'])->first();
 
         return $invitation;
     }
-
 }

@@ -22,34 +22,22 @@ use App\Utils\Ninja;
  */
 function nlog($output, $context = []): void
 {
-    
-    if (!config('ninja.expanded_logging')) 
+    if (! config('ninja.expanded_logging')) {
         return;
+    }
 
-        if (gettype($output) == 'object') {
-            $output = print_r($output, 1);
-        }
+    if (gettype($output) == 'object') {
+        $output = print_r($output, 1);
+    }
 
-        $trace = debug_backtrace();
-        //nlog( debug_backtrace()[1]['function']);
-        // \Illuminate\Support\Facades\Log::channel('invoiceninja')->info(print_r($trace[1]['class'],1), []);
-        if(Ninja::isHosted()) {
-            try{
-                info($output);
-            }
-            catch(\Exception $e){
-
-            }
-        }
-        else
-            \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
+    // $trace = debug_backtrace();
     
+    if (Ninja::isHosted()) {
+        try {
+            info($output);
+        } catch (\Exception $e) {
+        }
+    } else {
+        \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
+    }
 }
-
-// if (!function_exists('ray'))   {
-// 	function ray($payload)
-// 	{
-// 		return true;
-// 	}
-// }
-

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Utils\Ninja;
@@ -24,7 +25,7 @@ class Base64Test extends TestCase
      *
      * No method can guarantee against false positives.
      */
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }
@@ -53,5 +54,4 @@ class Base64Test extends TestCase
     {
         $this->assertFalse(Ninja::isBase64Encoded('aaa'));
     }
-
 }

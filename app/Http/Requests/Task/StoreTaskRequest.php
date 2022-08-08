@@ -33,15 +33,15 @@ class StoreTaskRequest extends Request
     public function rules()
     {
         $rules = [];
-        
+
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('tasks')->where('company_id', auth()->user()->company()->id);
         }
-    
+
         return $this->globalRules($rules);
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

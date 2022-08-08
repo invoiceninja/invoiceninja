@@ -58,7 +58,7 @@ class InvoiceController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
-    
+
     protected $entity_type = Invoice::class;
 
     protected $entity_transformer = InvoiceTransformer::class;
@@ -219,7 +219,6 @@ class InvoiceController extends BaseController
      */
     public function store(StoreInvoiceRequest $request)
     {
-
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $invoice = $invoice->service()
@@ -229,7 +228,7 @@ class InvoiceController extends BaseController
                            ->save();
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        
+
         $transaction = [
             'invoice' => $invoice->transaction_event(),
             'payment' => [],
@@ -239,7 +238,7 @@ class InvoiceController extends BaseController
         ];
 
         TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
-        
+
         return $this->itemResponse($invoice);
     }
 
@@ -548,11 +547,13 @@ class InvoiceController extends BaseController
      */
     public function bulk()
     {
-        
         $action = request()->input('action');
 
         $ids = request()->input('ids');
 
+        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+            return response(['message' => 'Please verify your account to send emails.'], 400);
+            
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $invoices) {
@@ -566,7 +567,8 @@ class InvoiceController extends BaseController
         if ($action == 'bulk_download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
-                    nlog("access denied");
+                    nlog('access denied');
+
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -665,7 +667,7 @@ class InvoiceController extends BaseController
     }
 
     private function performAction(Invoice $invoice, $action, $bulk = false)
-    {   
+    {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'clone_to_invoice':
@@ -690,7 +692,7 @@ class InvoiceController extends BaseController
                 break;
             case 'mark_paid':
                 if ($invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
-                // if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
+                    // if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
@@ -711,9 +713,9 @@ class InvoiceController extends BaseController
 
                 $file = $invoice->service()->getInvoicePdf();
 
-                return response()->streamDownload(function () use($file) {
-                        echo Storage::get($file);
-                },  basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($file) {
+                    echo Storage::get($file);
+                }, basename($file), ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -748,7 +750,6 @@ class InvoiceController extends BaseController
 
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
-
 
                 if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
@@ -835,8 +836,9 @@ class InvoiceController extends BaseController
     {
         $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
 
-        if(!$invitation)
-            return response()->json(["message" => "no record found"], 400);
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
 
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
@@ -845,13 +847,13 @@ class InvoiceController extends BaseController
 
         $headers = ['Content-Type' => 'application/pdf'];
 
-        if(request()->input('inline') == 'true')
+        if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
 
-        return response()->streamDownload(function () use($file) {
-                echo Storage::get($file);
-        },  basename($file), $headers);
-        
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), $headers);
     }
 
     /**
@@ -900,13 +902,11 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
-        
-        return response()->streamDownload(function () use($file) {
-                echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
 
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**
@@ -962,24 +962,25 @@ class InvoiceController extends BaseController
      */
     public function upload(UploadInvoiceRequest $request, Invoice $invoice)
     {
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
-            $this->saveDocuments($request->file('documents'), $invoice);
+        }
 
-        if ($request->has('file')) 
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $invoice);
+        }
+
+        if ($request->has('file')) {
+            $this->saveDocuments($request->file('documents'), $invoice);
+        }
 
         return $this->itemResponse($invoice->fresh());
-
-    }    
+    }
 
     public function update_reminders(UpdateReminderRequest $request)
     {
-
         UpdateReminders::dispatch(auth()->user()->company());
 
-        return response()->json(["message" => "Updating reminders"], 200);
+        return response()->json(['message' => 'Updating reminders'], 200);
     }
 }

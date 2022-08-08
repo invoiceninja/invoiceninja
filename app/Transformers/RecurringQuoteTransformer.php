@@ -35,22 +35,22 @@ class RecurringQuoteTransformer extends EntityTransformer
         'documents',
         'activities',
         // 'history',
-    //    'client',
+        //    'client',
     ];
-   
+
     public function includeHistory(RecurringQuote $quote)
     {
         $transformer = new QuoteHistoryTransformer($this->serializer);
 
         return $this->includeCollection($quote->history, $transformer, Backup::class);
     }
-       
+
     public function includeActivities(RecurringQuote $quote)
     {
         $transformer = new ActivityTransformer($this->serializer);
 
         return $this->includeCollection($quote->activities, $transformer, Activity::class);
-    }   
+    }
 
     public function includeInvitations(RecurringQuote $quote)
     {
@@ -65,7 +65,7 @@ class RecurringQuoteTransformer extends EntityTransformer
 
         return $this->includeCollection($quote->documents, $transformer, Document::class);
     }
-    
+
     public function transform(RecurringQuote $quote)
     {
         return [
@@ -129,7 +129,7 @@ class RecurringQuoteTransformer extends EntityTransformer
             'auto_bill_enabled' => (bool) $quote->auto_bill_enabled,
             'due_date_days' => (string) $quote->due_date_days ?: '',
             'paid_to_date' => (float) $quote->paid_to_date,
-            'subscription_id' => (string)$this->encodePrimaryKey($quote->subscription_id),
+            'subscription_id' => (string) $this->encodePrimaryKey($quote->subscription_id),
         ];
     }
 }

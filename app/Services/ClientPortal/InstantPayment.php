@@ -34,7 +34,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-
 class InstantPayment
 {
     use MakesHash;
@@ -49,7 +48,6 @@ class InstantPayment
 
     public function run()
     {
-
         $is_credit_payment = false;
 
         $tokens = [];
@@ -65,11 +63,10 @@ class InstantPayment
          *
          * ['invoice_id' => xxx, 'amount' => 22.00]
          */
-
         $payable_invoices = collect($this->request->payable_invoices);
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
 
-        $invoices->each(function($invoice){
+        $invoices->each(function ($invoice) {
             $invoice->service()
                     ->markSent()
                     ->removeUnpaidGatewayFees();
@@ -116,7 +113,7 @@ class InstantPayment
                 $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
             }
 
-            if (!$settings->client_portal_allow_under_payment && $payable_amount < $invoice_balance) {
+            if (! $settings->client_portal_allow_under_payment && $payable_amount < $invoice_balance) {
                 return redirect()
                     ->route('client.invoices.index')
                     ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]));
@@ -142,12 +139,11 @@ class InstantPayment
 
             /* If we don't allow over payments and the amount exceeds the balance */
 
-            if (!$settings->client_portal_allow_over_payment && $payable_amount > $invoice_balance) {
+            if (! $settings->client_portal_allow_over_payment && $payable_amount > $invoice_balance) {
                 return redirect()
                     ->route('client.invoices.index')
                     ->with('message', ctrans('texts.over_payments_disabled'));
             }
-
         }
 
         /*Iterate through invoices and add gateway fees and other payment metadata*/
@@ -156,7 +152,6 @@ class InstantPayment
         $payable_invoice_collection = collect();
 
         foreach ($payable_invoices as $payable_invoice) {
-
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -182,9 +177,8 @@ class InstantPayment
             $payable_invoice_collection->push($payable_invoice);
         }
 
-
-        if ($this->request->has('signature') && !is_null($this->request->signature) && !empty($this->request->signature)) {
-            $invoices->each(function ($invoice){
+        if ($this->request->has('signature') && ! is_null($this->request->signature) && ! empty($this->request->signature)) {
+            $invoices->each(function ($invoice) {
                 InjectSignature::dispatch($invoice, $this->request->signature);
             });
         }
@@ -215,7 +209,7 @@ class InstantPayment
                 ->get();
         }
 
-        if(!$is_credit_payment){
+        if (! $is_credit_payment) {
             $credit_totals = 0;
         }
 
@@ -233,12 +227,11 @@ class InstantPayment
 
         $payment_hash->save();
 
-        if($is_credit_payment){
+        if ($is_credit_payment) {
             $amount_with_fee = max(0, (($invoice_totals + $fee_totals) - $credit_totals));
-        }
-        else{
+        } else {
             $credit_totals = 0;
-            $amount_with_fee = max(0, $invoice_totals + $fee_totals);    
+            $amount_with_fee = max(0, $invoice_totals + $fee_totals);
         }
 
         $totals = [
@@ -263,7 +256,6 @@ class InstantPayment
         }
 
         try {
-
             return $gateway
                 ->driver($client)
                 ->setPaymentMethod($payment_method_id)
@@ -282,12 +274,10 @@ class InstantPayment
 
             throw new PaymentFailed($e->getMessage());
         }
-
     }
 
     public function processCreditPayment(Request $request, array $data)
     {
         return render('gateways.credit.index', $data);
     }
-
 }

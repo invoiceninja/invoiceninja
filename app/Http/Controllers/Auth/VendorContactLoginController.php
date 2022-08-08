@@ -40,7 +40,7 @@ class VendorContactLoginController extends Controller
     public function catch()
     {
         $data = [
-        
+
         ];
 
         return $this->render('purchase_orders.catch');
@@ -53,6 +53,4 @@ class VendorContactLoginController extends Controller
 
         return redirect('/vendors');
     }
-
-
 }

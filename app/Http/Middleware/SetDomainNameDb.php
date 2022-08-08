@@ -28,64 +28,54 @@ class SetDomainNameDb
     public function handle($request, Closure $next)
     {
         $error = [
-                'message' => 'Invalid token',
-                'errors' => new stdClass,
-            ];
+            'message' => 'Invalid token',
+            'errors' => new stdClass,
+        ];
         /*
          * Use the host name to set the active DB
          **/
 
-        if(!config('ninja.db.multi_db_enabled'))
+        if (! config('ninja.db.multi_db_enabled')) {
             return $next($request);
+        }
 
         $domain_name = $request->getHost();
 
-        if (strpos($domain_name, 'invoicing.co') !== false) 
-        {
+        if (strpos($domain_name, 'invoicing.co') !== false) {
             $subdomain = explode('.', $domain_name)[0];
-            
+
             $query = [
                 'subdomain' => $subdomain,
                 'portal_mode' => 'subdomain',
             ];
 
-            if($company = MultiDB::findAndSetDbByDomain($query)){
-                //$request->merge(['company_key' => $company->company_key]);
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
                 session()->put('company_key', $company->company_key);
-            }
-            else 
-            {
+            } else {
                 if ($request->json) {
-                        return response()->json($error, 403);
+                    return response()->json($error, 403);
                 } else {
                     MultiDB::setDb('db-ninja-01');
-                    nlog("I could not set the DB - defaulting to DB1");
+                    nlog('I could not set the DB - defaulting to DB1');
                     //abort(400, 'Domain not found');
                 }
             }
-
-        }
-        else {
-
-           $query = [
+        } else {
+            $query = [
                 'portal_domain' => $request->getSchemeAndHttpHost(),
                 'portal_mode' => 'domain',
             ];
 
-            if($company = MultiDB::findAndSetDbByDomain($query)){
-                //$request->merge(['company_key' => $company->company_key]);
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
                 session()->put('company_key', $company->company_key);
-            }
-            else
-            {
+            } else {
                 if ($request->json) {
-                        return response()->json($error, 403);
+                    return response()->json($error, 403);
                 } else {
                     MultiDB::setDb('db-ninja-01');
-                    nlog("I could not set the DB - defaulting to DB1");
+                    nlog('I could not set the DB - defaulting to DB1');
                 }
             }
-
         }
 
         return $next($request);

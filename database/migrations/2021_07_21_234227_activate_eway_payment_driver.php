@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class ActivateEwayPaymentDriver extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,18 +13,16 @@ class ActivateEwayPaymentDriver extends Migration
      */
     public function up()
     {
-        if($eway = Gateway::find(3))
-        {
+        if ($eway = Gateway::find(3)) {
             $eway->visible = true;
             $eway->provider = 'Eway';
 
             $fields = json_decode($eway->fields);
             $fields->publicApiKey = '';
             $eway->fields = json_encode($fields);
-            
+
             $eway->save();
         }
-
     }
 
     /**
@@ -37,4 +34,4 @@ class ActivateEwayPaymentDriver extends Migration
     {
         //
     }
-}
+};

@@ -52,7 +52,7 @@ class PurchaseOrderService
         $settings = $this->purchase_order->company->settings;
 
         if (! $this->purchase_order->design_id) 
-            $this->purchase_order->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            $this->purchase_order->design_id = $this->decodePrimaryKey($settings->purchase_order_design_id);
         
         if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
             $this->purchase_order->footer = $settings->purchase_order_footer;

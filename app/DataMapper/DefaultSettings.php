@@ -26,12 +26,11 @@ class DefaultSettings extends BaseSettings
 
     /**
      * @return stdClass
-     *
      */
     public static function userSettings() : stdClass
     {
         return (object) [
-        //    class_basename(User::class) => self::userSettingsObject(),
+            //    class_basename(User::class) => self::userSettingsObject(),
         ];
     }
 
@@ -41,7 +40,7 @@ class DefaultSettings extends BaseSettings
     private static function userSettingsObject() : stdClass
     {
         return (object) [
-        //    'per_page' => self::$per_page,
+            //    'per_page' => self::$per_page,
         ];
     }
 }

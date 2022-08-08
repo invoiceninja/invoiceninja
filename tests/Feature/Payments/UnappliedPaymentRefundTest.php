@@ -6,10 +6,10 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
-namespace Tests\Feature\Payments;
 
+namespace Tests\Feature\Payments;
 
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -31,7 +31,7 @@ class UnappliedPaymentRefundTest extends TestCase
     use MockUnitData;
     use WithoutEvents;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -45,9 +45,8 @@ class UnappliedPaymentRefundTest extends TestCase
         );
     }
 
-   public function testUnappliedPaymentRefund()
-   {
-
+    public function testUnappliedPaymentRefund()
+    {
         $data = [
             'amount' => 1000,
             'client_id' => $this->client->hashed_id,
@@ -69,10 +68,10 @@ class UnappliedPaymentRefundTest extends TestCase
             $this->assertNotNull($message);
         }
 
-        if ($response){
+        if ($response) {
             $arr = $response->json();
             $response->assertStatus(200);
-            
+
             $this->assertEquals(1000, $this->client->fresh()->paid_to_date);
 
             $payment_id = $arr['data']['id'];
@@ -100,11 +99,6 @@ class UnappliedPaymentRefundTest extends TestCase
             $response->assertStatus(200);
 
             $this->assertEquals(500, $this->client->fresh()->paid_to_date);
-
         }
-
-
-
-   }
-
+    }
 }

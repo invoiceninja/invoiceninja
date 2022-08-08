@@ -19,8 +19,8 @@ trait NumberFormatter
     private function formatValue($value, $precision) : string
     {
         /* 08-01-2022 allow increased precision means we need to transform from scientific notation to a regular string */
-        
-        return number_format($this->parseFloat(rtrim(sprintf('%f', $value),"0")), $precision, '.', '');
+
+        return number_format($this->parseFloat(rtrim(sprintf('%f', $value), '0')), $precision, '.', '');
 
         // return number_format($this->parseFloat($value), $precision, '.', '');
     }

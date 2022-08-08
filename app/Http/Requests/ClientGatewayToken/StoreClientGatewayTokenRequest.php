@@ -45,12 +45,10 @@ class StoreClientGatewayTokenRequest extends Request
             'meta' => 'required',
         ];
 
-
         return $this->globalRules($rules);
-    
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -64,5 +62,4 @@ class StoreClientGatewayTokenRequest extends Request
         return [
         ];
     }
-
 }

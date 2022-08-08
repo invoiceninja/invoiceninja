@@ -30,9 +30,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-class CSVIngest implements ShouldQueue {
-	
-	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+class CSVIngest implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public Company $company;
 
@@ -48,15 +48,16 @@ class CSVIngest implements ShouldQueue {
 
     public $tries = 1;
 
-    public function __construct( array $request, Company $company ) {
-        $this->company     = $company;
-        $this->request     = $request;
-        $this->hash        = $request['hash'];
+    public function __construct(array $request, Company $company)
+    {
+        $this->company = $company;
+        $this->request = $request;
+        $this->hash = $request['hash'];
         $this->import_type = $request['import_type'];
         $this->skip_header = $request['skip_header'] ?? null;
-        $this->column_map  =
-            ! empty( $request['column_map'] ) ?
-                array_combine( array_keys( $request['column_map'] ), array_column( $request['column_map'], 'mapping' ) ) : null;
+        $this->column_map =
+            ! empty($request['column_map']) ?
+                array_combine(array_keys($request['column_map']), array_column($request['column_map'], 'mapping')) : null;
     }
 
     /**
@@ -65,22 +66,20 @@ class CSVIngest implements ShouldQueue {
      *
      * @return void
      */
-    public function handle() {
-
-        MultiDB::setDb( $this->company->db );
+    public function handle()
+    {
+        MultiDB::setDb($this->company->db);
 
         set_time_limit(0);
 
-        $engine = $this->bootEngine($this->import_type);
+        $engine = $this->bootEngine();
 
-        foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entity ) {
-        
+        foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'expense'] as $entity) {
             $engine->import($entity);
-
         }
 
         $engine->finalizeImport();
-        
+
         $this->checkContacts();
     }
 
@@ -88,51 +87,42 @@ class CSVIngest implements ShouldQueue {
     {
         $vendors = Vendor::withTrashed()->where('company_id', $this->company->id)->doesntHave('contacts')->get();
 
-            foreach ($vendors as $vendor) {
-                
-                $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
-                $new_contact->vendor_id = $vendor->id;
-                $new_contact->contact_key = Str::random(40);
-                $new_contact->is_primary = true;
-                $new_contact->save();
-            }
+        foreach ($vendors as $vendor) {
+            $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
+            $new_contact->vendor_id = $vendor->id;
+            $new_contact->contact_key = Str::random(40);
+            $new_contact->is_primary = true;
+            $new_contact->save();
+        }
 
         $clients = Client::withTrashed()->where('company_id', $this->company->id)->doesntHave('contacts')->get();
 
-            foreach ($clients as $client) {
-                
-                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $new_contact->client_id = $client->id;
-                $new_contact->contact_key = Str::random(40);
-                $new_contact->is_primary = true;
-                $new_contact->save();
-            }
-
+        foreach ($clients as $client) {
+            $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+            $new_contact->client_id = $client->id;
+            $new_contact->contact_key = Str::random(40);
+            $new_contact->is_primary = true;
+            $new_contact->save();
+        }
     }
 
-    private function bootEngine(string $import_type)
+    private function bootEngine()
     {
-        switch ($import_type) {
+        switch ($this->import_type) {
             case 'csv':
-                return new Csv( $this->request,  $this->company);
-                break;
+                return new Csv($this->request, $this->company);
             case 'waveaccounting':
-                return new Wave( $this->request,  $this->company);
-                break;
+                return new Wave($this->request, $this->company);
             case 'invoicely':
-                return new Invoicely( $this->request,  $this->company);
-                break;
+                return new Invoicely($this->request, $this->company);
             case 'invoice2go':
-                return new Invoice2Go( $this->request,  $this->company);
-                break;
+                return new Invoice2Go($this->request, $this->company);
             case 'zoho':
-                return new Zoho( $this->request,  $this->company);
-                break;
+                return new Zoho($this->request, $this->company);
             case 'freshbooks':
-                return new Freshbooks( $this->request,  $this->company);
-                break;                          
+                return new Freshbooks($this->request, $this->company);
             default:
-                // code...
+                nlog("could not return provider");
                 break;
         }
     }

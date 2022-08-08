@@ -25,6 +25,7 @@ class CompanyGatewayTransformer extends EntityTransformer
 {
     use MakesHash;
     use SoftDeletes;
+
     /**
      * @var array
      */

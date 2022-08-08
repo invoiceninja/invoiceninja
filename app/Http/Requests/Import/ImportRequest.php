@@ -28,12 +28,12 @@ class ImportRequest extends Request
     public function rules()
     {
         return [
-			'import_type' => 'required',
+            'import_type' => 'required',
             'files' => 'required_without:hash|array|min:1|max:6',
             'hash' => 'nullable|string',
             'column_map' => 'required_with:hash|array',
             'skip_header' => 'required_with:hash|boolean',
-			'files.*' => 'file|mimes:csv,txt',
+            'files.*' => 'file|mimes:csv,txt',
         ];
     }
 }

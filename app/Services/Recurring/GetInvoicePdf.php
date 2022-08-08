@@ -46,9 +46,9 @@ class GetInvoicePdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreateEntityPdf::dispatchNow($invitation);
+            $file_path = (new CreateEntityPdf($invitation))->handle();
         }
- 
+
         return $file_path;
     }
 }

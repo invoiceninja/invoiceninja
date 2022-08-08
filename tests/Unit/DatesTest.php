@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Helpers\Invoice\InvoiceSum;
@@ -24,12 +25,11 @@ class DatesTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
         // $this->makeTestData();
-
     }
 
     public function testDaysDiff()
@@ -42,7 +42,6 @@ class DatesTest extends TestCase
         $diff_in_days = $start_date->diffInDays($current_date);
 
         $this->assertEquals(19, $diff_in_days);
-
     }
 
     public function testDiffInDaysRange()
@@ -61,7 +60,6 @@ class DatesTest extends TestCase
         $date_in_future = Carbon::parse('2020-01-16');
 
         $this->assertTrue($date_in_future->gt(Carbon::parse($date_in_past)->addDays(14)));
-
     }
 
     public function testThirteenteenDaysFromNow()
@@ -71,6 +69,5 @@ class DatesTest extends TestCase
         $date_in_future = Carbon::parse('2020-01-15');
 
         $this->assertFalse($date_in_future->gt(Carbon::parse($date_in_past)->addDays(14)));
-
     }
 }

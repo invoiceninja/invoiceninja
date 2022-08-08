@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddRestFieldsToWebhooksTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -30,4 +29,4 @@ class AddRestFieldsToWebhooksTable extends Migration
             //
         });
     }
-}
+};

@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\GoCardless;
@@ -113,7 +113,7 @@ class DirectDebit implements MethodInterface
             $redirect_flow = $this->go_cardless->gateway->redirectFlows()->complete(
                 $request->redirect_flow_id,
                 ['params' => [
-                    'session_token' => $request->session_token
+                    'session_token' => $request->session_token,
                 ]],
             );
 
@@ -153,17 +153,17 @@ class DirectDebit implements MethodInterface
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $this->go_cardless->ensureMandateIsReady($request->source);
 
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
                           ->withTrashed()
                           ->first();
 
-        if($invoice)
+        if ($invoice) {
             $description = "Invoice {$invoice->number} for {$request->amount} for client {$this->go_cardless->client->present()->name()}";
-        else
+        } else {
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
+        }
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
@@ -179,7 +179,6 @@ class DirectDebit implements MethodInterface
                     ],
                 ],
             ]);
-
 
             if ($payment->status === 'pending_submission') {
                 return $this->processPendingPayment($payment, ['token' => $request->source]);

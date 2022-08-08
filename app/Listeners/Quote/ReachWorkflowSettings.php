@@ -27,6 +27,6 @@ class ReachWorkflowSettings
     {
         MultiDB::setDb($event->company->db);
 
-        QuoteWorkflowSettings::dispatchNow($event->quote);
+        (new QuoteWorkflowSettings($event->quote))->handle();
     }
 }

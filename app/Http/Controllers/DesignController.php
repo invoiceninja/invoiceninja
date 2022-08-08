@@ -357,11 +357,11 @@ class DesignController extends BaseController
         $design->fill($request->all());
         $design->save();
 
-/*
- This is required as the base template does not know to inject the table elements 
-*/
+        /*
+         This is required as the base template does not know to inject the table elements
+        */
 
-        $properties = ['includes','header','body','footer'];
+        $properties = ['includes', 'header', 'body', 'footer'];
 
         $d = $design->design;
 
@@ -395,18 +395,17 @@ class DesignController extends BaseController
 
 <div class="repeating-footer" id="footer">';
 
-        foreach($properties as $property){
+        foreach ($properties as $property) {
             $d->{$property} = str_replace($old_header, $new_header, $d->{$property});
             $d->{$property} = str_replace($old_footer, $new_footer, $d->{$property});
         }
 
         $design->design = $d;
-       // $design->save();
+        // $design->save();
 
-/*
- This is required as the base template does not know to inject the table elements 
-*/
-
+        /*
+         This is required as the base template does not know to inject the table elements
+        */
 
         return $this->itemResponse($design->fresh());
     }
@@ -465,7 +464,7 @@ class DesignController extends BaseController
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $design->is_deleted = true;
-        $design->name = $design->name . "_deleted_" . Str::random(5);
+        $design->name = $design->name.'_deleted_'.Str::random(5);
         $design->delete();
         $design->save();
 
@@ -551,8 +550,9 @@ class DesignController extends BaseController
                         ->where('id', $design_id)
                         ->exists();
 
-        if(!$design)
+        if (! $design) {
             return response()->json(['message' => 'Design does not exist.'], 400);
+        }
 
         switch ($entity) {
             case 'invoice':
@@ -560,11 +560,16 @@ class DesignController extends BaseController
                 break;
             case 'quote':
                 $company->quotes()->update(['design_id' => $design_id]);
-                break;  
+                break;
             case 'credit':
                 $company->credits()->update(['design_id' => $design_id]);
                 break;
-
+            case 'purchase_order':
+                $company->purchase_orders()->update(['design_id' => $design_id]);
+                break;
+            case 'recurring_invoice':
+                $company->recurring_invoices()->update(['design_id' => $design_id]);
+                break;
             default:
                 // code...
                 break;

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\DataMapper\CompanySettings;
@@ -19,7 +20,7 @@ use Tests\TestCase;
  */
 class CompanySettingsTest extends TestCase
 {
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -58,7 +59,6 @@ class CompanySettingsTest extends TestCase
 
     public function testStringEquivalence()
     {
-
         $value = (strval(4) != strval(3));
 
         $this->assertTrue($value);
@@ -85,6 +85,5 @@ class CompanySettingsTest extends TestCase
         $value = (strval('4') != strval('3'));
 
         $this->assertTrue($value);
-
     }
 }

@@ -16,7 +16,6 @@ namespace App\Jobs\Mail;
  */
 class NinjaMailerObject
 {
-
     public $mailable;
 
     public $company;
@@ -30,12 +29,11 @@ class NinjaMailerObject
     public $transport; //not yet used
 
     /* Variable for cascading notifications */
-    public $entity_string = FALSE;
+    public $entity_string = false;
 
-    public $invitation = FALSE;
+    public $invitation = false;
 
-    public $template = FALSE;
+    public $template = false;
 
-    public $entity = FALSE;
-    
+    public $entity = false;
 }

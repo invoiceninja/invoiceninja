@@ -47,7 +47,6 @@ class ImportCompleted extends Mailable
      */
     public function build()
     {
-
         App::forgetInstance('translator');
         App::setLocale($this->company->getLocale());
 

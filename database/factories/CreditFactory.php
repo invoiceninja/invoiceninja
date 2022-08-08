@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Database\Factories;
 
 use App\Factory\InvoiceItemFactory;
@@ -16,13 +17,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CreditFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = Credit::class;
-
     /**
      * Define the model's default state.
      *

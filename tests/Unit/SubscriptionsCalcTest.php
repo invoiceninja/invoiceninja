@@ -25,13 +25,14 @@ use Tests\TestCase;
 class SubscriptionsCalcTest extends TestCase
 {
     use MockUnitData;
+
     /**
      * Important consideration with Base64
      * encoding checks.
      *
      * No method can guarantee against false positives.
      */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -40,13 +41,11 @@ class SubscriptionsCalcTest extends TestCase
 
     public function testCalcUpgradePrice()
     {
-
         $subscription = Subscription::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'price' => 10,
         ]);
-
 
         $target = Subscription::factory()->create([
             'company_id' => $this->company->id,
@@ -101,6 +100,5 @@ class SubscriptionsCalcTest extends TestCase
         $upgrade = $pro_rata->charge($target->price, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
 
         // $this->assertEquals(3.23, $upgrade);
-
     }
 }

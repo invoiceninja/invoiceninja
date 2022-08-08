@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace Tests\Feature\PdfMaker;
 
 use App\Services\PdfMaker\Design;
@@ -21,7 +22,7 @@ class ExampleIntegrationTest extends TestCase
 {
     use MakesInvoiceValues, MockAccountData;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

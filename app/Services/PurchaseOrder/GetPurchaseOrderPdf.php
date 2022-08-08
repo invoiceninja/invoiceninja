@@ -29,15 +29,15 @@ class GetPurchaseOrderPdf extends AbstractService
 
     public function run()
     {
-
         if (! $this->contact) {
             $this->contact = $this->purchase_order->vendor->contacts()->orderBy('send_email', 'DESC')->first();
         }
 
         $invitation = $this->purchase_order->invitations()->where('vendor_contact_id', $this->contact->id)->first();
 
-        if(!$invitation)
+        if (! $invitation) {
             $invitation = $this->purchase_order->invitations()->first();
+        }
 
         $path = $this->purchase_order->vendor->purchase_order_filepath($invitation);
 
@@ -49,10 +49,9 @@ class GetPurchaseOrderPdf extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation);
+            $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
         }
 
         return $file_path;
-        
     }
 }

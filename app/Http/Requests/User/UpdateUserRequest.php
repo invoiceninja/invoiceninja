@@ -41,12 +41,13 @@ class UpdateUserRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
-        if(array_key_exists('email', $input))
+        if (array_key_exists('email', $input)) {
             $input['email'] = trim($input['email']);
+        }
 
         $this->replace($input);
     }

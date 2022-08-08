@@ -26,7 +26,7 @@ class MarkSent extends AbstractService
     public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
-        
+
         $this->invoice = $invoice;
     }
 
@@ -62,15 +62,13 @@ class MarkSent extends AbstractService
              ->save();
 
         /*Adjust client balance*/
-        
 
-        \DB::connection(config('database.default'))->transaction(function () use($adjustment){
+        \DB::connection(config('database.default'))->transaction(function () use ($adjustment) {
 
         /* Get the last record for the client and set the current balance*/
             $client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $client->balance += $adjustment;
             $client->save();
-
         }, 1);
 
         $this->invoice->markInvitationsSent();

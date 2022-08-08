@@ -16,8 +16,8 @@ trait WithTypeHelpers
 {
     /**
      * Returns boolean based on checks for image.
-     * 
-     * @return bool 
+     *
+     * @return bool
      */
     public function isImage(): bool
     {

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
@@ -28,7 +29,7 @@ class LoginTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
         Session::start();
@@ -187,7 +188,7 @@ class LoginTest extends TestCase
 
         try {
             $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-SECRET' => config('ninja.api_secret'),
             ])->post('/api/v1/login', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
@@ -197,7 +198,7 @@ class LoginTest extends TestCase
         $arr = $response->json();
 
         // nlog(print_r($arr, 1));
-        
+
         $response->assertStatus(200);
     }
 }

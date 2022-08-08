@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit\ValidationRules;
 
 use App\Http\ValidationRules\Account\BlackListRule;
@@ -23,12 +24,9 @@ use Tests\TestCase;
  */
 class EmailBlacklistValidationTest extends TestCase
 {
-
-
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
-
     }
 
     public function testValidEmailRule()
@@ -37,34 +35,28 @@ class EmailBlacklistValidationTest extends TestCase
         $email_rule->blacklist = ['gimmy@gmail.com'];
 
         $rules = [
-            'email' => [$email_rule]
+            'email' => [$email_rule],
         ];
-        
+
         $data = [
-            'email' => "gimmy@gmail.com",
+            'email' => 'gimmy@gmail.com',
         ];
-        
+
         $v = $this->app['validator']->make($data, $rules);
         $this->assertFalse($v->passes());
     }
 
-
     public function testInValidEmailRule()
     {
-
         $rules = [
-            'email' => [new EmailBlackListRule]
+            'email' => [new EmailBlackListRule],
         ];
-        
+
         $data = [
-            'email' => "jimmy@candassociates.com",
+            'email' => 'jimmy@candassociates.com',
         ];
-        
+
         $v = $this->app['validator']->make($data, $rules);
         $this->assertTrue($v->passes());
     }
-
-
-
-
 }

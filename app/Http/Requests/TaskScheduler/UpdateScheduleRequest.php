@@ -9,7 +9,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
@@ -34,7 +33,7 @@ class UpdateScheduleRequest extends Request
             'paused' => 'sometimes|bool',
             'repeat_every' => 'sometimes|string|in:DAY,WEEK,BIWEEKLY,MONTH,3MONTHS,YEAR',
             'start_from' => 'sometimes',
-            'scheduled_run'=>'sometimes'
+            'scheduled_run'=>'sometimes',
         ];
     }
 
@@ -43,8 +42,8 @@ class UpdateScheduleRequest extends Request
         $input = $this->all();
 
         if (isset($input['start_from'])) {
-            $input['scheduled_run'] = Carbon::parse((int)$input['start_from']);
-            $input['start_from'] = Carbon::parse((int)$input['start_from']);
+            $input['scheduled_run'] = Carbon::parse((int) $input['start_from']);
+            $input['start_from'] = Carbon::parse((int) $input['start_from']);
         }
 
         $this->replace($input);

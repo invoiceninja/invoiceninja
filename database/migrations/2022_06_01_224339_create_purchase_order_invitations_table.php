@@ -13,8 +13,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePurchaseOrderInvitationsTable extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -23,7 +22,7 @@ class CreatePurchaseOrderInvitationsTable extends Migration
     public function up()
     {
         set_time_limit(0);
-    
+
         Schema::create('purchase_order_invitations', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('company_id');
@@ -50,7 +49,6 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->softDeletes('deleted_at', 6);
             $table->unique(['vendor_contact_id', 'purchase_order_id'], 'vendor_purchase_unique');
             $table->index(['deleted_at', 'purchase_order_id', 'company_id'], 'vendor_purchase_company_index');
-
         });
 
         Schema::table('purchase_orders', function (Blueprint $table) {
@@ -62,8 +60,7 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->unsignedInteger('vendor_contact_id')->nullable();
         });
 
-        Company::cursor()->each(function ($company){
-
+        Company::cursor()->each(function ($company) {
             $settings = $company->settings;
 
             $settings->purchase_order_design_id = 'Wpmbk5ezJn';
@@ -79,7 +76,6 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $company->settings = $settings;
             $company->save();
         });
-
     }
 
     /**
@@ -90,5 +86,4 @@ class CreatePurchaseOrderInvitationsTable extends Migration
     public function down()
     {
     }
-
-}
+};

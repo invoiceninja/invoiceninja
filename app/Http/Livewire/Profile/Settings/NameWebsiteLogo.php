@@ -9,8 +9,11 @@ class NameWebsiteLogo extends Component
     public $profile;
 
     public $name;
+
     public $vat_number;
+
     public $website;
+
     public $phone;
 
     public $saved;

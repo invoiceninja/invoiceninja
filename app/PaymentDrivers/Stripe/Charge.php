@@ -20,8 +20,8 @@ use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Stripe\Exception\ApiConnectionException;
@@ -53,8 +53,9 @@ class Charge
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        if($cgt->gateway_type_id == GatewayType::BANK_TRANSFER)
+        if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
             return (new ACH($this->stripe))->tokenBilling($cgt, $payment_hash);
+        }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
@@ -70,29 +71,28 @@ class Charge
         $response = null;
 
         try {
-
             $data = [
-              'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-              'currency' => $this->stripe->client->getCurrencyCode(),
-              'payment_method' => $cgt->token,
-              'customer' => $cgt->gateway_customer_reference,
-              'confirm' => true,
-              'description' => $description,
-              'metadata' => [
-                'payment_hash' => $payment_hash->hash,
-                'gateway_type_id' => $cgt->gateway_type_id,
+                'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+                'currency' => $this->stripe->client->getCurrencyCode(),
+                'payment_method' => $cgt->token,
+                'customer' => $cgt->gateway_customer_reference,
+                'confirm' => true,
+                'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $payment_hash->hash,
+                    'gateway_type_id' => $cgt->gateway_type_id,
                 ],
             ];
 
-            if($cgt->gateway_type_id == GatewayType::SEPA)
+            if ($cgt->gateway_type_id == GatewayType::SEPA) {
                 $data['payment_method_types'] = ['sepa_debit'];
+            }
 
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
-            
+
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
-
-            $data =[
+            $data = [
                 'status' => '',
                 'error_type' => '',
                 'error_code' => '',
@@ -101,23 +101,23 @@ class Charge
             ];
 
             switch ($e) {
-                case ($e instanceof CardException):
+                case $e instanceof CardException:
                     $data['status'] = $e->getHttpStatus();
                     $data['error_type'] = $e->getError()->type;
                     $data['error_code'] = $e->getError()->code;
                     $data['param'] = $e->getError()->param;
                     $data['message'] = $e->getError()->message;
                 break;
-                case ($e instanceof RateLimitException):
+                case $e instanceof RateLimitException:
                     $data['message'] = 'Too many requests made to the API too quickly';
                 break;
-                case ($e instanceof InvalidRequestException):
+                case $e instanceof InvalidRequestException:
                     $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
                 break;
-                case ($e instanceof AuthenticationException):
+                case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';
                 break;
-                case ($e instanceof ApiErrorException):
+                case $e instanceof ApiErrorException:
                     $data['message'] = 'Network communication with Stripe failed';
                 break;
 
@@ -129,16 +129,17 @@ class Charge
             $this->stripe->processInternallyFailedPayment($this->stripe, $e);
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
-        }  
+        }
 
         if (! $response) {
             return false;
         }
 
-        if($cgt->gateway_type_id == GatewayType::SEPA)
+        if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
-        else
+        } else {
             $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+        }
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\Utils\Traits\MakesHash;
@@ -28,7 +29,7 @@ class TaxRateApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -43,39 +44,38 @@ class TaxRateApiTest extends TestCase
 
     public function testTaxRatePost()
     {
-        $rate_name = $this->faker->firstName;
-        
+        $rate_name = $this->faker->firstName();
+
         $data = [
             'name' => $rate_name,
-            'rate' => 10
+            'rate' => 10,
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tax_rates', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates', $data);
 
         $arr = $response->json();
         $response->assertStatus(200);
 
         $this->assertEquals($rate_name, $arr['data']['name']);
 
-
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/tax_rates/'.$arr['data']['id'], $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/tax_rates/'.$arr['data']['id'], $data);
 
         $response->assertStatus(200);
 
-        try{
-        $response = $this->withHeaders([
+        try {
+            $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/tax_rates', $data);
 
-        $arr = $response->json();
-        }catch(ValidationException $e){
+            $arr = $response->json();
+        } catch (ValidationException $e) {
             $response->assertStatus(302);
         }
 
@@ -85,52 +85,49 @@ class TaxRateApiTest extends TestCase
     public function testTaxRatePostWithActionStart()
     {
         $data = [
-            'name' => $this->faker->firstName,
-            'rate' => rand(1,20),
+            'name' => $this->faker->firstName(),
+            'rate' => rand(1, 20),
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tax_rates', $data);
-        
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates', $data);
+
         $arr = $response->json();
         $response->assertStatus(200);
-
     }
 
     public function testTaxRatePut()
     {
         $data = [
-            'name' => $this->faker->firstName,
+            'name' => $this->faker->firstName(),
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id), $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id), $data);
 
         $response->assertStatus(200);
     }
-
 
     public function testTaxRatesGet()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tax_rates');
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tax_rates');
 
         $response->assertStatus(200);
     }
 
-
     public function testTaxRateGet()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id));
 
         $response->assertStatus(200);
     }
@@ -138,9 +135,9 @@ class TaxRateApiTest extends TestCase
     public function testTaxRateNotArchived()
     {
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->get('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id));
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tax_rates/'.$this->encodePrimaryKey($this->tax_rate->id));
 
         $arr = $response->json();
 
@@ -154,9 +151,9 @@ class TaxRateApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tax_rates/bulk?action=archive', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates/bulk?action=archive', $data);
 
         $arr = $response->json();
 
@@ -170,9 +167,9 @@ class TaxRateApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tax_rates/bulk?action=restore', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -186,9 +183,9 @@ class TaxRateApiTest extends TestCase
         ];
 
         $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/tax_rates/bulk?action=delete', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/tax_rates/bulk?action=delete', $data);
 
         $arr = $response->json();
 

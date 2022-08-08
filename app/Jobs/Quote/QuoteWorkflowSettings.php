@@ -26,7 +26,9 @@ class QuoteWorkflowSettings implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $quote;
+
     public $client;
+
     public $base_repository;
 
     /**

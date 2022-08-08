@@ -27,7 +27,6 @@ class LedgerService
 
     public function updateInvoiceBalance($adjustment, $notes = '')
     {
-
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
@@ -36,7 +35,7 @@ class LedgerService
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
-        
+
         ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
@@ -44,7 +43,6 @@ class LedgerService
 
     public function updatePaymentBalance($adjustment, $notes = '')
     {
-
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
@@ -61,7 +59,6 @@ class LedgerService
 
     public function updateCreditBalance($adjustment, $notes = '')
     {
-
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
@@ -83,4 +80,3 @@ class LedgerService
         return $this->entity;
     }
 }
-

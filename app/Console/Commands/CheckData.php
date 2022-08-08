@@ -12,6 +12,7 @@
 namespace App\Console\Commands;
 
 use App;
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Models\Account;
@@ -126,7 +127,7 @@ class CheckData extends Command
 
         $errorEmail = config('ninja.error_email');
 
-        if ($errorEmail) {
+        if (strlen($errorEmail) > 1) {
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(config('mail.from.address'), config('mail.from.name'))
@@ -891,6 +892,45 @@ class CheckData extends Command
             }
           
         });
+    }
+
+
+    public function checkClientSettings()
+    {
+
+        if ($this->option('fix') == 'true') {
+
+            Client::query()->whereNull('settings->currency_id')->cursor()->each(function ($client){
+
+                if(is_array($client->settings) && count($client->settings) == 0)
+                {
+                    $settings = ClientSettings::defaults();
+                    $settings->currency_id = $client->company->settings->currency_id;
+                }
+                else {
+                    $settings = $client->settings;
+                    $settings->currency_id = $client->company->settings->currency_id;
+                }
+
+                $client->settings = $settings;
+                $client->save();
+
+                $this->logMessage("Fixing currency for # {$client->id}");
+
+            });
+
+
+            Client::query()->whereNull('country_id')->cursor()->each(function ($client){
+
+                $client->country_id = $client->company->settings->country_id;
+                $client->save();
+
+                $this->logMessage("Fixing country for # {$client->id}");
+
+            });
+
+        }
+
     }
 
     public function checkBalanceVsPaidStatus()

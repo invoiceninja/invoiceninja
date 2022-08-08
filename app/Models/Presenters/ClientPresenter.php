@@ -60,13 +60,13 @@ class ClientPresenter extends EntityPresenter
     {
         $primary_contact = $this->entity->primary_contact->first();
 
-        if($primary_contact && strlen($primary_contact->email) > 1)
+        if ($primary_contact && strlen($primary_contact->email) > 1) {
             return $primary_contact->email;
+        }
 
         $contact = $this->entity->contacts->whereNotNull('email')->first();
 
         return $contact ? $contact->email : 'No Email Set';
-
     }
 
     public function address()
@@ -180,7 +180,7 @@ class ClientPresenter extends EntityPresenter
     public function getCityState()
     {
         $client = $this->entity;
-        
+
         $country = $client->country ?: false;
 
         $swap = $country && $country->swap_postal_code;

@@ -13,8 +13,8 @@
 namespace App\Http\Requests\ClientPortal\Quotes;
 
 use App\Http\ViewComposers\PortalComposer;
-use Illuminate\Foundation\Http\FormRequest;
 use function auth;
+use Illuminate\Foundation\Http\FormRequest;
 
 class ProcessQuotesInBulkRequest extends FormRequest
 {

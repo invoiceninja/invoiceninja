@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
 class WePayController extends BaseController
 {
     use MakesHash;
-    
+
     /**
      * Initialize WePay Signup.
      */
@@ -45,7 +45,6 @@ class WePayController extends BaseController
         $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
 
         return $wepay_driver->setup($data);
-
     }
 
     public function finished()

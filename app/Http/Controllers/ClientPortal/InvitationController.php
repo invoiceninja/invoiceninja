@@ -83,11 +83,8 @@ class InvitationController extends Controller
         $invitation = $entity_obj::withTrashed()
                                     ->with($entity)
                                     ->where('key', $invitation_key)
-                                    // ->whereHas($entity, function ($query) {
-                                    //      $query->where('is_deleted',0);
-                                    // })
                                     ->with('contact.client')
-                                    ->first();
+                                    ->firstOrFail();
 
         if($invitation->{$entity}->is_deleted)
             return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
@@ -122,7 +119,6 @@ class InvitationController extends Controller
             return redirect()->route('client.login');
 
         } else {
-            nlog("else - default - login contact");
             request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
@@ -198,7 +194,7 @@ class InvitationController extends Controller
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
 
-        $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
+        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

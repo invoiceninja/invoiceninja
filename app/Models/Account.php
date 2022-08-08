@@ -427,7 +427,7 @@ class Account extends BaseModel
                     $nmo->company = $this->companies()->first();
                     $nmo->settings = $this->companies()->first()->settings;
                     $nmo->to_user = $this->companies()->first()->owner();
-                    NinjaMailerJob::dispatch($nmo);
+                    NinjaMailerJob::dispatch($nmo, true);
 
                     Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
 
@@ -467,7 +467,7 @@ class Account extends BaseModel
                 $nmo->company = $this->companies()->first();
                 $nmo->settings = $this->companies()->first()->settings;
                 $nmo->to_user = $this->companies()->first()->owner();
-                NinjaMailerJob::dispatch($nmo);
+                NinjaMailerJob::dispatch($nmo, true);
 
                 Cache::put("gmail_credentials_notified:{$this->key}", true, 60 * 24);
 

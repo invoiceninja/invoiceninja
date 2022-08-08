@@ -24,10 +24,10 @@ use App\Models\User;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Support\Facades\Cache;
 
 class AccountEmailQuotaTest extends TestCase
 {
@@ -35,7 +35,7 @@ class AccountEmailQuotaTest extends TestCase
     use AppSetup;
     use MockAccountData;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -51,12 +51,10 @@ class AccountEmailQuotaTest extends TestCase
         $this->assertFalse($this->account->emailQuotaExceeded());
     }
 
-
     public function testQuotaInValidRule()
     {
         Cache::increment($this->account->key, 3000);
 
         $this->assertTrue($this->account->emailQuotaExceeded());
     }
-
 }

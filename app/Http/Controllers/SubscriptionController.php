@@ -30,7 +30,7 @@ use App\Utils\Traits\MakesHash;
 class SubscriptionController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = Subscription::class;
 
     protected $entity_transformer = SubscriptionTransformer::class;
@@ -46,7 +46,7 @@ class SubscriptionController extends BaseController
 
     /**
      * Show the list of Subscriptions.
-     *     
+     *
      * @return Response
      *
      * @OA\Get(
@@ -55,7 +55,7 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Gets a list of subscriptions",
      *      description="Lists subscriptions.",
-     *      
+     *
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -80,7 +80,6 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    
     public function index(): \Illuminate\Http\Response
     {
         $subscriptions = Subscription::query()->company();
@@ -480,5 +479,4 @@ class SubscriptionController extends BaseController
 
         return $this->listResponse(Subscription::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
 }

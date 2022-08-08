@@ -28,9 +28,7 @@ class ContactAccount
      */
     public function handle($request, Closure $next)
     {
-
-        if(!Ninja::isHosted()) {
-
+        if (! Ninja::isHosted()) {
             $account = Account::first();
 
             session()->put('account_key', $account->key);

@@ -20,7 +20,7 @@ class Task extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
-    
+
     protected $fillable = [
         'client_id',
         'invoice_id',
@@ -88,15 +88,6 @@ class Task extends BaseModel
     {
         return $this->belongsTo(Project::class)->withTrashed();
     }
-
-
-
-
-
-
-
-
-
 
     public function calcStartTime()
     {

@@ -29,7 +29,7 @@ class PurchaseOrdersTable extends Component
     public $status = [];
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -70,7 +70,7 @@ class PurchaseOrdersTable extends Component
             ->paginate($this->per_page);
 
         return render('components.livewire.purchase-orders-table', [
-            'purchase_orders' => $query
+            'purchase_orders' => $query,
         ]);
     }
 }

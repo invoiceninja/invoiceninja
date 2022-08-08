@@ -51,7 +51,7 @@ class RecurringExpenseArchivedActivity implements ShouldQueue
         $fields->user_id = $user_id;
         $fields->company_id = $recurring_expense->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_RECURRING_EXPENSE;
-        
+
         $this->activity_repo->save($fields, $recurring_expense, $event->event_vars);
     }
 }

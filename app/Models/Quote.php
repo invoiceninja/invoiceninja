@@ -92,12 +92,14 @@ class Quote extends BaseModel
         'is_amount_discount' => 'bool',
     ];
 
-    protected $dates = [];
-
     const STATUS_DRAFT = 1;
+
     const STATUS_SENT = 2;
+
     const STATUS_APPROVED = 3;
+
     const STATUS_CONVERTED = 4;
+
     const STATUS_EXPIRED = -1;
 
     public function getEntityType()
@@ -122,12 +124,11 @@ class Quote extends BaseModel
 
     public function getStatusIdAttribute($value)
     {
-        if($this->due_date && !$this->is_deleted && $value == Quote::STATUS_SENT && Carbon::parse($this->due_date)->lte(now()->startOfDay())){
-            return Quote::STATUS_EXPIRED;
+        if ($this->due_date && ! $this->is_deleted && $value == self::STATUS_SENT && Carbon::parse($this->due_date)->lte(now()->startOfDay())) {
+            return self::STATUS_EXPIRED;
         }
 
         return $value;
-
     }
 
     public function company()
@@ -221,38 +222,38 @@ class Quote extends BaseModel
         return new QuoteService($this);
     }
 
-
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-
-            if($this->invitations()->exists())
+            if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
-            else{
+            } else {
                 $this->service()->createInvitations();
                 $invitation = $this->invitations()->first();
             }
-
         }
 
-        if(!$invitation)
+        if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
 
         $file_path = $this->client->quote_filepath($invitation).$this->numberFormatter().'.pdf';
 
-        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        elseif(Ninja::isHosted() && $portal){
-            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        
-        if(Storage::disk('public')->exists($file_path))
-            return Storage::disk('public')->{$type}($file_path);
+        } elseif (Ninja::isHosted() && $portal) {
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
+            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+
+        if (Storage::disk('public')->exists($file_path)) {
             return Storage::disk('public')->{$type}($file_path);
+        }
+
+        $file_path = (new CreateEntityPdf($invitation))->handle();
+
+        return Storage::disk('public')->{$type}($file_path);
     }
 
     /**

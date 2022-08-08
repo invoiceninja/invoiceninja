@@ -47,18 +47,18 @@ class UpdateQuoteRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if($this->number)
+        if ($this->number) {
             $rules['number'] = Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->quote->id);
+        }
 
         $rules['line_items'] = 'array';
-        $rules['discount']  = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-        
 
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

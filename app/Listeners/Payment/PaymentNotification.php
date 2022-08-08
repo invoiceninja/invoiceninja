@@ -46,14 +46,15 @@ class PaymentNotification implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-        
-        if ($event->company->is_disabled)
+
+        if ($event->company->is_disabled) {
             return true;
+        }
 
         $payment = $event->payment;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntityPaidObject($payment))->build() );
+        $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
         $nmo->company = $event->company;
         $nmo->settings = $event->company->settings;
 
@@ -62,10 +63,10 @@ class PaymentNotification implements ShouldQueue
             $user = $company_user->user;
 
             $methods = $this->findUserEntityNotificationType($payment, $company_user, [
-                'payment_success', 
-                'payment_success_all', 
-                'payment_success_user', 
-                'all_notifications']
+                'payment_success',
+                'payment_success_all',
+                'payment_success_user',
+                'all_notifications', ]
             );
 
             if (($key = array_search('mail', $methods)) !== false) {
@@ -75,7 +76,6 @@ class PaymentNotification implements ShouldQueue
 
                 NinjaMailerJob::dispatch($nmo);
             }
-
         }
 
         /*Google Analytics Track Revenue*/
@@ -92,9 +92,10 @@ class PaymentNotification implements ShouldQueue
 
         $analytics_id = $company->google_analytics_key;
 
-        if(!strlen($analytics_id) > 2)
+        if (! strlen($analytics_id) > 2) {
             return;
-        
+        }
+
         $client = $payment->client;
         $amount = $payment->amount;
 
@@ -127,7 +128,6 @@ class PaymentNotification implements ShouldQueue
      */
     private function sendAnalytics($data)
     {
-            
         $data = utf8_encode($data);
         $curl = curl_init();
 

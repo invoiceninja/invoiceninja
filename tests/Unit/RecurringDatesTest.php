@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\RecurringInvoiceFactory;
@@ -26,7 +27,7 @@ class RecurringDatesTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -64,7 +65,6 @@ class RecurringDatesTest extends TestCase
         $this->assertEquals(5, count($recurring_invoice->recurringDates()));
     }
 
-
     public function testRecurringDatesPendingInvoiceWithNoDueDate()
     {
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
@@ -76,7 +76,7 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->remaining_cycles = 5;
         $recurring_invoice->due_date_days = null;
         $recurring_invoice->next_send_date = now();
-        
+
         $recurring_invoice->save();
 
         $recurring_invoice->calc()->getInvoice();

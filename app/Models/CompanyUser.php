@@ -52,7 +52,7 @@ class CompanyUser extends Pivot
 
     protected $touches = ['user'];
 
-    protected $with = ['user','account'];
+    protected $with = ['user', 'account'];
 
     public function getEntityType()
     {

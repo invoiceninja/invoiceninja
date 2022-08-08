@@ -54,7 +54,7 @@ class RecurringQuoteToQuoteFactory
         $quote->auto_bill_enabled = $recurring_quote->auto_bill_enabled;
         $quote->paid_to_date = 0;
         $quote->design_id = $recurring_quote->design_id;
-        
+
         return $quote;
     }
 }

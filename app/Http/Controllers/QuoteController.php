@@ -396,7 +396,7 @@ class QuoteController extends BaseController
         $quote->service()
               ->triggeredActions($request)
               ->deletePdf();
-        
+
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
@@ -517,6 +517,9 @@ class QuoteController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
+
+        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+            return response(['message' => 'Please verify your account to send emails.'], 400);
 
         $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
@@ -654,6 +657,7 @@ class QuoteController extends BaseController
 
                 $this->entity_type = Invoice::class;
                 $this->entity_transformer = InvoiceTransformer::class;
+
                 return $this->itemResponse($quote->service()->convertToInvoice());
 
             break;
@@ -672,7 +676,7 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote);
                 break;
             case 'approve':
-                if (!in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT]) ) {
+                if (! in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 
@@ -686,17 +690,16 @@ class QuoteController extends BaseController
                 //$file = $quote->pdf_file_path();
                 $file = $quote->service()->getQuotePdf();
 
-                return response()->streamDownload(function () use($file) {
-                        echo Storage::get($file);
-                },  basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($file) {
+                    echo Storage::get($file);
+                }, basename($file), ['Content-Type' => 'application/pdf']);
 
-               //return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 break;
             case 'restore':
                 $this->quote_repo->restore($quote);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($quote);
                 }
 
@@ -704,7 +707,7 @@ class QuoteController extends BaseController
             case 'archive':
                 $this->quote_repo->archive($quote);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($quote);
                 }
 
@@ -712,7 +715,7 @@ class QuoteController extends BaseController
             case 'delete':
                 $this->quote_repo->delete($quote);
 
-                if (!$bulk) {
+                if (! $bulk) {
                     return $this->listResponse($quote);
                 }
 
@@ -737,7 +740,7 @@ class QuoteController extends BaseController
                 }
                 break;
             default:
-                return response()->json(['message' => ctrans('texts.action_unavailable',['action' => $action])], 400);
+                return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
                 break;
         }
     }
@@ -752,14 +755,13 @@ class QuoteController extends BaseController
 
         $headers = ['Content-Type' => 'application/pdf'];
 
-        if(request()->input('inline') == 'true')
+        if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
 
-        return response()->streamDownload(function () use($file) {
-                echo Storage::get($file);
-        },  basename($file), $headers);
-        
-
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), $headers);
     }
 
     /**
@@ -815,14 +817,14 @@ class QuoteController extends BaseController
      */
     public function upload(UploadQuoteRequest $request, Quote $quote)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
+        }
 
-        if ($request->has('documents')) 
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $quote);
+        }
 
         return $this->itemResponse($quote->fresh());
-
-    }  
+    }
 }

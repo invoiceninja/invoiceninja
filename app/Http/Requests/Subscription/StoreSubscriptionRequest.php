@@ -34,7 +34,7 @@ class StoreSubscriptionRequest extends Request
      */
     public function rules()
     {
-        $rules =  [
+        $rules = [
             'product_ids' => ['sometimes'],
             'recurring_product_ids' => ['sometimes'],
             'assigned_user_id' => ['sometimes'],
@@ -54,14 +54,13 @@ class StoreSubscriptionRequest extends Request
             'allow_plan_changes' => ['sometimes'],
             'refund_period' => ['sometimes'],
             'webhook_configuration' => ['array'],
-            'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)]
+            'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)],
         ];
 
         return $this->globalRules($rules);
-
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 

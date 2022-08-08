@@ -23,7 +23,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class QuoteCreatedNotification implements ShouldQueue
 {
     public $delay = 5;
-        
+
     use UserNotifies;
 
     public function __construct()
@@ -45,7 +45,7 @@ class QuoteCreatedNotification implements ShouldQueue
         $quote = $event->quote;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new EntityCreatedObject($quote, 'quote'))->build() );
+        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($quote, 'quote'))->build());
         $nmo->company = $quote->company;
         $nmo->settings = $quote->company->settings;
 
@@ -55,8 +55,9 @@ class QuoteCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
-            if(!$user)
+            if (! $user) {
                 continue;
+            }
 
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'quote');
@@ -68,11 +69,10 @@ class QuoteCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
-                
+
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }
@@ -80,7 +80,7 @@ class QuoteCreatedNotification implements ShouldQueue
             /* Override the methods in the Notification Class */
             // $notification->method = $methods;
 
-            //  Notify on the alternate channels 
+            //  Notify on the alternate channels
             // $user->notify($notification);
         }
     }

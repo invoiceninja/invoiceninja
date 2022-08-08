@@ -52,7 +52,6 @@ class AuthorizePaymentMethod
             return $this->authorizeCreditCard();
         }
 
-
         // case GatewayType::BANK_TRANSFER:
         //     return $this->authorizeBankTransfer();
         //     break;
@@ -105,7 +104,6 @@ class AuthorizePaymentMethod
             $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
 
-
         return redirect()->route('client.payment_methods.index');
     }
 
@@ -130,12 +128,11 @@ class AuthorizePaymentMethod
 
     public function buildPaymentMethod($payment_profile)
     {
-
         $payment_meta = new stdClass;
         $payment_meta->exp_month = 'xx';
         $payment_meta->exp_year = 'xx';
-        $payment_meta->brand = (string)$payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
-        $payment_meta->last4 = (string)$payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardNumber();
+        $payment_meta->brand = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
+        $payment_meta->last4 = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardNumber();
         $payment_meta->type = $this->payment_method;
 
         return $payment_meta;
@@ -160,23 +157,23 @@ class AuthorizePaymentMethod
         $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
 
         $billto = false;
-        
+
         if ($contact) {
             // Create the Bill To info for new payment type
             $billto = new CustomerAddressType();
-            $billto->setFirstName(substr($contact->present()->first_name(),0,50));
-            $billto->setLastName(substr($contact->present()->last_name(),0,50));
-            $billto->setCompany(substr($this->authorize->client->present()->name(),0,50));
-            $billto->setAddress(substr($this->authorize->client->address1,0,60));
-            $billto->setCity(substr($this->authorize->client->city,0,40));
-            $billto->setState(substr($this->authorize->client->state,0,40));
-            $billto->setZip(substr($this->authorize->client->postal_code,0,20));
+            $billto->setFirstName(substr($contact->present()->first_name(), 0, 50));
+            $billto->setLastName(substr($contact->present()->last_name(), 0, 50));
+            $billto->setCompany(substr($this->authorize->client->present()->name(), 0, 50));
+            $billto->setAddress(substr($this->authorize->client->address1, 0, 60));
+            $billto->setCity(substr($this->authorize->client->city, 0, 40));
+            $billto->setState(substr($this->authorize->client->state, 0, 40));
+            $billto->setZip(substr($this->authorize->client->postal_code, 0, 20));
 
             if ($this->authorize->client->country_id) {
                 $billto->setCountry($this->authorize->client->country->name);
             }
 
-            $billto->setPhoneNumber(substr($this->authorize->client->phone,0,20));
+            $billto->setPhoneNumber(substr($this->authorize->client->phone, 0, 20));
         }
 
         // Create a new Customer Payment Profile object
@@ -216,7 +213,6 @@ class AuthorizePaymentMethod
             }
 
             throw new PaymentFailed($message, 500);
-
         }
     }
 
@@ -256,36 +252,32 @@ class AuthorizePaymentMethod
         }
     }
 
-    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id) {
-
+    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id)
+    {
         error_reporting(E_ALL & ~E_DEPRECATED);
 
         $this->authorize->init();
 
         // Set the transaction's refId
-        $refId = 'ref' . time();
+        $refId = 'ref'.time();
 
-          // Use an existing payment profile ID for this Merchant name and Transaction key
+        // Use an existing payment profile ID for this Merchant name and Transaction key
 
-          $request = new DeleteCustomerPaymentProfileRequest();
-          $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-          $request->setCustomerProfileId($gateway_customer_reference);
-          $request->setCustomerPaymentProfileId($payment_profile_id);
-          $controller = new DeleteCustomerPaymentProfileController($request);
+        $request = new DeleteCustomerPaymentProfileRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setCustomerProfileId($gateway_customer_reference);
+        $request->setCustomerPaymentProfileId($payment_profile_id);
+        $controller = new DeleteCustomerPaymentProfileController($request);
 
-          $response = $controller->executeWithApiResponse($this->authorize->mode());
-          if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-          {
-              nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS  :");
-           }
-          else
-          {
-              nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
-              $errorMessages = $response->getMessages()->getMessage();
-              nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
-          }
+        $response = $controller->executeWithApiResponse($this->authorize->mode());
+        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+            nlog('SUCCESS: Delete Customer Payment Profile  SUCCESS  :');
+        } else {
+            nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
+            $errorMessages = $response->getMessages()->getMessage();
+            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
+        }
 
-          return $response;
-  }
-
+        return $response;
+    }
 }

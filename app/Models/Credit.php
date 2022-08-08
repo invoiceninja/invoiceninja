@@ -37,7 +37,7 @@ class Credit extends BaseModel
     use PresentableTrait;
     use MakesInvoiceValues;
     use MakesReminders;
-    
+
     protected $presenter = CreditPresenter::class;
 
     protected $fillable = [
@@ -97,8 +97,11 @@ class Credit extends BaseModel
     protected $touches = [];
 
     const STATUS_DRAFT = 1;
+
     const STATUS_SENT = 2;
+
     const STATUS_PARTIAL = 3;
+
     const STATUS_APPLIED = 4;
 
     public function getEntityType()
@@ -247,6 +250,7 @@ class Credit extends BaseModel
         if ($this->balance == 0) {
             $this->status_id = self::STATUS_APPLIED;
             $this->save();
+
             return;
         }
 
@@ -262,34 +266,36 @@ class Credit extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-
-            if($this->invitations()->exists())
+            if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
-            else{
+            } else {
                 $this->service()->createInvitations();
                 $invitation = $this->invitations()->first();
             }
-
         }
 
-        if(!$invitation)
+        if (! $invitation) {
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
 
         $file_path = $this->client->credit_filepath($invitation).$this->numberFormatter().'.pdf';
 
-        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        elseif(Ninja::isHosted() && $portal){
-            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
-            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        
-        if(Storage::disk('public')->exists($file_path))
-            return Storage::disk('public')->{$type}($file_path);
+        } elseif (Ninja::isHosted() && $portal) {
+            $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+
+        if (Storage::disk('public')->exists($file_path)) {
             return Storage::disk('public')->{$type}($file_path);
+        }
+
+
+        $file_path = (new CreateEntityPdf($invitation))->handle();
+
+        return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()
@@ -304,13 +310,12 @@ class Credit extends BaseModel
 
     public function transaction_event()
     {
-
         $credit = $this->fresh();
 
         return [
-            'credit_id' => $credit->id, 
-            'credit_amount' => $credit->amount ?: 0, 
-            'credit_balance' => $credit->balance ?: 0, 
+            'credit_id' => $credit->id,
+            'credit_amount' => $credit->amount ?: 0,
+            'credit_balance' => $credit->balance ?: 0,
             'credit_status' => $credit->status_id ?: 1,
         ];
     }
@@ -336,7 +341,7 @@ class Credit extends BaseModel
                 return ctrans('texts.applied');
                 break;
             default:
-                return "";
+                return '';
                 break;
         }
     }

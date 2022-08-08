@@ -26,7 +26,6 @@ class UpdateReminders implements ShouldQueue
 
     public Company $company;
 
-
     public function __construct(Company $company)
     {
         $this->company = $company;
@@ -40,7 +39,6 @@ class UpdateReminders implements ShouldQueue
      */
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
         $this->company
@@ -48,10 +46,8 @@ class UpdateReminders implements ShouldQueue
              ->where('is_deleted', 0)
              ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
              ->cursor()
-             ->each(function ($invoice){
-                $invoice->service()->setReminder()->save();
+             ->each(function ($invoice) {
+                 $invoice->service()->setReminder()->save();
              });
-
     }
-
 }

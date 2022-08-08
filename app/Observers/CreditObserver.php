@@ -37,7 +37,6 @@ class CreditObserver
      */
     public function updated(Credit $credit)
     {
-
     }
 
     /**
@@ -48,7 +47,6 @@ class CreditObserver
      */
     public function deleted(Credit $credit)
     {
-
     }
 
     /**

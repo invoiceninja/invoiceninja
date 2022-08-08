@@ -51,7 +51,7 @@ class UpdateProductRequest extends Request
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -63,10 +63,8 @@ class UpdateProductRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
-        if(array_key_exists('in_stock_quantity', $input) && request()->has('update_in_stock_quantity') && request()->input('update_in_stock_quantity') == 'true'){
-
-        }
-        elseif(array_key_exists('in_stock_quantity', $input)){
+        if (array_key_exists('in_stock_quantity', $input) && request()->has('update_in_stock_quantity') && request()->input('update_in_stock_quantity') == 'true') {
+        } elseif (array_key_exists('in_stock_quantity', $input)) {
             unset($input['in_stock_quantity']);
         }
 

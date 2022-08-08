@@ -20,7 +20,7 @@ use stdClass;
 class QuoteViewedActivity implements ShouldQueue
 {
     public $delay = 5;
-        
+
     protected $activity_repo;
 
     /**

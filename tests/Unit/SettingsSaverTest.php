@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\DataMapper\CompanySettings;
@@ -21,7 +22,7 @@ class SettingsSaverTest extends TestCase
 {
     use SettingsSaver;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
     }
@@ -34,6 +35,5 @@ class SettingsSaverTest extends TestCase
         $result = $this->checkAttribute($key, $value);
 
         $this->assertFalse($result);
-
     }
 }

@@ -569,14 +569,14 @@ class VendorController extends BaseController
      */
     public function upload(UploadVendorRequest $request, Vendor $vendor)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
-        
-        if ($request->has('documents')) 
+        }
+
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $vendor);
+        }
 
         return $this->itemResponse($vendor->fresh());
-
-    }  
+    }
 }

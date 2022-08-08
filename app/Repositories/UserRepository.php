@@ -15,6 +15,7 @@ use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasRestored;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -28,7 +29,6 @@ use Illuminate\Support\Facades\Hash;
 class UserRepository extends BaseRepository
 {
     use MakesHash;
-
 
     /**
      * Saves the user and its contacts.
@@ -57,10 +57,11 @@ class UserRepository extends BaseRepository
         $account = $company->account;
 
         /* If hosted and Enterprise we need to increment the num_users field on the accounts table*/
-        if (! $user->id && $account->isEnterpriseClient()) {
-            $account->num_users++;
-            $account->save();
-        }
+        // 05-08-2022 This is an error, the num_users should _never_ increment
+        // if (! $user->id && $account->isEnterpriseClient()) {
+        //     $account->num_users++;
+        //     $account->save();
+        // }
 
         $user->fill($details);
 
@@ -69,15 +70,16 @@ class UserRepository extends BaseRepository
             $user->password = Hash::make($data['password']);
         }
 
-        if (!$user->confirmation_code) {
+        if (! $user->confirmation_code) {
             $user->confirmation_code = $this->createDbHash($company->db);
         }
 
         $user->account_id = $account->id;
 
-        if(strlen($user->password) >=1)
+        if (strlen($user->password) >= 1) {
             $user->has_password = true;
-        
+        }
+
         $user->save();
 
         if (isset($data['company_user'])) {
@@ -89,22 +91,22 @@ class UserRepository extends BaseRepository
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-
-                if(auth()->user()->isAdmin())
-                {
+                if (auth()->user()->isAdmin()) {
                     $cu->fill($data['company_user']);
                     $cu->restore();
                     $cu->tokens()->restore();
                     $cu->save();
-                }
-                else {
-                            
+
+                    //05-08-2022
+                    if($cu->tokens()->count() == 0){
+                        (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
+                    }
+
+                } else {
                     $cu->notifications = $data['company_user']['notifications'];
                     $cu->settings = $data['company_user']['settings'];
                     $cu->save();
-
                 }
-                
             }
 
             $user->with(['company_users' => function ($query) use ($company, $user) {
@@ -119,8 +121,9 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
-        if($user->isOwner())
+        if ($user->isOwner()) {
             return $user;
+        }
 
         if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
@@ -160,10 +163,9 @@ class UserRepository extends BaseRepository
 
         event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-         $user->is_deleted = true;
-         $user->save();
-         $user->delete();
-
+        $user->is_deleted = true;
+        $user->save();
+        $user->delete();
 
         return $user->fresh();
     }
@@ -177,10 +179,9 @@ class UserRepository extends BaseRepository
         $user->delete();
 
         event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
     }
 
-        /**
+    /**
      * @param $entity
      */
     public function restore($user)
@@ -190,11 +191,10 @@ class UserRepository extends BaseRepository
         }
 
         if (Ninja::isHosted()) {
-            
             $count = User::where('account_id', auth()->user()->account_id)->count();
-            if($count >= auth()->user()->account->num_users)
+            if ($count >= auth()->user()->account->num_users) {
                 return;
-
+            }
         }
 
         $user->is_deleted = false;
@@ -209,6 +209,5 @@ class UserRepository extends BaseRepository
         $cu->restore();
 
         event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
     }
 }

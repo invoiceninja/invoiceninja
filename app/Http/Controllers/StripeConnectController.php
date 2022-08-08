@@ -38,8 +38,9 @@ class StripeConnectController extends BaseController
     {
         // Should we check if company has set country in the ap? Otherwise this will fail.
 
-        if(!is_array($request->getTokenContent()))
+        if (! is_array($request->getTokenContent())) {
             abort(400, 'Invalid token');
+        }
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
@@ -51,12 +52,11 @@ class StripeConnectController extends BaseController
             ->first();
 
         if ($company_gateway) {
-
             $config = $company_gateway->getConfig();
 
-            if(property_exists($config, 'account_id') && strlen($config->account_id) > 1)
+            if (property_exists($config, 'account_id') && strlen($config->account_id) > 1) {
                 return view('auth.connect.existing');
-
+            }
         }
 
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
@@ -68,22 +68,18 @@ class StripeConnectController extends BaseController
 
     public function completed(InitializeStripeConnectRequest $request)
     {
-
         \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
         try {
             $response = \Stripe\OAuth::token([
-              'grant_type' => 'authorization_code',
-              'code' => $request->input('code'),
+                'grant_type' => 'authorization_code',
+                'code' => $request->input('code'),
             ]);
-
-        }catch(\Exception $e)
-        {
-            
+        } catch (\Exception $e) {
             nlog($e->getMessage());
             throw new SystemError($e->getMessage(), 500);
         }
-        
+
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
@@ -93,8 +89,7 @@ class StripeConnectController extends BaseController
             ->where('company_id', $company->id)
             ->first();
 
-        if(!$company_gateway)
-        {
+        if (! $company_gateway) {
             $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
             $fees_and_limits = new \stdClass;
             $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
@@ -107,14 +102,14 @@ class StripeConnectController extends BaseController
 
         $payload = [
             'account_id' => $response->stripe_user_id,
-            "token_type" => 'bearer',
-            "stripe_publishable_key" => $response->stripe_publishable_key,
-            "scope" => $response->scope,
-            "livemode" => $response->livemode,
-            "stripe_user_id" => $response->stripe_user_id,
-            "refresh_token" => $response->refresh_token,
-            "access_token" => $response->access_token,
-            "appleDomainVerification" => '',
+            'token_type' => 'bearer',
+            'stripe_publishable_key' => $response->stripe_publishable_key,
+            'scope' => $response->scope,
+            'livemode' => $response->livemode,
+            'stripe_user_id' => $response->stripe_user_id,
+            'refresh_token' => $response->refresh_token,
+            'access_token' => $response->access_token,
+            'appleDomainVerification' => '',
         ];
 
         $company_gateway->setConfig($payload);
@@ -126,7 +121,6 @@ class StripeConnectController extends BaseController
         return view('auth.connect.completed');
     }
 
-
     private function checkAccountAlreadyLinkToEmail($company_gateway, $email)
     {
         $client = Client::first() ? Client::first() : new Client;
@@ -134,23 +128,19 @@ class StripeConnectController extends BaseController
         //Pull the list of Stripe Accounts and see if we match
         $accounts = $company_gateway->driver($client)->getAllConnectedAccounts()->data;
 
-        foreach($accounts as $account)
-        {
-            if($account['email'] == $email)
+        foreach ($accounts as $account) {
+            if ($account['email'] == $email) {
                 return $account['id'];
+            }
         }
 
         return false;
-
     }
-    
-
-
 
     /*********************************
     * Stripe OAuth
     */
-   
+
    //  public function initialize(InitializeStripeConnectRequest $request, string $token)
    // {
 

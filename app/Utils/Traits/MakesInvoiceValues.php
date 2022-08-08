@@ -270,9 +270,8 @@ trait MakesInvoiceValues
         $data = [];
 
         if (! is_array($items)) {
-            $data;
         }
-       
+
         $locale_info = localeconv();
 
         foreach ($items as $key => $item) {
@@ -291,47 +290,42 @@ trait MakesInvoiceValues
             $helpers = new Helpers();
             $_table_type = ltrim($table_type, '$'); // From $product -> product.
 
-
             $data[$key][$table_type.'.product_key'] = is_null(optional($item)->product_key) ? $item->item : $item->product_key;
             $data[$key][$table_type.'.item'] = is_null(optional($item)->item) ? $item->product_key : $item->item;
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
 
             $data[$key][$table_type.'.notes'] = Helpers::processReservedKeywords($item->notes, $entity);
             $data[$key][$table_type.'.description'] = Helpers::processReservedKeywords($item->notes, $entity);
-    
-            $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}1", $item->custom_value1, $entity);
-            $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}2", $item->custom_value2, $entity);
-            $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}3", $item->custom_value3, $entity);
-            $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}4", $item->custom_value4, $entity);
-            
-            if($item->quantity > 0 || $item->cost > 0){
 
+            $data[$key][$table_type.".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}1", $item->custom_value1, $entity);
+            $data[$key][$table_type.".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}2", $item->custom_value2, $entity);
+            $data[$key][$table_type.".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}3", $item->custom_value3, $entity);
+            $data[$key][$table_type.".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}4", $item->custom_value4, $entity);
+
+            if ($item->quantity > 0 || $item->cost > 0) {
                 $data[$key][$table_type.'.quantity'] = Number::formatValueNoTrailingZeroes($item->quantity, $entity->currency());
-                
+
                 $data[$key][$table_type.'.unit_cost'] = Number::formatMoneyNoRounding($item->cost, $entity);
 
                 $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $entity);
 
-                $data[$key][$table_type.'.line_total'] =  Number::formatMoney($item->line_total, $entity);
-
-            }
-            else {
-
+                $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $entity);
+            } else {
                 $data[$key][$table_type.'.quantity'] = '';
-                
+
                 $data[$key][$table_type.'.unit_cost'] = '';
 
                 $data[$key][$table_type.'.cost'] = '';
 
-                $data[$key][$table_type.'.line_total'] =  '';
-                
+                $data[$key][$table_type.'.line_total'] = '';
             }
 
-            if(property_exists($item, 'gross_line_total'))
-                $data[$key][$table_type.'.gross_line_total'] =  ($item->gross_line_total == 0) ? '' :Number::formatMoney($item->gross_line_total, $entity);
-            else
+            if (property_exists($item, 'gross_line_total')) {
+                $data[$key][$table_type.'.gross_line_total'] = ($item->gross_line_total == 0) ? '' : Number::formatMoney($item->gross_line_total, $entity);
+            } else {
                 $data[$key][$table_type.'.gross_line_total'] = '';
-        
+            }
+
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
                     $data[$key][$table_type.'.discount'] = Number::formatMoney($item->discount, $entity);
@@ -360,7 +354,7 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
 
-            $data[$key]['task_id'] = optional($item)->task_id;
+            $data[$key]['task_id'] = property_exists($item, 'task_id') ? $item->task_id : '';
         }
 
         return $data;
@@ -487,8 +481,7 @@ trait MakesInvoiceValues
      */
     public function generateCustomCSS() :string
     {
-
-        $settings = $this->client ? $this->client->getMergedSettings() :  $this->company->settings;
+        $settings = $this->client ? $this->client->getMergedSettings() : $this->company->settings;
 
         $header_and_footer = '
 .header, .header-space {

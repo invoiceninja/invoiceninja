@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
@@ -31,7 +32,7 @@ class InvoiceInclusiveTest extends TestCase
 
     public $settings;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -275,9 +276,9 @@ class InvoiceInclusiveTest extends TestCase
         $this->assertEquals($this->invoice_calc->getSubTotal(), 19);
         $this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.95);
         $this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.92);
-        
+
         // nlog($this->invoice_calc->getTaxMap());
-        
+
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 18.05);
         $this->assertEquals($this->invoice_calc->getBalance(), 18.05);

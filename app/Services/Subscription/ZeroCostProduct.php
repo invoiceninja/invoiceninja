@@ -28,13 +28,12 @@ class ZeroCostProduct extends AbstractService
         'contact_id' => $this->contact->id,
         'client_id' => $this->contact->client->id,
     ];
-    */  
+     */
     public function __construct(Subscription $subscription, array $data)
     {
         $this->subscription = $subscription;
 
         $this->data = $data;
-
     }
 
     public function run()
@@ -51,8 +50,7 @@ class ZeroCostProduct extends AbstractService
 
         //create a recurring zero dollar invoice attached to this subscription.
 
-        if(strlen($this->subscription->recurring_product_ids) >=1){
-
+        if (strlen($this->subscription->recurring_product_ids) >= 1) {
             $recurring_invoice = $this->subscription->service()->convertInvoiceToRecurring($this->data['client_id']);
             $recurring_invoice_repo = new RecurringInvoiceRepository();
 
@@ -83,5 +81,4 @@ class ZeroCostProduct extends AbstractService
 
         return ['redirect_url' => $redirect_url];
     }
-
 }

@@ -24,7 +24,6 @@ trait RuntimeFormRequest
         return $instance;
     }
 
-
     protected static function getMockedRequestByParameters($paramters)
     {
         $mockRequest = Request::create('', 'POST');

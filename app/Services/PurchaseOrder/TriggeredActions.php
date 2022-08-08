@@ -39,7 +39,6 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
-
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->purchase_order->service()->markSent()->touchPdf()->save();
             $this->sendEmail();
@@ -51,15 +50,13 @@ class TriggeredActions extends AbstractService
 
         // if ($this->request->has('cancel') && $this->request->input('cancel') == 'true') {
         //     $this->purchase_order = $this->purchase_order->service()->handleCancellation()->save();
-        // }        
+        // }
 
         return $this->purchase_order;
     }
 
     private function sendEmail()
     {
-
         PurchaseOrderEmail::dispatch($this->purchase_order, $this->purchase_order->company);
-
     }
 }

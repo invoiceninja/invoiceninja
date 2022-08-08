@@ -34,7 +34,7 @@ class SystemHealth
         'bcmath',
     ];
 
-    private static $php_version = 7.4;
+    private static $php_version = 8.1;
 
     /**
      * Check loaded extensions / PHP version / DB Connections.
@@ -54,7 +54,7 @@ class SystemHealth
             $system_health = false;
         }
 
-        if (!self::simpleDbCheck() && $check_database) {
+        if (! self::simpleDbCheck() && $check_database) {
             info('db fails');
             $system_health = false;
         }
@@ -63,25 +63,25 @@ class SystemHealth
             'system_health' => $system_health,
             'extensions' => self::extensions(),
             'php_version' => [
-                'minimum_php_version' => (string)self::$php_version,
+                'minimum_php_version' => (string) self::$php_version,
                 'current_php_version' => phpversion(),
-                'current_php_cli_version' => (string)self::checkPhpCli(),
+                'current_php_cli_version' => (string) self::checkPhpCli(),
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
+                'memory_limit' => ini_get('memory_limit'),
             ],
             'env_writable' => self::checkEnvWritable(),
-            //'mail' => self::testMailServer(),
-            'simple_db_check' => (bool)self::simpleDbCheck(),
+            'simple_db_check' => self::simpleDbCheck(),
             'cache_enabled' => self::checkConfigCache(),
-            'phantom_enabled' => (bool)config('ninja.phantomjs_pdf_generation'),
-            'exec' => (bool)self::checkExecWorks(),
-            'open_basedir' => (bool)self::checkOpenBaseDir(),
-            'mail_mailer' => (string)self::checkMailMailer(),
-            'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
+            'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
+            'exec' => (bool) self::checkExecWorks(),
+            'open_basedir' => (bool) self::checkOpenBaseDir(),
+            'mail_mailer' => (string) self::checkMailMailer(),
+            'flutter_renderer' => (string) config('ninja.flutter_canvas_kit'),
             'jobs_pending' => (int) self::checkQueueSize(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
             'trailing_slash' => (bool) self::checkUrlState(),
-            'file_permissions' => (string) self::checkFileSystem()
+            'file_permissions' => (string) self::checkFileSystem(),
         ];
     }
 
@@ -89,11 +89,9 @@ class SystemHealth
     {
         $count = 0;
 
-        try{
+        try {
             $count = Queue::size();
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
         }
 
         return $count;
@@ -101,13 +99,12 @@ class SystemHealth
 
     public static function checkFileSystem()
     {
-
         $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-
-            if(strpos($file->getPathname(), '.git') !== false)
+            if (strpos($file->getPathname(), '.git') !== false) {
                 continue;
+            }
 
             //nlog($file->getPathname());
 
@@ -117,26 +114,26 @@ class SystemHealth
         }
 
         return 'Ok';
-
     }
 
     public static function checkUrlState()
     {
-        if (env('APP_URL') && substr(env('APP_URL'), -1) == '/')
+        if (env('APP_URL') && substr(env('APP_URL'), -1) == '/') {
             return true;
+        }
 
         return false;
-
     }
 
     public static function getPdfEngine()
     {
-        if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja')
+        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             return 'Invoice Ninja Hosted PDF Generator';
-        elseif(config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom')
+        } elseif (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return 'Phantom JS Web Generator';
-        else
+        } else {
             return 'SnapPDF PDF Generator';
+        }
     }
 
     public static function checkMailMailer()
@@ -201,7 +198,7 @@ class SystemHealth
     private static function extensions(): array
     {
         $loaded_extensions = null;
-        
+
         $loaded_extensions = [];
 
         foreach (self::$extensions as $extension) {
@@ -215,7 +212,7 @@ class SystemHealth
     {
         $result = ['success' => false];
 
-        if ($request && !config('ninja.preconfigured_install')) {
+        if ($request && ! config('ninja.preconfigured_install')) {
             config(['database.connections.mysql.host' => $request->input('db_host')]);
             config(['database.connections.mysql.port' => $request->input('db_port')]);
             config(['database.connections.mysql.database' => $request->input('db_database')]);
@@ -226,13 +223,13 @@ class SystemHealth
             DB::purge('mysql');
         }
 
-        if (!config('ninja.db.multi_db_enabled')) {
+        if (! config('ninja.db.multi_db_enabled')) {
             try {
                 $pdo = DB::connection()->getPdo();
-                $result[] = [DB::connection()->getDatabaseName() => true];
+                $x = DB::connection()->getDatabaseName();
                 $result['success'] = true;
             } catch (Exception $e) {
-                $result[] = [config('database.connections.' . config('database.default') . '.database') => false];
+                // $x = [config('database.connections.'.config('database.default').'.database') => false];
                 $result['success'] = false;
                 $result['message'] = $e->getMessage();
             }
@@ -242,10 +239,10 @@ class SystemHealth
 
                 try {
                     $pdo = DB::connection()->getPdo();
-                    $result[] = [DB::connection()->getDatabaseName() => true];
+                    $x = DB::connection()->getDatabaseName();
                     $result['success'] = true;
                 } catch (Exception $e) {
-                    $result[] = [config('database.connections.' . config('database.default') . '.database') => false];
+                   // $x = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
                     $result['message'] = $e->getMessage();
                 }
@@ -289,6 +286,6 @@ class SystemHealth
 
     private static function checkEnvWritable()
     {
-        return is_writable(base_path() . '/.env');
+        return is_writable(base_path().'/.env');
     }
 }

@@ -21,14 +21,14 @@ trait CleanLineItems
 {
     public function cleanItems($items) :array
     {
-        if (! isset($items) || !is_array($items)) {
+        if (! isset($items) || ! is_array($items)) {
             return [];
         }
 
         $cleaned_items = [];
 
         foreach ($items as $item) {
-            $cleaned_items[] = $this->cleanLineItem((array)$item);
+            $cleaned_items[] = $this->cleanLineItem((array) $item);
         }
 
         return $cleaned_items;
@@ -44,7 +44,7 @@ trait CleanLineItems
         $invoice_item = (object) get_class_vars(InvoiceItem::class);
 
         unset($invoice_item->casts);
-        
+
         foreach ($invoice_item as $key => $value) {
 
             //if the key has not been set, we set it to a default value
@@ -56,18 +56,22 @@ trait CleanLineItems
                 $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $item[$key]);
             }
 
-            if(array_key_exists('type_id', $item) && $item['type_id'] == '0')
+            if (array_key_exists('type_id', $item) && $item['type_id'] == '0') {
                 $item['type_id'] = '1';
-            
-            if(!array_key_exists('type_id', $item))
+            }
+
+            if (! array_key_exists('type_id', $item)) {
                 $item['type_id'] = '1';
-            
+            }
+
+            // if($item['type_id'] == '2'){
+            //     str_replace()
+            // }
         }
 
         if (array_key_exists('id', $item)) {
             unset($item['id']);
         }
-        
 
         return $item;
     }

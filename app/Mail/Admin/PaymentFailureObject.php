@@ -57,12 +57,10 @@ class PaymentFailureObject
         $this->company = $company;
 
         $this->payment_hash = $payment_hash;
-
     }
 
     public function build()
     {
-
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
         $t = app('translator');
@@ -70,7 +68,7 @@ class PaymentFailureObject
         App::setLocale($this->company->getLocale());
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
-        
+
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
@@ -83,20 +81,16 @@ class PaymentFailureObject
 
     private function getAmount()
     {
-
-       return $this->amount;
-
+        return $this->amount;
     }
 
     private function getSubject()
     {
-
         return
             ctrans(
                 'texts.payment_failed_subject',
                 ['client' => $this->client->present()->name()]
             );
-
     }
 
     private function getData()
@@ -107,7 +101,7 @@ class PaymentFailureObject
             'title' => ctrans(
                 'texts.payment_failed_subject',
                 [
-                    'client' => $this->client->present()->name()
+                    'client' => $this->client->present()->name(),
                 ]
             ),
             'content' => ctrans(
@@ -115,7 +109,7 @@ class PaymentFailureObject
                 [
                     'client' => $this->client->present()->name(),
                     'invoice' => $this->getDescription(),
-                    'amount' => Number::formatMoney($this->amount, $this->client)
+                    'amount' => Number::formatMoney($this->amount, $this->client),
                 ]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
@@ -123,20 +117,18 @@ class PaymentFailureObject
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'url' => config('ninja.app_url'),
             'button' => ctrans('texts.login'),
-            'additional_info' => $this->error
+            'additional_info' => $this->error,
         ];
 
         return $data;
     }
 
-
     public function getDescription(bool $abbreviated = false)
     {
-        if(!$this->payment_hash)
-            return "";
+        if (! $this->payment_hash) {
+            return '';
+        }
 
         return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
-
     }
-
 }

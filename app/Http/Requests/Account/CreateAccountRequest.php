@@ -36,12 +36,11 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
-
-        if(Ninja::isHosted())
-            $email_rules = ['bail','required', 'email:rfc,dns', new NewUniqueUserRule, new BlackListRule, new EmailBlackListRule];
-        else
-            $email_rules = ['bail','required', 'email:rfc,dns', new NewUniqueUserRule];
-
+        if (Ninja::isHosted()) {
+            $email_rules = ['bail', 'required', 'email:rfc,dns', new NewUniqueUserRule, new BlackListRule, new EmailBlackListRule];
+        } else {
+            $email_rules = ['bail', 'required', 'email:rfc,dns', new NewUniqueUserRule];
+        }
 
         return [
             'first_name'        => 'string|max:100',
@@ -53,9 +52,8 @@ class CreateAccountRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
-        
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');

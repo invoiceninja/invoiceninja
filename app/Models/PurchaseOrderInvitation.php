@@ -9,9 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-
 namespace App\Models;
-
 
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
@@ -35,6 +33,7 @@ class PurchaseOrderInvitation extends BaseModel
         'company',
         'contact',
     ];
+
     protected $touches = ['purchase_order'];
 
     public function getEntityType()
@@ -71,7 +70,6 @@ class PurchaseOrderInvitation extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -90,11 +88,11 @@ class PurchaseOrderInvitation extends BaseModel
 
     public function getPortalLink() :string
     {
-
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             $domain = $this->company->domain();
-        else
+        } else {
             $domain = config('ninja.app_url');
+        }
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
@@ -111,18 +109,17 @@ class PurchaseOrderInvitation extends BaseModel
                 return '';
                 break;
         }
-
     }
 
     public function getLink() :string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        if(Ninja::isHosted()){
+        if (Ninja::isHosted()) {
             $domain = $this->company->domain();
-        }
-        else
+        } else {
             $domain = config('ninja.app_url');
+        }
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
@@ -145,6 +142,4 @@ class PurchaseOrderInvitation extends BaseModel
     {
         return $this->getLink().'?silent=true';
     }
-
-
 }

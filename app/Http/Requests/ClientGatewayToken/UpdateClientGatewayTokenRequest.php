@@ -36,6 +36,7 @@ class UpdateClientGatewayTokenRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
+
         return $rules;
     }
 
@@ -45,12 +46,10 @@ class UpdateClientGatewayTokenRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
-
         $this->replace($input);
     }
-
 }

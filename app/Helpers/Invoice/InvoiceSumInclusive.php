@@ -42,6 +42,7 @@ class InvoiceSumInclusive
     private $sub_total;
 
     private $precision;
+
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -51,10 +52,11 @@ class InvoiceSumInclusive
     {
         $this->invoice = $invoice;
 
-        if($this->invoice->client)
+        if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
-        else
+        } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+        }
 
         $this->tax_map = new Collection;
     }
@@ -170,7 +172,6 @@ class InvoiceSumInclusive
 
     private function calculateTotals()
     {
-
         return $this;
     }
 
@@ -188,6 +189,7 @@ class InvoiceSumInclusive
     public function getTempEntity()
     {
         $this->setCalculatedAttributes();
+
         return $this->invoice;
     }
 
@@ -243,7 +245,7 @@ class InvoiceSumInclusive
                 $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
             }
         }
-        
+
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 

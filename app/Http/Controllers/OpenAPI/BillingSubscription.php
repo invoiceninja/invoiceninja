@@ -30,4 +30,3 @@
  *       @OA\Property(property="updated_at", type="number", format="integer", example="134341234234", description="Timestamp"),
  * )
  */
-            

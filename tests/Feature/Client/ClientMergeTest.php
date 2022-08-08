@@ -31,7 +31,7 @@ class ClientMergeTest extends TestCase
 {
     use DatabaseTransactions;
     use AppSetup;
-    
+
     private $user;
 
     private $company;
@@ -42,7 +42,7 @@ class ClientMergeTest extends TestCase
 
     private $primary_contact;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -52,23 +52,22 @@ class ClientMergeTest extends TestCase
 
     public function testSearchingForContacts()
     {
-
         $account = Account::factory()->create();
 
         $this->user = User::factory()->create([
-            'account_id' => $account->id, 
-            'email' => $this->faker->safeEmail
+            'account_id' => $account->id,
+            'email' => $this->faker->safeEmail(),
         ]);
 
         $this->company = Company::factory()->create([
-            'account_id' => $account->id
+            'account_id' => $account->id,
         ]);
 
         $this->client = Client::factory()->create([
-            'user_id' => $this->user->id, 
-            'company_id' => $this->company->id
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
         ]);
-            
+
         $this->primary_contact = ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
@@ -86,40 +85,37 @@ class ClientMergeTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'email' => 'search@gmail.com'
+            'email' => 'search@gmail.com',
         ]);
-
 
         $this->assertEquals(4, $this->client->contacts->count());
         $this->assertTrue($this->client->contacts->contains(function ($contact) {
             return $contact->email == 'search@gmail.com';
         }));
-        
+
         $this->assertFalse($this->client->contacts->contains(function ($contact) {
             return $contact->email == 'false@gmail.com';
         }));
-
     }
 
     public function testMergeClients()
     {
-
         $account = Account::factory()->create();
 
         $user = User::factory()->create([
-            'account_id' => $account->id, 
-            'email' => $this->faker->safeEmail
+            'account_id' => $account->id,
+            'email' => $this->faker->safeEmail(),
         ]);
 
         $company = Company::factory()->create([
-            'account_id' => $account->id
+            'account_id' => $account->id,
         ]);
 
         $client = Client::factory()->create([
-            'user_id' => $user->id, 
-            'company_id' => $company->id
+            'user_id' => $user->id,
+            'company_id' => $company->id,
         ]);
-            
+
         $primary_contact = ClientContact::factory()->create([
             'user_id' => $user->id,
             'client_id' => $client->id,
@@ -137,15 +133,15 @@ class ClientMergeTest extends TestCase
             'user_id' => $user->id,
             'client_id' => $client->id,
             'company_id' => $company->id,
-            'email' => 'search@gmail.com'
+            'email' => 'search@gmail.com',
         ]);
         //4contacts
 
         $mergable_client = Client::factory()->create([
-            'user_id' => $user->id, 
-            'company_id' => $company->id
+            'user_id' => $user->id,
+            'company_id' => $company->id,
         ]);
-            
+
         $primary_contact = ClientContact::factory()->create([
             'user_id' => $user->id,
             'client_id' => $mergable_client->id,
@@ -163,7 +159,7 @@ class ClientMergeTest extends TestCase
             'user_id' => $user->id,
             'client_id' => $mergable_client->id,
             'company_id' => $company->id,
-            'email' => 'search@gmail.com'
+            'email' => 'search@gmail.com',
         ]);
         //4 contacts
 
@@ -171,10 +167,8 @@ class ClientMergeTest extends TestCase
         $this->assertEquals(4, $mergable_client->contacts->count());
 
         $client = $client->service()->merge($mergable_client)->save();
-        
+
         // nlog($client->contacts->fresh()->toArray());
         // $this->assertEquals(7, $client->fresh()->contacts->count());
-
     }
-
 }

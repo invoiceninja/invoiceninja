@@ -26,11 +26,10 @@ class PaymentTerm extends BaseModel
      * @var bool
      */
     public $timestamps = true;
+
     /**
      * @var array
      */
-    protected $dates = ['deleted_at'];
-
     protected $fillable = ['num_days'];
 
     public function getNumDays()

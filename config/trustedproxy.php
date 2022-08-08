@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 return [
 
     /*
@@ -35,7 +37,7 @@ return [
      *
      * Options include:
      *
-     * - Illuminate\Http\Request::HEADER_X_FORWARDED_ALL (use all x-forwarded-* headers to establish trust)
+     * - Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_AWS_ELB (use all x-forwarded-* headers to establish trust)
      * - Illuminate\Http\Request::HEADER_FORWARDED (use the FORWARDED header to establish trust)
      * - Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB (If you are using AWS Elastic Load Balancer)
      *
@@ -45,6 +47,6 @@ return [
      *
      * @link https://symfony.com/doc/current/deployment/proxies.html
      */
-    'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_ALL,
+    'headers' => Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_AWS_ELB,
 
 ];

@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Integration;
 
 use App\Models\Credit;
@@ -32,7 +33,7 @@ class HtmlGenerationTest extends TestCase
     use MockAccountData;
     use MakesHash;
 
-    public function setUp() :void
+    protected function setUp() :void
     {
         parent::setUp();
 
@@ -42,7 +43,7 @@ class HtmlGenerationTest extends TestCase
     public function testHtmlOutput()
     {
         $this->client->fresh();
-        
+
         $html = $this->generateHtml($this->invoice->fresh());
 
         $this->assertNotNull($html);
@@ -69,8 +70,8 @@ class HtmlGenerationTest extends TestCase
 
         if ($design->is_custom) {
             $options = [
-            'custom_partials' => json_decode(json_encode($design->design), true)
-          ];
+                'custom_partials' => json_decode(json_encode($design->design), true),
+            ];
             $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
         } else {
             $template = new PdfMakerDesign(strtolower($design->name));

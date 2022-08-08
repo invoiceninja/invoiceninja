@@ -37,7 +37,7 @@ class OneTimeTokenRequest extends Request
         ];
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         // $input = $this->all();
         // $this->replace($input);

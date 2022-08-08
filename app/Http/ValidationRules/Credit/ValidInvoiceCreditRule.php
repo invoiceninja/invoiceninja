@@ -50,15 +50,17 @@ class ValidInvoiceCreditRule implements Rule
     {
         $invoice = Invoice::withTrashed()->find($value);
 
-        if($invoice->balance >= $invoice->amount){
-            $this->error_message = "Cannot reverse an invoice with no payment applied.";
+        if ($invoice->balance >= $invoice->amount) {
+            $this->error_message = 'Cannot reverse an invoice with no payment applied.';
+
             return false;
         }
 
         $existing_credit_amounts = $invoice->credits()->sum('amount');
 
-        if($this->sumCredit() > ($invoice->amount - $invoice->balance - $existing_credit_amounts)){
-            $this->error_message = "Credit cannot exceed the payment / credits already applied to invoice.";
+        if ($this->sumCredit() > ($invoice->amount - $invoice->balance - $existing_credit_amounts)) {
+            $this->error_message = 'Credit cannot exceed the payment / credits already applied to invoice.';
+
             return false;
         }
 
@@ -69,8 +71,7 @@ class ValidInvoiceCreditRule implements Rule
     {
         $cost = 0;
 
-        foreach(request()->input('line_items') as $item)
-        {
+        foreach (request()->input('line_items') as $item) {
             $cost += $item['cost'] * $item['quantity'];
         }
 

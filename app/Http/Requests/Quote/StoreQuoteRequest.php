@@ -49,18 +49,18 @@ class StoreQuoteRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['number'] = ['nullable',Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)];
-        $rules['discount']  = 'sometimes|numeric';
+        $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)];
+        $rules['discount'] = 'sometimes|numeric';
 
         $rules['is_amount_discount'] = ['boolean'];
-        
+
         // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';
 
         return $rules;
     }
 
-    protected function prepareForValidation()
+    public function prepareForValidation()
     {
         $input = $this->all();
 
@@ -69,7 +69,7 @@ class StoreQuoteRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
-        
+
         $this->replace($input);
     }
 }
