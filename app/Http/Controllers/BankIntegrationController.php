@@ -478,10 +478,13 @@ class BankIntegrationController extends BaseController
 
         $bank_account_id = auth()->user()->account->bank_integration_account_id;
 
+        $bank_account_id = 'sbMem62e1e69547bfb1';
+
         if(!$bank_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
         $yodlee = new Yodlee($bank_account_id);
+        $yodlee->setTestMode();
 
         $data = [
             'CONTAINER' => 'bank',
@@ -492,7 +495,7 @@ class BankIntegrationController extends BaseController
 
         $transactions = $yodlee->getTransactions($data); 
 
-        return response()->json($transactions, 200)
+        return response()->json($transactions, 200, [], JSON_PRETTY_PRINT);
 
     }
 }
