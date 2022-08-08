@@ -421,8 +421,8 @@ class YodleeApiTest extends TestCase
         $yodlee->setTestMode();
 
         $data = [
+            'basetype' => 'DEBIT', //CREDIT
             'CONTAINER' => 'bank',
-            'categoryType' => 'INCOME, UNCATEGORIZE',
             'top' => 500,
             'fromDate' => '2000-10-10', /// YYYY-MM-DD
         ];
