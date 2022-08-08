@@ -29,6 +29,52 @@ class YodleeApiTest extends TestCase
         
     }
 
+    public function testDataMatching()
+    {
+
+        $transaction = collect([
+        (object)[
+            'description' => 'tinkertonkton'
+        ],
+        (object)[
+            'description' => 'spud'
+        ],
+    ]);
+
+        $this->assertEquals(2, $transaction->count());
+
+        $hit = $transaction->where('description', 'spud')->first();
+
+        $this->assertNotNull($hit);
+
+        $hit = $transaction->where('description', 'tinkertonkton')->first();
+
+        $this->assertNotNull($hit);
+
+        $hit = $transaction->contains('description', 'tinkertonkton');
+
+        $this->assertTrue($hit);
+
+
+        $transaction = collect([
+            (object)[
+                'description' => 'tinker and spice'
+            ],
+            (object)[
+                'description' => 'spud with water'
+            ],
+        ]);
+
+        $hit = $transaction->contains('description', 'tinker and spice');
+
+        $this->assertTrue($hit);
+
+        $transaction->contains(function ($value, $key) {
+            return str_contains($value->description, 'tinker');
+        });
+
+    }
+
     public function testYodleeInstance()
     {
 
@@ -432,6 +478,8 @@ class YodleeApiTest extends TestCase
 
         nlog($accounts);
     }
+
+
 
 
 
