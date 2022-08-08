@@ -156,7 +156,6 @@ class CreditCard
             'zip' => $this->paytrace->client->postal_code,
         ];
 
-        nlog($data);
     }
 
     public function paymentView($data)
