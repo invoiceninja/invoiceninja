@@ -408,7 +408,7 @@ class YodleeApiTest extends TestCase
 
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
-        $this->assertIsArray($transactions->transaction);
+        $this->assertIsArray($transactions);
         //nlog($transactions);
 
     }
