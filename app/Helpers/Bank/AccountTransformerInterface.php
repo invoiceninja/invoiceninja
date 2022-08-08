@@ -11,7 +11,7 @@
 
 namespace App\Helpers\Bank;
 
-interface BankRevenueInterface
+interface AccountTransformerInterface
 {
-    public function transform($transaction);
+    public function transform($accounts); 
 }

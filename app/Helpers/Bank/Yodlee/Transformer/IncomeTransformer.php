@@ -10,6 +10,8 @@
  */
 
 namespace App\Helpers\Bank\Yodlee\Transformer;
+
+use App\Helpers\Bank\BankRevenueInterface;
  
 /**
 "date": "string",
@@ -70,10 +72,76 @@ namespace App\Helpers\Bank\Yodlee\Transformer;
 "holdingDescription": "string",
 "isin": "string",
 "status": "POSTED"
- */
+ 
+(
+[CONTAINER] => bank
+[id] => 103953585
+[amount] => stdClass Object
+    (
+        [amount] => 480.66
+        [currency] => USD
+    )
 
-class IncomeTransformer
+[categoryType] => UNCATEGORIZE
+[categoryId] => 1
+[category] => Uncategorized
+[categorySource] => SYSTEM
+[highLevelCategoryId] => 10000017
+[createdDate] => 2022-08-04T21:50:17Z
+[lastUpdated] => 2022-08-04T21:50:17Z
+[description] => stdClass Object
+    (
+        [original] => CHEROKEE NATION TAX TA TAHLEQUAH OK
+    )
+
+[isManual] => 
+[sourceType] => AGGREGATED
+[date] => 2022-08-03
+[transactionDate] => 2022-08-03
+[postDate] => 2022-08-03
+[status] => POSTED
+[accountId] => 12331794
+[runningBalance] => stdClass Object
+    (
+        [amount] => 480.66
+        [currency] => USD
+    )
+
+[checkNumber] => 998
+)
+*/
+
+class IncomeTransformer implements BankRevenueInterface
 {
+
+    public function transform($transaction)
+    {
+
+        $data = [];
+
+        foreach($transaction->transaction as $transaction)
+        {
+            $data[] = $this->transformTransaction($transaction);
+        }
+
+        return $data;
+    }
+
+    public function transformTransaction($transaction)
+    {
+    
+        return [
+            'id' => $transaction->id,
+            'amount' => $transaction->amount->amount,
+            'currency' => $transaction->amount->currency,
+            'account_type' => $transaction->CONTAINER,
+            'category_id' => $transaction->categoryId,
+            'category_type' => $transaction->categoryType,
+            'date' => $transaction->date,
+            'account_id' => $transaction->accountId,
+            'description' => $transaction->description->original,
+        ];
+    }
 
 }
 

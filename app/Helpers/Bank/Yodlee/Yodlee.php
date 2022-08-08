@@ -12,6 +12,7 @@
 namespace App\Helpers\Bank\Yodlee;
 
 use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
+use App\Helpers\Bank\Yodlee\Transformer\IncomeTransformer;
 use Illuminate\Support\Facades\Http;
  
 class Yodlee
@@ -73,7 +74,7 @@ class Yodlee
 
         $response = $this->bankFormRequest('/auth/token', 'post', [],  ['loginName' => $user]);
 //catch failures here
-        nlog($response);
+        // nlog($response);
         return $response->token->accessToken;
     }
 
@@ -160,8 +161,12 @@ class Yodlee
  
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions", $params);
 
-        if($response->successful())
-            return $response->object();
+        if($response->successful()){
+            // return $response->object();
+            $it = new IncomeTransformer();
+            return $it->transform($response->object());
+
+        }
 
         if($response->failed())
             return $response->body();

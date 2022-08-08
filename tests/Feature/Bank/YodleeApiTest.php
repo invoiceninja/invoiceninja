@@ -234,7 +234,7 @@ class YodleeApiTest extends TestCase
         $yodlee->setTestMode();
 
         $transactions = $yodlee->getTransactionCategories();
-// 
+ 
 // nlog($transactions);
 
         $this->assertIsArray($transactions->transactionCategory);
@@ -350,8 +350,6 @@ class YodleeApiTest extends TestCase
 
         $accounts = $yodlee->getAccounts();
 
-nlog($accounts);
-
         $this->assertIsArray($accounts);
     }
 
@@ -414,6 +412,27 @@ nlog($accounts);
         //nlog($transactions);
 
     }
+
+
+    public function testGetTransactionsWithParams()
+    {
+
+        $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+        $yodlee->setTestMode();
+
+        $data = [
+            'CONTAINER' => 'bank',
+            'categoryType' => 'INCOME, UNCATEGORIZE',
+            'top' => 500,
+            'fromDate' => '2000-10-10', /// YYYY-MM-DD
+        ];
+
+        $accounts = $yodlee->getTransactions($data); 
+
+
+        nlog($accounts);
+    }
+
 
 
 }

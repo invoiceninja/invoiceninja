@@ -455,16 +455,44 @@ class BankIntegrationController extends BaseController
      *       ),
      *     )
      */
-    public function remote_accounts(AdminBankIntegrationRequest $request)
+    public function remoteAccounts(AdminBankIntegrationRequest $request)
     {
         // As yodlee is the first integration we don't need to perform switches yet, however
         // if we add additional providers we can reuse this class
 
         $bank_account_id = auth()->user()->account->bank_integration_account_id;
 
-        $yodlee = new Yodlee();
-        $yodlee->setTestMode(true);
+        if(!$bank_account_id)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $yodlee->getAccounts($bank_account_id); 
+        $yodlee = new Yodlee($bank_account_id);
+
+        $accounts = $yodlee->getAccounts(); 
+
+        return response()->json($accounts, 200);
+    }
+
+    public function getTransactions(AdminBankIntegrationRequest $request)
+    {
+        //handle API failures we have only accounts for success
+
+        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+
+        if(!$bank_account_id)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
+
+        $yodlee = new Yodlee($bank_account_id);
+
+        $data = [
+            'CONTAINER' => 'bank',
+            'categoryType' => 'INCOME, UNCATEGORIZE',
+            'top' => 500,
+            'fromDate' => '2000-10-10', /// YYYY-MM-DD
+        ];
+
+        $transactions = $yodlee->getTransactions($data); 
+
+        return response()->json($transactions, 200)
+
     }
 }

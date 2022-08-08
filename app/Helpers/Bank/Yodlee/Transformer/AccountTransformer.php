@@ -10,6 +10,8 @@
  */
 
 namespace App\Helpers\Bank\Yodlee\Transformer;
+
+use App\Helpers\Bank\AccountTransformerInterface;
  
 /**
 [0] => stdClass Object
@@ -59,10 +61,11 @@ namespace App\Helpers\Bank\Yodlee\Transformer;
     )
  */
 
-class AccountTransformer
+class AccountTransformer implements AccountTransformerInterface
 {
 
-    public function transform($yodlee_account){
+    public function transform($yodlee_account)
+    {
 
         $data = [];
 
@@ -76,7 +79,7 @@ class AccountTransformer
 
     public function transformAccount($account)
     {
-        nlog($account);
+    
         return [
             'id' => $account->id,
             'account_type' => $account->CONTAINER,
