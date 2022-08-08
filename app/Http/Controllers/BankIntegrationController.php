@@ -22,6 +22,7 @@ use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
 use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
+use App\Services\Bank\BankService;
 use App\Transformers\BankIntegrationTransformer;
 use Illuminate\Http\Request;
 
@@ -494,6 +495,9 @@ class BankIntegrationController extends BaseController
         ];
 
         $transactions = $yodlee->getTransactions($data); 
+
+        $transactions = (new BankService(auth()->user()->company()))->match();
+
 
         return response()->json($transactions, 200, [], JSON_PRETTY_PRINT);
 
