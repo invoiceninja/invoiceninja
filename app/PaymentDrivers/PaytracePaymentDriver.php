@@ -89,15 +89,11 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        // $cgt = ClientGatewayToken::where('company_gateway_id', $payment->company_gateway_id)
-        //                          ->where('gateway_type_id', $payment->gateway_type_id)
-        //                          ->first();
 
         $data = [
             'amount' => $amount,
-            //'customer_id' => $cgt->token,
             'transaction_id' => $payment->transaction_reference,
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' => $this->company_gateway->getConfigField('integratorId'),
         ];
 
         $response = $this->gatewayRequest('/v1/transactions/refund/for_transaction', $data);

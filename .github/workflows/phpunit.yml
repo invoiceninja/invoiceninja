@@ -12,8 +12,8 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ['ubuntu-18.04', 'ubuntu-20.04']
-        php-versions: ['7.4','8.0','8.1']
+        operating-system: ['ubuntu-18.04', 'ubuntu-20.04', 'ubuntu-22.04']
+        php-versions: ['8.1']
         phpunit-versions: ['latest']
 
     env:
@@ -107,7 +107,3 @@ jobs:
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
-
-    - name: Run php-cs-fixer
-      run: |
-        PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix
