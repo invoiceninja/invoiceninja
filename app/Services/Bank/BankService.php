@@ -50,7 +50,11 @@ class BankService
     {
         $description = str_replace(" ", "", $transaction->description);
 
-        $invoice = $this->invoices->where('number', $description)->first();
+        $invoice = $this->invoices->first(function ($value, $key) use ($description){
+
+            return str_contains($value->number, $description);
+            
+        });
 
         if($invoice)
             $transaction['invocie_id'] = $invoice->hashed_id;

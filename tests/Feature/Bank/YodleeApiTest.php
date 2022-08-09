@@ -33,13 +33,13 @@ class YodleeApiTest extends TestCase
     {
 
         $transaction = collect([
-        (object)[
-            'description' => 'tinkertonkton'
-        ],
-        (object)[
-            'description' => 'spud'
-        ],
-    ]);
+            (object)[
+                'description' => 'tinkertonkton'
+            ],
+            (object)[
+                'description' => 'spud'
+            ],
+        ]);
 
         $this->assertEquals(2, $transaction->count());
 
