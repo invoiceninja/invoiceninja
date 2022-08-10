@@ -90,6 +90,9 @@ class GeneratesCounterTest extends TestCase
         $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
         $this->assertEquals($date_formatted.'-0001', $invoice_number);
 
+        $this->invoice->number = $invoice_number;
+        $this->invoice->save();
+
         $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
         $this->assertEquals($date_formatted.'-0002', $invoice_number);
 
@@ -290,10 +293,12 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextClientNumber($this->client);
 
-        $this->assertEquals($invoice_number, date('Y').'-0001');
+        $this->assertEquals($invoice_number, date('Y').'-0010');
+        $this->client->number = $invoice_number;
+        $this->client->save();
 
         $invoice_number = $this->getNextClientNumber($this->client);
-        $this->assertEquals($invoice_number, date('Y').'-0002');
+        $this->assertEquals($invoice_number, date('Y').'-0011');
     }
 
     public function testInvoicePadding()
