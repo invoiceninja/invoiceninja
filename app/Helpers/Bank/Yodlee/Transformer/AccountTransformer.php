@@ -61,6 +61,7 @@ use App\Helpers\Bank\AccountTransformerInterface;
     )
  */
 
+
 class AccountTransformer implements AccountTransformerInterface
 {
 
@@ -86,6 +87,10 @@ class AccountTransformer implements AccountTransformerInterface
             'account_name' => $account->accountName,
             'account_status' => $account->accountStatus,
             'account_number' => $account->accountNumber,
+            'provider_account_id' => $account->providerAccountId,
+            'provider_id' => $account->providerId,
+            'provider_name' => $account->providerName,
+            'nickname' => $account?->nickname,
             'current_balance' => property_exists($account, 'currentBalance') ? $account->currentBalance->amount : 0,
             'account_currency' => property_exists($account, 'currency') ? $account->currentBalance->currency : '',
         ];

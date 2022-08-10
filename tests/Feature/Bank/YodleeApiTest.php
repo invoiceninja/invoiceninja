@@ -73,6 +73,16 @@ class YodleeApiTest extends TestCase
             return str_contains($value->description, 'tinker');
         });
 
+
+        $invoice = $transaction->first(function ($value, $key) {
+
+            return str_contains($value->number, 'tinker');
+            
+        });
+
+        $this->assertNotNull($invoice);
+
+
     }
 
     public function testYodleeInstance()

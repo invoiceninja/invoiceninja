@@ -27,11 +27,11 @@
         'click', 
         function() {
             window.fastlink.open({
-              flow: 'edit',//flow changes depending on what we are doing sometimes it could be add/edit etc etc
+              flow: '{{ $flow }}',//flow changes depending on what we are doing sometimes it could be add/edit etc etc
               fastLinkURL: '{{ $fasttrack_url }}',
               accessToken: 'Bearer {{ $access_token }}',
               params: {
-                configName : 'Aggregation'
+                configName : '{{ $config_name }}'
               },
               onSuccess: function (data) {
                 // will be called on success. For list of possible message, refer to onSuccess(data) Method.

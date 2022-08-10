@@ -13,12 +13,13 @@ namespace App\Http\Controllers\Bank;
 
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\Yodlee\YodleeAuthRequest;
 use Illuminate\Http\Request;
 
 class YodleeController extends BaseController
 {
 
-    public function auth(Request $request)
+    public function auth(YodleeAuthRequest $request)
     {
 
         // create a user at this point 
@@ -26,11 +27,36 @@ class YodleeController extends BaseController
 
         //store the user_account_id on the accounts table
 
-        $yodlee = new Yodlee(true);
+        $yodlee = new Yodlee();
+        $yodlee->setTestMode();
+
+        $company = $request->getCompany();
+
+        if($company->account->bank_integration_account_id){
+            $flow = 'edit';
+            $token = $company->account->bank_integration_account_id;
+        }
+        else{
+            $flow = 'add';
+            $response = $yodlee->createUser($company);
+
+            $token = $response->user->loginName;
+
+            $company->account->bank_integration_account_id = $token;
+            $company->push();
+            
+            $yodlee = new Yodlee($token);
+            $yodlee->setTestMode();
+        }
+
+        if(!is_string($token))
+            dd($token);
 
         $data = [
-            'access_token' => $yodlee->getAccessToken('sbMem62e1e69547bfb1'),
-            'fasttrack_url' => $yodlee->fast_track_url
+            'access_token' => $yodlee->getAccessToken(),
+            'fasttrack_url' => $yodlee->getFastTrackUrl(),
+            'config_name' => 'testninja',
+            'flow' => $flow,
         ];
 
         return view('bank.yodlee.auth', $data);

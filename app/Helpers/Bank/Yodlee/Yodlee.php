@@ -14,6 +14,7 @@ namespace App\Helpers\Bank\Yodlee;
 use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 use App\Helpers\Bank\Yodlee\Transformer\IncomeTransformer;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
  
 class Yodlee
 {
@@ -22,9 +23,15 @@ class Yodlee
 
     private string $api_endpoint = 'https://production.api.yodlee.com/ysl';
 
-    private string $test_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
+    // private string $test_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
+    
+    private string $test_api_endpoint = 'https://development.api.yodlee.com/ysl';
 
-    public string $fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
+    //public string $test_fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
+
+    public string $test_fast_track_url = 'https://fl4.preprod.yodlee.com/authenticate/USDevexPreProd3-449/fastlink?channelAppName=usdevexpreprod3';
+
+    public string $production_track_url = 'https://fl4.prod.yodlee.com/authenticate/USDevexProd3-331/fastlink?channelAppName=usdevexprod3';
 
     protected string $client_id;
 
@@ -47,6 +54,11 @@ class Yodlee
 
     }
 
+    public function getFastTrackUrl()
+    {
+        return $this->test_mode ? $this->test_fast_track_url : $this->production_track_url;
+    }
+
     public function setTestMode()
     {
         $this->test_mode = true;
@@ -56,9 +68,7 @@ class Yodlee
 
     public function getEndpoint()
     {
-
         return $this->test_mode ? $this->test_api_endpoint : $this->api_endpoint;
-
     }
 
     /**
@@ -73,19 +83,19 @@ class Yodlee
             $user = $this->bank_account_id ?: $this->admin_name;
 
         $response = $this->bankFormRequest('/auth/token', 'post', [],  ['loginName' => $user]);
-//catch failures here
-        // nlog($response);
+        //catch failures here
+        nlog($response);
         return $response->token->accessToken;
     }
 
 
-    public function createUser()
+    public function createUser($company)
     {
 
         $token = $this->getAccessToken(true);
 
         $user['user'] = [
-            'loginName' => 'test123',
+            'loginName' => Str::uuid(),
         ];
 
 /*
@@ -139,10 +149,10 @@ class Yodlee
 
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/accounts", $params);
 
-
         if($response->successful()){
 
             $at = new AccountTransformer();
+            nlog($response->object());
             return $at->transform($response->object());
             // return $response->object();
         }

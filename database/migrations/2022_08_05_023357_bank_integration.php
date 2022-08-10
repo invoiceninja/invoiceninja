@@ -40,6 +40,27 @@ return new class extends Migration
         Schema::table('accounts', function (Blueprint $table) {
             $table->text('bank_integration_account_id')->nullable();
         });        
+
+        Schema::create('bank_transactions', function (Blueprint $table){
+            $table->id();
+            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('user_id');
+
+            $table->unsignedBigInteger('transaction_id')->nullable();
+            $table->decimal('amount', 20, 6);
+            $table->string('currency_code');
+            $table->string('account_type');
+            $table->unsignedInteger('category_id');
+            $table->string('category_type');
+            $table->date('date');
+            $table->unsignedBigInteger('account_id');
+            $table->text('description');
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+
+        });
+
     }
 
     /**
@@ -49,6 +70,6 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+            
     }
 };
