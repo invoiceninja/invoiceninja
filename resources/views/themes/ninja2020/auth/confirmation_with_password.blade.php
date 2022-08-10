@@ -16,7 +16,7 @@
                         <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
                         <input type="password" name="password" id="password"
                                class="input"
-                               autofocus>
+                               autofocus required>
                         @error('password')
                         <div class="validation validation-fail">
                             {{ $message }}
@@ -27,7 +27,7 @@
                         <label for="password" class="input-label">{{ ctrans('texts.password_confirmation') }}</label>
                         <input type="password" name="password_confirmation" id="password_confirmation"
                                class="input"
-                               autofocus>
+                               autofocus required>
                         @error('password_confirmation')
                         <div class="validation validation-fail">
                             {{ $message }}
