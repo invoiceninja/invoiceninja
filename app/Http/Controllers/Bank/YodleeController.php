@@ -45,9 +45,10 @@ class YodleeController extends BaseController
             $company->account->bank_integration_account_id = $token;
             $company->push();
             
-            $yodlee = new Yodlee($token);
-            $yodlee->setTestMode();
         }
+        
+        $yodlee = new Yodlee($token);
+        $yodlee->setTestMode();
 
         if(!is_string($token))
             dd($token);
@@ -57,6 +58,8 @@ class YodleeController extends BaseController
             'fasttrack_url' => $yodlee->getFastTrackUrl(),
             'config_name' => 'testninja',
             'flow' => $flow,
+            'company' => $company,
+            'account' => $company->account,
         ];
 
         return view('bank.yodlee.auth', $data);
