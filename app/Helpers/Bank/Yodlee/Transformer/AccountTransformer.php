@@ -71,7 +71,7 @@ class AccountTransformer implements AccountTransformerInterface
         $data = [];
 
         if(!property_exists($yodlee_account, 'account'))
-            return [];
+            return $data;
 
         foreach($yodlee_account->account as $account)
         {
@@ -93,7 +93,7 @@ class AccountTransformer implements AccountTransformerInterface
             'provider_account_id' => $account->providerAccountId,
             'provider_id' => $account->providerId,
             'provider_name' => $account->providerName,
-            'nickname' => $account?->nickname,
+            'nickname' => property_exists($account, 'nickname') ? $account->nickname : '',
             'current_balance' => property_exists($account, 'currentBalance') ? $account->currentBalance->amount : 0,
             'account_currency' => property_exists($account, 'currency') ? $account->currentBalance->currency : '',
         ];

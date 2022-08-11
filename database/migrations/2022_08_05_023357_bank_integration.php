@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
 
-            $table->text('provider_bank_name'); //providerName ie Chase
+            $table->text('provider_name'); //providerName ie Chase
             $table->bigInteger('provider_id'); //id of the bank
             $table->bigInteger('bank_account_id'); //id
             $table->text('bank_account_name')->nullable(); //accountName

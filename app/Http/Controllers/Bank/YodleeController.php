@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Bank;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
+use App\Models\BankIntegration;
 use Illuminate\Http\Request;
 
 class YodleeController extends BaseController
@@ -50,9 +51,6 @@ class YodleeController extends BaseController
         $yodlee = new Yodlee($token);
         $yodlee->setTestMode();
 
-        if(!is_string($token))
-            dd($token);
-
         $data = [
             'access_token' => $yodlee->getAccessToken(),
             'fasttrack_url' => $yodlee->getFastTrackUrl(),
@@ -66,18 +64,5 @@ class YodleeController extends BaseController
 
     }
 
-    public function refreshAccounts(YodleeAdminRequest $request)
-    {
-
-        $token = auth()->user()->account->bank_integration_account_id;
-
-        if(!$token)
-            return response()->json(['message' => 'No bank integrations are present. Please add a bank account. '],400);
-
-        $yodlee = new Yodlee($token);
-        $yodlee->setTestMode();
-
-        $yodlee->getAccounts();
-    }
-
+    
 }

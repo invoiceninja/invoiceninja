@@ -11,8 +11,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class BankIntegration extends BaseModel
 {
+    use SoftDeletes;
 
     protected $fillable = [
     ];

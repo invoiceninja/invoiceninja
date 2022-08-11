@@ -153,11 +153,29 @@ class Yodlee
 
         }
 
+        if($response->failed())
+            throw new YodleeApiException($response->body());
+
+    }
+
+    public function deleteAccount($account_id)
+    {
+
+        $token = $this->getAccessToken();
+
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->delete($this->getEndpoint(). "/accounts/{$account_id}", []);
+
+        if($response->successful()){
+
+            return true;
+
+        }
 
         if($response->failed())
             throw new YodleeApiException($response->body());
 
     }
+
 
     public function getTransactions($params = [])
     {

@@ -426,8 +426,8 @@ class BankIntegrationController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/bank_integrations/remote_accounts",
-     *      operationId="getRemoteAccounts",
+     *      path="/api/v1/bank_integrations/refresh_accounts",
+     *      operationId="getRefreshAccounts",
      *      tags={"bank_integrations"},
      *      summary="Gets the list of accounts from the remote server",
      *      description="Adds an bank_integration to a company",
@@ -456,7 +456,7 @@ class BankIntegrationController extends BaseController
      *       ),
      *     )
      */
-    public function remoteAccounts(AdminBankIntegrationRequest $request)
+    public function refreshAccounts(AdminBankIntegrationRequest $request)
     {
         // As yodlee is the first integration we don't need to perform switches yet, however
         // if we add additional providers we can reuse this class
@@ -467,11 +467,60 @@ class BankIntegrationController extends BaseController
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
         $yodlee = new Yodlee($bank_account_id);
+        $yodlee->setTestMode();
 
         $accounts = $yodlee->getAccounts(); 
 
-        return response()->json($accounts, 200);
+        foreach($accounts as $account)
+        {
+
+            if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', auth()->user()->company()->id)->exists())
+            {
+                $bank_integration = new BankIntegration();
+                $bank_integration->company_id = auth()->user()->company()->id;
+                $bank_integration->account_id = auth()->user()->account_id;
+                $bank_integration->user_id = auth()->user()->id;
+                $bank_integration->bank_account_id = $account['id'];
+                $bank_integration->bank_account_type = $account['account_type'];
+                $bank_integration->bank_account_name = $account['account_name'];
+                $bank_integration->bank_account_status = $account['account_status'];
+                $bank_integration->bank_account_number = $account['account_number'];
+                $bank_integration->provider_id = $account['provider_id'];
+                $bank_integration->provider_name = $account['provider_name'];
+                $bank_integration->nickname = $account['nickname'];
+                $bank_integration->balance = $account['current_balance'];
+                $bank_integration->currency = $account['account_currency'];
+                
+                $bank_integration->save();
+            }
+        }
+
+
+        return response()->json(BankIntegration::query()->company(), 200);
     }
+
+    public function removeAccount(AdminBankIntegrationRequest $request, $acc_id)
+    {
+
+        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+
+        if(!$bank_account_id)
+            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
+
+        $company_id = auth()->user()->company()->id;
+        
+        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->where('company_id', $company_id)->firstOrFail();
+
+        $yodlee = new Yodlee($bank_account_id);
+        $yodlee->setTestMode();
+        $res = $yodlee->deleteAccount($acc_id);
+
+        $this->bank_integration_repo->delete($bi);
+
+        return $this->itemResponse($bi->fresh());
+
+    }
+
 
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
@@ -497,7 +546,6 @@ class BankIntegrationController extends BaseController
         $transactions = $yodlee->getTransactions($data); 
 
         $transactions = (new BankService(auth()->user()->company()))->match();
-
 
         return response()->json($transactions, 200, [], JSON_PRETTY_PRINT);
 

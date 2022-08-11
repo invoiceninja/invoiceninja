@@ -107,9 +107,10 @@ Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], 
 Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
     Route::resource('bank_integrations', BankIntegrationController::class); // name = (clients. index / create / show / update / destroy / edit
-    Route::post('bank_integrations/remote_accounts', [BankIntegrationController::class, 'remoteAccounts'])->name('bank_integrations.remote_accounts');
+    Route::post('bank_integrations/refresh_accounts', [BankIntegrationController::class, 'refreshAccounts'])->name('bank_integrations.refresh_accounts');
     Route::post('bank_integrations/transactions', [BankIntegrationController::class, 'getTransactions'])->name('bank_integrations.transactions');
-    
+    Route::post('bank_integrations/remove_account/{acc_id}', [BankIntegrationController::class, 'removeAccount'])->name('bank_integrations.remove_account');
+
     Route::post('check_subdomain', [SubdomainController::class, 'index'])->name('check_subdomain');
     Route::get('ping', [PingController::class, 'index'])->name('ping');
     Route::get('health_check', [PingController::class, 'health'])->name('health_check');

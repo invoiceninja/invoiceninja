@@ -47,7 +47,7 @@ class BankIntegrationTransformer extends EntityTransformer
     {
         return [
             'id' => (string) $this->encodePrimaryKey($bank_integration->id),
-            'provider_bank_name' => (string)$bank_integration->provider_bank_name ?: '',
+            'provider_name' => (string)$bank_integration->provider_name ?: '',
             'provider_id' => (int) $bank_integration->provider_id ?: 0,
             'bank_account_id' => (int) $bank_integration->bank_account_id ?: 0,
             'bank_account_name' => (string) $bank_integration->bank_account_name ?: '',
@@ -57,6 +57,10 @@ class BankIntegrationTransformer extends EntityTransformer
             'balance' => (float)$bank_integration->balance ?: 0,
             'currency' => (string)$bank_integration->currency ?: '',
             'nickname' => (string)$bank_integration->nickname ?: '',
+            'is_deleted' => (bool) $bank_integration->is_deleted,
+            'created_at' => (int) $bank_integration->created_at,
+            'updated_at' => (int) $bank_integration->updated_at,
+            'archived_at' => (int) $bank_integration->deleted_at,
         ];
     }
 
