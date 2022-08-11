@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unsignedInteger('user_id');
 
             $table->text('provider_bank_name'); //providerName ie Chase
-            $table->bigUnsignedInteger('provider_id'); //id of the bank
-            $table->bigUnsignedInteger('bank_account_id'); //id
+            $table->bigInteger('provider_id'); //id of the bank
+            $table->bigInteger('bank_account_id'); //id
             $table->text('bank_account_name')->nullable(); //accountName
             $table->text('bank_account_number')->nullable(); //accountNumber
             $table->text('bank_account_status')->nullable(); //accountStatus

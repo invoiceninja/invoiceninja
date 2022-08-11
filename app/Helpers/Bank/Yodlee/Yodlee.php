@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Bank\Yodlee;
 
+use App\Exceptions\YodleeApiException;
 use App\Helpers\Bank\Yodlee\Transformer\AccountTransformer;
 use App\Helpers\Bank\Yodlee\Transformer\IncomeTransformer;
 use Illuminate\Support\Facades\Http;
@@ -83,8 +84,7 @@ class Yodlee
             $user = $this->bank_account_id ?: $this->admin_name;
 
         $response = $this->bankFormRequest('/auth/token', 'post', [],  ['loginName' => $user]);
-        //catch failures here
-        nlog($response);
+
         return $response->token->accessToken;
     }
 
@@ -135,10 +135,7 @@ class Yodlee
             return $response->object();
 
         if($response->failed())
-            return $response->body();
-
-
-        return $response;
+            throw new YodleeApiException($response->body());
 
     }
 
@@ -152,15 +149,13 @@ class Yodlee
         if($response->successful()){
 
             $at = new AccountTransformer();
-            nlog($response->object());
             return $at->transform($response->object());
+
         }
 
+
         if($response->failed())
-            return $response->body();
-
-
-        return $response;
+            throw new YodleeApiException($response->body());
 
     }
 
@@ -178,7 +173,7 @@ class Yodlee
         }
 
         if($response->failed())
-            return $response->body();
+            throw new YodleeApiException($response->body());
 
     }
 
@@ -192,7 +187,7 @@ class Yodlee
             return $response->object();
 
         if($response->failed())
-            return $response->body();
+            throw new YodleeApiException($response->body());
 
     }
 
@@ -205,7 +200,7 @@ class Yodlee
             return $response->object();
 
         if($response->failed())
-            return $response->body();
+            throw new YodleeApiException($response->body());
 
     }
 

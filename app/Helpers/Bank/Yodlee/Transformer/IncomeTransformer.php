@@ -119,6 +119,9 @@ class IncomeTransformer implements BankRevenueInterface
 
         $data = [];
 
+        if(!property_exists($transaction, 'transaction'))
+            return [];
+
         foreach($transaction->transaction as $transaction)
         {
             $data[] = $this->transformTransaction($transaction);

@@ -69,14 +69,10 @@ class YodleeApiTest extends TestCase
 
         $this->assertTrue($hit);
 
-        $transaction->contains(function ($value, $key) {
-            return str_contains($value->description, 'tinker');
-        });
-
 
         $invoice = $transaction->first(function ($value, $key) {
 
-            return str_contains($value->number, 'tinker');
+            return str_contains($value->description, 'tinker');
             
         });
 
@@ -102,7 +98,7 @@ class YodleeApiTest extends TestCase
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
         $yodlee->setTestMode();
 
-        $access_token = $yodlee->getAccessToken(true);
+        $access_token = $yodlee->getAccessToken();
 
         $this->assertNotNull($access_token);
     }
@@ -405,7 +401,7 @@ class YodleeApiTest extends TestCase
         $yodlee->setTestMode();
 
         $accounts = $yodlee->getAccounts();
-
+nlog($accounts);
         $this->assertIsArray($accounts);
     }
 
@@ -465,7 +461,6 @@ class YodleeApiTest extends TestCase
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
         $this->assertIsArray($transactions);
-        //nlog($transactions);
 
     }
 

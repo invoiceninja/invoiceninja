@@ -70,6 +70,9 @@ class AccountTransformer implements AccountTransformerInterface
 
         $data = [];
 
+        if(!property_exists($yodlee_account, 'account'))
+            return [];
+
         foreach($yodlee_account->account as $account)
         {
             $data[] = $this->transformAccount($account);
