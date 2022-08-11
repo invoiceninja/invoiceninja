@@ -423,8 +423,6 @@ class BankIntegrationController extends BaseController
      *
      * @return Response
      *
-     *
-     *
      * @OA\Post(
      *      path="/api/v1/bank_integrations/refresh_accounts",
      *      operationId="getRefreshAccounts",
@@ -499,6 +497,43 @@ class BankIntegrationController extends BaseController
         return response()->json(BankIntegration::query()->company(), 200);
     }
 
+    /**
+     * Return the remote list of accounts stored on the third part provider.
+     *
+     * @return Response
+     *
+     * @OA\Post(
+     *      path="/api/v1/bank_integrations/remove_account/account_id",
+     *      operationId="getRemoveAccount",
+     *      tags={"bank_integrations"},
+     *      summary="Removes an account from the integration",
+     *      description="Removes an account from the integration",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the bank_integration object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+
     public function removeAccount(AdminBankIntegrationRequest $request, $acc_id)
     {
 
@@ -507,9 +542,7 @@ class BankIntegrationController extends BaseController
         if(!$bank_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $company_id = auth()->user()->company()->id;
-        
-        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->where('company_id', $company_id)->firstOrFail();
+        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->where('company_id', auth()->user()->company()->id)->firstOrFail();
 
         $yodlee = new Yodlee($bank_account_id);
         $yodlee->setTestMode();
@@ -524,7 +557,6 @@ class BankIntegrationController extends BaseController
 
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
-        //handle API failures we have only accounts for success
 
         $bank_account_id = auth()->user()->account->bank_integration_account_id;
 
