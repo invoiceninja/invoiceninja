@@ -21,6 +21,7 @@ trait MakesReminders
 {
     public function inReminderWindow($schedule_reminder, $num_days_reminder)
     {
+
         switch ($schedule_reminder) {
             case 'after_invoice_date':
                 return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());

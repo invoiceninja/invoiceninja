@@ -405,15 +405,21 @@ class Company extends BaseModel
     {
         $languages = Cache::get('languages');
 
+        //build cache and reinit
         if (! $languages) {
             $this->buildCache(true);
+            $languages = Cache::get('languages');
         }
+
+        //if the cache is still dead, get from DB
+        if(!$languages && property_exists($this->settings, 'language_id'))
+            return Language::find($this->settings->language_id);
 
         return $languages->filter(function ($item) {
             return $item->id == $this->settings->language_id;
         })->first();
 
-        // return Language::find($this->settings->language_id);
+        
     }
 
     public function getLocale()
