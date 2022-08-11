@@ -154,7 +154,6 @@ class Yodlee
             $at = new AccountTransformer();
             nlog($response->object());
             return $at->transform($response->object());
-            // return $response->object();
         }
 
         if($response->failed())

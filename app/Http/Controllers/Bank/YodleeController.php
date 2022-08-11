@@ -66,4 +66,18 @@ class YodleeController extends BaseController
 
     }
 
+    public function refreshAccounts(YodleeAdminRequest $request)
+    {
+
+        $token = auth()->user()->account->bank_integration_account_id;
+
+        if(!$token)
+            return response()->json(['message' => 'No bank integrations are present. Please add a bank account. '],400);
+
+        $yodlee = new Yodlee($token);
+        $yodlee->setTestMode();
+
+        $yodlee->getAccounts();
+    }
+
 }

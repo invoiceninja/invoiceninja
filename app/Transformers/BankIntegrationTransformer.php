@@ -40,23 +40,23 @@ class BankIntegrationTransformer extends EntityTransformer
     ];
 
     /**
-     * @param Account $bank_integration
-     *
-     *
+     * @param BankIntegration $bank_integration
      * @return array
      */
     public function transform(BankIntegration $bank_integration)
     {
         return [
             'id' => (string) $this->encodePrimaryKey($bank_integration->id),
-            'provider_bank_name' => $bank_integration->provider_bank_name ?: '',
-            'bank_account_id' => $bank_integration->bank_account_id ?: '',
-            'bank_account_name' => $bank_integration->bank_account_name ?: '',
-            'bank_account_number' => $bank_integration->bank_account_number ?: '',
-            'bank_account_status' => $bank_integration->bank_account_status ?: '',
-            'bank_account_type' => $bank_integration->bank_account_type ?: '',
+            'provider_bank_name' => (string)$bank_integration->provider_bank_name ?: '',
+            'provider_id' => (int) $bank_integration->provider_id ?: 0,
+            'bank_account_id' => (int) $bank_integration->bank_account_id ?: 0,
+            'bank_account_name' => (string) $bank_integration->bank_account_name ?: '',
+            'bank_account_number' => (string) $bank_integration->bank_account_number ?: '',
+            'bank_account_status' => (string)$bank_integration->bank_account_status ?: '',
+            'bank_account_type' => (string)$bank_integration->bank_account_type ?: '',
             'balance' => (float)$bank_integration->balance ?: 0,
-            'currency' => $bank_integration->currency ?: '',
+            'currency' => (string)$bank_integration->currency ?: '',
+            'nickname' => (string)$bank_integration->nickname ?: '',
         ];
     }
 
