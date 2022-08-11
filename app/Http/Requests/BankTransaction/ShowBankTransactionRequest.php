@@ -22,6 +22,6 @@ class ShowBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('view', $this->bank_integration);
+        return auth()->user()->can('view', $this->bank_transaction);
     }
 }
