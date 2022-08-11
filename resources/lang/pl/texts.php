@@ -1721,7 +1721,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ukraina',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedonia',
+    'country_North Macedonia' => 'Macedonia',
     'country_Egypt' => 'Egipt',
     'country_United Kingdom' => 'Wielka Brytania',
     'country_Guernsey' => 'Guernsey',

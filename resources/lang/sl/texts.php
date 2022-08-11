@@ -1721,7 +1721,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ukraine',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedonia, the former Yugoslav Republic of',
+    'country_North Macedonia' => 'North Macedonia',
     'country_Egypt' => 'Egypt',
     'country_United Kingdom' => 'United Kingdom',
     'country_Guernsey' => 'Guernsey',

@@ -1715,7 +1715,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ukraine',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedonia, the former Yugoslav Republic of',
+    'country_North Macedonia' => 'North Macedonia',
     'country_Egypt' => 'Egypt',
     'country_United Kingdom' => 'United Kingdom',
     'country_Guernsey' => 'Guernsey',

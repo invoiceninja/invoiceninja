@@ -1724,7 +1724,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'country_Tuvalu' => 'Τουβαλού',
     'country_Uganda' => 'Ουγκάντα',
     'country_Ukraine' => 'Ουκρανία',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Σκόπια',
+    'country_North Macedonia' => 'Σκόπια',
     'country_Egypt' => 'Αίγυπτος',
     'country_United Kingdom' => 'Αγγλία',
     'country_Guernsey' => 'Γουερνσέυ',

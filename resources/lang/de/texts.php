@@ -1725,7 +1725,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ukraine',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Mazedonien',
+    'country_North Macedonia' => 'Nord Mazedonien',
     'country_Egypt' => 'Ägypten',
     'country_United Kingdom' => 'Vereinigtes Königreich',
     'country_Guernsey' => 'Guernsey',

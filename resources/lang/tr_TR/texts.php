@@ -1723,7 +1723,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ukrayna',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedonia, the former Yugoslav Republic of',
+    'country_North Macedonia' => 'North Macedonia',
     'country_Egypt' => 'Mısır',
     'country_United Kingdom' => 'İngiltere',
     'country_Guernsey' => 'Guernsey',

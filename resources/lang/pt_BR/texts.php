@@ -1718,7 +1718,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'country_Tuvalu' => ' Tuvalu',
     'country_Uganda' => 'Uganda',
     'country_Ukraine' => 'Ucrânia',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedônia, antiga República Iugoslava',
+    'country_North Macedonia' => 'Macedônia, antiga República Iugoslava',
     'country_Egypt' => 'Egito',
     'country_United Kingdom' => 'Reino Unido',
     'country_Guernsey' => 'Guernsey',
