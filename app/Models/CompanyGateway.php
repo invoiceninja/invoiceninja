@@ -413,8 +413,9 @@ class CompanyGateway extends BaseModel
 
     public function resolveRouteBinding($value, $field = null)
     {
+
         return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
     }
 
 
