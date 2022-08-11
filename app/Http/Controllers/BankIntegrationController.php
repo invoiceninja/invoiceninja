@@ -31,7 +31,7 @@ use Illuminate\Http\Request;
 class BankIntegrationController extends BaseController
 {
     use MakesHash;
-    
+
     protected $entity_type = BankIntegration::class;
 
     protected $entity_transformer = BankIntegrationTransformer::class;
@@ -421,23 +421,23 @@ class BankIntegrationController extends BaseController
     }
 
 
-/**
+    /**
      * Perform bulk actions on the list view.
      *
      * @return Collection
      *
      * @OA\Post(
-     *      path="/api/v1/invoices/bulk",
-     *      operationId="bulkInvoices",
-     *      tags={"invoices"},
-     *      summary="Performs bulk actions on an array of invoices",
+     *      path="/api/v1/bank_integrations/bulk",
+     *      operationId="bulkBankIntegrations",
+     *      tags={"bank_integrations"},
+     *      summary="Performs bulk actions on an array of bank_integrations",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
-     *         description="User credentials",
+     *         description="Action paramters",
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -495,7 +495,7 @@ class BankIntegrationController extends BaseController
 
 
     /**
-     * Return the remote list of accounts stored on the third part provider.
+     * Return the remote list of accounts stored on the third party provider.
      *
      * @return Response
      *
