@@ -63,7 +63,13 @@ return new class extends Migration
             $table->date('date');
             $table->unsignedBigInteger('bank_account_id');
             $table->text('description');
+            $table->unsignedInteger('invoice_id')->nullable();
+            $table->unsignedInteger('expense_id')->nullable();
+            $table->boolean('is_matched')->default(0);
 
+            $table->timestamps(6);
+
+            $table->softDeletes('deleted_at', 6);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
 

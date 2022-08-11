@@ -24,12 +24,14 @@ use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
 use App\Services\Bank\BankService;
 use App\Transformers\BankIntegrationTransformer;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
 
 class BankIntegrationController extends BaseController
 {
-
+    use MakesHash;
+    
     protected $entity_type = BankIntegration::class;
 
     protected $entity_transformer = BankIntegrationTransformer::class;
@@ -417,6 +419,80 @@ class BankIntegrationController extends BaseController
 
         return $this->itemResponse($bank_integration->fresh());
     }
+
+
+/**
+     * Perform bulk actions on the list view.
+     *
+     * @return Collection
+     *
+     * @OA\Post(
+     *      path="/api/v1/invoices/bulk",
+     *      operationId="bulkInvoices",
+     *      tags={"invoices"},
+     *      summary="Performs bulk actions on an array of invoices",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Bulk Action response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        if(!in_array($action, ['archive', 'restore', 'delete']))
+            return response()->json(['message' => 'Unsupported action.'], 400);
+
+        $ids = request()->input('ids');
+            
+        $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+
+        $bank_integrations->each(function ($bank_integration, $key) use ($action) {
+            if (auth()->user()->can('edit', $bank_integration)) {
+                $this->bank_integration_repo->{$action}($bank_integration);
+            }
+        });
+
+        /* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+        return $this->listResponse(BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+    }
+
 
     /**
      * Return the remote list of accounts stored on the third part provider.
