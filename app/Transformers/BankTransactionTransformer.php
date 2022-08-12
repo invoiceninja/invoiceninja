@@ -60,6 +60,7 @@ class BankTransactionTransformer extends EntityTransformer
             'date' => (string) $bank_transaction->date ?: '',
             'bank_account_id' => (int) $bank_transaction->bank_account_id,
             'description' => (string) $bank_transaction->description ?: '',
+            'base_type' => (string) $bank_transaction->base_type ?: '',
             'invoice_id' => (string) $this->encodePrimaryKey($bank_transaction->invoice_id) ?: '',
             'expense_id'=> (string) $this->encodePrimaryKey($bank_transaction->expense_id) ?: '',
             'is_matched'=> (bool) $bank_transaction->is_matched ?: '',

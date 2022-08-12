@@ -138,6 +138,11 @@ class Account extends BaseModel
         return $this->hasMany(Company::class);
     }
 
+    public function bank_integrations()
+    {
+        return $this->hasMany(BankIntegration::class);
+    }
+
     public function company_users()
     {
         return $this->hasMany(CompanyUser::class);

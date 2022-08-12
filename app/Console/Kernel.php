@@ -17,6 +17,7 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ledger\LedgerBalanceUpdate;
 use App\Jobs\Ninja\AdjustEmailQuota;
+use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
@@ -67,6 +68,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
 
         $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
+
+        $schedule->job(new BankTransactionSync)->dailyAt('04:00')->withoutOverlapping();
 
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {

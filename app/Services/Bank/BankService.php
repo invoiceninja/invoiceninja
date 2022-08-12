@@ -11,18 +11,38 @@
 
 namespace App\Services\Bank;
 
+use App\Libraries\MultiDB;
 use App\Models\Company;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class BankService
+class BankService implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public Company $company;
+    private $company_id;
+
+    private Company $company;
+
+    private $db;
 
     private $invoices;
 
-    public function __construct(Company $company)
+    public function __construct($company_id, $db)
     {
-        $this->company = $company;
+        $this->company_id = $company_id;
+        $this->db = $db;
+    }
+
+    public function handle()
+    {
+
+        MultiDB::setDb($this->db);
+
+        $this->company = Company::find($this->company_id);
 
         $this->invoices = $this->company->invoices()->whereIn('status_id', [1,2,3])
                                             ->where('is_deleted', 0)

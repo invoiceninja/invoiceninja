@@ -55,10 +55,11 @@ return new class extends Migration
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
             $table->unsignedBigInteger('bank_integration_id');
-            $table->unsignedBigInteger('transaction_id')->nullable();
+            $table->unsignedBigInteger('transaction_id')->index();
             $table->decimal('amount', 20, 6);
             $table->string('currency_code');
             $table->string('account_type');
+            $table->string('base_type')->index();
             $table->unsignedInteger('category_id');
             $table->string('category_type');
             $table->date('date');

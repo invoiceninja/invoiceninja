@@ -574,7 +574,8 @@ class BankIntegrationController extends BaseController
     }
 
     /**
-     * Return the remote list of accounts stored on the third part provider.
+     * Return the remote list of accounts stored on the third party provider
+     * and update our local cache.
      *
      * @return Response
      *
@@ -631,12 +632,49 @@ class BankIntegrationController extends BaseController
     }
 
 
+    /**
+     * Return the remote list of accounts stored on the third party provider
+     * and update our local cache.
+     *
+     * @return Response
+     *
+     * @OA\Post(
+     *      path="/api/v1/bank_integrations/get_transactions/account_id",
+     *      operationId="getAccountTransactions",
+     *      tags={"bank_integrations"},
+     *      summary="Retrieve transactions for a account",
+     *      description="Retrieve transactions for a account",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Retrieve transactions for a account",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
 
         $bank_account_id = auth()->user()->account->bank_integration_account_id;
 
-        $bank_account_id = 'sbMem62e1e69547bfb1';
+        // $bank_account_id = 'sbMem62e1e69547bfb1';
 
         if(!$bank_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
@@ -645,17 +683,15 @@ class BankIntegrationController extends BaseController
         $yodlee->setTestMode();
 
         $data = [
-            'CONTAINER' => 'bank',
-            'categoryType' => 'INCOME, UNCATEGORIZE',
             'top' => 500,
             'fromDate' => '2000-10-10', /// YYYY-MM-DD
         ];
 
         $transactions = $yodlee->getTransactions($data); 
 
-        $transactions = (new BankService(auth()->user()->company()))->match();
+        BankService::dispatch(auth()->user()->company()->id, auth()->user()->company()->db));
 
-        return response()->json($transactions, 200, [], JSON_PRETTY_PRINT);
+        return response()->json(['message' => 'Fetching transactions....'], 200);
 
     }
 }

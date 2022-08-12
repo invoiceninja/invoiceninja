@@ -13,6 +13,7 @@
  *       @OA\Property(property="description", type="string", example="Potato purchases for kevin", description="The description of the transaction"),
  *       @OA\Property(property="category_id", type="integer", example=1, description="The category id"),
  *       @OA\Property(property="category_type", type="string", example="Expenses", description="The category description"),
+ *       @OA\Property(property="base_type", type="string", example="CREDIT", description="Either CREDIT or DEBIT"),
  *       @OA\Property(property="date", type="string", example="2022-09-01", description="The date of the transaction"),
  *       @OA\Property(property="bank_account_id", type="integer", example="1", description="The ID number of the bank account"),
  * )

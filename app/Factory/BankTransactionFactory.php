@@ -30,6 +30,7 @@ class BankTransactionFactory
         $bank_transaction->date = now()->format('Y-m-d');
         $bank_transaction->description = '';
         $bank_transaction->is_matched = 0;
+        $bank_transaction->base_type = 'CREDIT';
         
         return $bank_transaction;
     }
