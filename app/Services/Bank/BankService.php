@@ -48,38 +48,61 @@ class BankService implements ShouldQueue
                                             ->where('is_deleted', 0)
                                             ->get();
 
+        $this->match();
     }
 
-    public function match($transactions): array
+    private function match()
     {
+        BankTransaction::where('company_id', $this->company->id)
+                       ->where('is_matched', false)
+                       ->cursor()
+                       ->each(function ($bt){
+                        
+                            $invoice = $this->invoices->first(function ($value, $key) use ($bt){
 
-        foreach($transactions as $transaction)
-        {
-            $this->matchIncome($transaction);
-        }
+                                    return str_contains($value->number, $bt->description);
+                                    
+                                });
 
-        return $transactions;
+                            if($invoice)
+                            {
+                                $bt->invoice_id = $invoice->id;
+                                $bt->save();   
+                            }
+
+                       });
     }
 
-    private function matchExpense()
-    {
+    // public function match($transactions): array
+    // {
 
-    }
+    //     foreach($transactions as $transaction)
+    //     {
+    //         $this->matchIncome($transaction);
+    //     }
 
-    private function matchIncome($transaction)
-    {
-        $description = str_replace(" ", "", $transaction->description);
+    //     return $transactions;
+    // }
 
-        $invoice = $this->invoices->first(function ($value, $key) use ($description){
+    // private function matchExpense()
+    // {
 
-            return str_contains($value->number, $description);
+    // }
+
+    // private function matchIncome($transaction)
+    // {
+    //     $description = str_replace(" ", "", $transaction->description);
+
+    //     $invoice = $this->invoices->first(function ($value, $key) use ($description){
+
+    //         return str_contains($value->number, $description);
             
-        });
+    //     });
 
-        if($invoice)
-            $transaction['invocie_id'] = $invoice->hashed_id;
+    //     if($invoice)
+    //         $transaction['invocie_id'] = $invoice->hashed_id;
 
-        return $transaction;
-    }
+    //     return $transaction;
+    // }
 
 }
