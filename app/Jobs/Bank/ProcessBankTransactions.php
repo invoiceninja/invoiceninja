@@ -12,6 +12,7 @@
 namespace App\Jobs\Bank;
 
 use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Libraries\MultiDB;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Services\Bank\BankService;
@@ -112,6 +113,11 @@ class ProcessBankTransactions implements ShouldQueue
 
         BankService::dispatch($company->id, $company->db);
 
+        MultiDB::setDb($company->db);
+
+        $this->bank_integration->from_date = now();
+        $this->bank_integration->save();
+        
     }
 
 }

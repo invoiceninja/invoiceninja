@@ -545,26 +545,31 @@ trait MockAccountData
         $this->bank_transaction = BankTransaction::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         BankTransaction::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         BankTransaction::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         BankTransaction::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         BankTransaction::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)

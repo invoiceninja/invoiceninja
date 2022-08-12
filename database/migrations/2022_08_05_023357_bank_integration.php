@@ -68,6 +68,7 @@ return new class extends Migration
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('expense_id')->nullable();
             $table->boolean('is_matched')->default(0);
+            $table->boolean('provisional_match')->default(0);
             $table->boolean('is_deleted')->default(0);
 
             $table->timestamps(6);

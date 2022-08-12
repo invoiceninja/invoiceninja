@@ -12,6 +12,7 @@
 namespace App\Services\Bank;
 
 use App\Libraries\MultiDB;
+use App\Models\BankTransaction;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,6 +56,7 @@ class BankService implements ShouldQueue
     {
         BankTransaction::where('company_id', $this->company->id)
                        ->where('is_matched', false)
+                       ->where('provisional_match', false)
                        ->cursor()
                        ->each(function ($bt){
                         
@@ -67,6 +69,7 @@ class BankService implements ShouldQueue
                             if($invoice)
                             {
                                 $bt->invoice_id = $invoice->id;
+                                $bt->provisional_match = true;
                                 $bt->save();   
                             }
 
