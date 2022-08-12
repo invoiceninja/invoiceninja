@@ -28,7 +28,7 @@
     "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=bbab588ed009a93345bec520cbe66869",
     "/js/clients/payments/eway-credit-card.js": "/js/clients/payments/eway-credit-card.js?id=31d068e55757636f34834bc2494250df",
     "/js/clients/payment_methods/braintree-ach.js": "/js/clients/payment_methods/braintree-ach.js?id=6d8c7fd66d911b20cdc4248e33db1b3a",
-    "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=a1b483c277ea0827d875fde333e9b715",
+    "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=22123ae7cbaaabbb1fcd51cfe7105eb5",
     "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=7971b212e8a849fe36bfe915f81023bd",
     "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=c36ab5621413ef1de7c864bc8eb7439e",
     "/js/clients/payments/stripe-sepa.js": "/js/clients/payments/stripe-sepa.js?id=b258636d8bae366e9d8f54274f437181",
