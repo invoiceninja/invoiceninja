@@ -195,7 +195,6 @@ class SquarePaymentDriver extends BaseDriver
     {
         $fields = [];
 
-
         if ($this->company_gateway->require_client_name) {
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
