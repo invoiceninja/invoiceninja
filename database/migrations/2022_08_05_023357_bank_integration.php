@@ -34,6 +34,7 @@ return new class extends Migration
             $table->decimal('balance', 20, 6)->default(0); //currentBalance.amount
             $table->text('currency')->nullable(); //currentBalance.currency
             $table->text('nickname')->default(''); //accountName
+            $table->date('from_date')->nullable();
 
             $table->boolean('is_deleted')->default(0);
 
@@ -53,7 +54,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
-
+            $table->unsignedBigInteger('bank_integration_id');
             $table->unsignedBigInteger('transaction_id')->nullable();
             $table->decimal('amount', 20, 6);
             $table->string('currency_code');
@@ -71,6 +72,7 @@ return new class extends Migration
             $table->timestamps(6);
 
             $table->softDeletes('deleted_at', 6);
+            $table->foreign('bank_integration_id')->references('id')->on('bank_integrations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
 

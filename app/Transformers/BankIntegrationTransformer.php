@@ -13,6 +13,7 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -37,6 +38,7 @@ class BankIntegrationTransformer extends EntityTransformer
     protected $availableIncludes = [
         'company',
         'account',
+        'bank_transactions',
     ];
 
     /**
@@ -57,6 +59,7 @@ class BankIntegrationTransformer extends EntityTransformer
             'balance' => (float)$bank_integration->balance ?: 0,
             'currency' => (string)$bank_integration->currency ?: '',
             'nickname' => (string)$bank_integration->nickname ?: '',
+            'from_date' => (string)$bank_integration->from_date ?: '',
             'is_deleted' => (bool) $bank_integration->is_deleted,
             'created_at' => (int) $bank_integration->created_at,
             'updated_at' => (int) $bank_integration->updated_at,
@@ -76,6 +79,13 @@ class BankIntegrationTransformer extends EntityTransformer
         $transformer = new CompanyTransformer($this->serializer);
 
         return $this->includeItem($bank_integration->company, $transformer, Company::class);
+    }
+
+    public function includeBankTransactions(BankIntegration $bank_integration)
+    {
+        $transformer = new BankTransactionTransformer($this->serializer);
+
+        return $this->includeCollection($bank_integration->transactions, $transformer, BankTransaction::class);
     }
 
 }

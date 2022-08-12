@@ -49,4 +49,9 @@ class BankIntegration extends BaseModel
         return $this->belongsTo(Account::class)->withTrashed();
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(BankTransaction::class)->withTrashed();
+    }
+
 }
