@@ -7,7 +7,7 @@
     <meta name="square_contact" content="{{ json_encode($square_contact) }}">
     <meta name="amount" content="{{ $amount }}">
     <meta name="currencyCode" content="{{ $currencyCode }}">
-    <meta name="postal_code_required" content="{{ (bool)$postal_code_required }}"?
+    <meta name="postal_code_required" content="{{ (bool)$postal_code_required ? true : false}}">
 
 @endsection
 
