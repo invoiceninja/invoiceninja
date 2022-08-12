@@ -3,8 +3,8 @@
  * @OA\Schema(
  *   schema="Expense",
  *   type="object",
- *       @OA\Property(property="id", type="string", example="Opnel5aKBz", description="_________"),
- *       @OA\Property(property="user_id", type="string", example="", description="__________"),
+ *       @OA\Property(property="id", type="string", example="Opnel5aKBz", description="The expense hashed id"),
+ *       @OA\Property(property="user_id", type="string", example="", description="The user hashed id"),
  *       @OA\Property(property="assigned_user_id", type="string", example="", description="__________"),
  *       @OA\Property(property="company_id", type="string", example="", description="________"),
  *       @OA\Property(property="client_id", type="string", example="", description="________"),
