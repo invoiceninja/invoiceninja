@@ -68,6 +68,7 @@ class CreditCard implements MethodInterface
         $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
         $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
         $data['square_contact'] = $this->buildClientObject();
+        $data['postal_code_required'] = in_array($data['currencyCode'], ['USD', 'GBP', 'CAD']) || $this->square_driver->company_gateway->getConfigField('testMode');
 
         return render('gateways.square.credit_card.pay', $data);
     }

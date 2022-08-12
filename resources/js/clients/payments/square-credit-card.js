@@ -61,6 +61,7 @@ class SquareCreditCard {
                 currencyCode: document.querySelector('meta[name=currencyCode]')
                     .content,
                 intent: 'CHARGE',
+                postalCode: document.querySelector('meta[name=postal_code_required]')
             };
 
             const verificationResults = await this.payments.verifyBuyer(
