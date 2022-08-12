@@ -62,12 +62,12 @@ class DirectDebit implements MethodInterface
                         'session_token' => $session_token,
                     ]),
                     'prefilled_customer' => [
-                        'given_name' => auth()->guard('contact')->user()->first_name,
-                        'family_name' => auth()->guard('contact')->user()->last_name,
-                        'email' => auth()->guard('contact')->user()->email,
-                        'address_line1' => auth()->guard('contact')->user()->client->address1,
-                        'city' => auth()->guard('contact')->user()->client->city,
-                        'postal_code' => auth()->guard('contact')->user()->client->postal_code,
+                        'given_name' => auth()->guard('contact')->user()->first_name ?: '',
+                        'family_name' => auth()->guard('contact')->user()->last_name ?: '',
+                        'email' => auth()->guard('contact')->user()->email ?: '',
+                        'address_line1' => auth()->guard('contact')->user()->client->address1 ?: '',
+                        'city' => auth()->guard('contact')->user()->client->city ?: '',
+                        'postal_code' => auth()->guard('contact')->user()->client->postal_code ?: '',
                     ],
                 ],
             ]);

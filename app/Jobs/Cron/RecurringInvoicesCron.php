@@ -40,7 +40,8 @@ class RecurringInvoicesCron
     public function handle() : void
     {
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        nlog('Sending recurring invoices '.Carbon::now()->format('Y-m-d h:i:s'));
+        $start = Carbon::now()->format('Y-m-d h:i:s');
+        nlog('Sending recurring invoices '.$start);
 
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', now()->toDateTimeString())
@@ -119,5 +120,8 @@ class RecurringInvoicesCron
                 });
             }
         }
+
+        nlog("Recurring invoice send duration " . $start . " - " . Carbon::now()->format('Y-m-d h:i:s'));
+        
     }
 }

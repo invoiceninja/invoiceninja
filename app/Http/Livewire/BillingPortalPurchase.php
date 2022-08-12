@@ -98,6 +98,8 @@ class BillingPortalPurchase extends Component
      */
     public $payment_method_id;
 
+    private $user_coupon;
+
     /**
      * List of steps that frontend form follows.
      *
@@ -436,32 +438,45 @@ class BillingPortalPurchase extends Component
      */
     public function updateQuantity(string $option): int
     {
+        $this->handleCoupon();
+
         if ($this->quantity == 1 && $option == 'decrement') {
+            $this->price = $this->price * 1;
             return $this->quantity;
         }
 
-        if ($this->quantity >= $this->subscription->max_seats_limit && $option == 'increment') {
+        if ($this->quantity > $this->subscription->max_seats_limit && $option == 'increment') {
+            $this->price = $this->price * $this->subscription->max_seats_limit;
             return $this->quantity;
         }
 
         if ($option == 'increment') {
             $this->quantity++;
-            $this->price = $this->subscription->promo_price * $this->quantity;
+            $this->price = $this->price * $this->quantity;
             return $this->quantity;
         }
 
             $this->quantity--;
-            $this->price = $this->subscription->promo_price * $this->quantity;
+            $this->price = $this->price * $this->quantity;
 
             return $this->quantity;
     }
 
     public function handleCoupon()
     {
+
+        if($this->steps['discount_applied']){
+            $this->price = $this->subscription->promo_price;
+            return;
+        }
+
         if ($this->coupon == $this->subscription->promo_code) {
             $this->price = $this->subscription->promo_price;
+            $this->quantity = 1;
             $this->steps['discount_applied'] = true;
         }
+        else
+            $this->price = $this->subscription->price;
     }
 
     public function passwordlessLogin()

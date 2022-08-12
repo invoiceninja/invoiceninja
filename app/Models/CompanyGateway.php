@@ -73,6 +73,7 @@ class CompanyGateway extends BaseModel
     // const TYPE_WEPAY = 309;
     // const TYPE_PAYFAST = 310;
     // const TYPE_PAYTRACE = 311;
+    // const TYPE_FORTE = 314;
 
     public $gateway_consts = [
         '38f2c48af60c7dd69e04248cbb24c36e' => 300,
@@ -85,6 +86,7 @@ class CompanyGateway extends BaseModel
         '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
         'd6814fc83f45d2935e7777071e629ef9' => 310,
         'bbd736b3254b0aabed6ad7fda1298c88' => 311,
+        'kivcvjexxvdiyqtj3mju5d6yhpeht2xs' => 314,
         '65faab2ab6e3223dbe848b1686490baz' => 320,
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321,
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
@@ -308,7 +310,7 @@ class CompanyGateway extends BaseModel
             if(strlen($fees_and_limits->fee_percent) >=1)
                 $label .= $fees_and_limits->fee_percent . '%';
 
-            if(strlen($fees_and_limits->fee_amount) >=1){
+            if(strlen($fees_and_limits->fee_amount) >=1 && $fees_and_limits->fee_amount > 0){
 
                 if(strlen($label) > 1) {
 
@@ -411,8 +413,9 @@ class CompanyGateway extends BaseModel
 
     public function resolveRouteBinding($value, $field = null)
     {
+
         return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
     }
 
 

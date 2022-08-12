@@ -75,6 +75,7 @@ class ReminderJob implements ShouldQueue
                  ->with('invitations')->cursor()->each(function ($invoice) {
                      if ($invoice->isPayable()) {
                          $reminder_template = $invoice->calculateTemplate('invoice');
+                         nlog("reminder template = {$reminder_template}");
                          $invoice->service()->touchReminder($reminder_template)->save();
                          $invoice = $this->calcLateFee($invoice, $reminder_template);
 
@@ -93,6 +94,7 @@ class ReminderJob implements ShouldQueue
                     $invoice->client->getSetting($enabled_reminder) &&
                     $invoice->client->getSetting('send_reminders') &&
                     (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+                            
                              $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                                  EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                                  nlog("Firing reminder email for invoice {$invoice->number}");

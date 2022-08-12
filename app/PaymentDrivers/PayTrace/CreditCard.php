@@ -156,7 +156,7 @@ class CreditCard
             'zip' => $this->paytrace->client->postal_code,
         ];
 
-        nlog($data);
+        return $data;
     }
 
     public function paymentView($data)
@@ -192,6 +192,8 @@ class CreditCard
             'amount' => $request->input('amount_with_fee'),
             'invoice_id' => $this->harvestInvoiceId(),
         ];
+
+nlog($data);
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
 

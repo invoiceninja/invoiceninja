@@ -115,12 +115,12 @@ class TemplateEmail extends Mailable
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
-            ])
-            ->withSymfonyMessage(function ($message) use ($company) {
-                $message->getHeaders()->addTextHeader('Tag', $company->company_key);
-                $message->invitation = $this->invitation;
-            })
-            ->tag($company->company_key);
+            ]);
+            // ->withSymfonyMessage(function ($message) use ($company) {
+            //    $message->getHeaders()->addTextHeader('Tag', $company->company_key);
+            //    $message->invitation = $this->invitation;
+            //});
+            // ->tag($company->company_key);
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 

@@ -558,6 +558,10 @@ class RecurringInvoice extends BaseModel
             case '':
                 return $this->calculateDateFromTerms($date);
                 break;
+				
+            case 'on_receipt':
+                return Carbon::Parse($date)->copy();
+                break;
 
             default:
                 return $this->setDayOfMonth($date, $this->due_date_days);

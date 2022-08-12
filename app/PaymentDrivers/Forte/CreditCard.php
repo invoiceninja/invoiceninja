@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use App\PaymentDrivers\FortePaymentDriver;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\SystemLog;
 
 class CreditCard
 {
@@ -141,11 +143,35 @@ class CreditCard
         } catch (\Throwable $th) {
             throw $th;
         }
+
+        $message = [
+            'server_message' => $response->response->response_desc,
+            'server_response' => $response,
+            'data' => $payment_hash->data,
+        ];
+
         if ($httpcode>299) {
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_FORTE,
+                $this->forte->client,
+                $this->forte->client->company,
+            );
             $error = Validator::make([], []);
             $error->getMessageBag()->add('gateway_error', $response->response->response_desc);
             return redirect('client/invoices')->withErrors($error);
         }
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_FORTE,
+            $this->forte->client,
+            $this->forte->client->company,
+        );
 
         $data = [
             'payment_method' => $request->payment_method_id,
