@@ -561,6 +561,28 @@ class QuoteController extends BaseController
             return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
+
+        if($action == 'convert_to_project')
+        {
+
+            $quotes->each(function ($quote, $key) use ($action) {
+                if (auth()->user()->can('edit', $quote))
+                {
+                    $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
+                    
+                    if (empty($project->number)) {
+                        $project->number = $this->getNextProjectNumber($project);
+                        
+                    }
+                    $project->save();
+                    $quote->project_id = $project->id;
+                    $quote->save();
+                }
+            });
+
+            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        }
+
         /*
          * Send the other actions to the switch
          */
@@ -666,20 +688,6 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote->service()->convertToInvoice());
 
             break;
-
-            case 'convert_to_project':
-
-                $this->entity_type = Project::class;
-                $this->entity_transformer = ProjectTransformer::class;
-
-                $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
-                
-                if (empty($project->number)) {
-                    $project->number = $this->getNextProjectNumber($project);
-                    $project->save();
-                }
-
-                return $this->itemResponse($project);
 
             case 'clone_to_invoice':
 
