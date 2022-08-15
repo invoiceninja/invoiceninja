@@ -13,6 +13,7 @@ namespace Tests\Feature;
 
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,26 @@ class QuoteTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+    }
+
+
+
+    public function testQuoteConvertToProject()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/quotes/bulk',['action' => 'convert_to_project', 'ids' => [$this->quote->hashed_id]]);
+
+        $response->assertStatus(200);
+
+        $res = $response->json();
+
+        $this->assertNotNull($res['data'][0]['project_id']);
+
+        $project = Project::find($this->decodePrimaryKey($res['data'][0]['project_id']));
+
+        $this->assertEquals($project->name, ctrans('texts.quote_number_short') . " " . $this->quote->number);
     }
 
     public function testQuoteList()
@@ -139,4 +160,5 @@ class QuoteTest extends TestCase
 
         $response->assertStatus(200);
     }
+
 }

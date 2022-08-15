@@ -15,6 +15,7 @@ use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Factory\CloneQuoteToProjectFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
@@ -31,12 +32,15 @@ use App\Jobs\Quote\ZipQuotes;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\ProjectTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
@@ -50,6 +54,7 @@ class QuoteController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
+    use GeneratesCounter;
 
     protected $entity_type = Quote::class;
 
@@ -556,6 +561,28 @@ class QuoteController extends BaseController
             return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
+
+        if($action == 'convert_to_project')
+        {
+
+            $quotes->each(function ($quote, $key) use ($action) {
+                if (auth()->user()->can('edit', $quote))
+                {
+                    $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
+                    
+                    if (empty($project->number)) {
+                        $project->number = $this->getNextProjectNumber($project);
+                        
+                    }
+                    $project->save();
+                    $quote->project_id = $project->id;
+                    $quote->save();
+                }
+            });
+
+            return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        }
+
         /*
          * Send the other actions to the switch
          */
@@ -661,6 +688,7 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote->service()->convertToInvoice());
 
             break;
+
             case 'clone_to_invoice':
 
                 $this->entity_type = Invoice::class;
