@@ -50,10 +50,8 @@ class Design extends BaseDesign
     /** Construct options */
     public $options;
 
-    /** @var Invoice[] */
     public $invoices;
 
-    /** @var Payment[] */
     public $payments;
 
     public $settings_object;
