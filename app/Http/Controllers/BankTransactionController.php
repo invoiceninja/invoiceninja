@@ -505,7 +505,6 @@ class BankTransactionController extends BaseController
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
         $yodlee = new Yodlee($bank_account_id);
-        $yodlee->setTestMode();
 
         $data = [
             'CONTAINER' => 'bank',

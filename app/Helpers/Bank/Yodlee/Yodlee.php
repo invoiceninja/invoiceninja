@@ -53,6 +53,8 @@ class Yodlee
 
         $this->admin_name = config('ninja.yodlee.admin_name');
 
+        $this->test_mode = config('ninja.yodlee.test_mode');
+
     }
 
     public function getFastTrackUrl()

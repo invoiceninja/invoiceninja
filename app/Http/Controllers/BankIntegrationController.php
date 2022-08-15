@@ -541,7 +541,6 @@ class BankIntegrationController extends BaseController
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
         $yodlee = new Yodlee($bank_account_id);
-        $yodlee->setTestMode();
 
         $accounts = $yodlee->getAccounts(); 
 
@@ -622,7 +621,6 @@ class BankIntegrationController extends BaseController
         $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->where('company_id', auth()->user()->company()->id)->firstOrFail();
 
         $yodlee = new Yodlee($bank_account_id);
-        $yodlee->setTestMode();
         $res = $yodlee->deleteAccount($acc_id);
 
         $this->bank_integration_repo->delete($bi);
@@ -680,7 +678,6 @@ class BankIntegrationController extends BaseController
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
         $yodlee = new Yodlee($bank_account_id);
-        $yodlee->setTestMode();
 
         $data = [
             'top' => 500,
@@ -689,7 +686,7 @@ class BankIntegrationController extends BaseController
 
         $transactions = $yodlee->getTransactions($data); 
 
-        BankService::dispatch(auth()->user()->company()->id, auth()->user()->company()->db));
+        BankService::dispatch(auth()->user()->company()->id, auth()->user()->company()->db);
 
         return response()->json(['message' => 'Fetching transactions....'], 200);
 

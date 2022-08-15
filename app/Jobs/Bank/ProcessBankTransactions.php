@@ -54,7 +54,6 @@ class ProcessBankTransactions implements ShouldQueue
     {
 
         $yodlee = new Yodlee($this->bank_integration_account_id);
-        $yodlee->setTestMode();
 
         $data = [
             'baseType' => 'DEBIT', //CREDIT

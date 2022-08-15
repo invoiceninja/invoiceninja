@@ -25,36 +25,39 @@ class YodleeController extends BaseController
 
         // create a user at this point 
         // use the one time token here to pull in the actual user
-
-        //store the user_account_id on the accounts table
+        // store the user_account_id on the accounts table
 
         $yodlee = new Yodlee();
-        $yodlee->setTestMode();
 
         $company = $request->getCompany();
 
         if($company->account->bank_integration_account_id){
+
             $flow = 'edit';
+
             $token = $company->account->bank_integration_account_id;
+
         }
         else{
+
             $flow = 'add';
+
             $response = $yodlee->createUser($company);
 
             $token = $response->user->loginName;
 
             $company->account->bank_integration_account_id = $token;
+
             $company->push();
             
         }
         
         $yodlee = new Yodlee($token);
-        $yodlee->setTestMode();
 
         $data = [
             'access_token' => $yodlee->getAccessToken(),
             'fasttrack_url' => $yodlee->getFastTrackUrl(),
-            'config_name' => 'testninja',
+            'config_name' => config('ninja.yodlee.config_name'),
             'flow' => $flow,
             'company' => $company,
             'account' => $company->account,
@@ -64,5 +67,4 @@ class YodleeController extends BaseController
 
     }
 
-    
 }

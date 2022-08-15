@@ -85,7 +85,6 @@ class YodleeApiTest extends TestCase
     {
 
         $yodlee = new Yodlee();
-        $yodlee->setTestMode();
 
         $this->assertNotNull($yodlee);
 
@@ -96,7 +95,6 @@ class YodleeApiTest extends TestCase
     {
 
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
-        $yodlee->setTestMode();
 
         $access_token = $yodlee->getAccessToken();
 
@@ -281,9 +279,7 @@ class YodleeApiTest extends TestCase
     public function testGetCategories()
     {
 
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb2');
-        $yodlee->setTestMode();
 
         $transactions = $yodlee->getTransactionCategories();
  
@@ -398,10 +394,9 @@ class YodleeApiTest extends TestCase
     {
 
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
-        $yodlee->setTestMode();
 
         $accounts = $yodlee->getAccounts();
-nlog($accounts);
+
         $this->assertIsArray($accounts);
     }
 
@@ -456,7 +451,6 @@ nlog($accounts);
     {
 
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
-        $yodlee->setTestMode();
 
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
@@ -464,12 +458,10 @@ nlog($accounts);
 
     }
 
-
     public function testGetTransactionsWithParams()
     {
 
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
-        $yodlee->setTestMode();
 
         $data = [
             'basetype' => 'DEBIT', //CREDIT
@@ -483,8 +475,5 @@ nlog($accounts);
 
         nlog($accounts);
     }
-
-
-
 
 }
