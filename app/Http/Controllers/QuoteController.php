@@ -40,6 +40,7 @@ use App\Transformers\ProjectTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
@@ -53,6 +54,7 @@ class QuoteController extends BaseController
 {
     use MakesHash;
     use SavesDocuments;
+    use GeneratesCounter;
 
     protected $entity_type = Quote::class;
 
@@ -671,6 +673,11 @@ class QuoteController extends BaseController
                 $this->entity_transformer = ProjectTransformer::class;
 
                 $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
+                
+                if (empty($project->number)) {
+                    $project->number = $this->getNextProjectNumber($project);
+                    $project->save();
+                }
 
                 return $this->itemResponse($project);
 
