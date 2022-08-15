@@ -427,10 +427,10 @@ class BankTransactionController extends BaseController
      * @return Collection
      *
      * @OA\Post(
-     *      path="/api/v1/bank_integrations/bulk",
-     *      operationId="bulkBankIntegrations",
+     *      path="/api/v1/bank_transations/bulk",
+     *      operationId="bulkBankTransactions",
      *      tags={"bank_integrations"},
-     *      summary="Performs bulk actions on an array of bank_integrations",
+     *      summary="Performs bulk actions on an array of bank_transations",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
