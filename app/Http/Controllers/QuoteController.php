@@ -15,6 +15,7 @@ use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Factory\CloneQuoteToProjectFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
@@ -31,9 +32,11 @@ use App\Jobs\Quote\ZipQuotes;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
 use App\Transformers\InvoiceTransformer;
+use App\Transformers\ProjectTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
@@ -661,6 +664,16 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote->service()->convertToInvoice());
 
             break;
+
+            case 'convert_to_project':
+
+                $this->entity_type = Project::class;
+                $this->entity_transformer = ProjectTransformer::class;
+
+                $project = CloneQuoteToProjectFactory::create($quote, auth()->user()->id);
+
+                return $this->itemResponse($project);
+
             case 'clone_to_invoice':
 
                 $this->entity_type = Invoice::class;
