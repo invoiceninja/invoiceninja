@@ -40,7 +40,7 @@ class InvoiceTransformer extends BaseTransformer
 
         $transformed = [
             'company_id'   => $this->company->id,
-            'client_id'    => $this->getClient($this->getString($invoice_data, 'Customer ID'), null),
+            'client_id'    => $this->getClient($this->getString($invoice_data, 'Customer ID'), $this->getString($invoice_data, 'Primary Contact EmailID')),
             'number'       => $this->getString($invoice_data, 'Invoice Number'),
             'date'         => isset($invoice_data['Invoice Date']) ? date('Y-m-d', strtotime($invoice_data['Invoice Date'])) : null,
             'due_date'     => isset($invoice_data['Due Date']) ? date('Y-m-d', strtotime($invoice_data['Due Date'])) : null,
