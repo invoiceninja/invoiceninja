@@ -94,11 +94,12 @@ class ProcessBankTransactions implements ShouldQueue
         //income transactions
         $transactions = $yodlee->getTransactions($data); 
 
+
+        $bts = BankTransaction::whereIn('transaction_id', array_column($transactions, 'transaction_id'))->where('company_id', $company->id)->withTrashed()->get('transaction_id');
+
         foreach($transactions as $transaction)
         {
 
-            if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $company->id)->withTrashed()->exists())
-                continue;
 
             $bt = BankTransaction::create(
                 $transaction
@@ -114,7 +115,9 @@ class ProcessBankTransactions implements ShouldQueue
 
         MultiDB::setDb($company->db);
 
-        $this->bank_integration->from_date = now();
+        $last_transaction = end($transactions);
+
+        $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         $this->bank_integration->save();
         
     }
