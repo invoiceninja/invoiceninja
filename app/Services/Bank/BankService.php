@@ -54,6 +54,7 @@ class BankService implements ShouldQueue
 
     private function match()
     {
+
         BankTransaction::where('company_id', $this->company->id)
                        ->where('is_matched', false)
                        ->where('provisional_match', false)
@@ -62,7 +63,7 @@ class BankService implements ShouldQueue
                         
                             $invoice = $this->invoices->first(function ($value, $key) use ($bt){
 
-                                    return str_contains($value->number, $bt->description);
+                                    return str_contains($bt->description, $value->number);
                                     
                                 });
 

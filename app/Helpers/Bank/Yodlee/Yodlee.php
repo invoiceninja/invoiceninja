@@ -239,7 +239,7 @@ class Yodlee
 
     }
 
-    private function bankFormRequest(string $uri, string $verb, array $data = [], array $headers)
+    private function bankFormRequest(string $uri, string $verb, array $data, array $headers)
     {
 
         $response = Http::withHeaders($this->getFormHeaders($headers))->asForm()->{$verb}($this->getEndpoint() . $uri, $this->buildBody());

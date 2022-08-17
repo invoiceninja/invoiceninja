@@ -74,9 +74,16 @@ class YodleeApiTest extends TestCase
         $this->assertGreaterThan(1, BankIntegration::count());
         $this->assertGreaterThan(1, BankTransaction::count());
 
+        $this->invoice->number = "XXXXXX8501";
+        $this->invoice->save();
+
         BankService::dispatchSync($this->company->id, $this->company->db);
         
-        // $transactions = $yodlee->getTransactions();
+        $bt = BankTransaction::where('invoice_id', $this->invoice->id)->first();
+
+        $this->assertNotNull($bt);
+
+        $this->assertEquals(1, $bt->provisional_match);
 
     }
 
