@@ -76,36 +76,5 @@ class BankService implements ShouldQueue
                        });
     }
 
-    // public function match($transactions): array
-    // {
-
-    //     foreach($transactions as $transaction)
-    //     {
-    //         $this->matchIncome($transaction);
-    //     }
-
-    //     return $transactions;
-    // }
-
-    // private function matchExpense()
-    // {
-
-    // }
-
-    // private function matchIncome($transaction)
-    // {
-    //     $description = str_replace(" ", "", $transaction->description);
-
-    //     $invoice = $this->invoices->first(function ($value, $key) use ($description){
-
-    //         return str_contains($value->number, $description);
-            
-    //     });
-
-    //     if($invoice)
-    //         $transaction['invocie_id'] = $invoice->hashed_id;
-
-    //     return $transaction;
-    // }
 
 }

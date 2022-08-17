@@ -13,12 +13,18 @@
 namespace Tests\Feature\Bank;
 
 use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Jobs\Bank\ProcessBankTransactions;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Services\Bank\BankService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 class YodleeApiTest extends TestCase
 {
     use DatabaseTransactions;
+    use MockAccountData;
 
     protected function setUp(): void
     {
@@ -26,8 +32,54 @@ class YodleeApiTest extends TestCase
 
         if(!config('ninja.yodlee.client_id'))
             $this->markTestSkipped('Skip test no Yodlee API credentials found');
+
+        $this->makeTestData();
         
     }
+
+    public function testFunctionalMatching()
+    {
+
+        $yodlee = new Yodlee('sbMem62e1e69547bfb1');
+
+        $accounts = $yodlee->getAccounts(); 
+
+        foreach($accounts as $account)
+        {
+
+            if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $this->company->id)->exists())
+            {
+                $bank_integration = new BankIntegration();
+                $bank_integration->company_id = $this->company->id;
+                $bank_integration->account_id = $this->company->account_id;
+                $bank_integration->user_id = $this->user->id;
+                $bank_integration->bank_account_id = $account['id'];
+                $bank_integration->bank_account_type = $account['account_type'];
+                $bank_integration->bank_account_name = $account['account_name'];
+                $bank_integration->bank_account_status = $account['account_status'];
+                $bank_integration->bank_account_number = $account['account_number'];
+                $bank_integration->provider_id = $account['provider_id'];
+                $bank_integration->provider_name = $account['provider_name'];
+                $bank_integration->nickname = $account['nickname'];
+                $bank_integration->balance = $account['current_balance'];
+                $bank_integration->currency = $account['account_currency'];
+                
+                $bank_integration->save();
+
+                ProcessBankTransactions::dispatchSync('sbMem62e1e69547bfb1', $bank_integration);
+
+            }
+        }
+
+        $this->assertGreaterThan(1, BankIntegration::count());
+        $this->assertGreaterThan(1, BankTransaction::count());
+
+        BankService::dispatchSync($this->company->id, $this->company->db);
+        
+        // $transactions = $yodlee->getTransactions();
+
+    }
+
 
     public function testDataMatching()
     {
@@ -472,8 +524,8 @@ class YodleeApiTest extends TestCase
 
         $accounts = $yodlee->getTransactions($data); 
 
+        $this->assertIsArray($accounts);
 
-        nlog($accounts);
     }
 
 }

@@ -30,14 +30,12 @@ class ProcessBankTransactions implements ShouldQueue
 
     private BankIntegration $bank_integration;
 
-    private ?string $from_date;
-
-    private string $default_date = '2022-01-01';
+    private string $from_date;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration, ?string $from_date)
+    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration, string $from_date = '2022-01-01')
     {
         $this->bank_integration_account_id = $bank_integration_account_id;
         $this->bank_integration = $bank_integration;
@@ -56,9 +54,8 @@ class ProcessBankTransactions implements ShouldQueue
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
         $data = [
-            'baseType' => 'DEBIT', //CREDIT
             'top' => 500,
-            'fromDate' => $this->from_date ?: $this->default_date, /// YYYY-MM-DD
+            'fromDate' => $this->from_date, /// YYYY-MM-DD
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
@@ -68,6 +65,8 @@ class ProcessBankTransactions implements ShouldQueue
         $company = $this->bank_integration->company;
         $user_id = $company->owner()->id;
         
+        BankTransaction::unguard();
+
         foreach($transactions as $transaction)
         {
 
@@ -75,40 +74,13 @@ class ProcessBankTransactions implements ShouldQueue
                 continue;
 
             $bt = BankTransaction::create(
-                $transaction
-            );
+                array_merge($transaction,[
+                    'company_id' => $company->id,
+                    'user_id' => $user_id,
+                    'bank_integration_id' => $this->bank_integration->id,
+                ])
+            )->save();
 
-            $bt->company_id = $company->id;
-            $bt->user_id = $user_id;
-            $bt->base_type = 'DEBIT';
-            $bt->save();
-        }
-
-        $data = [
-            'baseType' => 'CREDIT', //CREDIT
-            'top' => 500,
-            'fromDate' => $this->from_date ?: $this->default_date, /// YYYY-MM-DD
-            'accountId' => $this->bank_integration->bank_account_id,
-        ];
-
-        //income transactions
-        $transactions = $yodlee->getTransactions($data); 
-
-
-        $bts = BankTransaction::whereIn('transaction_id', array_column($transactions, 'transaction_id'))->where('company_id', $company->id)->withTrashed()->get('transaction_id');
-
-        foreach($transactions as $transaction)
-        {
-
-
-            $bt = BankTransaction::create(
-                $transaction
-            );
-
-            $bt->company_id = $company->id;
-            $bt->user_id = $user_id;
-            $bt->base_type = 'CREDIT';
-            $bt->save();
         }
 
         BankService::dispatch($company->id, $company->db);

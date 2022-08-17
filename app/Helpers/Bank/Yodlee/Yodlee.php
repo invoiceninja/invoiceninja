@@ -24,11 +24,11 @@ class Yodlee
 
     private string $api_endpoint = 'https://production.api.yodlee.com/ysl';
 
-    // private string $test_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
+    private string $dev_api_endpoint = 'https://sandbox.api.yodlee.com/ysl';
     
     private string $test_api_endpoint = 'https://development.api.yodlee.com/ysl';
 
-    //public string $test_fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
+    public string $dev_fast_track_url = 'https://fl4.sandbox.yodlee.com/authenticate/restserver/fastlink';
 
     public string $test_fast_track_url = 'https://fl4.preprod.yodlee.com/authenticate/USDevexPreProd3-449/fastlink?channelAppName=usdevexpreprod3';
 
@@ -55,6 +55,8 @@ class Yodlee
 
         $this->test_mode = config('ninja.yodlee.test_mode');
 
+        config('ninja.yodlee.dev_mode') ? $this->setDevUrl() : null;
+
     }
 
     public function getFastTrackUrl()
@@ -65,6 +67,15 @@ class Yodlee
     public function setTestMode()
     {
         $this->test_mode = true;
+
+        return $this;
+    }
+
+    public function setDevUrl()
+    {
+        $this->test_api_endpoint = $this->dev_api_endpoint;
+
+        $this->api_endpoint = $this->dev_api_endpoint;
 
         return $this;
     }

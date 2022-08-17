@@ -205,6 +205,7 @@ return [
         'client_secret' => env('YODLEE_CLIENT_SECRET', false),
         'admin_name' => env('YODLEE_LOGIN_ADMIN_NAME', false),
         'test_mode' => env("YODLEE_TEST_MODE", false),
+        'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
 ];

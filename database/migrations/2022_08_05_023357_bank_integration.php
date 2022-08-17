@@ -59,9 +59,8 @@ return new class extends Migration
             $table->decimal('amount', 20, 6);
             $table->string('currency_code');
             $table->string('account_type');
-            $table->string('base_type')->index();
             $table->unsignedInteger('category_id');
-            $table->string('category_type');
+            $table->string('category_type')->index();
             $table->date('date');
             $table->unsignedBigInteger('bank_account_id');
             $table->text('description');
