@@ -208,6 +208,23 @@ class Yodlee
 
     }
 
+    public function getTransactionCount($params = [])
+    {
+        $token = $this->getAccessToken();
+ 
+        $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions/count", $params);
+
+        if($response->successful()){
+
+            return $response->object();
+
+        }
+
+        if($response->failed())
+            throw new YodleeApiException($response->body());
+
+    }    
+
     public function getTransactionCategories($params = [])
     {
         $token = $this->getAccessToken();

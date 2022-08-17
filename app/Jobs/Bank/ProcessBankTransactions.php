@@ -21,6 +21,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 
 class ProcessBankTransactions implements ShouldQueue
 {
@@ -32,6 +33,7 @@ class ProcessBankTransactions implements ShouldQueue
 
     private string $from_date;
 
+    private bool $stop_loop = true;
     /**
      * Create a new job instance.
      */
@@ -50,14 +52,29 @@ class ProcessBankTransactions implements ShouldQueue
      */
     public function handle()
     {
+        //Loop through everything until we are up to date
 
+        do{
+            $this->processTransactions();
+        }
+        while($this->stop_loop);
+
+    }
+
+
+    private function processTransactions()
+    {
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
         $data = [
             'top' => 500,
-            'fromDate' => $this->from_date, /// YYYY-MM-DD
+            'fromDate' => $this->from_date, 
+            'toDate' => now()->format('Y-m-d'),
             'accountId' => $this->bank_integration->bank_account_id,
         ];
+
+        $transaction_count = $yodlee->getTransactionCount($data);
+        $count = $transaction_count->transaction->TOTAL->count;
 
         //expense transactions
         $transactions = $yodlee->getTransactions($data); 
@@ -91,8 +108,13 @@ class ProcessBankTransactions implements ShouldQueue
         $last_transaction = end($transactions);
 
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
+        
+        $this->from_date = $this->bank_integration->from_date->format('Y-m-d');
+
         $this->bank_integration->save();
         
+        if($count < 500)
+            $this->stop_loop = false;
     }
 
 }
