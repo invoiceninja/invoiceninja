@@ -26,6 +26,7 @@ use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\SystemLog;
@@ -282,6 +283,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
         elseif($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first())
             return $invitation;
         elseif($invitation = CreditInvitation::where('message_id', $message_id)->first())
+            return $invitation;
+        elseif($invitation = PurchaseOrderInvitation::where('message_id', $message_id)->first())
             return $invitation;
         else
             return $invitation;

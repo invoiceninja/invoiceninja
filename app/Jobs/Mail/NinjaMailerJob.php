@@ -102,6 +102,17 @@ class NinjaMailerJob implements ShouldQueue
 
         $this->nmo->mailable->tag($this->company->company_key);
 
+        if($this->nmo->invitation)
+        {
+
+            $this->nmo
+                 ->mailable
+                 ->withSymfonyMessage(function ($message) {
+                    $message->getHeaders()->addTextHeader('x-invitation', $this->nmo->invitation->key);     
+                 });
+
+        }
+
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
