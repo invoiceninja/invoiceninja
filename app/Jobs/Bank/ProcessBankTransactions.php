@@ -73,13 +73,14 @@ class ProcessBankTransactions implements ShouldQueue
             if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $company->id)->withTrashed()->exists())
                 continue;
 
-            $bt = BankTransaction::create(
+            //this should be much faster to insert than using ::create()
+            $bt = \DB::table('bank_transactions')->insert(
                 array_merge($transaction,[
                     'company_id' => $company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
                 ])
-            )->save();
+            );
 
         }
 
