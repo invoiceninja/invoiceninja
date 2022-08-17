@@ -65,6 +65,7 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
+        
         if (! empty($client_name)) {
             $client_id_search = $this->company
                 ->clients()

@@ -80,7 +80,6 @@ class ConvertQuote
     /**
      * Only create the invitations that are defined on the quote.
      *
-     * @return Invoice $invoice
      */
     private function createConversionInvitations($invoice, $quote)
     {

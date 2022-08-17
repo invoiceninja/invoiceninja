@@ -840,7 +840,6 @@ class SubscriptionService
      * Get the single charge products for the
      * subscription
      *
-     * @return ?Product Collection
      */
     public function products()
     {
@@ -859,7 +858,6 @@ class SubscriptionService
      * Get the recurring products for the
      * subscription
      *
-     * @return ?Product Collection
      */
     public function recurring_products()
     {
