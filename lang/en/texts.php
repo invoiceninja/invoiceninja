@@ -4767,6 +4767,7 @@ $LANG = array(
     'bulk_email_invoices' => 'Email Invoices',
     'bulk_email_quotes' => 'Email Quotes',
     'bulk_email_credits' => 'Email Credits',
+    'expense_tax_rates' => 'Expense Tax Rates',
 );
 
 return $LANG;
