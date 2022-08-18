@@ -47,15 +47,4 @@ class LoginRequest extends Request
         ];
     }
 
-    // public function prepareForValidation()
-    // {
-    //     $input = $this->all();
-
-    //     // if(base64_decode(base64_encode($input['password'])) === $input['password'])
-    //     //     $input['password'] = base64_decode($input['password']);
-
-    //     // nlog($input['password']);
-
-    //     $this->replace($input);
-    // }
 }

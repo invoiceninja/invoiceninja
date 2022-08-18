@@ -13,6 +13,7 @@ namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
@@ -41,9 +42,45 @@ class InvoiceTest extends TestCase
 
         $this->invoice->line_items = $this->buildLineItems();
 
-        $this->invoice->usesinclusive_taxes = true;
+        $this->invoice->uses_inclusive_taxes = true;
 
         $this->invoice_calc = new InvoiceSum($this->invoice);
+    }
+
+    public function testInclusiveRounding()
+    {
+        $this->invoice->line_items = [];
+        $this->invoice->discount = 0;
+        $this->invoice->uses_inclusive_taxes = true;
+        $this->invoice->save();
+
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 50;
+        $item->tax_name1 = "taxy";
+        $item->tax_rate1 = 19;
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 50;
+        $item->tax_name1 = "taxy";
+        $item->tax_rate1 = 19;
+        
+        $line_items[] = $item;
+
+        $this->invoice->line_items = $line_items;
+        $this->invoice->save();
+
+        $invoice_calc = new InvoiceSumInclusive($this->invoice);
+
+        $invoice_calc->build();
+        // $this->invoice->save();
+
+        $this->assertEquals($invoice_calc->getTotalTaxes(), 15.96);
+
     }
 
     private function buildLineItems()
