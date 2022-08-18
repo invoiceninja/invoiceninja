@@ -722,14 +722,14 @@ class InvoiceController extends BaseController
                 $this->invoice_repo->restore($invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($invoice);
+                    return $this->itemResponse($invoice);
                 }
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($invoice);
+                    return $this->itemResponse($invoice);
                 }
                 break;
             case 'delete':
@@ -737,7 +737,7 @@ class InvoiceController extends BaseController
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($invoice);
+                    return $this->itemResponse($invoice);
                 }
                 break;
             case 'cancel':

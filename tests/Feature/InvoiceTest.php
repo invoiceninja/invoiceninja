@@ -46,6 +46,18 @@ class InvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testInvoiceArchiveAction()
+    {
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices/'.$this->invoice->hashed_id.'/archive',)
+        ->assertStatus(200);
+    }
+
+
     public function testMarkingDeletedInvoiceAsSent()
     {
         Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
@@ -290,4 +302,6 @@ class InvoiceTest extends TestCase
         ])->post('/api/v1/invoices/', $data)
         ->assertStatus(200);
     }
+
+
 }
