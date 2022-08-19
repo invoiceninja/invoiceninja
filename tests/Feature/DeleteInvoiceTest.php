@@ -182,6 +182,7 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(30000, $client->balance);
         $this->assertEquals(6000, $payment->amount);
         $this->assertFalse($payment->is_deleted);
+        $this->assertNull($payment->deleted_at);
 
     }
 
