@@ -728,7 +728,7 @@ class QuoteController extends BaseController
                 $this->quote_repo->restore($quote);
 
                 if (! $bulk) {
-                    return $this->listResponse($quote);
+                    return $this->itemResponse($quote);
                 }
 
                 break;
@@ -736,7 +736,7 @@ class QuoteController extends BaseController
                 $this->quote_repo->archive($quote);
 
                 if (! $bulk) {
-                    return $this->listResponse($quote);
+                    return $this->itemResponse($quote);
                 }
 
                 break;
@@ -744,7 +744,7 @@ class QuoteController extends BaseController
                 $this->quote_repo->delete($quote);
 
                 if (! $bulk) {
-                    return $this->listResponse($quote);
+                    return $this->itemResponse($quote);
                 }
 
                 break;
