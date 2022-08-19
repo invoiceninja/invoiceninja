@@ -324,6 +324,10 @@ class NinjaMailerJob implements ShouldQueue
         if($this->company->is_disabled && !$this->override) 
             return true;
 
+        /* To handle spam users we drop all emails from flagged accounts */
+        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
+            return true;
+
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
         if(Ninja::isHosted() && $this->nmo->to_user && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
@@ -331,10 +335,6 @@ class NinjaMailerJob implements ShouldQueue
         /* GMail users are uncapped */
         if(Ninja::isHosted() && ($this->nmo->settings->email_sending_method == 'gmail' || $this->nmo->settings->email_sending_method == 'office365')) 
             return false;
-
-        /* To handle spam users we drop all emails from flagged accounts */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
-            return true;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())

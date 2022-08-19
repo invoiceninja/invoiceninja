@@ -15,6 +15,7 @@ use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Facades\DB;
 
 class HandleRestore extends AbstractService
 {
@@ -56,6 +57,37 @@ class HandleRestore extends AbstractService
 
         return $this->invoice;
     }
+
+    private function adjustPayments()
+    {
+        //if total payments = adjustment amount - that means we need to delete the payments as well.
+
+        if ($this->adjustment_amount == $this->total_payments) {
+            $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
+        } else {
+
+            //adjust payments down by the amount applied to the invoice payment.
+
+            $this->invoice->payments->each(function ($payment) {
+                $payment_adjustment = $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('amount'));
+
+                $payment_adjustment -= $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('refunded'));
+
+                $payment->amount -= $payment_adjustment;
+                $payment->applied -= $payment_adjustment;
+                $payment->save();
+            });
+        }
+
+        return $this;
+    }
+
 
     private function windBackInvoiceNumber()
     {
