@@ -150,6 +150,8 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(30000, $invoice->balance);
         $this->assertEquals(6000, $invoice->paid_to_date);
 
+        //delete the invoice an inspect the balances
+
         $invoice_repo = new InvoiceRepository();
 
         $invoice = $invoice_repo->delete($invoice);
@@ -162,6 +164,24 @@ class DeleteInvoiceTest extends TestCase
         $this->assertTrue($payment->is_deleted);
         $this->assertEquals(4, $payment->status_id);
 
+        $client->fresh();
+
+        $this->assertEquals(0, $client->balance);
+        $this->assertEquals(0, $client->paid_to_date);
+
+        //restore the invoice. this should also rehydrate the payments and restore the correct paid to dates on the client record
+
+        $invoice_repo->restore($invoice);
+        $invoice = $invoice->fresh();
+        $client = $client->fresh();
+        $payment = $payment->fresh();
+
+        $this->assertEquals(30000, $invoice->balance);
+        $this->assertEquals(6000, $invoice->paid_to_date);
+        $this->assertEquals(6000, $client->paid_to_date);
+        $this->assertEquals(30000, $client->balance);
+        $this->assertEquals(6000, $payment->amount);
+        $this->assertFalse($payment->is_deleted);
 
     }
 
