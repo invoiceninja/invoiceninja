@@ -623,14 +623,14 @@ class PurchaseOrderController extends BaseController
                 $this->purchase_order_repository->restore($purchase_order);
 
                 if (! $bulk) {
-                    return $this->listResponse($purchase_order);
+                    return $this->itemResponse($purchase_order);
                 }
                 break;
             case 'archive':
                 $this->purchase_order_repository->archive($purchase_order);
 
                 if (! $bulk) {
-                    return $this->listResponse($purchase_order);
+                    return $this->itemResponse($purchase_order);
                 }
                 break;
             case 'delete':
@@ -638,7 +638,7 @@ class PurchaseOrderController extends BaseController
                 $this->purchase_order_repository->delete($purchase_order);
 
                 if (! $bulk) {
-                    return $this->listResponse($purchase_order);
+                    return $this->itemResponse($purchase_order);
                 }
                 break;
             
@@ -684,7 +684,7 @@ class PurchaseOrderController extends BaseController
                 }
                 
                 if (! $bulk) {
-                    return $this->listResponse($purchase_order);
+                    return $this->itemResponse($purchase_order);
                 }
                 break;
 

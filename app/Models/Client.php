@@ -236,6 +236,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Task::class)->withTrashed();
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class)->withTrashed();
+    }
+
     public function recurring_invoices()
     {
         return $this->hasMany(RecurringInvoice::class)->withTrashed();
@@ -625,11 +630,6 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return $defaults;
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class)->withTrashed();
     }
 
     public function timezone_offset()
