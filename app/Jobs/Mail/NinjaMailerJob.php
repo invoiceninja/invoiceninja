@@ -332,12 +332,12 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && ($this->nmo->settings->email_sending_method == 'gmail' || $this->nmo->settings->email_sending_method == 'office365')) 
             return false;
 
-        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
-            return true;
-
         /* To handle spam users we drop all emails from flagged accounts */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
+            return true;
+
+        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
             return true;
 
         /* If the account is verified, we allow emails to flow */
