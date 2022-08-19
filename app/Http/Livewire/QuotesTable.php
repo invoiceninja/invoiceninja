@@ -20,7 +20,6 @@ use Livewire\WithPagination;
 
 class QuotesTable extends Component
 {
-    use WithSorting;
     use WithPagination;
 
     public $per_page = 10;
@@ -29,6 +28,19 @@ class QuotesTable extends Component
 
     public $company;
 
+    public $sort_field = 'status_id'; // Default sortBy. Feel free to change or pull from client/company settings.
+
+    public $sort_asc = true;
+
+    public function sortBy($field)
+    {
+        $this->sort_field === $field
+            ? $this->sort_asc = ! $this->sort_asc
+            : $this->sort_asc = true;
+
+        $this->sort_field = $field;
+    }
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -36,6 +48,7 @@ class QuotesTable extends Component
 
     public function render()
     {
+
         $query = Quote::query()
             ->with('client.gateway_tokens', 'company', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
@@ -44,7 +57,6 @@ class QuotesTable extends Component
 
             /* Special filter for expired*/
             if (in_array('-1', $this->status)) {
-                // $query->whereDate('due_date', '<=', now()->startOfDay());
 
                 $query->where(function ($query) {
                     $query->whereDate('due_date', '<=', now()->startOfDay())
@@ -69,10 +81,6 @@ class QuotesTable extends Component
             ->where('company_id', $this->company->id)
             ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->where('status_id', '<>', Quote::STATUS_DRAFT)
-            // ->where(function ($query){
-            //     $query->whereDate('due_date', '>=', now())
-            //           ->orWhereNull('due_date');
-            // })
             ->where('is_deleted', 0)
             ->withTrashed()
             ->paginate($this->per_page);

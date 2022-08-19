@@ -103,6 +103,7 @@ jobs:
     - name: Run Testsuite
       run: |
         cat .env
+        vendor/bin/snappdf download
         vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
