@@ -133,7 +133,6 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ \"${IS_DOCKER:-false}\" != \"true\" ]; then vendor/bin/snappdf download; fi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
