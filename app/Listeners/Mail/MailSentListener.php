@@ -17,6 +17,7 @@ use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Ninja;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Support\Facades\Notification;
@@ -41,7 +42,9 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
-
+        if(!Ninja::isHosted());
+            return;
+            
         $message_id = $event->sent->getMessageId();
 
         $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
