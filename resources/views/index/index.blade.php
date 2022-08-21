@@ -21,7 +21,7 @@
   </script>
    <script>
     window.flutterConfiguration = {
-      canvasKitBaseUrl: "{{config('ninja.app_url')}}/canvaskit/"
+      canvasKitBaseUrl: "/canvaskit/"
     };
   </script>
 </head>
