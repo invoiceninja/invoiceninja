@@ -63,21 +63,18 @@ class ClientTest extends TestCase
         $this->makeTestData();
     }
 
-    private function buildLineItems()
+    private function buildLineItems($number = 2)
     {
         $line_items = [];
 
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 10;
+        for($x=0; $x<$number; $x++)
+        {
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = 10;
 
-        $line_items[] = $item;
-
-        $item = InvoiceItemFactory::create();
-        $item->quantity = 1;
-        $item->cost = 10;
-
-        $line_items[] = $item;
+            $line_items[] = $item;  
+        }
 
         return $line_items;
     }
@@ -127,6 +124,34 @@ class ClientTest extends TestCase
         $this->assertEquals(20, $credit->balance);
         $this->assertEquals(20, $credit->client->fresh()->credit_balance);
 
+        //lets now update the credit and increase its balance, this should also increase the credit balance
+
+        $data = [
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'number' => '34343xx43',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $this->buildLineItems(3)
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/credits/'.$credit->hashed_id, $data)
+            ->assertStatus(200);
+
+        $credit = $credit->fresh();
+
+        $this->assertEquals(30, $credit->balance);
+        $this->assertEquals(30, $credit->client->fresh()->credit_balance);
     }
 
     public function testStoreClientUsingCountryCode()
