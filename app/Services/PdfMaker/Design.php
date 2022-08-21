@@ -50,10 +50,8 @@ class Design extends BaseDesign
     /** Construct options */
     public $options;
 
-    /** @var Invoice[] */
     public $invoices;
 
-    /** @var Payment[] */
     public $payments;
 
     public $settings_object;
@@ -396,7 +394,7 @@ class Design extends BaseDesign
     public function productTable(): array
     {
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1 || $item->type_id == 6;
+            return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         });
 
         if (count($product_items) == 0) {

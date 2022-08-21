@@ -40,7 +40,7 @@ class InvoiceTransformer extends BaseTransformer
 
         $transformed = [
             'company_id'   => $this->company->id,
-            'client_id'    => $this->getClient($this->getString($invoice_data, 'Customer ID'), null),
+            'client_id'    => $this->getClient($this->getString($invoice_data, 'Customer ID'), $this->getString($invoice_data, 'Primary Contact EmailID')),
             'number'       => $this->getString($invoice_data, 'Invoice Number'),
             'date'         => isset($invoice_data['Invoice Date']) ? date('Y-m-d', strtotime($invoice_data['Invoice Date'])) : null,
             'due_date'     => isset($invoice_data['Due Date']) ? date('Y-m-d', strtotime($invoice_data['Due Date'])) : null,
@@ -51,14 +51,19 @@ class InvoiceTransformer extends BaseTransformer
             'balance'      => $this->getFloat($invoice_data, 'Balance'),
             'status_id'    => $invoiceStatusMap[$status =
                     strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
+            'terms'        => $this->getString($invoice_data, 'Terms & Conditions'),
+
             // 'viewed'       => $status === 'viewed',
         ];
 
         $line_items = [];
         foreach ($line_items_data as $record) {
+
+            $item_notes_key = array_key_exists('Item Description', $record) ? 'Item Description' : 'Item Desc';
+            
             $line_items[] = [
                 'product_key'        => $this->getString($record, 'Item Name'),
-                'notes'              => $this->getString($record, 'Item Description'),
+                'notes'              => $this->getString($record, $item_notes_key),
                 'cost'               => round($this->getFloat($record, 'Item Price'), 2),
                 'quantity'           => $this->getFloat($record, 'Quantity'),
                 'discount'           => $this->getString($record, 'Discount Amount'),

@@ -129,7 +129,8 @@ class QuoteService
     /**
      * Sometimes we need to refresh the
      * PDF when it is updated etc.
-     * @return InvoiceService
+     * 
+     * @return QuoteService
      */
     public function touchPdf($force = false)
     {

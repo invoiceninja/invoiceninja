@@ -414,6 +414,7 @@ class HtmlEngine
 
         $data['$portal_button'] = ['value' => '<a class="button" href="'.$this->contact->getLoginLink().'?client_hash='.$this->client->client_hash.'">'.ctrans('texts.view_client_portal').'</a>', 'label' => ctrans('view_client_portal')];
         $data['$contact.portal_button'] = &$data['$portal_button'];
+        $data['$portalButton'] = &$data['$portal_button'];
 
         $data['$contact.custom1'] = ['value' => isset($this->contact) ? $this->contact->custom_value1 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact1')];
         $data['$contact.custom2'] = ['value' => isset($this->contact) ? $this->contact->custom_value2 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact2')];
@@ -543,7 +544,6 @@ class HtmlEngine
         /*Payment Aliases*/
         $data['$paymentLink'] = &$data['$payment_link'];
         $data['$payment_url'] = &$data['$payment_link'];
-        $data['$portalButton'] = &$data['$portal_button'];
         
         $data['$dir'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'rtl' : 'ltr', 'label' => ''];
         $data['$dir_text_align'] = ['value' => in_array(optional($this->client->language())->locale, ['ar', 'he']) ? 'right' : 'left', 'label' => ''];

@@ -47,14 +47,6 @@ class CreditCard
         return render('gateways.paytrace.authorize', $data);
     }
 
-    // +"success": true
-    // +"response_code": 160
-    // +"status_message": "The customer profile for PLS5U60OoLUfQXzcmtJYNefPA0gTthzT/11 was successfully created."
-    // +"customer_id": "PLS5U60OoLUfQXzcmtJYNefPA0gTthzT"
-
-    //if(!$response->success)
-    //handle failure
-
     public function authorizeResponse($request)
     {
         $data = $request->all();
@@ -63,27 +55,6 @@ class CreditCard
 
         return redirect()->route('client.payment_methods.index');
     }
-
-    //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
-    //   "company_gateway_id" => "1"
-    //   "HPF_Token" => "e484a92c-90ed-4468-ac4d-da66824c75de"
-    //   "enc_key" => "zqz6HMHCXALWdX5hyBqrIbSwU7TBZ0FTjjLB3Cp0FQY="
-    //   "amount" => "Amount"
-    //   "q" => "/client/payment_methods"
-    //   "method" => "1"
-    // ]
-
-    // "customer_id":"customer789",
-    // "hpf_token":"e369847e-3027-4174-9161-fa0d4e98d318",
-    // "enc_key":"lI785yOBMet4Rt9o4NLXEyV84WBU3tdStExcsfoaOoo=",
-    // "integrator_id":"xxxxxxxxxx",
-    // "billing_address":{
-    //     "name":"Mark Smith",
-    //     "street_address":"8320 E. West St.",
-    //     "city":"Spokane",
-    //     "state":"WA",
-    //     "zip":"85284"
-    // }
 
     private function createCustomer($data)
     {
@@ -156,7 +127,7 @@ class CreditCard
             'zip' => $this->paytrace->client->postal_code,
         ];
 
-        nlog($data);
+        return $data;
     }
 
     public function paymentView($data)

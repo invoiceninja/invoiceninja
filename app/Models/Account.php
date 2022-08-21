@@ -33,7 +33,7 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
-    private $free_plan_email_quota = 50;
+    private $free_plan_email_quota = 20;
 
     private $paid_plan_email_quota = 500;
     /**
@@ -390,11 +390,11 @@ class Account extends BaseModel
 
         if($this->isPaid()){
             $limit = $this->paid_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         }
         else{
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 10;
         }
 
         return min($limit, 5000);

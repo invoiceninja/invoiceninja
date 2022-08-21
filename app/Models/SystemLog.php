@@ -100,6 +100,8 @@ class SystemLog extends Model
     const TYPE_MOLLIE = 312;
 
     const TYPE_EWAY = 313;
+    
+    const TYPE_FORTE = 314;
 
     const TYPE_SQUARE = 320;
 
@@ -250,7 +252,9 @@ class SystemLog extends Model
             case self::TYPE_WEPAY:
                 return 'WePay';
             case self::TYPE_PAYFAST:
-                return 'Payfast';
+                return "Payfast";
+            case self::TYPE_FORTE:
+                return "Forte";
             default:
                 return 'undefined';
         }

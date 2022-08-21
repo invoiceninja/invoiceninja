@@ -511,21 +511,21 @@ class RecurringExpenseController extends BaseController
                 $this->recurring_expense_repo->archive($recurring_expense);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_expense);
+                    return $this->itemResponse($recurring_expense);
                 }
                 break;
             case 'restore':
                 $this->recurring_expense_repo->restore($recurring_expense);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_expense);
+                    return $this->itemResponse($recurring_expense);
                 }
                 break;
             case 'delete':
                 $this->recurring_expense_repo->delete($recurring_expense);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_expense);
+                    return $this->itemResponse($recurring_expense);
                 }
                 break;
             case 'email':

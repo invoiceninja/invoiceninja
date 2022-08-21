@@ -41,7 +41,7 @@ class PaymentFailedMailer implements ShouldQueue
 
     public ?PaymentHash $payment_hash;
 
-    public string $error;
+    public $error;
 
     public Company $company;
 
@@ -55,7 +55,7 @@ class PaymentFailedMailer implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct(?PaymentHash $payment_hash, Company $company, Client $client, string $error)
+    public function __construct(?PaymentHash $payment_hash, Company $company, Client $client, $error)
     {
         $this->payment_hash = $payment_hash;
         $this->client = $client;
@@ -70,6 +70,10 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
+        if(!is_string($this->error)){
+            $this->error = "Payment failed, no reason given.";
+        }
+
         //Set DB
         MultiDB::setDb($this->company->db);
         App::setLocale($this->client->locale());

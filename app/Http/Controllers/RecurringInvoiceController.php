@@ -662,21 +662,21 @@ class RecurringInvoiceController extends BaseController
                 $this->recurring_invoice_repo->archive($recurring_invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_invoice);
+                    return $this->itemResponse($recurring_invoice);
                 }
                 break;
             case 'restore':
                 $this->recurring_invoice_repo->restore($recurring_invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_invoice);
+                    return $this->itemResponse($recurring_invoice);
                 }
                 break;
             case 'delete':
                 $this->recurring_invoice_repo->delete($recurring_invoice);
 
                 if (! $bulk) {
-                    return $this->listResponse($recurring_invoice);
+                    return $this->itemResponse($recurring_invoice);
                 }
                 break;
             case 'email':

@@ -44,6 +44,7 @@ use Checkout\Payments\PaymentRequest as PaymentsPaymentRequest;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\Source\RequestIdSource;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutComPaymentDriver extends BaseDriver
 {
@@ -407,8 +408,15 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
     {
+
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
+
+        //11-08-2022 check the user is autenticated
+        if (!Auth::guard('contact')->check()) {
+            $client = $request->getClient();
+            auth()->guard('contact')->loginUsingId($client->contacts()->first()->id, true);
+        }
 
         try {
             $payment = $this->gateway->getPaymentsClient()->getPaymentDetails(

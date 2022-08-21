@@ -587,21 +587,21 @@ class CreditController extends BaseController
                 $this->credit_repository->archive($credit);
 
                 if (! $bulk) {
-                    return $this->listResponse($credit);
+                    return $this->itemResponse($credit);
                 }
                 break;
             case 'restore':
                 $this->credit_repository->restore($credit);
 
                 if (! $bulk) {
-                    return $this->listResponse($credit);
+                    return $this->itemResponse($credit);
                 }
                 break;
             case 'delete':
                 $this->credit_repository->delete($credit);
 
                 if (! $bulk) {
-                    return $this->listResponse($credit);
+                    return $this->itemResponse($credit);
                 }
                 break;
             case 'email':

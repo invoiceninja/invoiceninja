@@ -271,9 +271,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessageSending::class => [
         ],
-        // MessageSent::class => [
-        //     MailSentListener::class,
-        // ],
+        MessageSent::class => [
+            MailSentListener::class,
+        ],
         UserWasCreated::class => [
             CreatedUserActivity::class,
             SendVerificationNotification::class,

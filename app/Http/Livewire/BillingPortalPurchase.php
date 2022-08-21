@@ -98,6 +98,8 @@ class BillingPortalPurchase extends Component
      */
     public $payment_method_id;
 
+    private $user_coupon;
+
     /**
      * List of steps that frontend form follows.
      *
@@ -263,10 +265,23 @@ class BillingPortalPurchase extends Component
             }
         }
 
+// nlog($this->subscription->group_settings->settings);
+// nlog($this->subscription->group_settings->settings->currency_id);
+
         if(array_key_exists('currency_id', $this->request_data)) {
 
             $currency = Cache::get('currencies')->filter(function ($item){
                 return $item->id == $this->request_data['currency_id'];
+            })->first();
+
+            if($currency)
+                $data['settings']->currency_id = $currency->id;
+
+        }
+        elseif($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
+
+            $currency = Cache::get('currencies')->filter(function ($item){
+                return $item->id == $this->subscription->group_settings->settings->currency_id;
             })->first();
 
             if($currency)
@@ -436,32 +451,45 @@ class BillingPortalPurchase extends Component
      */
     public function updateQuantity(string $option): int
     {
+        $this->handleCoupon();
+
         if ($this->quantity == 1 && $option == 'decrement') {
+            $this->price = $this->price * 1;
             return $this->quantity;
         }
 
-        if ($this->quantity >= $this->subscription->max_seats_limit && $option == 'increment') {
+        if ($this->quantity > $this->subscription->max_seats_limit && $option == 'increment') {
+            $this->price = $this->price * $this->subscription->max_seats_limit;
             return $this->quantity;
         }
 
         if ($option == 'increment') {
             $this->quantity++;
-            $this->price = $this->subscription->promo_price * $this->quantity;
+            $this->price = $this->price * $this->quantity;
             return $this->quantity;
         }
 
             $this->quantity--;
-            $this->price = $this->subscription->promo_price * $this->quantity;
+            $this->price = $this->price * $this->quantity;
 
             return $this->quantity;
     }
 
     public function handleCoupon()
     {
+
+        if($this->steps['discount_applied']){
+            $this->price = $this->subscription->promo_price;
+            return;
+        }
+
         if ($this->coupon == $this->subscription->promo_code) {
             $this->price = $this->subscription->promo_price;
+            $this->quantity = 1;
             $this->steps['discount_applied'] = true;
         }
+        else
+            $this->price = $this->subscription->price;
     }
 
     public function passwordlessLogin()
