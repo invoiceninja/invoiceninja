@@ -13,11 +13,13 @@ namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\Credit;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -59,6 +61,72 @@ class ClientTest extends TestCase
         );
 
         $this->makeTestData();
+    }
+
+    private function buildLineItems()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = $item;
+
+        return $line_items;
+    }
+
+    public function testCreditBalance()
+    {
+        $this->client->credit_balance = 0;
+        $this->client->save();
+
+        $this->assertEquals(0, $this->client->credit_balance);
+
+        $credit = [
+            'status_id' => 1,
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'number' => '34343xx43',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'line_items' => $this->buildLineItems()
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/', $credit)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $credit_id = $arr['data']['id'];
+
+        $credit = Credit::find($this->decodePrimaryKey($credit_id));
+
+        $this->assertNotNull($credit);
+
+        $this->assertEquals(0, $credit->balance);
+
+        $credit->service()->markSent()->save();
+
+        $this->assertEquals(20, $credit->balance);
+        $this->assertEquals(20, $credit->client->fresh()->credit_balance);
+
     }
 
     public function testStoreClientUsingCountryCode()

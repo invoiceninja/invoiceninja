@@ -142,6 +142,7 @@ class CreditService
         $client = $this->credit->client->fresh();
         $client->service()
                 ->updatePaidToDate($adjustment)
+                ->adjustCreditBalance($adjustment * -1)
                 ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
