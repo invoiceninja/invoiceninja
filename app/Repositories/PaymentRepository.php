@@ -139,7 +139,8 @@ class PaymentRepository extends BaseRepository {
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
+                // $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
+                $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {
                     $invoice = $invoice->service()
@@ -157,16 +158,20 @@ class PaymentRepository extends BaseRepository {
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
+            // $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
+
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+
             $payment->credits()->saveMany($credits);
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::withTrashed()->find($this->decodePrimaryKey($paid_credit['credit_id']));
-
+                // $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
+                $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
+                
                 if ($credit) {
                     $credit = $credit->service()->markSent()->save();
-                    ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
+                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
                 }
             }
         }
@@ -245,7 +250,7 @@ class PaymentRepository extends BaseRepository {
         event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $payment;
-        //return parent::delete($payment);
+
     }
 
     public function restore($payment)

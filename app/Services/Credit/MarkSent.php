@@ -45,6 +45,11 @@ class MarkSent
              ->touchPdf()
              ->save();
 
+        $this->client
+             ->service()
+             ->adjustCreditBalance($this->credit->amount)
+             ->save();
+             
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->credit;
