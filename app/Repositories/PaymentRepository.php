@@ -139,7 +139,8 @@ class PaymentRepository extends BaseRepository {
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
+                // $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
+                $invoice = $invoices->firstWhere('id', $paid_invoice['invoice_id']);
 
                 if ($invoice) {
                     $invoice = $invoice->service()
@@ -165,8 +166,9 @@ class PaymentRepository extends BaseRepository {
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
-
+                // $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
+                $credit = $credits->firstWhere('id', $paid_credit['credit_id']);
+                
                 if ($credit) {
                     $credit = $credit->service()->markSent()->save();
                     (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
