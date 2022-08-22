@@ -157,12 +157,15 @@ class PaymentRepository extends BaseRepository {
         if (array_key_exists('credits', $data) && is_array($data['credits'])) {
             $credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
+            // $credits = Credit::whereIn('id', $this->transformKeys(array_column($data['credits'], 'credit_id')))->get();
+
+            $credits = Credit::whereIn('id', array_column($data['credits'], 'credit_id'))->get();
+
             $payment->credits()->saveMany($credits);
 
             //todo optimize into a single query
             foreach ($data['credits'] as $paid_credit) {
-                $credit = Credit::withTrashed()->find($this->decodePrimaryKey($paid_credit['credit_id']));
+                $credit = Credit::withTrashed()->find($paid_credit['credit_id']);
 
                 if ($credit) {
                     $credit = $credit->service()->markSent()->save();

@@ -50,11 +50,14 @@ class ValidCreditsRules implements Rule
         }
 
         $unique_array = [];
+        
+        $cred_collection = Credit::withTrashed()->whereIn('id', array_column($this->input['credits'], 'credit_id'))->get();
 
         foreach ($this->input['credits'] as $credit) {
             $unique_array[] = $credit['credit_id'];
 
-            $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
+            // $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
+            $cred = $cred_collection->firstWhere('id', $credit['credit_id']);
 
             if (! $cred) {
                 $this->error_msg = ctrans('texts.credit_not_found');

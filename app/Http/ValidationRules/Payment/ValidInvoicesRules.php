@@ -51,6 +51,9 @@ class ValidInvoicesRules implements Rule
 
         $unique_array = [];
 
+        /////
+        $inv_collection = Invoice::withTrashed()->whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->get();
+
         //todo optimize this into a single query
         foreach ($this->input['invoices'] as $invoice) {
             $unique_array[] = $invoice['invoice_id'];
@@ -61,7 +64,10 @@ class ValidInvoicesRules implements Rule
                 return false;
             }
 
-            $inv = Invoice::withTrashed()->whereId($invoice['invoice_id'])->first();
+            /////
+            $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);
+
+            // $inv = Invoice::withTrashed()->whereId($invoice['invoice_id'])->first();
 
             if (! $inv) {
                 $this->error_msg = ctrans('texts.invoice_not_found');
