@@ -166,7 +166,7 @@ class PaymentRepository extends BaseRepository {
 
                 if ($credit) {
                     $credit = $credit->service()->markSent()->save();
-                    ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
+                    (new ApplyCreditPayment($credit, $payment, $paid_credit['amount'], $credit->company))->handle();
                 }
             }
         }
@@ -245,7 +245,7 @@ class PaymentRepository extends BaseRepository {
         event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $payment;
-        //return parent::delete($payment);
+
     }
 
     public function restore($payment)

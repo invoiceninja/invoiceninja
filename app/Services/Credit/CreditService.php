@@ -257,6 +257,29 @@ class CreditService
         return $this;
     }
 
+    public function deleteCredit()
+    {
+        $this->credit
+             ->client
+             ->service()
+             ->adjustCreditBalance($this->credit->balance * -1)
+             ->save();
+
+        return $this;
+    }
+
+
+    public function restoreCredit()
+    {
+        $this->credit
+             ->client
+             ->service()
+             ->adjustCreditBalance($this->credit->balance)
+             ->save();
+
+        return $this;
+    }
+
     /**
      * Saves the credit.
      * @return Credit object
