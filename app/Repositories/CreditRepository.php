@@ -59,7 +59,7 @@ class CreditRepository extends BaseRepository
     public function restore($credit)
     {
         //we cannot restore a deleted payment.
-        if ($credit->is_deleted) {
+        if (! $credit->trashed()) {
             return;
         }
 
