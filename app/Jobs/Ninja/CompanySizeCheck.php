@@ -12,6 +12,7 @@
 namespace App\Jobs\Ninja;
 
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -54,6 +55,8 @@ class CompanySizeCheck implements ShouldQueue
 
     private function check()
     {
+        nlog("Checking all company sizes");
+        
         Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
             if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
                 nlog("Marking company {$company->id} as large");
@@ -61,5 +64,17 @@ class CompanySizeCheck implements ShouldQueue
                 $company->account->companies()->update(['is_large' => true]);
             }
         });
+
+        nlog("updating all client credit balances");
+
+        Client::where('updated_at', '>', now()->subDay())
+              ->cursor()
+              ->each(function ($client){
+
+                $client->credit_balance = $client->service()->getCreditBalance();
+                $client->save();
+
+              });
+              
     }
 }

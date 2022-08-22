@@ -142,6 +142,7 @@ class CreditService
         $client = $this->credit->client->fresh();
         $client->service()
                 ->updatePaidToDate($adjustment)
+                ->adjustCreditBalance($adjustment * -1)
                 ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
@@ -252,6 +253,29 @@ class CreditService
     public function triggeredActions($request)
     {
         $this->invoice = (new TriggeredActions($this->credit, $request))->run();
+
+        return $this;
+    }
+
+    public function deleteCredit()
+    {
+        $this->credit
+             ->client
+             ->service()
+             ->adjustCreditBalance($this->credit->balance * -1)
+             ->save();
+
+        return $this;
+    }
+
+
+    public function restoreCredit()
+    {
+        $this->credit
+             ->client
+             ->service()
+             ->adjustCreditBalance($this->credit->balance)
+             ->save();
 
         return $this;
     }

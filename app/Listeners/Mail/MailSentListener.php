@@ -42,12 +42,15 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
-        if(!Ninja::isHosted());
+        if(!Ninja::isHosted())
             return;
             
         $message_id = $event->sent->getMessageId();
 
         $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
+
+        if(!$message->getHeaders()->get('x-invitation'))
+            return;
 
         $invitation_key = $message->getHeaders()->get('x-invitation')->getValue();
 

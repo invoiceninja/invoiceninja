@@ -85,6 +85,13 @@ class ApplyCreditPayment implements ShouldQueue
                 ->save();
         }
 
+        //22-08-2022
+        $this->credit
+             ->client
+             ->service()
+             ->adjustCreditBalance($this->amount * -1)
+             ->save();
+
         /* Update Payment Applied Amount*/
         $this->payment->save();
     }
