@@ -52,7 +52,7 @@ class CreditRepository extends BaseRepository
 
         $credit = $credit->service()->deleteCredit()->save();
 
-        return parent::restore($credit);
+        return parent::delete($credit);
 
     }
 

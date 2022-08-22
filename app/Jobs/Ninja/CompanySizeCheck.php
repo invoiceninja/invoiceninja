@@ -12,6 +12,7 @@
 namespace App\Jobs\Ninja;
 
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,5 +62,17 @@ class CompanySizeCheck implements ShouldQueue
                 $company->account->companies()->update(['is_large' => true]);
             }
         });
+
+        nlog("updating all client credit balances");
+
+        Client::where('updated_at', '>', now()->subDay())
+              ->cursor()
+              ->each(function ($client){
+
+                $client->credit_balance = $client->service()->getCreditBalance();
+                $client->save();
+
+              });
+              
     }
 }
