@@ -73,28 +73,38 @@ class PaymentRepository extends BaseRepository {
                 unset($data['exchange_rate']);
 
             $is_existing_payment = false;
-            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
-            /*We only update the paid to date ONCE per payment*/
-            if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-                if ($data['amount'] == '') {
-                    $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
+            \DB::connection(config('database.default'))->transaction(function () use ($data) {
+
+                $client = Client::where('id', $data['client_id'])->withTrashed()->lockForUpdate()->first();
+
+                /*We only update the paid to date ONCE per payment*/
+                if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
+                    if ($data['amount'] == '') {
+                        $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
+                    }
+
+                    // $client->service()->updatePaidToDate($data['amount'])->save();
+                    $client->paid_to_date += $data['amount'];
+                    $client->save();
                 }
 
-                $client->service()->updatePaidToDate($data['amount'])->save();
-            }
+                else{
+                    //this fixes an edge case with unapplied payments
+                    // $client->service()->updatePaidToDate($data['amount'])->save();
+                    $client->paid_to_date += $data['amount'];
+                    $client->save();
+                }
 
-            else{
-                //this fixes an edge case with unapplied payments
-                $client->service()->updatePaidToDate($data['amount'])->save();
-            }
+                if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
+                    $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-            if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
-                $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
+                    // $client->service()->updatePaidToDate($_credit_totals)->save();
+                    $client->paid_to_date += $_credit_totals;
+                    $client->save();
+                }
 
-                $client->service()->updatePaidToDate($_credit_totals)->save();
-                
-            }
+             }, 1);
 
         }
 
