@@ -61,6 +61,7 @@ class QuoteController extends Controller
         $data = [
             'quote' => $quote,
             'key' => $invitation ? $invitation->key : false,
+            'invitation' => $invitation
         ];
 
         if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
