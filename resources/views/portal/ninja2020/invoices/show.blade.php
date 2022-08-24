@@ -96,7 +96,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $invoice])
+    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $invoice, 'invitation' => $invitation])
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$invoice], 'entity_type' => ctrans('texts.invoice')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
