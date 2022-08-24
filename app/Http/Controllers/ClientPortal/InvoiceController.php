@@ -69,6 +69,7 @@ class InvoiceController extends Controller
 
         $data = [
             'invoice' => $invoice,
+            'invitation' => $invitation,
             'key' => $invitation ? $invitation->key : false,
         ];
 

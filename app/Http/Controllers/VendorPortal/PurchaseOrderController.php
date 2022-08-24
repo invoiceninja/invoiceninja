@@ -99,6 +99,7 @@ class PurchaseOrderController extends Controller
             'settings' => $purchase_order->company->settings,
             'sidebar' => $this->sidebarMenu(),
             'company' => $purchase_order->company,
+            'invitation' => $invitation
         ];
 
         if ($request->query('mode') === 'fullscreen') {
