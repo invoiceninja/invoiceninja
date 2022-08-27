@@ -49,6 +49,6 @@ class SendEmail
             }
         });
 
-        $this->credit->service()->markSent();
+        $this->credit->service()->markSent()->save();
     }
 }
