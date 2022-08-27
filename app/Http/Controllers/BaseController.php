@@ -298,6 +298,11 @@ class BaseController extends Controller
 
                     if (! $user->hasPermission('view_product')) {
                         $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
+
+                        $query->whereNested(function($query) use ($user) {
+                            $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
+                        });
+
                     }
                 },
                 'company.projects'=> function ($query) use ($updated_at, $user) {
