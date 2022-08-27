@@ -4767,6 +4767,9 @@ $LANG = array(
     'bulk_email_invoices' => 'Email Invoices',
     'bulk_email_quotes' => 'Email Quotes',
     'bulk_email_credits' => 'Email Credits',
+    'archive_purchase_order' => 'Archive Purchase Order',
+    'restore_purchase_order' => 'Restore Purchase Order',
+    'delete_purchase_order' => 'Delete Purchase Order',
 );
 
 return $LANG;

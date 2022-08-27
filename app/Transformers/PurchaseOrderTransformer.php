@@ -14,6 +14,7 @@ namespace App\Transformers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\Vendor;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
@@ -27,7 +28,8 @@ class PurchaseOrderTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-        'expense'
+        'expense',
+        'vendor',
     ];
 
     public function includeInvitations(PurchaseOrder $purchase_order)
@@ -49,7 +51,22 @@ class PurchaseOrderTransformer extends EntityTransformer
     {
         $transformer = new ExpenseTransformer($this->serializer);
 
-        return $this->includeItem($purchase_order->expense, $transformer, Document::class);
+        if (!$purchase_order->expense) {
+            return null;
+        }
+
+        return $this->includeItem($purchase_order->expense, $transformer, Expense::class);
+    }
+
+    public function includeVendor(PurchaseOrder $purchase_order)
+    {
+        $transformer = new VendorTransformer($this->serializer);
+
+        if (!$purchase_order->vendor) {
+            return null;
+        }
+
+        return $this->includeItem($purchase_order->vendor, $transformer, Vendor::class);
     }
 
     public function transform(PurchaseOrder $purchase_order)
