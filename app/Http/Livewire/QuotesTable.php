@@ -28,17 +28,17 @@ class QuotesTable extends Component
 
     public $company;
 
-    public $sort_field = 'status_id'; // Default sortBy. Feel free to change or pull from client/company settings.
+    public $sort = 'status_id'; // Default sortBy. Feel free to change or pull from client/company settings.
 
     public $sort_asc = true;
 
     public function sortBy($field)
     {
-        $this->sort_field === $field
+        $this->sort === $field
             ? $this->sort_asc = ! $this->sort_asc
             : $this->sort_asc = true;
 
-        $this->sort_field = $field;
+        $this->sort = $field;
     }
 
     public function mount()
@@ -51,7 +51,7 @@ class QuotesTable extends Component
 
         $query = Quote::query()
             ->with('client.gateway_tokens', 'company', 'client.contacts')
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+            ->orderBy($this->sort, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {
 

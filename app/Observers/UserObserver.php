@@ -24,9 +24,6 @@ class UserObserver
     public function created(User $user)
     {
 
-        if(class_exists(\Modules\Admin\Jobs\Account\UserQuality::class))
-            \Modules\Admin\Jobs\Account\UserQuality::dispatch($user, $user->account->key);
-
     }
 
     /**
@@ -37,9 +34,6 @@ class UserObserver
      */
     public function updated(User $user)
     {
-
-        if(class_exists(\Modules\Admin\Jobs\Account\UserQuality::class))
-            \Modules\Admin\Jobs\Account\UserQuality::dispatch($user, $user->account->key);
 
     }
 

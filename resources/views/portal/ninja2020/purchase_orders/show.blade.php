@@ -46,7 +46,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $purchase_order])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $purchase_order])
+    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $purchase_order, 'invitation' => $invitation])
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$purchase_order], 'entity_type' => ctrans('texts.purchase_order')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection

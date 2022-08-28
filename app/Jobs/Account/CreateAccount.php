@@ -85,6 +85,11 @@ class CreateAccount
             $sp794f3f->hosted_client_count = config('ninja.quotas.free.clients');
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
+
+            if(in_array($this->getDomain($this->request['email']), ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com'])){
+                $sp794f3f->account_sms_verified = false;
+            }
+
             // $sp794f3f->trial_started = now();
             // $sp794f3f->trial_plan = 'pro';
         }
@@ -155,4 +160,19 @@ class CreateAccount
 
         return $sp794f3f;
     }
+
+    private function getDomain($email)
+    {
+        if( filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+            // split on @ and return last value of array (the domain)
+            $domain = explode('@', $email);
+         
+            $domain_name = end($domain);
+
+            return $domain_name;
+        }
+
+        return 'gmail.com';
+    }
+
 }

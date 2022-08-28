@@ -69,7 +69,7 @@ class UpdateTaskRequest extends Request
 
         /* Ensure the project is related */
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
-            $project = Project::withTrashed()->find($input['project_id'])->company()->first();
+            $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
 
             if($project){
                 $input['client_id'] = $project->client_id;
