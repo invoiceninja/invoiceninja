@@ -800,7 +800,7 @@ $LANG = array(
     'activity_51' => ':user deleted user :user',
     'activity_52' => ':user restored user :user',
     'activity_53' => ':user marked sent :invoice',
-    'activity_54' => ':user reopened ticket :ticket',
+    'activity_54' => ':user paid invoice :invoice',
     'activity_55' => ':contact replied ticket :ticket',
     'activity_56' => ':user viewed ticket :ticket',
 
