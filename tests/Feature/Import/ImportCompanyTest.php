@@ -78,7 +78,7 @@ class ImportCompanyTest extends TestCase
     {
         parent::setUp();
 
-        $this->artisan('db:seed');
+       // $this->artisan('db:seed');
 
         $this->withoutMiddleware(
             ThrottleRequests::class

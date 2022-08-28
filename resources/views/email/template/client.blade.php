@@ -81,6 +81,15 @@
             text-align: left !important;
         }
     </style>
+
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+        <o:AllowPNG/>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
 </head>
 
 <body
@@ -102,7 +111,7 @@
                             <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
                             <div style="mso-hide:all;">
                             <![endif]-->
-                            <img src="{{ $logo ?? '' }}" alt="" style="margin-top: 40px; max-width: 155px; display: block; margin-left: auto; margin-right: auto;"/>
+                            <img src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 40px; max-width: 155px; display: block; margin-left: auto; margin-right: auto;"/>
                             <!--[if gte mso 9]>
                             </div>
                             <![endif]-->

@@ -36,7 +36,7 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule],
+            'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule($this->all())],
             'invoices.*.invoice_id' => 'distinct',
             'documents' => 'mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
@@ -76,6 +76,14 @@ class UpdatePaymentRequest extends Request
             foreach ($input['invoices'] as $key => $value) {
                 if (array_key_exists('invoice_id', $input['invoices'][$key])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+                }
+            }
+        }
+
+        if (isset($input['credits']) && is_array($input['credits']) !== false) {
+            foreach ($input['credits'] as $key => $value) {
+                if (array_key_exists('credits', $input['credits'][$key])) {
+                    $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
                 }
             }
         }

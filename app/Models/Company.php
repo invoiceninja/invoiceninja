@@ -120,6 +120,7 @@ class Company extends BaseModel
         'inventory_notification_threshold',
         'stock_notification',
         'enabled_expense_tax_rates',
+        'invoice_task_project',
     ];
 
     protected $hidden = [

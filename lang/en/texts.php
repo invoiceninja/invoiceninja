@@ -800,7 +800,7 @@ $LANG = array(
     'activity_51' => ':user deleted user :user',
     'activity_52' => ':user restored user :user',
     'activity_53' => ':user marked sent :invoice',
-    'activity_54' => ':user reopened ticket :ticket',
+    'activity_54' => ':user paid invoice :invoice',
     'activity_55' => ':contact replied ticket :ticket',
     'activity_56' => ':user viewed ticket :ticket',
 
@@ -4767,6 +4767,9 @@ $LANG = array(
     'bulk_email_invoices' => 'Email Invoices',
     'bulk_email_quotes' => 'Email Quotes',
     'bulk_email_credits' => 'Email Credits',
+    'archive_purchase_order' => 'Archive Purchase Order',
+    'restore_purchase_order' => 'Restore Purchase Order',
+    'delete_purchase_order' => 'Delete Purchase Order',
 );
 
 return $LANG;

@@ -90,7 +90,7 @@ class Number
             return (float) $s;
         }
 
-        // remove all seperators from first part and keep the end
+        // remove all separators from first part and keep the end
         $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
 
         // return float
