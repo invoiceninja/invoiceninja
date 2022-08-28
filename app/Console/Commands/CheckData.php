@@ -114,7 +114,8 @@ class CheckData extends Command
         $this->checkEntityInvitations();
         $this->checkCompanyData();
         $this->checkBalanceVsPaidStatus();
-
+        $this->checkDuplicateRecurringInvoices();
+        
         if(Ninja::isHosted())
             $this->checkAccountStatuses();
 
@@ -144,6 +145,23 @@ class CheckData extends Command
         $this->info($str);
         $this->log .= $str."\n";
     }
+
+    private function checkDuplicateRecurringInvoices()
+    {
+
+        if(Ninja::isHosted())
+        {
+            $c = Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))
+                ->with('recurring_invoices')
+                ->cursor()
+                ->each(function ($client){
+                  if($client->recurring_invoices()->where('is_deleted', 0)->where('deleted_at', null)->count() > 1)
+                    $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1}");
+                });
+        }
+
+    }
+
 
     private function checkOAuth()
     {
