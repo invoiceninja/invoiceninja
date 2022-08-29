@@ -1422,7 +1422,7 @@ class PaymentTest extends TestCase
         $this->assertEquals(10, $this->invoice->balance);
         $this->assertEquals(10, $this->invoice->client->fresh()->balance);
 
-        $this->invoice->service()->markPaid()->save();
+        $this->invoice = $this->invoice->service()->markPaid()->save();
 
         $this->assertEquals(0, $this->invoice->balance);
         $this->assertEquals(0, $this->invoice->client->balance);

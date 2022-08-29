@@ -42,9 +42,9 @@ class ZeroCostProduct extends AbstractService
 
         $invoice = $this->subscription->service()->createInvoice($this->data);
 
-        $invoice->service()
-                ->markPaid()
-                ->save();
+        $invoice = $invoice->service()
+                           ->markPaid()
+                           ->save();
 
         $redirect_url = "/client/invoices/{$invoice->hashed_id}";
 

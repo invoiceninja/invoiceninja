@@ -237,11 +237,31 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
         $data['$payment.status'] = ['value' => $this->payment->stringStatus($this->payment->status_id), 'label' => ctrans('texts.payment_status')];
+        $data['$invoices.amount'] = ['value' => $this->formatInvoiceField('amount'), 'label' => ctrans('texts.invoices')];
+        $data['$invoices.balance'] = ['value' => $this->formatInvoiceField('balance'), 'label' => ctrans('texts.invoices')];
+        $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
+        $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
         return $data;
+    }
+
+    private function formatInvoiceField($field)
+    {
+        $invoice = '';
+
+        foreach ($this->payment->invoices as $invoice) {
+
+            $invoice_field = $invoice->{$field};
+
+            $invoice .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
+
+        }
+
+        return $invoice;
+
     }
 
     private function formatInvoice()
@@ -282,11 +302,15 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            
+            if(strlen($invoice->po_number) > 1)
+                $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+
             $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} <br>";
             $invoice_list .= ctrans('texts.invoice_amount').' '.Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
             $invoice_list .= ctrans('texts.invoice_balance').' '.Number::formatMoney($invoice->fresh()->balance, $this->client).'<br>';
             $invoice_list .= '-----<br>';
+
         }
 
         return $invoice_list;

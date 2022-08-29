@@ -82,7 +82,7 @@ class SubscriptionsCalcTest extends TestCase
 
         $this->assertFalse($sub_calculator->isPaidUp());
 
-        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->service()->markPaid()->save();
 
         $this->assertTrue($sub_calculator->isPaidUp());
 
