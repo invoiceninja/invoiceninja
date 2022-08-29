@@ -62,7 +62,9 @@ class UserRepository extends BaseRepository
         //     $account->num_users++;
         //     $account->save();
         // }
-
+        if(array_key_exists('oauth_provider_id', $details))
+            unset($details['oauth_provider_id']);
+        
         $user->fill($details);
 
         //allow users to change only their passwords - not others!
