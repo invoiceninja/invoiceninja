@@ -29,6 +29,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Utils\Ninja;
 use Exception;
@@ -115,7 +116,8 @@ class CheckData extends Command
         $this->checkCompanyData();
         $this->checkBalanceVsPaidStatus();
         $this->checkDuplicateRecurringInvoices();
-        
+        $this->checkOauthSanity();
+
         if(Ninja::isHosted())
             $this->checkAccountStatuses();
 
@@ -144,6 +146,15 @@ class CheckData extends Command
         $str = date('Y-m-d h:i:s').' '.$str;
         $this->info($str);
         $this->log .= $str."\n";
+    }
+
+    private function checkOauthSanity()
+    {
+        User::where('oauth_provider_id', '1')->cursor()->each(function ($user){
+        
+            $this->logMessage("Invalid provider ID for user id# {$user->id}");
+
+        });
     }
 
     private function checkDuplicateRecurringInvoices()
