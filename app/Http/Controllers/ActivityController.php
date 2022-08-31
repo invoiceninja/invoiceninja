@@ -107,6 +107,7 @@ class ActivityController extends BaseController
                     'payment' => $activity->payment ? $activity->payment : '',
                     'credit' => $activity->credit ? $activity->credit : '',
                     'task' => $activity->task ? $activity->task : '',
+                    'vendor' => $activity->vendor ? $activity->vendor : '',
                 ];
 
                 return array_merge($arr, $activity->toArray());
