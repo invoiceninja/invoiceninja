@@ -104,8 +104,7 @@
                 </tr>
                 <tr>
                     <td align="center" cellpadding="20">
-                        <div
-                            style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
                             <!--[if gte mso 9]>
                             <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
