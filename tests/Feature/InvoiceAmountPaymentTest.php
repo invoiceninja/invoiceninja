@@ -185,7 +185,7 @@ class InvoiceAmountPaymentTest extends TestCase
         $this->assertEquals(25, $invoice->balance);
         $this->assertEquals(25, $invoice->amount);
 
-        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->service()->markPaid()->save();
 
         $invoice->fresh();
 

@@ -195,6 +195,7 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
+
         // return $this->trial();
         //harvest the current plan
         $data = [];

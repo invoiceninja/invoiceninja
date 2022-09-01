@@ -41,20 +41,37 @@ class MarkPaid extends AbstractService
 
     public function run()
     {
-        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->service()->markSent()->save();
-        }
 
         /*Don't double pay*/
         if ($this->invoice->status_id == Invoice::STATUS_PAID) {
             return $this->invoice;
         }
 
+        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
+            $this->invoice->service()->markSent()->save();
+        }
+
+        $payable_balance = $this->invoice->balance;
+
+        \DB::connection(config('database.default'))->transaction(function () use($payable_balance) {
+
+            $this->invoice = Invoice::where('id', $this->invoice->id)->lockForUpdate()->first();
+
+            $this->invoice
+                ->service()
+                ->setExchangeRate()
+                ->updateBalance($payable_balance * -1)
+                ->updatePaidToDate($payable_balance)
+                ->setStatus(Invoice::STATUS_PAID)
+                ->save();
+
+        }, 1);
+
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $this->invoice->balance;
-        $payment->applied = $this->invoice->balance;
+        $payment->amount = $payable_balance;
+        $payment->applied = $payable_balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
@@ -79,20 +96,20 @@ class MarkPaid extends AbstractService
 
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
-            'amount' => $payment->amount,
+            'amount' => $payable_balance,
         ]);
 
         event('eloquent.created: App\Models\Payment', $payment);
 
         $this->invoice->next_send_date = null;
 
-        $this->invoice
-                ->service()
-                ->setExchangeRate()
-                ->updateBalance($payment->amount * -1)
-                ->updatePaidToDate($payment->amount)
-                ->setStatus(Invoice::STATUS_PAID)
-                ->save();
+        // $this->invoice
+        //         ->service()
+        //         ->setExchangeRate()
+        //         ->updateBalance($payment->amount * -1)
+        //         ->updatePaidToDate($payment->amount)
+        //         ->setStatus(Invoice::STATUS_PAID)
+        //         ->save();
 
         $this->invoice
                 ->service()
@@ -101,7 +118,7 @@ class MarkPaid extends AbstractService
                 ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($payment->amount * -1);
+                ->updatePaymentBalance($payable_balance * -1);
 
         \DB::connection(config('database.default'))->transaction(function () use ($payment) {
 

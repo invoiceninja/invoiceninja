@@ -168,6 +168,9 @@ class ClientFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
+        if($sort_col[0] == 'display_name')
+            $sort_col[0] = 'name';
+        
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
