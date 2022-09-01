@@ -14,8 +14,22 @@ return new class extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->string('transaction_reference')->nullable()->index()->change();
+            $table->index(['transaction_reference']);
         });
+
+        Schema::table('paymentables', function (Blueprint $table) {
+            $table->index(['paymentable_id']);
+        });
+
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->index(['recurring_id']);
+            $table->index(['status_id','balance']);
+        });
+
+        Schema::table('quotes', function (Blueprint $table) {
+            $table->index(['company_id','updated_at']);
+        });
+
     }
 
     /**
