@@ -966,7 +966,7 @@ class CheckData extends Command
     {
         $this->wrong_paid_status = 0;
 
-        foreach(Invoice::with(['payments'])->whereHas('payments')->where('status_id', 4)->where('balance', '>', 0)->where('is_deleted',0)->cursor() as $invoice)
+        foreach(Invoice::with(['payments'])->where('is_deleted',0)->where('balance', '>', 0)->whereHas('payments')->where('status_id', 4)->cursor() as $invoice)
         {
             $this->wrong_paid_status++;
             
