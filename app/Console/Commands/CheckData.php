@@ -29,6 +29,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Utils\Ninja;
 use Exception;
@@ -114,6 +115,8 @@ class CheckData extends Command
         $this->checkEntityInvitations();
         $this->checkCompanyData();
         $this->checkBalanceVsPaidStatus();
+        $this->checkDuplicateRecurringInvoices();
+        $this->checkOauthSanity();
 
         if(Ninja::isHosted())
             $this->checkAccountStatuses();
@@ -144,6 +147,32 @@ class CheckData extends Command
         $this->info($str);
         $this->log .= $str."\n";
     }
+
+    private function checkOauthSanity()
+    {
+        User::where('oauth_provider_id', '1')->cursor()->each(function ($user){
+        
+            $this->logMessage("Invalid provider ID for user id# {$user->id}");
+
+        });
+    }
+
+    private function checkDuplicateRecurringInvoices()
+    {
+
+        if(Ninja::isHosted())
+        {
+            $c = Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))
+                ->with('recurring_invoices')
+                ->cursor()
+                ->each(function ($client){
+                  if($client->recurring_invoices()->where('is_deleted', 0)->where('deleted_at', null)->count() > 1)
+                    $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1}");
+                });
+        }
+
+    }
+
 
     private function checkOAuth()
     {
@@ -937,7 +966,7 @@ class CheckData extends Command
     {
         $this->wrong_paid_status = 0;
 
-        foreach(Invoice::with(['payments'])->whereHas('payments')->where('status_id', 4)->where('balance', '>', 0)->where('is_deleted',0)->cursor() as $invoice)
+        foreach(Invoice::with(['payments'])->where('is_deleted',0)->where('balance', '>', 0)->whereHas('payments')->where('status_id', 4)->cursor() as $invoice)
         {
             $this->wrong_paid_status++;
             

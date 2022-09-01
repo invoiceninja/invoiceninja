@@ -52,15 +52,42 @@ class VendorTransformer extends BaseTransformer
             'custom_value2' => $this->getString($data, 'vendor.custom_value2'),
             'custom_value3' => $this->getString($data, 'vendor.custom_value3'),
             'custom_value4' => $this->getString($data, 'vendor.custom_value4'),
-            'vendor_contacts' => [
+            // 'vendor_contacts' => [
+            //     [
+            //         'first_name' => $this->getString(
+            //             $data,
+            //             'vendor.first_name'
+            //         ),
+            //         'last_name' => $this->getString($data, 'vendor.last_name'),
+            //         'email' => $this->getString($data, 'vendor.email'),
+            //         'phone' => $this->getString($data, 'vendor.phone'),
+            //     ],
+            // ],
+            'contacts' => [
                 [
                     'first_name' => $this->getString(
                         $data,
-                        'vendor.first_name'
+                        'contact.first_name'
                     ),
-                    'last_name' => $this->getString($data, 'vendor.last_name'),
-                    'email' => $this->getString($data, 'vendor.email'),
-                    'phone' => $this->getString($data, 'vendor.phone'),
+                    'last_name' => $this->getString($data, 'contact.last_name'),
+                    'email' => $this->getString($data, 'contact.email'),
+                    'phone' => $this->getString($data, 'contact.phone'),
+                    'custom_value1' => $this->getString(
+                        $data,
+                        'contact.custom_value1'
+                    ),
+                    'custom_value2' => $this->getString(
+                        $data,
+                        'contact.custom_value2'
+                    ),
+                    'custom_value3' => $this->getString(
+                        $data,
+                        'contact.custom_value3'
+                    ),
+                    'custom_value4' => $this->getString(
+                        $data,
+                        'contact.custom_value4'
+                    ),
                 ],
             ],
             'country_id' => isset($data['vendor.country_id'])
