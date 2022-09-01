@@ -129,7 +129,7 @@ class BaseTransformer
      */
     public function hasVendor($name)
     {
-        return Vendor::where('company_id', $this->company)
+        return Vendor::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
