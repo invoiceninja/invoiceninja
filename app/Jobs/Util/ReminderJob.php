@@ -14,8 +14,10 @@ namespace App\Jobs\Util;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Ninja\TransactionLog;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesReminders;
@@ -204,6 +206,16 @@ class ReminderJob implements ShouldQueue
         nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
         $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
+
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $client->transaction_event(),
+            'credit' => [],
+            'metadata' => ['setLateFee'],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
 
         return $invoice;
     }
