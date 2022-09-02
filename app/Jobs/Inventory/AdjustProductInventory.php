@@ -80,9 +80,9 @@ class AdjustProductInventory implements ShouldQueue
             $p->in_stock_quantity -= $item->quantity;
             $p->saveQuietly();
 
-            if ($p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold) {
+            if ($this->company->stock_notification && $p->stock_notification && $p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold) {
                 $this->notifyStockLevels($p, 'product');
-            } elseif ($this->company->stock_notification_threshold && $p->in_stock_quantity <= $this->company->stock_notification_threshold) {
+            } elseif ($this->company->stock_notification && $p->stock_notification && $this->company->inventory_notification_threshold && $p->in_stock_quantity <= $this->company->inventory_notification_threshold) {
                 $this->notifyStocklevels($p, 'company');
             }
         }
