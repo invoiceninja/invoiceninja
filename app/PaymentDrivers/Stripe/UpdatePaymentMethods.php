@@ -74,6 +74,9 @@ class UpdatePaymentMethods
     {
         $sources = $customer->sources;
 
+        if(!property_exists($sources, 'data'))
+            return;
+
         foreach ($sources->data as $method) {
             $token_exists = ClientGatewayToken::where([
                 'gateway_customer_reference' => $customer->id,
