@@ -17,6 +17,7 @@ use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
@@ -87,10 +88,12 @@ class ApplyPaymentAmount extends AbstractService
 
         $this->invoice
             ->client
+            ->fresh()
             ->service()
             ->updateBalance($payment->amount * -1)
             ->updatePaidToDate($payment->amount)
             ->save();
+
 
         if ($this->invoice->client->getSetting('client_manual_payment_notification')) {
             $payment->service()->sendEmail();

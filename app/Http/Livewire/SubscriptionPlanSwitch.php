@@ -56,6 +56,7 @@ class SubscriptionPlanSwitch extends Component
      */
     public $total;
 
+    public $hide_button = false;
     /**
      * @var array
      */
@@ -139,12 +140,20 @@ class SubscriptionPlanSwitch extends Component
 
     public function handlePaymentNotRequired()
     {
-        return $this->target->service()->createChangePlanCredit([
+        $this->hide_button = true;
+
+        $response =  $this->target->service()->createChangePlanCredit([
             'recurring_invoice' => $this->recurring_invoice,
             'subscription' => $this->subscription,
             'target' => $this->target,
             'hash' => $this->hash,
         ]);
+
+        $this->hide_button = true;
+
+        $this->dispatchBrowserEvent('redirectRoute', ['route' => $response]);
+
+        // return redirect($response);
     }
 
     public function render()

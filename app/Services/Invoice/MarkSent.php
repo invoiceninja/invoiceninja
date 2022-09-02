@@ -69,6 +69,7 @@ class MarkSent extends AbstractService
             $client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $client->balance += $adjustment;
             $client->save();
+            
         }, 1);
 
         $this->invoice->markInvitationsSent();
