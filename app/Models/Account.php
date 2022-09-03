@@ -57,6 +57,7 @@ class Account extends BaseModel
         'utm_content',
         'user_agent',
         'platform',
+        'num_users'
     ];
 
     /**
@@ -387,7 +388,7 @@ class Account extends BaseModel
             return 0;
 
         return Cache::get($this->key);
-    } 
+    }
 
     public function emailQuotaExceeded() :bool
     {
@@ -434,7 +435,7 @@ class Account extends BaseModel
             return false;
 
         nlog("Sending notification");
-        
+
         try {
 
             if(is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
@@ -457,7 +458,7 @@ class Account extends BaseModel
             }
 
             return true;
-            
+
         }
         catch(\Exception $e){
             \Sentry\captureMessage("I encountered an error with sending with gmail for account {$this->key}");
