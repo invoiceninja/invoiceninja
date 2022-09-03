@@ -901,6 +901,10 @@ class BaseController extends Controller
                 return redirect('/')->with(['signup' => 'true']);
             }
 
+            $canvas_path_array = parse_url(config('ninja.app_url'));
+
+            $canvas_path = (array_key_exists('path', $canvas_path_array)) ? $canvas_path_array['path'] : '';
+                
             $data = [];
 
             //pass report errors bool to front end
@@ -911,6 +915,7 @@ class BaseController extends Controller
             $data['build'] = request()->has('build') ? request()->input('build') : '';
             $data['login'] = request()->has('login') ? request()->input('login') : 'false';
             $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+            $data['canvas_path'] = $canvas_path;
 
             if (request()->session()->has('login')) {
                 $data['login'] = 'true';
