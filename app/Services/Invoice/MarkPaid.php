@@ -126,7 +126,7 @@ class MarkPaid extends AbstractService
         //     $client->save();
         // }, 1);
 
-        $this->invoice->client->service()->updateBalanceAndPaidToDate($payment->amount, $payment->amount*-1)->save();
+                $this->invoice->client->service()->updateBalanceAndPaidToDate($payment->amount*-1, $payment->amount)->save();
 
         $this->invoice = $this->invoice
                              ->service()

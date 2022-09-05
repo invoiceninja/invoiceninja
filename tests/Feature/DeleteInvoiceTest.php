@@ -258,7 +258,7 @@ class DeleteInvoiceTest extends TestCase
         $invoice = $invoice->service()->markPaid()->save();
 
         $this->assertEquals(0, $invoice->balance);
-        $this->assertEquals(0, $invoice->client->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
         $this->assertEquals(20, $invoice->client->paid_to_date);
 
         //partially refund payment
