@@ -110,17 +110,17 @@ class BraintreePaymentDriver extends BaseDriver
         }
 
         $result = $this->gateway->customer()->create([
-            'firstName' => $this->client->present()->name,
-            'email' => $this->client->present()->email,
-            'phone' => $this->client->present()->phone,
+            'firstName' => $this->client->present()->name(),
+            'email' => $this->client->present()->email(),
+            'phone' => $this->client->present()->phone(),
         ]);
 
         if ($result->success) {
             $address = $this->gateway->address()->create([
                 'customerId' => $result->customer->id,
-                'firstName' => $this->client->present()->name,
-                'streetAddress' => $this->client->address1,
-                'postalCode' => $this->client->postal_code,
+                'firstName' => $this->client->present()->name(),
+                'streetAddress' => $this->client->address1 ?: '',
+                'postalCode' => $this->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->client->country ? $this->client->country->iso_3166_2 : '',
             ]);
 
