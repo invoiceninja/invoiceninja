@@ -28,14 +28,46 @@ class ClientService
 
     public function updateBalance(float $amount)
     {
-        $this->client->balance += $amount;
+        // $this->client->balance += $amount;
+
+        \DB::connection(config('database.default'))->transaction(function () use($amount) {
+
+            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client->balance += $amount;
+            $this->client->save();
+
+        }, 2);
+
+        return $this;
+    }
+
+    public function updateBalanceAndPaidToDate(float $balance, float $paid_to_date)
+    {
+        // $this->client->balance += $amount;
+
+        \DB::connection(config('database.default'))->transaction(function () use($amount) {
+
+            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client->balance += $balance;
+            $this->client->paid_to_date += $paid_to_date;
+            $this->client->save();
+
+        }, 2);
 
         return $this;
     }
 
     public function updatePaidToDate(float $amount)
     {
-        $this->client->paid_to_date += $amount;
+        // $this->client->paid_to_date += $amount;
+
+        \DB::connection(config('database.default'))->transaction(function () use($amount) {
+
+            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client->paid_to_date += $amount;
+            $this->client->save();
+
+        }, 2);
 
         return $this;
     }

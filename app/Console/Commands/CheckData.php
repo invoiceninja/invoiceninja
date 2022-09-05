@@ -76,7 +76,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
 
     /**
      * @var string
@@ -118,8 +118,10 @@ class CheckData extends Command
         $this->checkDuplicateRecurringInvoices();
         $this->checkOauthSanity();
 
-        if(Ninja::isHosted())
+        if(Ninja::isHosted()){
             $this->checkAccountStatuses();
+            $this->checkNinjaPortalUrls();
+        }
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
@@ -1001,6 +1003,33 @@ class CheckData extends Command
         }
 
         $this->logMessage($this->wrong_paid_status." wrong invoices with bad balance state");
+
+    }
+
+    public function checkNinjaPortalUrls()
+    {
+        
+        $wrong_count = CompanyUser::where('is_owner',1)->where('ninja_portal_url', '')->count();
+
+        $this->logMessage("Missing ninja portal Urls = {$wrong_count}");
+
+        if(!$this->option('portal_url'))
+            return;
+
+        CompanyUser::where('is_owner',1)->where('ninja_portal_url', '')->cursor()->each(function ($cu){
+
+        $cc = ClientContact::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('email', $cu->user->email)->first();
+
+            if($cc){
+                $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->company->company_key}";
+
+                $cu->ninja_portal_url = $ninja_portal_url;
+                $cu->save();
+
+                $this->logMessage("Fixing - {$ninja_portal_url}");
+            }
+
+        });
 
     }
 }
