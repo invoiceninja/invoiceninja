@@ -132,7 +132,8 @@ class DemoMode extends Command
             'enabled_modules' => 32767,
             'company_key' => 'KEY',
             'enable_shop_api' => true,
-            'markdown_email_enabled' => false,
+            'markdown_email_enabled' => true,
+            'markdown_enabled' => false,
         ]);
 
         $settings = $company->settings;
