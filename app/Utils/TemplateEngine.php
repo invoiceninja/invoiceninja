@@ -107,7 +107,7 @@ class TemplateEngine
 
     private function setSettingsObject()
     {
-        if($this->entity == 'purchaseOrder'){
+        if($this->entity == 'purchaseOrder' || $this->entity == 'purchase_order'){
             $this->settings_entity = auth()->user()->company();
             $this->settings = $this->settings_entity->settings;
         }
