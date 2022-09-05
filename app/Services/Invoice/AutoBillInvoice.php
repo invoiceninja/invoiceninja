@@ -221,11 +221,11 @@ class AutoBillInvoice extends AbstractService
      */
     private function applyCreditPayment()
     {
-        $available_credits = $this->client
-                                  ->credits
+        $available_credits = Credit::where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
                                   ->where('balance', '>', 0)
-                                  ->sortBy('created_at');
+                                  ->orderBy('created_at')
+                                  ->get();
 
         $available_credit_balance = $available_credits->sum('balance');
 
@@ -253,6 +253,8 @@ class AutoBillInvoice extends AbstractService
                     $this->invoice->balance -= $this->invoice->partial;
                     $this->invoice->paid_to_date += $this->invoice->partial;
                     $this->invoice->partial = 0;
+                    $credit->balance -= $this->invoice->partial;
+                    $credit->save();
                     break;
                 } else {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
@@ -260,6 +262,8 @@ class AutoBillInvoice extends AbstractService
                     $this->invoice->partial -= $credit->balance;
                     $this->invoice->balance -= $credit->balance;
                     $this->invoice->paid_to_date += $credit->balance;
+                    $credit->balance = 0;
+                    $credit->save();
                 }
             } else {
 
@@ -269,13 +273,16 @@ class AutoBillInvoice extends AbstractService
                     $this->used_credit[$key]['amount'] = $this->invoice->balance;
                     $this->invoice->paid_to_date += $this->invoice->balance;
                     $this->invoice->balance = 0;
-
+                    $credit->balance -= $this->invoice->balance;
+                    $credit->save();
                     break;
                 } else {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->balance -= $credit->balance;
                     $this->invoice->paid_to_date += $credit->balance;
+                    $credit->balance = 0;
+                    $credit->save();
                 }
             }
         }
