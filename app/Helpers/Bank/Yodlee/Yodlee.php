@@ -61,6 +61,9 @@ class Yodlee
 
     public function getFastTrackUrl()
     {
+        if(config('ninja.yodlee.dev_mode'))
+            return $this->dev_fast_track_url;
+        
         return $this->test_mode ? $this->test_fast_track_url : $this->production_track_url;
     }
 
