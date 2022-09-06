@@ -35,6 +35,9 @@ class AutoBillInvoice extends AbstractService
 
     protected $db;
 
+    /*Specific variable for partial payments */
+    private bool $is_partial_amount = false;
+
     public function __construct(Invoice $invoice, $db)
     {
         $this->invoice = $invoice;
@@ -46,7 +49,8 @@ class AutoBillInvoice extends AbstractService
     {
         MultiDB::setDb($this->db);
 
-        $this->client = $this->invoice->client->fresh();
+        /* Harvest Client*/
+        $this->client = $this->invoice->client;
 
         $is_partial = false;
 
@@ -67,6 +71,10 @@ class AutoBillInvoice extends AbstractService
         if ($this->client->getSetting('use_credits_payment') != 'off') {
             $this->applyCreditPayment();
         }
+
+        //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
+        if($this->is_partial_amount && $this->invoice->partial == 0)
+            return;
 
         $amount = 0;
 
@@ -169,9 +177,9 @@ class AutoBillInvoice extends AbstractService
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
 
         $this->invoice
-             ->service()
-             ->setStatus(Invoice::STATUS_PAID)
-             ->save();
+            ->service()
+            ->setCalculatedStatus()
+            ->save();
 
         foreach ($this->used_credit as $credit) {
             $current_credit = Credit::find($credit['credit_id']);
@@ -191,18 +199,18 @@ class AutoBillInvoice extends AbstractService
             ->updatePaymentBalance($amount * -1)
             ->save();
 
-        $client = $this->invoice->client->fresh();
-
-        $client->service()
-              ->updateBalance($amount * -1)
-              ->updatePaidToDate($amount)
-              ->adjustCreditBalance($amount * -1)
-              ->save();
+        $this->invoice
+             ->client
+             ->service()
+             ->updateBalanceAndPaidToDate($amount * -1, $amount)
+              // ->updateBalance($amount * -1)
+              // ->updatePaidToDate($amount)
+             ->adjustCreditBalance($amount * -1)
+             ->save();
 
         $this->invoice->ledger() //09-03-2022
-                          // ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
-                          ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
-                          ->save();
+                      ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
+                      ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
@@ -235,16 +243,14 @@ class AutoBillInvoice extends AbstractService
             return;
         }
 
-        $is_partial_amount = false;
-
         if ($this->invoice->partial > 0) {
-            $is_partial_amount = true;
+            $this->is_partial_amount = true;
         }
 
         $this->used_credit = [];
 
         foreach ($available_credits as $key => $credit) {
-            if ($is_partial_amount) {
+            if ($this->is_partial_amount) {
 
                 //more credit than needed
                 if ($credit->balance > $this->invoice->partial) {
