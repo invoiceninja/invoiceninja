@@ -4770,6 +4770,13 @@ $LANG = array(
     'archive_purchase_order' => 'Archive Purchase Order',
     'restore_purchase_order' => 'Restore Purchase Order',
     'delete_purchase_order' => 'Delete Purchase Order',
+    'connect' => 'Connect',
+    'mark_paid_payment_email' => 'Mark Paid Payment Email',
+    'convert_to_project' => 'Convert to Project',
+    'client_email' => 'Client Email',
+    'invoice_task_project' => 'Invoice Task Project',
+    'invoice_task_project_help' => 'Add the project to the invoice line items',
+
 );
 
 return $LANG;
