@@ -150,7 +150,7 @@ class StripeCreditCard {
             })
             .then((result) => {
                 if (result.error) {
-                    return this.handleFailure(result);
+                    return this.handleFailure(result.error.message);
                 }
 
                 return this.handleSuccessfulAuthorization(result);
