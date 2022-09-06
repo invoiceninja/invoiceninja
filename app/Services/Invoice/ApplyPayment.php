@@ -88,7 +88,6 @@ class ApplyPayment extends AbstractService
 
         $this->invoice
              ->client
-             ->fresh()
              ->service()
              ->updateBalance($amount_paid)
              ->save();

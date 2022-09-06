@@ -43,7 +43,7 @@ class ApplyPaymentAmount extends AbstractService
     public function run()
     {
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->service()->markSent()->save();
+            $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
         /*Don't double pay*/
@@ -88,10 +88,8 @@ class ApplyPaymentAmount extends AbstractService
 
         $this->invoice
             ->client
-            ->fresh()
             ->service()
-            ->updateBalance($payment->amount * -1)
-            ->updatePaidToDate($payment->amount)
+            ->updateBalanceAndPaidToDate($payment->amount * -1, $payment->amount)
             ->save();
 
 

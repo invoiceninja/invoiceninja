@@ -50,7 +50,7 @@ class MarkPaid extends AbstractService
         }
 
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->service()->markSent()->save();
+            $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
         \DB::connection(config('database.default'))->transaction(function () {
