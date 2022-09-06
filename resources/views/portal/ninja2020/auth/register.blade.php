@@ -52,7 +52,7 @@
                                 @elseif($field['key'] === 'country_id')
                                     <select 
                                         id="shipping_country"
-                                        class="input w-full form-select"
+                                        class="input w-full form-select bg-white"
                                         name="country_id">
                                             <option value="none"></option>
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)

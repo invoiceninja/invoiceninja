@@ -117,16 +117,12 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($this->payable_balance * -1);
 
-        // \DB::connection(config('database.default'))->transaction(function () use ($payment) {
-
-        // /* Get the last record for the client and set the current balance*/
-        //     $client = Client::withTrashed()->where('id', $this->invoice->client_id)->lockForUpdate()->first();
-        //     $client->paid_to_date += $payment->amount;
-        //     $client->balance -= $payment->amount;
-        //     $client->save();
-        // }, 1);
-
-                $this->invoice->client->service()->updateBalanceAndPaidToDate($payment->amount*-1, $payment->amount)->save();
+        //06-09-2022
+        $this->invoice
+             ->client
+             ->service()
+             ->updateBalanceAndPaidToDate($payment->amount*-1, $payment->amount)
+             ->save();
 
         $this->invoice = $this->invoice
                              ->service()

@@ -28,6 +28,7 @@ trait Refundable
     /**
      * Entry point for processing of refunds.
      * @param array $data
+     * @deprecated ???? 06-09-2022
      * @return Refundable
      * @throws PaymentRefundFailed
      */
