@@ -28,9 +28,11 @@ class ClientContactRepository extends BaseRepository
 
     public function save(array $data, Client $client) : void
     {
-
+        //06-09-2022 sometimes users pass a contact object instead of a nested array, this sequence handles this scenario
         if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {
+
             $contacts = collect($data['contacts']);
+        
         } elseif(isset($data['contacts'])){
 
             $temp_array[] = $data['contacts'];
@@ -38,7 +40,9 @@ class ClientContactRepository extends BaseRepository
 
         }
         else {
+        
             $contacts = collect();
+        
         }
 
         $client->contacts->pluck('id')->diff($contacts->pluck('id'))->each(function ($contact) {
@@ -50,12 +54,8 @@ class ClientContactRepository extends BaseRepository
             $this->set_send_email_on_contact = true;
         }
 
-nlog($contacts->toArray());
-
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
-
-nlog($contact);
 
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
