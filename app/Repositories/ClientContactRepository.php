@@ -28,6 +28,7 @@ class ClientContactRepository extends BaseRepository
 
     public function save(array $data, Client $client) : void
     {
+
         if (isset($data['contacts'])) {
             $contacts = collect($data['contacts']);
         } else {
@@ -43,8 +44,13 @@ class ClientContactRepository extends BaseRepository
             $this->set_send_email_on_contact = true;
         }
 
+nlog($contacts->toArray());
+
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
+
+nlog($contact);
+
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
 
