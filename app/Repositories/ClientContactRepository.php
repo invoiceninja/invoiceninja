@@ -29,9 +29,15 @@ class ClientContactRepository extends BaseRepository
     public function save(array $data, Client $client) : void
     {
 
-        if (isset($data['contacts'])) {
+        if (isset($data['contacts']) && (count($data['contacts']) !== count($data['contacts'], COUNT_RECURSIVE))) {
             $contacts = collect($data['contacts']);
-        } else {
+        } elseif(isset($data['contacts'])){
+
+            $temp_array[] = $data['contacts'];
+            $contacts = collect($temp_array);
+
+        }
+        else {
             $contacts = collect();
         }
 
