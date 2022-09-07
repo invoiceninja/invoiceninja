@@ -70,8 +70,13 @@ class SupportMessageSent extends Mailable
         $trial = $account->isTrial() ? 'T' : '';
         $plan = str_replace('_', ' ', $plan);
 
+        $plan_status = '';
+
+        if(Carbon::parse($account->plan_expires)->lt(now()))
+            $plan_status = 'Plan Expired';
+  
         if (Ninja::isHosted()) {
-            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} ".date('M jS, g:ia');
         } else {
             $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: ".date('M jS, g:ia');
         }

@@ -76,7 +76,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=}';
 
     /**
      * @var string
@@ -118,8 +118,10 @@ class CheckData extends Command
         $this->checkDuplicateRecurringInvoices();
         $this->checkOauthSanity();
 
-        if(Ninja::isHosted())
+        if(Ninja::isHosted()){
             $this->checkAccountStatuses();
+            $this->checkNinjaPortalUrls();
+        }
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
@@ -505,12 +507,12 @@ class CheckData extends Command
 
                 $this->wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' id = # '.$client->id." - Client Paid To Date = {$client->paid_to_date} != Invoice Payments = {$total_paid_to_date} - {$_client->payments_applied} + {$credits_used_for_payments[0]->credit_payment}");
+                $this->logMessage($client->present()->name().' id = # '.$client->id." - Client Paid To Date = {$client->paid_to_date} != Invoice Payments = {$total_paid_to_date} - {$_client->payments_applied} + {$credits_used_for_payments[0]->credit_payment}");
 
                 $this->isValid = false;
 
                 if($this->option('paid_to_date')){
-                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
+                    $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
                     $client->paid_to_date = $total_paid_to_date;
                     $client->save();
                 }
@@ -582,12 +584,12 @@ class CheckData extends Command
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $this->wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
+                $this->logMessage($client->present()->name().' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
 
                 $this->isValid = false;
 
                 if($this->option('paid_to_date')){
-                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_invoice_payments}");
+                    $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->paid_to_date} to {$total_invoice_payments}");
                     $client->paid_to_date = $total_invoice_payments;
                     $client->save();
                 }
@@ -618,7 +620,7 @@ class CheckData extends Command
                 if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
                     $this->wrong_balances++;
 
-                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
+                    $this->logMessage($client->present()->name().' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
 
                     $this->isValid = false;
                 }
@@ -666,11 +668,11 @@ class CheckData extends Command
 
                 $client_object = Client::withTrashed()->find($client['client_id']);
 
-                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = ". $client['invoice_balance'] ." - Client Balance = ".rtrim($client['client_balance'], '0'));
+                $this->logMessage($client_object->present()->name().' - '.$client_object->id." - calculated client balances do not match Invoice Balances = ". $client['invoice_balance'] ." - Client Balance = ".rtrim($client['client_balance'], '0'));
  
                 if($this->option('client_balance')){
                     
-                    $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to " . $client['invoice_balance']);
+                    $this->logMessage("# {$client_object->id} " . $client_object->present()->name().' - '.$client_object->number." Fixing {$client_object->balance} to " . $client['invoice_balance']);
                     $client_object->balance = $client['invoice_balance'];
                     $client_object->save();
 
@@ -704,7 +706,7 @@ class CheckData extends Command
 
                     if($this->option('client_balance')){
                         
-                        $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to 0");
+                        $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
                         $client->balance = 0;
                         $client->save();
@@ -758,13 +760,13 @@ class CheckData extends Command
                 $this->wrong_balances++;
                 $ledger_balance = $ledger ? $ledger->balance : 0;
 
-                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger_balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger_balance}");
 
                 $this->isValid = false;
 
                 if($this->option('client_balance')){
                     
-                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
+                    $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
                     $client->save();
 
@@ -796,14 +798,14 @@ class CheckData extends Command
 
             if ($ledger && number_format($ledger->balance, 4) != number_format($client->balance, 4)) {
                 $this->wrong_balances++;
-                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." - Balance Failure - Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
 
 
                 if($this->option('ledger_balance')){
                     
-                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
+                    $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
                     $client->save();
 
@@ -1001,6 +1003,33 @@ class CheckData extends Command
         }
 
         $this->logMessage($this->wrong_paid_status." wrong invoices with bad balance state");
+
+    }
+
+    public function checkNinjaPortalUrls()
+    {
+        
+        $wrong_count = CompanyUser::where('is_owner',1)->where('ninja_portal_url', '')->count();
+
+        $this->logMessage("Missing ninja portal Urls = {$wrong_count}");
+
+        if(!$this->option('portal_url'))
+            return;
+
+        CompanyUser::where('is_owner',1)->where('ninja_portal_url', '')->cursor()->each(function ($cu){
+
+        $cc = ClientContact::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('email', $cu->user->email)->first();
+
+            if($cc){
+                $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->company->company_key}";
+
+                $cu->ninja_portal_url = $ninja_portal_url;
+                $cu->save();
+
+                $this->logMessage("Fixing - {$ninja_portal_url}");
+            }
+
+        });
 
     }
 }

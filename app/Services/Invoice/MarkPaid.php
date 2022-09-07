@@ -34,6 +34,8 @@ class MarkPaid extends AbstractService
 
     private $invoice;
 
+    private $payable_balance;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -48,20 +50,20 @@ class MarkPaid extends AbstractService
         }
 
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->service()->markSent()->save();
+            $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
-        $payable_balance = $this->invoice->balance;
-
-        \DB::connection(config('database.default'))->transaction(function () use($payable_balance) {
+        \DB::connection(config('database.default'))->transaction(function () {
 
             $this->invoice = Invoice::where('id', $this->invoice->id)->lockForUpdate()->first();
+
+            $this->payable_balance = $this->invoice->balance;
 
             $this->invoice
                 ->service()
                 ->setExchangeRate()
-                ->updateBalance($payable_balance * -1)
-                ->updatePaidToDate($payable_balance)
+                ->updateBalance($this->payable_balance * -1)
+                ->updatePaidToDate($this->payable_balance)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->save();
 
@@ -70,8 +72,8 @@ class MarkPaid extends AbstractService
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $payable_balance;
-        $payment->applied = $payable_balance;
+        $payment->amount = $this->payable_balance;
+        $payment->applied = $this->payable_balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
@@ -99,20 +101,12 @@ class MarkPaid extends AbstractService
 
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
-            'amount' => $payable_balance,
+            'amount' => $this->payable_balance,
         ]);
 
         event('eloquent.created: App\Models\Payment', $payment);
 
         $this->invoice->next_send_date = null;
-
-        // $this->invoice
-        //         ->service()
-        //         ->setExchangeRate()
-        //         ->updateBalance($payment->amount * -1)
-        //         ->updatePaidToDate($payment->amount)
-        //         ->setStatus(Invoice::STATUS_PAID)
-        //         ->save();
 
         $this->invoice
                 ->service()
@@ -121,16 +115,14 @@ class MarkPaid extends AbstractService
                 ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($payable_balance * -1);
+                ->updatePaymentBalance($this->payable_balance * -1);
 
-        \DB::connection(config('database.default'))->transaction(function () use ($payment) {
-
-        /* Get the last record for the client and set the current balance*/
-            $client = Client::withTrashed()->where('id', $this->invoice->client_id)->lockForUpdate()->first();
-            $client->paid_to_date += $payment->amount;
-            $client->balance -= $payment->amount;
-            $client->save();
-        }, 1);
+        //06-09-2022
+        $this->invoice
+             ->client
+             ->service()
+             ->updateBalanceAndPaidToDate($payment->amount*-1, $payment->amount)
+             ->save();
 
         $this->invoice = $this->invoice
                              ->service()

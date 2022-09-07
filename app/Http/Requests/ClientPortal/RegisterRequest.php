@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Requests\ClientPortal;
 
@@ -7,6 +16,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RegisterRequest extends FormRequest
 {
@@ -31,13 +41,13 @@ class RegisterRequest extends FormRequest
 
         foreach ($this->company()->client_registration_fields as $field) {
             if ($field['required']) {
-                $rules[$field['key']] = ['required'];
+                $rules[$field['key']] = ['bail','required'];
             }
         }
 
         foreach ($rules as $field => $properties) {
             if ($field === 'email') {
-                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:255']);
+                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:255', Rule::unique('client_contacts')->where('company_id', $this->company()->id)]);
             }
 
             if ($field === 'current_password') {

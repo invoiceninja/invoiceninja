@@ -727,7 +727,6 @@ class CompanySettings extends BaseSettings
      */
     public static function defaults(): stdClass
     {
-        $config = json_decode(config('ninja.settings'));
 
         $data = (object) get_class_vars(self::class);
 

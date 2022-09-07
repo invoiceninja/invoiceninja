@@ -252,7 +252,7 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
-        $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
+        $check_data = (new CheckCompanyData($this->company, md5(time())))->handle();
         
         // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
         $this->processNinjaTokens($data['ninja_tokens']);
@@ -591,7 +591,7 @@ class Import implements ShouldQueue
             
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
 
-            CreateCompanyToken::dispatchNow($this->company, $user, $user_agent);
+            (new CreateCompanyToken($this->company, $user, $user_agent))->handle();
 
             $key = "users_{$resource['id']}";
 
@@ -1899,7 +1899,7 @@ class Import implements ShouldQueue
         if(Ninja::isHosted()){
 
             try{
-                \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
+                \Modules\Admin\Jobs\Account\NinjaUser::dispatch($data, $this->company);
             }
             catch(\Exception $e){
                 nlog($e->getMessage());
