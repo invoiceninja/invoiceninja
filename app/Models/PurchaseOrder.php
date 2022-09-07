@@ -212,14 +212,14 @@ class PurchaseOrder extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
         elseif(Ninja::isHosted() && $portal){
-            $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation,config('filesystems.default'));
+            $file_path = (new CreatePurchaseOrderPdf($invitation,config('filesystems.default')))->handle();
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
         if(Storage::disk('public')->exists($file_path))
             return Storage::disk('public')->{$type}($file_path);
 
-        $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation);
+        $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
         return Storage::disk('public')->{$type}($file_path);
     }
 
