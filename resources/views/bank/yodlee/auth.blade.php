@@ -124,7 +124,7 @@
                   var completed = document.getElementById('completed');
                   completed.style.display = "block"; //block
 
-                  window.location.href = window.location.pathname+"?"+$.param({'window_closed':'true'})
+                  window.location.href = window.location.pathname + "?window_closed=true";
 
             },
             onEvent: function (data) {
@@ -139,7 +139,7 @@
         },
     false);
   }(window));
-  
+
 </script>
 
 @endpush
