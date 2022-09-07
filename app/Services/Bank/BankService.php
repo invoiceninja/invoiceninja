@@ -14,6 +14,7 @@ namespace App\Services\Bank;
 use App\Libraries\MultiDB;
 use App\Models\BankTransaction;
 use App\Models\Company;
+use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -45,9 +46,10 @@ class BankService implements ShouldQueue
 
         $this->company = Company::find($this->company_id);
 
-        $this->invoices = $this->company->invoices()->whereIn('status_id', [1,2,3])
-                                            ->where('is_deleted', 0)
-                                            ->get();
+        $this->invoices = Invoice::where('company_id', $this->company->id)
+                                ->whereIn('status_id', [1,2,3])
+                                ->where('is_deleted', 0)
+                                ->get();
 
         $this->match();
     }
