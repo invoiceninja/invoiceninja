@@ -57,7 +57,7 @@
                         </div>
                         <div class="col-span-6 sm:col-span-2">
                             <label for="country" class="input-label">@lang('texts.country')</label>
-                            <select id="country" class="input w-full form-select {{ in_array('billing_country', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" wire:model.defer="country_id">
+                            <select id="country" class="input w-full form-select bg-white {{ in_array('billing_country', (array) session('missing_required_fields')) ? 'border border-red-400' : '' }}" wire:model.defer="country_id">
                                 <option value="none"></option>
                                 @foreach($countries as $country)
                                     <option value="{{ $country->id }}">

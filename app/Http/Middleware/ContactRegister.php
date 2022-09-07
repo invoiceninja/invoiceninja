@@ -21,6 +21,7 @@ class ContactRegister
     {
         $domain_name = $request->getHost();
 
+        /* Hosted */
         if (strpos($domain_name, 'invoicing.co') !== false) {
             $subdomain = explode('.', $domain_name)[0];
 
@@ -42,6 +43,7 @@ class ContactRegister
             }
         }
 
+        /* Hosted */
         if (Ninja::isHosted()) {
             $query = [
                 'portal_domain' => $request->getSchemeAndHttpHost(),

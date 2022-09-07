@@ -12,6 +12,7 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Models\Credit;
 use App\Services\Client\Merge;
 use App\Services\Client\PaymentMethod;
 use App\Utils\Number;
@@ -44,8 +45,9 @@ class ClientService
     public function updateBalanceAndPaidToDate(float $balance, float $paid_to_date)
     {
         // $this->client->balance += $amount;
+        // $this->client->paid_to_date += $amount;
 
-        \DB::connection(config('database.default'))->transaction(function () use($amount) {
+        \DB::connection(config('database.default'))->transaction(function () use($balance, $paid_to_date) {
 
             $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
             $this->client->balance += $balance;
@@ -81,7 +83,7 @@ class ClientService
 
     public function getCreditBalance() :float
     {
-        $credits = $this->client->credits()
+        $credits = Credit::where('client_id', $this->client->id)
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
                       ->where(function ($query) {
@@ -95,7 +97,7 @@ class ClientService
 
     public function getCredits()
     {
-        return $this->client->credits()
+        return Credit::where('client_id', $this->client->id)
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
                   ->where(function ($query) {

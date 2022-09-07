@@ -55,15 +55,12 @@ class RefundPayment
     public function run()
     {
         $this->payment = $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
-            ->setStatus() //sets status of payment
-            //->reversePayment()
-            //->buildCreditNote() //generate the credit note
-            //->buildCreditLineItems() //generate the credit note items
-            ->updateCreditables() //return the credits first
-            ->updatePaymentables() //update the paymentable items
-            ->adjustInvoices()
-            ->processGatewayRefund() //process the gateway refund if needed
-            ->save();
+                            ->setStatus() //sets status of payment
+                            ->updateCreditables() //return the credits first
+                            ->updatePaymentables() //update the paymentable items
+                            ->adjustInvoices()
+                            ->processGatewayRefund() //process the gateway refund if needed
+                            ->save();
 
         if (array_key_exists('email_receipt', $this->refund_data) && $this->refund_data['email_receipt'] == 'true') {
             $contact = $this->payment->client->contacts()->whereNotNull('email')->first();
@@ -251,7 +248,6 @@ class RefundPayment
      */
     private function adjustInvoices()
     {
-        $adjustment_amount = 0;
 
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
@@ -266,7 +262,9 @@ class RefundPayment
                         ->updatePaidToDate($refunded_invoice['amount'] * -1)
                         ->save();
 
-                $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
+                $invoice->ledger()
+                        ->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")
+                        ->save();
 
                 if ($invoice->amount == $invoice->balance) {
                     $invoice->service()->setStatus(Invoice::STATUS_SENT);
@@ -276,10 +274,15 @@ class RefundPayment
 
                 $invoice->saveQuietly();
 
-                $client = $invoice->client;
-                $adjustment_amount += $refunded_invoice['amount'];
-                $client->balance += $refunded_invoice['amount'];
-                $client->save();
+                //06-09-2022
+                $client = $invoice->client
+                                  ->service()
+                                  ->updateBalance($refunded_invoice['amount'])
+                                  ->save();
+
+                // $client = $invoice->client;
+                // $client->balance += $refunded_invoice['amount'];
+                // $client->save();
 
                 $transaction = [
                     'invoice' => $invoice->transaction_event(),
@@ -350,75 +353,4 @@ class RefundPayment
         return $this->payment;
     }
 
-    // public function updateCreditNoteBalance()
-    // {
-    //     $this->credit_note->balance -= $this->total_refund;
-    //     $this->credit_note->status_id = Credit::STATUS_APPLIED;
-
-    //     $this->credit_note->balance === 0
-    //         ? $this->credit_note->status_id = Credit::STATUS_APPLIED
-    //         : $this->credit_note->status_id = Credit::STATUS_PARTIAL;
-
-    //     $this->credit_note->save();
-
-    //     return $this;
-    // }
-
-    // private function buildCreditNote()
-    // {
-    //     $this->credit_note = CreditFactory::create($this->payment->company_id, $this->payment->user_id);
-    //     $this->credit_note->assigned_user_id = isset($this->payment->assigned_user_id) ?: null;
-    //     $this->credit_note->date = $this->refund_data['date'];
-    //     $this->credit_note->status_id = Credit::STATUS_SENT;
-    //     $this->credit_note->client_id = $this->payment->client->id;
-    //     $this->credit_note->amount = $this->total_refund;
-    //     $this->credit_note->balance = $this->total_refund;
-
-    //     $this->credit_note->save();
-    //     $this->credit_note->number = $this->payment->client->getNextCreditNumber($this->payment->client);
-    //     $this->credit_note->save();
-
-    //     return $this;
-    // }
-
-    // private function buildCreditLineItems()
-    // {
-    //     $ledger_string = '';
-
-    //     if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
-    //         foreach ($this->refund_data['invoices'] as $invoice) {
-
-    //             $inv = Invoice::find($invoice['invoice_id']);
-
-    //             $credit_line_item = InvoiceItemFactory::create();
-    //             $credit_line_item->quantity = 1;
-    //             $credit_line_item->cost = $invoice['amount'];
-    //             $credit_line_item->product_key = ctrans('texts.invoice');
-    //             $credit_line_item->notes = ctrans('texts.refund_body', ['amount' => $invoice['amount'], 'invoice_number' => $inv->number]);
-    //             $credit_line_item->line_total = $invoice['amount'];
-    //             $credit_line_item->date = $this->refund_data['date'];
-
-    //             $ledger_string .= $credit_line_item->notes . ' ';
-
-    //             $line_items[] = $credit_line_item;
-    //         }
-    //     } else {
-
-    //         $credit_line_item = InvoiceItemFactory::create();
-    //         $credit_line_item->quantity = 1;
-    //         $credit_line_item->cost = $this->refund_data['amount'];
-    //         $credit_line_item->product_key = ctrans('texts.credit');
-    //         $credit_line_item->notes = ctrans('texts.credit_created_by', ['transaction_reference' => $this->payment->number]);
-    //         $credit_line_item->line_total = $this->refund_data['amount'];
-    //         $credit_line_item->date = $this->refund_data['date'];
-
-    //         $line_items = [];
-    //         $line_items[] = $credit_line_item;
-    //     }
-
-    //     $this->credit_note->line_items = $line_items;
-    //     $this->credit_note->save();
-
-    //     return $this;
-    // }
 }

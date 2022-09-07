@@ -901,9 +901,10 @@ class BaseController extends Controller
                 return redirect('/')->with(['signup' => 'true']);
             }
 
+            // 06-09-2022 - parse the path if loaded in a subdirectory for canvaskit resolution
             $canvas_path_array = parse_url(config('ninja.app_url'));
-
             $canvas_path = (array_key_exists('path', $canvas_path_array)) ? $canvas_path_array['path'] : '';
+            $canvas_path = rtrim(str_replace("index.php", "", $canvas_path),'/');
                 
             $data = [];
 

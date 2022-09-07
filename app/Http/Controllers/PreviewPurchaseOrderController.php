@@ -173,7 +173,7 @@ class PreviewPurchaseOrderController extends BaseController
             }
 
             //else
-            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
 
             return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
         }
@@ -285,7 +285,7 @@ class PreviewPurchaseOrderController extends BaseController
                 return $pdf;
             }
 
-            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), $company);
+            $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
 
 
             if(Ninja::isHosted())
@@ -363,7 +363,7 @@ class PreviewPurchaseOrderController extends BaseController
                 return $pdf;
         }
             
-        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
@@ -460,7 +460,7 @@ class PreviewPurchaseOrderController extends BaseController
                 return $pdf;
         }
             
-        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), auth()->user()->company()))->handle();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');

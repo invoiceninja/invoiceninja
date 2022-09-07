@@ -46,7 +46,7 @@ class ContactRegisterController extends Controller
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($company->settings));
 
-        return render('auth.register', ['register_company' => $company, 'account' => $company->account]);
+        return render('auth.register', ['register_company' => $company, 'account' => $company->account, 'submitsForm' => false]);
     }
 
     public function register(RegisterRequest $request)

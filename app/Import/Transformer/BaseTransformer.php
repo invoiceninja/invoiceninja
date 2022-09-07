@@ -85,7 +85,9 @@ class BaseTransformer
 
             $client_name_search = Client::where('company_id', $this->company->id)
                 ->where('is_deleted', false)
-                ->where('name', $client_name);
+                ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
+                    strtolower(str_replace(' ', '', $client_name)),
+                ]);
 
             if ($client_name_search->count() >= 1) {
                 return $client_name_search->first()->id;

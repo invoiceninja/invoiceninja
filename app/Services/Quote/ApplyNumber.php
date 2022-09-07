@@ -67,7 +67,7 @@ class ApplyNumber
             } catch (QueryException $e) {
                 $x++;
 
-                if ($x > 10) {
+                if ($x > 50) {
                     $this->completed = false;
                 }
             }
