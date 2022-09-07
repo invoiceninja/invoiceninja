@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,6 +17,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Expense;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\QueryException;
 
 /**
  * ExpenseRepository.
@@ -23,6 +25,8 @@ use Illuminate\Support\Carbon;
 class ExpenseRepository extends BaseRepository
 {
     use GeneratesCounter;
+
+    private $completed = true;
 
     /**
      * Saves the expense and its contacts.
@@ -32,15 +36,17 @@ class ExpenseRepository extends BaseRepository
      *
      * @return     \App\Models\Expense|null  expense Object
      */
-    public function save(array $data, Expense $expense) : ?Expense
+    public function save(array $data, Expense $expense): ?Expense
     {
         $expense->fill($data);
 
-        if (! $expense->id) {
+        if (!$expense->id) {
             $expense = $this->processExchangeRates($data, $expense);
         }
 
-        $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;
+        if (empty($expense->number))
+            $expense = $this->findAndSaveNumber($expense);
+
         $expense->save();
 
         if (array_key_exists('documents', $data)) {
@@ -54,6 +60,7 @@ class ExpenseRepository extends BaseRepository
      * Store expenses in bulk.
      *
      * @param array $expense
+     *
      * @return \App\Models\Expense|null
      */
     public function create($expense): ?Expense
@@ -64,7 +71,7 @@ class ExpenseRepository extends BaseRepository
         );
     }
 
-    public function processExchangeRates($data, $expense)
+    public function processExchangeRates($data, $expense): Expense
     {
         if (array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1) {
             return $expense;
@@ -80,6 +87,37 @@ class ExpenseRepository extends BaseRepository
 
             return $expense;
         }
+
+        return $expense;
+    }
+
+    /**
+     * Handle race conditions when creating expense numbers
+     *
+     * @param Expense $expense
+     * @return \App\Models\Expense
+     */
+    private function findAndSaveNumber($expense): Expense
+    {
+
+        $x = 1;
+
+        do {
+
+            try {
+
+                $expense->number = $this->getNextExpenseNumber($expense);
+                $expense->saveQuietly();
+
+                $this->completed = false;
+            } catch (QueryException $e) {
+
+                $x++;
+
+                if ($x > 50)
+                    $this->completed = false;
+            }
+        } while ($this->completed);
 
         return $expense;
     }
