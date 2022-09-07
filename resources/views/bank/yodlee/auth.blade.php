@@ -79,7 +79,6 @@
 </div>
 
 @endsection
- 
 
 @push('footer')
 

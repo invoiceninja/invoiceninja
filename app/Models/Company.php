@@ -176,6 +176,11 @@ class Company extends BaseModel
         return $this->hasMany(CompanyLedger::class);
     }
 
+    public function bank_integrations()
+    {
+        return $this->hasMany(BankIntegration::class);
+    }
+
     public function getCompanyIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
