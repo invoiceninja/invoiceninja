@@ -81,7 +81,7 @@ class CreditCard implements MethodInterface
         $client->addressLines = [$this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
         $client->givenName = $this->square_driver->client->present()->first_name();
         $client->familyName = $this->square_driver->client->present()->last_name();
-        $client->email = $this->square_driver->client->present()->email;
+        $client->email = $this->square_driver->client->present()->email();
         $client->phone = $this->square_driver->client->phone;
         $client->city = $this->square_driver->client->city;
         $client->region = $this->square_driver->client->state;

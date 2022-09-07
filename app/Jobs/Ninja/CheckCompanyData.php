@@ -52,8 +52,6 @@ class CheckCompanyData implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle()
     {
@@ -110,7 +108,7 @@ class CheckCompanyData implements ShouldQueue
             if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
                 $wrong_balances++;
 
-                $this->company_data[] = "# {$client->id} ".$client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance} ";
+                $this->company_data[] = "# {$client->id} ".$client->present()->name().' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance} ";
 
                 $this->is_valid = false;
             }
@@ -136,7 +134,7 @@ class CheckCompanyData implements ShouldQueue
                 if ((string) $total_paid != (string) ($invoice->amount - $invoice->balance - $total_credit)) {
                     $wrong_balances++;
 
-                    $this->company_data[] = $client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}";
+                    $this->company_data[] = $client->present()->name().' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}";
 
                     $this->is_valid = false;
                 }
@@ -175,7 +173,7 @@ class CheckCompanyData implements ShouldQueue
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;
 
-                $this->company_data[] = $client->present()->name.'id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}";
+                $this->company_data[] = $client->present()->name().'id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}";
 
                 $this->is_valid = false;
             }
@@ -204,7 +202,7 @@ class CheckCompanyData implements ShouldQueue
             if ($ledger && (string) $invoice_balance != (string) $client->balance) {
                 $wrong_paid_to_dates++;
 
-                $this->company_data[] = $client->present()->name.' - '.$client->id." - calculated client balances do not match {$invoice_balance} - ".rtrim($client->balance, '0').'';
+                $this->company_data[] = $client->present()->name().' - '.$client->id." - calculated client balances do not match {$invoice_balance} - ".rtrim($client->balance, '0').'';
 
                 $this->is_valid = false;
             }
