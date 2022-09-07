@@ -43,37 +43,32 @@
 <div class="flex flex-col justify-center items-center mt-10" id="container-fastlink">
     <div class="mb-4">
         @if($account && !$account->isPaid())
-            <div>
-                <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
-                     class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
-            </div>
+          <div>
+              <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
+                   class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+          </div>
         @elseif(isset($company) && !is_null($company))
-            <div>
-                <img src="{{ $company->present()->logo()  }}"
-                     class="mx-auto border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
-            </div>
+          <div>
+              <img src="{{ $company->present()->logo()  }}"
+                   class="mx-auto border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
+          </div>
         @endif
     </div>
 
-
-
-
-
     <div id="cta" class="mb-4" x-data="{ open: false }">
 
-      <button @click="open = !open" x-show="!open" type="submit" class="button button-primary bg-blue-600 my-4" id="btn-fastlink">{{ ctrans('texts.add_bank_account') }}
-      </button>
+      <button @click="open = !open" x-show="!open" type="submit" class="button button-primary bg-blue-600 my-4" id="btn-fastlink">{{ ctrans('texts.add_bank_account') }}</button>
 
-        <div x-show="open" class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
-          <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-          <h2 class="text-center text-gray text-xl font-semibold">Loading...</h2>
-          <p class="w-1/3 text-center text-gray">This may take a few seconds, please don't close this page.</p>
-        </div>
+      <div x-show="open" class="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+        <h2 class="text-center text-gray text-xl font-semibold">Loading...</h2>
+        <p class="w-1/3 text-center text-gray">This may take a few seconds, please don't close this page.</p>
+      </div>
 
     </div>
 
     <div id="completed" class="mb-4">
-      <a class="button button-primary bg-blue-600 my-4" href="https://invoicing.co">Return to admin portal.</a>
+      <a class="button button-primary bg-blue-600 my-4" href="{{ config('ninja.app_url') }}">Return to admin portal.</a>
     </div>
 
 </div>
@@ -84,53 +79,67 @@
 
 <script>
 
-    var completed = document.getElementById('completed');
-    completed.style.display = "none"; //block
+  var completed = document.getElementById('completed');
+  completed.style.display = "none"; //block
 
-    (function (window) {
-      //Open FastLink
-      var fastlinkBtn = document.getElementById('btn-fastlink');
-      fastlinkBtn.addEventListener(
-        'click', 
-        function() {
-            window.fastlink.open({
-              flow: '{{ $flow }}',//flow changes depending on what we are doing sometimes it could be add/edit etc etc
-              fastLinkURL: '{{ $fasttrack_url }}',
-              accessToken: 'Bearer {{ $access_token }}',
-              params: {
-                configName : '{{ $config_name }}'
-              },
-              onSuccess: function (data) {
-                // will be called on success. For list of possible message, refer to onSuccess(data) Method.
-                console.log('success');
-                console.log(data);
-              },
-              onError: function (data) {
-                // will be called on error. For list of possible message, refer to onError(data) Method.
-                console.log('error');
-                
-                console.log(data);
-              },
-              onClose: function (data) {
-                // will be called called to close FastLink. For list of possible message, refer to onClose(data) Method.
-                console.log('onclose');
-                console.log(data);
+  (function (window) {
+    //Open FastLink
 
-                    var completed = document.getElementById('completed');
-                    completed.style.display = "block"; //block
-              },
-              onEvent: function (data) {
-                // will be called on intermittent status update.
-                console.log('on event');
-                var hideme = document.getElementById('cta');
-                hideme.style.display = "none";
-                console.log(data);
-              }
+    @if($completed)
+
+      var completed = document.getElementById('completed');
+      completed.style.display = "block"; //block
+      var hideme = document.getElementById('cta');
+      hideme.style.display = "none";
+
+    @endif
+
+    var fastlinkBtn = document.getElementById('btn-fastlink');
+    fastlinkBtn.addEventListener(
+      'click', 
+      function() {
+          window.fastlink.open({
+            flow: '{{ $flow }}',//flow changes depending on what we are doing sometimes it could be add/edit etc etc
+            fastLinkURL: '{{ $fasttrack_url }}',
+            accessToken: 'Bearer {{ $access_token }}',
+            params: {
+              configName : '{{ $config_name }}'
             },
-            'container-fastlink');
+            onSuccess: function (data) {
+              // will be called on success. For list of possible message, refer to onSuccess(data) Method.
+              console.log('success');
+              console.log(data);
+            },
+            onError: function (data) {
+              // will be called on error. For list of possible message, refer to onError(data) Method.
+              console.log('error');
+              
+              console.log(data);
+            },
+            onClose: function (data) {
+              // will be called called to close FastLink. For list of possible message, refer to onClose(data) Method.
+              console.log('onclose');
+              console.log(data);
+
+                  var completed = document.getElementById('completed');
+                  completed.style.display = "block"; //block
+
+                  window.location.href = window.location.pathname+"?"+$.param({'window_closed':'true'})
+
+            },
+            onEvent: function (data) {
+              // will be called on intermittent status update.
+              console.log('on event');
+              var hideme = document.getElementById('cta');
+              hideme.style.display = "none";
+              console.log(data);
+            }
           },
-      false);
-    }(window));
+          'container-fastlink');
+        },
+    false);
+  }(window));
+  
 </script>
 
 @endpush
