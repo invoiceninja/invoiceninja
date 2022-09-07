@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
+use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -35,25 +36,12 @@ class UpdateExpenseRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [];
-        // $rules['country_id'] = 'integer|nullable';
-
-        // $rules['contacts.*.email'] = 'nullable|distinct';
-
+     
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
         }
 
         return $this->globalRules($rules);
-    }
-
-    public function messages()
-    {
-        return [
-            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
-            'email' => ctrans('validation.email', ['attribute' => 'email']),
-            'name.required' => ctrans('validation.required', ['attribute' => 'name']),
-            'required' => ctrans('validation.required', ['attribute' => 'email']),
-        ];
     }
 
     public function prepareForValidation()
@@ -72,6 +60,20 @@ class UpdateExpenseRequest extends Request
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
             $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+        }
+
+        /* Ensure the project is related */
+        if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
+            $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
+
+            if($project){
+                $input['client_id'] = $project->client_id;
+            }
+            else
+            {
+                unset($input['project_id']);
+            }
+
         }
 
         $this->replace($input);

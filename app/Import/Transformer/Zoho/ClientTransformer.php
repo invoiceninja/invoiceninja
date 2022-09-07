@@ -38,13 +38,15 @@ class ClientTransformer extends BaseTransformer
             $settings->payment_terms = $data['Payment Terms'];
         }
 
+        $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
+
         return [
             'company_id'    => $this->company->id,
-            'name'          => $this->getString($data, 'Company Name'),
+            'name'          => $this->getString($data, 'Display Name'),
             'phone'    		=> $this->getString($data, 'Phone'),
             'private_notes' => $this->getString($data, 'Notes'),
             'website'       => $this->getString($data, 'Website'),
-            'id_number'		=> $this->getString($data, 'Customer ID'),
+            'id_number'		=> $this->getString($data, $client_id_proxy),
             'address1'    => $this->getString($data, 'Billing Address'),
             'address2'    => $this->getString($data, 'Billing Street2'),
             'city'        => $this->getString($data, 'Billing City'),

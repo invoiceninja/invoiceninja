@@ -23,7 +23,7 @@ class UserObserver
      */
     public function created(User $user)
     {
-        //
+
     }
 
     /**
@@ -34,6 +34,7 @@ class UserObserver
      */
     public function updated(User $user)
     {
+
     }
 
     /**

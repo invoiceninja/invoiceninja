@@ -112,7 +112,7 @@ class ClientPaymentFailureObject
                     'invoice' => $this->invoices->first()->number,
                 ]
             ),
-            'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
+            'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name()]),
             'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),

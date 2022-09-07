@@ -110,22 +110,33 @@ class BraintreePaymentDriver extends BaseDriver
         }
 
         $result = $this->gateway->customer()->create([
-            'firstName' => $this->client->present()->name,
-            'email' => $this->client->present()->email,
-            'phone' => $this->client->present()->phone,
+            'firstName' => $this->client->present()->name(),
+            'email' => $this->client->present()->email(),
+            'phone' => $this->client->present()->phone(),
         ]);
 
         if ($result->success) {
             $address = $this->gateway->address()->create([
                 'customerId' => $result->customer->id,
-                'firstName' => $this->client->present()->name,
-                'streetAddress' => $this->client->address1,
-                'postalCode' => $this->client->postal_code,
+                'firstName' => $this->client->present()->name(),
+                'streetAddress' => $this->client->address1 ?: '',
+                'postalCode' => $this->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->client->country ? $this->client->country->iso_3166_2 : '',
             ]);
 
             return $result->customer;
         }
+            //12-08-2022 catch when the customer is not created.
+            $data = [
+                'transaction_reference' => null,
+                'transaction_response' => $result,
+                'success' => false,
+                'description' => 'Could not create customer',
+                'code' => 500,
+            ];
+
+            SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)

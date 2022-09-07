@@ -40,7 +40,7 @@ class GoogleAnalyticsTest extends TestCase
         $invoice = $this->invoice;
         $client = $this->client;
 
-        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->service()->markPaid()->save();
 
         $payment = $invoice->payments->first();
 

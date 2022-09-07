@@ -131,7 +131,7 @@ class EmailController extends BaseController
         if(Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified)
               return response(['message' => 'Please verify your account to send emails.'], 400);
         
-        if($entity == 'purchaseOrder' || $template == 'purchase_order'){
+        if($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order'){
             return $this->sendPurchaseOrder($entity_obj, $data);
         }
 

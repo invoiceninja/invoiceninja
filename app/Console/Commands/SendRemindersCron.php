@@ -97,10 +97,6 @@ class SendRemindersCron extends Command
                      }
                  });
 
-        //  SendReminders::dispatchNow();
-
-       // $this->webHookOverdueInvoices();
-       // $this->webHookExpiredQuotes();
     }
 
     private function calcLateFee($invoice, $template) :Invoice
@@ -166,7 +162,7 @@ class SendRemindersCron extends Command
 
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = '5';
-        $invoice_item->product_key = trans('texts.fee');
+        $invoice_item->product_key = ctrans('texts.fee');
         $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => $this->translateDate(now()->startOfDay(), $invoice->client->date_format(), $invoice->client->locale())]);
         $invoice_item->quantity = 1;
         $invoice_item->cost = $fee;

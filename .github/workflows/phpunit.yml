@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ['ubuntu-18.04', 'ubuntu-20.04', 'ubuntu-22.04']
+        operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
         php-versions: ['8.1']
         phpunit-versions: ['latest']
 
@@ -103,6 +103,7 @@ jobs:
     - name: Run Testsuite
       run: |
         cat .env
+        vendor/bin/snappdf download
         vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}

@@ -160,7 +160,7 @@ class HtmlEngine
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
 
             if($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
+                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
             }
 

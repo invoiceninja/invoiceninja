@@ -48,6 +48,7 @@ class InstantPayment
 
     public function run()
     {
+
         $is_credit_payment = false;
 
         $tokens = [];
@@ -69,7 +70,8 @@ class InstantPayment
         $invoices->each(function ($invoice) {
             $invoice->service()
                     ->markSent()
-                    ->removeUnpaidGatewayFees();
+                    ->removeUnpaidGatewayFees()
+                    ->save();
         });
 
         /* pop non payable invoice from the $payable_invoices array */
@@ -106,6 +108,7 @@ class InstantPayment
 
             $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount'], $client->currency()->precision));
             $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
+
 
             /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
 

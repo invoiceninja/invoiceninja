@@ -477,10 +477,14 @@ class SubscriptionService
 
             nlog($response);
 
-            if($credit)
-                return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
-            else
-                return $this->handleRedirect('/client/credits');      
+            if($credit){
+                // return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+                return '/client/credits/'.$credit->hashed_id;
+            }
+            else{
+                // return $this->handleRedirect('/client/credits');      
+                return '/client/credits';
+            }
 
     }
 
@@ -840,7 +844,6 @@ class SubscriptionService
      * Get the single charge products for the
      * subscription
      *
-     * @return ?Product Collection
      */
     public function products()
     {
@@ -859,7 +862,6 @@ class SubscriptionService
      * Get the recurring products for the
      * subscription
      *
-     * @return ?Product Collection
      */
     public function recurring_products()
     {

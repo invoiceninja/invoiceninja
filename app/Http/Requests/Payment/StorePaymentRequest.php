@@ -43,7 +43,7 @@ class StorePaymentRequest extends Request
         $invoices_total = 0;
         $credits_total = 0;
 
-        if (isset($input['client_id'])) {
+        if (isset($input['client_id']) && is_string($input['client_id']) ) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
@@ -53,7 +53,9 @@ class StorePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-                $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+
+                if(is_string($value['invoice_id']))
+                    $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
 
                 if (array_key_exists('amount', $value)) {
                     $invoices_total += $value['amount'];
@@ -68,14 +70,13 @@ class StorePaymentRequest extends Request
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
                 if (array_key_exists('credit_id', $input['credits'][$key])) {
-                    $input['credits'][$key]['credit_id'] = $value['credit_id'];
+                    // $input['credits'][$key]['credit_id'] = $value['credit_id'];
+                    $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
+
                     $credits_total += $value['amount'];
                 }
             }
         }
-
-        // if (array_key_exists('amount', $input))
-        //     $input['amount'] = 0;
 
         if (isset($input['credits']) && is_array($input['credits']) === false) {
             $input['credits'] = null;
@@ -97,14 +98,15 @@ class StorePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'amount' => ['numeric', 'bail', new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
-            'client_id' => 'bail|required|exists:clients,id',
+            'amount' => ['numeric', 'bail', new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule($this->all())],
+            // 'client_id' => 'bail|required|exists:clients,id',
+            'client_id' => 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0',
             'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
             'invoices.*.amount' => 'bail|required',
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
             'credits.*.credit_id' => 'bail|required|exists:credits,id',
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
-            'credits.*.amount' => ['required', new CreditsSumRule($this->all())],
+            'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => ['nullable', 'bail', Rule::unique('payments')->where('company_id', auth()->user()->company()->id)],
 

@@ -72,7 +72,7 @@ class EntityPaidToDateTest extends TestCase
 
         $this->assertEquals($invoice->balance, 20);
 
-        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->service()->markPaid()->save();
 
         $this->assertEquals($invoice->paid_to_date, 20);
     }
@@ -81,7 +81,7 @@ class EntityPaidToDateTest extends TestCase
     {
         $invoice = $this->bootNewInvoice();
 
-        $invoice->service()->markPaid()->save();
+        $invoice = $invoice->service()->markPaid()->save();
 
         $this->assertEquals(20, $invoice->paid_to_date);
 

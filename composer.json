@@ -94,7 +94,7 @@
         "wepay/php-sdk": "^0.3"
     },
     "require-dev": {
-        "php": "^7.4|^8.0",
+        "php": "^8.1",
         "barryvdh/laravel-debugbar": "^3.6",
         "beyondcode/laravel-query-detector": "^1.6",
         "brianium/paratest": "^6.1",
@@ -133,10 +133,8 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ \"${IS_DOCKER:-false}\" != \"true\" ]; then vendor/bin/snappdf download; fi"
         ],
         "post-update-cmd": [
-            "vendor/bin/snappdf download",
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
         "post-root-package-install": [

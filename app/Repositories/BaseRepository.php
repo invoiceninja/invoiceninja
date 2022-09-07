@@ -339,6 +339,11 @@ class BaseRepository
             else
                 event('eloquent.updated: App\Models\Credit', $model);
 
+           if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Credit::STATUS_DRAFT)) {
+
+                $model->client->service()->adjustCreditBalance(($state['finished_amount'] - $state['starting_amount']))->save();
+            }
+
         }
 
         if ($model instanceof Quote) {

@@ -236,6 +236,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Task::class)->withTrashed();
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class)->withTrashed();
+    }
+
     public function recurring_invoices()
     {
         return $this->hasMany(RecurringInvoice::class)->withTrashed();
@@ -369,6 +374,8 @@ class Client extends BaseModel implements HasLocalePreference
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this->settings->{$setting};
             } elseif (is_bool($this->settings->{$setting})) {
+                return $this->settings->{$setting};
+            } elseif (is_int($this->settings->{$setting})) { //10-08-2022 integer client values are not being passed back! This resolves it.
                 return $this->settings->{$setting};
             }
         }
@@ -623,11 +630,6 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return $defaults;
-    }
-
-    public function payments()
-    {
-        return $this->hasMany(Payment::class)->withTrashed();
     }
 
     public function timezone_offset()

@@ -184,6 +184,9 @@ class SystemHealth
 
     private static function checkPhpCli()
     {
+        if(!function_exists('exec'))
+            return "Unable to check CLI version";
+        
         try {
             exec('php -v', $foo, $exitCode);
 

@@ -310,7 +310,7 @@ class CompanyGateway extends BaseModel
             if(strlen($fees_and_limits->fee_percent) >=1)
                 $label .= $fees_and_limits->fee_percent . '%';
 
-            if(strlen($fees_and_limits->fee_amount) >=1){
+            if(strlen($fees_and_limits->fee_amount) >=1 && $fees_and_limits->fee_amount > 0){
 
                 if(strlen($label) > 1) {
 
@@ -413,8 +413,9 @@ class CompanyGateway extends BaseModel
 
     public function resolveRouteBinding($value, $field = null)
     {
+
         return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
     }
 
 

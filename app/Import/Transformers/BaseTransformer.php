@@ -152,6 +152,12 @@ class BaseTransformer
         return Number::parseFloat($number);
     }
 
+    public function getFloatWithSamePrecision($data, $field)
+    {
+        $precision = (int) strpos(strrev($data[$field]), ".");
+
+        return round($data[$field], $precision);
+    }
     /**
      * @param $name
      *

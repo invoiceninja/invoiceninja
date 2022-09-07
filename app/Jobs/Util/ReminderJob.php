@@ -14,8 +14,10 @@ namespace App\Jobs\Util;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Ninja\TransactionLog;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
+use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesReminders;
@@ -60,11 +62,11 @@ class ReminderJob implements ShouldQueue
     {
         nlog('Sending invoice reminders '.now()->format('Y-m-d h:i:s'));
 
-        Invoice::where('next_send_date', '<=', now()->toDateTimeString())
-                 ->whereNull('deleted_at')
-                 ->where('is_deleted', 0)
+        Invoice::where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
+                 ->where('next_send_date', '<=', now()->toDateTimeString())
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -75,6 +77,7 @@ class ReminderJob implements ShouldQueue
                  ->with('invitations')->cursor()->each(function ($invoice) {
                      if ($invoice->isPayable()) {
                          $reminder_template = $invoice->calculateTemplate('invoice');
+                         nlog("reminder template = {$reminder_template}");
                          $invoice->service()->touchReminder($reminder_template)->save();
                          $invoice = $this->calcLateFee($invoice, $reminder_template);
 
@@ -93,6 +96,7 @@ class ReminderJob implements ShouldQueue
                     $invoice->client->getSetting($enabled_reminder) &&
                     $invoice->client->getSetting('send_reminders') &&
                     (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+                            
                              $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                                  EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                                  nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
@@ -199,9 +203,19 @@ class ReminderJob implements ShouldQueue
         $client = $invoice->client;
         $client = $client->fresh();
 
-        nlog('adjusting client balance and invoice balance by '.($invoice->balance - $temp_invoice_balance));
+        nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
         $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
+
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $client->transaction_event(),
+            'credit' => [],
+            'metadata' => ['setLateFee'],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
 
         return $invoice;
     }

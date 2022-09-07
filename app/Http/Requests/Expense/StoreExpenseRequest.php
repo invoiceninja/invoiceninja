@@ -14,6 +14,7 @@ namespace App\Http\Requests\Expense;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
 use App\Models\Expense;
+use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -65,13 +66,29 @@ class StoreExpenseRequest extends Request
             $input['color'] = '';
         }
 
+
+        /* Ensure the project is related */
+        if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
+            $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
+
+            if($project){
+                $input['client_id'] = $project->client_id;
+            }
+            else
+            {
+                unset($input['project_id']);
+            }
+
+        }
+
+
         $this->replace($input);
     }
 
     public function messages()
     {
         return [
-            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
+            // 'unique' => ctrans('validation.unique', ['attribute' => 'number']),
         ];
     }
 }

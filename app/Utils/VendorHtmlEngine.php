@@ -217,10 +217,10 @@ class VendorHtmlEngine
         $data['$entity.public_notes'] = &$data['$public_notes'];
         $data['$notes'] = &$data['$public_notes'];
 
-        $data['$purchase_order.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order1', $this->entity->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order1')];
-        $data['$purchase_order.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order2', $this->entity->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order2')];
-        $data['$purchase_order.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order3', $this->entity->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order3')];
-        $data['$purchase_order.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order4', $this->entity->custom_value4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order4')];
+        $data['$purchase_order.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
+        $data['$purchase_order.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
+        $data['$purchase_order.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
+        $data['$purchase_order.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
 
         $data['$vendor1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor1', $this->vendor->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor1')];
         $data['$vendor2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor2', $this->vendor->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor2')];
@@ -407,6 +407,68 @@ class VendorHtmlEngine
         $data['$entity_images'] = ['value' => $this->generateEntityImagesMarkup(), 'label' => ''];
 
         $data['$payments'] = ['value' => '', 'label' => ctrans('texts.payments')];
+
+        if($this->entity->client()->exists())
+        {
+
+            $data['$client1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client1', $this->entity->client->custom_value1, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client1')];
+            $data['$client2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client2', $this->entity->client->custom_value2, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client2')];
+            $data['$client3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client3', $this->entity->client->custom_value3, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client3')];
+            $data['$client4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client4', $this->entity->client->custom_value4, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client4')];
+            $data['$client.custom1'] = &$data['$client1'];
+            $data['$client.custom2'] = &$data['$client2'];
+            $data['$client.custom3'] = &$data['$client3'];
+            $data['$client.custom4'] = &$data['$client4'];
+            $data['$client.number'] = ['value' => $this->entity->client->number ?: '&nbsp;', 'label' => ctrans('texts.number')];
+
+            $data['$client_name'] = ['value' => $this->entity->client->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
+            $data['$client.name'] = &$data['$client_name'];
+            $data['$client'] = &$data['$client_name'];
+
+            $data['$client.address1'] = &$data['$address1'];
+            $data['$client.address2'] = &$data['$address2'];
+            $data['$client_address'] = ['value' => $this->entity->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
+            $data['$client.address'] = &$data['$client_address'];
+            $data['$client.postal_code'] = ['value' => $this->entity->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+            $data['$client.public_notes'] = ['value' => $this->entity->client->public_notes ?: '&nbsp;', 'label' => ctrans('texts.notes')];
+            $data['$client.city'] = ['value' => $this->entity->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+            $data['$client.state'] = ['value' => $this->entity->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
+            $data['$client.id_number'] = &$data['$id_number'];
+            $data['$client.vat_number'] = &$data['$vat_number'];
+            $data['$client.website'] = &$data['$website'];
+            $data['$client.phone'] = &$data['$phone'];
+            $data['$city_state_postal'] = ['value' => $this->entity->client->present()->cityStateZip($this->entity->client->city, $this->entity->client->state, $this->entity->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
+            $data['$client.city_state_postal'] = &$data['$city_state_postal'];
+            $data['$postal_city_state'] = ['value' => $this->entity->client->present()->cityStateZip($this->entity->client->city, $this->entity->client->state, $this->entity->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+            $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+            $data['$client.country'] = &$data['$country'];
+            $data['$client.email'] = &$data['$email'];
+            
+            $data['$client.billing_address'] = &$data['$client_address'];
+            $data['$client.billing_address1'] = &$data['$client.address1'];
+            $data['$client.billing_address2'] = &$data['$client.address2'];
+            $data['$client.billing_city'] = &$data['$client.city'];
+            $data['$client.billing_state'] = &$data['$client.state'];
+            $data['$client.billing_postal_code'] = &$data['$client.postal_code'];
+            $data['$client.billing_country'] = &$data['$client.country'];
+
+            $data['$client.shipping_address'] = ['value' => $this->entity->client->present()->shipping_address() ?: '&nbsp;', 'label' => ctrans('texts.shipping_address')];
+            $data['$client.shipping_address1'] = ['value' => $this->entity->client->shipping_address1 ?: '&nbsp;', 'label' => ctrans('texts.shipping_address1')];
+            $data['$client.shipping_address2'] = ['value' => $this->entity->client->shipping_address2 ?: '&nbsp;', 'label' => ctrans('texts.shipping_address2')];
+            $data['$client.shipping_city'] = ['value' => $this->entity->client->shipping_city ?: '&nbsp;', 'label' => ctrans('texts.shipping_city')];
+            $data['$client.shipping_state'] = ['value' => $this->entity->client->shipping_state ?: '&nbsp;', 'label' => ctrans('texts.shipping_state')];
+            $data['$client.shipping_postal_code'] = ['value' => $this->entity->client->shipping_postal_code ?: '&nbsp;', 'label' => ctrans('texts.shipping_postal_code')];
+            $data['$client.shipping_country'] = ['value' => isset($this->entity->client->shipping_country->name) ? ctrans('texts.country_' . $this->entity->client->shipping_country->name) : '', 'label' => ctrans('texts.shipping_country')];
+
+            $data['$client.currency'] = ['value' => $this->entity->client->currency()->code, 'label' => ''];
+
+            $data['$client.lang_2'] = ['value' => optional($this->entity->client->language())->locale, 'label' => ''];
+
+            $data['$client.balance'] = ['value' => Number::formatMoney($this->entity->client->balance, $this->entity->client), 'label' => ctrans('texts.account_balance')];
+            $data['$client_balance'] = ['value' => Number::formatMoney($this->entity->client->balance, $this->entity->client), 'label' => ctrans('texts.account_balance')];
+
+        }
+
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

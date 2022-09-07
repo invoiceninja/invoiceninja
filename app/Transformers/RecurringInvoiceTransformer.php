@@ -137,7 +137,6 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'due_date_days' => (string) $invoice->due_date_days ?: '',
             'paid_to_date' => (float) $invoice->paid_to_date,
             'subscription_id' => (string) $this->encodePrimaryKey($invoice->subscription_id),
-            'recurring_dates' => (array) [],
         ];
 
         if (request()->has('show_dates') && request()->query('show_dates') == 'true') {

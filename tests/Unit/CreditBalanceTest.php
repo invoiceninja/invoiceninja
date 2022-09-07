@@ -70,4 +70,54 @@ class CreditBalanceTest extends TestCase
 
         $this->assertEquals($this->client->service()->getCreditBalance(), 0);
     }
+
+    public function testCreditDeleteCheckClientBalance()
+    {
+        $credit = Credit::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'balance' => 10,
+            'number' => 'testing-number-01',
+            'status_id' => Credit::STATUS_SENT,
+        ]);
+
+        $credit->client->credit_balance = 10;
+        $credit->push();
+
+
+                //delete invoice
+        $data = [
+            'ids' => [$credit->hashed_id],
+        ];
+
+        //restore invoice
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=delete', $data)->assertStatus(200);
+
+        $client = $credit->client->fresh();
+
+        $this->assertEquals(0, $client->credit_balance);
+
+                //restore invoice
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=restore', $data)->assertStatus(200);
+
+        $client = $credit->client->fresh();
+
+        $this->assertEquals(10, $client->credit_balance);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk?action=archive', $data)->assertStatus(200);
+
+        $client = $credit->client->fresh();
+
+        $this->assertEquals(10, $client->credit_balance);
+    }
 }

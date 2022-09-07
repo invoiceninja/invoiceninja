@@ -102,6 +102,17 @@ class NinjaMailerJob implements ShouldQueue
 
         $this->nmo->mailable->tag($this->company->company_key);
 
+        if($this->nmo->invitation)
+        {
+
+            $this->nmo
+                 ->mailable
+                 ->withSymfonyMessage(function ($message) {
+                    $message->getHeaders()->addTextHeader('x-invitation', $this->nmo->invitation->key);     
+                 });
+
+        }
+
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
@@ -313,6 +324,10 @@ class NinjaMailerJob implements ShouldQueue
         if($this->company->is_disabled && !$this->override) 
             return true;
 
+        /* To handle spam users we drop all emails from flagged accounts */
+        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
+            return true;
+
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
         if(Ninja::isHosted() && $this->nmo->to_user && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
@@ -323,10 +338,6 @@ class NinjaMailerJob implements ShouldQueue
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
-            return true;
-
-        /* To handle spam users we drop all emails from flagged accounts */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
             return true;
 
         /* If the account is verified, we allow emails to flow */
@@ -343,13 +354,18 @@ class NinjaMailerJob implements ShouldQueue
         if(!str_contains($this->nmo->to_user->email, "@"))
             return true;
      
+        /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
+        if(Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified){
+            
+            if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
+                return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+
+            return true;
+        }
+
         /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
         if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
             return (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
-
-        /* On the hosted platform if the user has not verified their account we fail here */
-        if(Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified)
-            return true;
 
         return false;
     }

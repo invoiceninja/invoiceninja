@@ -45,7 +45,7 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
-        <select name="countries" id="country" class="form-select input w-full" required>
+        <select name="countries" id="country" class="form-select input w-full bg-white" required>
             @foreach($countries as $country)
                 <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
             @endforeach

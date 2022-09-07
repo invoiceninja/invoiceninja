@@ -181,4 +181,10 @@ class Vendor extends BaseModel
     {
         return $this->belongsTo(Country::class);
     }
+
+    public function date_format()
+    {
+        return $this->company->date_format();
+    }
+
 }

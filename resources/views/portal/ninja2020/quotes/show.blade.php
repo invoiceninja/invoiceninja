@@ -105,7 +105,7 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $quote])
-    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $quote])
+    @include('portal.ninja2020.components.pdf-viewer', ['entity' => $quote, 'invitation' => $invitation])
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection

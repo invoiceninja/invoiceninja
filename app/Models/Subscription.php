@@ -83,6 +83,11 @@ class Subscription extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    public function group_settings()
+    {
+        return $this->belongsTo(GroupSetting::class, 'group_id', 'id');
+    }
+
     public function nextDateByInterval($date, $frequency_id)
     {
         switch ($frequency_id) {

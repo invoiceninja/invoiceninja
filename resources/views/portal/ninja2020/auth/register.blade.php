@@ -2,6 +2,7 @@
 @section('meta_title', ctrans('texts.register'))
 
 @section('body')
+
     <div class="grid lg:grid-cols-12 py-8">
         <div class="col-span-12 lg:col-span-8 lg:col-start-3 xl:col-span-6 xl:col-start-4 px-6">
             <div class="flex justify-center">
@@ -10,7 +11,7 @@
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
-            <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{ more: false }">
+            <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
                 @if($register_company)
                 <input type="hidden" name="company_key" value="{{ $register_company->company_key }}">
                 @endif
@@ -40,19 +41,19 @@
                                         class="input w-full" 
                                         type="email"
                                         name="{{ $field['key'] }}"
-                                        value=""
-                                        {{ $field['required'] ? 'required' : '' }} />
+                                        value="{{ old($field['key']) }}"
+                                         />
                                 @elseif($field['key'] === 'password')
                                     <input 
                                         id="{{ $field['key'] }}" 
                                         class="input w-full" 
                                         type="password"
                                         name="{{ $field['key'] }}"
-                                        {{ $field['required'] ? 'required' : '' }} />
+                                         />
                                 @elseif($field['key'] === 'country_id')
                                     <select 
                                         id="shipping_country"
-                                        class="input w-full form-select"
+                                        class="input w-full form-select bg-white"
                                         name="country_id">
                                             <option value="none"></option>
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
@@ -69,7 +70,7 @@
                                         class="input w-full" 
                                         name="{{ $field['key'] }}"
                                         value="{{ old($field['key']) }}"
-                                        {{ $field['required'] ? 'required' : '' }} />
+                                         />
                                 @endif
 
                                 @error($field['key'])
@@ -98,7 +99,7 @@
                                         type="password" 
                                         class="input w-full" 
                                         name="password_confirmation"
-                                        {{ $field['required'] ? 'required' : '' }} />
+                                         />
                                 </div>
                             @endif
                         @endif
@@ -124,7 +125,8 @@
                         </span>
                     </span>
 
-                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.register') }}</button>
+                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">{{ ctrans('texts.register')}}</button>
+
                 </div>
             </form>
         </div>

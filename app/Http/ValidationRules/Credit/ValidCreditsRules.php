@@ -50,11 +50,23 @@ class ValidCreditsRules implements Rule
         }
 
         $unique_array = [];
+        
+        $total_credit_amount = array_sum(array_column($this->input['credits'], 'amount'));
+
+        if($total_credit_amount <= 0){
+
+            $this->error_msg = "Total of credits must be more than zero.";
+
+            return false;
+        }
+
+        $cred_collection = Credit::withTrashed()->whereIn('id', array_column($this->input['credits'], 'credit_id'))->get();
 
         foreach ($this->input['credits'] as $credit) {
             $unique_array[] = $credit['credit_id'];
 
-            $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
+            // $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
+            $cred = $cred_collection->firstWhere('id', $credit['credit_id']);
 
             if (! $cred) {
                 $this->error_msg = ctrans('texts.credit_not_found');

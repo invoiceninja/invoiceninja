@@ -43,4 +43,31 @@ class CreditRepository extends BaseRepository
     {
         return CreditInvitation::where('key', $key)->first();
     }
+
+    public function delete($credit)
+    {
+        if ($credit->is_deleted) {
+            return;
+        }
+
+        $credit = $credit->service()->deleteCredit()->save();
+
+        return parent::delete($credit);
+
+    }
+
+    public function restore($credit)
+    {
+        //we cannot restore a deleted payment.
+        if (! $credit->trashed()) {
+            return;
+        }
+
+        parent::restore($credit);
+
+        $credit = $credit->service()->restoreCredit()->save();
+
+        return $credit;
+    }
+
 }
