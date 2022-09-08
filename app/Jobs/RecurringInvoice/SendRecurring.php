@@ -73,8 +73,8 @@ class SendRecurring implements ShouldQueue
             $invoice->auto_bill_enabled = false;
         }
 
-        $invoice->date = now()->format('Y-m-d');
-        $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
+        $invoice->date = date('Y-m-d');
+        $invoice->due_date = $this->recurring_invoice->calculateDueDate(date('Y-m-d'));
         $invoice->recurring_id = $this->recurring_invoice->id;
         $invoice->saveQuietly();
 
