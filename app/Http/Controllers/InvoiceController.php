@@ -578,6 +578,16 @@ class InvoiceController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
+        if($action == 'download' && $invoices->count() >=1 && auth()->user()->can('view', $invoices->first())) {
+
+                $file = $invoices->first()->service()->getInvoicePdf();
+
+                return response()->streamDownload(function () use ($file) {
+                    echo Storage::get($file);
+                }, basename($file), ['Content-Type' => 'application/pdf']);
+
+        }
+
         /*
          * Send the other actions to the switch
          */
