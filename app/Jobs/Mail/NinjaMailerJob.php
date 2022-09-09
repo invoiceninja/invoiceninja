@@ -123,7 +123,7 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($this->nmo->mailable);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
-                     ->queue();
+                     ->batch();
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);

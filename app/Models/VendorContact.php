@@ -45,10 +45,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'hashed_id',
     ];
 
-    protected $with = [
-        // 'vendor',
-        // 'company'
-    ];
+    protected $with = [];
 
     protected $casts = [
         'updated_at' => 'timestamp',
