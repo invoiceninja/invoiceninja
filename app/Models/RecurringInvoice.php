@@ -560,7 +560,7 @@ class RecurringInvoice extends BaseModel
                 break;
 				
             case 'on_receipt':
-                return Carbon::Parse($date)->copy();
+                return Carbon::parse($date)->copy();
                 break;
 
             default:

@@ -179,6 +179,7 @@ class CompanyTransformer extends EntityTransformer
             'enable_applying_payments' => (bool) $company->enable_applying_payments,
             'enabled_expense_tax_rates' => (int) $company->enabled_expense_tax_rates,
             'invoice_task_project' => (bool) $company->invoice_task_project,
+            'report_include_deleted' => (bool) $company->report_include_deleted,
         ];
     }
 

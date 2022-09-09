@@ -13,6 +13,7 @@ namespace App\Jobs\Cron;
 
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
+use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
@@ -107,7 +108,7 @@ class RecurringInvoicesCron
                     nlog("Trying to send {$recurring_invoice->number}");
 
                     if ($recurring_invoice->company->stop_on_unpaid_recurring) {
-                        if ($recurring_invoice->invoices()->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
+                        if (Invoice::where('recurring_id', $recurring_invoice->id)->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
                             return;
                         }
                     }
