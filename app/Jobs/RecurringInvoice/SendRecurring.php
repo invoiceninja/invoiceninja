@@ -73,8 +73,11 @@ class SendRecurring implements ShouldQueue
             $invoice->auto_bill_enabled = false;
         }
 
-        $invoice->date = now()->format('Y-m-d');
-        $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
+        $invoice->date = date('Y-m-d');
+
+        nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - ". now()->format('Y-m-d'));
+
+        $invoice->due_date = $this->recurring_invoice->calculateDueDate(date('Y-m-d'));
         $invoice->recurring_id = $this->recurring_invoice->id;
         $invoice->saveQuietly();
 
@@ -108,9 +111,9 @@ class SendRecurring implements ShouldQueue
             $this->recurring_invoice->setCompleted();
         }
 
-        // nlog('next send date = '.$this->recurring_invoice->next_send_date);
+        nlog('next send date = '.$this->recurring_invoice->next_send_date);
         // nlog('remaining cycles = '.$this->recurring_invoice->remaining_cycles);
-        // nlog('last send date = '.$this->recurring_invoice->last_sent_date);
+        nlog('last send date = '.$this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
 

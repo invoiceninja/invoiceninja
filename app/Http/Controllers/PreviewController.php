@@ -306,7 +306,7 @@ class PreviewController extends BaseController
         if (Ninja::isHosted()) {
             LightLogs::create(new LivePreview())
                          ->increment()
-                         ->queue();
+                         ->batch();
         }
 
         $response = Response::make($file_path, 200);
