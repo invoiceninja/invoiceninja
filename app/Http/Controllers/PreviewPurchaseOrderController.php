@@ -292,7 +292,7 @@ class PreviewPurchaseOrderController extends BaseController
             {
                 LightLogs::create(new LivePreview())
                          ->increment()
-                         ->queue();
+                         ->batch();
             }
 
 
