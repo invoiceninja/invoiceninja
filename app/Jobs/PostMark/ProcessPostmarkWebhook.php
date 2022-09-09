@@ -217,7 +217,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $this->request['MessageID']
         );
 
-        LightLogs::create($bounce)->queue();
+        LightLogs::create($bounce)->batch();
 
         SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
 
@@ -263,7 +263,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $this->request['MessageID']
         );
 
-        LightLogs::create($spam)->queue();
+        LightLogs::create($spam)->batch();
 
         SystemLogger::dispatch($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
 
