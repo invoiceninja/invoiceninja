@@ -20,6 +20,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
+use App\Models\CompanyUser;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
