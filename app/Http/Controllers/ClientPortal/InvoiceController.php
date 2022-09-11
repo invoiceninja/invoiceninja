@@ -69,7 +69,7 @@ class InvoiceController extends Controller
 
         $data = [
             'invoice' => $invoice,
-            'invitation' => $invitation,
+            'invitation' => $invitation ?: $invoice->invitations->first(),
             'key' => $invitation ? $invitation->key : false,
         ];
 

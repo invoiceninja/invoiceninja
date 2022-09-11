@@ -139,9 +139,14 @@ class Request extends FormRequest
                     $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
                 }
 
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
+                if (array_key_exists('client_contact_id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['client_contact_id'])) {
                     $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
                 }
+
+                if (array_key_exists('vendor_contact_id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['vendor_contact_id'])) {
+                    $input['invitations'][$key]['vendor_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['vendor_contact_id']);
+                }
+
             }
         }
 

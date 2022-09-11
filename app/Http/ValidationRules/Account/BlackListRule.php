@@ -26,6 +26,7 @@ class BlackListRule implements Rule
         'arxxwalls.com',
         'superhostforumla.com',
         'wnpop.com',
+        'dataservices.space',
     ];
 
     /**

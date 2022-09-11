@@ -21,7 +21,7 @@
   </script>
    <script>
     window.flutterConfiguration = {
-      canvasKitBaseUrl: "/canvaskit/"
+      canvasKitBaseUrl: "{{ $canvas_path }}/canvaskit/"
     };
   </script>
 </head>

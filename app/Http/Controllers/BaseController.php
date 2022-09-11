@@ -773,7 +773,8 @@ class BaseController extends Controller
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-            $query->where('user_id', '=', auth()->user()->id);
+            //03-09-2022
+            $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
@@ -900,6 +901,11 @@ class BaseController extends Controller
                 return redirect('/')->with(['signup' => 'true']);
             }
 
+            // 06-09-2022 - parse the path if loaded in a subdirectory for canvaskit resolution
+            $canvas_path_array = parse_url(config('ninja.app_url'));
+            $canvas_path = (array_key_exists('path', $canvas_path_array)) ? $canvas_path_array['path'] : '';
+            $canvas_path = rtrim(str_replace("index.php", "", $canvas_path),'/');
+                
             $data = [];
 
             //pass report errors bool to front end
@@ -910,6 +916,7 @@ class BaseController extends Controller
             $data['build'] = request()->has('build') ? request()->input('build') : '';
             $data['login'] = request()->has('login') ? request()->input('login') : 'false';
             $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+            $data['canvas_path'] = $canvas_path;
 
             if (request()->session()->has('login')) {
                 $data['login'] = 'true';

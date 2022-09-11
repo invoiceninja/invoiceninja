@@ -351,7 +351,7 @@ class LoginController extends BaseController
     private function handleSocialiteLogin($provider, $token)
     {
         $user = $this->getSocialiteUser($provider, $token);
-        nlog($user);
+        
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
         }
@@ -368,6 +368,7 @@ class LoginController extends BaseController
             'oauth_user_id' => $user->id,
             'oauth_provider_id' => $provider,
         ];
+        
         if ($existing_user = MultiDB::hasUser($query)) {
             if (!$existing_user->account) {
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
@@ -749,10 +750,6 @@ class LoginController extends BaseController
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
     {
         $socialite_user = Socialite::driver($provider)->user();
-        nlog($socialite_user);
-
-        nlog('refresh token ' . $socialite_user->accessTokenResponseBody['refresh_token']);
-        nlog('access token ' . $socialite_user->accessTokenResponseBody['access_token']);
 
         $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
 

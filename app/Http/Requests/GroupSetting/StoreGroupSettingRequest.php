@@ -49,7 +49,7 @@ class StoreGroupSettingRequest extends Request
             }
         }
 
-        $input['settings'] = $group_settings;
+        $input['settings'] = (array)$group_settings;
 
         $this->replace($input);
     }

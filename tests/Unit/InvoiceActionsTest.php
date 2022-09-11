@@ -45,7 +45,7 @@ class InvoiceActionsTest extends TestCase
     {
         $this->withoutEvents();
 
-        $this->invoice->service()->markPaid()->save();
+        $this->invoice = $this->invoice->service()->markPaid()->save();
 
         $this->assertFalse($this->invoiceDeletable($this->invoice));
         $this->assertTrue($this->invoiceReversable($this->invoice));

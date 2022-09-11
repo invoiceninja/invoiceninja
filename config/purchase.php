@@ -1,5 +1,6 @@
 <?php
 
+use App\Listeners\Subscription\AppStoreRenewSubscription;
 use Imdhemy\Purchases\Events\AppStore\Cancel;
 use Imdhemy\Purchases\Events\AppStore\DidChangeRenewalPref;
 use Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus;
@@ -16,8 +17,8 @@ use Imdhemy\Purchases\Events\GooglePlay\SubscriptionDeferred;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionExpired;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionInGracePeriod;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionOnHold;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPauseScheduleChanged;
+use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPriceChangeConfirmed;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPurchased;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered;
@@ -62,7 +63,7 @@ return [
         DidChangeRenewalStatus::class => [],
         DidFailToRenew::class => [],
         DidRecover::class => [],
-        DidRenew::class => [],
+        DidRenew::class => [AppStoreRenewSubscription::class],
         InitialBuy::class => [],
         InteractiveRenewal::class => [],
         PriceIncreaseConsent::class => [],

@@ -97,10 +97,6 @@ class SendRemindersCron extends Command
                      }
                  });
 
-        //  SendReminders::dispatchNow();
-
-       // $this->webHookOverdueInvoices();
-       // $this->webHookExpiredQuotes();
     }
 
     private function calcLateFee($invoice, $template) :Invoice

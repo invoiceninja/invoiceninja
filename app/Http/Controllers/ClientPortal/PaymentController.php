@@ -101,7 +101,8 @@ class PaymentController extends Controller
 
             $data = [
                 'invoice' => $invoice,
-                'key' => false
+                'key' => false,
+                'invitation' => $invoice->invitations->first()
             ];
 
             if ($request->query('mode') === 'fullscreen') {

@@ -45,8 +45,7 @@ class MarkInvoiceDeleted extends AbstractService
              ->setAdjustmentAmount()
              ->deletePaymentables()
              ->adjustPayments()
-             ->adjustPaidToDate()
-             ->adjustBalance()
+             ->adjustPaidToDateAndBalance()
              ->adjustLedger();
 
         $transaction = [
@@ -70,21 +69,29 @@ class MarkInvoiceDeleted extends AbstractService
         return $this;
     }
 
-    private function adjustPaidToDate()
+    private function adjustPaidToDateAndBalance()
     {
-        $client = $this->invoice->client->fresh();
-        $client->paid_to_date += $this->adjustment_amount * -1;
-        $client->save();
-        // $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save(); //reduces the paid to date by the payment totals
+        // $client = $this->invoice->client->fresh();
+        // $client->paid_to_date += $this->adjustment_amount * -1;
+        // $client->balance += $this->balance_adjustment * -1;
+        // $client->save();
+
+        // 06-09-2022
+        $this->invoice
+             ->client
+             ->service()
+             ->updateBalanceAndPaidToDate($this->balance_adjustment * -1, $this->adjustment_amount * -1)
+             ->save(); //reduces the paid to date by the payment totals
 
         return $this;
     }
 
+    // @deprecated
     private function adjustBalance()
     {
-        $client = $this->invoice->client->fresh();
-        $client->balance += $this->balance_adjustment * -1;
-        $client->save();
+        // $client = $this->invoice->client->fresh();
+        // $client->balance += $this->balance_adjustment * -1;
+        // $client->save();
 
         // $this->invoice->client->service()->updateBalance($this->balance_adjustment * -1)->save(); //reduces the client balance by the invoice amount.
 

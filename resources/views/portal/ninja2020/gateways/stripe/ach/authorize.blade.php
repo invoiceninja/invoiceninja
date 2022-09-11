@@ -47,7 +47,7 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
-        <select name="countries" id="country" class="form-select input w-full">
+        <select name="countries" id="country" class="form-select input w-full bg-white">
             <option disabled selected></option>
             @foreach($countries as $country)
                 @if($country->iso_3166_2 == 'US')
