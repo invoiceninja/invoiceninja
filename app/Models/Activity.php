@@ -266,6 +266,11 @@ class Activity extends StaticModel
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class)->withTrashed();
+    }
+
     /**
      * @return mixed
      */

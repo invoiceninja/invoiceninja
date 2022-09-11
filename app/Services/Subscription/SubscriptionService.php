@@ -477,10 +477,14 @@ class SubscriptionService
 
             nlog($response);
 
-            if($credit)
-                return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
-            else
-                return $this->handleRedirect('/client/credits');      
+            if($credit){
+                // return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+                return '/client/credits/'.$credit->hashed_id;
+            }
+            else{
+                // return $this->handleRedirect('/client/credits');      
+                return '/client/credits';
+            }
 
     }
 

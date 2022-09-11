@@ -88,7 +88,7 @@ class RecurringService
 
         $this->recurring_entity->invitations->each(function ($invitation){
 
-        UnlinkFile::dispatchNow(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf');
+        (new UnlinkFile(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath($invitation) . $this->recurring_entity->numberFormatter().'.pdf'))->handle();
         
         });
 

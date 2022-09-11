@@ -329,6 +329,24 @@ class MultiDB
         return false;
     }
 
+    public static function findAndSetDbByInappTransactionId($transaction_id) :bool
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if (Account::on($db)->where('inapp_transaction_id', $transaction_id)->exists()) {
+                self::setDb($db);
+
+                return true;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
+
     public static function findAndSetDbByContactKey($contact_key) :bool
     {
         $current_db = config('database.default');

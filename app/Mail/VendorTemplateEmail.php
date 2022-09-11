@@ -61,7 +61,7 @@ class VendorTemplateEmail extends Mailable
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
-            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->company->getSetting('email_style_custom')));
         }
 
         $settings = $this->company->settings;

@@ -19,6 +19,14 @@ use App\Models\Country;
 use App\Models\ExpenseCategory;
 use App\Models\PaymentType;
 use App\Models\User;
+use App\Models\Expense;
+use App\Models\Project;
+use App\Models\Invoice;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\TaxRate;
+use App\Models\Product;
+use App\Models\Vendor;
 use App\Utils\Number;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -67,8 +75,7 @@ class BaseTransformer
     {
         
         if (! empty($client_name)) {
-            $client_id_search = $this->company
-                ->clients()
+            $client_id_search = Client::where('company_id', $this->company->id)
                 ->where('is_deleted', false)
                 ->where('id_number', $client_name);
 
@@ -76,10 +83,11 @@ class BaseTransformer
                 return $client_id_search->first()->id;
             }
 
-            $client_name_search = $this->company
-                ->clients()
+            $client_name_search = Client::where('company_id', $this->company->id)
                 ->where('is_deleted', false)
-                ->where('name', $client_name);
+                ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
+                    strtolower(str_replace(' ', '', $client_name)),
+                ]);
 
             if ($client_name_search->count() >= 1) {
                 return $client_name_search->first()->id;
@@ -108,8 +116,7 @@ class BaseTransformer
      */
     public function hasClient($name)
     {
-        return $this->company
-            ->clients()
+        return Client::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -124,8 +131,7 @@ class BaseTransformer
      */
     public function hasVendor($name)
     {
-        return $this->company
-            ->vendors()
+        return Vendor::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -140,8 +146,7 @@ class BaseTransformer
      */
     public function hasProject($name)
     {
-        return $this->company
-            ->projects()
+        return Project::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -156,8 +161,7 @@ class BaseTransformer
      */
     public function hasProduct($key)
     {
-        return $this->company
-            ->products()
+        return Product::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $key)),
@@ -174,12 +178,14 @@ class BaseTransformer
     public function getFloat($data, $field)
     {
         if (array_key_exists($field, $data)) {
-            $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+            //$number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+            return Number::parseStringFloat($data[$field]);
         } else {
-            $number = 0;
+            //$number = 0;
+            return 0;
         }
 
-        return Number::parseFloat($number);
+        // return Number::parseFloat($number);
     }
 
     /**
@@ -189,8 +195,7 @@ class BaseTransformer
      */
     public function getClientId($name)
     {
-        $client = $this->company
-            ->clients()
+        $client = Client::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -207,8 +212,7 @@ class BaseTransformer
      */
     public function getProduct($key)
     {
-        $product = $this->company
-            ->products()
+        $product = Product::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $key)),
@@ -225,8 +229,7 @@ class BaseTransformer
      */
     public function getContact($email)
     {
-        $contact = $this->company
-            ->client_contacts()
+        $contact = ClientContact::where('company_id', $this->company->id)
             ->whereRaw("LOWER(REPLACE(`email`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $email)),
             ])
@@ -278,8 +281,7 @@ class BaseTransformer
     {
         $name = strtolower(trim($name));
 
-        $tax_rate = $this->company
-            ->tax_rates()
+        $tax_rate = TaxRate::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -298,8 +300,7 @@ class BaseTransformer
     {
         $name = strtolower(trim($name));
 
-        $tax_rate = $this->company
-            ->tax_rates()
+        $tax_rate = TaxRate::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -348,8 +349,7 @@ class BaseTransformer
      */
     public function getInvoiceId($invoice_number)
     {
-        $invoice = $this->company
-            ->invoices()
+        $invoice = Invoice::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
@@ -366,8 +366,7 @@ class BaseTransformer
      */
     public function hasInvoice($invoice_number)
     {
-        return $this->company
-            ->invoices()
+        return Invoice::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
@@ -380,8 +379,7 @@ class BaseTransformer
      */
     public function hasExpense($expense_number)
     {
-        return $this->company
-            ->expenses()
+        return Expense::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $expense_number)),
@@ -396,8 +394,7 @@ class BaseTransformer
      */
     public function hasQuote($quote_number)
     {
-        return $this->company
-            ->quotes()
+        return Quote::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $quote_number)),
@@ -412,8 +409,7 @@ class BaseTransformer
      */
     public function getInvoiceClientId($invoice_number)
     {
-        $invoice = $this->company
-            ->invoices()
+        $invoice = Invoice::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
@@ -430,8 +426,7 @@ class BaseTransformer
      */
     public function getVendorId($name)
     {
-        $vendor = $this->company
-            ->vendors()
+        $vendor = Vendor::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -467,8 +462,7 @@ class BaseTransformer
      */
     public function getExpenseCategoryId($name)
     {
-        $ec = $this->company
-            ->expense_categories()
+        $ec = ExpenseCategory::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
@@ -504,8 +498,7 @@ class BaseTransformer
      */
     public function getProjectId($name, $clientId = null)
     {
-        $project = $this->company
-            ->projects()
+        $project = Project::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
