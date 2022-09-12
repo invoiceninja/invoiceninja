@@ -412,20 +412,22 @@ trait GeneratesCounter
      * @param      string $prefix
      * @return     string The padded and prefixed entity number
      */
-    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
+    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '') :string
     {
         $check = false;
         $check_counter = 1;
         $original_counter = $counter;
 
         do {
+            nlog($check_counter);
+
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
 
             $number = $this->prefixCounter($number, $prefix);
 
-            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists();
+            $check = $class::where('company_id', $entity->company_id)->where('number', $number)->withTrashed()->exists();
 
             $counter++;
             $check_counter++;
@@ -434,12 +436,16 @@ trait GeneratesCounter
 
                 nlog("counter error");
                 nlog("original_counter = {$original_counter}");
+                nlog("entity company = {$entity->company_id}");
                 nlog("counter = {$counter}");
                 nlog("returning = {$number}");
                 
                 return $number.'_'.Str::random(5);
             }
+
         } while ($check);
+
+        nlog($number);
 
         return $number;
     }
@@ -465,10 +471,12 @@ trait GeneratesCounter
         $settings = $entity->settings;
 
         if ($counter_name == 'invoice_number_counter' && ! property_exists($entity->settings, 'invoice_number_counter')) {
+            nlog("BAD STATE - why no invoice_number_counter set?");
             $settings->invoice_number_counter = 0;
         }
 
         if (! property_exists($settings, $counter_name)) {
+            nlog("BAD STATE - why no {$counter_name} set?");
             $settings->{$counter_name} = 1;
         }
 
