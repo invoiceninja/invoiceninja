@@ -416,10 +416,8 @@ trait GeneratesCounter
     {
         $check = false;
         $check_counter = 1;
-        $original_counter = $counter;
 
         do {
-            nlog($check_counter);
 
             $number = $this->padCounter($counter, $padding);
 
@@ -433,20 +431,12 @@ trait GeneratesCounter
             $check_counter++;
 
             if ($check_counter > 100) {
-
-                nlog("counter error");
-                nlog("check counter = {$check_counter}");
-                nlog("original_counter = {$original_counter}");
-                nlog("entity company = {$entity->company_id}");
-                nlog("counter = {$counter}");
-                nlog("returning = {$number}");
                 
                 return $number.'_'.Str::random(5);
+
             }
 
         } while ($check);
-
-        nlog($number);
 
         return $number;
     }
@@ -472,12 +462,10 @@ trait GeneratesCounter
         $settings = $entity->settings;
 
         if ($counter_name == 'invoice_number_counter' && ! property_exists($entity->settings, 'invoice_number_counter')) {
-            nlog("BAD STATE - why no invoice_number_counter set?");
             $settings->invoice_number_counter = 0;
         }
 
         if (! property_exists($settings, $counter_name)) {
-            nlog("BAD STATE - why no {$counter_name} set?");
             $settings->{$counter_name} = 1;
         }
 
