@@ -416,6 +416,7 @@ trait GeneratesCounter
     {
         $check = false;
         $check_counter = 1;
+        $original_counter = $counter;
 
         do {
             $number = $this->padCounter($counter, $padding);
@@ -430,6 +431,12 @@ trait GeneratesCounter
             $check_counter++;
 
             if ($check_counter > 100) {
+
+                nlog("counter error");
+                nlog("original_counter = {$original_counter}");
+                nlog("counter = {$counter}");
+                nlog("returning = {$number}");
+                
                 return $number.'_'.Str::random(5);
             }
         } while ($check);
