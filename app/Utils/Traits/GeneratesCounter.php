@@ -435,6 +435,7 @@ trait GeneratesCounter
             if ($check_counter > 100) {
 
                 nlog("counter error");
+                nlog("check counter = {$check_counter}");
                 nlog("original_counter = {$original_counter}");
                 nlog("entity company = {$entity->company_id}");
                 nlog("counter = {$counter}");
