@@ -68,6 +68,8 @@ class ProcessBankTransactions implements ShouldQueue
     {
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
+nlog("BANK ACCOUNT ID = {$this->bank_integration->bank_account_id}");
+
         $data = [
             'top' => 500,
             'fromDate' => $this->from_date, 
