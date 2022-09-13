@@ -41,6 +41,7 @@ class ProcessBankTransactions implements ShouldQueue
     {
         $this->bank_integration_account_id = $bank_integration_account_id;
         $this->bank_integration = $bank_integration;
+        $this->from_date = $bank_integration->from_date;
     }
 
     /**
