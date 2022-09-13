@@ -113,10 +113,7 @@ class ProcessBankTransactions implements ShouldQueue
 
         BankService::dispatch($company->id, $company->db);
 
-        $last_transaction = end($transactions);
-
-nlog("last transaction");
-nlog($last_transaction);
+        $last_transaction = reset($transactions);
 
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         
@@ -124,12 +121,9 @@ nlog($last_transaction);
 
         $this->bank_integration->save();
 
-
-nlog($this->bank_integration->toArray());
-
         if($count < 500)
             $this->stop_loop = false;
-        
+
     }
 
 }
