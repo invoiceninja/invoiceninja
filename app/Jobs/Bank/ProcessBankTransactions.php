@@ -52,12 +52,16 @@ class ProcessBankTransactions implements ShouldQueue
      */
     public function handle()
     {
+
+        set_time_limit(0);
         //Loop through everything until we are up to date
 
         $this->from_date = $this->from_date ?: '2021-01-01';
 
         do{
+
             $this->processTransactions();
+
         }
         while($this->stop_loop);
 
@@ -68,8 +72,6 @@ class ProcessBankTransactions implements ShouldQueue
     {
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
-nlog("BANK ACCOUNT ID = {$this->bank_integration->bank_account_id}");
-
         $data = [
             'top' => 500,
             'fromDate' => $this->from_date, 
@@ -77,20 +79,17 @@ nlog("BANK ACCOUNT ID = {$this->bank_integration->bank_account_id}");
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
-nlog($data);
-
         $transaction_count = $yodlee->getTransactionCount($data);
 
-nlog($transaction_count);
-
         $count = $transaction_count->transaction->TOTAL->count;
-
-nlog($count);
 
         //expense transactions
         $transactions = $yodlee->getTransactions($data); 
 
         $company = $this->bank_integration->company;
+
+        MultiDB::setDb($company->db);
+
         $user_id = $company->owner()->id;
         
         BankTransaction::unguard();
@@ -114,18 +113,23 @@ nlog($count);
 
         BankService::dispatch($company->id, $company->db);
 
-        MultiDB::setDb($company->db);
-
         $last_transaction = end($transactions);
+
+nlog("last transaction");
+nlog($last_transaction);
 
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         
         $this->from_date = $this->bank_integration->from_date->format('Y-m-d');
 
         $this->bank_integration->save();
-        
+
+
+nlog($this->bank_integration->toArray());
+
         if($count < 500)
             $this->stop_loop = false;
+        
     }
 
 }
