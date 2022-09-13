@@ -37,11 +37,10 @@ class ProcessBankTransactions implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration, string $from_date = '2022-01-01')
+    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration)
     {
         $this->bank_integration_account_id = $bank_integration_account_id;
         $this->bank_integration = $bank_integration;
-        $this->from_date = $from_date;
     }
 
     /**
@@ -53,6 +52,8 @@ class ProcessBankTransactions implements ShouldQueue
     public function handle()
     {
         //Loop through everything until we are up to date
+
+        $this->from_date = $this->from_date ?: '2021-01-01';
 
         do{
             $this->processTransactions();
@@ -73,8 +74,15 @@ class ProcessBankTransactions implements ShouldQueue
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
+nlog($data);
+
         $transaction_count = $yodlee->getTransactionCount($data);
+
+nlog($transaction_count);
+
         $count = $transaction_count->transaction->TOTAL->count;
+
+nlog($count);
 
         //expense transactions
         $transactions = $yodlee->getTransactions($data); 

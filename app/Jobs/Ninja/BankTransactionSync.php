@@ -44,9 +44,9 @@ class BankTransactionSync implements ShouldQueue
      */
     public function handle()
     {
-        if (! Ninja::isHosted()) {
-            return;
-        }
+        // if (! Ninja::isHosted()) {
+        //     return;
+        // }
 
         //multiDB environment, need to
         foreach (MultiDB::$dbs as $db) {
