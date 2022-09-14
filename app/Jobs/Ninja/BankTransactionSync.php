@@ -71,7 +71,7 @@ class BankTransactionSync implements ShouldQueue
                     
                     nlog("Account = {$account->id} - {$bank_integration->id}");
 
-                    ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
+                    ProcessBankTransactions::dispatchSync($account->bank_integration_account_id, $bank_integration);
 
                 });
 
