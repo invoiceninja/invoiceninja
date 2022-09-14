@@ -53,7 +53,7 @@ class BankTransactionSync implements ShouldQueue
             MultiDB::setDB($db);
 
             nlog("syncing transactions");
-            
+
             $this->syncTransactions();
         }
     }
@@ -68,8 +68,6 @@ class BankTransactionSync implements ShouldQueue
             // {
 
                 $account->bank_integrations->each(function ($bank_integration) use ($account){
-
-                    nlog("processing {$account->bank_integration_account_id} - {$bank_integration->id}");
 
                     ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
 
