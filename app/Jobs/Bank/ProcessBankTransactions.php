@@ -113,10 +113,10 @@ class ProcessBankTransactions implements ShouldQueue
 
         //Harvest the company
 
-        MultiDB::setDb($company->db);
+        MultiDB::setDb($this->company->db);
 
         /*Get the user */
-        $user_id = $company->owner()->id;
+        $user_id = $this->company->owner()->id;
         
         /* Unguard the model to perform batch inserts */
         BankTransaction::unguard();
@@ -126,13 +126,13 @@ class ProcessBankTransactions implements ShouldQueue
         foreach($transactions as $transaction)
         {
 
-            if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $company->id)->withTrashed()->exists())
+            if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists())
                 continue;
 
             //this should be much faster to insert than using ::create()
             $bt = \DB::table('bank_transactions')->insert(
                 array_merge($transaction,[
-                    'company_id' => $company->id,
+                    'company_id' => $this->company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
                     'created_at' => $now,
