@@ -121,7 +121,7 @@ nlog("transactions = " . count($transactions));
 
         $last_transaction = reset($transactions);
 
-nlog("last tranny = " . $last_transaction->id);
+nlog("last tranny = " . $last_transaction['id']);
 
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         
