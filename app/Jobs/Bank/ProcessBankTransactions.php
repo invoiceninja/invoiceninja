@@ -15,6 +15,7 @@ use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Libraries\MultiDB;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Company;
 use App\Services\Bank\BankService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,6 +38,8 @@ class ProcessBankTransactions implements ShouldQueue
 
     private int $skip = 0;
 
+    public Company $company;
+
     /**
      * Create a new job instance.
      */
@@ -45,6 +48,8 @@ class ProcessBankTransactions implements ShouldQueue
         $this->bank_integration_account_id = $bank_integration_account_id;
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
+        $this->company = $this->bank_integration->company;
+
     }
 
     /**
@@ -67,6 +72,8 @@ class ProcessBankTransactions implements ShouldQueue
 
         }
         while($this->stop_loop);
+
+        BankService::dispatch($this->company->id, $this->company->db);
 
     }
 
@@ -105,7 +112,6 @@ class ProcessBankTransactions implements ShouldQueue
         }
 
         //Harvest the company
-        $company = $this->bank_integration->company;
 
         MultiDB::setDb($company->db);
 
@@ -136,20 +142,13 @@ class ProcessBankTransactions implements ShouldQueue
 
         }
 
-        BankService::dispatch($company->id, $company->db);
-
-        $last_transaction = reset($transactions);
-
-        $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
-        
-        nlog("the bank integration from_date being set to: {$this->bank_integration->from_date}");
 
         $this->skip = $this->skip + 500;
 
         if($count < 500){
             $this->stop_loop = false;
 
-            $this->from_date = now();
+            $this->bank_integration->from_date = now();
             $this->bank_integration->save();
 
             nlog("stopping while loop");
