@@ -22,13 +22,7 @@ class BankTransaction extends BaseModel
 
     protected $dates = [
     ];
-
-    protected $casts = [
-        'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
-        'deleted_at' => 'timestamp',
-    ];
-
+    
     public function getEntityType()
     {
         return self::class;

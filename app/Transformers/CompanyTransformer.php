@@ -67,6 +67,7 @@ class CompanyTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+        'bank_transactions',
         'documents',
         'users',
         'designs',
@@ -103,7 +104,6 @@ class CompanyTransformer extends EntityTransformer
         'recurring_expenses',
         'purchase_orders',
         'bank_integrations',
-        'bank_transactions',
     ];
 
     /**
@@ -223,18 +223,21 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
     }
 
+    public function includeBankTransactions(Company $company)
+    {
+        $transformer = new BankTransactionTransformer($this->serializer);
+        
+        nlog("GEET");
+        nlog($company->bank_transactions()->count());
+        
+        return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
+    }
+
     public function includeBankIntegrations(Company $company)
     {
         $transformer = new BankIntegrationTransformer($this->serializer);
 
         return $this->includeCollection($company->bank_integrations, $transformer, BankIntegration::class);
-    }
-
-    public function includeBankTransactions(Company $company)
-    {
-        $transformer = new BankTransactionTransformer($this->serializer);
-        
-        return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
     }
 
     public function includeTokensHashed(Company $company)
