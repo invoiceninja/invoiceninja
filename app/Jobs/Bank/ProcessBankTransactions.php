@@ -34,6 +34,9 @@ class ProcessBankTransactions implements ShouldQueue
     private ?string $from_date;
 
     private bool $stop_loop = true;
+
+    private int $skip = 0;
+
     /**
      * Create a new job instance.
      */
@@ -56,7 +59,7 @@ class ProcessBankTransactions implements ShouldQueue
         set_time_limit(0);
         //Loop through everything until we are up to date
 
-        $this->from_date = $this->from_date ?: '2021-01-01';
+        $this->from_date = $this->from_date ?: '2020-01-01';
 
         do{
 
@@ -75,9 +78,9 @@ class ProcessBankTransactions implements ShouldQueue
 
         $data = [
             'top' => 500,
-            'fromDate' => $this->from_date, 
-            'toDate' => now()->format('Y-m-d'),
+            'fromDate' => $this->from_date,
             'accountId' => $this->bank_integration->bank_account_id,
+            'skip' => $this->skip,
         ];
 
         //Get transaction count object
@@ -141,12 +144,14 @@ class ProcessBankTransactions implements ShouldQueue
         
         nlog("the bank integration from_date being set to: {$this->bank_integration->from_date}");
 
-        $this->from_date = \Carbon\Carbon::parse($this->bank_integration->from_date)->format('Y-m-d');
-
-        $this->bank_integration->save();
+        $this->skip = $this->skip + 500;
 
         if($count < 500){
             $this->stop_loop = false;
+
+            $this->from_date = now();
+            $this->bank_integration->save();
+
             nlog("stopping while loop");
         }
 
