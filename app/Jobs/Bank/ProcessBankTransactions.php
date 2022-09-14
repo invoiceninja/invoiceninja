@@ -96,6 +96,7 @@ class ProcessBankTransactions implements ShouldQueue
 
             $this->bank_integration->from_date = now();
             $this->bank_integration->save();
+            $this->stop_loop = false;
             return;
         }
 
