@@ -68,6 +68,8 @@ class BankTransactionSync implements ShouldQueue
             // {
 
                 $account->bank_integrations->each(function ($bank_integration) use ($account){
+                    
+                    nlog("Account = {$account->id} - {$bank_integration->id}");
 
                     ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
 

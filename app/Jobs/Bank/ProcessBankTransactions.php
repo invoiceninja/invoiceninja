@@ -86,7 +86,7 @@ class ProcessBankTransactions implements ShouldQueue
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
 
-        nlog("Number of transactions = {$count} - bank integration id = {$this->bank_integration->id}");
+        nlog("Number of transactions = {$count} - bank integration id = {$this->bank_integration->id} - bank account id = {$this->bank_integration->bank_account_id}");
 
         //get transactions array
         $transactions = $yodlee->getTransactions($data); 
