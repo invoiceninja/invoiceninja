@@ -449,7 +449,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
-                    $query->whereNotNull('updated_at');
+                    $query->where('updated_at', '>=', $updated_at);
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_transactions.user_id', $user->id);

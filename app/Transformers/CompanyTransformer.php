@@ -67,7 +67,6 @@ class CompanyTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'bank_transactions',
         'documents',
         'users',
         'designs',
@@ -104,6 +103,7 @@ class CompanyTransformer extends EntityTransformer
         'recurring_expenses',
         'purchase_orders',
         'bank_integrations',
+        'bank_transactions',
     ];
 
     /**
@@ -226,10 +226,7 @@ class CompanyTransformer extends EntityTransformer
     public function includeBankTransactions(Company $company)
     {
         $transformer = new BankTransactionTransformer($this->serializer);
-        
-        nlog("GEET");
-        nlog($company->bank_transactions()->count());
-        
+
         return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
     }
 

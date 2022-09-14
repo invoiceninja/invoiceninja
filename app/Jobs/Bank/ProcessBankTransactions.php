@@ -109,6 +109,8 @@ class ProcessBankTransactions implements ShouldQueue
                     'company_id' => $company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ])
             );
 
