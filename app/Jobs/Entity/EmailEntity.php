@@ -78,15 +78,11 @@ class EmailEntity implements ShouldQueue
 
         $this->invitation = $invitation;
 
-
         $this->entity_string = $this->resolveEntityString();
 
         $this->entity = $invitation->{$this->entity_string};
 
-        if($this->entity_string == 'purchase_order')
-            $this->settings = $this->company->settings;
-        else
-            $this->settings = $invitation->contact->client->getMergedSettings();
+        $this->settings = $invitation->contact->client->getMergedSettings();
 
         $this->reminder_template = $reminder_template ?: $this->entity->calculateTemplate($this->entity_string);
 
@@ -144,8 +140,6 @@ class EmailEntity implements ShouldQueue
             return 'credit';
         } elseif ($this->invitation instanceof RecurringInvoiceInvitation) {
             return 'recurring_invoice';
-        } elseif($this->invitation instanceof PurchaseOrderInvitation) {
-            return 'purchase_order';
         }
     }
 
