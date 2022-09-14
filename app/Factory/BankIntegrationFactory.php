@@ -23,7 +23,7 @@ class BankIntegrationFactory
         $bank_integration->user_id = $user_id;
         $bank_integration->company_id = $company_id;
 
-        $bank_integration->provider_bank_name = '';
+        $bank_integration->provider_name = '';
         $bank_integration->bank_account_id = '';
         $bank_integration->bank_account_name = '';
         $bank_integration->bank_account_number = '';

@@ -31,7 +31,7 @@ class ProcessBankTransactions implements ShouldQueue
 
     private BankIntegration $bank_integration;
 
-    private string $from_date;
+    private ?string $from_date;
 
     private bool $stop_loop = true;
     /**

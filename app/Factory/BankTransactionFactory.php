@@ -16,10 +16,9 @@ use Illuminate\Support\Str;
 
 class BankTransactionFactory
 {
-    public static function create(int $company_id, int $user_id, int $account_id) :BankTransaction
+    public static function create(int $company_id, int $user_id) :BankTransaction
     {
         $bank_transaction = new BankTransaction;
-        $bank_transaction->account_id = $account_id;
         $bank_transaction->user_id = $user_id;
         $bank_transaction->company_id = $company_id;
 
@@ -30,7 +29,6 @@ class BankTransactionFactory
         $bank_transaction->date = now()->format('Y-m-d');
         $bank_transaction->description = '';
         $bank_transaction->is_matched = 0;
-        $bank_transaction->base_type = 'CREDIT';
         
         return $bank_transaction;
     }
