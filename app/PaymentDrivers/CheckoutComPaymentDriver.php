@@ -34,6 +34,7 @@ use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
 use Checkout\Common\CustomerRequest;
+use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
@@ -285,12 +286,31 @@ class CheckoutComPaymentDriver extends BaseDriver
             $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
 
             return $response;
+
         } catch (\Exception $e) {
-            $request = new CustomerRequest();
+
+            if ($this->is_four_api) {
+                $request = new FourCustomerRequest();
+            }
+            else{
+                $request = new CustomerRequest();
+            }
+            
             $request->email = $this->client->present()->email();
             $request->name = $this->client->present()->name();
+            $request->phone = $this->client->present()->phone();
 
-            return $request;
+                try {
+                    $response = $this->gateway->getCustomersClient()->create($request);
+                } catch (CheckoutApiException $e) {
+                    // API error
+                    $error_details = $e->error_details;
+                    $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
+                } catch (CheckoutAuthorizationException $e) {
+                    // Bad Invalid authorization
+                }
+
+            return $response;
         }
     }
 
