@@ -79,6 +79,8 @@ class ProcessBankTransactions implements ShouldQueue
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
+nlog($data);
+
         //Get transaction count object
         $transaction_count = $yodlee->getTransactionCount($data);
 
@@ -90,6 +92,8 @@ class ProcessBankTransactions implements ShouldQueue
 
         //if no transactions, update the from_date and move on
         if(count($transactions) == 0){
+
+nlog("no transactions returning");
 
             $this->bank_integration->from_date = now();
             $this->bank_integration->save();
