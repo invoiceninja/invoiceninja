@@ -52,6 +52,8 @@ class BankTransactionSync implements ShouldQueue
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
+            nlog("syncing transactions");
+            
             $this->syncTransactions();
         }
     }
