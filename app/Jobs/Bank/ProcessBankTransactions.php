@@ -88,6 +88,9 @@ nlog($data);
         //expense transactions
         $transactions = $yodlee->getTransactions($data); 
 
+        if(count($transactions) == 0)
+            return;
+
         $company = $this->bank_integration->company;
 
         MultiDB::setDb($company->db);
