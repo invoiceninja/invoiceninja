@@ -79,24 +79,36 @@ class ProcessBankTransactions implements ShouldQueue
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
+        //Get transaction count object
         $transaction_count = $yodlee->getTransactionCount($data);
 
+        //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
 
-        //expense transactions
+        //get transactions array
         $transactions = $yodlee->getTransactions($data); 
 
-        if(count($transactions) == 0)
-            return;
+        //if no transactions, update the from_date and move on
+        if(count($transactions) == 0){
 
+            $this->bank_integration->from_date = now();
+            $this->bank_integration->save();
+            return;
+        }
+
+        //Harvest the company
         $company = $this->bank_integration->company;
 
         MultiDB::setDb($company->db);
 
+        /*Get the user */
         $user_id = $company->owner()->id;
         
+        /* Unguard the model to perform batch inserts */
         BankTransaction::unguard();
 
+        $now = now();
+        
         foreach($transactions as $transaction)
         {
 
@@ -109,8 +121,8 @@ class ProcessBankTransactions implements ShouldQueue
                     'company_id' => $company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ])
             );
 
