@@ -107,8 +107,6 @@ class SwissQrGenerator
 
     if(strlen($this->company->present()->besr_id()) > 1)
     {
-        nlog("i have a besr");
-
         $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
             $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
             $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
@@ -123,7 +121,6 @@ class SwissQrGenerator
     }
     else{
 
-        nlog("i have no besr");
         $qrBill->setPaymentReference(
             QrBill\DataGroup\Element\PaymentReference::create(
                 QrBill\DataGroup\Element\PaymentReference::TYPE_NON
