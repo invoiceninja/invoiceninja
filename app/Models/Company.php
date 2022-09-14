@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\DataMapper\CompanySettings;
+use App\Models\BankTransaction;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\PurchaseOrder;

@@ -234,9 +234,6 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new BankTransactionTransformer($this->serializer);
         
-        nlog("GEEET");
-        nlog($company->bank_transactions()->count());
-
         return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
     }
 
