@@ -96,6 +96,7 @@ class ProcessBankTransactions implements ShouldQueue
 
             $this->bank_integration->from_date = now();
             $this->bank_integration->save();
+            nlog("the bank integration from_date being set to: {$this->bank_integration->from_date}");
             $this->stop_loop = false;
             return;
         }
@@ -139,7 +140,7 @@ class ProcessBankTransactions implements ShouldQueue
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         
         nlog("the bank integration from_date being set to: {$this->bank_integration->from_date}");
-        
+
         $this->from_date = \Carbon\Carbon::parse($this->bank_integration->from_date)->format('Y-m-d');
 
         $this->bank_integration->save();
