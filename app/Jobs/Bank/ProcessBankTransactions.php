@@ -64,7 +64,8 @@ class ProcessBankTransactions implements ShouldQueue
 
             $x++;
             nlog("Loop number {$x}");
-
+            nlog("bank integration id = {$this->bank_integration->id}");
+            
             $this->processTransactions();
 
         }
