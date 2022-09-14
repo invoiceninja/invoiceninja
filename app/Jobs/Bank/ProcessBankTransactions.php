@@ -58,14 +58,8 @@ class ProcessBankTransactions implements ShouldQueue
 
         $this->from_date = $this->from_date ?: '2021-01-01';
 
-        $x = 0;
-
         do{
 
-            $x++;
-            nlog("Loop number {$x}");
-            nlog("bank integration id = {$this->bank_integration->id}");
-            
             $this->processTransactions();
 
         }
@@ -86,23 +80,19 @@ class ProcessBankTransactions implements ShouldQueue
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
-nlog($data);
-
         //Get transaction count object
         $transaction_count = $yodlee->getTransactionCount($data);
 
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
 
-nlog("Number of transactions = {$count}");
+        nlog("Number of transactions = {$count} - bank integration id = {$this->bank_integration->id}");
 
         //get transactions array
         $transactions = $yodlee->getTransactions($data); 
 
         //if no transactions, update the from_date and move on
         if(count($transactions) == 0){
-
-nlog("no transactions returning");
 
             $this->bank_integration->from_date = now();
             $this->bank_integration->save();
