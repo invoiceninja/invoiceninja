@@ -40,7 +40,7 @@ class BankIntegration extends BaseModel
 
     public function account()
     {
-        return $this->belongsTo(Account::class)->withTrashed();
+        return $this->belongsTo(Account::class);
     }
 
     public function transactions()
