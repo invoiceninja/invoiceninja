@@ -58,7 +58,12 @@ class ProcessBankTransactions implements ShouldQueue
 
         $this->from_date = $this->from_date ?: '2021-01-01';
 
+        $x = 0;
+
         do{
+
+            $x++;
+            nlog("Loop number {$x}");
 
             $this->processTransactions();
 
@@ -70,6 +75,7 @@ class ProcessBankTransactions implements ShouldQueue
 
     private function processTransactions()
     {
+
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
         $data = [
@@ -86,6 +92,8 @@ nlog($data);
 
         //Get int count
         $count = $transaction_count->transaction->TOTAL->count;
+
+nlog("Number of transactions = {$count}");
 
         //get transactions array
         $transactions = $yodlee->getTransactions($data); 
@@ -142,8 +150,10 @@ nlog("no transactions returning");
 
         $this->bank_integration->save();
 
-        if($count < 500)
+        if($count < 500){
             $this->stop_loop = false;
+            nlog("stopping while loop");
+        }
 
     }
 
