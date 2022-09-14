@@ -231,7 +231,7 @@ class CompanyTransformer extends EntityTransformer
     }
 
     public function includeBankTransactions(Company $company)
-    {
+    {nlog("GEEETTTTTTTT");
         $transformer = new BankTransactionTransformer($this->serializer);
 
         return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);

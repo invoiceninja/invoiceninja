@@ -79,8 +79,6 @@ class ProcessBankTransactions implements ShouldQueue
             'accountId' => $this->bank_integration->bank_account_id,
         ];
 
-nlog($data);
-
         $transaction_count = $yodlee->getTransactionCount($data);
 
         $count = $transaction_count->transaction->TOTAL->count;
@@ -99,15 +97,11 @@ nlog($data);
         
         BankTransaction::unguard();
 
-nlog("transactions = " . count($transactions));
-
         foreach($transactions as $transaction)
         {
 
             if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $company->id)->withTrashed()->exists())
                 continue;
-
-        nlog("inserting");
 
             //this should be much faster to insert than using ::create()
             $bt = \DB::table('bank_transactions')->insert(
@@ -123,8 +117,6 @@ nlog("transactions = " . count($transactions));
         BankService::dispatch($company->id, $company->db);
 
         $last_transaction = reset($transactions);
-
-nlog("last tranny = " . $last_transaction['id']);
 
         $this->bank_integration->from_date = isset($last_transaction['date']) ? \Carbon\Carbon::parse($last_transaction['date']) : now();
         
