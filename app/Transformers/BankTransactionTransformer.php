@@ -50,6 +50,7 @@ class BankTransactionTransformer extends EntityTransformer
     {
         return [
             'id' => (string) $this->encodePrimaryKey($bank_transaction->id),
+            'bank_integration_id' => (string) $this->encodePrimaryKey($bank_transaction->bank_integration_id),
             'transaction_id' => (int) $bank_transaction->transaction_id,
             'amount' => (float) $bank_transaction->amount ?: 0,
             'currency_code' => (string) $bank_transaction->currency_code ?: '',
@@ -62,7 +63,7 @@ class BankTransactionTransformer extends EntityTransformer
             'base_type' => (string) $bank_transaction->base_type ?: '',
             'invoice_id' => (string) $this->encodePrimaryKey($bank_transaction->invoice_id) ?: '',
             'expense_id'=> (string) $this->encodePrimaryKey($bank_transaction->expense_id) ?: '',
-            'is_matched'=> (bool) $bank_transaction->is_matched ?: '',
+            'is_matched'=> (bool) $bank_transaction->is_matched,
             'is_deleted' => (bool) $bank_transaction->is_deleted,
             'created_at' => (int) $bank_transaction->created_at,
             'updated_at' => (int) $bank_transaction->updated_at,
