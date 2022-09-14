@@ -106,6 +106,7 @@ class BaseController extends Controller
           'company.webhooks',
           'company.system_logs',
           'company.bank_integrations',
+          'company.bank_transactions',
         ];
 
     private $mini_load = [
@@ -447,6 +448,13 @@ class BaseController extends Controller
                         $query->where('bank_integrations.user_id', $user->id);
                     }
                 },
+                'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
+                    $query->whereNotNull('updated_at');
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
             ]
         );
 
@@ -761,6 +769,13 @@ class BaseController extends Controller
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
             ]

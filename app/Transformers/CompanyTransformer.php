@@ -14,6 +14,7 @@ namespace App\Transformers;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -42,6 +43,7 @@ use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\BankIntegrationTransformer;
+use App\Transformers\BankTransactionTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\RecurringExpenseTransformer;
 use App\Utils\Traits\MakesHash;
@@ -101,6 +103,7 @@ class CompanyTransformer extends EntityTransformer
         'recurring_expenses',
         'purchase_orders',
         'bank_integrations',
+        'bank_transactions',
     ];
 
     /**
@@ -225,6 +228,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new BankIntegrationTransformer($this->serializer);
 
         return $this->includeCollection($company->bank_integrations, $transformer, BankIntegration::class);
+    }
+
+    public function includeBankTransactions(Company $company)
+    {
+        $transformer = new BankTransactionTransformer($this->serializer);
+
+        return $this->includeCollection($company->bank_transactions(), $transformer, BankTransaction::class);
     }
 
     public function includeTokensHashed(Company $company)

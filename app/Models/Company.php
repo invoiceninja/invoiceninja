@@ -181,6 +181,11 @@ class Company extends BaseModel
         return $this->hasMany(BankIntegration::class);
     }
 
+    public function bank_transactions()
+    {
+        return $this->hasMany(BankTransaction::class);
+    }
+
     public function getCompanyIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
