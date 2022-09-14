@@ -234,7 +234,7 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new BankTransactionTransformer($this->serializer);
 
-        return $this->includeCollection($company->bank_transactions(), $transformer, BankTransaction::class);
+        return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
     }
 
     public function includeTokensHashed(Company $company)
