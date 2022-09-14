@@ -91,6 +91,9 @@ class CreditCard implements MethodInterface
         $gateway_response = \json_decode($request->gateway_response);
 
         $customerRequest = $this->checkout->getCustomer();
+        
+        nlog($customerRequest);
+
         $request = $this->bootRequest($gateway_response->token);
         $request->capture = false;
         $request->reference = '$1 payment for authorization.';
