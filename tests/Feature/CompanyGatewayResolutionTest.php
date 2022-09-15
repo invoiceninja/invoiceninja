@@ -233,6 +233,6 @@ class CompanyGatewayResolutionTest extends TestCase
         $this->cg->save();
 
         $fee = $this->cg->calcGatewayFee(89, GatewayType::CREDIT_CARD, false);
-        $this->assertEquals(1.89, $fee);
+        $this->assertEquals(1.89, round($fee,2));
     }
 }
