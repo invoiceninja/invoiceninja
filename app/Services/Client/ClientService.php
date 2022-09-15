@@ -33,7 +33,7 @@ class ClientService
 
         \DB::connection(config('database.default'))->transaction(function () use($amount) {
 
-            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $this->client->balance += $amount;
             $this->client->save();
 
@@ -49,7 +49,7 @@ class ClientService
 
         \DB::connection(config('database.default'))->transaction(function () use($balance, $paid_to_date) {
 
-            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $this->client->balance += $balance;
             $this->client->paid_to_date += $paid_to_date;
             $this->client->save();
@@ -65,7 +65,7 @@ class ClientService
 
         \DB::connection(config('database.default'))->transaction(function () use($amount) {
 
-            $this->client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $this->client->paid_to_date += $amount;
             $this->client->save();
 
@@ -83,7 +83,7 @@ class ClientService
 
     public function getCreditBalance() :float
     {
-        $credits = Credit::where('client_id', $this->client->id)
+        $credits = Credit::withTrashed()->where('client_id', $this->client->id)
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
                       ->where(function ($query) {
