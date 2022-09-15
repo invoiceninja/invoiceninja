@@ -49,9 +49,9 @@ class YodleeApiTest extends TestCase
 
         $x = $t->firstWhere('highLevelCategoryId', 10000003);
 
-        var_dump($x);
-
         $this->assertNotNull($x);
+
+        $this->assertEquals('Automotive Expenses', $x->highLevelCategoryName);
 
     }
 
