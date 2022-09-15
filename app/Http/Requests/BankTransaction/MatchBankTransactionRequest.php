@@ -25,4 +25,25 @@ class MatchBankTransactionRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
+
+    public function rules()
+    {
+
+        return [
+            '*.id' => 'required|bail',
+            '*.invoice_id' => 'nullable|sometimes',
+            '*.expense_id' => 'nullable|sometimes'
+        ];
+
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
+
+        $this->replace($input);
+
+    }
 }

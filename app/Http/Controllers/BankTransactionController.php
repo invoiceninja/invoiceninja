@@ -547,7 +547,7 @@ class BankTransactionController extends BaseController
     public function match(MatchBankTransactionRequest $request)
     {
 
-
+        return response()->json(['message' => 'Processing....'], 200);
 
     }
 
