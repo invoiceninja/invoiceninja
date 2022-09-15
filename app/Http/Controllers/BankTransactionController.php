@@ -17,6 +17,7 @@ use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
 use App\Http\Requests\BankTransaction\DestroyBankTransactionRequest;
 use App\Http\Requests\BankTransaction\EditBankTransactionRequest;
+use App\Http\Requests\BankTransaction\MatchBankTransactionRequest;
 use App\Http\Requests\BankTransaction\ShowBankTransactionRequest;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\BankTransaction\UpdateBankTransactionRequest;
@@ -421,7 +422,7 @@ class BankTransactionController extends BaseController
     }
 
 
-/**
+    /**
      * Perform bulk actions on the list view.
      *
      * @return Collection
@@ -429,7 +430,7 @@ class BankTransactionController extends BaseController
      * @OA\Post(
      *      path="/api/v1/bank_transations/bulk",
      *      operationId="bulkBankTransactions",
-     *      tags={"bank_integrations"},
+     *      tags={"bank_transactions"},
      *      summary="Performs bulk actions on an array of bank_transations",
      *      description="",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
@@ -493,31 +494,62 @@ class BankTransactionController extends BaseController
         return $this->listResponse(BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 
+    /**
+     * Perform bulk actions on the list view.
+     *
+     * @return Collection
+     *
+     * @OA\Post(
+     *      path="/api/v1/bank_transations/match",
+     *      operationId="matchBankTransactions",
+     *      tags={"bank_transactions"},
+     *      summary="Performs match actions on an array of bank_transactions",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="Action paramters",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Bulk Action response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
 
-    public function getTransactions(AdminBankTransactionRequest $request)
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function match(MatchBankTransactionRequest $request)
     {
 
-        $bank_account_id = auth()->user()->account->bank_transaction_account_id;
 
-        $bank_account_id = 'sbMem62e1e69547bfb1';
-
-        if(!$bank_account_id)
-            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
-
-        $yodlee = new Yodlee($bank_account_id);
-
-        $data = [
-            'CONTAINER' => 'bank',
-            'categoryType' => 'INCOME, UNCATEGORIZE',
-            'top' => 500,
-            'fromDate' => '2000-10-10', /// YYYY-MM-DD
-        ];
-
-        $transactions = $yodlee->getTransactions($data); 
-
-        $transactions = (new BankService(auth()->user()->company()))->match();
-
-        return response()->json($transactions, 200, [], JSON_PRETTY_PRINT);
 
     }
+
+
 }

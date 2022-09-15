@@ -116,7 +116,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::resource('bank_transactions', BankTransactionController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::post('bank_transactions/bulk', [BankTransactionController::class, 'bulk'])->name('bank_transactions.bulk');
-
+    Route::post('bank_transactions/match', [BankTransactionController::class, 'match'])->name('bank_transactions.match');
 
     Route::post('check_subdomain', [SubdomainController::class, 'index'])->name('check_subdomain');
     Route::get('ping', [PingController::class, 'index'])->name('ping');
