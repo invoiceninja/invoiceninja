@@ -104,16 +104,29 @@ class SwissQrGenerator
 
     // Add payment reference
     // This is what you will need to identify incoming payments.
-    $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
-        $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-        $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
-    );
 
-    $qrBill->setPaymentReference(
-        QrBill\DataGroup\Element\PaymentReference::create(
-            QrBill\DataGroup\Element\PaymentReference::TYPE_QR,
-            $referenceNumber
-        ));
+    if(strlen($this->company->present()->besr_id()) > 1)
+    {
+        $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
+            $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
+            $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
+        );
+
+        $qrBill->setPaymentReference(
+            QrBill\DataGroup\Element\PaymentReference::create(
+                QrBill\DataGroup\Element\PaymentReference::TYPE_QR,
+                $referenceNumber
+            ));
+
+    }
+    else{
+
+        $qrBill->setPaymentReference(
+            QrBill\DataGroup\Element\PaymentReference::create(
+                QrBill\DataGroup\Element\PaymentReference::TYPE_NON
+            ));
+
+    }
 
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
@@ -141,6 +154,8 @@ class SwissQrGenerator
                 nlog($violation);
             }
 
+            nlog($e->getMessage());
+            
             return '';
             // return $e->getMessage();
         }

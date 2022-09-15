@@ -58,11 +58,11 @@ class UpdateCustomer implements ShouldQueue
 
         $company = Company::where('company_key', $this->company_key)->first();
 
-        if($company->id !== config('ninja.ninja_default_company_id'))
-            return;
-
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
         $client = Client::withTrashed()->find($this->client_id);
+
+        if(!$company_gateway->update_details)
+            return;
 
         $stripe = $company_gateway->driver($client)->init();
 

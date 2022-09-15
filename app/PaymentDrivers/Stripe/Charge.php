@@ -17,11 +17,12 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\PaymentDrivers\Stripe\ACH;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Stripe\Exception\ApiConnectionException;
@@ -137,8 +138,10 @@ class Charge
 
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
+            $status = Payment::STATUS_PENDING;
         } else {
             $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+            $status = Payment::STATUS_COMPLETED;
         }
 
         $data = [
@@ -148,7 +151,7 @@ class Charge
             'amount' => $amount,
         ];
 
-        $payment = $this->stripe->createPayment($data);
+        $payment = $this->stripe->createPayment($data, $status);
         $payment->meta = $cgt->meta;
         $payment->save();
 
