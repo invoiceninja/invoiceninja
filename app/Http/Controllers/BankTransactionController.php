@@ -21,6 +21,7 @@ use App\Http\Requests\BankTransaction\MatchBankTransactionRequest;
 use App\Http\Requests\BankTransaction\ShowBankTransactionRequest;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\BankTransaction\UpdateBankTransactionRequest;
+use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Repositories\BankTransactionRepository;
 use App\Services\Bank\BankService;
@@ -547,6 +548,8 @@ class BankTransactionController extends BaseController
     public function match(MatchBankTransactionRequest $request)
     {
 
+        MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
+        
         return response()->json(['message' => 'Processing....'], 200);
 
     }

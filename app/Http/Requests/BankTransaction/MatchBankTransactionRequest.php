@@ -32,7 +32,8 @@ class MatchBankTransactionRequest extends Request
         return [
             '*.id' => 'required|bail',
             '*.invoice_id' => 'nullable|sometimes',
-            '*.expense_id' => 'nullable|sometimes'
+            '*.expense_id' => 'nullable|sometimes',
+            '*.amount' => 'nullable|sometimes|numeric'
         ];
 
     }
