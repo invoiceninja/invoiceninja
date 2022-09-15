@@ -70,6 +70,12 @@ class Webhook extends BaseModel
 
     const EVENT_PROJECT_UPDATE = 26;
 
+    const EVENT_CREATE_CREDIT = 27;
+
+    const EVENT_UPDATE_CREDIT = 28;
+
+    const EVENT_DELETE_CREDIT = 29;
+
     public static $valid_events = [
         self::EVENT_CREATE_CLIENT,
         self::EVENT_CREATE_INVOICE,
@@ -97,6 +103,9 @@ class Webhook extends BaseModel
         self::EVENT_REMIND_INVOICE,
         self::EVENT_PROJECT_CREATE,
         self::EVENT_PROJECT_UPDATE,
+        self::EVENT_CREATE_CREDIT,
+        self::EVENT_UPDATE_CREDIT,
+        self::EVENT_DELETE_CREDIT,
     ];
 
     protected $fillable = [
