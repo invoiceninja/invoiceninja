@@ -20,6 +20,7 @@ use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\ShowBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
+use App\Jobs\Bank\ProcessBankTransactions;
 use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
 use App\Services\Bank\BankService;
@@ -670,23 +671,11 @@ class BankIntegrationController extends BaseController
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
 
-        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+        auth()->user()->account->bank_integrations->each(function ($bank_integration) {
+            
+            ProcessBankTransactions::dispatchSync(auth()->user()->account->bank_integration_account_id, $bank_integration);
 
-        // $bank_account_id = 'sbMem62e1e69547bfb1';
-
-        if(!$bank_account_id)
-            return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
-
-        $yodlee = new Yodlee($bank_account_id);
-
-        $data = [
-            'top' => 500,
-            'fromDate' => '2000-10-10', /// YYYY-MM-DD
-        ];
-
-        $transactions = $yodlee->getTransactions($data); 
-
-        BankService::dispatch(auth()->user()->company()->id, auth()->user()->company()->db);
+        });
 
         return response()->json(['message' => 'Fetching transactions....'], 200);
 
