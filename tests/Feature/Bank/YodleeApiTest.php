@@ -12,10 +12,17 @@
 
 namespace Tests\Feature\Bank;
 
+use App\Factory\BankIntegrationFactory;
+use App\Factory\BankTransactionFactory;
 use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Bank\MatchBankTransactions;
 use App\Jobs\Bank\ProcessBankTransactions;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\Bank\BankService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
@@ -36,6 +43,105 @@ class YodleeApiTest extends TestCase
         $this->makeTestData();
         
     }
+
+    public function testExpenseGenerationFromBankFeed()
+    {
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->description = 'Fuel';
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->save();
+
+    
+        $data = [
+            [
+                'id' => $bt->id,
+                'is_expense' => true
+            ]
+        ];
+
+        MatchBankTransactions::dispatchSync($this->company->id, $this->company->db, $data);
+
+        $expense = Expense::where('public_notes', 'Fuel')->first();
+
+        $this->assertNotNull($expense);
+        $this->assertEquals(10, (int)$expense->amount);
+
+    }
+
+    public function testIncomeMatchingAndPaymentGeneration()
+    {
+        $this->account->bank_integration_account_id = 'sbMem62e1e69547bfb2';
+        $this->account->save();
+
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->tax_rate1 = 0;
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_rate3 = 0;
+        $invoice->discount = 0;
+        $invoice->number = 'TESTMATCHING';
+        $invoice->date = now()->format('Y-m-d');
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->save();
+        $invoice = $invoice->service()->markSent()->save();
+
+        $this->assertEquals(Invoice::STATUS_SENT, $invoice->status_id);
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(10, $invoice->balance);
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->description = $invoice->number;
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 123456;
+        $bt->save();
+    
+        $data = [
+            [
+                'id' => $bt->id,
+                'invoice_id' => $invoice->id
+            ]
+        ];
+
+        MatchBankTransactions::dispatchSync($this->company->id, $this->company->db, $data);
+
+        $payment = Payment::where('transaction_reference', '123456')->first();
+
+        $this->assertNotNull($payment);
+
+        $this->assertEquals(10, (int)$payment->amount);
+        $this->assertEquals(4, $payment->status_id);
+        $this->assertEquals(1, $payment->invoices()->count());
+
+        $invoice = $invoice->fresh();
+
+        $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
+        $this->assertEquals(0, $invoice->balance);
+    }
+
 
     public function testCategoryPropertyExists()
     {
@@ -89,8 +195,8 @@ class YodleeApiTest extends TestCase
             }
         }
 
-        $this->assertGreaterThan(1, BankIntegration::count());
-        $this->assertGreaterThan(1, BankTransaction::count());
+        $this->assertGreaterThan(0, BankIntegration::count());
+        $this->assertGreaterThan(0, BankTransaction::count());
 
         $this->invoice->number = "XXXXXX8501";
         $this->invoice->save();
