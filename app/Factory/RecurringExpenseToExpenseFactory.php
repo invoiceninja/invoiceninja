@@ -44,6 +44,10 @@ class RecurringExpenseToExpenseFactory
         $expense->payment_date = $recurring_expense->payment_date;
         $expense->amount = $recurring_expense->amount;
         $expense->foreign_amount = $recurring_expense->foreign_amount ?: 0;
+
+        //11-09-2022 - we should be tracking the recurring expense!!
+        $expense->recurring_expense_id = $recurring_expense->id;
+
         // $expense->private_notes = $recurring_expense->private_notes;
         // $expense->public_notes = $recurring_expense->public_notes;
 

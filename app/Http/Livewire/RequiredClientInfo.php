@@ -14,6 +14,7 @@ namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
+use App\Models\CompanyGateway;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -105,6 +106,8 @@ class RequiredClientInfo extends Component
 
     public $company;
 
+    public $company_gateway_id;
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -141,6 +144,8 @@ class RequiredClientInfo extends Component
                 'client_postal_code' => $this->contact->client->postal_code,
             ]);
 
+            //if stripe is enabled, we want to update the customer at this point.
+
             return true;
         }
 
@@ -150,6 +155,7 @@ class RequiredClientInfo extends Component
 
     private function updateClientDetails(array $data): bool
     {
+        nlog($this->company->id);
         $client = [];
         $contact = [];
 
@@ -172,6 +178,16 @@ class RequiredClientInfo extends Component
             ->push();
 
         if ($contact_update && $client_update) {
+
+            $cg = CompanyGateway::find($this->company_gateway_id);
+
+            if($cg && $cg->update_details){
+                $payment_gateway = $cg->driver($this->client)->init();
+
+            if(method_exists($payment_gateway, "updateCustomer"))
+                $payment_gateway->updateCustomer();
+            }
+
             return true;
         }
 

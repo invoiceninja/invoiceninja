@@ -70,7 +70,6 @@ class ApplyNumber extends AbstractService
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;
-                
 
             }
             catch(QueryException $e){
@@ -84,5 +83,8 @@ class ApplyNumber extends AbstractService
         }
         while($this->completed);
 
+
+        return $this;
     }
+
 }

@@ -26,6 +26,7 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice = false; // @implemented
 
     public $qr_iban = ''; //@implemented
+    
     public $besr_id = ''; //@implemented
 
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
