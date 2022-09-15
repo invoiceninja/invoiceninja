@@ -79,6 +79,10 @@ return new class extends Migration
 
         });
 
+        Schema::table('expense_categories', function (Blueprint $table) {
+            $table->unsignedInteger('bank_category_id')->nullable();
+        });    
+
     }
 
     /**

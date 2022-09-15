@@ -37,6 +37,24 @@ class YodleeApiTest extends TestCase
         
     }
 
+    public function testCategoryPropertyExists()
+    {
+        $yodlee = new Yodlee('sbMem62e1e69547bfb2');
+
+        $transactions = $yodlee->getTransactionCategories();
+
+        $this->assertTrue(property_exists($transactions,'transactionCategory'));
+
+        $t = collect($transactions->transactionCategory);
+
+        $x = $t->firstWhere('highLevelCategoryId', 10000003);
+
+        var_dump($x);
+
+        $this->assertNotNull($x);
+
+    }
+
     public function testFunctionalMatching()
     {
 
@@ -342,11 +360,10 @@ class YodleeApiTest extends TestCase
 
         $transactions = $yodlee->getTransactionCategories();
  
-// nlog($transactions);
-
         $this->assertIsArray($transactions->transactionCategory);
 
     }
+
 
 /**
 [2022-08-05 01:29:45] local.INFO: stdClass Object

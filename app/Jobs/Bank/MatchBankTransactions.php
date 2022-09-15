@@ -49,6 +49,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private BankTransaction $bt;
 
+    private $categories;
     /**
      * Create a new job instance.
      */
@@ -73,6 +74,10 @@ class MatchBankTransactions implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $this->company = Company::find($this->company_id);
+
+        $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        
+        $this->categories = collect($yodlee->getTransactionCategories());
 
         foreach($this->input as $match)
         {
@@ -105,7 +110,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function matchExpense(array $match) :void
     {
-
+        //if there is a category id, pull it from Yodlee and insert - or just reuse!!
     }
 
     private function createPayment(int $invoice_id, float $amount) :void
@@ -135,13 +140,8 @@ class MatchBankTransactions implements ShouldQueue
         $payment->transaction_reference = $this->bt->transaction_id;
         $payment->currency_id = $this->harvestCurrencyId();
         $payment->is_manual = false;
-
-        if ($this->invoice->company->timezone()) {
-            $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
-        }
-        else {
-            $payment->date = now();
-        }
+        $payment->date = $this->bt->date ? Carbon::parse($this->bt->date) : now();
+        
 
         /* Bank Transfer! */
         $payment_type_id = 1;
@@ -173,7 +173,6 @@ class MatchBankTransactions implements ShouldQueue
         $payment->ledger()
                 ->updatePaymentBalance($this->payable_balance * -1);
 
-        //06-09-2022
         $this->invoice
              ->client
              ->service()

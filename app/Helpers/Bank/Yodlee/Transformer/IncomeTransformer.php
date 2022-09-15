@@ -138,7 +138,7 @@ class IncomeTransformer implements BankRevenueInterface
             'amount' => $transaction->amount->amount,
             'currency_code' => $transaction->amount->currency,
             'account_type' => $transaction->CONTAINER,
-            'category_id' => $transaction->categoryId,
+            'category_id' => $transaction->highLevelCategoryId,
             'category_type' => $transaction->categoryType,
             'date' => $transaction->date,
             'bank_account_id' => $transaction->accountId,
