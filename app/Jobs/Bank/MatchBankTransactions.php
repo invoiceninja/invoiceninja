@@ -59,6 +59,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->company_id = $company_id;
         $this->db = $db;
         $this->input = $input;
+        $this->categories = collect();
 
     }
 
@@ -77,7 +78,10 @@ class MatchBankTransactions implements ShouldQueue
 
         $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
         
-        $this->categories = collect($yodlee->getTransactionCategories());
+        $_categories = collect($yodlee->getTransactionCategories());
+
+        if($_categories)
+            $this->categories = collect($_categories->transactionCategory);
 
         foreach($this->input as $match)
         {
@@ -111,6 +115,9 @@ class MatchBankTransactions implements ShouldQueue
     private function matchExpense(array $match) :void
     {
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
+        $this->bt = BankTransaction::find($match['id']);
+
+        $category_id = $this->resolveCategory();
     }
 
     private function createPayment(int $invoice_id, float $amount) :void
@@ -190,6 +197,11 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->bt->is_matched = true;
         $this->bt->save();
+    }
+
+    private function resolveCategory() :?int
+    {
+        $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id)
     }
 
     private function harvestCurrencyId() :int
