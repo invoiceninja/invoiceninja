@@ -95,6 +95,9 @@ class StoreInvoiceRequest extends Request
         if (array_key_exists('tax_rate3', $input) && is_null($input['tax_rate3'])) {
             $input['tax_rate3'] = 0;
         }
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
+        }
 
         $this->replace($input);
     }
