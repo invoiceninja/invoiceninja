@@ -5,7 +5,7 @@
         <!-- Error: {{ session('error') }} -->
 
         @if (config('services.analytics.tracking_id'))
-            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1" async></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
 
@@ -53,10 +53,10 @@
 
         <!-- Fonts -->
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer>
 
         <!-- Styles -->
-        <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+        <link href="{{ mix('css/app.css') }}" rel="stylesheet" defer>
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
 
@@ -66,7 +66,7 @@
         @stack('head')
 
 
-        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>
 
     <body class="antialiased">
