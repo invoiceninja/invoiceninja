@@ -378,16 +378,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.235.8",
+            "version": "3.235.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "cc33d53d735a3835adff212598f2a20ee9ac9531"
+                "reference": "103d38254ef7fc6659ecb08f4b18bc1299011f8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/cc33d53d735a3835adff212598f2a20ee9ac9531",
-                "reference": "cc33d53d735a3835adff212598f2a20ee9ac9531",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/103d38254ef7fc6659ecb08f4b18bc1299011f8a",
+                "reference": "103d38254ef7fc6659ecb08f4b18bc1299011f8a",
                 "shasum": ""
             },
             "require": {
@@ -466,9 +466,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.235.8"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.235.9"
             },
-            "time": "2022-09-14T18:18:31+00:00"
+            "time": "2022-09-15T18:22:15+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3483,16 +3483,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v9.30.0",
+            "version": "v9.30.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "2ca2b168a3e995a8ec6ea2805906379095d20080"
+                "reference": "9533f7926f31939f25a620fbbf545318c18c943f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/2ca2b168a3e995a8ec6ea2805906379095d20080",
-                "reference": "2ca2b168a3e995a8ec6ea2805906379095d20080",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/9533f7926f31939f25a620fbbf545318c18c943f",
+                "reference": "9533f7926f31939f25a620fbbf545318c18c943f",
                 "shasum": ""
             },
             "require": {
@@ -3585,7 +3585,8 @@
                 "phpstan/phpstan": "^1.4.7",
                 "phpunit/phpunit": "^9.5.8",
                 "predis/predis": "^1.1.9|^2.0",
-                "symfony/cache": "^6.0"
+                "symfony/cache": "^6.0",
+                "symfony/uid": "^6.0"
             },
             "suggest": {
                 "ably/ably-php": "Required to use the Ably broadcast driver (^1.0).",
@@ -3620,7 +3621,8 @@
                 "symfony/http-client": "Required to enable support for the Symfony API mail transports (^6.0).",
                 "symfony/mailgun-mailer": "Required to enable support for the Mailgun mail transport (^6.0).",
                 "symfony/postmark-mailer": "Required to enable support for the Postmark mail transport (^6.0).",
-                "symfony/psr-http-message-bridge": "Required to use PSR-7 bridging features (^2.0)."
+                "symfony/psr-http-message-bridge": "Required to use PSR-7 bridging features (^2.0).",
+                "symfony/uid": "Required to generate ULIDs for Eloquent (^6.0)."
             },
             "type": "library",
             "extra": {
@@ -3664,7 +3666,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-09-13T14:06:14+00:00"
+            "time": "2022-09-15T13:15:47+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -4891,16 +4893,16 @@
         },
         {
             "name": "microsoft/microsoft-graph",
-            "version": "1.74.0",
+            "version": "1.75.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/microsoftgraph/msgraph-sdk-php.git",
-                "reference": "a43deb66661917d92bf62de1f29f6799b30ea91c"
+                "reference": "e14d68d8e78f217ab0c303169c389c4ebf5d9e11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/a43deb66661917d92bf62de1f29f6799b30ea91c",
-                "reference": "a43deb66661917d92bf62de1f29f6799b30ea91c",
+                "url": "https://api.github.com/repos/microsoftgraph/msgraph-sdk-php/zipball/e14d68d8e78f217ab0c303169c389c4ebf5d9e11",
+                "reference": "e14d68d8e78f217ab0c303169c389c4ebf5d9e11",
                 "shasum": ""
             },
             "require": {
@@ -4936,9 +4938,9 @@
             "homepage": "https://developer.microsoft.com/en-us/graph",
             "support": {
                 "issues": "https://github.com/microsoftgraph/msgraph-sdk-php/issues",
-                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.74.0"
+                "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.75.0"
             },
-            "time": "2022-08-31T12:12:48+00:00"
+            "time": "2022-09-15T14:43:49+00:00"
         },
         {
             "name": "mollie/mollie-api-php",
