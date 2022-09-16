@@ -43,10 +43,10 @@ class InvoicesTable extends Component
         $local_status = [];
 
         $query = Invoice::query()
-            ->with('client.gateway_tokens', 'client.contacts')
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->where('company_id', $this->company->id)
-            ->where('is_deleted', false);
+            ->where('is_deleted', false)
+            ->with('client.gateway_tokens', 'client.contacts')
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {
             $local_status[] = Invoice::STATUS_PAID;
@@ -76,8 +76,7 @@ class InvoicesTable extends Component
 
         $query = $query
             ->where('client_id', auth()->guard('contact')->user()->client_id)
-            ->where('status_id', '<>', Invoice::STATUS_DRAFT)
-            ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID, Invoice::STATUS_REVERSED])
             ->withTrashed()
             ->paginate($this->per_page);
 
