@@ -62,7 +62,8 @@ class ReminderJob implements ShouldQueue
     {
         nlog('Sending invoice reminders '.now()->format('Y-m-d h:i:s'));
 
-        Invoice::where('is_deleted', 0)
+        Invoice::query()
+                 ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                  ->whereNull('deleted_at')
                  ->where('balance', '>', 0)
