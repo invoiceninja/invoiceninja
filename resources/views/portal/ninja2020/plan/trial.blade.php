@@ -1445,14 +1445,10 @@ Ensure the default browser behavior of the `hidden` attribute.
                 </h2>
                 <form
                         id="card-form"
-                        action="https://invoiceninja.invoicing.co/client/ninja/trial_confirmation"
+                        action="{{ route('client.trial.response') }}"
                         method="post"
                 >
-                    <input
-                            type="hidden"
-                            name="_token"
-                            value="aTsghwYfoGsnKvMpaT5zst5fQa3hNNhz7XjjG1pY"
-                    />
+                @csrf
                     <input type="hidden" name="gateway_response"/>
                     <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
                     <div class="form-group mb-[10px]">
@@ -1612,6 +1608,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                     <div class="flex flex-col border-t-[10px] border-primary-green rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
                             <h4 class="text-[22px] text-black font-bold mb-[11px]">Ninja Pro</h4>
                             <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
                                 $10<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
@@ -1652,6 +1649,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         <div class="flex flex-col border-t-[10px] border-primary-blue rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
                             <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise Plan</h4>
                             <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="m_plan_price">
                                 $14<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
@@ -1661,6 +1659,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                                     action="#"
                                     method="post"
                             >
+                            @csrf
                                 <div class="form-group mb-[10px]">
                                     <label for="users" class="font-base primary-dark mb-1.5">Plan selected:</label>
                                     <select
@@ -1864,7 +1863,7 @@ var country_value = e.options[e.selectedIndex].value;
                   'input[name="gateway_response"]'
               ).value = JSON.stringify(result.setupIntent);
 
-                document.getElementById('card-form').submit();
+                form.submit();
                 
               });
 
