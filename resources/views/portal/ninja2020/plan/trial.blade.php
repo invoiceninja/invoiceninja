@@ -1167,7 +1167,7 @@ Ensure the default browser behavior of the `hidden` attribute.
   top: 0px;
   width: 30px;
   height: 30px;
-  background: url('../src/images/checkmark-round.svg') center/contain no-repeat;
+  background: url('/images/checkmark-round.svg') center/contain no-repeat;
 }
 
 .list-checkmark {
@@ -1187,11 +1187,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   top: 4px;
   width: 16px;
   height: 16px;
-  background: url('../src/images/checkmark.svg') center/contain no-repeat;
+  background: url('/images/checkmark.svg') center/contain no-repeat;
 }
 
 .list-checkmark_green li::before {
-  background: url('../src/images/checkmark-green.svg') center/contain no-repeat;
+  background: url('/images/checkmark-green.svg') center/contain no-repeat;
 }
 
 /* Main Content */
@@ -1213,7 +1213,7 @@ Ensure the default browser behavior of the `hidden` attribute.
   bottom: 0;
   width: 60%;
   height: 100%;
-  background: url(../src/images/test.svg) right center/cover no-repeat;
+  background: url(/images/test.svg) right center/cover no-repeat;
   z-index: 1;
 }
 
@@ -1585,7 +1585,7 @@ Ensure the default browser behavior of the `hidden` attribute.
             </div>
         </div>
     </div>
-    <div class="mt-[50px]">
+    <div class="mt-[50px]" x-data="{show: true}" id="datadiv">
         <h2 class="text-center text-[24px] mb-[40px] leading-[1.3em] font-bold">
             Skip the 14-day trial and go into a monthly or annual upgrade!
         </h2>
@@ -1594,7 +1594,7 @@ Ensure the default browser behavior of the `hidden` attribute.
             <div class="w-full text-center mb-[40px]">
 
                 <label for="large-toggle" class="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" value="" id="large-toggle" class="sr-only peer">
+                    <input type="checkbox" value="" id="large-toggle" class="sr-only peer" @click="show = !show">
                     <span class="mr-5 text-base font-semibold text-black peer-checked:text-gray">Monthly</span>
                     <div class="switcher w-[87px] h-[40px] relative bg-primary-blue
                 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-[140%] after:content-['']
@@ -1605,19 +1605,20 @@ Ensure the default browser behavior of the `hidden` attribute.
 
             </div>
 
-            <div class="flex flex-col gap-y-[20px] justify-center items-start md:flex-row md:gap-x-[21px]">
+            <!-- Monthly Plans -->
+            <div class="flex flex-col gap-y-[20px] justify-center items-start md:flex-row md:gap-x-[21px]" x-show=" show ">
                 <div class="w-1/1 bg-white rounded-[10px] justify-end md:basis-[449px] md:shrink md:grow-0">
                   <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-green rounded-lg border-t-[0px] pb-[58px]">
                     <div class="flex flex-col border-t-[10px] border-primary-green rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
                             <h4 class="text-[22px] text-black font-bold mb-[11px]">Ninja Pro</h4>
                             <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
-                              Pay annually for 10 months + 2 free!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
                                 $10<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <button
                                     type="button"
+                                    id="handleProMonthlyClick"
                                     class="bg-white text-primary-dark text-center button w-full p-[12px] border border-primary-green mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in hover:bg-primary-green hover:text-white hover:opacity-80">
                                 Go Pro!
                             </button>
@@ -1649,11 +1650,10 @@ Ensure the default browser behavior of the `hidden` attribute.
                 <div class="w-1/1 bg-white rounded-[10px] md:basis-[449px] md:shrink md:grow-0">
                     <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-blue rounded-lg border-t-[0px] pb-[58px]">
                         <div class="flex flex-col border-t-[10px] border-primary-blue rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
-                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise</h4>
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise Plan</h4>
                             <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
-                              Pay annually for 10 months + 2 free!
                             </p>
-                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="m_plan_price">
                                 $14<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <form
@@ -1665,23 +1665,26 @@ Ensure the default browser behavior of the `hidden` attribute.
                                     <label for="users" class="font-base primary-dark mb-1.5">Plan selected:</label>
                                     <select
                                             name="users"
-                                            id="users"
+                                            id="users_monthly"
                                             class="form-select w-full py-[9.5px] px-[12px] mb-5 border border-light-grey rounded-lg transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white"
                                     >
-                                        <option value="1" selected="">1-2 users</option>
-                                        <option value="2">3-4 users</option>
-                                        <option value="3">5-6 users</option>
+                                    <option value="7LDdwRb1YK" selected>1-2 Users</option>
+                                    <option value="MVyb8mdvAZ">3-5 Users</option>
+                                    <option value="WpmbkR5azJ">6-10 Users</option>
+                                    <option value="k8mepY2aMy">11-20 Users</option>
                                     </select>
                                 </div>
                             </form>
+
                             <button
                                     type="button"
+                                    id="handleMonthlyClick"
                                     class="bg-primary-blue hover:opacity-80 text-white text-center button w-full p-[12px] border border-primary-blue mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in">
                                 Go Enterprise!
                             </button>
                         </div>
                         <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
-                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features +</h5>
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features + Pro +</h5>
                             <ul class="list-checkmark relative z-10">
                               <li class="mb-[20px]">Create Additional Account Users (up to 20!) & Set Access Permissions per User</li>
                               <li class="mb-[20px]">Attach Files to Emails & Client-Portal (pdf, jpg, ppt, xls, doc & more)</li>
@@ -1691,6 +1694,99 @@ Ensure the default browser behavior of the `hidden` attribute.
                     </div>
                 </div>
             </div>
+
+            <!-- Yearly Plans -->
+            <div class="flex flex-col gap-y-[20px] justify-center items-start md:flex-row md:gap-x-[21px]" x-show=" !show">
+                <div class="w-1/1 bg-white rounded-[10px] justify-end md:basis-[449px] md:shrink md:grow-0">
+                  <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-green rounded-lg border-t-[0px] pb-[58px]">
+                    <div class="flex flex-col border-t-[10px] border-primary-green rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Ninja Pro</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              Pay annually for 10 months + 2 free!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
+                                $100<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
+                            </h3>
+                            <button
+                                    type="button"
+                                    id="handleProYearlyClick"
+                                    class="bg-white text-primary-dark text-center button w-full p-[12px] border border-primary-green mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in hover:bg-primary-green hover:text-white hover:opacity-80">
+                                Go Pro!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark uppercase mb-4">All Free Features +</h5>
+                            <ul class="list-checkmark list-checkmark_green relative z-10">
+                              <li class="mb-[5px]">Unlimited Clients & Invoices</li>
+                              <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                              <li class="mb-[5px]">Email Invoices via Gmail & MSN</li>
+                              <li class="mb-[5px]">Branded URL: 'YourSite".Invoicing.co'</li>
+                              <li class="mb-[5px]">10 Professional Invoice Templates</li>
+                              <li class="mb-[5px]">Customize Invoice Designs</li>
+                              <li class="mb-[5px]">Recurring & Auto-Billing Invoices</li>
+                              <li class="mb-[5px]">API Integration with 3rd Party Apps</li>
+                              <li class="mb-[5px]">Password Protect Client-Side Portal</li>
+                              <li class="mb-[5px]">Set Up Auto-Reminder Emails</li>
+                              <li class="mb-[5px]">Auto-Attached Invoice PDF to Emails</li>
+                              <li class="mb-[5px]">Display Clients E-Signature on Invoices</li>
+                              <li class="mb-[5px]">Enable an 'Approve Terms' Checkbox</li>
+                              <li class="mb-[5px]">Reports: Invoices, Expenses, P&L, more</li>
+                              <li class="mb-[5px]">Bulk Email Invoices, Quotes, Credits</li>
+                              <li class="mb-[5px]">Interlink 10 Companies with 1 Login</li>
+                              <li>Create Unique "Client Group" Settings</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/1 bg-white rounded-[10px] md:basis-[449px] md:shrink md:grow-0">
+                    <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-blue rounded-lg border-t-[0px] pb-[58px]">
+                        <div class="flex flex-col border-t-[10px] border-primary-blue rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise Plan</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              Pay annually for 10 months + 2 free!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="y_plan_price">
+                                $140<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
+                            </h3>
+                            <form
+                                    id="plan-form"
+                                    action="#"
+                                    method="post"
+                            >
+                                <div class="form-group mb-[10px]">
+                                    <label for="users" class="font-base primary-dark mb-1.5">Plan selected:</label>
+                                    <select
+                                            name="users"
+                                            id="users_yearly"
+                                            class="form-select w-full py-[9.5px] px-[12px] mb-5 border border-light-grey rounded-lg transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white"
+                                    >
+                                    <option value="LYqaQWldnj" selected>1-2 Users</option>
+                                    <option value="kQBeX6mbyK">3-5 Users</option>
+                                    <option value="GELe32Qd69">6-10 Users</option>
+                                    <option value="MVyb86oevA">11-20 Users</option>
+                                    </select>
+                                </div>
+                            </form>
+                            <button
+                                    type="button"
+                                    id="handleYearlyClick"
+                                    class="bg-primary-blue hover:opacity-80 text-white text-center button w-full p-[12px] border border-primary-blue mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in">
+                                Go Enterprise!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features + Pro +</h5>
+                            <ul class="list-checkmark relative z-10">
+                              <li class="mb-[20px]">Create Additional Account Users (up to 20!) & Set Access Permissions per User</li>
+                              <li class="mb-[20px]">Attach Files to Emails & Client-Portal (pdf, jpg, ppt, xls, doc & more)</li>
+                              <li>Fully Branded Client Portal: "Billing.YourCompany.com"</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
@@ -1775,4 +1871,71 @@ var country_value = e.options[e.selectedIndex].value;
       });
 
 </script>
+
+
+
+<script type="text/javascript">
+
+var users_yearly = 'LYqaQWldnj';
+var users_monthly = '7LDdwRb1YK';
+
+document.getElementById('users_yearly').options[0].selected = true;
+document.getElementById('users_monthly').options[0].selected = true;
+
+document.getElementById("large-toggle").addEventListener('change', function() {
+
+  document.getElementById('users_yearly').options[0].selected = true;
+  document.getElementById('users_monthly').options[0].selected = true;
+  document.getElementById('y_plan_price').innerHTML = price_map.get('LYqaQWldnj');
+  document.getElementById('m_plan_price').innerHTML = price_map.get('7LDdwRb1YK');
+
+  users_yearly = 'LYqaQWldnj';
+  users_monthly = '7LDdwRb1YK';
+
+});
+
+document.getElementById('users_yearly').addEventListener('change', function() {
+  users_yearly = this.value;
+  document.getElementById('y_plan_price').innerHTML = price_map.get(this.value);
+});
+
+document.getElementById('users_monthly').addEventListener('change', function() {
+  users_monthly = this.value;
+  document.getElementById('m_plan_price').innerHTML = price_map.get(this.value);
+
+});
+
+document.getElementById('handleYearlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_yearly + '/purchase';
+});
+
+document.getElementById('handleMonthlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_monthly + '/purchase';
+});
+
+document.getElementById('handleProMonthlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/WJxbojagwO/purchase';
+});
+
+document.getElementById('handleProYearlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase';
+});
+const price_map = new Map();
+//monthly
+price_map.set('7LDdwRb1YK', '$14 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8mdvAZ', '$26 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('WpmbkR5azJ', '$36 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('k8mepY2aMy', '$44 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+//yearly
+price_map.set('LYqaQWldnj', '$140 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('kQBeX6mbyK', '$260 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('GELe32Qd69', '$360 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('MVyb86oevA', '$440 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+
+</script>
+
 @endpush
