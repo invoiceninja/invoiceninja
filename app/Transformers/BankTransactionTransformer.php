@@ -65,6 +65,7 @@ class BankTransactionTransformer extends EntityTransformer
             'expense_id'=> (string) $this->encodePrimaryKey($bank_transaction->expense_id) ?: '',
             'is_matched'=> (bool) $bank_transaction->is_matched,
             'is_deleted' => (bool) $bank_transaction->is_deleted,
+            'provisional_match' => (bool) $bank_transaction->provisional_match,
             'created_at' => (int) $bank_transaction->created_at,
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,
