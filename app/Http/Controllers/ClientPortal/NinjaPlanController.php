@@ -179,7 +179,7 @@ class NinjaPlanController extends Controller
                  ->queue();
 
         $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
-        $ninja_company->notification(new NewAccountNotification($account, $client))->ninja();
+        $ninja_company->notification(new NewAccountNotification($subscription->company->account, $client))->ninja();
 
         return $this->render('plan.trial_confirmed', $data);
     }
