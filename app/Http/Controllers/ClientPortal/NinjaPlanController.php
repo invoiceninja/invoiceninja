@@ -196,7 +196,7 @@ class NinjaPlanController extends Controller
     public function plan()
     {
 
-        // return $this->trial();
+        return $this->trial();
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;
