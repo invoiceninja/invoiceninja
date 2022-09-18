@@ -215,5 +215,8 @@ class StorePaymentValidationTest extends TestCase
         } catch (ValidationException $e) {
             $response->assertStatus(302);
         }
+
+        $response->assertStatus(302);
+        
     }
 }
