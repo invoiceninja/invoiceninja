@@ -62,7 +62,7 @@ class StoreInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['number'] = ['nullable', Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
+        $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
@@ -94,6 +94,9 @@ class StoreInvoiceRequest extends Request
         }
         if (array_key_exists('tax_rate3', $input) && is_null($input['tax_rate3'])) {
             $input['tax_rate3'] = 0;
+        }
+        if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
+            $input['exchange_rate'] = 1;
         }
 
         $this->replace($input);

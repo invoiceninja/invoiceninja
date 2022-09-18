@@ -45,10 +45,10 @@ class PurchaseOrdersTable extends Component
 
         $query = PurchaseOrder::query()
             ->with('vendor.contacts')
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
-            ->whereIn('status_id', [PurchaseOrder::STATUS_SENT, PurchaseOrder::STATUS_ACCEPTED])
             ->where('company_id', $this->company->id)
-            ->where('is_deleted', false);
+            ->whereIn('status_id', [PurchaseOrder::STATUS_SENT, PurchaseOrder::STATUS_ACCEPTED])
+            ->where('is_deleted', false)
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('sent', $this->status)) {
             $local_status[] = PurchaseOrder::STATUS_SENT;

@@ -210,7 +210,7 @@ class RecurringInvoiceController extends BaseController
 
         event(new RecurringInvoiceWasCreated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($recurring_invoice);
+        return $this->itemResponse($recurring_invoice->fresh());
     }
 
     /**

@@ -27,6 +27,13 @@ class CreditObserver
      */
     public function created(Credit $credit)
     {
+        $subscriptions = Webhook::where('company_id', $credit->company->id)
+                                    ->where('event_id', Webhook::EVENT_CREATE_CREDIT)
+                                    ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**
@@ -37,6 +44,13 @@ class CreditObserver
      */
     public function updated(Credit $credit)
     {
+        $subscriptions = Webhook::where('company_id', $credit->company->id)
+                                    ->where('event_id', Webhook::EVENT_UPDATE_CREDIT)
+                                    ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**
@@ -47,6 +61,13 @@ class CreditObserver
      */
     public function deleted(Credit $credit)
     {
+        $subscriptions = Webhook::where('company_id', $credit->company->id)
+                                    ->where('event_id', Webhook::EVENT_DELETE_CREDIT)
+                                    ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**

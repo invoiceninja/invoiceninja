@@ -52,7 +52,7 @@
 
         <!-- Fonts -->
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer>
 
         <!-- Styles -->
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
@@ -65,7 +65,7 @@
 
         @livewireStyles
 
-        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>
 
     @include('portal.ninja2020.components.primary-color')

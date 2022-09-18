@@ -51,7 +51,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $tries = 3; //number of retries
 
-    public $backoff = 10; //seconds to wait until retry
+    public $backoff = 30; //seconds to wait until retry
 
     public $deleteWhenMissingModels = true;
 
