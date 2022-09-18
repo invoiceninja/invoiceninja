@@ -98,8 +98,6 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            // 'throttle:300,1',
-            // 'cors',
             'bindings',
             'query_logging',
         ],
