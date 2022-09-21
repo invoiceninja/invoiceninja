@@ -3,9 +3,12 @@
 @section('gateway_head')
     <meta name="client-token" content="{{ $client_token ?? '' }}"/>
 
-    <script src="https://js.braintreegateway.com/web/dropin/1.27.0/js/dropin.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
-    <script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
+    <script src='https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js'></script>
+    {{-- <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script> --}}
+    <script src="https://js.braintreegateway.com/web/3.87.0/js/data-collector.min.js"></script>
+
+<!-- Load the client component. -->
+<script src='https://js.braintreegateway.com/web/3.87.0/js/client.min.js'></script>
 
     <style>
         [data-braintree-id="toggle"] {
@@ -19,6 +22,7 @@
         @csrf
         <input type="hidden" name="gateway_response">
         <input type="hidden" name="store_card">
+        <input type="hidden" name="threeds_enable" value="{!! $threeds_enable !!}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
@@ -26,6 +30,7 @@
 
         <input type="hidden" name="token">
         <input type="hidden" name="client-data">
+        <input type="hidden" name="threeds" value="{{ json_encode($threeds) }}">
     </form>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
@@ -72,3 +77,5 @@
 @section('gateway_footer')
     <script src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
 @endsection
+
+<div id="threeds"></div>
