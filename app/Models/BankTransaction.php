@@ -11,11 +11,19 @@
 
 namespace App\Models;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankTransaction extends BaseModel
 {
     use SoftDeletes;
+    use MakesHash;
+
+    const STATUS_UNMATCHED = 1;
+
+    const STATUS_MATCHED = 2;
+
+    const STATUS_CONVERTED = 3;
 
     protected $fillable = [
     ];
@@ -23,6 +31,26 @@ class BankTransaction extends BaseModel
     protected $dates = [
     ];
     
+    public function getInvoiceIds()
+    {
+        $collection = collect();
+
+        $invoices = explode(",", $this->invoice_ids);
+
+        if(count($invoices) >= 1) 
+        {
+
+            foreach($invoices as $invoice){
+
+                if(is_string($invoice) && strlen($invoice) > 1)
+                    $collection->push($this->decodePrimaryKey($invoice));
+            }
+        
+        }
+
+        return $collection;
+    }
+
     public function getEntityType()
     {
         return self::class;
@@ -33,9 +61,9 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
-    public function invoice()
+    public function vendor()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->belongsTo(Vendor::class);
     }
 
     public function expense()

@@ -56,18 +56,19 @@ return new class extends Migration
             $table->unsignedInteger('user_id');
             $table->unsignedBigInteger('bank_integration_id');
             $table->unsignedBigInteger('transaction_id')->index();
-            $table->decimal('amount', 20, 6);
-            $table->string('currency_code');
-            $table->string('account_type');
-            $table->unsignedInteger('category_id');
+            $table->decimal('amount', 20, 6)->default(0);
+            $table->string('currency_code')->nullable();
+            $table->string('account_type')->nullable();
+            $table->unsignedInteger('category_id')->nullable();
+            $table->unsignedInteger('ninja_category_id')->nullable();
             $table->string('category_type')->index();
-            $table->date('date');
+            $table->date('date')->nullable();
             $table->unsignedBigInteger('bank_account_id');
-            $table->text('description');
-            $table->unsignedInteger('invoice_id')->nullable();
+            $table->text('description')->nullable();
+            $table->text('invoice_ids')->default('');
             $table->unsignedInteger('expense_id')->nullable();
-            $table->boolean('is_matched')->default(0);
-            $table->boolean('provisional_match')->default(0);
+            $table->unsignedInteger('vendor_id')->nullable();
+            $table->unsignedInteger('status_id')->default(1); //unmatched / matched / converted
             $table->boolean('is_deleted')->default(0);
 
             $table->timestamps(6);

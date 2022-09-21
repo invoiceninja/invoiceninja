@@ -16,6 +16,7 @@ use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -37,8 +38,8 @@ class BankTransactionTransformer extends EntityTransformer
     protected $availableIncludes = [
         'company',
         'account',
-        'invoice',
         'expense',
+        'vendor',
         'bank_account',
     ];
 
@@ -56,16 +57,17 @@ class BankTransactionTransformer extends EntityTransformer
             'currency_code' => (string) $bank_transaction->currency_code ?: '',
             'account_type' => (string) $bank_transaction->account_type ?: '',
             'category_id' => (int) $bank_transaction->category_id,
+            'ninja_category_id' => (int) $bank_transaction->ninja_category_id,
             'category_type' => (string) $bank_transaction->category_type ?: '',
             'date' => (string) $bank_transaction->date ?: '',
             'bank_account_id' => (int) $bank_transaction->bank_account_id,
+            'status_id' => (int) $bank_transaction->status_id,
             'description' => (string) $bank_transaction->description ?: '',
             'base_type' => (string) $bank_transaction->base_type ?: '',
-            'invoice_id' => (string) $this->encodePrimaryKey($bank_transaction->invoice_id) ?: '',
+            'invoice_ids' => (string) $bank_transaction->invoice_ids ?: '',
             'expense_id'=> (string) $this->encodePrimaryKey($bank_transaction->expense_id) ?: '',
-            'is_matched'=> (bool) $bank_transaction->is_matched,
+            'vendor_id'=> (string) $this->encodePrimaryKey($bank_transaction->vendor_id) ?: '',
             'is_deleted' => (bool) $bank_transaction->is_deleted,
-            'provisional_match' => (bool) $bank_transaction->provisional_match,
             'created_at' => (int) $bank_transaction->created_at,
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,
@@ -86,18 +88,18 @@ class BankTransactionTransformer extends EntityTransformer
         return $this->includeItem($bank_transaction->company, $transformer, Company::class);
     }
 
-    public function includeInvoice(BankTransaction $bank_transaction)
-    {
-        $transformer = new InvoiceTransformer($this->serializer);
-
-        return $this->includeItem($bank_transaction->invoice, $transformer, Invoice::class);
-    }
-
     public function includeExpense(BankTransaction $bank_transaction)
     {
         $transformer = new ExpenseTransformer($this->serializer);
 
         return $this->includeItem($bank_transaction->expense, $transformer, Expense::class);
+    }
+
+    public function includeVendor(BankTransaction $bank_transaction)
+    {
+        $transformer = new VendorTransformer($this->serializer);
+
+        return $this->includeItem($bank_transaction->vendor, $transformer, Vendor::class);
     }
 
 }
