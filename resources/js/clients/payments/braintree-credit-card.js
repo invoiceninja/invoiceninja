@@ -28,26 +28,54 @@ class BraintreeCreditCard {
     }
 
     mountBraintreePaymentWidget() {
+
         window.braintree.dropin.create({
             authorization: document.querySelector('meta[name=client-token]').content,
-            container: '#dropin-container'
+            container: '#dropin-container',
+            threeDSecure: document.querySelector('input[name=threeds_enable]').value.toLowerCase() === 'true'
         }, this.handleCallback);
     }
 
     handleCallback(error, dropinInstance) {
         if (error) {
             console.error(error);
-
             return;
         }
 
         let payNow = document.getElementById('pay-now');
 
+        params = JSON.parse(document.querySelector('input[name=threeds]').value);
+
         payNow.addEventListener('click', () => {
-            dropinInstance.requestPaymentMethod((error, payload) => {
-                if (error) {
-                    return console.error(error);
+            dropinInstance.requestPaymentMethod({
+                threeDSecure: {
+                  amount: params.amount,
+                  email: params.email,
+                  billingAddress: {
+                    givenName: params.billingAddress.givenName, // ASCII-printable characters required, else will throw a validation error
+                    surname: params.billingAddress.surname, // ASCII-printable characters required, else will throw a validation error
+                    phoneNumber: params.billingAddress.phoneNumber,
+                    streetAddress: params.billingAddress.streetAddress,
+                    extendedAddress: params.billingAddress.extendedAddress,
+                    locality: params.billingAddress.locality,
+                    region: params.billingAddress.region,
+                    postalCode: params.billingAddress.postalCode,
+                    countryCodeAlpha2: params.billingAddress.countryCodeAlpha2 
+                  }
                 }
+                }, function(err, payload) {
+                    if (err) {
+                      console.log(err);
+                      dropin.clearSelectedPaymentMethod();
+                      alert("There was a problem verifying this card, please contact your merchant");
+                      return;
+                    }
+                      
+                    if (document.querySelector('input[name=threeds_enable]').value === 'true' && !payload.liabilityShifted) {
+                      console.log('Liability did not shift', payload);
+                      alert("There was a problem verifying this card, please contact your merchant");
+                      return;
+                    }
 
                 payNow.disabled = true;
 
