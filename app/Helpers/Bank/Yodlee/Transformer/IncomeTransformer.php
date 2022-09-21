@@ -132,7 +132,7 @@ class IncomeTransformer implements BankRevenueInterface
 
     public function transformTransaction($transaction)
     {
-    nlog($transaction);
+
         return [
             'transaction_id' => $transaction->id,
             'amount' => $transaction->amount->amount,
@@ -143,7 +143,7 @@ class IncomeTransformer implements BankRevenueInterface
             'date' => $transaction->date,
             'bank_account_id' => $transaction->accountId,
             'description' => $transaction->description->original,
-            'base_type' => $transaction->baseType,
+            'base_type' => property_exists($transaction, 'baseType') ? $transaction->baseType : '',
         ];
     }
 

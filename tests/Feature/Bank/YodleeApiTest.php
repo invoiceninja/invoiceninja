@@ -121,13 +121,13 @@ class YodleeApiTest extends TestCase
         $data = [
             [
                 'id' => $bt->id,
-                'invoice_id' => $invoice->id
+                'invoice_ids' => $invoice->hashed_id
             ]
         ];
 
         MatchBankTransactions::dispatchSync($this->company->id, $this->company->db, $data);
 
-        $payment = Payment::where('transaction_reference', '123456')->first();
+        $payment = Payment::where('transaction_reference', $bt->description)->first();
 
         $this->assertNotNull($payment);
 
@@ -202,11 +202,11 @@ class YodleeApiTest extends TestCase
 
         BankService::dispatchSync($this->company->id, $this->company->db);
         
-        $bt = BankTransaction::where('invoice_id', $this->invoice->id)->first();
+        $bt = BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->first();
 
         $this->assertNotNull($bt);
 
-        $this->assertEquals(1, $bt->provisional_match);
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
 
     }
 

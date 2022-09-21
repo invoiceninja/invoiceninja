@@ -33,6 +33,8 @@ class BankService implements ShouldQueue
 
     private $invoices;
 
+    public $deleteWhenMissingModels = true;
+
     public function __construct($company_id, $db)
     {
         $this->company_id = $company_id;
@@ -58,8 +60,7 @@ class BankService implements ShouldQueue
     {
 
         BankTransaction::where('company_id', $this->company->id)
-                       ->where('is_matched', false)
-                       ->where('provisional_match', false)
+                       ->where('status_id', BankTransaction::STATUS_UNMATCHED)
                        ->cursor()
                        ->each(function ($bt){
                         
@@ -71,8 +72,8 @@ class BankService implements ShouldQueue
 
                             if($invoice)
                             {
-                                $bt->invoice_id = $invoice->id;
-                                $bt->provisional_match = true;
+                                $bt->invoice_ids = $invoice->hashed_id;
+                                $bt->status_id = BankTransaction::STATUS_MATCHED;
                                 $bt->save();   
                             }
 

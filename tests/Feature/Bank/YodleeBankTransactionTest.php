@@ -54,8 +54,7 @@ class YodleeBankTransactionTest extends TestCase
         $invoices = Invoice::where('company_id', $this->company->id)->get();
 
         BankTransaction::where('company_id', $this->company->id)
-                       ->where('is_matched', false)
-                       ->where('provisional_match', false)
+                       ->where('status_id', BankTransaction::STATUS_UNMATCHED)
                        ->cursor()
                        ->each(function ($bt) use($invoices){
                         
@@ -67,15 +66,15 @@ class YodleeBankTransactionTest extends TestCase
 
                             if($invoice)
                             {
-                                $bt->invoice_id = $invoice->id;
-                                $bt->provisional_match = $invoice->id;
+                                $bt->invoice_ids = $invoice->hashed_id;
+                                $bt->status_id = BankTransaction::STATUS_MATCHED;
                                 $bt->save();   
                             }
 
                        });
 
 
-        $this->assertTrue(BankTransaction::where('invoice_id', $this->invoice->id)->exists());
+        $this->assertTrue(BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->exists());
 
     }
 
@@ -96,8 +95,7 @@ class YodleeBankTransactionTest extends TestCase
         $invoices = Invoice::where('company_id', $this->company->id)->get();
 
         BankTransaction::where('company_id', $this->company->id)
-                       ->where('is_matched', false)
-                       ->where('provisional_match', false)
+                       ->where('status_id', BankTransaction::STATUS_UNMATCHED)
                        ->cursor()
                        ->each(function ($bt) use($invoices){
                         
@@ -109,15 +107,15 @@ class YodleeBankTransactionTest extends TestCase
 
                             if($invoice)
                             {
-                                $bt->invoice_id = $invoice->id;
-                                $bt->provisional_match = $invoice->id;
+                                $bt->invoice_ids = $invoice->hashed_id;
+                                $bt->status_id = BankTransaction::STATUS_MATCHED;
                                 $bt->save();   
                             }
 
                        });
 
 
-        $this->assertTrue(BankTransaction::where('invoice_id', $this->invoice->id)->exists());
+        $this->assertTrue(BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->exists());
 
     }
 

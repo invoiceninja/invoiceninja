@@ -29,6 +29,7 @@ use App\Models\Payment;
 use App\Services\Bank\BankService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,7 +40,7 @@ use Illuminate\Support\Carbon;
 
 class MatchBankTransactions implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter, MakesHash;
 
     private int $company_id;
 
@@ -54,6 +55,11 @@ class MatchBankTransactions implements ShouldQueue
     private BankTransaction $bt;
 
     private $categories;
+
+    private float $available_balance = 0;
+    
+    private array $attachable_invoices = [];
+
     /**
      * Create a new job instance.
      */
@@ -75,7 +81,6 @@ class MatchBankTransactions implements ShouldQueue
      */
     public function handle()
     {
-nlog("match bank transactions");
 
         MultiDB::setDb($this->db);
 
@@ -88,11 +93,9 @@ nlog("match bank transactions");
         if($_categories)
             $this->categories = collect($_categories->transactionCategory);
 
-nlog($this->input);
-
         foreach($this->input as $match)
         {
-            if(array_key_exists('invoice_id', $match) && strlen($match['invoice_id']) > 1)
+            if(array_key_exists('invoice_ids', $match) && strlen($match['invoice_ids']) > 1)
                 $this->matchInvoicePayment($match);
             else
                 $this->matchExpense($match);
@@ -100,24 +103,54 @@ nlog($this->input);
 
     }
 
+    private function getInvoices(string $invoice_hashed_ids)
+    {
+        $collection = collect();
+
+        $invoices = explode(",", $invoice_hashed_ids);
+
+        if(count($invoices) >= 1) 
+        {
+
+            foreach($invoices as $invoice){
+
+                if(is_string($invoice) && strlen($invoice) > 1)
+                    $collection->push($this->decodePrimaryKey($invoice));
+            }
+        
+        }
+
+        return $collection;
+    }
+
+    private function checkPayable($invoices) :bool
+    {
+
+        foreach($invoices as $invoice){
+
+            if(!$invoice->isPayable())
+                return false;
+
+        }
+
+        return true;
+
+    }
+
     private function matchInvoicePayment(array $match) :void
     {
         $this->bt = BankTransaction::find($match['id']);
 
-        nlog($this->bt->toArray());
-
-        $_invoice = Invoice::withTrashed()->find($match['invoice_id']);
-
-nlog($_invoice->toArray());
+        $_invoices = Invoice::withTrashed()->find($this->getInvoices($match['invoice_ids']));
         
         if(array_key_exists('amount', $match) && $match['amount'] > 0)
             $amount = $match['amount'];
         else
             $amount = $this->bt->amount;
 
-        if($_invoice && $_invoice->isPayable()){
+        if($_invoices && $this->checkPayable($_invoices)){
 
-            $this->createPayment($match['invoice_id'], $amount);
+            $this->createPayment($_invoices, $amount);
 
         }
 
@@ -139,21 +172,41 @@ nlog($_invoice->toArray());
 
     }
 
-    private function createPayment(int $invoice_id, float $amount) :void
+    private function createPayment($invoices, float $amount) :void
     {
-nlog("creating payment");
+        $this->available_balance = $amount;
 
-        \DB::connection(config('database.default'))->transaction(function () use($invoice_id, $amount) {
+        \DB::connection(config('database.default'))->transaction(function () use($invoices) {
 
-            $this->invoice = Invoice::withTrashed()->where('id', $invoice_id)->lockForUpdate()->first();
+            $invoices->each(function ($invoice) use ($invoices){
+            
+                $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
-            $this->invoice
-                ->service()
-                ->setExchangeRate()
-                ->updateBalance($amount * -1)
-                ->updatePaidToDate($amount)
-                ->setCalculatedStatus()
-                ->save();
+                if($invoices->count() == 1){
+                    $_amount = $this->available_balance;
+                }
+                elseif($invoices->count() > 1 && floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
+                {
+                    $_amount = $this->invoice->balance;
+                    $this->available_balance = $this->available_balance - $this->invoice->balance;
+                }
+                elseif($invoices->count() > 1 && floatval($this->invoice->balance) > floatval($this->available_balance) && $this->available_balance > 0)
+                {
+                    $_amount = $this->available_balance;
+                    $this->available_balance = 0;
+                }
+
+                $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+
+                $this->invoice
+                    ->service()
+                    ->setExchangeRate()
+                    ->updateBalance($_amount * -1)
+                    ->updatePaidToDate($_amount)
+                    ->setCalculatedStatus()
+                    ->save();
+
+                });
 
         }, 1);
 
@@ -164,7 +217,7 @@ nlog("creating payment");
         $payment->applied = $amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
-        $payment->transaction_reference = $this->bt->transaction_id;
+        $payment->transaction_reference = $this->bt->description;
         $payment->transaction_id = $this->bt->transaction_id;
         $payment->currency_id = $this->harvestCurrencyId();
         $payment->is_manual = false;
@@ -176,8 +229,6 @@ nlog("creating payment");
 
         $payment->saveQuietly();
 
-nlog($payment->toArray());
-
         $payment->service()->applyNumber()->save();
         
         if($payment->client->getSetting('send_email_on_mark_paid'))
@@ -186,9 +237,14 @@ nlog($payment->toArray());
         $this->setExchangeRate($payment);
 
         /* Create a payment relationship to the invoice entity */
-        $payment->invoices()->attach($this->invoice->id, [
-            'amount' => $amount,
-        ]);
+        foreach($this->attachable_invoices as $attachable_invoice)
+        {
+
+            $payment->invoices()->attach($attachable_invoice['id'], [
+                'amount' => $attachable_invoice['amount'],
+            ]);
+
+        }
 
         event('eloquent.created: App\Models\Payment', $payment);
 
