@@ -39,6 +39,7 @@ class CreditCard
     public function authorizeView(array $data)
     {
         $data['gateway'] = $this->braintree;
+        $data['threeds_enable'] = $this->braintree->company_gateway->getConfigField('threeds') ? "true" : "false";
 
         return render('gateways.braintree.credit_card.authorize', $data);
     }
@@ -54,11 +55,32 @@ class CreditCard
      * @param array $data
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
+
+    private function threeDParameters(array $data)
+    {
+        return [
+            'amount' => $data['amount_with_fee'],
+            'email' => $this->braintree->client->present()->email(),
+            'billingAddress' => [
+                'givenName' => $this->braintree->client->present()->first_name() ?: $this->braintree->client->present()->name(),
+                'surname' => $this->braintree->client->present()->last_name() ?: '',
+                'phoneNumber' => $this->braintree->client->present()->phone(),
+                'streetAddress' => $this->braintree->client->address1 ?: '',
+                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'locality' => $this->braintree->client->city ?: '',
+                'postalCode' => $this->braintree->client->postal_code ?: '',
+                'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
+            ]
+        ];
+    }
+
     public function paymentView(array $data)
     {
         $data['gateway'] = $this->braintree;
         $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
-
+        $data['threeds'] = $this->threeDParameters($data);
+        $data['threeds_enable'] = $this->braintree->company_gateway->getConfigField('threeds') ? "true" : "false";
+        
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
             $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
@@ -78,6 +100,8 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        // nlog($request->all());
+        
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'payment_hash' => $request->payment_hash,
