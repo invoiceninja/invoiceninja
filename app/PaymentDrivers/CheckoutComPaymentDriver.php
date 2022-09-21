@@ -33,7 +33,7 @@ use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
-use Checkout\Common\CustomerRequest;
+use Checkout\Customers\CustomerRequest;
 use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
 use Checkout\Library\Exceptions\CheckoutHttpException;
