@@ -98,6 +98,7 @@ class YodleeController extends BaseController
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
+                $bank_integration->from_date = now()->subYear();
                 
                 $bank_integration->save();
             }
