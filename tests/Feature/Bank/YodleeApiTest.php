@@ -64,7 +64,6 @@ class YodleeApiTest extends TestCase
         $data = [
             [
                 'id' => $bt->id,
-                'is_expense' => true
             ]
         ];
 

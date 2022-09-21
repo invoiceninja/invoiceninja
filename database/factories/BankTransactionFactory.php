@@ -34,7 +34,7 @@ class BankTransactionFactory extends Factory
             'date' => $this->faker->date('Y-m-d') ,
             'bank_account_id' => 1 ,
             'description' =>$this->faker->words(5, true) ,
-            'is_matched'=> false
+            'status_id'=> 1
         ];
     }
 }

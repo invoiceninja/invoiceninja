@@ -81,6 +81,10 @@ return new class extends Migration
             $table->unsignedInteger('bank_category_id')->nullable();
         });    
 
+        Schema::table('payments', function (Blueprint $table) {
+            $table->unsignedBigInteger('transaction_id')->nullable();
+        }); 
+
     }
 
     /**

@@ -75,6 +75,7 @@ class MatchBankTransactions implements ShouldQueue
      */
     public function handle()
     {
+nlog("match bank transactions");
 
         MultiDB::setDb($this->db);
 
@@ -87,11 +88,13 @@ class MatchBankTransactions implements ShouldQueue
         if($_categories)
             $this->categories = collect($_categories->transactionCategory);
 
+nlog($this->input);
+
         foreach($this->input as $match)
         {
             if(array_key_exists('invoice_id', $match) && strlen($match['invoice_id']) > 1)
                 $this->matchInvoicePayment($match);
-            elseif(array_key_exists('is_expense', $match) && $match['is_expense'])
+            else
                 $this->matchExpense($match);
         }
 
@@ -101,8 +104,12 @@ class MatchBankTransactions implements ShouldQueue
     {
         $this->bt = BankTransaction::find($match['id']);
 
+        nlog($this->bt->toArray());
+
         $_invoice = Invoice::withTrashed()->find($match['invoice_id']);
 
+nlog($_invoice->toArray());
+        
         if(array_key_exists('amount', $match) && $match['amount'] > 0)
             $amount = $match['amount'];
         else
@@ -130,12 +137,11 @@ class MatchBankTransactions implements ShouldQueue
         $expense->public_notes = $this->bt->description;
         $expense->save();
 
-        nlog($expense->toArray());
-
     }
 
     private function createPayment(int $invoice_id, float $amount) :void
     {
+nlog("creating payment");
 
         \DB::connection(config('database.default'))->transaction(function () use($invoice_id, $amount) {
 
@@ -159,6 +165,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->transaction_id;
+        $payment->transaction_id = $this->bt->transaction_id;
         $payment->currency_id = $this->harvestCurrencyId();
         $payment->is_manual = false;
         $payment->date = $this->bt->date ? Carbon::parse($this->bt->date) : now();
@@ -168,6 +175,8 @@ class MatchBankTransactions implements ShouldQueue
         $payment_type_id = 1;
 
         $payment->saveQuietly();
+
+nlog($payment->toArray());
 
         $payment->service()->applyNumber()->save();
         
@@ -209,7 +218,7 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->is_matched = true;
+        $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
     }
 
