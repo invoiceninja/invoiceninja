@@ -31,7 +31,20 @@ class UpdateBankTransactionRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
-        $rules = [];
+        $rules = [
+            'date' => 'bail|required|date',
+            'description', 'bail|required|string'
+        ];
+
+        if (isset($this->currency_code)) 
+            $rules['currency_code'] = 'sometimes|exists:currencies,code';
+        
+        if(isset($this->vendor_id))
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+        if(isset($this->expense_id))
+            $rules['expense_id'] = 'bail|required|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
 
         return $rules;
     }
@@ -44,6 +57,15 @@ class UpdateBankTransactionRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
+
+            if(array_key_exists('vendor_id', $input))
+                $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
+
+            if(array_key_exists('expense_id', $input))
+                $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
+
+            if(array_key_exists('ninja_category_id', $input))
+                $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
 
         $this->replace($input);
     }

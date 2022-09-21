@@ -19,11 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
-
-            $table->unsignedInteger('invoice_id');
-            $table->unsignedInteger('expense_id');
-            $table->boolean('is_matched')->default(0);
-            
+        
             $table->text('provider_name'); //providerName ie Chase
             $table->bigInteger('provider_id'); //id of the bank
             $table->bigInteger('bank_account_id'); //id
@@ -62,6 +58,7 @@ return new class extends Migration
             $table->unsignedInteger('category_id')->nullable();
             $table->unsignedInteger('ninja_category_id')->nullable();
             $table->string('category_type')->index();
+            $table->string('base_type')->index();
             $table->date('date')->nullable();
             $table->unsignedBigInteger('bank_account_id');
             $table->text('description')->nullable();

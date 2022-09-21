@@ -143,6 +143,7 @@ class IncomeTransformer implements BankRevenueInterface
             'date' => $transaction->date,
             'bank_account_id' => $transaction->accountId,
             'description' => $transaction->description->original,
+            'base_type' => $transaction->baseType,
         ];
     }
 

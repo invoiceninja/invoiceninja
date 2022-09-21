@@ -24,10 +24,11 @@ class BankTransactionRepository extends BaseRepository
     public function save($data, BankTransaction $bank_transaction)
     {
 
-        //stub to store
+        $bank_transaction->fill($data);
 
-        return $bank_transaction->save();
+        $bank_transaction->save();
 
+        return $bank_transaction;
     }
 
 }
