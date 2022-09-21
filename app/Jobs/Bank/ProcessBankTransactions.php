@@ -64,7 +64,7 @@ class ProcessBankTransactions implements ShouldQueue
         set_time_limit(0);
 
         //Loop through everything until we are up to date
-        $this->from_date = $this->from_date ?: '2020-01-01';
+        $this->from_date = $this->from_date ?: '2021-01-01';
 
         do{
 

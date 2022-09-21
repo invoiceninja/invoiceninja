@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Bank;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAuthRequest;
+use App\Jobs\Bank\ProcessBankTransactions;
 use App\Models\BankIntegration;
 use Illuminate\Http\Request;
 
@@ -102,6 +103,15 @@ class YodleeController extends BaseController
             }
 
         }
+
+
+        $company->account->bank_integrations->each(function ($bank_integration) use ($company){
+            
+            ProcessBankTransactions::dispatch($company->account->bank_integration_account_id, $bank_integration);
+
+        });
+
+
     }
 
 }
