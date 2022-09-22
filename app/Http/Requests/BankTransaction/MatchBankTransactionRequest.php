@@ -46,6 +46,12 @@ class MatchBankTransactionRequest extends Request
     {
         $input = $this->all();
 
+        if(array_key_exists('id', $input))
+            $input['id'] = $this->decodePrimaryKey($input['id']);
+
+        if(array_key_exists('ninja_category_id', $input))
+            $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
+
         $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);

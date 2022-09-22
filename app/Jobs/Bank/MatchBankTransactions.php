@@ -37,6 +37,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class MatchBankTransactions implements ShouldQueue
 {
@@ -87,19 +88,23 @@ class MatchBankTransactions implements ShouldQueue
         $this->company = Company::find($this->company_id);
 
         $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+
+        $bank_categories = Cache::get('bank_categories');
         
-        $_categories = $yodlee->getTransactionCategories();
-
-        if($_categories)
+        if(!$bank_categories){
+            $_categories = $yodlee->getTransactionCategories();
             $this->categories = collect($_categories->transactionCategory);
-
-        foreach($this->input as $match)
-        {
-            if(array_key_exists('invoice_ids', $match) && strlen($match['invoice_ids']) > 1)
-                $this->matchInvoicePayment($match);
-            else
-                $this->matchExpense($match);
         }
+        else {
+            $this->categories = collect($bank_categories);
+        }
+
+        if(array_key_exists('invoice_ids', $this->input) && strlen($this->input['invoice_ids']) > 1)
+            $this->matchInvoicePayment();
+        else
+            $this->matchExpense();
+
+        return $this->bt;
 
     }
 
@@ -137,15 +142,12 @@ class MatchBankTransactions implements ShouldQueue
 
     }
 
-    private function matchInvoicePayment(array $match) :void
+    private function matchInvoicePayment() :self
     {
-        $this->bt = BankTransaction::find($match['id']);
+        $this->bt = BankTransaction::find($this->input['id']);
 
-        $_invoices = Invoice::withTrashed()->find($this->getInvoices($match['invoice_ids']));
+        $_invoices = Invoice::withTrashed()->find($this->getInvoices($this->input['invoice_ids']));
         
-        if(array_key_exists('amount', $match) && $match['amount'] > 0)
-            $amount = $match['amount'];
-        else
             $amount = $this->bt->amount;
 
         if($_invoices && $this->checkPayable($_invoices)){
@@ -154,12 +156,13 @@ class MatchBankTransactions implements ShouldQueue
 
         }
 
+        return $this;
     }
 
-    private function matchExpense(array $match) :void
+    private function matchExpense() :self
     {
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
-        $this->bt = BankTransaction::find($match['id']);
+        $this->bt = BankTransaction::find($this->input['id']);
 
         $expense = ExpenseFactory::create($this->bt->company_id, $this->bt->user_id);
         $expense->category_id = $this->resolveCategory();
@@ -170,6 +173,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->public_notes = $this->bt->description;
         $expense->save();
 
+        return $this;
     }
 
     private function createPayment($invoices, float $amount) :void
@@ -280,6 +284,9 @@ class MatchBankTransactions implements ShouldQueue
 
     private function resolveCategory() :?int
     {
+        if(array_key_exists('ninja_category_id', $this->input))
+            return $this->input['ninja_category_id'];
+
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
 
         $ec = ExpenseCategory::where('company_id', $this->bt->company_id)->where('bank_category_id', $this->bt->category_id)->first();
