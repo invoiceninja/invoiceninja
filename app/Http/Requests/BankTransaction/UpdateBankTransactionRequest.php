@@ -36,8 +36,8 @@ class UpdateBankTransactionRequest extends Request
             'description', 'bail|required|string'
         ];
 
-        if (isset($this->currency_code)) 
-            $rules['currency_code'] = 'sometimes|exists:currencies,code';
+        if (isset($this->currency_id)) 
+            $rules['currency_id'] = 'sometimes|exists:currencies,id';
         
         if(isset($this->vendor_id))
             $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';

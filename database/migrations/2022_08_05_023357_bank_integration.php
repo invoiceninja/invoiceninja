@@ -54,6 +54,7 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_id')->index();
             $table->decimal('amount', 20, 6)->default(0);
             $table->string('currency_code')->nullable();
+            $table->unsignedInteger('currency_id')->nullable();
             $table->string('account_type')->nullable();
             $table->unsignedInteger('category_id')->nullable();
             $table->unsignedInteger('ninja_category_id')->nullable();

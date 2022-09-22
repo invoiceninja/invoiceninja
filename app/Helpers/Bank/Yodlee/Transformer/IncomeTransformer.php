@@ -12,7 +12,9 @@
 namespace App\Helpers\Bank\Yodlee\Transformer;
 
 use App\Helpers\Bank\BankRevenueInterface;
- 
+use App\Utils\Traits\AppSetup;
+use Illuminate\Support\Facades\Cache;
+
 /**
 "date": "string",
 "sourceId": "string",
@@ -113,6 +115,7 @@ use App\Helpers\Bank\BankRevenueInterface;
 
 class IncomeTransformer implements BankRevenueInterface
 {
+    use AppSetup;
 
     public function transform($transaction)
     {
@@ -136,7 +139,7 @@ class IncomeTransformer implements BankRevenueInterface
         return [
             'transaction_id' => $transaction->id,
             'amount' => $transaction->amount->amount,
-            'currency_code' => $transaction->amount->currency,
+            'currency_id' => $this->convertCurrency($transaction->amount->currency),
             'account_type' => $transaction->CONTAINER,
             'category_id' => $transaction->highLevelCategoryId,
             'category_type' => $transaction->categoryType,
@@ -146,6 +149,27 @@ class IncomeTransformer implements BankRevenueInterface
             'base_type' => property_exists($transaction, 'baseType') ? $transaction->baseType : '',
         ];
     }
+
+    private function convertCurrency(string $code)
+    {
+
+        $currencies = Cache::get('currencies');
+
+        if (! $currencies) {
+            $this->buildCache(true);
+        }
+
+        $currency = $currencies->filter(function ($item) use($code){
+            return $item->code == $code;
+        })->first();
+
+        if($currency)
+            return $currency->id;
+
+        return 1;
+
+    }
+
 
 }
 

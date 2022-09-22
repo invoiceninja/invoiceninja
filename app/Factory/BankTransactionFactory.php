@@ -23,7 +23,7 @@ class BankTransactionFactory
         $bank_transaction->company_id = $company_id;
 
         $bank_transaction->amount = 0;
-        $bank_transaction->currency_code = '';
+        $bank_transaction->currency_id = 1;
         $bank_transaction->account_type = '';
         $bank_transaction->category_type = '';
         $bank_transaction->date = now()->format('Y-m-d');

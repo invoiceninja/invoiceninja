@@ -29,12 +29,16 @@ class MatchBankTransactionRequest extends Request
     public function rules()
     {
 
-        return [
-            '*.id' => 'required|bail',
-            '*.invoice_id' => 'nullable|sometimes',
-            '*.is_expense' => 'nullable|sometimes|bool',
-            '*.amount' => 'nullable|sometimes|numeric'
+        $rules = [
+            'id' => 'required|bail',
+            'invoice_ids' => 'nullable|string|sometimes',
+            'ninja_category_id' => 'nullable|string|sometimes'
         ];
+
+        if(isset($this->vendor_id))
+            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+        return $rules;
 
     }
 

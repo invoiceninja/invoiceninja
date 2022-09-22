@@ -27,7 +27,7 @@ class BankTransactionFactory extends Factory
         return [
             'transaction_id' => $this->faker->randomNumber(9, true) ,
             'amount' => $this->faker->randomFloat(2,10,10000) ,
-            'currency_code' => 'USD',
+            'currency_id' => '1',
             'account_type' => 'creditCard',
             'category_id' => 1,
             'category_type' => 'Random' ,

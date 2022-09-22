@@ -165,7 +165,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->category_id = $this->resolveCategory();
         $expense->amount = $this->bt->amount;
         $expense->number = $this->getNextExpenseNumber($expense);
-        $expense->currency_id = $this->harvestCurrencyId();
+        $expense->currency_id = $this->bt->currency_id;
         $expense->date = Carbon::parse($this->bt->date);
         $expense->public_notes = $this->bt->description;
         $expense->save();
@@ -219,7 +219,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->description;
         $payment->transaction_id = $this->bt->transaction_id;
-        $payment->currency_id = $this->harvestCurrencyId();
+        $payment->currency_id = $this->bt->currency_id;
         $payment->is_manual = false;
         $payment->date = $this->bt->date ? Carbon::parse($this->bt->date) : now();
         
@@ -299,17 +299,6 @@ class MatchBankTransactions implements ShouldQueue
         }
 
         return null;
-    }
-
-    private function harvestCurrencyId() :int
-    {
-        $currency = Currency::where('code', $this->bt->currency_code)->first();
-
-        if($currency)
-            return $currency->id;
-
-        return $this->invoice->client->getSetting('currency_id');
-
     }
 
     private function setExchangeRate(Payment $payment)

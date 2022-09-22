@@ -26,7 +26,7 @@ class BankTransaction extends BaseModel
     const STATUS_CONVERTED = 3;
 
     protected $fillable = [
-        'currency_code',
+        'currency_id',
         'category_id',
         'ninja_category_id',
         'date',
