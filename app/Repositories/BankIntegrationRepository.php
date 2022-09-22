@@ -25,9 +25,10 @@ class BankIntegrationRepository extends BaseRepository
     {
 
         //stub to store
+        $bank_integration->fill($data);
+        $bank_integration->save();
 
-        return $bank_integration->save();
-
+        return $bank_integration->fresh();
     }
 
 }
