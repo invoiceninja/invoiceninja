@@ -33,7 +33,8 @@ class UpdateBankTransactionRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [
             'date' => 'bail|required|date',
-            'description', 'bail|required|string'
+            'description' => 'bail|required|string',
+            'amount' => 'string|sometimes',
         ];
 
         if (isset($this->currency_id)) 
