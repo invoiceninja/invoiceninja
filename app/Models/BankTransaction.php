@@ -33,6 +33,7 @@ class BankTransaction extends BaseModel
         'description',
         'base_type',
         'expense_id',
+        'vendor_id'
     ];
 
     protected $dates = [
