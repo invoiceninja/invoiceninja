@@ -31,6 +31,7 @@ class BankTransaction extends BaseModel
         'ninja_category_id',
         'date',
         'description',
+        'base_type',
     ];
 
     protected $dates = [
