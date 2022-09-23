@@ -57,7 +57,7 @@ class BankTransactionTransformer extends EntityTransformer
             'currency_id' => (string) $bank_transaction->currency_id ?: '1',
             'account_type' => (string) $bank_transaction->account_type ?: '',
             'category_id' => (int) $bank_transaction->category_id,
-            'ninja_category_id' => (int) $bank_transaction->ninja_category_id,
+            'ninja_category_id' => (string) $this->encodePrimaryKey($bank_transaction->ninja_category_id) ?: '',
             'category_type' => (string) $bank_transaction->category_type ?: '',
             'date' => (string) $bank_transaction->date ?: '',
             'bank_account_id' => (int) $bank_transaction->bank_account_id,

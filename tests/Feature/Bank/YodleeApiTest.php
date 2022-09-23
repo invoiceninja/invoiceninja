@@ -124,6 +124,7 @@ class YodleeApiTest extends TestCase
         MatchBankTransactions::dispatchSync($this->company->id, $this->company->db, $data);
 
         $payment = Payment::where('transaction_reference', $bt->description)->first();
+        $payment_count = Payment::where('transaction_reference', $bt->description)->count();
 
         $this->assertNotNull($payment);
 
@@ -135,6 +136,7 @@ class YodleeApiTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_PAID, $invoice->status_id);
         $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(1, $payment_count);
     }
 
 

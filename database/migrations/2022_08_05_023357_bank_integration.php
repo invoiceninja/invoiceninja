@@ -86,6 +86,10 @@ return new class extends Migration
             $table->unsignedBigInteger('transaction_id')->nullable();
         }); 
 
+        Schema::table('expenses', function (Illuminate\Database\Schema\Blueprint $table) {
+            $table->unsignedBigInteger('transaction_id')->nullable()->change();
+        }); 
+
     }
 
     /**

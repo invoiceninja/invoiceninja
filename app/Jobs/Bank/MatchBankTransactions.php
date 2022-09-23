@@ -133,6 +133,8 @@ class MatchBankTransactions implements ShouldQueue
 
         foreach($invoices as $invoice){
 
+            $invoice->service()->markSent();
+            
             if(!$invoice->isPayable())
                 return false;
 
@@ -171,6 +173,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->currency_id = $this->bt->currency_id;
         $expense->date = Carbon::parse($this->bt->date);
         $expense->public_notes = $this->bt->description;
+        $expense->transaction_id = $this->bt->id;
         $expense->save();
 
         return $this;
@@ -222,7 +225,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->description;
-        $payment->transaction_id = $this->bt->transaction_id;
+        $payment->transaction_id = $this->bt->id;
         $payment->currency_id = $this->bt->currency_id;
         $payment->is_manual = false;
         $payment->date = $this->bt->date ? Carbon::parse($this->bt->date) : now();
