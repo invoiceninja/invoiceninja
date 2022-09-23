@@ -58,13 +58,13 @@ class UpdateBankTransactionRequest extends Request
     {
         $input = $this->all();
 
-            if(array_key_exists('vendor_id', $input))
+            if(array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) > 1)
                 $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
 
-            if(array_key_exists('expense_id', $input))
+            if(array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1)
                 $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
 
-            if(array_key_exists('ninja_category_id', $input))
+            if(array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) > 1)
                 $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
 
         $this->replace($input);
