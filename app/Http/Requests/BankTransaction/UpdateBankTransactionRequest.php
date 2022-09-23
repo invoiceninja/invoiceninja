@@ -56,7 +56,7 @@ class UpdateBankTransactionRequest extends Request
 
 
             if(array_key_exists('baseType', $input) && strlen($input['baseType']) > 1)
-                $input['base_type'] = $input['baseType'] == 'deposit' ? 'CREDIT' : 'DEBIT';
+                $input['base_type'] = $input['baseType']; //== 'deposit' ? 'CREDIT' : 'DEBIT';
 
             if(array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) > 1)
                 $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
