@@ -172,11 +172,13 @@ class MatchBankTransactions implements ShouldQueue
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->currency_id = $this->bt->currency_id;
         $expense->date = Carbon::parse($this->bt->date);
-        $expense->public_notes = $this->bt->description;
+        $expense->payment_date = Carbon::parse($this->bt->date);
+        $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
         $expense->save();
 
         $this->bt->expense_id = $expense->id;
+        $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
         return $this;
