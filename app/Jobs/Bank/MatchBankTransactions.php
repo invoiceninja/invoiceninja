@@ -298,7 +298,7 @@ class MatchBankTransactions implements ShouldQueue
         if(array_key_exists('ninja_category_id', $this->input)){
             $this->bt->ninja_category_id = $this->input['ninja_category_id'];
             $this->bt->save();
-            return $this->input['ninja_category_id'];
+            return (int)$this->input['ninja_category_id'];
         }
 
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
