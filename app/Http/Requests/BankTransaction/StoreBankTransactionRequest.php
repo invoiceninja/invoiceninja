@@ -41,12 +41,11 @@ class StoreBankTransactionRequest extends Request
     {
         $input = $this->all();
 
+            if(array_key_exists('bank_integration_id', $input) && strlen($input['bank_integration_id']) > 1)
+                $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
+
         $this->replace($input);
     }
 
-    public function messages()
-    {
-        return [];
-    }
 
 }
