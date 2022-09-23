@@ -284,7 +284,7 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->invoice_id = collect($invoices)->pluck('hashed_id')->implode(',');
+        $this->bt->invoice_ids = collect($invoices)->pluck('hashed_id')->implode(',');
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
     }
