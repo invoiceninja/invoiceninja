@@ -49,11 +49,6 @@ class UpdateBankTransactionRequest extends Request
         return $rules;
     }
 
-    public function messages()
-    {
-        return [ ];
-    }
-
     public function prepareForValidation()
     {
         $input = $this->all();
