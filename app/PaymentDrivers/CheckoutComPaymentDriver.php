@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
@@ -254,11 +255,12 @@ class CheckoutComPaymentDriver extends BaseDriver
             ];
         } catch (CheckoutApiException $e) {
             // API error
-            $request_id = $e->request_id;
-            $http_status_code = $e->http_status_code;
-            $error_details = $e->error_details;
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
 
             return [
                 'transaction_reference' => null,
@@ -269,6 +271,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             ];
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
 
             return [
                 'transaction_reference' => null,

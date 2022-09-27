@@ -69,39 +69,7 @@ class SelfUpdateController extends BaseController
      *       ),
      *     )
      */
-    // public function old_update(\Codedge\Updater\UpdaterManager $updater)
-    // {
-    //     set_time_limit(0);
-    //     define('STDIN', fopen('php://stdin', 'r'));
-
-    //     if (Ninja::isHosted()) {
-    //         return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
-    //     }
-
-    //     $this->testWritable();
-
-    //     // Get the new version available
-    //     $versionAvailable = $updater->source()->getVersionAvailable();
-
-    //     // Create a release
-    //     $release = $updater->source()->fetch($versionAvailable);
-
-    //     $updater->source()->update($release);
-
-    //     $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-    //     if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-    //     $cacheServices = base_path('bootstrap/cache/services.php');
-    //     if (file_exists($cacheServices)) { unlink ($cacheServices); }
-
-    //     Artisan::call('clear-compiled');
-    //     Artisan::call('route:clear');
-    //     Artisan::call('view:clear');
-    //     Artisan::call('optimize');
-
-    //     return response()->json(['message' => 'Update completed'], 200);
-
-    // }
-
+ 
     public function update()
     {
         set_time_limit(0);
