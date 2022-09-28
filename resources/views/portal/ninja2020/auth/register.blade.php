@@ -27,7 +27,11 @@
                                     <label 
                                         for="{{ $field['key'] }}" 
                                         class="input-label">
+                                        @if(in_array($field['key'], ['custom_value1','custom_value2','custom_value3','custom_value4']))
+                                        {{ (new App\Utils\Helpers())->makeCustomField($register_company->custom_fields, str_replace("custom_value","client", $field['key']))}}
+                                        @else
                                         {{ ctrans("texts.{$field['key']}") }}
+                                        @endif
                                     </label>
                                     
                                     @if($field['required'])
