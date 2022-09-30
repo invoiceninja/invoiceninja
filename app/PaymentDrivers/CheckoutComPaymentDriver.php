@@ -306,13 +306,10 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 try {
                     $response = $this->gateway->getCustomersClient()->create($request);
-                } catch (CheckoutApiException $e) {
+                } catch (\Exception $e) {
                     // API error
-                    $error_details = $e->error_details;
-                    $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
-                } catch (CheckoutAuthorizationException $e) {
-                    // Bad Invalid authorization
-                }
+                    throw new PaymentFailed($e->getMessage(), $e->getCode());
+                } 
 
             return $response;
         }
