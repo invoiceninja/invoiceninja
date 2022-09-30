@@ -41,7 +41,7 @@ class ActivityController extends BaseController
 
     /**
      * @OA\Get(
-     *      path="/api/v1/actvities",
+     *      path="/api/v1/activities",
      *      operationId="getActivities",
      *      tags={"actvities"},
      *      summary="Gets a list of actvities",

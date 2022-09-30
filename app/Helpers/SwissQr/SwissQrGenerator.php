@@ -105,11 +105,21 @@ class SwissQrGenerator
     // Add payment reference
     // This is what you will need to identify incoming payments.
 
+   if(stripos($this->invoice->number, "Live-") === 0)                                                                                                                                                                            
+    {                                                                                                                                                                                                                             
+       // we're currently in preview status. Let's give a dummy reference for now                                                                                                                                                 
+       $invoice_number = "123456789";                                                                                                                                                                                              
+    }                                                                                                                                                                                                                             
+    else                                                                                                                                                                                                                          
+    {                                                                                                                                                                                                                             
+       $invoice_number = $this->invoice->number;                                                                                                                                                                                   
+    }       
+
     if(strlen($this->company->present()->besr_id()) > 1)
     {
         $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
             $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-            $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
+            $invoice_number// A number to match the payment with your internal data, e.g. an invoice number
         );
 
         $qrBill->setPaymentReference(
