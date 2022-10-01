@@ -233,7 +233,7 @@
                         @csrf
 
                         <label class="w-full mr-2">
-                            <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
+                            <input type="text" wire:model.defer="coupon" class="input w-full m-0"/>
                         </label>
 
                         <button class="button button-primary bg-primary">{{ ctrans('texts.apply') }}</button>

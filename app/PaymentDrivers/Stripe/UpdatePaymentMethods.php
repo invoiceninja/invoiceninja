@@ -74,7 +74,7 @@ class UpdatePaymentMethods
     {
         $sources = $customer->sources;
 
-        if(!property_exists($sources, 'data'))
+        if(!$customer || !property_exists($sources, 'data'))
             return;
 
         foreach ($sources->data as $method) {
