@@ -80,6 +80,8 @@ class WePayCreditCard {
             client_address.postal_code = document.querySelector(['meta[name=client-postal-code']).content;
         }
 
+        console.log(client_address);
+
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
             user_name: document.getElementById('cardholder_name').value,
@@ -129,6 +131,9 @@ class WePayCreditCard {
         if(document.querySelector(['meta[name=country_code']).content == 'US'){
             client_address.postal_code = document.querySelector(['meta[name=client-postal-code']).content;
         }
+
+        console.log(client_address);
+        
 
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
