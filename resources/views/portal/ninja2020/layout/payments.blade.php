@@ -9,7 +9,7 @@
 @push('head')
     @yield('gateway_head')
 @endpush
-
+<div>
 @section('body')
     @livewire('required-client-info', ['fields' => method_exists($gateway, 'getClientRequiredFields') ? $gateway->getClientRequiredFields() : [], 'contact' => auth()->guard('contact')->user(), 'countries' => $countries, 'company' => $company, 'company_gateway_id' => $gateway->company_gateway ? $gateway->company_gateway->id : $gateway->id])
 
@@ -41,7 +41,7 @@
         </div>
     </div>
 @endsection
-
+</div>
 @push('footer')
     @yield('gateway_footer')
 
