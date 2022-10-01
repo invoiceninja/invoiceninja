@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.app')
-
+<div>
 @isset($gateway_title)
     @section('meta_title', $gateway_title)
 @else
@@ -9,7 +9,7 @@
 @push('head')
     @yield('gateway_head')
 @endpush
-<div>
+
 @section('body')
     @livewire('required-client-info', ['fields' => method_exists($gateway, 'getClientRequiredFields') ? $gateway->getClientRequiredFields() : [], 'contact' => auth()->guard('contact')->user(), 'countries' => $countries, 'company' => $company, 'company_gateway_id' => $gateway->company_gateway ? $gateway->company_gateway->id : $gateway->id])
 
@@ -41,6 +41,7 @@
         </div>
     </div>
 @endsection
+
 @push('footer')
     @yield('gateway_footer')
 
