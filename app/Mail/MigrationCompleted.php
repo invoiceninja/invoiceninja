@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
@@ -13,19 +14,23 @@ class MigrationCompleted extends Mailable
 {
     // use Queueable, SerializesModels;
 
-    public $company;
+    public $company_id;
+
+    public $db;
 
     public $check_data;
 
+    public $company;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Company $company, $check_data = '')
+    public function __construct(int $company_id, string $db, $check_data = '')
     {
-        $this->company = $company;
+        $this->company_id = $company_id;
         $this->check_data = $check_data;
+        $this->db = $db;
     }
 
     /**
@@ -35,6 +40,10 @@ class MigrationCompleted extends Mailable
      */
     public function build()
     {
+
+        MultiDB::setDb($this->db);
+        $this->company = Company::find($this->company_id);
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
