@@ -41,7 +41,6 @@
         </div>
     </div>
 @endsection
-</div>
 @push('footer')
     @yield('gateway_footer')
 
@@ -80,3 +79,4 @@
         });
     </script>
 @endpush
+</div>
