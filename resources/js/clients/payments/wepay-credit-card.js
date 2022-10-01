@@ -73,13 +73,6 @@ class WePayCreditCard {
         cardButton.querySelector('svg').classList.remove('hidden');
         cardButton.querySelector('span').classList.add('hidden');
 
-        var client_address = {};
-        client_address['country'] = document.querySelector(['meta[name=country_code']).content;
-
-        if(document.querySelector(['meta[name=country_code']).content == 'US'){
-            client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
-        }
-
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
             user_name: document.getElementById('cardholder_name').value,
@@ -88,7 +81,10 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: JSON.stringify(client_address)
+            address: {
+                country: document.querySelector(['meta[name=country_code']).content,
+                postal_code: document.querySelector(['meta[name=client-postal-code']).content,
+            }
         }, (data) => {
             if (data.error) {
                 cardButton = document.getElementById('card_button');
@@ -123,13 +119,6 @@ class WePayCreditCard {
             return;
         }
 
-        var client_address = {};
-        client_address['country'] = document.querySelector(['meta[name=country_code']).content;
-
-        if(document.querySelector(['meta[name=country_code']).content == 'US'){
-            client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
-        }        
-
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
             user_name: document.getElementById('cardholder_name').value,
@@ -138,7 +127,10 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: JSON.stringify(client_address)
+            address: {
+                country: document.querySelector(['meta[name=country_code']).content,
+                postal_code: document.querySelector(['meta[name=client-postal-code']).content,
+            }
         }, (data) => {
             if (data.error) {
                 this.payNowButton.disabled = false;

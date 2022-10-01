@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.app')
-<div>
+
 @isset($gateway_title)
     @section('meta_title', $gateway_title)
 @else
@@ -80,4 +80,3 @@
         });
     </script>
 @endpush
-</div>

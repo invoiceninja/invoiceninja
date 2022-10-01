@@ -96,7 +96,6 @@
     @include('portal.ninja2020.components.primary-color')
 
     <body class="antialiased">
-        <div>
         @if(session()->has('message'))
             <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
                 {{ session('message') }}
@@ -157,7 +156,7 @@
                 }
             </script>
         @endif
-        </div>
+        
     </body>
 
     <footer>
