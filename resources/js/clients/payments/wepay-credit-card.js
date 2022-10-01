@@ -76,11 +76,11 @@ class WePayCreditCard {
         var client_address = {};
         client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
-        if(document.querySelector(['meta[name=country_code']).content == 'US'){
+        // if(document.querySelector(['meta[name=country_code']).content == 'US'){
             client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
-        }
+        // }
 
-        console.log(client_address);
+        console.log(JSON.stringify(client_address));
 
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
@@ -90,7 +90,7 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: client_address
+            address: JSON.stringify(client_address)
         }, (data) => {
             if (data.error) {
                 cardButton = document.getElementById('card_button');
@@ -128,11 +128,11 @@ class WePayCreditCard {
         var client_address = {};
         client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
-        if(document.querySelector(['meta[name=country_code']).content == 'US'){
+        // if(document.querySelector(['meta[name=country_code']).content == 'US'){
             client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
-        }
+        // }
 
-        console.log(client_address);
+        console.log(JSON.stringify(client_address));
         
 
         WePay.credit_card.create({
@@ -143,7 +143,7 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: client_address
+            address: JSON.stringify(client_address)
         }, (data) => {
             if (data.error) {
                 this.payNowButton.disabled = false;
