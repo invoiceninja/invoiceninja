@@ -77,6 +77,7 @@ class WePayCreditCard {
         client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
         if(document.querySelector(['meta[name=country_code']).content == 'US'){
+            console.log("country code is US");
             client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
         }
 
@@ -127,6 +128,7 @@ class WePayCreditCard {
         client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
         if(document.querySelector(['meta[name=country_code']).content == 'US'){
+            console.log("country code is US");
             client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
         }        
 
