@@ -74,13 +74,13 @@ class WePayCreditCard {
         cardButton.querySelector('span').classList.add('hidden');
 
         var client_address = {};
-        client_address.country = document.querySelector(['meta[name=country_code']).content;
+        client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
         if(document.querySelector(['meta[name=country_code']).content == 'US'){
-            client_address.postal_code = document.querySelector(['meta[name=client-postal-code']).content;
+            client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
         }
 
-        console.log(JSON.stringify(client_address));
+        console.log(client_address);
 
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
@@ -90,7 +90,7 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: JSON.stringify(client_address)
+            address: client_address
         }, (data) => {
             if (data.error) {
                 cardButton = document.getElementById('card_button');
@@ -126,13 +126,13 @@ class WePayCreditCard {
         }
 
         var client_address = {};
-        client_address.country = document.querySelector(['meta[name=country_code']).content;
+        client_address['country'] = document.querySelector(['meta[name=country_code']).content;
 
         if(document.querySelector(['meta[name=country_code']).content == 'US'){
-            client_address.postal_code = document.querySelector(['meta[name=client-postal-code']).content;
+            client_address['postal_code'] = document.querySelector(['meta[name=client-postal-code']).content;
         }
 
-        console.log(JSON.stringify(client_address));
+        console.log(client_address);
         
 
         WePay.credit_card.create({
@@ -143,7 +143,7 @@ class WePayCreditCard {
             cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            address: JSON.stringify(client_address)
+            address: client_address
         }, (data) => {
             if (data.error) {
                 this.payNowButton.disabled = false;
