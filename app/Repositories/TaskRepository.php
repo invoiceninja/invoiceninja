@@ -25,6 +25,8 @@ class TaskRepository extends BaseRepository
 
     public $new_task = true;
 
+    private $completed = true;
+
     /**
      * Saves the task and its contacts.
      *

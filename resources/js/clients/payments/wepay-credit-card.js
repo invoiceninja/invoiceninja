@@ -82,6 +82,7 @@ class WePayCreditCard {
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
             address: {
+                country: document.querySelector(['meta[name=country_code']).content,
                 postal_code: document.querySelector(['meta[name=client-postal-code']).content,
             }
         }, (data) => {
@@ -127,6 +128,7 @@ class WePayCreditCard {
             expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
             expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
             address: {
+                country: document.querySelector(['meta[name=country_code']).content,
                 postal_code: document.querySelector(['meta[name=client-postal-code']).content,
             }
         }, (data) => {
