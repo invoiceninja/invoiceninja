@@ -33,6 +33,9 @@ use Illuminate\Support\Str;
  */
 trait GeneratesConvertedQuoteCounter
 {
+
+    private int $update_counter;
+
     private function harvestQuoteCounter($quote, $invoice, Client $client)
     {
         $settings = $client->getMergedSettings();
