@@ -21,7 +21,9 @@
   </script>
    <script>
     window.flutterConfiguration = {
-      canvasKitBaseUrl: "{{ $canvas_path }}/canvaskit/"
+      @if(!\App\Utils\Ninja::isHosted())
+        canvasKitBaseUrl: "{{ $canvas_path }}/canvaskit/"
+      @endif
     };
   </script>
 </head>

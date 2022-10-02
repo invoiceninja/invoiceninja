@@ -4,6 +4,7 @@
     <meta name="wepay-environment" content="{{ config('ninja.wepay.environment') }}">
     <meta name="wepay-client-id" content="{{ config('ninja.wepay.client_id') }}">
     <meta name="contact-email" content="{{ $contact->email }}">
+    <meta name="country_code" content="{{$country_code}}">
 
     <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.4.latest.js"></script>
 @endsection
