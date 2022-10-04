@@ -173,17 +173,17 @@ class BaseImport
         $is_free_hosted_client = $this->company->account->isFreeHostedClient();
         $hosted_client_count = $this->company->account->hosted_client_count;
 
+        if($this->factory_name == 'App\Factory\ClientFactory' && $is_free_hosted_client && (count($data) > $hosted_client_count))
+        {
+            $this->error_array[$entity_type][] = [
+                $entity_type => 'client',
+                'error' => 'Error, you are attempting to import more clients than your plan allows',
+            ];
+
+            return $count;
+        }
+
         foreach ($data as $key => $record) {
-
-            if($this->factory_name instanceof ClientFactory && $is_free_hosted_client && ($this->company->clients()->count() > $hosted_client_count))
-            {
-                $this->error_array[$entity_type][] = [
-                    $entity_type => $record,
-                    'error' => 'Client limit reached',
-                ];
-
-                return $count;
-            }
 
             try {
                 $entity = $this->transformer->transform($record);

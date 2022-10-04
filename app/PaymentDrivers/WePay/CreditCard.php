@@ -37,6 +37,7 @@ class CreditCard
     public function authorizeView($data)
     {
         $data['gateway'] = $this->wepay_payment_driver;
+        $data['country_code'] = $this->wepay_payment_driver->client ? $this->wepay_payment_driver->client->country->iso_3166_2 : $this->wepay_payment_driver->company_gateway->company()->iso_3166_2;
 
         return render('gateways.wepay.authorize.authorize', $data);
     }
@@ -101,6 +102,7 @@ class CreditCard
     {
         $data['gateway'] = $this->wepay_payment_driver;
         $data['description'] = ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number');
+        $data['country_code'] = $this->wepay_payment_driver->client ? $this->wepay_payment_driver->client->country->iso_3166_2 : $this->wepay_payment_driver->company_gateway->company()->iso_3166_2;
 
         return render('gateways.wepay.credit_card.pay', $data);
     }

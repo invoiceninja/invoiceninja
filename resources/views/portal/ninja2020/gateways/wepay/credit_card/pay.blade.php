@@ -7,7 +7,7 @@
 
     <meta name="contact-email" content="{{ $contact->email }}">
     <meta name="client-postal-code" content="{{ $contact->client->postal_code }}">
-
+    <meta name="country_code" content="{{$country_code}}">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
 

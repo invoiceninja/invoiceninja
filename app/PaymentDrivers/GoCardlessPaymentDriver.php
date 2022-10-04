@@ -261,7 +261,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 //finalize payments on invoices here.
             }
 
-            if ($event['action'] === 'failed') {
+            if ($event['action'] === 'failed' && array_key_exists('payment', $event['links'])) {
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
                     ->where('company_id', $request->getCompany()->id)

@@ -34,6 +34,9 @@ use Illuminate\Support\Str;
  */
 trait GeneratesCounter
 {
+
+    private int $update_counter;
+
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
@@ -412,27 +415,35 @@ trait GeneratesCounter
      * @param      string $prefix
      * @return     string The padded and prefixed entity number
      */
-    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
+    private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '') :string
     {
         $check = false;
         $check_counter = 1;
 
         do {
+            
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
 
             $number = $this->prefixCounter($number, $prefix);
 
-            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists();
+            $check = $class::where('company_id', $entity->company_id)->where('number', $number)->withTrashed()->exists();
 
             $counter++;
             $check_counter++;
 
             if ($check_counter > 100) {
+                
+                $this->update_counter = $counter--;
+
                 return $number.'_'.Str::random(5);
+
             }
+
         } while ($check);
+
+        $this->update_counter = $counter--;
 
         return $number;
     }
@@ -465,7 +476,8 @@ trait GeneratesCounter
             $settings->{$counter_name} = 1;
         }
 
-        $settings->{$counter_name} = $settings->{$counter_name} + 1;
+        // $settings->{$counter_name} = $settings->{$counter_name} + 1;
+        $settings->{$counter_name} = $this->update_counter;
 
         $entity->settings = $settings;
 

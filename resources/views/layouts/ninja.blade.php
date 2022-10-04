@@ -5,7 +5,7 @@
         <!-- Error: {{ session('error') }} -->
 
         @if (config('services.analytics.tracking_id'))
-            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1" async></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
 
@@ -52,11 +52,22 @@
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css">
+        {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com"> --}}
+        {{-- <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer> --}}
+        <style>
+            @font-face {
+              font-family: 'Open Sans';
+              font-style: normal;
+              font-weight: 400;
+              font-stretch: 100%;
+              font-display: swap;
+              src: url( {{asset('css/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0B4gaVI.woff2')}}) format('woff2');
+              unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+            }
+        </style>
 
         <!-- Styles -->
-        <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+        <link href="{{ mix('css/app.css') }}" rel="stylesheet" defer>
         <link rel="canonical" href="{{ config('ninja.site_url') }}/{{ request()->path() }}"/>
 
 
@@ -66,7 +77,7 @@
         @stack('head')
 
 
-        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" defer>
     </head>
 
     <body class="antialiased">

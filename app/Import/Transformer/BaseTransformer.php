@@ -178,12 +178,14 @@ class BaseTransformer
     public function getFloat($data, $field)
     {
         if (array_key_exists($field, $data)) {
-            $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+            //$number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+            return Number::parseStringFloat($data[$field]);
         } else {
-            $number = 0;
+            //$number = 0;
+            return 0;
         }
 
-        return Number::parseFloat($number);
+        // return Number::parseFloat($number);
     }
 
     /**

@@ -55,7 +55,7 @@ class MarkPaid extends AbstractService
 
         \DB::connection(config('database.default'))->transaction(function () {
 
-            $this->invoice = Invoice::where('id', $this->invoice->id)->lockForUpdate()->first();
+            $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
             $this->payable_balance = $this->invoice->balance;
 

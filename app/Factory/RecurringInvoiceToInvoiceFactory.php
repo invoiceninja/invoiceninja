@@ -29,10 +29,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->terms = self::tranformObject($recurring_invoice->terms, $client);
         $invoice->public_notes = self::tranformObject($recurring_invoice->public_notes, $client);
         $invoice->private_notes = $recurring_invoice->private_notes;
-        //$invoice->date = now()->format($client->date_format());
-        //$invoice->due_date = $recurring_invoice->calculateDueDate(now());
         $invoice->is_deleted = $recurring_invoice->is_deleted;
-//        $invoice->line_items = $recurring_invoice->line_items;
         $invoice->line_items = self::transformItems($recurring_invoice, $client);
         $invoice->tax_name1 = $recurring_invoice->tax_name1;
         $invoice->tax_rate1 = $recurring_invoice->tax_rate1;

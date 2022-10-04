@@ -77,7 +77,12 @@ class PurchaseOrderEmail implements ShouldQueue
             /* Mark entity sent */
             $invitation->purchase_order->service()->markSent()->save();
 
-            $email_builder = (new PurchaseOrderEmailEngine($invitation, 'purchase_order', $this->template_data))->build();
+            if(is_array($this->template_data) && array_key_exists('template', $this->template_data))
+                $template = $this->template_data['template'];
+            else
+                $template = 'purchase_order';
+
+            $email_builder = (new PurchaseOrderEmailEngine($invitation, $template, $this->template_data))->build();
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new VendorTemplateEmail($email_builder, $invitation->contact, $invitation);
@@ -86,7 +91,7 @@ class PurchaseOrderEmail implements ShouldQueue
             $nmo->to_user = $invitation->contact;
             $nmo->entity_string = 'purchase_order';
             $nmo->invitation = $invitation;
-            $nmo->reminder_template = 'purchase_order';
+            $nmo->reminder_template = 'email_template_purchase_order';
             $nmo->entity = $invitation->purchase_order;
 
             NinjaMailerJob::dispatch($nmo)->delay(5);

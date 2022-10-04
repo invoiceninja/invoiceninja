@@ -29,6 +29,11 @@ use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Note the premise used here is that any currencies will be formatted back to the company currency and not
+ * user the vendor currency, if we continue to extend on vendor, we will need to relook at this
+ */
+
 class VendorHtmlEngine
 {
     use MakesDates;
@@ -164,16 +169,16 @@ class VendorHtmlEngine
 
         $data['$entity_number'] = &$data['$number'];
         $data['$discount'] = ['value' => $this->entity->discount, 'label' => ctrans('texts.discount')];
-        $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
-        $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
+        $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
+        $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
         if($this->entity->uses_inclusive_taxes)
-            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
         else
-            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
 
         if ($this->entity->partial > 0) {
-            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->company) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
@@ -181,12 +186,12 @@ class VendorHtmlEngine
         } else {
 
             if($this->entity->status_id == 1){
-                $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->company) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
             }
             else{
-                $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->company) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
             }
@@ -194,18 +199,18 @@ class VendorHtmlEngine
 
         // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
-        $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
+        $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->company) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$partial'] = &$data['$partial_due'];
 
-        $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.total')];
+        $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.total')];
 
         $data['$purchase_order.total'] = &$data['$total'];
 
         $data['$amount'] = &$data['$total'];
         $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
-        $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
+        $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
 
-        $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
+        $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->company) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
 
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
@@ -277,7 +282,7 @@ class VendorHtmlEngine
 
         $data['$vendor.currency'] = ['value' => $this->vendor->currency()->code, 'label' => ''];
 
-        $data['$paid_to_date'] = ['value' => Number::formatMoney($this->entity->paid_to_date, $this->vendor), 'label' => ctrans('texts.paid_to_date')];
+        $data['$paid_to_date'] = ['value' => Number::formatMoney($this->entity->paid_to_date, $this->company), 'label' => ctrans('texts.paid_to_date')];
 
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact'] = &$data['$contact.full_name'];
@@ -332,10 +337,10 @@ class VendorHtmlEngine
         $data['$company.custom3'] = &$data['$company3'];
         $data['$company.custom4'] = &$data['$company4'];
 
-        $data['$custom_surcharge1'] = ['value' => Number::formatMoney($this->entity->custom_surcharge1, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge1')];
-        $data['$custom_surcharge2'] = ['value' => Number::formatMoney($this->entity->custom_surcharge2, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge2')];
-        $data['$custom_surcharge3'] = ['value' => Number::formatMoney($this->entity->custom_surcharge3, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge3')];
-        $data['$custom_surcharge4'] = ['value' => Number::formatMoney($this->entity->custom_surcharge4, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge4')];
+        $data['$custom_surcharge1'] = ['value' => Number::formatMoney($this->entity->custom_surcharge1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge1')];
+        $data['$custom_surcharge2'] = ['value' => Number::formatMoney($this->entity->custom_surcharge2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge2')];
+        $data['$custom_surcharge3'] = ['value' => Number::formatMoney($this->entity->custom_surcharge3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge3')];
+        $data['$custom_surcharge4'] = ['value' => Number::formatMoney($this->entity->custom_surcharge4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge4')];
 
         $data['$product.item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$product.date'] = ['value' => '', 'label' => ctrans('texts.date')];
@@ -608,7 +613,7 @@ class VendorHtmlEngine
         foreach ($tax_map as $tax) {
             $data .= '<tr class="line_taxes">';
             $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->vendor).'</td></tr>';
+            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
         }
 
         return $data;
@@ -621,7 +626,7 @@ class VendorHtmlEngine
         $data = '';
 
         foreach ($tax_map as $tax) {
-            $data .= '<span>'.Number::formatMoney($tax['total'], $this->vendor).'</span>';
+            $data .= '<span>'.Number::formatMoney($tax['total'], $this->company).'</span>';
         }
 
         return $data;
@@ -639,7 +644,7 @@ class VendorHtmlEngine
             $data .= '<tr>';
             $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
             $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->vendor).'</td></tr>';
+            $data .= '<td>'.Number::formatMoney($tax['total'], $this->company).'</td></tr>';
         }
 
         return $data;

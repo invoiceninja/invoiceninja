@@ -20,6 +20,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
+use App\Models\CompanyUser;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -702,13 +703,23 @@ class CheckData extends Command
                             ->count();
 
                 if($count == 0){
-                    $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be 0");
+                    
+                    //factor in over payments to the client balance
+                    $over_payment = Payment::where('client_id', $client->id)
+                                            ->where('is_deleted', 0)
+                                            ->whereIn('status_id', [1,4])
+                                            ->selectRaw('sum(amount - applied) as p')
+                                            ->pluck('p')
+                                            ->first();
 
-                    if($this->option('client_balance')){
+
+                    $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be {$over_payment}");
+
+                    if($this->option('client_balance') && (floatval($over_payment) != floatval($client->balance) )){
                         
                         $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
-                        $client->balance = 0;
+                        $client->balance = $over_payment * -1;
                         $client->save();
 
                     }

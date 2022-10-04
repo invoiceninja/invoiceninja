@@ -30,7 +30,10 @@ class ClientFilters extends QueryFilters
      */
     public function name(string $name): Builder
     {
-        return $this->builder->where('name', 'like', '%'.$name.'%');
+        if(strlen($name) >=1)
+            return $this->builder->where('name', 'like', '%'.$name.'%');
+
+        return $this->builder;
     }
 
     /**

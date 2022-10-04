@@ -73,8 +73,11 @@ class SendRecurring implements ShouldQueue
             $invoice->auto_bill_enabled = false;
         }
 
-        $invoice->date = now()->format('Y-m-d');
-        $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
+        $invoice->date = date('Y-m-d');
+
+        nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - ". now()->format('Y-m-d'));
+
+        $invoice->due_date = $this->recurring_invoice->calculateDueDate(date('Y-m-d'));
         $invoice->recurring_id = $this->recurring_invoice->id;
         $invoice->saveQuietly();
 
@@ -96,7 +99,7 @@ class SendRecurring implements ShouldQueue
         /* 09-01-2022 ensure we create the PDFs at this point in time! */
         $invoice->service()->touchPdf(true);
 
-        nlog('updating recurring invoice dates');
+        //nlog('updating recurring invoice dates');
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
         $this->recurring_invoice->next_send_date_client = $this->recurring_invoice->nextSendDateClient();
@@ -108,9 +111,9 @@ class SendRecurring implements ShouldQueue
             $this->recurring_invoice->setCompleted();
         }
 
-        // nlog('next send date = '.$this->recurring_invoice->next_send_date);
+        //nlog('next send date = '.$this->recurring_invoice->next_send_date);
         // nlog('remaining cycles = '.$this->recurring_invoice->remaining_cycles);
-        // nlog('last send date = '.$this->recurring_invoice->last_sent_date);
+        //nlog('last send date = '.$this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
 

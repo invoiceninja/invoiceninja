@@ -109,6 +109,7 @@ class StorePaymentRequest extends Request
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'invoices' => new ValidPayableInvoicesRule(),
             'number' => ['nullable', 'bail', Rule::unique('payments')->where('company_id', auth()->user()->company()->id)],
+            'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', auth()->user()->company()->id)],
 
         ];
 

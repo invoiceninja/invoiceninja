@@ -5,15 +5,6 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
-/*
-! tailwindcss v3.0.24 | MIT License | https://tailwindcss.com
-*/
-
-/*
-1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
-2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
-*/
-
 *,
 ::before,
 ::after {
@@ -23,7 +14,7 @@
   /* 2 */
   border-style: solid;
   /* 2 */
-  border-color: #e5e7eb;
+  border-color: currentColor;
   /* 2 */
 }
 
@@ -49,12 +40,10 @@ html {
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* 4 */
 }
 
-.main_layout {
-  /*background-color: white;*/
-}
 /*
 1. Remove the margin in all browsers.
 2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.
@@ -477,6 +466,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-backdrop-sepia:  ;
 }
 
+.sr-only{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .absolute{
   position: absolute;
 }
@@ -500,6 +501,16 @@ Ensure the default browser behavior of the `hidden` attribute.
 .mx-\[auto\]{
   margin-left: auto;
   margin-right: auto;
+}
+
+.mx-\[22px\]{
+  margin-left: 22px;
+  margin-right: 22px;
+}
+
+.mx-\[40px\]{
+  margin-left: 40px;
+  margin-right: 40px;
 }
 
 .mb-\[30px\]{
@@ -558,6 +569,58 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-bottom: 26px;
 }
 
+.mb-\[25px\]{
+  margin-bottom: 25px;
+}
+
+.mb-\[20px\]{
+  margin-bottom: 20px;
+}
+
+.mb-\[5px\]{
+  margin-bottom: 5px;
+}
+
+.mb-\[40px\]{
+  margin-bottom: 40px;
+}
+
+.mr-5{
+  margin-right: 1.25rem;
+}
+
+.ml-5{
+  margin-left: 1.25rem;
+}
+
+.ml-\[10px\]{
+  margin-left: 10px;
+}
+
+.mb-6{
+  margin-bottom: 1.5rem;
+}
+
+.mb-8{
+  margin-bottom: 2rem;
+}
+
+.mb-1\.5{
+  margin-bottom: 0.375rem;
+}
+
+.mb-1{
+  margin-bottom: 0.25rem;
+}
+
+.mb-5{
+  margin-bottom: 1.25rem;
+}
+
+.mb-\[36px\]{
+  margin-bottom: 36px;
+}
+
 .block{
   display: block;
 }
@@ -566,12 +629,28 @@ Ensure the default browser behavior of the `hidden` attribute.
   display: flex;
 }
 
+.inline-flex{
+  display: inline-flex;
+}
+
 .hidden{
   display: none;
 }
 
+.h-\[40px\]{
+  height: 40px;
+}
+
 .min-h-\[450px\]{
   min-height: 450px;
+}
+
+.min-h-\[57\%\]{
+  min-height: 57%;
+}
+
+.min-h-\[411px\]{
+  min-height: 411px;
 }
 
 .w-\[100\%\]{
@@ -582,12 +661,20 @@ Ensure the default browser behavior of the `hidden` attribute.
   width: 100%;
 }
 
+.w-\[87px\]{
+  width: 87px;
+}
+
 .max-w-\[625px\]{
   max-width: 625px;
 }
 
 .max-w-\[212px\]{
   max-width: 212px;
+}
+
+.max-w-\[450px\]{
+  max-width: 450px;
 }
 
 .flex-1{
@@ -602,12 +689,32 @@ Ensure the default browser behavior of the `hidden` attribute.
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.cursor-pointer{
+  cursor: pointer;
+}
+
 .flex-col{
   flex-direction: column;
 }
 
 .flex-col-reverse{
   flex-direction: column-reverse;
+}
+
+.content-start{
+  align-content: flex-start;
+}
+
+.items-start{
+  align-items: flex-start;
+}
+
+.items-center{
+  align-items: center;
+}
+
+.justify-start{
+  justify-content: flex-start;
 }
 
 .justify-end{
@@ -663,8 +770,24 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-radius: 5px;
 }
 
+.rounded-full{
+  border-radius: 9999px;
+}
+
+.rounded-lg{
+  border-radius: 0.5rem;
+}
+
+.rounded-\[10px\]{
+  border-radius: 10px;
+}
+
 .border{
   border-width: 1px;
+}
+
+.border-\[10px\]{
+  border-width: 10px;
 }
 
 .border-t-\[0px\]{
@@ -697,6 +820,16 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-color: transparent;
 }
 
+.border-\[\#28CA42\]{
+  --tw-border-opacity: 1;
+  border-color: rgb(40 202 66 / var(--tw-border-opacity));
+}
+
+.border-primary-green{
+  --tw-border-opacity: 1;
+  border-color: rgb(40 202 66 / var(--tw-border-opacity));
+}
+
 .bg-secondary-dark{
   --tw-bg-opacity: 1;
   background-color: rgb(73 68 68 / var(--tw-bg-opacity));
@@ -712,6 +845,28 @@ Ensure the default browser behavior of the `hidden` attribute.
   background-color: rgb(0 145 234 / var(--tw-bg-opacity));
 }
 
+.bg-primary-blue\/\[\.05\]{
+  background-color: rgb(0 145 234 / .05);
+}
+
+.bg-primary-grey{
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 229 229 / var(--tw-bg-opacity));
+}
+
+.bg-primary-blue\/50{
+  background-color: rgb(0 145 234 / 0.5);
+}
+
+.bg-primary-blue\/5{
+  background-color: rgb(0 145 234 / 0.05);
+}
+
+.bg-\[\#F2F9FE\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 249 254 / var(--tw-bg-opacity));
+}
+
 .bg-clip-padding{
   background-clip: padding-box;
 }
@@ -722,6 +877,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .p-\[20px\]{
   padding: 20px;
+}
+
+.p-\[12px\]{
+  padding: 12px;
 }
 
 .py-\[36px\]{
@@ -801,6 +960,26 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-bottom: 26px;
 }
 
+.pb-\[58px\]{
+  padding-bottom: 58px;
+}
+
+.pt-\[35px\]{
+  padding-top: 35px;
+}
+
+.pb-\[34px\]{
+  padding-bottom: 34px;
+}
+
+.pt-\[29px\]{
+  padding-top: 29px;
+}
+
+.pb-\[56px\]{
+  padding-bottom: 56px;
+}
+
 .text-left{
   text-align: left;
 }
@@ -847,6 +1026,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   font-size: 14px;
 }
 
+.text-\[16px\]{
+  font-size: 16px;
+}
+
+.text-\[22px\]{
+  font-size: 22px;
+}
+
+.text-\[35px\]{
+  font-size: 35px;
+}
+
 .font-normal{
   font-weight: 400;
 }
@@ -887,6 +1078,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   line-height: 1.5em;
 }
 
+.leading-\[1\.375em\]{
+  line-height: 1.375em;
+}
+
+.leading-\[1\.2rem\]{
+  line-height: 1.2rem;
+}
+
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -897,11 +1096,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   color: rgb(0 145 234 / var(--tw-text-opacity));
 }
 
-.text-gray-700{
-  --tw-text-opacity: 1;
-  color: rgb(55 65 81 / var(--tw-text-opacity));
-}
-
 .text-dark-grey{
   --tw-text-opacity: 1;
   color: rgb(142 147 167 / var(--tw-text-opacity));
@@ -910,6 +1104,21 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-light-grey-secondary{
   --tw-text-opacity: 1;
   color: rgb(219 220 222 / var(--tw-text-opacity));
+}
+
+.text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.text-primary-dark{
+  --tw-text-opacity: 1;
+  color: rgb(46 44 44 / var(--tw-text-opacity));
+}
+
+.text-gray{
+  --tw-text-opacity: 1;
+  color: rgb(100 111 121 / var(--tw-text-opacity));
 }
 
 .transition{
@@ -981,24 +1190,15 @@ Ensure the default browser behavior of the `hidden` attribute.
   background: url('/images/checkmark.svg') center/contain no-repeat;
 }
 
+.list-checkmark_green li::before {
+  background: url('/images/checkmark-green.svg') center/contain no-repeat;
+}
+
 /* Main Content */
 
 .pro-plan-trial {
   position: relative;
   overflow: hidden;
-}
-
-.pro-plan-trial::before {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 601px;
-  height: 601px;
-  background: #0091EA;
-  border-radius: 50%;
-  transform: translate(129px, 449px);
-  z-index: 1;
 }
 
 .success-banner {
@@ -1023,6 +1223,64 @@ Ensure the default browser behavior of the `hidden` attribute.
   }
 }
 
+.after\:absolute::after{
+  content: var(--tw-content);
+  position: absolute;
+}
+
+.after\:top-\[5px\]::after{
+  content: var(--tw-content);
+  top: 5px;
+}
+
+.after\:left-\[8px\]::after{
+  content: var(--tw-content);
+  left: 8px;
+}
+
+.after\:h-\[30px\]::after{
+  content: var(--tw-content);
+  height: 30px;
+}
+
+.after\:w-\[30px\]::after{
+  content: var(--tw-content);
+  width: 30px;
+}
+
+.after\:rounded-full::after{
+  content: var(--tw-content);
+  border-radius: 9999px;
+}
+
+.after\:bg-white::after{
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.after\:transition-all::after{
+  content: var(--tw-content);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.after\:content-\[\'\'\]::after{
+  --tw-content: '';
+  content: var(--tw-content);
+}
+
+.hover\:bg-primary-green:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(40 202 66 / var(--tw-bg-opacity));
+}
+
+.hover\:text-white:hover{
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
 .hover\:opacity-80:hover{
   opacity: 0.8;
 }
@@ -1033,6 +1291,32 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 
 .focus\:outline-none:focus{
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.peer:checked ~ .peer-checked\:bg-primary-blue{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 145 234 / var(--tw-bg-opacity));
+}
+
+.peer:checked ~ .peer-checked\:text-gray{
+  --tw-text-opacity: 1;
+  color: rgb(100 111 121 / var(--tw-text-opacity));
+}
+
+.peer:checked ~ .peer-checked\:text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.peer:checked ~ .peer-checked\:after\:translate-x-\[140\%\]::after{
+  content: var(--tw-content);
+  --tw-translate-x: 140%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.peer:focus ~ .peer-focus\:outline-none{
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -1051,12 +1335,28 @@ Ensure the default browser behavior of the `hidden` attribute.
     display: flex;
   }
 
+  .md\:min-h-\[411px\]{
+    min-height: 411px;
+  }
+
   .md\:w-1\/2{
     width: 50%;
   }
 
   .md\:w-1\/3{
     width: 33.333333%;
+  }
+
+  .md\:shrink{
+    flex-shrink: 1;
+  }
+
+  .md\:grow-0{
+    flex-grow: 0;
+  }
+
+  .md\:basis-\[449px\]{
+    flex-basis: 449px;
   }
 
   .md\:flex-row{
@@ -1077,12 +1377,40 @@ Ensure the default browser behavior of the `hidden` attribute.
     padding-right: 58px;
   }
 
+  .md\:px-\[40px\]{
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  @media (min-width: 768px){
+    .md\:md\:px-\[40px\]{
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+  }
+
   .md\:pl-\[61px\]{
     padding-left: 61px;
   }
 
   .md\:pr-\[20px\]{
     padding-right: 20px;
+  }
+
+  .md\:pt-\[58px\]{
+    padding-top: 58px;
+  }
+
+  .md\:pb-\[40px\]{
+    padding-bottom: 40px;
+  }
+
+  .md\:pl-\[52px\]{
+    padding-left: 52px;
+  }
+
+  .md\:pr-\[48px\]{
+    padding-right: 48px;
   }
 
   .md\:text-left{
@@ -1093,227 +1421,373 @@ Ensure the default browser behavior of the `hidden` attribute.
     font-size: 30px;
   }
 }
+
+@media (min-width: 1024px){
+  .lg\:max-w-\[80\%\]{
+    max-width: 80%;
+  }
+}
 </style>
 
 <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey()}}">
     <meta name="client-postal-code" content="{{ $client->postal_code }}">
     <meta name="client-name" content="{{ $client->present()->name() }}">
 
-      <div class="flex flex-col gap-[25px] justify-stretch overflow-hidden md:flex-row">
-        <div class="w-1/1 flex flex-col overflow-hidden md:flex-row md:w-1/2 md:flex ">
-          <div
-            class="w-[100%] pro-plan-trial py-[36px] px-[20px] bg-secondary-dark rounded text-white md:pl-[61px] md:pr-[20px]"
-          >
-            <h2 class="text-[24px] leading-[1.3em] font-semibold mb-[30px] relative z-10">
-              Enjoy 14 days of our Pro Plan
-            </h2>
-            <ul class="list-checkmark-round relative z-10">
-              <li class="mb-[11px]">Unlimited Clients & Invoices & Quotes</li>
-              <li class="mb-[11px]">Remove "Created by Invoice Ninja"</li>
-              <li class="mb-[11px]">10 Professional Invoice & Quote Templates</li>
-              <li class="mb-[11px]">Send Invoice Emails Sent via Your Gmail</li>
-              <li class="mb-[11px]">Attach Invoice PDF's to Client Emails</li>
-              <li class="mb-[11px]">Customize Auto-Reminder Emails</li>
-              <li class="mb-[11px]">Display Client E-Signatures on Invoices</li>
-              <li>Enable a Client "Approve Terms' Checkbox</li>
-            </ul>
-            <p class="mt-[30px] font-semibold text-[18px] italic relative z-10">
-              &amp; Much More!
-            </p>
-          </div>
-        </div>
-        <div class="w-1/1 flex flex-col overflow-hidden md:flex-row md:w-1/2 md:flex ">
-          <div
-            class="w-[100%] flex flex-col py-[33px] px-[20px] border border-light-grey rounded md:px-[58px]"
-          >
-            <h2 class="text-primary-blue text-[24px] leading-[1.3em] font-semibold mb-[21px]">
-              Start your 14 day Pro Trial!
-            </h2>
-              
-              <form id="card-form" action="{{ route('client.trial.response') }}" method="post">
-              @csrf
-              <input type="hidden" name="gateway_response" />
-              <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
-              <div class="form-group mb-[10px]">
-                <input
-                  type="text"
-                  class="form-control block w-full px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:primary-blue focus:outline-none"
-                  id="name"
-                  placeholder="{{ ctrans('texts.name') }}"
-                  name="name"
-                  value="{{$client->present()->name()}}">
-                
-              </div>
-              <div class="form-group mb-[10px]">
-                <input
-                  type="text"
-                  class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
-                  id="address1"
-                  placeholder="{{ ctrans('texts.address1') }}"
-                  name="address1"
-                  value="{{$client->address1}}">
-                
-              </div>
-              <div class="form-group mb-[10px]">
-                <input
-                  type="text"
-                  class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
-                  id="address2"
-                  placeholder="{{ ctrans('texts.address2') }}"
-                  name="address2"
-                  value="{{$client->address2}}">      
-              </div>
-              <div
-                class="flex form-group flex justify-center gap-[13px] mb-[10px]"
-              >
-                <div class="w-full gap-x-2 md:w-1/3">
-                  <div class="form-group">
-                    <input
-                      type="text"
-                      class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
-                      id="city"
-                      placeholder="{{ ctrans('texts.city') }}"
-                      name="city"
-                      value="{{$client->city}}">
-                  </div>
-                </div>
-                <div class="w-full gap-x-2 md:w-1/3">
-                  <div class="form-group">
-                    <input
-                      type="text"
-                      class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
-                      id="state"
-                      placeholder="{{ ctrans('texts.state') }}"
-                      name="state"
-                      value="{{$client->state}}">
-                  </div>
-                </div>
-                <div class="w-full gap-x-2 md:w-1/3">
-                  <div class="form-group">
-                    <input
-                      type="text"
-                      class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
-                      id="postal_code"
+      <div class="flex flex-col justify-stretch overflow-hidden md:flex-row border border-light-grey rounded">
+        <div class="w-1/1 flex flex-col md:flex-row md:w-1/2 md:flex ">
+            <div
+                    class="bg-white w-[100%] flex flex-col py-[33px] px-[20px] md:pt-[58px] md:pb-[40px] md:pl-[52px] md:pr-[48px]">
+                <p class="text-primary-blue uppercase text-[15px] leading-[1.375em] font-bold">
+                    Free Trial
+                </p>
+                <h2 class="text-black text-[24px] leading-[1.3em] font-bold mb-[25px]">
+                    14 Day Pro Plan!
+                </h2>
+                <form
+                        id="card-form"
+                        action="{{ route('client.trial.response') }}"
+                        method="post"
+                >
+                @csrf
+                    <input type="hidden" name="gateway_response"/>
+                    <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
+                    <div class="form-group mb-[10px]">
+                        <input
+                                type="text"
+                                class="form-control block w-full px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:primary-blue focus:outline-none"
+                                id="name"
+                                placeholder="{{ ctrans('texts.name') }}"
+                                name="name"
+                                value="{{$client->present()->name()}}"
+                        />
+                    </div>
+                    <div class="form-group mb-[10px]">
+                        <input
+                                type="text"
+                                class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
+                                id="address1"
+                                placeholder="{{ ctrans('texts.address1') }}"
+                                name="address1"
+                                value="{{$client->address1}}"
+                        />
+                    </div>
+                    <div class="form-group mb-[10px]">
+                        <input
+                                type="text"
+                                class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
+                                id="address2"
+                                placeholder="{{ ctrans('texts.address2') }}"
+                                name="address2"
+                                value="{{$client->address2}}"
+                        />
+                    </div>
+                    <div
+                            class="flex form-group flex justify-center gap-[13px] mb-[10px]"
+                    >
+                        <div class="w-full gap-x-2 md:w-1/3">
+                            <div class="form-group">
+                                <input
+                                        type="text"
+                                        class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
+                                        id="city"
+                                        placeholder="{{ ctrans('texts.city') }}"
+                                        name="city"
+                                        value="{{$client->city}}"
+                                />
+                            </div>
+                        </div>
+                        <div class="w-full gap-x-2 md:w-1/3">
+                            <div class="form-group">
+                                <input
+                                        type="text"
+                                        class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
+                                        id="state"
+                                        placeholder="{{ ctrans('texts.state') }}"
+                                        name="state"
+                                        value="{{$client->state}}"
+                                />
+                            </div>
+                        </div>
+                        <div class="w-full gap-x-2 md:w-1/3">
+                            <div class="form-group">
+                                <input
+                                        type="text"
+                                        class="form-control block w-full py-[9.5px] px-[12px] text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none"
+                                        id="postal_code"
                       placeholder="{{ ctrans('texts.postal_code') }}"
-                      name="postal_code"
-                      value="{{$client->postal_code}}">
-                  </div>
-                </div>
-              </div>
-              <div class="form-group mb-[10px]">
-                <select name="country" id="country" class="form-select w-full py-[9.5px] px-[12px] border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none">
+                                        name="postal_code"
+                      value="{{$client->postal_code}}"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                                  <div class="form-group mb-[10px]">
+                <select name="country" id="country" class="form-select w-full py-[9.5px] px-[12px] border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white">
                     <option value="{{ $client->country->id}}" selected>{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
                     @foreach($countries as $country)
                         <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->name }})></option>
                     @endforeach
                 </select>
               </div>
-              <div class="mb-[10px]">
-                <div id="card-element" class="border p-4 rounded text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded focus:border-primary-blue focus:outline-none StripeElement StripeElement--empty"></div>
-              </div>
-              <div class="flex justify-end">
-                <button
-                    @isset($form) form="{{ $form }}" @endisset
-                    type="{{ $type ?? 'button' }}"
-                    id="{{ $id ?? 'pay-now' }}"
-                    @isset($data) @foreach($data as $prop => $value) data-{{ $prop }}="{{ $value }}" @endforeach @endisset
-                    class="bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in {{ $class ?? '' }}"
-                    {{ isset($disabled) && $disabled === true ? 'disabled' : '' }}>
-                        <svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    <span>{{ $slot ?? ctrans('texts.trial_call_to_action') }}</span>
-                </button>
-              </div>
-              <div class="flex justify-end mt-5">
-                <span class="text-[12px]"
-                  >* At the end of your 14 day trial your card will be charged
-                  $10/month. Cancel anytime.</span
-                >
-              </div>
-            </form>
-          </div>
+                    <div class="mb-[10px]">
+                        <div
+                                id="card-element"
+                                class="border p-4 rounded text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded focus:border-primary-blue focus:outline-none StripeElement StripeElement--empty"
+                        >
+                            
+                        </div>
+                    </div>
+                    <div class="flex justify-start mb-[25px]">
+                        <span class="text-[12px]">* At the end of your 14 day trial your card will be charged $10/month. Cancel anytime.</span>
+                    </div>
+                    <div class="flex justify-end">
+                        <button
+                            @isset($form) form="{{ $form }}" @endisset
+                            type="{{ $type ?? 'button' }}"
+                            id="{{ $id ?? 'pay-now' }}"
+                            @isset($data) @foreach($data as $prop => $value) data-{{ $prop }}="{{ $value }}" @endforeach @endisset
+                            class="bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in {{ $class ?? '' }}"
+                            {{ isset($disabled) && $disabled === true ? 'disabled' : '' }}>
+                                <svg class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            <span>{{ $slot ?? ctrans('texts.trial_call_to_action') }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-      </div>
-      <div class="mt-[50px]">
-        <h2 class="text-center text-[24px] mb-[50px] leading-[1.3em]">
-          Skip the 14-day trial and get a discounted annual upgrade!
+        <div class="w-1/1 flex flex-col md:flex-row md:w-1/2 md:flex ">
+            <div class="w-[100%] flex flex-col content-start justify-center pro-plan-trial py-[36px] px-[20px] bg-[#F2F9FE] overflow-hidden text-primary-dark md:pl-[61px] md:pr-[20px]">
+                <h2 class="text-primary-blue uppercase text-[16px] leading-[1.3em] font-bold mb-[20px] relative z-10">
+                    Pro Plan Includes
+                </h2>
+                <ul class="list-checkmark relative z-10">
+                    <li class="mb-[5px]">Unlimited Clients & Invoices & Quotes</li>
+                    <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                    <li class="mb-[5px]">Send Invoice Emails via Gmail or MSN Accounts</li>
+                    <li class="mb-[5px]">10 Professional Invoice & Quote Template Designs</li>
+                    <li class="mb-[5px]">Branded URL Option: "YourBrand".Invoicing.co"</li>
+                    <li class="mb-[5px]">Customize Invoice Designs & Email Templates</li>
+                    <li class="mb-[5px]">Create Client Subscriptions: Recurring & Auto-billing</li>
+                    <li class="mb-[5px]">API Integration with 3rd Party Apps & Platforms</li>
+                    <li class="mb-[5px]">Display Clients E-Signature on Invoices & Quotes</li>
+                    <li>Setup Custom Payment Auto-Reminder Emails</li>
+                </ul>
+                <p class="text-primary-blue mt-[30px] font-bold text-[16px] italic relative z-10">
+                    &amp; Much More!
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="mt-[50px]" x-data="{show: true}" id="datadiv">
+        <h2 class="text-center text-[24px] mb-[40px] leading-[1.3em] font-bold">
+            Skip the 14-day trial and go into a monthly or annual upgrade!
         </h2>
-        <div class="flex flex-col gap-y-[20px] justify-center md:flex-row md:gap-x-[21px]">
-          <div class="w-1/1 md:w-1/2 md:flex">
-            <div
-              class="w-[100%] flex flex-col border border-light-grey rounded text-center border-t-[0px]"
-            >
-              <div
-                class="border-t-[10px] border-primary-blue rounded pt-[17px] pb-[23px] py-[22px]"
-              >
-                <h4 class="text-[18px] text-dark-grey uppercase">PRO Plan</h4>
-                <h3
-                  class="text-[40px] font-semibold leading-[1.35em] mb-[8px] text-primary-blue"
-                >
-                  $100<span class="font-normal text-[18px] ml-[5px] text-dark-grey"
-                    >/year</span
-                  >
-                </h3>
-                <p class="font-[16px] leading-[1.36em]">
-                  Buy 10 months, get 2 free!
-                </p>
-              </div>
-              <div class="grow flex flex-col border-t-[1px] border-light-grey pt-[21px] pb-[26px] px-[22px]">
-                <h5 class="text-[14px] font-semibold leading-[1.36em] uppercase text-dark-grey mb-[21px]">Whats included</h5>
-                <ul class="mb-[24px] gap-[10px] text-left list-checkmark flex justify-between md:gap-[18px]">
-                  <li>Unlimited Clients & Invoicing</li>
-                  <li>Remove "Created by Invoice Ninja"</li>
-                  <li>API Integration with 3rd Party Apps</li>
-                </ul>
-                <p
-                  class="mb-[30px] font-semibold text-[18px] text-center italic"
-                >
-                  &amp; Much More!
-                </p>
-                <a href="https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase" class="mt-[auto] bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in"> Buy Now! </a>
-              </div>
-            </div>
-          </div>
-          <div class="w-1/1 md:w-1/2 md:flex">
-            <div
-              class="w-[100%] flex flex-col border border-light-grey rounded text-center"
-            >
-              <div
-                class="border-t-[11px] border-[transparent] rounded pt-[17px] pb-[23px] py-[22px]"
-              >
-                <h4 class="text-[18px] text-dark-grey uppercase">Enterprise Plan</h4>
-                <h3
-                  class="text-[40px] font-semibold leading-[1.35em] mb-[8px] text-primary-blue"
-                >
-                  $140<span class="font-normal text-[18px] ml-[5px] text-dark-grey"
-                    >/year</span
-                  >
-                </h3>
-                <p class="font-[16px] leading-[1.36em]">
-                  Buy 10 months, get 2 free!
-                </p>
-              </div>
-              <div class="grow flex flex-col border-t-[1px] border-light-grey pt-[21px] pb-[26px] px-[22px]">
-                <h5 class="text-[14px] font-semibold leading-[1.36em] uppercase text-dark-grey mb-[21px]">Whats included</h5>
-                <ul class="mb-[24px] gap-[10px] text-left list-checkmark flex justify-between md:gap-[18px]">
-                  <li>Additional Account Users</li>
-                  <li>Fully Branded Client Portal</li>
-                  <li>Attach 3rd Party Documents</li>
-                </ul>
 
-                <p
-                  class="mb-[30px] font-semibold text-[18px] text-center italic"
-                >
-                  &amp; Much More!
-                </p>
-                <a href="https://invoiceninja.invoicing.co/client/subscriptions/LYqaQWldnj/purchase" class="mt-[auto] bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in"> Buy Now! </a>
-              </div>
+        <div>
+            <div class="w-full text-center mb-[40px]">
+
+                <label for="large-toggle" class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" value="" id="large-toggle" class="sr-only peer" @click="show = !show">
+                    <span class="mr-5 text-base font-semibold text-black peer-checked:text-gray">Monthly</span>
+                    <div class="switcher w-[87px] h-[40px] relative bg-primary-blue
+                peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-[140%] after:content-['']
+                after:absolute after:top-[5px] after:left-[8px] after:bg-white after:rounded-full after:h-[30px] after:w-[30px]
+                after:transition-all peer-checked:bg-primary-blue"></div>
+                    <span class="ml-5 text-base font-semibold text-gray peer-checked:text-black">Annual</span>
+                </label>
+
             </div>
-          </div>
+
+            <!-- Monthly Plans -->
+            <div class="flex flex-col gap-y-[20px] justify-center items-start md:flex-row md:gap-x-[21px]" x-show=" show ">
+                <div class="w-1/1 bg-white rounded-[10px] justify-end md:basis-[449px] md:shrink md:grow-0">
+                  <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-green rounded-lg border-t-[0px] pb-[58px]">
+                    <div class="flex flex-col border-t-[10px] border-primary-green rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Ninja Pro</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              30 day money back guarantee!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
+                                $10<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                            </h3>
+                            <button
+                                    type="button"
+                                    id="handleProMonthlyClick"
+                                    class="bg-white text-primary-dark text-center button w-full p-[12px] border border-primary-green mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in hover:bg-primary-green hover:text-white hover:opacity-80">
+                                Go Pro!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark uppercase mb-4">All Free Features +</h5>
+                            <ul class="list-checkmark list-checkmark_green relative z-10">
+                              <li class="mb-[5px]">Unlimited Clients & Invoices</li>
+                              <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                              <li class="mb-[5px]">Email Invoices via Gmail & MSN</li>
+                              <li class="mb-[5px]">Branded URL: 'YourSite".Invoicing.co'</li>
+                              <li class="mb-[5px]">10 Professional Invoice Templates</li>
+                              <li class="mb-[5px]">Customize Invoice Designs</li>
+                              <li class="mb-[5px]">Recurring & Auto-Billing Invoices</li>
+                              <li class="mb-[5px]">API Integration with 3rd Party Apps</li>
+                              <li class="mb-[5px]">Password Protect Client-Side Portal</li>
+                              <li class="mb-[5px]">Set Up Auto-Reminder Emails</li>
+                              <li class="mb-[5px]">Auto-Attached Invoice PDF to Emails</li>
+                              <li class="mb-[5px]">Display Clients E-Signature on Invoices</li>
+                              <li class="mb-[5px]">Enable an 'Approve Terms' Checkbox</li>
+                              <li class="mb-[5px]">Reports: Invoices, Expenses, P&L, more</li>
+                              <li class="mb-[5px]">Bulk Email Invoices, Quotes, Credits</li>
+                              <li class="mb-[5px]">Interlink 10 Companies with 1 Login</li>
+                              <li>Create Unique "Client Group" Settings</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/1 bg-white rounded-[10px] md:basis-[449px] md:shrink md:grow-0">
+                    <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-blue rounded-lg border-t-[0px] pb-[58px]">
+                        <div class="flex flex-col border-t-[10px] border-primary-blue rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise Plan</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              30 day money back guarantee!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="m_plan_price">
+                                $14<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                            </h3>
+                            <form
+                                    id="plan-form"
+                                    action="#"
+                                    method="post"
+                            >
+                            @csrf
+                                <div class="form-group mb-[10px]">
+                                    <label for="users" class="font-base primary-dark mb-1.5">Plan selected:</label>
+                                    <select
+                                            name="users"
+                                            id="users_monthly"
+                                            class="form-select w-full py-[9.5px] px-[12px] mb-5 border border-light-grey rounded-lg transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white"
+                                    >
+                                    <option value="7LDdwRb1YK" selected>1-2 Users</option>
+                                    <option value="MVyb8mdvAZ">3-5 Users</option>
+                                    <option value="WpmbkR5azJ">6-10 Users</option>
+                                    <option value="k8mepY2aMy">11-20 Users</option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <button
+                                    type="button"
+                                    id="handleMonthlyClick"
+                                    class="bg-primary-blue hover:opacity-80 text-white text-center button w-full p-[12px] border border-primary-blue mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in">
+                                Go Enterprise!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features + Pro +</h5>
+                            <ul class="list-checkmark relative z-10">
+                              <li class="mb-[20px]">Create Additional Account Users (up to 20!) & Set Access Permissions per User</li>
+                              <li class="mb-[20px]">Attach Files to Emails & Client-Portal (pdf, jpg, ppt, xls, doc & more)</li>
+                              <li>Fully Branded Client Portal: "Billing.YourCompany.com"</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yearly Plans -->
+            <div class="flex flex-col gap-y-[20px] justify-center items-start md:flex-row md:gap-x-[21px]" x-show=" !show">
+                <div class="w-1/1 bg-white rounded-[10px] justify-end md:basis-[449px] md:shrink md:grow-0">
+                  <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-green rounded-lg border-t-[0px] pb-[58px]">
+                    <div class="flex flex-col border-t-[10px] border-primary-green rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Ninja Pro</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              Pay annually for 10 months + 2 free!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
+                                $100<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
+                            </h3>
+                            <button
+                                    type="button"
+                                    id="handleProYearlyClick"
+                                    class="bg-white text-primary-dark text-center button w-full p-[12px] border border-primary-green mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in hover:bg-primary-green hover:text-white hover:opacity-80">
+                                Go Pro!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark uppercase mb-4">All Free Features +</h5>
+                            <ul class="list-checkmark list-checkmark_green relative z-10">
+                              <li class="mb-[5px]">Unlimited Clients & Invoices</li>
+                              <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                              <li class="mb-[5px]">Email Invoices via Gmail & MSN</li>
+                              <li class="mb-[5px]">Branded URL: 'YourSite".Invoicing.co'</li>
+                              <li class="mb-[5px]">10 Professional Invoice Templates</li>
+                              <li class="mb-[5px]">Customize Invoice Designs</li>
+                              <li class="mb-[5px]">Recurring & Auto-Billing Invoices</li>
+                              <li class="mb-[5px]">API Integration with 3rd Party Apps</li>
+                              <li class="mb-[5px]">Password Protect Client-Side Portal</li>
+                              <li class="mb-[5px]">Set Up Auto-Reminder Emails</li>
+                              <li class="mb-[5px]">Auto-Attached Invoice PDF to Emails</li>
+                              <li class="mb-[5px]">Display Clients E-Signature on Invoices</li>
+                              <li class="mb-[5px]">Enable an 'Approve Terms' Checkbox</li>
+                              <li class="mb-[5px]">Reports: Invoices, Expenses, P&L, more</li>
+                              <li class="mb-[5px]">Bulk Email Invoices, Quotes, Credits</li>
+                              <li class="mb-[5px]">Interlink 10 Companies with 1 Login</li>
+                              <li>Create Unique "Client Group" Settings</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/1 bg-white rounded-[10px] md:basis-[449px] md:shrink md:grow-0">
+                    <div class="w-[100%] max-w-[450px] flex flex-col border border-primary-blue rounded-lg border-t-[0px] pb-[58px]">
+                        <div class="flex flex-col border-t-[10px] border-primary-blue rounded-lg pt-[35px] pb-[56px] px-[22px] md:min-h-[411px] md:px-[40px]">
+                            <h4 class="text-[22px] text-black font-bold mb-[11px]">Enterprise Plan</h4>
+                            <p class="font-[16px] leading-[1.36em] text-gray mb-4 lg:max-w-[80%]">
+                              Pay annually for 10 months + 2 free!
+                            </p>
+                            <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="y_plan_price">
+                                $140<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
+                            </h3>
+                            <form
+                                    id="plan-form"
+                                    action="#"
+                                    method="post"
+                            >
+                                <div class="form-group mb-[10px]">
+                                    <label for="users" class="font-base primary-dark mb-1.5">Plan selected:</label>
+                                    <select
+                                            name="users"
+                                            id="users_yearly"
+                                            class="form-select w-full py-[9.5px] px-[12px] mb-5 border border-light-grey rounded-lg transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white"
+                                    >
+                                    <option value="LYqaQWldnj" selected>1-2 Users</option>
+                                    <option value="kQBeX6mbyK">3-5 Users</option>
+                                    <option value="GELe32Qd69">6-10 Users</option>
+                                    <option value="MVyb86oevA">11-20 Users</option>
+                                    </select>
+                                </div>
+                            </form>
+                            <button
+                                    type="button"
+                                    id="handleYearlyClick"
+                                    class="bg-primary-blue hover:opacity-80 text-white text-center button w-full p-[12px] border border-primary-blue mt-[auto] rounded-full text-base leading-[1.2rem] transition duration-300 ease-in">
+                                Go Enterprise!
+                            </button>
+                        </div>
+                        <div class="flex flex-col border-t-[1px] border-light-grey pt-[29px] mx-[22px] md: mx-[40px]">
+                            <h5 class="text-base font-bold leading-[1.36em] text-primary-dark mb-4 uppercase ">All Free Features + Pro +</h5>
+                            <ul class="list-checkmark relative z-10">
+                              <li class="mb-[20px]">Create Additional Account Users (up to 20!) & Set Access Permissions per User</li>
+                              <li class="mb-[20px]">Attach Files to Emails & Client-Portal (pdf, jpg, ppt, xls, doc & more)</li>
+                              <li>Fully Branded Client Portal: "Billing.YourCompany.com"</li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
-      </div>
+    </div>
 
 
 @endsection
@@ -1333,7 +1807,7 @@ var elements = stripe.elements({
 var cardElement = elements.create('card', {
     value: {
         postalCode: document.querySelector('input[name=postal_code]').content,
-        name: document.querySelector('input[name=name]').content
+        name: document.querySelector('input[name=name]').content,
     }
 });
 
@@ -1358,6 +1832,13 @@ var country_value = e.options[e.selectedIndex].value;
                 payment_method_data: {
                       billing_details: {
                         name: document.querySelector('input[name=name]').content,
+                        address: {
+                          line1: document.querySelector('input[name=address1]').content,
+                          line2: document.querySelector('input[name=address2]').content,
+                          city: document.querySelector('input[name=city]').content,
+                          postal_code: document.querySelector('input[name=postal_code]').content,
+                          state: document.querySelector('input[name=state]').content,
+                        }        
                 },
               }
             })
@@ -1382,11 +1863,78 @@ var country_value = e.options[e.selectedIndex].value;
                   'input[name="gateway_response"]'
               ).value = JSON.stringify(result.setupIntent);
 
-                document.getElementById('card-form').submit();
+                form.submit();
                 
               });
 
       });
 
 </script>
+
+
+
+<script type="text/javascript">
+
+var users_yearly = 'LYqaQWldnj';
+var users_monthly = '7LDdwRb1YK';
+
+document.getElementById('users_yearly').options[0].selected = true;
+document.getElementById('users_monthly').options[0].selected = true;
+
+document.getElementById("large-toggle").addEventListener('change', function() {
+
+  document.getElementById('users_yearly').options[0].selected = true;
+  document.getElementById('users_monthly').options[0].selected = true;
+  document.getElementById('y_plan_price').innerHTML = price_map.get('LYqaQWldnj');
+  document.getElementById('m_plan_price').innerHTML = price_map.get('7LDdwRb1YK');
+
+  users_yearly = 'LYqaQWldnj';
+  users_monthly = '7LDdwRb1YK';
+
+});
+
+document.getElementById('users_yearly').addEventListener('change', function() {
+  users_yearly = this.value;
+  document.getElementById('y_plan_price').innerHTML = price_map.get(this.value);
+});
+
+document.getElementById('users_monthly').addEventListener('change', function() {
+  users_monthly = this.value;
+  document.getElementById('m_plan_price').innerHTML = price_map.get(this.value);
+
+});
+
+document.getElementById('handleYearlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_yearly + '/purchase';
+});
+
+document.getElementById('handleMonthlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_monthly + '/purchase';
+});
+
+document.getElementById('handleProMonthlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/WJxbojagwO/purchase';
+});
+
+document.getElementById('handleProYearlyClick').addEventListener('click', function() {
+  document.getElementById("large-toggle").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase';
+});
+const price_map = new Map();
+//monthly
+price_map.set('7LDdwRb1YK', '$14 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8mdvAZ', '$26 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('WpmbkR5azJ', '$36 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('k8mepY2aMy', '$44 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+//yearly
+price_map.set('LYqaQWldnj', '$140 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('kQBeX6mbyK', '$260 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('GELe32Qd69', '$360 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('MVyb86oevA', '$440 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+
+</script>
+
 @endpush
