@@ -40,7 +40,10 @@ class WePayController extends BaseController
         $company = Company::where('company_key', $hash['company_key'])->firstOrFail();
 
         $data['user_id'] = $user->id;
-        $data['company'] = $company;
+        $data['user_company'] = $company;
+        
+        // $data['company_key'] = $company->company_key;
+        // $data['db'] = $company->db;
 
         $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
 
