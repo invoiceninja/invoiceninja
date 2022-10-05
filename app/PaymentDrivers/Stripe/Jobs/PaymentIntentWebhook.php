@@ -53,7 +53,8 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
-        
+        nlog($this->stripe_request);
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
@@ -145,7 +146,18 @@ class PaymentIntentWebhook implements ShouldQueue
 
                 $this->updateCreditCardPayment($payment_hash, $client);
             }
+            elseif(array_key_exists('payment_method_types', $this->stripe_request['object']) && optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']) && in_array('us_bank_account', $this->stripe_request['object']['payment_method_types']))
+            {
+                nlog("hash found");
 
+                $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
+
+                $payment_hash = PaymentHash::where('hash', $hash)->first();
+                $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+                $client = $invoice->client;
+
+                $this->updateAchPayment($payment_hash, $client);
+            }
         }
 
 
@@ -160,6 +172,38 @@ class PaymentIntentWebhook implements ShouldQueue
 
 
     }
+
+    private function updateAchPayment($payment_hash, $client)
+    {
+        $company_gateway = CompanyGateway::find($this->company_gateway_id);
+        $payment_method_type = optional($this->stripe_request['object']['charges']['data'][0]['metadata'])['gateway_type_id'];
+        $driver = $company_gateway->driver($client)->init()->setPaymentMethod($payment_method_type);
+
+        $payment_hash->data = array_merge((array) $payment_hash->data, $this->stripe_request);
+        $payment_hash->save();
+        $driver->setPaymentHash($payment_hash);
+
+        $data = [
+            'payment_method' => $payment_hash->data->object->payment_method,
+            'payment_type' => PaymentType::ACH,
+            'amount' => $payment_hash->data->amount_with_fee,
+            'transaction_reference' => $this->stripe_request['object']['charges']['data'][0]['id'],
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+        ];
+        
+        $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $this->stripe_request, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $client,
+            $client->company,
+        );
+
+    }
+
 
     private function updateCreditCardPayment($payment_hash, $client)
     {
