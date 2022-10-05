@@ -90,7 +90,7 @@ class SwissQrGenerator
             $this->client->address1 ? substr($this->client->address1, 0 , 70) : '',
             $this->client->address2 ? substr($this->client->address2, 0 , 16) : '',
             $this->client->postal_code ? substr($this->client->postal_code, 0, 16) : '',
-            $this->client->city ? substr($this->client->postal_code, 0, 35) : '',
+            $this->client->city ? substr($this->client->city, 0, 35) : '',
             'CH'
         ));
 
