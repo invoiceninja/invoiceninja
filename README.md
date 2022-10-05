@@ -25,12 +25,15 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
-## Referral Program
-
 ## Mobile App
-* [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
-* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
-* [Source Code](https://github.com/invoiceninja/flutter-mobile)
+* [iPhone](https://apps.apple.com/us/app/invoice-ninja-v5/id1503970375#?platform=iphone)
+* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
+* [Linux](https://github.com/invoiceninja/flutter-mobile)
+
+## Desktop App
+* [MacOS](https://apps.apple.com/app/id1503970375)
+* [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
+* [MacOS Desktop](https://snapcraft.io/invoiceninja)
 
 ## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
