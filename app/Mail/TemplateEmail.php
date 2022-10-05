@@ -91,7 +91,8 @@ class TemplateEmail extends Mailable
         if (strlen($settings->bcc_email) > 1) {
             if (Ninja::isHosted()) {
                 $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
-                $this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
+                $this->bcc(array_slice($bccs, 0, 2));
+                //$this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
             } else {
                 $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
             }//remove whitespace if any has been inserted.
@@ -116,11 +117,6 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ]);
-            // ->withSymfonyMessage(function ($message) use ($company) {
-            //    $message->getHeaders()->addTextHeader('Tag', $company->company_key);
-            //    $message->invitation = $this->invitation;
-            //});
-            // ->tag($company->company_key);
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 

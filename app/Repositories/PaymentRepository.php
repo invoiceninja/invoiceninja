@@ -144,7 +144,7 @@ class PaymentRepository extends BaseRepository {
 
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
-            $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
+            $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
 
