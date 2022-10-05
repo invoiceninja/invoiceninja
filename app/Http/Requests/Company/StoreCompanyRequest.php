@@ -65,15 +65,15 @@ class StoreCompanyRequest extends Request
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }
 
-        $company_settings = CompanySettings::defaults();
+        // $company_settings = CompanySettings::defaults();
 
         //@todo this code doesn't make sense as we never return $company_settings anywhere
         //@deprecated???
-        if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
-            foreach ($input['settings'] as $key => $value) {
-                $company_settings->{$key} = $value;
-            }
-        }
+        // if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
+        //     foreach ($input['settings'] as $key => $value) {
+        //         $company_settings->{$key} = $value;
+        //     }
+        // }
 
         if (array_key_exists('portal_domain', $input)) {
             $input['portal_domain'] = strtolower($input['portal_domain']);

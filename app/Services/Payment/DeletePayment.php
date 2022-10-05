@@ -33,17 +33,29 @@ class DeletePayment
 
     public function run()
     {
-        if ($this->payment->is_deleted) {
-            return $this->payment;
-        }
 
-        return $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
-            ->updateCreditables() //return the credits first
-            ->adjustInvoices()
-            ->updateClient()
-            ->deletePaymentables()
-            ->cleanupPayment()
-            ->save();
+        \DB::connection(config('database.default'))->transaction(function ()  {
+
+
+            if ($this->payment->is_deleted) {
+                return $this->payment;
+            }
+
+            $this->payment = Payment::withTrashed()->where('id', $this->payment->id)->lockForUpdate()->first();
+
+            $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
+                ->updateCreditables() //return the credits first
+                ->adjustInvoices()
+                ->updateClient()
+                ->deletePaymentables()
+                ->cleanupPayment()
+                ->save();
+
+
+        }, 2);
+
+        return $this->payment;
+    
     }
 
     private function cleanupPayment()

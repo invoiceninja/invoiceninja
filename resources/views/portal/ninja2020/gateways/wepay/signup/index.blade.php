@@ -7,7 +7,7 @@
         <img src="{{ asset('images/wepay.svg') }}" alt="We Pay">
     </div>
 
-    @livewire('wepay-signup', ['user_id' => $user_id, 'company' => $company])
+    @livewire('wepay-signup', ['user_id' => $user_id, 'company' => $user_company])
 </div>
 @endsection
 

@@ -37,7 +37,7 @@ class AdjustProductInventory implements ShouldQueue
 
     public array $old_invoice;
 
-    public function __construct(Company $company, Invoice $invoice, ?array $old_invoice = [])
+    public function __construct(Company $company, Invoice $invoice, $old_invoice = [])
     {
         $this->company = $company;
         $this->invoice = $invoice;

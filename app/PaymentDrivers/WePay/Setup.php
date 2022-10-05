@@ -27,7 +27,7 @@ class Setup
     {
         /*
         'user_id',
-        'company',
+        'user_company',
          */
 
         return render('gateways.wepay.signup.index', $data);
