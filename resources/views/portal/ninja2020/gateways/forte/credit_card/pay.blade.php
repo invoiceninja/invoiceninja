@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
 
 @section('gateway_head')
-    <meta name="forte-api-login-id" content="{{$gateway->forte->company_gateway->getConfigField("apiLoginId")}}">
+    <meta name="forte-api-login-id" content="{{$gateway->company_gateway->getConfigField("apiLoginId")}}">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/forte-card-js.min.js') }}"></script>
 
@@ -14,7 +14,7 @@
         <input type="hidden" name="card_brand" id="card_brand">
         <input type="hidden" name="payment_token" id="payment_token">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
-        <input type="hidden" name="company_gateway_id" value="{{ $gateway->forte->company_gateway->id }}">
+        <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
         <input type="hidden" name="payment_method_id" value="{{$payment_method_id}}">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="dataValue" id="dataValue"/>
@@ -41,7 +41,7 @@
 @endsection
 
 @section('gateway_footer')
-    @if($gateway->forte->company_gateway->getConfigField('testMode'))
+    @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
