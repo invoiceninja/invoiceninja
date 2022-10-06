@@ -148,6 +148,7 @@ class HtmlEngine
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
+            $data['$invoice'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->client) ?: '', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
