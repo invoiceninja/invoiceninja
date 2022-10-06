@@ -18,6 +18,15 @@ class BankIntegration extends BaseModel
     use SoftDeletes;
 
     protected $fillable = [
+        'bank_account_name',
+        'provider_name',
+        'bank_account_number',
+        'bank_account_status',
+        'bank_account_type',
+        'balance',
+        'currency',
+        'nickname',
+        'from_date',
     ];
 
     protected $dates = [

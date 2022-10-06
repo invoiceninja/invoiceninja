@@ -175,9 +175,11 @@ class MatchBankTransactions implements ShouldQueue
         $expense->payment_date = Carbon::parse($this->bt->date);
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
+        $expense->vendor_id = array_key_exists('vendor_id', $this->input) ? $this->input['vendor_id'] : null;
         $expense->save();
 
         $this->bt->expense_id = $expense->id;
+        $this->bt->vendor_id = array_key_exists('vendor_id', $this->input) ? $this->input['vendor_id'] : null;
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
@@ -293,8 +295,11 @@ class MatchBankTransactions implements ShouldQueue
 
     private function resolveCategory() :?int
     {
-        if(array_key_exists('ninja_category_id', $this->input))
-            return $this->input['ninja_category_id'];
+        if(array_key_exists('ninja_category_id', $this->input)){
+            $this->bt->ninja_category_id = $this->input['ninja_category_id'];
+            $this->bt->save();
+            return (int)$this->input['ninja_category_id'];
+        }
 
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
 

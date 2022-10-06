@@ -79,7 +79,7 @@ class PaymentTransformer extends EntityTransformer
             'refunded' => (float) $payment->refunded,
             'applied' => (float) $payment->applied,
             'transaction_reference' => $payment->transaction_reference ?: '',
-            'transaction_id' => $payment->transaction_id ?: '',
+            'transaction_id' => $this->decodePrimaryKey($payment->transaction_id) ?: '',
             'date' => $payment->date ?: '',
             'is_manual' => (bool) $payment->is_manual,
             'created_at' => (int) $payment->created_at,

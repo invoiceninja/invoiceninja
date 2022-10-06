@@ -21,7 +21,7 @@ use App\Models\TaskStatus;
 class BankIntegrationRepository extends BaseRepository
 {
 
-    public function store($data, BankIntegration $bank_integration)
+    public function save($data, BankIntegration $bank_integration)
     {
 
         //stub to store
