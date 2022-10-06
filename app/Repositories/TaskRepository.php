@@ -14,6 +14,7 @@ namespace App\Repositories;
 use App\Factory\TaskFactory;
 use App\Models\Task;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 /**
  * TaskRepository.
@@ -23,6 +24,8 @@ class TaskRepository extends BaseRepository
     use GeneratesCounter;
 
     public $new_task = true;
+
+    private $completed = true;
 
     /**
      * Saves the task and its contacts.
@@ -45,7 +48,7 @@ class TaskRepository extends BaseRepository
             $this->setDefaultStatus($task);
         }
 
-        $task->number = empty($task->number) || ! array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
+        $task->number = empty($task->number) || ! array_key_exists('number', $data) ? $this->trySaving($task) : $data['number'];
 
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
@@ -243,5 +246,35 @@ class TaskRepository extends BaseRepository
         }
 
         return $task;
+    }
+
+
+    private function trySaving(Task $task)
+    {
+
+        $x=1;
+
+        do{
+
+            try{
+
+                $task->number = $this->getNextTaskNumber($task);
+                $task->saveQuietly();
+                $this->completed = false;
+
+            }
+            catch(QueryException $e){
+
+                $x++;
+
+                if($x>50)
+                    $this->completed = false;
+            }
+        
+        }
+        while($this->completed);
+
+        return $task->number;
+
     }
 }

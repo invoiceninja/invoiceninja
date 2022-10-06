@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
@@ -33,7 +34,8 @@ use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
-use Checkout\Common\CustomerRequest;
+use Checkout\Customers\CustomerRequest;
+use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
@@ -253,11 +255,12 @@ class CheckoutComPaymentDriver extends BaseDriver
             ];
         } catch (CheckoutApiException $e) {
             // API error
-            $request_id = $e->request_id;
-            $http_status_code = $e->http_status_code;
-            $error_details = $e->error_details;
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
 
             return [
                 'transaction_reference' => null,
@@ -268,6 +271,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             ];
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
 
             return [
                 'transaction_reference' => null,
@@ -285,12 +290,28 @@ class CheckoutComPaymentDriver extends BaseDriver
             $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
 
             return $response;
+
         } catch (\Exception $e) {
-            $request = new CustomerRequest();
+
+            if ($this->is_four_api) {
+                $request = new FourCustomerRequest();
+            }
+            else{
+                $request = new CustomerRequest();
+            }
+            
             $request->email = $this->client->present()->email();
             $request->name = $this->client->present()->name();
+            $request->phone = $this->client->present()->phone();
 
-            return $request;
+                try {
+                    $response = $this->gateway->getCustomersClient()->create($request);
+                } catch (\Exception $e) {
+                    // API error
+                    throw new PaymentFailed($e->getMessage(), $e->getCode());
+                } 
+
+            return $response;
         }
     }
 

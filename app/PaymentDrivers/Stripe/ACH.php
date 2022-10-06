@@ -125,6 +125,20 @@ class ACH
 
         $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
+        /* Catch externally validated bank accounts and mark them as verified */
+        if(property_exists($bank_account, 'status') && $bank_account->status == 'verified'){
+
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
+            $token->save();
+
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+
+        }
+
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
 
@@ -151,6 +165,18 @@ class ACH
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $amount = $data['total']['amount_with_fee'];
+
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+        }
+
 
         $intent = false;
 
@@ -162,6 +188,11 @@ class ACH
                 'setup_future_usage' => 'off_session',
                 'customer' => $data['customer']->id,
                 'payment_method_types' => ['us_bank_account'],
+                'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ],
             ]
             );
         }

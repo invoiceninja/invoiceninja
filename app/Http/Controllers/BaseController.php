@@ -810,8 +810,16 @@ class BaseController extends Controller
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-            //03-09-2022
-            $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
+            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
+            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
+                $query->where('id', auth()->user()->id);
+            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+                //need to pass these back regardless
+            }
+            else
+                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {

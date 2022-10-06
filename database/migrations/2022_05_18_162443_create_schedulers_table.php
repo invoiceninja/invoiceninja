@@ -26,8 +26,8 @@ return new class extends Migration {
             $table->boolean('paused')->default(false);
             $table->boolean('is_deleted')->default(false);
             $table->string('repeat_every');
-            $table->timestamp('start_from');
-            $table->timestamp('scheduled_run');
+            $table->timestamp('start_from')->nullable();
+            $table->timestamp('scheduled_run')->nullable();
             $table->foreignIdFor(\App\Models\Company::class);
             $table->timestamps();
             $table->softDeletes();
@@ -41,6 +41,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('schedulers');
+
     }
 };

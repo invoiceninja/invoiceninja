@@ -62,6 +62,55 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testStorePaymentIdempotencyKeyIllegalLength()
+    {
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+        $this->invoice->line_items = $this->buildLineItems();
+        $this->invoice->uses_inclusive_Taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+
+        $data = [
+            'amount' => $this->invoice->amount,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => $this->invoice->amount,
+                ],
+            ],
+            'date' => '2020/12/11',
+            'idempotency_key' => 'dsjafhajklsfhlaksjdhlkajsdjdfjdfljasdfhkjlsafhljfkfhsjlfhiuwayerfiuwaskjgbzmvnjzxnjcbgfkjhdgfoiwwrasdfasdfkashjdfkaskfjdasfda'
+
+        ];
+
+        $response = false;
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/payments/', $data);
+        } catch (ValidationException $e) {
+            // $message = json_decode($e->validator->getMessageBag(), 1);
+
+
+        }
+
+        $this->assertFalse($response);
+        
+    }
+
+
     public function testPaymentList()
     {
         Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {

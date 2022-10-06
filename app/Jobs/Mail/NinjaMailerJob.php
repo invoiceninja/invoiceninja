@@ -51,7 +51,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $tries = 3; //number of retries
 
-    public $backoff = 10; //seconds to wait until retry
+    public $backoff = 30; //seconds to wait until retry
 
     public $deleteWhenMissingModels = true;
 
@@ -123,7 +123,7 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($this->nmo->mailable);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
-                     ->queue();
+                     ->batch();
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);

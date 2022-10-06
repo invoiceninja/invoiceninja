@@ -73,6 +73,6 @@ class UpdateGroupSettingRequest extends Request
             }
         }
 
-        return $settings;
+        return (array)$settings;
     }
 }

@@ -114,6 +114,22 @@ class Helpers
             return '';
         }
 
+        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expenseive process
+        $string_hit = false;
+
+        foreach ( [':MONTH',':YEAR',':QUARTER',':WEEK'] as $string ) 
+        {
+        
+            if(stripos($value, $string) !== FALSE) {
+                $string_hit = true; 
+            }
+            
+        }
+
+        if(!$string_hit)
+            return $value;
+        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expenseive process
+
         Carbon::setLocale($entity->locale());
 
         $replacements = [

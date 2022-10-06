@@ -168,7 +168,7 @@ class HtmlEngine
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
             }
 
-            if(strlen($this->company->getSetting('qr_iban')) > 5 && strlen($this->company->getSetting('besr_id')) > 1)
+            if(strlen($this->company->getSetting('qr_iban')) > 5)
             {
                 try{
                     $data['$swiss_qr'] = ['value' => (new SwissQrGenerator($this->entity, $this->company))->run(), 'label' => ''];
@@ -521,6 +521,9 @@ class HtmlEngine
         $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
         $data['$font_name'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['name'], 'label' => ''];
         $data['$font_url'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['url'], 'label' => ''];
+
+        $data['$secondary_font_name'] = ['value' => Helpers::resolveFont($this->settings->secondary_font)['name'], 'label' => ''];
+        $data['$secondary_font_url'] = ['value' => Helpers::resolveFont($this->settings->secondary_font)['url'], 'label' => ''];
 
         $data['$invoiceninja.whitelabel'] = ['value' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png', 'label' => ''];
 

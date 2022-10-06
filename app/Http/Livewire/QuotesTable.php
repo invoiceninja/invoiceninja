@@ -79,9 +79,9 @@ class QuotesTable extends Component
 
         $query = $query
             ->where('company_id', $this->company->id)
-            ->where('client_id', auth()->guard('contact')->user()->client->id)
-            ->where('status_id', '<>', Quote::STATUS_DRAFT)
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('is_deleted', 0)
+            ->where('status_id', '<>', Quote::STATUS_DRAFT)
             ->withTrashed()
             ->paginate($this->per_page);
 

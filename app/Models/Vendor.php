@@ -64,7 +64,7 @@ class Vendor extends BaseModel
     protected $touches = [];
 
     protected $with = [
-        'company',
+        'contacts.company',
     ];
 
     protected $presenter = VendorPresenter::class;
@@ -108,12 +108,13 @@ class Vendor extends BaseModel
         }
 
         if (! $this->currency_id) {
-            $this->currency_id = 1;
+            return $this->company->currency();
         }
 
         return $currencies->filter(function ($item) {
             return $item->id == $this->currency_id;
         })->first();
+
     }
 
     public function company()

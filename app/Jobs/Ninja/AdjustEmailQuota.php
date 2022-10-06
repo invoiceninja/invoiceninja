@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Ninja;
 
+use App\DataMapper\Analytics\EmailCount;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Utils\Ninja;
@@ -20,6 +21,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class AdjustEmailQuota implements ShouldQueue
 {
@@ -58,8 +60,15 @@ class AdjustEmailQuota implements ShouldQueue
     {
         Account::query()->cursor()->each(function ($account) {
             nlog("resetting email quota for {$account->key}");
+
+            $email_count = Cache::get($account->key);
+
+            if($email_count > 0)
+                LightLogs::create(new EmailCount($email_count, $account->key))->batch();
+
             Cache::forget($account->key);
             Cache::forget("throttle_notified:{$account->key}");
+
         });
     }
 }

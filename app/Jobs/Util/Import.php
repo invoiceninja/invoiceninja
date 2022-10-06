@@ -264,7 +264,7 @@ class Import implements ShouldQueue
             $t->replace(Ninja::transformTranslations($this->company->settings));
         
             Mail::to($this->user->email, $this->user->name())
-                ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
+                ->send(new MigrationCompleted($this->company->id, $this->company->db, implode("<br>",$check_data)));
         }
         catch(\Exception $e) {
             nlog($e->getMessage());
@@ -714,6 +714,15 @@ class Import implements ShouldQueue
         }
 
         Client::reguard();
+
+        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
+
+          $contact = $client->contacts->sortByDesc('is_primary')->first();
+          $contact->is_primary = true;
+          $contact->save();
+
+        });
+
 
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;

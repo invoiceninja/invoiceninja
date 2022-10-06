@@ -122,6 +122,7 @@ class Company extends BaseModel
         'stock_notification',
         'enabled_expense_tax_rates',
         'invoice_task_project',
+        'report_include_deleted',
     ];
 
     protected $hidden = [

@@ -90,7 +90,7 @@ class SwissQrGenerator
             $this->client->address1 ? substr($this->client->address1, 0 , 70) : '',
             $this->client->address2 ? substr($this->client->address2, 0 , 16) : '',
             $this->client->postal_code ? substr($this->client->postal_code, 0, 16) : '',
-            $this->client->city ? substr($this->client->postal_code, 0, 35) : '',
+            $this->client->city ? substr($this->client->city, 0, 35) : '',
             'CH'
         ));
 
@@ -104,16 +104,39 @@ class SwissQrGenerator
 
     // Add payment reference
     // This is what you will need to identify incoming payments.
-    $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
-        $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-        $this->invoice->number// A number to match the payment with your internal data, e.g. an invoice number
-    );
 
-    $qrBill->setPaymentReference(
-        QrBill\DataGroup\Element\PaymentReference::create(
-            QrBill\DataGroup\Element\PaymentReference::TYPE_QR,
-            $referenceNumber
-        ));
+   if(stripos($this->invoice->number, "Live-") === 0)                                                                                                                                                                            
+    {                                                                                                                                                                                                                             
+       // we're currently in preview status. Let's give a dummy reference for now                                                                                                                                                 
+       $invoice_number = "123456789";                                                                                                                                                                                              
+    }                                                                                                                                                                                                                             
+    else                                                                                                                                                                                                                          
+    {                                                                                                                                                                                                                             
+       $invoice_number = $this->invoice->number;                                                                                                                                                                                   
+    }       
+
+    if(strlen($this->company->present()->besr_id()) > 1)
+    {
+        $referenceNumber = QrBill\Reference\QrPaymentReferenceGenerator::generate(
+            $this->company->present()->besr_id() ?: '',  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
+            $invoice_number// A number to match the payment with your internal data, e.g. an invoice number
+        );
+
+        $qrBill->setPaymentReference(
+            QrBill\DataGroup\Element\PaymentReference::create(
+                QrBill\DataGroup\Element\PaymentReference::TYPE_QR,
+                $referenceNumber
+            ));
+
+    }
+    else{
+
+        $qrBill->setPaymentReference(
+            QrBill\DataGroup\Element\PaymentReference::create(
+                QrBill\DataGroup\Element\PaymentReference::TYPE_NON
+            ));
+
+    }
 
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
@@ -141,6 +164,8 @@ class SwissQrGenerator
                 nlog($violation);
             }
 
+            nlog($e->getMessage());
+            
             return '';
             // return $e->getMessage();
         }

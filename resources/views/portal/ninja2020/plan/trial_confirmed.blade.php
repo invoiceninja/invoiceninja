@@ -4,17 +4,8 @@
 @section('body')
 
 @push('head')
-<style type="text/css">
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
-
-/*
-! tailwindcss v3.0.24 | MIT License | https://tailwindcss.com
-*/
-
-/*
-1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
-2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
-*/
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
 *,
 ::before,
@@ -25,7 +16,7 @@
   /* 2 */
   border-style: solid;
   /* 2 */
-  border-color: #e5e7eb;
+  border-color: currentColor;
   /* 2 */
 }
 
@@ -477,6 +468,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-backdrop-sepia:  ;
 }
 
+.sr-only{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .absolute{
   position: absolute;
 }
@@ -502,8 +505,22 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-right: auto;
 }
 
+.mx-\[22px\]{
+  margin-left: 22px;
+  margin-right: 22px;
+}
+
+.mx-\[40px\]{
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
 .mb-\[30px\]{
   margin-bottom: 30px;
+}
+
+.mb-\[11px\]{
+  margin-bottom: 11px;
 }
 
 .mt-\[30px\]{
@@ -554,12 +571,56 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-bottom: 26px;
 }
 
-.mb-\[\]{
-  margin-bottom: ;
+.mb-\[25px\]{
+  margin-bottom: 25px;
 }
 
-.mb-\[11px\]{
-  margin-bottom: 11px;
+.mb-\[20px\]{
+  margin-bottom: 20px;
+}
+
+.mb-\[5px\]{
+  margin-bottom: 5px;
+}
+
+.mb-\[40px\]{
+  margin-bottom: 40px;
+}
+
+.mr-5{
+  margin-right: 1.25rem;
+}
+
+.ml-5{
+  margin-left: 1.25rem;
+}
+
+.ml-\[10px\]{
+  margin-left: 10px;
+}
+
+.mb-6{
+  margin-bottom: 1.5rem;
+}
+
+.mb-8{
+  margin-bottom: 2rem;
+}
+
+.mb-1\.5{
+  margin-bottom: 0.375rem;
+}
+
+.mb-1{
+  margin-bottom: 0.25rem;
+}
+
+.mb-5{
+  margin-bottom: 1.25rem;
+}
+
+.mb-\[36px\]{
+  margin-bottom: 36px;
 }
 
 .block{
@@ -570,12 +631,28 @@ Ensure the default browser behavior of the `hidden` attribute.
   display: flex;
 }
 
+.inline-flex{
+  display: inline-flex;
+}
+
 .hidden{
   display: none;
 }
 
+.h-\[40px\]{
+  height: 40px;
+}
+
 .min-h-\[450px\]{
   min-height: 450px;
+}
+
+.min-h-\[57\%\]{
+  min-height: 57%;
+}
+
+.min-h-\[411px\]{
+  min-height: 411px;
 }
 
 .w-\[100\%\]{
@@ -586,12 +663,20 @@ Ensure the default browser behavior of the `hidden` attribute.
   width: 100%;
 }
 
+.w-\[87px\]{
+  width: 87px;
+}
+
 .max-w-\[625px\]{
   max-width: 625px;
 }
 
 .max-w-\[212px\]{
   max-width: 212px;
+}
+
+.max-w-\[450px\]{
+  max-width: 450px;
 }
 
 .flex-1{
@@ -606,12 +691,32 @@ Ensure the default browser behavior of the `hidden` attribute.
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.cursor-pointer{
+  cursor: pointer;
+}
+
 .flex-col{
   flex-direction: column;
 }
 
 .flex-col-reverse{
   flex-direction: column-reverse;
+}
+
+.content-start{
+  align-content: flex-start;
+}
+
+.items-start{
+  align-items: flex-start;
+}
+
+.items-center{
+  align-items: center;
+}
+
+.justify-start{
+  justify-content: flex-start;
 }
 
 .justify-end{
@@ -667,8 +772,24 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-radius: 5px;
 }
 
+.rounded-full{
+  border-radius: 9999px;
+}
+
+.rounded-lg{
+  border-radius: 0.5rem;
+}
+
+.rounded-\[10px\]{
+  border-radius: 10px;
+}
+
 .border{
   border-width: 1px;
+}
+
+.border-\[10px\]{
+  border-width: 10px;
 }
 
 .border-t-\[0px\]{
@@ -683,6 +804,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   border-top-width: 1px;
 }
 
+.border-t-\[11px\]{
+  border-top-width: 11px;
+}
+
 .border-light-grey{
   --tw-border-opacity: 1;
   border-color: rgb(232 233 237 / var(--tw-border-opacity));
@@ -691,6 +816,20 @@ Ensure the default browser behavior of the `hidden` attribute.
 .border-primary-blue{
   --tw-border-opacity: 1;
   border-color: rgb(0 145 234 / var(--tw-border-opacity));
+}
+
+.border-\[transparent\]{
+  border-color: transparent;
+}
+
+.border-\[\#28CA42\]{
+  --tw-border-opacity: 1;
+  border-color: rgb(40 202 66 / var(--tw-border-opacity));
+}
+
+.border-primary-green{
+  --tw-border-opacity: 1;
+  border-color: rgb(40 202 66 / var(--tw-border-opacity));
 }
 
 .bg-secondary-dark{
@@ -708,6 +847,28 @@ Ensure the default browser behavior of the `hidden` attribute.
   background-color: rgb(0 145 234 / var(--tw-bg-opacity));
 }
 
+.bg-primary-blue\/\[\.05\]{
+  background-color: rgb(0 145 234 / .05);
+}
+
+.bg-primary-grey{
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 229 229 / var(--tw-bg-opacity));
+}
+
+.bg-primary-blue\/50{
+  background-color: rgb(0 145 234 / 0.5);
+}
+
+.bg-primary-blue\/5{
+  background-color: rgb(0 145 234 / 0.05);
+}
+
+.bg-\[\#F2F9FE\]{
+  --tw-bg-opacity: 1;
+  background-color: rgb(242 249 254 / var(--tw-bg-opacity));
+}
+
 .bg-clip-padding{
   background-clip: padding-box;
 }
@@ -718,6 +879,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .p-\[20px\]{
   padding: 20px;
+}
+
+.p-\[12px\]{
+  padding: 12px;
 }
 
 .py-\[36px\]{
@@ -797,6 +962,26 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-bottom: 26px;
 }
 
+.pb-\[58px\]{
+  padding-bottom: 58px;
+}
+
+.pt-\[35px\]{
+  padding-top: 35px;
+}
+
+.pb-\[34px\]{
+  padding-bottom: 34px;
+}
+
+.pt-\[29px\]{
+  padding-top: 29px;
+}
+
+.pb-\[56px\]{
+  padding-bottom: 56px;
+}
+
 .text-left{
   text-align: left;
 }
@@ -843,6 +1028,18 @@ Ensure the default browser behavior of the `hidden` attribute.
   font-size: 14px;
 }
 
+.text-\[16px\]{
+  font-size: 16px;
+}
+
+.text-\[22px\]{
+  font-size: 22px;
+}
+
+.text-\[35px\]{
+  font-size: 35px;
+}
+
 .font-normal{
   font-weight: 400;
 }
@@ -883,6 +1080,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   line-height: 1.5em;
 }
 
+.leading-\[1\.375em\]{
+  line-height: 1.375em;
+}
+
+.leading-\[1\.2rem\]{
+  line-height: 1.2rem;
+}
+
 .text-white{
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
@@ -893,11 +1098,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   color: rgb(0 145 234 / var(--tw-text-opacity));
 }
 
-.text-gray-700{
-  --tw-text-opacity: 1;
-  color: rgb(55 65 81 / var(--tw-text-opacity));
-}
-
 .text-dark-grey{
   --tw-text-opacity: 1;
   color: rgb(142 147 167 / var(--tw-text-opacity));
@@ -906,6 +1106,21 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-light-grey-secondary{
   --tw-text-opacity: 1;
   color: rgb(219 220 222 / var(--tw-text-opacity));
+}
+
+.text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.text-primary-dark{
+  --tw-text-opacity: 1;
+  color: rgb(46 44 44 / var(--tw-text-opacity));
+}
+
+.text-gray{
+  --tw-text-opacity: 1;
+  color: rgb(100 111 121 / var(--tw-text-opacity));
 }
 
 .transition{
@@ -944,16 +1159,16 @@ Ensure the default browser behavior of the `hidden` attribute.
 
 .list-checkmark-round li {
   position: relative;
-  padding-left: 44px;
+  padding-left: 40px;
 }
 
 .list-checkmark-round li::before {
   content: "";
   position: absolute;
   left: 0;
-  top: -2px;
-  width: 37px;
-  height: 37px;
+  top: 0px;
+  width: 30px;
+  height: 30px;
   background: url('/images/checkmark-round.svg') center/contain no-repeat;
 }
 
@@ -977,24 +1192,15 @@ Ensure the default browser behavior of the `hidden` attribute.
   background: url('/images/checkmark.svg') center/contain no-repeat;
 }
 
+.list-checkmark_green li::before {
+  background: url('/images/checkmark-green.svg') center/contain no-repeat;
+}
+
 /* Main Content */
 
 .pro-plan-trial {
   position: relative;
   overflow: hidden;
-}
-
-.pro-plan-trial::before {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 601px;
-  height: 601px;
-  background: #0091EA;
-  border-radius: 50%;
-  transform: translate(129px, 449px);
-  z-index: 1;
 }
 
 .success-banner {
@@ -1019,6 +1225,64 @@ Ensure the default browser behavior of the `hidden` attribute.
   }
 }
 
+.after\:absolute::after{
+  content: var(--tw-content);
+  position: absolute;
+}
+
+.after\:top-\[5px\]::after{
+  content: var(--tw-content);
+  top: 5px;
+}
+
+.after\:left-\[8px\]::after{
+  content: var(--tw-content);
+  left: 8px;
+}
+
+.after\:h-\[30px\]::after{
+  content: var(--tw-content);
+  height: 30px;
+}
+
+.after\:w-\[30px\]::after{
+  content: var(--tw-content);
+  width: 30px;
+}
+
+.after\:rounded-full::after{
+  content: var(--tw-content);
+  border-radius: 9999px;
+}
+
+.after\:bg-white::after{
+  content: var(--tw-content);
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.after\:transition-all::after{
+  content: var(--tw-content);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.after\:content-\[\'\'\]::after{
+  --tw-content: '';
+  content: var(--tw-content);
+}
+
+.hover\:bg-primary-green:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(40 202 66 / var(--tw-bg-opacity));
+}
+
+.hover\:text-white:hover{
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
 .hover\:opacity-80:hover{
   opacity: 0.8;
 }
@@ -1029,6 +1293,32 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 
 .focus\:outline-none:focus{
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.peer:checked ~ .peer-checked\:bg-primary-blue{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 145 234 / var(--tw-bg-opacity));
+}
+
+.peer:checked ~ .peer-checked\:text-gray{
+  --tw-text-opacity: 1;
+  color: rgb(100 111 121 / var(--tw-text-opacity));
+}
+
+.peer:checked ~ .peer-checked\:text-black{
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.peer:checked ~ .peer-checked\:after\:translate-x-\[140\%\]::after{
+  content: var(--tw-content);
+  --tw-translate-x: 140%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.peer:focus ~ .peer-focus\:outline-none{
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -1047,12 +1337,28 @@ Ensure the default browser behavior of the `hidden` attribute.
     display: flex;
   }
 
+  .md\:min-h-\[411px\]{
+    min-height: 411px;
+  }
+
   .md\:w-1\/2{
     width: 50%;
   }
 
   .md\:w-1\/3{
     width: 33.333333%;
+  }
+
+  .md\:shrink{
+    flex-shrink: 1;
+  }
+
+  .md\:grow-0{
+    flex-grow: 0;
+  }
+
+  .md\:basis-\[449px\]{
+    flex-basis: 449px;
   }
 
   .md\:flex-row{
@@ -1073,12 +1379,40 @@ Ensure the default browser behavior of the `hidden` attribute.
     padding-right: 58px;
   }
 
+  .md\:px-\[40px\]{
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  @media (min-width: 768px){
+    .md\:md\:px-\[40px\]{
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+  }
+
   .md\:pl-\[61px\]{
     padding-left: 61px;
   }
 
   .md\:pr-\[20px\]{
     padding-right: 20px;
+  }
+
+  .md\:pt-\[58px\]{
+    padding-top: 58px;
+  }
+
+  .md\:pb-\[40px\]{
+    padding-bottom: 40px;
+  }
+
+  .md\:pl-\[52px\]{
+    padding-left: 52px;
+  }
+
+  .md\:pr-\[48px\]{
+    padding-right: 48px;
   }
 
   .md\:text-left{
@@ -1089,32 +1423,37 @@ Ensure the default browser behavior of the `hidden` attribute.
     font-size: 30px;
   }
 }
+
+@media (min-width: 1024px){
+  .lg\:max-w-\[80\%\]{
+    max-width: 80%;
+  }
+}
 </style>
 @endpush
-<!-- This example requires Tailwind CSS v2.0+ -->
-<main
-      class="font-['Open_Sans'] text-[15px] font-normal leading-[1.75em] flex-1 relative z-0 overflow-y-auto pt-[20px] pl-[18px] pr-[18px] pb-[20px] focus:outline-none"
-      tabindex="0"
-    >
-      <div class="min-h-[450px] flex justify-stretch overflow-hidden">
-        <div class="success-banner p-[20px] w-[100%] gap-[44px] flex flex-col-reverse justify-center align-stretch bg-secondary-dark text-white rounded overflow-hidden md:flex-row">
-          <div class="success-banner__media flex flex-col justify-senter align-center">
-            <img class="w-[100%] max-w-[625px] z-10" src="/images/hero-success.svg" alt="">
-          </div>
-          <div class="flex flex-col justify-center align-center text-center z-10 md:text-left">
-          <h4 class="text-[14px] mb-[10px] text-light-grey-secondary uppercase">Create. Send. Get Paid.</h4>
-            <h2 class="text-[24px] font-bold leading-[1.5em] mb-[26px] relative md:text-[30px] md:mb-[46px]">
-              Your Pro Plan trial is <br/>loaded and ready to go!
-            </h2>
-            <a href="https://invoicing.co"
-                  type="button"
-                  class="mx-[auto] max-w-[212px] text-center bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in md:mx-[0]"
-                >
-                Account Login
-                </a>
-          </div>
-        </div>
-      </div>
-    </main>
 
+<main
+  class="font-['Open_Sans'] text-[15px] font-normal leading-[1.75em] flex-1 relative z-0 overflow-y-auto pt-[20px] pl-[18px] pr-[18px] pb-[20px] focus:outline-none"
+  tabindex="0"
+>
+  <div class="min-h-[450px] flex justify-stretch overflow-hidden">
+    <div class="success-banner p-[20px] w-[100%] gap-[44px] flex flex-col-reverse justify-center align-stretch bg-secondary-dark text-white rounded overflow-hidden md:flex-row">
+      <div class="success-banner__media flex flex-col justify-senter align-center">
+        <img class="w-[100%] max-w-[625px] z-10" src="./images/hero-success.svg" alt="">
+      </div>
+      <div class="flex flex-col justify-center align-center text-center z-10 md:text-left">
+      <h4 class="text-[14px] mb-[10px] text-light-grey-secondary uppercase">Create. Send. Get Paid.</h4>
+        <h2 class="text-[24px] font-bold leading-[1.5em] mb-[26px] relative md:text-[30px] md:mb-[46px]">
+          Your Pro Plan trial is <br/>loaded and ready to go!
+        </h2>
+        <a href="https://invoicing.co"
+              type="button"
+              class="mx-[auto] max-w-[212px] bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in md:mx-[0]"
+            >
+            Account Login
+            </a>
+      </div>
+    </div>
+  </div>
+</main>
 @endsection

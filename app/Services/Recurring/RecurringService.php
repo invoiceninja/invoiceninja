@@ -109,6 +109,8 @@ class RecurringService
         
         if ($request->has('send_now') && $request->input('send_now') == 'true' && $this->recurring_entity->invoices()->count() == 0) {
             $this->sendNow();
+
+            return $this;
         }
 
         if(isset($this->recurring_entity->client))
@@ -125,10 +127,12 @@ class RecurringService
     
         if($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT){
             $this->start()->save();
-            SendRecurring::dispatch($this->recurring_entity, $this->recurring_entity->company->db); 
+            SendRecurring::dispatchSync($this->recurring_entity, $this->recurring_entity->company->db); 
         }
 
-        return $this->recurring_entity;
+        $this->recurring_entity = $this->recurring_entity->fresh();
+
+        return $this;
 
     }
 

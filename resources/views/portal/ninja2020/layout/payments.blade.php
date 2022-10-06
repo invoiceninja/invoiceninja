@@ -11,7 +11,7 @@
 @endpush
 
 @section('body')
-    @livewire('required-client-info', ['fields' => method_exists($gateway, 'getClientRequiredFields') ? $gateway->getClientRequiredFields() : [], 'contact' => auth()->guard('contact')->user(), 'countries' => $countries, 'company' => $company])
+    @livewire('required-client-info', ['fields' => method_exists($gateway, 'getClientRequiredFields') ? $gateway->getClientRequiredFields() : [], 'contact' => auth()->guard('contact')->user(), 'countries' => $countries, 'company' => $company, 'company_gateway_id' => $gateway->company_gateway ? $gateway->company_gateway->id : $gateway->id])
 
     <div class="container mx-auto grid grid-cols-12 opacity-25 pointer-events-none" data-ref="gateway-container">
         <div class="col-span-12 lg:col-span-6 lg:col-start-4 bg-white shadow rounded-lg">
