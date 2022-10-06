@@ -22,7 +22,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class NewAccountNotification extends Notification 
+class DomainFailureNotification extends Notification 
 {
 
     /**
@@ -31,14 +31,11 @@ class NewAccountNotification extends Notification
      * @return void
      */
 
-    protected Account $account;
+    protected string $domain;
 
-    protected Client $client;
-
-    public function __construct(Account $account, Client $client)
+    public function __construct(string $domain)
     {
-        $this->account = $account;
-        $this->client = $client;
+        $this->domain = $domain;
     }
 
     /**
@@ -77,10 +74,8 @@ class NewAccountNotification extends Notification
 
     public function toSlack($notifiable)
     {
-        $content = "New Trial Started\n";
-        $content .= "{$this->client->name}\n";
-        $content .= "Contacts: {$this->client->contacts()->pluck('email')}\n";
-        
+        $content = "Domain Certificate failure:\n";
+        $content .= "{$this->domain}\n";        
 
         return (new SlackMessage)
                 ->success()

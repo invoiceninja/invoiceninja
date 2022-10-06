@@ -42,7 +42,7 @@ class ExpenseTransformer extends BaseTransformer
             'client_id' => isset($data['expense.client'])
                 ? $this->getClientId($data['expense.client'])
                 : null,
-            'date' => strlen($this->getString($data, 'expense.date') > 1) ? date('Y-m-d', strtotime($this->getString($data, 'expense.date'))) : now()->format('Y-m-d'),
+            'date' => strlen($this->getString($data, 'expense.date') > 1) ? date('Y-m-d', strtotime(str_replace("/","-",$data['expense.date']))) : now()->format('Y-m-d'),
             'public_notes' => $this->getString($data, 'expense.public_notes'),
             'private_notes' => $this->getString($data, 'expense.private_notes'),
             'category_id' => isset($data['expense.category'])
@@ -55,7 +55,7 @@ class ExpenseTransformer extends BaseTransformer
                 ? $this->getPaymentTypeId($data['expense.payment_type'])
                 : null,
             'payment_date' => isset($data['expense.payment_date'])
-                ? date('Y-m-d', strtotime($data['expense.payment_date']))
+                ? date('Y-m-d', strtotime(str_replace("/","-",$data['expense.payment_date'])))
                 : null,
             'custom_value1' => $this->getString($data, 'expense.custom_value1'),
             'custom_value2' => $this->getString($data, 'expense.custom_value2'),
@@ -66,6 +66,14 @@ class ExpenseTransformer extends BaseTransformer
                 'expense.transaction_reference'
             ),
             'should_be_invoiced' => $clientId ? true : false,
+            'uses_inclusive_taxes' => (bool) $this->getString($data, 'expense.uses_inclusive_taxes'),
+            'tax_name1' => $this->getString($data, 'expense.tax_name1'),
+            'tax_rate1' => $this->getFloat($data, 'expense.tax_rate1'),
+            'tax_name2' => $this->getString($data, 'expense.tax_name2'),
+            'tax_rate2' => $this->getFloat($data, 'expense.tax_rate2'),
+            'tax_name3' => $this->getString($data, 'expense.tax_name3'),
+            'tax_rate3' => $this->getFloat($data, 'expense.tax_rate3'),
+
         ];
     }
 }
