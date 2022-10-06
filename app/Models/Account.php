@@ -59,6 +59,8 @@ class Account extends BaseModel
         'user_agent',
         'platform',
         'set_react_as_default_ap',
+        'inapp_transaction_id',
+        'num_users',
     ];
 
     /**
