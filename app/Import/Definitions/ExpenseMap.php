@@ -28,6 +28,15 @@ class ExpenseMap
             9 => 'expense.transaction_reference',
             10 => 'expense.public_notes',
             11 => 'expense.private_notes',
+            12 => 'expense.tax_name1',
+            13 => 'expense.tax_rate1',
+            14 => 'expense.tax_name2',
+            15 => 'expense.tax_rate2',
+            16 => 'expense.tax_name3',
+            17 => 'expense.tax_rate3',
+            18 => 'expense.uses_inclusive_taxes',
+            19 => 'expense.payment_date',
+
         ];
     }
 
@@ -46,6 +55,15 @@ class ExpenseMap
             9 => 'texts.transaction_reference',
             10 => 'texts.public_notes',
             11 => 'texts.private_notes',
+            12 => 'texts.tax_name1',
+            13 => 'texts.tax_rate1',
+            14 => 'texts.tax_name2',
+            15 => 'texts.tax_rate2',
+            16 => 'texts.tax_name3',
+            17 => 'texts.tax_rate3',
+            18 => 'texts.uses_inclusive_taxes',
+            19 => 'texts.payment_date',
+
         ];
     }
 }

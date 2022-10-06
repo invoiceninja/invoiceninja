@@ -13,6 +13,7 @@ namespace App\PaymentDrivers\Stripe\Jobs;
 
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
@@ -21,6 +22,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -53,7 +55,7 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
-        
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
@@ -145,7 +147,18 @@ class PaymentIntentWebhook implements ShouldQueue
 
                 $this->updateCreditCardPayment($payment_hash, $client);
             }
+            elseif(array_key_exists('payment_method_types', $this->stripe_request['object']) && optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']) && in_array('us_bank_account', $this->stripe_request['object']['payment_method_types']))
+            {
+                nlog("hash found");
 
+                $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
+
+                $payment_hash = PaymentHash::where('hash', $hash)->first();
+                $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+                $client = $invoice->client;
+
+                $this->updateAchPayment($payment_hash, $client);
+            }
         }
 
 
@@ -160,6 +173,81 @@ class PaymentIntentWebhook implements ShouldQueue
 
 
     }
+
+    private function updateAchPayment($payment_hash, $client)
+    {
+        $company_gateway = CompanyGateway::find($this->company_gateway_id);
+        $payment_method_type = optional($this->stripe_request['object']['charges']['data'][0]['metadata'])['gateway_type_id'];
+        $driver = $company_gateway->driver($client)->init()->setPaymentMethod($payment_method_type);
+
+        $payment_hash->data = array_merge((array) $payment_hash->data, $this->stripe_request);
+        $payment_hash->save();
+        $driver->setPaymentHash($payment_hash);
+
+        $data = [
+            'payment_method' => $payment_hash->data->object->payment_method,
+            'payment_type' => PaymentType::ACH,
+            'amount' => $payment_hash->data->amount_with_fee,
+            'transaction_reference' => $this->stripe_request['object']['charges']['data'][0]['id'],
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+        ];
+        
+        $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $this->stripe_request, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $client,
+            $client->company,
+        );
+
+        try {
+
+            $customer = $driver->getCustomer($this->stripe_request['object']['charges']['data'][0]['customer']);
+            $method = $driver->getStripePaymentMethod($this->stripe_request['object']['charges']['data'][0]['payment_method']);
+            $payment_method = $this->stripe_request['object']['charges']['data'][0]['payment_method'];
+
+            $token_exists = ClientGatewayToken::where([
+                'gateway_customer_reference' => $customer->id,
+                'token' => $payment_method,
+                'client_id' => $client->id,
+                'company_id' => $client->company_id,
+            ])->exists();
+
+            /* Already exists return */
+            if ($token_exists) {
+                return;
+            }
+
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->us_bank_account['bank_name'], ctrans('texts.ach'));
+            $payment_meta->last4 = (string) $method->us_bank_account['last4'];
+            $payment_meta->type = GatewayType::BANK_TRANSFER;
+            $payment_meta->state = 'verified';
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $payment_method,
+                'payment_method_id' => GatewayType::BANK_TRANSFER,
+            ];
+
+            $additional_data = ['gateway_customer_reference' => $customer->id];
+
+            if ($customer->default_source === $method->id) {
+                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 1];
+            }
+
+            $driver->storeGatewayToken($data, $additional_data);
+            
+        }
+        catch(\Exception $e){
+            nlog("failed to import payment methods");
+            nlog($e->getMessage());
+        }
+    }
+
 
     private function updateCreditCardPayment($payment_hash, $client)
     {
