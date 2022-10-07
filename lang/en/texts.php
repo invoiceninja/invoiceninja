@@ -3414,7 +3414,7 @@ $LANG = array(
     'credit_number_counter' => 'Credit Number Counter',
     'reset_counter_date' => 'Reset Counter Date',
     'counter_padding' => 'Counter Padding',
-    'shared_invoice_quote_counter' => 'Shared Invoice Quote Counter',
+    'shared_invoice_quote_counter' => 'Share Invoice Quote Counter',
     'default_tax_name_1' => 'Default Tax Name 1',
     'default_tax_rate_1' => 'Default Tax Rate 1',
     'default_tax_name_2' => 'Default Tax Name 2',
@@ -4199,7 +4199,7 @@ $LANG = array(
      'client_id_number' => 'Client ID Number',
      'count_minutes' => ':count Minutes',
      'password_timeout' => 'Password Timeout',
-     'shared_invoice_credit_counter' => 'Shared Invoice/Credit Counter',
+     'shared_invoice_credit_counter' => 'Share Invoice/Credit Counter',
 
     'activity_80' => ':user created subscription :subscription',
     'activity_81' => ':user updated subscription :subscription',
