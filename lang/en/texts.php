@@ -4776,7 +4776,8 @@ $LANG = array(
     'client_email' => 'Client Email',
     'invoice_task_project' => 'Invoice Task Project',
     'invoice_task_project_help' => 'Add the project to the invoice line items',
-
+    'bulk_action' => 'Bulk Action',
+    
 );
 
 return $LANG;
