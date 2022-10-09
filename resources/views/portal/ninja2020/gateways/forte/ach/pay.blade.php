@@ -43,7 +43,7 @@
 @endsection
 
 @section('gateway_footer')
-    @if($gateway->forte->company_gateway->getConfigField('testMode'))
+    @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
