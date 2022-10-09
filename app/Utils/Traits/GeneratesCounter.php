@@ -421,7 +421,6 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            nlog($counter);
             
             $number = $this->padCounter($counter, $padding);
 

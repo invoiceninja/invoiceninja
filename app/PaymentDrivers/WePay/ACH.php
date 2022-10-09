@@ -41,6 +41,7 @@ class ACH
     public function authorizeView($data)
     {
         $data['gateway'] = $this->wepay_payment_driver;
+        $data['country_code'] = $this->wepay_payment_driver->client ? $this->wepay_payment_driver->client->country->iso_3166_2 : $this->wepay_payment_driver->company_gateway->company()->iso_3166_2;
 
         return render('gateways.wepay.authorize.bank_transfer', $data);
     }

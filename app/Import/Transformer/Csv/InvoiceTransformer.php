@@ -57,10 +57,10 @@ class InvoiceTransformer extends BaseTransformer
             'discount' => $this->getFloat($invoice_data, 'invoice.discount'),
             'po_number' => $this->getString($invoice_data, 'invoice.po_number'),
             'date' => isset($invoice_data['invoice.date'])
-                ? date('Y-m-d', strtotime($invoice_data['invoice.date']))
+                ? date('Y-m-d', strtotime(str_replace("/","-",$invoice_data['invoice.date'])))
                 : now()->format('Y-m-d'),
             'due_date' => isset($invoice_data['invoice.due_date'])
-                ? date('Y-m-d', strtotime($invoice_data['invoice.due_date']))
+                ? date('Y-m-d', strtotime(str_replace("/","-",$invoice_data['invoice.due_date'])))
                 : null,
             'terms' => $this->getString($invoice_data, 'invoice.terms'),
             'public_notes' => $this->getString(

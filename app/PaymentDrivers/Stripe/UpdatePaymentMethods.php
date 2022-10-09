@@ -70,7 +70,7 @@ class UpdatePaymentMethods
         $this->importBankAccounts($customer, $client);
     }
 
-    private function importBankAccounts($customer, $client)
+    public function importBankAccounts($customer, $client)
     {
         $sources = $customer->sources;
 

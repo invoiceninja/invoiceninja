@@ -54,6 +54,7 @@ class CreditCard
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.credit_card.authorize', $data);
     }
 
@@ -82,7 +83,7 @@ class CreditCard
         $this->forte->payment_hash->data = array_merge((array) $this->forte->payment_hash->data, $data);
         $this->forte->payment_hash->save();
 
-        $data['gateway'] = $this;
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.credit_card.pay', $data);
     }
 
