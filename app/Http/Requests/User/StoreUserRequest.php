@@ -85,6 +85,14 @@ class StoreUserRequest extends Request
             ];
         }
 
+        if (array_key_exists('first_name', $input)) {
+            $input['first_name'] = strip_tags($input['first_name']);
+        }
+
+        if (array_key_exists('last_name', $input)) {
+            $input['last_name'] = strip_tags($input['last_name']);
+        }
+
         $this->replace($input);
     }
 
