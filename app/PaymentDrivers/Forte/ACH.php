@@ -89,7 +89,7 @@ class ACH
 
     public function paymentResponse($request)
     {
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
 
         try {
             $curl = curl_init();

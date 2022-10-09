@@ -16,6 +16,17 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->index(['product_key', 'company_id']);
         });
+
+        Schema::table('companies', function (Blueprint $table) {
+            $table->index(['subdomain', 'portal_mode']);
+            $table->index(['portal_domain', 'portal_mode']);
+            $table->index('company_key');
+        });
+
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->index('key');
+        });
+
     }
 
     /**
@@ -25,8 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('products', function (Blueprint $table) {
-            //
-        });
+
     }
 };

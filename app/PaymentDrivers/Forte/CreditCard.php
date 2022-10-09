@@ -54,6 +54,7 @@ class CreditCard
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.credit_card.authorize', $data);
     }
 
