@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
        Schema::table('documents', function (Blueprint $table) {
-            $table->index(['documentable_id', 'documentable_type','deleted_at']);
+            $table->index(['documentable_id', 'documentable_type', 'deleted_at']);
        });
 
        Schema::table('expenses', function (Blueprint $table) {
