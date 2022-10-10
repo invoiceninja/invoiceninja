@@ -16,6 +16,10 @@ return new class extends Migration
         Schema::table('documents', function (Blueprint $table) {
             $table->index(['documentable_id', 'documentable_type','deleted_at']);
         });
+
+        Schema::table('expenses', function (Blueprint $table) {
+            $table->index(['invoice_id', 'deleted_at']);
+        });
     }
 
     /**
