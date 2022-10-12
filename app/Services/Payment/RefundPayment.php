@@ -16,10 +16,12 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailRefundPayment;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
 use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
@@ -76,6 +78,8 @@ class RefundPayment
         ];
 
         TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
+
+        SystemLogger::dispatch(['user' => auth()->user() ? auth()->user()->email : '', 'paymentables' => $this->payment->paymentables->makeHidden(['id','payment_id', 'paymentable_id','paymentable_type', 'deleted_at'])->toArray(), 'request' => request() ? request()->all() : []], SystemLog::CATEGORY_LOG, SystemLog::EVENT_USER, SystemLog::TYPE_GENERIC, $this->payment->client, $this->payment->company);
 
         return $this->payment;
     }
