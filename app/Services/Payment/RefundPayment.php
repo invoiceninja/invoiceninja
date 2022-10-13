@@ -79,7 +79,10 @@ class RefundPayment
 
         TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
 
-        SystemLogger::dispatch(['user' => auth()->user() ? auth()->user()->email : '', 'paymentables' => $this->payment->paymentables->makeHidden(['id','payment_id', 'paymentable_id','paymentable_type', 'deleted_at'])->toArray(), 'request' => request() ? request()->all() : []], SystemLog::CATEGORY_LOG, SystemLog::EVENT_USER, SystemLog::TYPE_GENERIC, $this->payment->client, $this->payment->company);
+        $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : ";
+        $notes .= $this->refund_data['gateway_refund'] !== false ? ctrans('texts.yes') : ctrans('texts.no');
+
+        $this->createActivity($notes);
 
         return $this->payment;
     }
@@ -97,8 +100,6 @@ class RefundPayment
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
                 $this->payment->refunded += $this->total_refund;
-
-                $this->createActivity($this->payment);
 
                 if ($response['success'] == false) {
                     $this->payment->save();
@@ -133,7 +134,7 @@ class RefundPayment
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
         // $fields->credit_id = $this->credit_note->id; // TODO
-        $fields->notes = json_encode($notes);
+        $fields->notes = $notes;
 
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
