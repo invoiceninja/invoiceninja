@@ -712,6 +712,7 @@ class CheckData extends Command
                                             ->pluck('p')
                                             ->first();
 
+                    $over_payment = $over_payment*-1;
 
                     $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be {$over_payment}");
 
@@ -719,7 +720,7 @@ class CheckData extends Command
                         
                         $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
-                        $client->balance = $over_payment * -1;
+                        $client->balance = $over_payment;
                         $client->save();
 
                     }
