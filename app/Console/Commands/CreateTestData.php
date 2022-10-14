@@ -437,7 +437,7 @@ class CreateTestData extends Command
             'company_id' => $client->company->id,
         ]);
 
-        Document::factory()->count(50)->create([
+        Document::factory()->count(5)->create([
             'user_id' => $client->user->id,
             'company_id' => $client->company_id,
             'documentable_type' => Vendor::class,
