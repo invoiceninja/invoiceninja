@@ -78,11 +78,6 @@
                             </span>
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
-                            <span role="button" wire:click="sortBy('type')" class="cursor-pointer">
-                                {{ ctrans('texts.type') }}
-                            </span>
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('size')" class="cursor-pointer">
                                 {{ ctrans('texts.size') }}
                             </span>
@@ -102,9 +97,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ Illuminate\Support\Str::limit($document->name, 20) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                                {{ App\Models\Document::$types[$document->type]['mime'] }}
-                            </td>
+
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $document->size / 1000 }} kB
                             </td>

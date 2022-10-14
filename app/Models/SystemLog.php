@@ -41,6 +41,8 @@ class SystemLog extends Model
 
     const CATEGORY_SECURITY = 5;
 
+    const CATEGORY_LOG = 6;
+
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
 
@@ -126,6 +128,8 @@ class SystemLog extends Model
     const TYPE_LOGIN_SUCCESS = 800;
 
     const TYPE_LOGIN_FAILURE = 801;
+
+    const TYPE_GENERIC = 900;
 
     protected $fillable = [
         'client_id',
