@@ -398,7 +398,7 @@ class StripePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $params = [];
+        $params = ['usage' => 'off_session'];
         $meta = $this->stripe_connect_auth;
 
         return SetupIntent::create($params, $meta);
