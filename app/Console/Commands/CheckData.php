@@ -714,7 +714,15 @@ class CheckData extends Command
 
                     $over_payment = $over_payment*-1;
 
-                    $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be {$over_payment}");
+                    if(floatval($over_payment) == floatval($client->balance)){
+
+                    }
+                    else {
+
+                        $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be {$over_payment}");
+
+                    }
+
 
                     if($this->option('client_balance') && (floatval($over_payment) != floatval($client->balance) )){
                         
