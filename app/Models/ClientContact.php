@@ -17,6 +17,7 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\ClientContact\ClientContactResetPasswordObject;
 use App\Models\Presenters\ClientContactPresenter;
 use App\Notifications\ClientContactResetPassword;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -257,8 +258,33 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-        $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
+        // $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
 
-        return $domain.'/client/key_login/'.$this->contact_key;
+        // return $domain.'/client/key_login/'.$this->contact_key;
+
+        if (Ninja::isHosted()) {
+            $domain = $this->company->domain();
+        } else {
+            $domain = config('ninja.app_url');
+        }
+
+        switch ($this->company->portal_mode) {
+            case 'subdomain':
+                return $domain.'/client/key_login/'.$this->contact_key;
+                break;
+            case 'iframe':
+                return $domain.'/client/key_login/'.$this->contact_key;
+                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
+                break;
+            case 'domain':
+                return $domain.'/client/key_login/'.$this->contact_key;
+                break;
+
+            default:
+                return '';
+                break;
+        }
+
+
     }
 }
