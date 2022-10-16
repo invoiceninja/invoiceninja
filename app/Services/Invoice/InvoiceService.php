@@ -268,7 +268,11 @@ class InvoiceService
             return $this;
         }
 
-        $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+        //12-10-2022
+        if($this->invoice->partial > 0 && !$this->invoice->partial_due_date)
+            $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+        else
+            $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
 
         return $this;
     }
@@ -309,7 +313,7 @@ class InvoiceService
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
-        elseif ($this->invoice->balance < 0) {
+        elseif ($this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
 

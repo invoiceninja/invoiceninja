@@ -40,7 +40,7 @@ return [
             /*
              * Route for accessing parsed swagger annotations.
             */
-            'docs' => 'docs',
+            'docs' => 'swagger-docs-that-should-be-inaccessible',
 
             /*
              * Route for Oauth2 authentication callback.
