@@ -23,6 +23,7 @@ use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Google\Service\Vision\Property;
 use ReflectionClass;
 
 class BaseRepository
@@ -185,15 +186,17 @@ class BaseRepository
 
         if(!$model->id){
             $this->new_model = true;
-                
-            $model->line_items = (collect($model->line_items))->map(function ($item) use($model,$client) {
 
-                $item->notes = Helpers::processReservedKeywords($item->notes, $client);
+            if(is_array($model->line_items))
+            {                
+                $model->line_items = (collect($model->line_items))->map(function ($item) use($model,$client) {
 
-                return $item;
+                    $item->notes = Helpers::processReservedKeywords($item->notes, $client);
 
-            });
+                    return $item;
 
+                });
+            }
         }
 
         $model->saveQuietly();
