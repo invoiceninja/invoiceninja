@@ -40,11 +40,11 @@ class Backup extends BaseModel
 
         Storage::disk(config('filesystems.default'))->put($file_path, $html);
 
-        if (Storage::disk(config('filesystems.default'))->exists($file_path)) {
+        // if (Storage::disk(config('filesystems.default'))->exists($file_path)) {
             $this->html_backup = '';
             $this->filename = $file_path;
             $this->save();
-        }
+        // }
     }
 
     public function deleteFile()
