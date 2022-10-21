@@ -100,8 +100,8 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
             try{
                 
-                if(!Storage::disk($this->disk)->exists($this->path)) 
-                    Storage::disk($this->disk)->makeDirectory($this->path, 0775);
+                // if(!Storage::disk($this->disk)->exists($this->path)) 
+                    // Storage::disk($this->disk)->makeDirectory($this->path, 0775);
 
                 Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
 
