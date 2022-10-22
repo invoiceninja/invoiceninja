@@ -83,9 +83,23 @@ class UpdateOrCreateProduct implements ShouldQueue
 
             $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
 
+                /* If a user is using placeholders in their descriptions, do not update the products */
+                $string_hit = false;
+
+                foreach ( [':MONTH',':YEAR',':QUARTER',':WEEK'] as $string ) 
+                {
+                
+                    if(stripos($product->notes, $string) !== FALSE) {
+                        $string_hit = true; 
+                    }
+                    
+                }
+
+                if($string_hit)
+                    continue;
+
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
-            //$product->cost = isset($item->cost) ? $item->cost : 0; //this value shouldn't be updated.
             $product->price = isset($item->cost) ? $item->cost : 0;
 
             if (! $product->id) {

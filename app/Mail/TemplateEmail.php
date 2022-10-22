@@ -146,10 +146,17 @@ class TemplateEmail extends Mailable
 
         }
 
+        //22-10-2022 - Performance - To improve the performance/reliability of sending emails, attaching as Data is much better, stubs in place
         foreach ($this->build_email->getAttachments() as $file) {
             if (is_string($file)) {
+                // nlog($file);
+                // $file_data = file_get_contents($file);
+                // $this->attachData($file_data, basename($file));
                 $this->attach($file);
             } elseif (is_array($file)) {
+                // nlog($file['path']);
+                // $file_data = file_get_contents($file['path']);
+                // $this->attachData($file_data, $file['name']);
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
             }
         }

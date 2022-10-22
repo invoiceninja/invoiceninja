@@ -36,15 +36,15 @@ class Backup extends BaseModel
         $filename = now()->format('Y_m_d').'_'.md5(time()).'.html';
         $file_path = $path.$filename;
 
-        Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
+        // Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
 
         Storage::disk(config('filesystems.default'))->put($file_path, $html);
 
-        if (Storage::disk(config('filesystems.default'))->exists($file_path)) {
+        // if (Storage::disk(config('filesystems.default'))->exists($file_path)) {
             $this->html_backup = '';
             $this->filename = $file_path;
             $this->save();
-        }
+        // }
     }
 
     public function deleteFile()
