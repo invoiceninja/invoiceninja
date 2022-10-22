@@ -105,6 +105,8 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
                 Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
 
+//r2                Storage::disk($this->disk)->put($this->file_path, $pdf);
+
             }
             catch(\Exception $e)
             {

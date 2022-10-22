@@ -218,6 +218,8 @@ class CreateEntityPdf implements ShouldQueue
                 // }
 
                 Storage::disk($this->disk)->put($file_path, $pdf, 'public');
+
+//r2                Storage::disk($this->disk)->put($file_path, $pdf);
             } catch (\Exception $e) {
                 throw new FilePermissionsFailure($e->getMessage());
             }

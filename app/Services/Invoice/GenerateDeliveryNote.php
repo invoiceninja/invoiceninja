@@ -111,6 +111,8 @@ class GenerateDeliveryNote
 
         Storage::disk($this->disk)->put($file_path, $pdf, 'public');
 
+//r2        Storage::disk($this->disk)->put($file_path, $pdf);
+
         return $file_path;
     }
 }
