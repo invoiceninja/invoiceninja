@@ -99,20 +99,11 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         if ($pdf) {
 
             try{
-                
-                // if(!Storage::disk($this->disk)->exists($this->path)) 
-                    // Storage::disk($this->disk)->makeDirectory($this->path, 0775);
-
-                Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
-
-//r2                Storage::disk($this->disk)->put($this->file_path, $pdf);
-
+                Storage::disk($this->disk)->put($this->file_path, $pdf);
             }
             catch(\Exception $e)
             {
-
                 throw new FilePermissionsFailure($e->getMessage());
-
             }
         }
         
@@ -211,7 +202,6 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
                 if($numbered_pdf)
                     $pdf = $numbered_pdf;
-                
 
             }
 
