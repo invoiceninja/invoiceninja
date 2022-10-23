@@ -206,7 +206,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof QueryException) {
-            return response()->json(['message' => 'The was a problem executing this query.'], 500);
+            return response()->json(['message' => 'We had a problem executing this query. Please retry.'], 500);
         } 
 
 
