@@ -166,11 +166,12 @@ class RecurringInvoiceTest extends TestCase
                 'company_id' => $this->company->id,
             ]);
         });
-        $client = Client::all()->first();
+
+        $client = Client::query()->orderBy('id', 'DESC')->first();
 
         RecurringInvoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
-        $RecurringInvoice = RecurringInvoice::where('user_id', $this->user->id)->first();
+        $RecurringInvoice = RecurringInvoice::query()->where('user_id', $this->user->id)->orderBy('id', 'DESC')->first();
         $RecurringInvoice->save();
 
         $response = $this->withHeaders([

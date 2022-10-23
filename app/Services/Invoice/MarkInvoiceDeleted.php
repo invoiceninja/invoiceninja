@@ -71,10 +71,6 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function adjustPaidToDateAndBalance()
     {
-        // $client = $this->invoice->client->fresh();
-        // $client->paid_to_date += $this->adjustment_amount * -1;
-        // $client->balance += $this->balance_adjustment * -1;
-        // $client->save();
 
         // 06-09-2022
         $this->invoice
