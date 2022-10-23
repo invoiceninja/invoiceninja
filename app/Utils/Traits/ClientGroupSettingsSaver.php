@@ -65,7 +65,17 @@ trait ClientGroupSettingsSaver
         }
 
         $entity->settings = $entity_settings;
-        $entity->save();
+
+        try{
+            $entity->save();
+        }
+        catch(\Exception $e){
+
+            nlog("client settings failure");
+            nlog($entity_settings);
+            nlog($e->getMessage());
+            
+        }
 
         return $entity_settings;
     }

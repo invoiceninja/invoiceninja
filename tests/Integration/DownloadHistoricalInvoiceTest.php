@@ -58,37 +58,5 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $this->assertNotNull($this->invoice->activities);
     }
 
-    public function testBackupExists()
-    {
-        $this->mockActivity();
 
-        $this->assertNotNull($this->invoice->activities->first()->backup->html_backup);
-    }
-
-    public function testBackupDownload()
-    {
-        $this->mockActivity();
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
-
-        $response->assertStatus(200);
-    }
-
-    public function testBackupCheckPriorToDownloadWorks()
-    {
-        $this->mockActivity();
-
-        $backup = $this->invoice->activities->first()->backup;
-        $backup->forceDelete();
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/activities/download_entity/'.$this->encodePrimaryKey($this->invoice->activities->first()->id));
-
-        $response->assertStatus(404);
-    }
 }

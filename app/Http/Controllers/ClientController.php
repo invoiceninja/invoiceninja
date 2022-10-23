@@ -640,7 +640,14 @@ class ClientController extends BaseController
     {
         //delete all documents
         $client->documents->each(function ($document) {
-            Storage::disk(config('filesystems.default'))->delete($document->url);
+
+            try{
+                Storage::disk(config('filesystems.default'))->delete($document->url);
+            }
+            catch(\Exception $e){
+                nlog($e->getMessage());
+            }
+
         });
 
         //force delete the client

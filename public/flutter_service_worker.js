@@ -4,9 +4,9 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "5b1a19e00c074ba73b725b51f90da896",
+"main.dart.js": "da1ca4eca714583ff82c65cd3792029b",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"/": "eb40da80095b8fd3e80ef1eeb7fb0e22",
+"/": "384495013e69b7963a1f0883fc10f045",
 "flutter.js": "f85e6fb278b0fd20c349186fb46ae36d",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "canvaskit/canvaskit.js": "2bc454a691c631b07a9307ac4ca47797",
@@ -299,7 +299,7 @@ const RESOURCES = {
 "assets/assets/google_fonts/Roboto-Regular.ttf": "8a36205bd9b83e03af0591a004bc97f4",
 "assets/fonts/MaterialIcons-Regular.otf": "95db9098c58fd6db106f1116bae85a0b",
 "assets/NOTICES": "1a34e70168d56fad075adfb4bdbb20eb",
-"version.json": "674c2b7791134c91ed5f7bc241b11d8d",
+"version.json": "ecddd9a09423be80c670ca3af19cf971",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed"
 };

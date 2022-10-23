@@ -42,6 +42,7 @@ class CompanyGateway extends BaseModel
         'require_postal_code',
         'require_client_phone',
         'require_contact_name',
+        'require_contact_email',
         'update_details',
         'config',
         'fees_and_limits',

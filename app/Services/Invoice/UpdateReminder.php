@@ -28,6 +28,7 @@ class UpdateReminder extends AbstractService
         $this->settings = $settings;
     }
 
+    /* We only support setting reminders based on the due date, not the partial due date */
     public function run()
     {
         if (! $this->settings) {
