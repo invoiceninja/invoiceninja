@@ -32,7 +32,9 @@ class StoreBankIntegrationRequest extends Request
     public function rules()
     {
         
-        $rules = [];
+        $rules = [
+            'bank_account_name' => 'required|min:3'
+        ];
 
         return $rules;
     }
@@ -40,6 +42,9 @@ class StoreBankIntegrationRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        if(!array_key_exists('provider_name', $input) || strlen($input['provider_name']) == 0)
+            $input['provider_name'] = $input['bank_account_name'];
 
         $this->replace($input);
     }
