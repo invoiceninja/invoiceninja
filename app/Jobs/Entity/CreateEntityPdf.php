@@ -213,11 +213,13 @@ class CreateEntityPdf implements ShouldQueue
 
         if ($pdf) {
             try {
-                if (! Storage::disk($this->disk)->exists($path)) {
-                    Storage::disk($this->disk)->makeDirectory($path, 0775);
-                }
+                // if (! Storage::disk($this->disk)->exists($path)) {
+                //     Storage::disk($this->disk)->makeDirectory($path, 0775);
+                // }
 
                 Storage::disk($this->disk)->put($file_path, $pdf, 'public');
+
+//r2                Storage::disk($this->disk)->put($file_path, $pdf);
             } catch (\Exception $e) {
                 throw new FilePermissionsFailure($e->getMessage());
             }

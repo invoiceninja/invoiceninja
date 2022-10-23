@@ -105,10 +105,13 @@ class GenerateDeliveryNote
             info($maker->getCompiledHTML());
         }
 
-        if (! Storage::disk($this->disk)->exists($this->invoice->client->invoice_filepath($invitation))) {
-            Storage::disk($this->disk)->makeDirectory($this->invoice->client->invoice_filepath($invitation), 0775);
-        }
+        // if (! Storage::disk($this->disk)->exists($this->invoice->client->invoice_filepath($invitation))) {
+        //     Storage::disk($this->disk)->makeDirectory($this->invoice->client->invoice_filepath($invitation), 0775);
+        // }
+
         Storage::disk($this->disk)->put($file_path, $pdf, 'public');
+
+//r2        Storage::disk($this->disk)->put($file_path, $pdf);
 
         return $file_path;
     }
