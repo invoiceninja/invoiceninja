@@ -149,7 +149,7 @@ class MatchBankTransactions implements ShouldQueue
     }
 
     private function matchInvoicePayment($input) :self
-    {
+    { nlog($input);
         $this->bt = BankTransaction::find($input['id']);
 
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
@@ -166,7 +166,7 @@ class MatchBankTransactions implements ShouldQueue
     }
 
     private function matchExpense($input) :self
-    {
+    { nlog($input);
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
         $this->bt = BankTransaction::find($input['id']);
 
