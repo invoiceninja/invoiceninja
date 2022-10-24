@@ -550,9 +550,9 @@ class BankTransactionController extends BaseController
 
         // MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
         
-        $bt = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
+        $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
 
-        return $this->itemResponse($bt);
+        return $this->listResponse($bts);
  
     }
 

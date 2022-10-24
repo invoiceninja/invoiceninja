@@ -55,6 +55,9 @@ class MatchBankTransactionRequest extends Request
             if(array_key_exists('ninja_category_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['ninja_category_id']) >= 1)
                 $inputs['transactions'][$key]['ninja_category_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['ninja_category_id']);
 
+            if(array_key_exists('vendor_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['vendor_id']) >= 1)
+                $inputs['transactions'][$key]['vendor_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['vendor_id']);
+
             // $input = $this->decodePrimaryKeys($input);
         }
 

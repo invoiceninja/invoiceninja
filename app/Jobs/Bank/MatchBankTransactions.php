@@ -61,6 +61,8 @@ class MatchBankTransactions implements ShouldQueue
     
     private array $attachable_invoices = [];
 
+    public $bts;
+
     /**
      * Create a new job instance.
      */
@@ -71,6 +73,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->db = $db;
         $this->input = $input['transactions'];
         $this->categories = collect();
+        $this->bts = collect();
 
     }
 
@@ -149,7 +152,7 @@ class MatchBankTransactions implements ShouldQueue
     }
 
     private function matchInvoicePayment($input) :self
-    { nlog($input);
+    { 
         $this->bt = BankTransaction::find($input['id']);
 
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
@@ -162,11 +165,13 @@ class MatchBankTransactions implements ShouldQueue
 
         }
 
+        $this->bts->push($this->bt);
+
         return $this;
     }
 
     private function matchExpense($input) :self
-    { nlog($input);
+    { 
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
         $this->bt = BankTransaction::find($input['id']);
 
@@ -186,6 +191,8 @@ class MatchBankTransactions implements ShouldQueue
         $this->bt->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
+
+        $this->bts->push($this->bt);
 
         return $this;
     }
@@ -302,8 +309,7 @@ class MatchBankTransactions implements ShouldQueue
         if(array_key_exists('ninja_category_id', $input) && (int)$input['ninja_category_id'] > 1){
             $this->bt->ninja_category_id = $input['ninja_category_id'];
             $this->bt->save();
-            nlog("ninja category set");
-            nlog((int)$input['ninja_category_id']);
+
             return (int)$input['ninja_category_id'];
         }
 
@@ -316,7 +322,6 @@ class MatchBankTransactions implements ShouldQueue
 
         if($category)
         {
-            nlog("creating category");
             $ec = ExpenseCategoryFactory::create($this->bt->company_id, $this->bt->user_id);
             $ec->bank_category_id = $this->bt->category_id;
             $ec->name = $category->highLevelCategoryName;
@@ -325,7 +330,6 @@ class MatchBankTransactions implements ShouldQueue
             return $ec->id;
         }
         
-        nlog("hit null");
 
         return null;
     }
