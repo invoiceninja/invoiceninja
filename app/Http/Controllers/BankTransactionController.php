@@ -548,7 +548,7 @@ class BankTransactionController extends BaseController
     public function match(MatchBankTransactionRequest $request)
     {
 
-        MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
+        // MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
         
         $bt = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
 
