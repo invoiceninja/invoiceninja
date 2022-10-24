@@ -57,7 +57,7 @@ class MatchBankTransactionRequest extends Request
             if(isset($input['ninja_category_id']) && strlen($input['ninja_category_id']) >= 1)
                 $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
 
-            $input = $this->decodePrimaryKeys($input);
+            // $input = $this->decodePrimaryKeys($input);
         }
 
         $this->replace($inputs);
