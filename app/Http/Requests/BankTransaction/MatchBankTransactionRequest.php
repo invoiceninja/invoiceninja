@@ -30,7 +30,7 @@ class MatchBankTransactionRequest extends Request
     {
 
         $rules = [
-            '*.id' => 'required|bail',
+            '*.id' => 'bail|required',
             '*.invoice_ids' => 'nullable|string|sometimes',
             '*.ninja_category_id' => 'nullable|string|sometimes'
         ];
@@ -51,10 +51,10 @@ class MatchBankTransactionRequest extends Request
         {
             nlog($input);
 
-            if(array_key_exists('id', $input))
+            if(isset($input['id']))
                 $input['id'] = $this->decodePrimaryKey($input['id']);
 
-            if(array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1)
+            if(isset($input['ninja_category_id']) && strlen($input['ninja_category_id']) >= 1)
                 $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
 
             $input = $this->decodePrimaryKeys($input);
