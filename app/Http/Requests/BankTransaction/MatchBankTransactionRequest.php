@@ -30,12 +30,13 @@ class MatchBankTransactionRequest extends Request
     {
 
         $rules = [
-            'id' => 'bail|required',
-            'invoice_ids' => 'nullable|string|sometimes',
-            'ninja_category_id' => 'nullable|string|sometimes'
+            'transactions' => 'bail|array',
+            'transactions.*.id' => 'bail|required',
+            'transactions.*.invoice_ids' => 'nullable|string|sometimes',
+            'transactions.*.ninja_category_id' => 'nullable|string|sometimes'
         ];
 
-        $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['transactions.*.vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
 
@@ -47,7 +48,7 @@ class MatchBankTransactionRequest extends Request
         
         nlog($inputs);
 
-        foreach($inputs as $input)
+        foreach($inputs['transactions'] as $input)
         {
             nlog($input);
 
