@@ -46,17 +46,14 @@ class MatchBankTransactionRequest extends Request
     {
         $inputs = $this->all();
         
-        nlog($inputs);
-
-        foreach($inputs['transactions'] as $input)
+        foreach($inputs['transactions'] as $key => $input)
         {
-            nlog($input);
+        
+            if(array_key_exists('id', $inputs['transactions'][$key]))
+                $inputs['transactions'][$key]['id'] = $this->decodePrimaryKey($input['id']);
 
-            if(isset($input['id']))
-                $input['id'] = $this->decodePrimaryKey($input['id']);
-
-            if(isset($input['ninja_category_id']) && strlen($input['ninja_category_id']) >= 1)
-                $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
+            if(array_key_exists('ninja_category_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['ninja_category_id']) >= 1)
+                $inputs['transactions'][$key]['ninja_category_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['ninja_category_id']);
 
             // $input = $this->decodePrimaryKeys($input);
         }
