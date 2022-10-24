@@ -30,13 +30,12 @@ class MatchBankTransactionRequest extends Request
     {
 
         $rules = [
-            'id.*' => 'required|bail',
-            'invoice_ids.*' => 'nullable|string|sometimes',
-            'ninja_category_id.*' => 'nullable|string|sometimes'
+            '*.id' => 'required|bail',
+            '*.invoice_ids' => 'nullable|string|sometimes',
+            '*.ninja_category_id' => 'nullable|string|sometimes'
         ];
 
-        if(isset($this->vendor_id))
-            $rules['vendor_id.*'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['*.vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
 
@@ -56,7 +55,7 @@ class MatchBankTransactionRequest extends Request
 
             $input = $this->decodePrimaryKeys($input);
         }
-        
+
         $this->replace($inputs);
 
     }
