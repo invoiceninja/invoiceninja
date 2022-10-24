@@ -69,7 +69,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->company_id = $company_id;
         $this->db = $db;
-        $this->input = $input;
+        $this->input = $input['transactions'];
         $this->categories = collect();
 
     }
