@@ -111,7 +111,7 @@ class MatchBankTransactions implements ShouldQueue
                 $this->matchExpense($input);
         }
 
-        return $this->bts;
+        return BankTransaction::whereIn('id', $this->bts);
 
     }
 
@@ -165,7 +165,7 @@ class MatchBankTransactions implements ShouldQueue
 
         }
 
-        $this->bts->push($this->bt);
+        $this->bts->push($this->bt->id);
 
         return $this;
     }
@@ -192,7 +192,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
-        $this->bts->push($this->bt);
+        $this->bts->push($this->bt->id);
 
         return $this;
     }
