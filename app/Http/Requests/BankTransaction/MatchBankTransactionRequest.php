@@ -30,13 +30,13 @@ class MatchBankTransactionRequest extends Request
     {
 
         $rules = [
-            'id' => 'required|bail',
-            'invoice_ids' => 'nullable|string|sometimes',
-            'ninja_category_id' => 'nullable|string|sometimes'
+            'id.*' => 'required|bail',
+            'invoice_ids.*' => 'nullable|string|sometimes',
+            'ninja_category_id.*' => 'nullable|string|sometimes'
         ];
 
         if(isset($this->vendor_id))
-            $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+            $rules['vendor_id.*'] = 'bail|required|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
 
@@ -44,17 +44,20 @@ class MatchBankTransactionRequest extends Request
 
     public function prepareForValidation()
     {
-        $input = $this->all();
+        $inputs = $this->all();
 
-        if(array_key_exists('id', $input))
-            $input['id'] = $this->decodePrimaryKey($input['id']);
+        foreach($inputs as $input)
+        {
+            if(array_key_exists('id', $input))
+                $input['id'] = $this->decodePrimaryKey($input['id']);
 
-        if(array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1)
-            $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
+            if(array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1)
+                $input['ninja_category_id'] = $this->decodePrimaryKey($input['ninja_category_id']);
 
-        $input = $this->decodePrimaryKeys($input);
-
-        $this->replace($input);
+            $input = $this->decodePrimaryKeys($input);
+        }
+        
+        $this->replace($inputs);
 
     }
 }

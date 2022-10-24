@@ -146,8 +146,19 @@ class IncomeTransformer implements BankRevenueInterface
             'date' => $transaction->date,
             'bank_account_id' => $transaction->accountId,
             'description' => $transaction->description->original,
-            'base_type' => property_exists($transaction, 'baseType') ? $transaction->baseType : '',
+            'base_type' => property_exists($transaction, 'baseType') ? $transaction->baseType : $this->calculateBaseType($transaction),
         ];
+    }
+
+    private function calculateBaseType($transaction)
+    {
+        //CREDIT / DEBIT
+
+        if(property_exists($transaction, 'highLevelCategoryId') && $transaction->highLevelCategoryId == 10000012)
+            return 'CREDIT';
+
+        return 'DEBIT';
+
     }
 
     private function convertCurrency(string $code)

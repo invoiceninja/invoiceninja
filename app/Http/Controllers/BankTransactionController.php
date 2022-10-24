@@ -553,8 +553,7 @@ class BankTransactionController extends BaseController
         $bt = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
 
         return $this->itemResponse($bt);
-        // return response()->json(['message' => 'Processing....'], 200);
-
+ 
     }
 
 
