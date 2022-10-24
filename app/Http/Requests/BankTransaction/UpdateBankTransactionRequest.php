@@ -34,7 +34,7 @@ class UpdateBankTransactionRequest extends Request
         $rules = [
             'date' => 'bail|required|date',
             'description' => 'bail|sometimes|string',
-            'amount' => 'numeric|sometimes',
+            'amount' => 'numeric|required',
         ];
 
         if (isset($this->currency_id)) 
