@@ -94,6 +94,7 @@ class MatchBankTransactions implements ShouldQueue
         if(!$bank_categories){
             $_categories = $yodlee->getTransactionCategories();
             $this->categories = collect($_categories->transactionCategory);
+            Cache::forever('bank_categories', $this->categories);
         }
         else {
             $this->categories = collect($bank_categories);
@@ -298,6 +299,7 @@ class MatchBankTransactions implements ShouldQueue
         if(array_key_exists('ninja_category_id', $this->input) && strlen($this->input['ninja_category_id']) >=1){
             $this->bt->ninja_category_id = $this->input['ninja_category_id'];
             $this->bt->save();
+            nlog("ninja category set");
             return (int)$this->input['ninja_category_id'];
         }
 
@@ -310,7 +312,7 @@ class MatchBankTransactions implements ShouldQueue
 
         if($category)
         {
-
+            nlog("creating category");
             $ec = ExpenseCategoryFactory::create($this->bt->company_id, $this->bt->user_id);
             $ec->bank_category_id = $this->bt->category_id;
             $ec->name = $category->highLevelCategoryName;
@@ -318,6 +320,8 @@ class MatchBankTransactions implements ShouldQueue
 
             return $ec->id;
         }
+        
+        nlog("hit null");
 
         return null;
     }
