@@ -296,7 +296,7 @@ class MatchBankTransactions implements ShouldQueue
 
     private function resolveCategory() :?int
     {
-        if(array_key_exists('ninja_category_id', $this->input) && strlen($this->input['ninja_category_id']) >=1){
+        if(array_key_exists('ninja_category_id', $this->input) && strlen($this->input['ninja_category_id']) >1){
             $this->bt->ninja_category_id = $this->input['ninja_category_id'];
             $this->bt->save();
             nlog("ninja category set");
