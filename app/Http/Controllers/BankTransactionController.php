@@ -17,10 +17,12 @@ use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
 use App\Http\Requests\BankTransaction\DestroyBankTransactionRequest;
 use App\Http\Requests\BankTransaction\EditBankTransactionRequest;
+use App\Http\Requests\BankTransaction\ImportBankTransactionsRequest;
 use App\Http\Requests\BankTransaction\MatchBankTransactionRequest;
 use App\Http\Requests\BankTransaction\ShowBankTransactionRequest;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\BankTransaction\UpdateBankTransactionRequest;
+use App\Http\Requests\Import\PreImportRequest;
 use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Repositories\BankTransactionRepository;
@@ -28,7 +30,8 @@ use App\Services\Bank\BankService;
 use App\Transformers\BankTransactionTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class BankTransactionController extends BaseController
 {
