@@ -100,12 +100,15 @@ class MatchBankTransactions implements ShouldQueue
             $this->categories = collect($bank_categories);
         }
 
-        if(array_key_exists('invoice_ids', $this->input) && strlen($this->input['invoice_ids']) > 1)
-            $this->matchInvoicePayment();
-        else
-            $this->matchExpense();
+        foreach($this->input as $input)
+        {
+            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) > 1)
+                $this->matchInvoicePayment($input);
+            else
+                $this->matchExpense($input);
+        }
 
-        return $this->bt;
+        // return $this->bt;
 
     }
 
@@ -145,11 +148,11 @@ class MatchBankTransactions implements ShouldQueue
 
     }
 
-    private function matchInvoicePayment() :self
+    private function matchInvoicePayment($input) :self
     {
-        $this->bt = BankTransaction::find($this->input['id']);
+        $this->bt = BankTransaction::find($input['id']);
 
-        $_invoices = Invoice::withTrashed()->find($this->getInvoices($this->input['invoice_ids']));
+        $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
         
             $amount = $this->bt->amount;
 
@@ -162,13 +165,13 @@ class MatchBankTransactions implements ShouldQueue
         return $this;
     }
 
-    private function matchExpense() :self
+    private function matchExpense($input) :self
     {
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
-        $this->bt = BankTransaction::find($this->input['id']);
+        $this->bt = BankTransaction::find($input['id']);
 
         $expense = ExpenseFactory::create($this->bt->company_id, $this->bt->user_id);
-        $expense->category_id = $this->resolveCategory();
+        $expense->category_id = $this->resolveCategory($input);
         $expense->amount = $this->bt->amount;
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->currency_id = $this->bt->currency_id;
@@ -176,11 +179,11 @@ class MatchBankTransactions implements ShouldQueue
         $expense->payment_date = Carbon::parse($this->bt->date);
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
-        $expense->vendor_id = array_key_exists('vendor_id', $this->input) ? $this->input['vendor_id'] : null;
+        $expense->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
         $expense->save();
 
         $this->bt->expense_id = $expense->id;
-        $this->bt->vendor_id = array_key_exists('vendor_id', $this->input) ? $this->input['vendor_id'] : null;
+        $this->bt->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
@@ -294,14 +297,14 @@ class MatchBankTransactions implements ShouldQueue
         $this->bt->save();
     }
 
-    private function resolveCategory() :?int
+    private function resolveCategory($input) :?int
     {
-        if(array_key_exists('ninja_category_id', $this->input) && (int)$this->input['ninja_category_id'] > 1){
-            $this->bt->ninja_category_id = $this->input['ninja_category_id'];
+        if(array_key_exists('ninja_category_id', $input) && (int)$input['ninja_category_id'] > 1){
+            $this->bt->ninja_category_id = $input['ninja_category_id'];
             $this->bt->save();
             nlog("ninja category set");
-            nlog((int)$this->input['ninja_category_id']);
-            return (int)$this->input['ninja_category_id'];
+            nlog((int)$input['ninja_category_id']);
+            return (int)$input['ninja_category_id'];
         }
 
         $category = $this->categories->firstWhere('highLevelCategoryId', $this->bt->category_id);
