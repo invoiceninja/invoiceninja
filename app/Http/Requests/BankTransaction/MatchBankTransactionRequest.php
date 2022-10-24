@@ -47,6 +47,8 @@ class MatchBankTransactionRequest extends Request
 
         foreach($inputs as $input)
         {
+            nlog($input);
+            
             if(array_key_exists('id', $input))
                 $input['id'] = $this->decodePrimaryKey($input['id']);
 
