@@ -79,6 +79,17 @@ class Csv extends BaseImport implements ImportInterface
 
         if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
+
+
+            if(array_key_exists('bank_integration_id', $this->request)){
+
+                foreach($data as $key => $value)
+                {
+                    $data['bank_integration_id'][$key] = $this->request['bank_integration_id'];
+                }
+
+            }
+
         }
 
         if (empty($data)) {
