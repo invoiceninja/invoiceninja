@@ -49,6 +49,7 @@ class BraintreeCreditCard {
         payNow.addEventListener('click', () => {
             dropinInstance.requestPaymentMethod({
                 threeDSecure: {
+                  challengeRequested:true,
                   amount: params.amount,
                   email: params.email,
                   billingAddress: {
