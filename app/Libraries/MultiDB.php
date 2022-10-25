@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Document;
 use App\Models\User;
+use App\Models\VendorContact;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -353,6 +354,23 @@ class MultiDB
 
         foreach (self::$dbs as $db) {
             if (ClientContact::on($db)->where('contact_key', $contact_key)->exists()) {
+                self::setDb($db);
+
+                return true;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
+    public static function findAndSetDbByVendorContactKey($contact_key) :bool
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if (VendorContact::on($db)->where('contact_key', $contact_key)->exists()) {
                 self::setDb($db);
 
                 return true;
