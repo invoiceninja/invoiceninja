@@ -187,7 +187,6 @@ class BaseImport
 
             try {
                 $entity = $this->transformer->transform($record);
-                // $validator = $this->request_name::runFormRequest($entity);
                 $validator = $this->runValidation($entity);
 
                 if ($validator->fails()) {

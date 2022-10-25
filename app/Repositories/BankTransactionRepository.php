@@ -24,7 +24,7 @@ class BankTransactionRepository extends BaseRepository
     public function save($data, BankTransaction $bank_transaction)
     {
 
-        if(!isset($bank_transaction->bank_integration_id))
+        if(!isset($bank_transaction->bank_integration_id) && array_key_exists('bank_integration_id', $data))
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
 
         $bank_transaction->fill($data);
