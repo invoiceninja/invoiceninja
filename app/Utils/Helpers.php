@@ -128,7 +128,7 @@ class Helpers
 
         if(!$string_hit)
             return $value;
-        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expenseive process
+        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expensive process
 
         Carbon::setLocale($entity->locale());
 
@@ -296,8 +296,7 @@ class Helpers
         }
 
         return $value;
-        // $x = str_replace(["\n", "<br>"], ["\r", "<br>"], $value);
-        // return $x;
+        
     }
 
     /**

@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.5.32',
-    'app_tag' => '5.5.32',
+    'app_version' => '5.5.33',
+    'app_tag' => '5.5.33',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -200,5 +200,12 @@ return [
     'twilio_account_sid' => env('TWILIO_ACCOUNT_SID',false),
     'twilio_auth_token' => env('TWILIO_AUTH_TOKEN',false),
     'twilio_verify_sid' => env('TWILIO_VERIFY_SID',false),
-
+    'yodlee' => [
+        'client_id' => env('YODLEE_CLIENT_ID',false),
+        'client_secret' => env('YODLEE_CLIENT_SECRET', false),
+        'admin_name' => env('YODLEE_LOGIN_ADMIN_NAME', false),
+        'test_mode' => env("YODLEE_TEST_MODE", false),
+        'dev_mode' => env("YODLEE_DEV_MODE", false),
+        'config_name' => env("YODLEE_CONFIG_NAME", false),
+    ],
 ];

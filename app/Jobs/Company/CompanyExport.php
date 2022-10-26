@@ -77,6 +77,7 @@ class CompanyExport implements ShouldQueue
         set_time_limit(0);
 
         $this->export_data['app_version'] = config('ninja.app_version');
+        $this->export_data['storage_url'] = Storage::url('');
 
         $this->export_data['activities'] = $this->company->all_activities->map(function ($activity){
 
@@ -167,7 +168,8 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['company'] = $this->company->toArray();
-
+        $this->export_data['company']['company_key'] = $this->createHash();
+        
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway){
 
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
@@ -515,8 +517,8 @@ class CompanyExport implements ShouldQueue
 
         $path = 'backups';
         
-        if(!Storage::disk(config('filesystems.default'))->exists($path))
-            Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
+        // if(!Storage::disk(config('filesystems.default'))->exists($path))
+        //     Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
 
         $zip_path = public_path('storage/backups/'.$file_name);
         $zip = new \ZipArchive();

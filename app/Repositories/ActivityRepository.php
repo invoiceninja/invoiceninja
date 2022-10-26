@@ -59,7 +59,8 @@ class ActivityRepository extends BaseRepository
 
         $activity->save();
 
-        $this->createBackup($entity, $activity);
+        //rate limiter
+        // $this->createBackup($entity, $activity);
     }
 
     /**
@@ -82,7 +83,7 @@ class ActivityRepository extends BaseRepository
             $backup = new Backup();
             $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
-            $backup->html_backup = $this->generateHtml($entity);
+            $backup->html_backup = '';
             $backup->amount = $entity->amount;
             $backup->activity_id = $activity->id;
             $backup->json_backup = '';

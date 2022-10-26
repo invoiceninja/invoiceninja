@@ -602,11 +602,11 @@ class BaseDriver extends AbstractPaymentDriver
             }
         }
 
-        if ($this->company_gateway->require_contact_email) {
-            if ($this->checkRequiredResource($this->email)) {
-                $this->required_fields[] = 'contact_email';
-            }
-        }
+        // if ($this->company_gateway->require_contact_email) {
+        //     if ($this->checkRequiredResource($this->email)) {
+        //         $this->required_fields[] = 'contact_email';
+        //     }
+        // }
 
         // if ($this->company_gateway->require_contact_name) {
         //     if ($this->checkRequiredResource($this->first_name)) {

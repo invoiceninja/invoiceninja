@@ -19,9 +19,11 @@ use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Google\Service\Vision\Property;
 use ReflectionClass;
 
 class BaseRepository
@@ -108,32 +110,6 @@ class BaseRepository
         }
     }
 
-    /**
-     * @param $ids
-     * @param $action
-     *
-     * @return int
-     * @deprecated - this doesn't appear to be used anywhere?
-     */
-    // public function bulk($ids, $action)
-    // {
-    //     if (! $ids) {
-    //         return 0;
-    //     }
-
-    //     $ids = $this->transformKeys($ids);
-
-    //     $entities = $this->findByPublicIdsWithTrashed($ids);
-
-    //     foreach ($entities as $entity) {
-    //         if (auth()->user()->can('edit', $entity)) {
-    //             $this->$action($entity);
-    //         }
-    //     }
-
-    //     return count($entities);
-    // }
-
     /* Returns an invoice if defined as a key in the $resource array*/
     public function getInvitation($invitation, $resource)
     {
@@ -142,7 +118,7 @@ class BaseRepository
         
         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
-        $invitation = $invitation_class::where('key', $invitation['key'])->first();
+        $invitation = $invitation_class::with('company')->where('key', $invitation['key'])->first();
 
         return $invitation;
     }
@@ -171,12 +147,12 @@ class BaseRepository
      * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
-    {
+    {   //$start = microtime(true);
         //forces the client_id if it doesn't exist
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        $client = Client::where('id', $model->client_id)->withTrashed()->firstOrFail();    
+        $client = Client::with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();    
 
         $state = [];
 
@@ -208,9 +184,21 @@ class BaseRepository
         $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
         $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
-        if(!$model->id)
+        if(!$model->id){
             $this->new_model = true;
-        
+
+            if(is_array($model->line_items))
+            {                
+                $model->line_items = (collect($model->line_items))->map(function ($item) use($model,$client) {
+
+                    $item->notes = Helpers::processReservedKeywords($item->notes, $client);
+
+                    return $item;
+
+                });
+            }
+        }
+
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
@@ -377,6 +365,8 @@ class BaseRepository
         }
 
         $model->save();
+
+//        nlog("save time = ". microtime(true) - $start);
 
         return $model->fresh();
     }

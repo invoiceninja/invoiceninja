@@ -31,7 +31,7 @@ class ProfitLossRequest extends Request
             'start_date' => 'string|date',
             'end_date' => 'string|date',
             'is_income_billed' => 'required|bail|bool',
-            'is_expense_billed' => 'required|bail|bool',
+            'is_expense_billed' => 'bool',
             'include_tax' => 'required|bail|bool',
             'date_range' => 'sometimes|string',
             'send_email' => 'bool',

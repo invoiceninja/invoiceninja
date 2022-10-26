@@ -128,11 +128,18 @@ class NinjaMailerJob implements ShouldQueue
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
 
-        } catch (\Exception | \RuntimeException $e) {
+        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
             nlog("error failed with {$e->getMessage()}");
 
             $message = $e->getMessage();
+
+            if($e instanceof \Google\Service\Exception){
+
+                if(($e->getCode() == 429) && ($this->nmo->to_user instanceof ClientContact))
+                    $this->logMailError("Google rate limiter hit, we will retry in 30 seconds.", $this->nmo->to_user->client);
+
+            }
 
             /**
              * Post mark buries the proper message in a a guzzle response
