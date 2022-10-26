@@ -58,16 +58,18 @@ class YodleeApiTest extends TestCase
         $bt->date = now()->format('Y-m-d');
         $bt->transaction_id = 1234567890;
         $bt->category_id = 10000003;
+        $bt->base_type = 'DEBIT';
         $bt->save();
 
-    
-        $data = [
+        $data = [];
+
+        $data['transactions'][] = [
             'id' => $bt->id,
         ];
 
         MatchBankTransactions::dispatchSync($this->company->id, $this->company->db, $data);
 
-        $expense = Expense::where('public_notes', 'Fuel')->first();
+        $expense = Expense::where('transaction_reference', 'Fuel')->first();
 
         $this->assertNotNull($expense);
         $this->assertEquals(10, (int)$expense->amount);
@@ -116,7 +118,7 @@ class YodleeApiTest extends TestCase
         $bt->transaction_id = 123456;
         $bt->save();
     
-        $data = [
+        $data['transactions'][] = [
             'id' => $bt->id,
             'invoice_ids' => $invoice->hashed_id
         ];

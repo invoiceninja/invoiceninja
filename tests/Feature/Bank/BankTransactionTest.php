@@ -37,7 +37,9 @@ class BankTransactionTest extends TestCase
 
     public function testMatchBankTransactionsValidationShouldFail()
     {
-        $data = [
+        $data = [];
+        
+        $data['transactions'][] = [
             'bad_key' => 10,
         ];
 
@@ -52,12 +54,11 @@ class BankTransactionTest extends TestCase
 
     public function testMatchBankTransactionValidationShouldPass()
     {
-        $data = [
+        $data = [];
+
+        $data['transactions'][] = [
             'id' => $this->bank_transaction->hashed_id,
         ];
-
-nlog($this->bank_transaction->hashed_id);
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
