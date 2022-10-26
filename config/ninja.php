@@ -38,7 +38,7 @@ return [
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
     'local_download' => env('LOCAL_DOWNLOAD', false),
-    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://39389664f3f14969b4c43dadda00a40b@sentry2.invoicing.co/5'),
+    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', null),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
