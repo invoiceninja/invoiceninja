@@ -54,17 +54,33 @@ class Number
      * Formats a given value based on the clients currency.
      *
      * @param  float  $value    The number to be formatted
-     * @param  object $currency The client currency object
      *
      * @return string           The formatted value
      */
-    public static function formatValueNoTrailingZeroes($value, $currency) :string
+    public static function formatValueNoTrailingZeroes($value, $entity) :string
     {
         $value = floatval($value);
 
+        $currency = $entity->currency();
+
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
-        $precision = $currency->precision;
+        // $precision = $currency->precision;
+
+        if ($entity instanceof Company) {
+            $country = $entity->country();
+        } else {
+            $country = $entity->country;
+        }
+
+        /* Country settings override client settings */
+        if (isset($country->thousand_separator) && strlen($country->thousand_separator) >= 1) {
+            $thousand = $country->thousand_separator;
+        }
+
+        if (isset($country->decimal_separator) && strlen($country->decimal_separator) >= 1) {
+            $decimal = $country->decimal_separator;
+        }
 
         $precision = 10;
 

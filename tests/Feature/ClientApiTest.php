@@ -12,6 +12,7 @@
 namespace Tests\Feature;
 
 use App\Models\Country;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -401,4 +402,89 @@ class ClientApiTest extends TestCase
 
         $response->assertStatus(302);
     }
+
+    public function testRoundingDecimalsTwo()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.05, $currency);
+
+        $this->assertEquals(0.05, $x);
+    }
+
+    public function testRoundingDecimalsThree()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.005, $currency);
+
+        $this->assertEquals(0.005, $x);
+    }
+
+    public function testRoundingDecimalsFour()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.0005, $currency);
+
+        $this->assertEquals(0.0005, $x);
+    }
+
+    public function testRoundingDecimalsFive()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.00005, $currency);
+
+        $this->assertEquals(0.00005, $x);
+    }
+
+    public function testRoundingDecimalsSix()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.000005, $currency);
+
+        $this->assertEquals(0.000005, $x);
+    }
+
+    public function testRoundingDecimalsSeven()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.0000005, $currency);
+
+        $this->assertEquals(0.0000005, $x);
+    }
+
+    public function testRoundingDecimalsEight()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(0.00000005, $currency);
+
+        $this->assertEquals(0.00000005, $x);
+    }
+
+    public function testRoundingPositive()
+    {
+        $currency = $this->company;
+
+        $x = Number::formatValueNoTrailingZeroes(1.5, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.500, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50005, $currency);
+        $this->assertEquals(1.50005, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50000005, $currency);
+        $this->assertEquals(1.50000005, $x);
+    }
+
+
 }

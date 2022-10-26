@@ -11,7 +11,7 @@
  *       @OA\Property(property="category_id", type="integer", example=1, description="The Category Type ID"),
  *       @OA\Property(property="type_id", type="integer", example=1, description="The Type Type ID"),
  *       @OA\Property(property="log", type="object", example="{'key':'value'}", description="The json object of the error"),
- *       @OA\Property(property="updated_at", type="string", example="2", description="______"),
- *       @OA\Property(property="created_at", type="string", example="2", description="______"),
+ *       @OA\Property(property="updated_at", type="string", example="2", description="Timestamp"),
+ *       @OA\Property(property="created_at", type="string", example="2", description="Timestamp"),
  * )
  */

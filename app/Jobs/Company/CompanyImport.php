@@ -1075,7 +1075,6 @@ class CompanyImport implements ShouldQueue
     private function import_documents()
     {
 
-        // foreach($this->backup_file->documents as $document)
         foreach((object)$this->getObject("documents") as $document)
         {
 
@@ -1105,6 +1104,29 @@ class CompanyImport implements ShouldQueue
 
             $new_document->save(['timestamps' => false]);
         
+
+            $storage_url = (object)$this->getObject('storage_url', true);
+
+            if(!Storage::exists($new_document->url)){
+
+                $url = $storage_url . $new_document->url;
+
+                $file = @file_get_contents($url);
+
+                if($file)
+                {
+                    try{
+                        Storage::disk(config('filesystems.default'))->put($new_document->url, $file);
+                    }
+                    catch(\Exception $e)
+                    {
+                        nlog($e->getMessage());
+                        nlog("I could not upload {$new_document->url}");
+                    }
+                }
+
+            }
+
         }
 
         return $this;

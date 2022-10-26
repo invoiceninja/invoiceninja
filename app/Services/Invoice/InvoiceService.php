@@ -218,6 +218,7 @@ class InvoiceService
     public function markDeleted()
     {
         $this->removeUnpaidGatewayFees();
+        $this->deletePdf();
 
         $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
@@ -298,6 +299,9 @@ class InvoiceService
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
         }
+        elseif($this->invoice->balance < 0) {
+            $this->setStatus(Invoice::STATUS_PARTIAL);   
+        }
 
         return $this;
     }
@@ -313,7 +317,7 @@ class InvoiceService
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
-        elseif ($this->invoice->balance > 0) {
+        elseif ($this->invoice->balance < 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
 
