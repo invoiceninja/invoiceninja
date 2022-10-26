@@ -140,6 +140,11 @@ class Account extends BaseModel
         return $this->hasMany(Company::class);
     }
 
+    public function bank_integrations()
+    {
+        return $this->hasMany(BankIntegration::class);
+    }
+
     public function company_users()
     {
         return $this->hasMany(CompanyUser::class);
@@ -359,9 +364,9 @@ class Account extends BaseModel
                 'plan_price' => $price,
                 'trial' => false,
                 'plan' => $plan,
-                'started' => DateTime::createFromFormat('Y-m-d', $this->plan_started),
+                'started' => $this->plan_started ? DateTime::createFromFormat('Y-m-d', $this->plan_started) : false,
                 'expires' => $plan_expires,
-                'paid' => DateTime::createFromFormat('Y-m-d', $this->plan_paid),
+                'paid' => $this->plan_paid ? DateTime::createFromFormat('Y-m-d', $this->plan_paid) : false,
                 'term' => $this->plan_term,
                 'active' => $plan_active,
             ];

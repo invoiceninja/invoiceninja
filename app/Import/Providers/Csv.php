@@ -11,6 +11,7 @@
 
 namespace App\Import\Providers;
 
+use App\Factory\BankTransactionFactory;
 use App\Factory\ClientFactory;
 use App\Factory\ExpenseFactory;
 use App\Factory\InvoiceFactory;
@@ -18,6 +19,7 @@ use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\VendorFactory;
+use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
@@ -35,6 +37,8 @@ use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
+use App\Import\Transformers\Bank\BankTransformer;
+use App\Repositories\BankTransactionRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ExpenseRepository;
 use App\Repositories\InvoiceRepository;
@@ -60,10 +64,48 @@ class Csv extends BaseImport implements ImportInterface
                 'vendor',
                 'expense',
                 'quote',
+                'bank_transaction',
             ])
         ) {
             $this->{$entity}();
         }
+    }
+
+    public function bank_transaction()
+    {
+        $entity_type = 'bank_transaction';
+
+        $data = $this->getCsvData($entity_type);
+
+        if (is_array($data)) {
+            $data = $this->preTransformCsv($data, $entity_type);
+
+
+            if(array_key_exists('bank_integration_id', $this->request)){
+
+                foreach($data as $key => $value)
+                {
+                    $data['bank_integration_id'][$key] = $this->request['bank_integration_id'];
+                }
+
+            }
+
+        }
+
+        if (empty($data)) {
+            $this->entity_count['bank_transactions'] = 0;
+
+            return;
+        }
+
+        $this->request_name = StoreBankTransactionRequest::class;
+        $this->repository_name = BankTransactionRepository::class;
+        $this->factory_name = BankTransactionFactory::class;
+
+        $this->transformer = new BankTransformer($this->company);
+        $bank_transaction_count = $this->ingest($data, $entity_type);
+        $this->entity_count['bank_transactions'] = $bank_transaction_count;
+
     }
 
     public function client()

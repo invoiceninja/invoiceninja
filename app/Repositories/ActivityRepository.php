@@ -84,7 +84,6 @@ class ActivityRepository extends BaseRepository
             $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = '';
-            // $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;
             $backup->activity_id = $activity->id;
             $backup->json_backup = '';

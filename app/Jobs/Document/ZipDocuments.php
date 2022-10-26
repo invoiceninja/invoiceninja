@@ -126,6 +126,12 @@ class ZipDocuments implements ShouldQueue
             $number = '_'.$document->documentable->number;
         }
 
-        return "{$date}_{$document->documentable->translate_entity()}{$number}_{$filename}";
+        $entity = ctrans('texts.document');
+
+        if(isset($document->documentable)){
+            $entity = $document->documentable->translate_entity();
+        }
+
+        return "{$date}_{$entity}{$number}_{$filename}";
     }
 }

@@ -103,7 +103,7 @@ class ExpenseTransformer extends EntityTransformer
             'private_notes' => (string) $expense->private_notes ?: '',
             'public_notes' => (string) $expense->public_notes ?: '',
             'transaction_reference' => (string) $expense->transaction_reference ?: '',
-            'transaction_id' => (string) $expense->transaction_id ?: '',
+            'transaction_id' => (string) $this->encodePrimaryKey($expense->transaction_id) ?: '',
             'date' => $expense->date ?: '',
             'number' => (string)$expense->number ?: '',
             'payment_date' => $expense->payment_date ?: '',
