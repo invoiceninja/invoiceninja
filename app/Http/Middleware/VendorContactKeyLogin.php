@@ -65,7 +65,7 @@ class VendorContactKeyLogin
                 return redirect($this->setRedirectPath());
             }
         } elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
-            if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
+            if (MultiDB::findAndSetDbByVendorContactKey($request->segment(3))) {
                 if ($vendor_contact = VendorContact::where('contact_key', $request->segment(3))->first()) {
                     if (empty($vendor_contact->email)) {
                         $vendor_contact->email = Str::random(6).'@example.com';

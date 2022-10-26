@@ -42,10 +42,7 @@ class NinjaMailer extends Mailable
 
         $ninja_mailable = $this->from(config('mail.from.address'), $from_name)
                     ->subject($this->mail_obj->subject)
-                    ->view($this->mail_obj->markdown, $this->mail_obj->data)
-                    ->withSymfonyMessage(function ($message) {
-                        $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
-                    });
+                    ->view($this->mail_obj->markdown, $this->mail_obj->data);
 
         if (property_exists($this->mail_obj, 'text_view')) {
             $ninja_mailable->text($this->mail_obj->text_view, $this->mail_obj->data);

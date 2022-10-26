@@ -277,6 +277,9 @@ class RefundPayment
                     $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
                 }
 
+                //26-10-2022 - disable autobill to prevent future billings;
+                $invoice->auto_bill_enabled = false;
+
                 $invoice->saveQuietly();
 
                 //06-09-2022
@@ -284,10 +287,6 @@ class RefundPayment
                                   ->service()
                                   ->updateBalance($refunded_invoice['amount'])
                                   ->save();
-
-                // $client = $invoice->client;
-                // $client->balance += $refunded_invoice['amount'];
-                // $client->save();
 
                 $transaction = [
                     'invoice' => $invoice->transaction_event(),

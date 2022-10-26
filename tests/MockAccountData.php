@@ -24,6 +24,8 @@ use App\Factory\PurchaseOrderFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -141,6 +143,16 @@ trait MockAccountData
      */
     public $cu;
 
+    /**
+     * @var
+     */
+    public $bank_integration;
+
+    /**
+     * @var
+     */
+    public $bank_transaction;
+    
     /**
      * @var
      */
@@ -522,6 +534,42 @@ trait MockAccountData
             'company_id' => $this->company->id,
             'client_contact_id' => $contact2->id,
             'credit_id' => $this->credit->id,
+        ]);
+
+        $this->bank_integration = BankIntegration::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $this->bank_transaction = BankTransaction::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
+        ]);
+
+        BankTransaction::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
+        ]);
+
+        BankTransaction::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
+        ]);
+
+        BankTransaction::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
+        ]);
+
+        BankTransaction::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'bank_integration_id' => $this->bank_integration->id,
         ]);
 
         $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)

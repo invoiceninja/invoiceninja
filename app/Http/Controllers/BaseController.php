@@ -105,6 +105,8 @@ class BaseController extends Controller
           'company.vendors.documents',
           'company.webhooks',
           'company.system_logs',
+          'company.bank_integrations',
+          'company.bank_transactions',
         ];
 
     private $mini_load = [
@@ -122,6 +124,7 @@ class BaseController extends Controller
         'company.designs.company',
         'company.expense_categories',
         'company.subscriptions',
+        'company.bank_integrations',
     ];
 
     public function __construct()
@@ -438,6 +441,20 @@ class BaseController extends Controller
                         $query->where('subscriptions.user_id', $user->id);
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
+                    $query->whereNotNull('updated_at');
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
             ]
         );
 
@@ -495,6 +512,12 @@ class BaseController extends Controller
                 'company.activities'=> function ($query) use ($user) {
                     if (! $user->isAdmin()) {
                         $query->where('activities.user_id', $user->id);
+                    }
+                },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
                     }
                 },
             ]
@@ -739,6 +762,20 @@ class BaseController extends Controller
                             $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
                         });
 
+                    }
+                },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
             ]
