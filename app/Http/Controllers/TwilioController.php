@@ -172,4 +172,19 @@ class TwilioController extends BaseController
 
     }    
 
+    public function validatePhoneNumber()
+    {
+
+        $sid = config('ninja.twilio_account_sid');
+        $token = config('ninja.twilio_auth_token');
+
+        $twilio = new Client($sid, $token);
+
+        $phone_number = $twilio->lookups->v1->phoneNumbers("0417918829")
+                                            ->fetch(["countryCode" => "AU"]);
+
+        print($phone_number);
+
+    }
+
 }
