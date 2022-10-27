@@ -37,7 +37,7 @@ class YodleeApiTest extends TestCase
     {
         parent::setUp();
 
-        if(!config('ninja.yodlee.client_id'))
+        // if(!config('ninja.yodlee.client_id'))
             $this->markTestSkipped('Skip test no Yodlee API credentials found');
 
         $this->makeTestData();
