@@ -459,7 +459,8 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            //27-10-2022 - enforce unsigned integer
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -470,6 +471,14 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
+    }
+
+    private function resolveQueryLimit()
+    {
+        if(request()->has('per_page'))
+            return abs((int)request()->input('per_page', 20));
+
+        return 20;
     }
 
     protected function miniLoadResponse($query)
@@ -524,7 +533,7 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -782,7 +791,7 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -831,7 +840,7 @@ class BaseController extends Controller
         }
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
