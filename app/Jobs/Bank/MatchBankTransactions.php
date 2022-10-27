@@ -185,6 +185,8 @@ class MatchBankTransactions implements ShouldQueue
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
         $expense->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
+        $expense->invoice_documents = $this->company->invoice_expense_documents;
+        $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
         $this->bt->expense_id = $expense->id;
