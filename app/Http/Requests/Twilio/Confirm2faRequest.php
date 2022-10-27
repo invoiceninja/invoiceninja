@@ -33,7 +33,7 @@ class Confirm2faRequest extends Request
 
         return [
             'code' => 'required',
-            'email' => 'required|exists,users:email',
+            'email' => 'required|exists:users,email',
         ];
     }
 

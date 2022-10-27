@@ -33,7 +33,7 @@ class Generate2faRequest extends Request
     {
 
         return [
-            'email' => 'required|exists,users:email',
+            'email' => 'required|exists:users,email',
         ];
         
     }
