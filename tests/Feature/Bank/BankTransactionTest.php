@@ -56,6 +56,11 @@ class BankTransactionTest extends TestCase
 
     public function testMatchBankTransactionValidationShouldPass()
     {
+
+         if (config('ninja.testvars.travis') !== false) {
+                $this->markTestSkipped('Skip test for Github Actions');
+         }
+
         $data = [];
 
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
