@@ -298,7 +298,6 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('settings/enable_two_factor', [TwoFactorController::class, 'enableTwoFactor']);
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
 
-
     Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:100,1');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm');
     
@@ -343,6 +342,9 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
 
 });
+
+Route::post('sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:10,1');
+Route::post('sms_reset/confirm', [TwilioController::class, 'confirm2faResetCode'])->name('sms_reset.confirm')->middleware('throttle:20,1');
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
     ->middleware('throttle:1000,1')
