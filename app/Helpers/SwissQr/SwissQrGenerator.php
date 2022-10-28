@@ -141,7 +141,7 @@ class SwissQrGenerator
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
         QrBill\DataGroup\Element\AdditionalInformation::create(
-            $this->invoice->public_notes ?: ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice_number])
+            $this->invoice->public_notes ? substr($this->invoice->public_notes, 0, 139) : ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice_number])
         )
     );
 
