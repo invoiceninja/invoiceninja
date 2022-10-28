@@ -181,7 +181,7 @@ class SendRecurring implements ShouldQueue
         $job_failure->string_metric6 = $exception->getMessage();
 
         LightLogs::create($job_failure)
-                 ->queue();
+                 ->send();
 
         nlog(print_r($exception->getMessage(), 1));
     }
