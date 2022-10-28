@@ -63,8 +63,15 @@ class AdjustEmailQuota implements ShouldQueue
 
             $email_count = Cache::get($account->key);
 
-            if($email_count > 0)
-                LightLogs::create(new EmailCount($email_count, $account->key))->batch();
+            if($email_count > 0){
+
+                try{
+                    LightLogs::create(new EmailCount($email_count, $account->key))->send();
+                }
+                catch(\Exception $e){
+                    nlog($e->getMessage());
+                }
+            }
 
             Cache::forget($account->key);
             Cache::forget("throttle_notified:{$account->key}");

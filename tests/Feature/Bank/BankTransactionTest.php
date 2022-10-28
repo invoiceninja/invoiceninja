@@ -12,6 +12,8 @@
 
 namespace Tests\Feature\Bank;
 
+use App\Factory\BankIntegrationFactory;
+use App\Factory\BankTransactionFactory;
 use App\Models\BankTransaction;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -54,10 +56,31 @@ class BankTransactionTest extends TestCase
 
     public function testMatchBankTransactionValidationShouldPass()
     {
+
+         if (config('ninja.testvars.travis') !== false) {
+                $this->markTestSkipped('Skip test for Github Actions');
+         }
+
+        $data = [];
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->description = 'Fuel';
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'DEBIT';
+        $bt->save();
+
         $data = [];
 
         $data['transactions'][] = [
-            'id' => $this->bank_transaction->hashed_id,
+            'id' => $bt->hashed_id,
         ];
 
         $response = $this->withHeaders([

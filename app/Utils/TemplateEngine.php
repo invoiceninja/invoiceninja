@@ -13,10 +13,12 @@
 namespace App\Utils;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Mail\Engine\PaymentEmailEngine;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Payment;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
@@ -188,6 +190,8 @@ class TemplateEngine
     {
         if (in_array($this->entity, ['purchaseOrder', 'purchase_order']))
             $this->labels_and_values = (new VendorHtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
+        elseif($this->entity == 'payment')
+            $this->labels_and_values = (new PaymentEmailEngine($this->entity_obj, $this->entity_obj->client->contacts->first()))->generateLabelsAndValues();
         else
             $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
 
@@ -267,6 +271,8 @@ class TemplateEngine
     {
         if (!$this->entity && $this->template && str_contains($this->template, 'purchase_order'))
             $this->entity = 'purchaseOrder';
+        elseif(str_contains($this->template, 'payment'))
+            $this->entity = 'payment';
 
         DB::connection(config('database.default'))->beginTransaction();
 
@@ -284,6 +290,40 @@ class TemplateEngine
             'is_primary' => 1,
             'send_email' => true,
         ]);
+
+        if ($this->entity == 'payment') {
+
+            
+            $this->entity_obj = Payment::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'client_id' => $client->id,
+                'amount' => 10,
+                'applied' => 10,
+                'refunded' => 5,
+            ]);
+
+            $invoice = Invoice::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'client_id' => $client->id,
+                'amount' => 10,
+                'balance' => 10,
+                'number' => rand(1,10000)
+            ]);
+
+            $invitation = InvoiceInvitation::factory()->create([
+                'user_id' => auth()->user()->id,
+                'company_id' => auth()->user()->company()->id,
+                'invoice_id' => $invoice->id,
+                'client_contact_id' => $contact->id,
+            ]);
+
+            $this->entity_obj->invoices()->attach($invoice->id, [
+                'amount' => 10,
+            ]);
+
+        }
 
         if (!$this->entity || $this->entity == 'invoice') {
             $this->entity_obj = Invoice::factory()->create([
@@ -314,8 +354,6 @@ class TemplateEngine
                 'client_contact_id' => $contact->id,
             ]);
         }
-
-
 
         if ($this->entity == 'purchaseOrder') {
 

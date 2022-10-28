@@ -141,7 +141,7 @@ class SwissQrGenerator
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
         QrBill\DataGroup\Element\AdditionalInformation::create(
-            $this->invoice->public_notes ?: ''
+            $this->invoice->public_notes ?: ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice_number])
         )
     );
 
@@ -149,7 +149,7 @@ class SwissQrGenerator
     // Now get the QR code image and save it as a file.
         try {
 
-            $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, 'en');
+            $output = new QrBill\PaymentPart\Output\HtmlOutput\HtmlOutput($qrBill, $this->client->locale() ?: 'en');
 
             $html = $output
                 ->setPrintable(false)

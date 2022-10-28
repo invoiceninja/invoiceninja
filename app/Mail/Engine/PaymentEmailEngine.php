@@ -329,4 +329,18 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         return $data;
     }
+
+    public function generateLabelsAndValues()
+    {
+        $data = [];
+
+        $values = $this->makePaymentVariables();
+
+        foreach ($values as $key => $value) {
+            $data['values'][$key] = $value['value'];
+            $data['labels'][$key.'_label'] = $value['label'];
+        }
+
+        return $data;
+    }
 }

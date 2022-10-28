@@ -17,8 +17,10 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityViewedObject;
 use App\Notifications\Admin\EntityViewedNotification;
+use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue
@@ -44,6 +46,11 @@ class InvitationViewedListener implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($event->company->settings));
+        App::setLocale($event->company->getLocale());
+        
         $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 

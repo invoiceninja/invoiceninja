@@ -122,11 +122,12 @@ class NinjaMailerJob implements ShouldQueue
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
 
-            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
-                     ->batch();
-
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
+
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
+                     ->send();
+
 
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
@@ -394,7 +395,7 @@ class NinjaMailerJob implements ShouldQueue
         $job_failure->string_metric6 = substr($errors, 0, 150);
 
         LightLogs::create($job_failure)
-                 ->queue();
+                 ->send();
     }
 
     public function failed($exception = null)
