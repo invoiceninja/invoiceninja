@@ -58,13 +58,12 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                             $query->where('is_disabled', 0);
                                         })
-                                        ->orderBy('id', 'DESC')
-                                        ->with('company');
+                                        ->orderBy('id', 'DESC');
 
             nlog($auto_bill_partial_invoices->count().' partial invoices to auto bill');
 
             $auto_bill_partial_invoices->cursor()->each(function ($invoice) {
-                AutoBill::dispatch($invoice, false);
+                AutoBill::dispatch($invoice->id, false);
             });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
@@ -76,13 +75,12 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                             $query->where('is_disabled', 0);
                                         })
-                                        ->orderBy('id', 'DESC')
-                                        ->with('company');
+                                        ->orderBy('id', 'DESC');
 
             nlog($auto_bill_invoices->count().' full invoices to auto bill');
 
             $auto_bill_invoices->cursor()->each(function ($invoice) {
-                AutoBill::dispatch($invoice, false);
+                AutoBill::dispatch($invoice->id, false);
             });
         } else {
             //multiDB environment, need to
@@ -98,13 +96,12 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                 $query->where('is_disabled', 0);
                                             })
-                                            ->orderBy('id', 'DESC')
-                                            ->with('company');
+                                            ->orderBy('id', 'DESC');
 
                 nlog($auto_bill_partial_invoices->count()." partial invoices to auto bill db = {$db}");
 
                 $auto_bill_partial_invoices->cursor()->each(function ($invoice) use ($db) {
-                    AutoBill::dispatch($invoice, $db);
+                    AutoBill::dispatch($invoice->id, $db);
                 });
 
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
@@ -116,14 +113,13 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                 $query->where('is_disabled', 0);
                                             })
-                                            ->orderBy('id', 'DESC')
-                                            ->with('company');
+                                            ->orderBy('id', 'DESC');
 
                 nlog($auto_bill_invoices->count()." full invoices to auto bill db = {$db}");
 
                 $auto_bill_invoices->cursor()->each(function ($invoice) use ($db) {
                     nlog($this->counter);
-                    AutoBill::dispatch($invoice, $db);
+                    AutoBill::dispatch($invoice->id, $db);
                     $this->counter++;
                 });
             }

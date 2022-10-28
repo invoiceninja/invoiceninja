@@ -25,7 +25,7 @@ class AutoBill implements ShouldQueue
 
     public $tries = 1;
 
-    public Invoice $invoice;
+    public int $invoice_id;
 
     public string $db;
 
@@ -34,9 +34,9 @@ class AutoBill implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, ?string $db)
+    public function __construct(int $invoice_id, ?string $db)
     {
-        $this->invoice = $invoice;
+        $this->invoice_id = $invoice_id;
         $this->db = $db;
     }
 
@@ -54,11 +54,13 @@ class AutoBill implements ShouldQueue
         }
 
         try {
-            nlog("autobill {$this->invoice->id}");
+            nlog("autobill {$this->invoice_id}");
+            
+            $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
-            $this->invoice->service()->autoBill();
+            $invoice->service()->autoBill();
         } catch (\Exception $e) {
-            nlog("Failed to capture payment for {$this->invoice->company_id} - {$this->invoice->number} ->".$e->getMessage());
+            nlog("Failed to capture payment for {$this->invoice_id} ->".$e->getMessage());
         }
     }
 }
