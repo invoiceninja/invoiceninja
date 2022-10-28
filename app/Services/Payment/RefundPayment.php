@@ -77,7 +77,7 @@ class RefundPayment
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
+        // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
 
         $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : ";
         $notes .= $this->refund_data['gateway_refund'] !== false ? ctrans('texts.yes') : ctrans('texts.no');
@@ -296,7 +296,7 @@ class RefundPayment
                     'metadata' => [],
                 ];
 
-                TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
+                // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
 
                 if ($invoice->is_deleted) {
                     $invoice->delete();
@@ -319,7 +319,7 @@ class RefundPayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
+            // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
 
@@ -339,7 +339,7 @@ class RefundPayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
+            // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
         }
 
         return $this;

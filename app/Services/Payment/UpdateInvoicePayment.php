@@ -119,7 +119,7 @@ class UpdateInvoicePayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
+            // TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
 
 
         });

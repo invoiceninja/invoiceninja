@@ -216,7 +216,7 @@ class ReminderJob implements ShouldQueue
             'metadata' => ['setLateFee'],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
 
         return $invoice;
     }

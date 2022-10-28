@@ -56,7 +56,7 @@ class MarkInvoiceDeleted extends AbstractService
             'metadata' => ['total_payments' => $this->total_payments, 'balance_adjustment' => $this->balance_adjustment, 'adjustment_amount' => $this->adjustment_amount],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }
