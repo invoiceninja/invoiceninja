@@ -1048,6 +1048,29 @@ class CheckData extends Command
 
                 $this->logMessage("Fixing - {$ninja_portal_url}");
             }
+            else{
+
+                $c =  Client::on('db-ninja-01')->where("company_id", config('ninja.ninja_default_company_id'))->where('custom_value2', $cu->account->key)->first();
+
+                    if($c)
+                    {
+
+                      $cc = $c->contacts()->first();
+                      
+                      if($cc)
+                      {
+                        $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->account->key}";
+
+                        $cu->ninja_portal_url = $ninja_portal_url;
+                        $cu->save();
+
+                        $this->logMessage("Fixing - {$ninja_portal_url}");
+
+                      }
+
+                    }
+
+            }
 
         });
 

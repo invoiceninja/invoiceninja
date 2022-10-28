@@ -237,7 +237,7 @@ class InvoiceController extends BaseController
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
         return $this->itemResponse($invoice);
     }
@@ -433,7 +433,7 @@ class InvoiceController extends BaseController
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
         return $this->itemResponse($invoice);
     }
