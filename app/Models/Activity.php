@@ -305,6 +305,16 @@ class Activity extends StaticModel
         return $this->belongsTo(Expense::class)->withTrashed();
     }
 
+    public function purchase_order()
+    {
+        return $this->belongsTo(PurchaseOrder::class)->withTrashed();
+    }
+
+    public function vendor_contact()
+    {
+        return $this->belongsTo(VendorContact::class)->withTrashed();
+    }
+
     public function task()
     {
         return $this->belongsTo(Task::class)->withTrashed();

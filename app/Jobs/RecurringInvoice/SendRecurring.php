@@ -130,7 +130,7 @@ class SendRecurring implements ShouldQueue
             $invoice->invitations->each(function ($invitation) use ($invoice) {
                 if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
                     try {
-                        EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(10,20));
+                        EmailEntity::dispatch($invitation, $invoice->company)->delay(rand(1,2));
                     } catch (\Exception $e) {
                         nlog($e->getMessage());
                     }
@@ -143,13 +143,13 @@ class SendRecurring implements ShouldQueue
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
             nlog("attempting to autobill {$invoice->number}");
                 // $invoice->service()->autoBill();
-                AutoBill::dispatch($invoice, $this->db)->delay(rand(30,40));
+                AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
 
         } elseif ($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
             if ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
                 nlog("attempting to autobill {$invoice->number}");
                 // $invoice->service()->autoBill();
-                AutoBill::dispatch($invoice, $this->db)->delay(rand(30,40));
+                AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
             }
         }
     }
@@ -181,7 +181,7 @@ class SendRecurring implements ShouldQueue
         $job_failure->string_metric6 = $exception->getMessage();
 
         LightLogs::create($job_failure)
-                 ->queue();
+                 ->send();
 
         nlog(print_r($exception->getMessage(), 1));
     }

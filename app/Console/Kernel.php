@@ -56,10 +56,10 @@ class Kernel extends ConsoleKernel
         $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
 
         /* Checks for large companies and marked them as is_large */
-        $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
+        $schedule->job(new CompanySizeCheck)->dailyAt('23:20')->withoutOverlapping();
 
         /* Pulls in the latest exchange rates */
-        $schedule->job(new UpdateExchangeRates)->daily()->withoutOverlapping();
+        $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping();
 
         /* Runs cleanup code for subscriptions */
         $schedule->job(new SubscriptionCron)->daily()->withoutOverlapping();

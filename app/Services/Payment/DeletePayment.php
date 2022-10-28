@@ -132,7 +132,7 @@ class DeletePayment
                     'metadata' => [],
                 ];
 
-                TransactionLog::dispatch(TransactionEvent::PAYMENT_DELETED, $transaction, $paymentable_invoice->company->db);
+                // TransactionLog::dispatch(TransactionEvent::PAYMENT_DELETED, $transaction, $paymentable_invoice->company->db);
             });
         }
 
@@ -151,7 +151,7 @@ class DeletePayment
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $this->payment->company->db);
+        // TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $this->payment->company->db);
 
         return $this;
     }

@@ -592,7 +592,10 @@ class LoginController extends BaseController
 
         $google = new Google();
 
-        $user = $google->getTokenResponse(request()->input('id_token'));
+        if(request()->has('id_token'))
+            $user = $google->getTokenResponse(request()->input('id_token'));
+        else
+            return response()->json(['message' => 'Illegal request'], 403);
 
         if (is_array($user)) {
             $query = [

@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Models\Invoice;
+use App\Models\Paymentable;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -74,10 +75,14 @@ class HandleRestore extends AbstractService
     private function restorePaymentables()
     {
         $this->invoice->payments->each(function ($payment) {
-            $payment->paymentables()
-                    ->where('paymentable_type', '=', 'invoices')
-                    ->where('paymentable_id', $this->invoice->id)
-                    ->update(['deleted_at' => false]);
+
+            Paymentable::query()
+            ->withTrashed()
+            ->where('payment_id', $payment->id)
+            ->where('paymentable_type', '=', 'invoices')
+            ->where('paymentable_id', $this->invoice->id)
+            ->update(['deleted_at' => false]);
+
         });
 
         return $this;
