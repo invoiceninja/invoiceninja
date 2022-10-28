@@ -81,7 +81,7 @@ class HandleRestore extends AbstractService
             ->where('payment_id', $payment->id)
             ->where('paymentable_type', '=', 'invoices')
             ->where('paymentable_id', $this->invoice->id)
-            ->update(['deleted_at' => false]);
+            ->update(['deleted_at' => null]);
 
         });
 
