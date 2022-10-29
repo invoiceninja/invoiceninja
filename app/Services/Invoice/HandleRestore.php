@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Models\Invoice;
 use App\Models\Paymentable;
 use App\Services\AbstractService;
@@ -67,6 +68,11 @@ class HandleRestore extends AbstractService
         $this->restorePaymentables()
              ->setAdjustmentAmount()
              ->adjustPayments();
+
+        if ($this->invoice->company->track_inventory) {
+            (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleRestoredInvoice();
+        }
+
 
         return $this->invoice;
     }
