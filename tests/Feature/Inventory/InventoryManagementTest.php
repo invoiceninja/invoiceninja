@@ -84,27 +84,23 @@ class InventoryManagementTest extends TestCase
 
         $this->assertEquals(90, $product->in_stock_quantity);
 
-        // $arr = $response->json();
-        // $invoice_hashed_id = $arr['data']['id'];
+        $data = $response->json();
 
-        // $invoice_item = new InvoiceItem;
-        // $invoice_item->type_id = 1;
-        // $invoice_item->product_key = $product->product_key;
-        // $invoice_item->notes = $product->notes;
-        // $invoice_item->quantity = 5;
-        // $invoice_item->cost = 100;
+        $invoice = Invoice::find($this->decodePrimaryKey($data['data']['id'])); 
 
-        // $line_items2[] = $invoice_item;
-        // $invoice->line_items = $line_items2;
+        $invoice->service()->markDeleted()->save();
+        $invoice->is_deleted = true;
+        $invoice->save();
+        
+        $this->assertEquals(100, $product->fresh()->in_stock_quantity);
 
-        // $response = $this->withHeaders([
-        //     'X-API-SECRET' => config('ninja.api_secret'),
-        //     'X-API-TOKEN' => $this->token,
-        // ])->put('/api/v1/invoices/'.$invoice_hashed_id, $invoice->toArray())
-        // ->assertStatus(200);
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($data['data']['id'])); 
 
-        // $product = $product->refresh();
+        $invoice->service()->handleRestore()->save();
 
-        // $this->assertEquals(95, $product->in_stock_quantity);
+        $this->assertEquals(90, $product->fresh()->in_stock_quantity);
+
+
+
     }
 }

@@ -61,6 +61,44 @@ class AdjustProductInventory implements ShouldQueue
         return $this->newInventoryAdjustment();
     }
 
+    public function handleDeletedInvoice()
+    {
+
+       MultiDB::setDb($this->company->db);
+
+       foreach ($this->invoice->line_items as $item) {
+
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
+
+            if (! $p) {
+                continue;
+            }
+
+            $p->in_stock_quantity += $item->quantity;
+
+            $p->saveQuietly();
+        }
+
+    }
+
+    public function handleRestoredInvoice()
+    {
+
+       MultiDB::setDb($this->company->db);
+
+       foreach ($this->invoice->line_items as $item) {
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
+
+            if (! $p) {
+                continue;
+            }
+
+            $p->in_stock_quantity -= $item->quantity;
+            $p->saveQuietly();
+        }
+
+    }
+
     public function middleware()
     {
         return [new WithoutOverlapping($this->company->company_key)];

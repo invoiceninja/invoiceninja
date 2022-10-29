@@ -43,7 +43,7 @@ class StoreSetupRequest extends Request
             'terms_of_service' => 'required',
             'first_name'       => 'required',
             'last_name'        => 'required',
-            'email'            => 'required|email:rfc,dns',
+            'email'            => 'required|email',
             'password'         => 'required',
         ];
 
