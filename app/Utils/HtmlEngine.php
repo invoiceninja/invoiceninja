@@ -143,6 +143,7 @@ class HtmlEngine
         $data['$credit.datetime'] = &$data['$entity.datetime'];
         $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
+        $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
 
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {

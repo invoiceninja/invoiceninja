@@ -13,6 +13,11 @@ namespace App\Utils\Traits;
 
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
+
 
 /**
  * Class Inviteable.
@@ -52,6 +57,24 @@ trait Inviteable
         }
 
         return $domain.'/client/pay/'.$this->key;
+    }
+
+    public function getPaymentQrCode()
+    {
+
+        $renderer = new ImageRenderer(
+            new RendererStyle(300),
+            new SvgImageBackEnd()
+        );
+        $writer = new Writer($renderer);
+
+        $qr = $writer->writeString($this->getPaymentLink());
+
+        return "<svg viewBox='0 0 300 300' width='300' height='300' preserveAspectRatio='xMidYMid meet' x='0' y='0' xmlns='http://www.w3.org/2000/svg'>
+          <rect x='0' y='0' width='100%'' height='100%' />
+            {$qr}
+        </svg>";
+
     }
 
     public function getUnsubscribeLink()
