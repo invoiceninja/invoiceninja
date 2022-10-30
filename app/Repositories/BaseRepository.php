@@ -304,8 +304,9 @@ class BaseRepository
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
-            //links tasks and expenses back to the invoice.
-            $model->service()->linkEntities()->save();
+            //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
+            if (\DB::transactionLevel() == 0) 
+                $model->service()->linkEntities()->save();
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Invoice', $model);
