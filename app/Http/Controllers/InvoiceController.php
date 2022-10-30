@@ -597,7 +597,6 @@ class InvoiceController extends BaseController
 
             $merge = (new PdfMerge($paths->toArray()))->run();
 
-
                 return response()->streamDownload(function () use ($merge) {
                     echo ($merge);
                 }, 'print.pdf', ['Content-Type' => 'application/pdf']);

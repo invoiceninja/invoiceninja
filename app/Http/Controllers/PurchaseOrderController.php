@@ -32,6 +32,7 @@ use App\Models\Client;
 use App\Models\Expense;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
+use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\ExpenseTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
@@ -513,6 +514,20 @@ class PurchaseOrderController extends BaseController
             ZipPurchaseOrders::dispatch($purchase_orders, $purchase_orders->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
+        }
+
+        if($action == 'merge' && auth()->user()->can('view', $purchase_orders->first())){
+
+            $paths = $purchase_orders->map(function ($purchase_order){
+                return $purchase_order->service()->getPurchaseOrderPdf();
+            });
+
+            $merge = (new PdfMerge($paths->toArray()))->run();
+
+                return response()->streamDownload(function () use ($merge) {
+                    echo ($merge);
+                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+
         }
 
         /*
