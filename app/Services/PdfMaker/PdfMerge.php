@@ -12,7 +12,9 @@
 
 namespace App\Services\PdfMaker;
 
+use Illuminate\Support\Facades\Storage;
 use \setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\StreamReader;
 
 class PdfMerge
 {
@@ -25,7 +27,7 @@ class PdfMerge
         $pdf = new FPDI();
 
         foreach ($this->file_paths as $file) {
-            $pageCount = $pdf->setSourceFile($file);
+            $pageCount = $pdf->setSourceFile(StreamReader::createByString(Storage::get($file)));
             for ($i = 0; $i < $pageCount; $i++) {
                 $tpl = $pdf->importPage($i + 1, '/MediaBox');
                 $pdf->addPage();
