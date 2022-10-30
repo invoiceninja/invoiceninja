@@ -251,17 +251,17 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceField($field)
     {
-        $invoice = '';
+        $invoicex = '';
 
         foreach ($this->payment->invoices as $invoice) {
 
             $invoice_field = $invoice->{$field};
 
-            $invoice .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
+            $invoicex .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
 
         }
 
-        return $invoice;
+        return $invoicex;
 
     }
 
