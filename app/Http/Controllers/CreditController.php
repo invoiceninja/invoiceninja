@@ -535,7 +535,7 @@ class CreditController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'merge' && auth()->user()->can('view', $credits->first())){
+        if($action == 'bulk_print' && auth()->user()->can('view', $credits->first())){
 
             $paths = $credits->map(function ($credit){
                 return $credit->service()->getCreditPdf($credit->invitations->first());

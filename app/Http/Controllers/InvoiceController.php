@@ -589,7 +589,7 @@ class InvoiceController extends BaseController
 
         }
 
-        if($action == 'merge' && auth()->user()->can('view', $invoices->first())){
+        if($action == 'bulk_print' && auth()->user()->can('view', $invoices->first())){
 
             $paths = $invoices->map(function ($invoice){
                 return $invoice->service()->getInvoicePdf();
