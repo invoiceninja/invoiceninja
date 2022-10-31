@@ -35,6 +35,7 @@ use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\ProjectTransformer;
 use App\Transformers\QuoteTransformer;
@@ -559,6 +560,20 @@ class QuoteController extends BaseController
             });
 
             return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+        }
+
+        if($action == 'merge' && auth()->user()->can('view', $quotes->first())){
+
+            $paths = $quotes->map(function ($quote){
+                return $quote->service()->getQuotePdf();
+            });
+
+            $merge = (new PdfMerge($paths->toArray()))->run();
+
+                return response()->streamDownload(function () use ($merge) {
+                    echo ($merge);
+                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+
         }
 
 

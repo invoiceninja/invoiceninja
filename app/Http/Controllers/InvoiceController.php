@@ -40,6 +40,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\TransactionEvent;
 use App\Repositories\InvoiceRepository;
+use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
@@ -585,6 +586,20 @@ class InvoiceController extends BaseController
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
+
+        }
+
+        if($action == 'merge' && auth()->user()->can('view', $invoices->first())){
+
+            $paths = $invoices->map(function ($invoice){
+                return $invoice->service()->getInvoicePdf();
+            });
+
+            $merge = (new PdfMerge($paths->toArray()))->run();
+
+                return response()->streamDownload(function () use ($merge) {
+                    echo ($merge);
+                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
 
         }
 
