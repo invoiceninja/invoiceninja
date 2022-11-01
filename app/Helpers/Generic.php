@@ -40,4 +40,7 @@ function nlog($output, $context = []): void
     } else {
         \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
     }
+
+    $output = null;
+    $context = null;
 }
