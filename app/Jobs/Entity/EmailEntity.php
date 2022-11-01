@@ -128,6 +128,9 @@ class EmailEntity implements ShouldQueue
         $nmo->entity = $this->entity;
 
         (new NinjaMailerJob($nmo))->handle();
+
+        $nmo = null;
+        $this->invitation = null;
     }
 
     private function resolveEntityString() :string

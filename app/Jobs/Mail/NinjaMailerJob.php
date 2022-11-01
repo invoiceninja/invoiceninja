@@ -115,6 +115,7 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
+
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
@@ -128,6 +129,8 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
+            $this->nmo = null;
+            $this->company = null;
 
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
@@ -381,7 +384,7 @@ class NinjaMailerJob implements ShouldQueue
     private function logMailError($errors, $recipient_object)
     {
 
-        SystemLogger::dispatch(
+        SystemLogger::dispatchSync(
             $errors,
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
@@ -396,6 +399,9 @@ class NinjaMailerJob implements ShouldQueue
 
         LightLogs::create($job_failure)
                  ->send();
+
+        $job_failure = null;
+
     }
 
     public function failed($exception = null)
