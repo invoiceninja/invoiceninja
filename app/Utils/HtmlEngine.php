@@ -895,6 +895,10 @@ html {
 
         $dom->appendChild($container);
 
-        return $dom->saveHTML();
+        $html = $dom->saveHTML();
+
+        $dom = null;
+
+        return $html;
     }
 }

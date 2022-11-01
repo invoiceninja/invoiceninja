@@ -60,7 +60,7 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-        // $this->createBackup($entity, $activity);
+        $this->createBackup($entity, $activity);
     }
 
     /**
@@ -167,8 +167,13 @@ class ActivityRepository extends BaseRepository
 
         $maker = new PdfMakerService($state);
 
-        return $maker->design($template)
+        $html = $maker->design($template)
                      ->build()
                      ->getCompiledHTML(true);
+
+        $maker = null;
+        $state = null;
+        
+        return $html;
     }
 }

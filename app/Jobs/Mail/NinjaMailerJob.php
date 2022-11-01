@@ -129,9 +129,13 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
+
+            nlog('Using ' . ((int) (memory_get_usage(true) / (1024 * 1024))) . 'MB ');
+
             $this->nmo = null;
             $this->company = null;
-
+            gc_collect_cycles();
+    
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
             nlog("error failed with {$e->getMessage()}");
@@ -169,7 +173,16 @@ class NinjaMailerJob implements ShouldQueue
             /* Don't send postmark failures to Sentry */
             if(Ninja::isHosted() && (!$e instanceof ClientException)) 
                 app('sentry')->captureException($e);
+
+            $message = null;
+            $this->nmo = null;
+            $this->company = null;
+            gc_collect_cycles();
+    
         }
+
+        
+        
     }
 
     /* Switch statement to handle failure notifications */
@@ -191,6 +204,7 @@ class NinjaMailerJob implements ShouldQueue
 
         if ($this->nmo->to_user instanceof ClientContact) 
             $this->logMailError($message, $this->nmo->to_user->client);
+        
     }
 
     private function setMailDriver()

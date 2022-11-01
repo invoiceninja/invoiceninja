@@ -213,6 +213,9 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
+        $maker = null;
+        $state = null;
+        
         return $pdf;
 
     }

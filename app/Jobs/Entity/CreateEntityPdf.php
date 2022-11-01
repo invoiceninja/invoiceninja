@@ -224,7 +224,9 @@ class CreateEntityPdf implements ShouldQueue
         $this->company = null;
         $this->client = null;
         $this->contact = null;
-
+        $maker = null;
+        $state = null;
+        
         return $file_path;
     }
 

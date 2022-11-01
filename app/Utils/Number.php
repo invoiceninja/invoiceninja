@@ -137,6 +137,8 @@ class Number
     public static function formatMoney($value, $entity) :string
     {
 
+        $value = floatval($value);
+
         $currency = $entity->currency();
 
         $thousand = $currency->thousand_separator;
