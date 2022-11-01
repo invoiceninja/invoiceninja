@@ -129,12 +129,11 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
-
-            nlog('Using ' . ((int) (memory_get_usage(true) / (1024 * 1024))) . 'MB ');
+            // nlog('Using ' . ((int) (memory_get_usage(true) / (1024 * 1024))) . 'MB ');
 
             $this->nmo = null;
             $this->company = null;
-            gc_collect_cycles();
+            app('queue.worker')->shouldQuit  = 1;
     
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
@@ -177,7 +176,7 @@ class NinjaMailerJob implements ShouldQueue
             $message = null;
             $this->nmo = null;
             $this->company = null;
-            gc_collect_cycles();
+            app('queue.worker')->shouldQuit  = 1;
     
         }
 
@@ -204,7 +203,7 @@ class NinjaMailerJob implements ShouldQueue
 
         if ($this->nmo->to_user instanceof ClientContact) 
             $this->logMailError($message, $this->nmo->to_user->client);
-        
+
     }
 
     private function setMailDriver()
