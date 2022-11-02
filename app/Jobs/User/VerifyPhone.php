@@ -47,8 +47,6 @@ class VerifyPhone implements ShouldQueue
 
     	MultiDB::checkUserEmailExists($this->user->email);
 
-    	$this->user = User::find($this->user);
-
 		$sid = config('ninja.twilio_account_sid');
 		$token = config('ninja.twilio_auth_token');
 
