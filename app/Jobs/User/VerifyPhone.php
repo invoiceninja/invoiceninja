@@ -35,7 +35,7 @@ class VerifyPhone implements ShouldQueue
      *
      * @param User $user
      */
-    public function __construct(public User $user){}
+    public function __construct(private User $user){}
 
     /**
      * Execute the job.
@@ -45,7 +45,9 @@ class VerifyPhone implements ShouldQueue
     public function handle() : void
     {
 
-    	MultiDB::checkUserEmailExists($user->email);
+    	MultiDB::checkUserEmailExists($this->user->email);
+
+    	$this->user = User::find($this->user);
 
 		$sid = config('ninja.twilio_account_sid');
 		$token = config('ninja.twilio_auth_token');
@@ -55,28 +57,28 @@ class VerifyPhone implements ShouldQueue
 
 		$twilio = new Twilio\Rest\Client($sid, $token);
 
-		$country = $user->account?->companies()?->first()?->country();
+		$country = $this->user->account?->companies()?->first()?->country();
 
-		if(!$country || strlen($user->phone) < 2)
+		if(!$country || strlen($this->user->phone) < 2)
 		  return;
 
 		$countryCode = $country->iso_3166_2;
 
 		try{
 
-			$phone_number = $twilio->lookups->v1->phoneNumbers($user->phone)
+			$phone_number = $twilio->lookups->v1->phoneNumbers($this->user->phone)
 		                                        ->fetch(["countryCode" => $countryCode]);
 		}
 		catch(\Exception $e) {
-			$user->verified_phone_number = false;
-			$user->save();
+			$this->user->verified_phone_number = false;
+			$this->user->save();
 		}
 
 		if($phone_number && strlen($phone_number->phoneNumber) > 1)
 		{
-		  $user->phone = $phone_number->phoneNumber;
-		  $user->verified_phone_number = true;
-		  $user->save();
+		  $this->user->phone = $phone_number->phoneNumber;
+		  $this->user->verified_phone_number = true;
+		  $this->user->save();
 		}
 	}
 

@@ -38,7 +38,7 @@ class HasValidPhoneNumber implements Rule
 		$token = config('ninja.twilio_auth_token');
 
 		if(!$sid)
-			return true; // no twilio api credentials provided, bail.
+			return true; 
 
 		$twilio = new Twilio\Rest\Client($sid, $token);
 

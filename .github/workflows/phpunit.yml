@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
-        php-versions: ['8.1.12']
+        php-versions: ['8.1.11']
         phpunit-versions: ['latest']
 
     env:
