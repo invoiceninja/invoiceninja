@@ -12,6 +12,7 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Utils\Ninja;
 
 class UserObserver
 {
@@ -23,7 +24,9 @@ class UserObserver
      */
     public function created(User $user)
     {
+        if (Ninja::isHosted() && isset($user->phone)) {
 
+        }
     }
 
     /**
@@ -34,7 +37,9 @@ class UserObserver
      */
     public function updated(User $user)
     {
+        if (Ninja::isHosted() && $user->isDirty('phone')) {
 
+        }
     }
 
     /**
