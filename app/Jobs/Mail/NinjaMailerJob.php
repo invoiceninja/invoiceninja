@@ -133,7 +133,10 @@ class NinjaMailerJob implements ShouldQueue
 
             $this->nmo = null;
             $this->company = null;
-            app('queue.worker')->shouldQuit  = 1;
+            
+               $mem_usage = memory_get_usage();
+
+               nlog('The script is now using: ' . round($mem_usage / 1024) . 'KBof memory.');
     
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
