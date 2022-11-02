@@ -26,6 +26,13 @@ class HasValidPhoneNumber implements Rule
     {
     }
 
+    public function message() 
+    { 
+        return [
+            'phone' => ctrans('texts.phone_validation_error'),
+        ];
+    }
+
     /**
      * @param string $attribute
      * @param mixed $value
@@ -68,10 +75,4 @@ class HasValidPhoneNumber implements Rule
 
     }
 
-    public function messages()
-    {
-        return [
-            'phone' => ctrans('texts.phone_validation_error'),
-        ];
-    }
 }
