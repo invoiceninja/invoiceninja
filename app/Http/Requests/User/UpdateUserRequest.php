@@ -14,6 +14,7 @@ namespace App\Http\Requests\User;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\UniqueUserRule;
 use App\Http\ValidationRules\User\HasValidPhoneNumber;
+use App\Utils\Ninja;
 
 class UpdateUserRequest extends Request
 {
@@ -64,7 +65,7 @@ class UpdateUserRequest extends Request
             $input['last_name'] = strip_tags($input['last_name']);
         }
 
-        if(strlen($input['phone']) > 1 && ($this->user->phone != $input['phone']))
+        if(array_key_exists('phone', $input) && strlen($input['phone']) > 1 && ($this->user->phone != $input['phone']))
             $this->phone_has_changed = true;
 
         $this->replace($input);
