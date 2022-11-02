@@ -516,7 +516,7 @@ class PurchaseOrderController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'merge' && auth()->user()->can('view', $purchase_orders->first())){
+        if($action == 'bulk_print' && auth()->user()->can('view', $purchase_orders->first())){
 
             $paths = $purchase_orders->map(function ($purchase_order){
                 return $purchase_order->service()->getPurchaseOrderPdf();

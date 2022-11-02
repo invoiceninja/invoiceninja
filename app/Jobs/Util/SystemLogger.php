@@ -79,11 +79,22 @@ class SystemLogger implements ShouldQueue
 
         if (! $this->log) {
             nlog('SystemLogger:: no log to store');
-
+            $this->category_id = null;
+            $this->event_id = null;
+            $this->type_id = null;
+            $this->client = null;
+            $this->company = null;
             return;
         }
 
         SystemLog::create($sl);
+
+        $this->log = null;
+        $this->category_id = null;
+        $this->event_id = null;
+        $this->type_id = null;
+        $this->client = null;
+        $this->company = null;
     }
 
     public function failed($e)

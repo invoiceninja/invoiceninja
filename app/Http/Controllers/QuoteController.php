@@ -562,7 +562,7 @@ class QuoteController extends BaseController
             return $this->listResponse(Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
-        if($action == 'merge' && auth()->user()->can('view', $quotes->first())){
+        if($action == 'bulk_print' && auth()->user()->can('view', $quotes->first())){
 
             $paths = $quotes->map(function ($quote){
                 return $quote->service()->getQuotePdf();
