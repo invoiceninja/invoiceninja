@@ -11,6 +11,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\User\VerifyPhone;
 use App\Models\User;
 use App\Utils\Ninja;
 
@@ -25,7 +26,7 @@ class UserObserver
     public function created(User $user)
     {
         if (Ninja::isHosted() && isset($user->phone)) {
-
+            VerifyPhone::dispatch($user);
         }
     }
 
@@ -38,7 +39,7 @@ class UserObserver
     public function updated(User $user)
     {
         if (Ninja::isHosted() && $user->isDirty('phone')) {
-
+            VerifyPhone::dispatch($user);
         }
     }
 
