@@ -97,6 +97,11 @@ class TwilioController extends BaseController
             $account->account_sms_verified = true;
             $account->save();
 
+            //on confirmation we set the users phone number.
+            $user = auth()->user();
+            $user->phone = $account->account_sms_verification_number;
+            $user->save();
+
             return response()->json(['message' => 'SMS verified'], 200);
         }
 
