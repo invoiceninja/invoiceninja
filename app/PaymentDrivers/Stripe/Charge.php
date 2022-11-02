@@ -137,6 +137,9 @@ class Charge
             return false;
         }
 
+        if($response?->status != 'succeeded')
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
+
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;

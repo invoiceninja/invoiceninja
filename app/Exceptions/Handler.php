@@ -198,7 +198,7 @@ class Handler extends ExceptionHandler
             // nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
-            return response()->json(['message' => $exception->getMessage()], 400);
+            return response()->json(['message' => "Relation `{$exception->relation}` is not a valid include."], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {

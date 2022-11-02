@@ -108,6 +108,9 @@ class Statement
             \DB::connection(config('database.default'))->rollBack();
         }
 
+        $maker = null;
+        $state = null;
+        
         return $pdf;
     }
 

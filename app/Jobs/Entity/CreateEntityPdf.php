@@ -218,7 +218,15 @@ class CreateEntityPdf implements ShouldQueue
                 throw new FilePermissionsFailure($e->getMessage());
             }
         }
-
+        
+        $this->invitation = null;
+        $this->entity = null;
+        $this->company = null;
+        $this->client = null;
+        $this->contact = null;
+        $maker = null;
+        $state = null;
+        
         return $file_path;
     }
 

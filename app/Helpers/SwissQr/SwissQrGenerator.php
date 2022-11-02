@@ -105,14 +105,14 @@ class SwissQrGenerator
     // Add payment reference
     // This is what you will need to identify incoming payments.
 
-   if(stripos($this->invoice->number, "Live-") === 0)                                                                                                                                                                            
+   if(stripos($this->invoice->number, "Live") === 0)                                                                                                                                                                            
     {                                                                                                                                                                                                                             
        // we're currently in preview status. Let's give a dummy reference for now                                                                                                                                                 
        $invoice_number = "123456789";                                                                                                                                                                                              
     }                                                                                                                                                                                                                             
     else                                                                                                                                                                                                                          
     {                                                                                                                                                                                                                             
-       $invoice_number = $this->invoice->number;                                                                                                                                                                                   
+        $invoice_number = iconv("UTF-8", "ASCII", $this->invoice->number);                                                                                                                                                                                 
     }       
 
     if(strlen($this->company->present()->besr_id()) > 1)
@@ -141,7 +141,7 @@ class SwissQrGenerator
     // Optionally, add some human-readable information about what the bill is for.
     $qrBill->setAdditionalInformation(
         QrBill\DataGroup\Element\AdditionalInformation::create(
-            $this->invoice->public_notes ? substr($this->invoice->public_notes, 0, 139) : ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice_number])
+            $this->invoice->public_notes ? substr($this->invoice->public_notes, 0, 139) : ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number])
         )
     );
 
