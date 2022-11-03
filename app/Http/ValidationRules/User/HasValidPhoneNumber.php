@@ -63,10 +63,7 @@ class HasValidPhoneNumber implements Rule
 
             $user = auth()->user();
 
-            request()->request->set('phone', $phone_number->phoneNumber);
-            request()->merge(['phone' => $phone_number->phoneNumber ]);
-            
-            nlog($phone_number->phoneNumber);
+            request()->merge(['validated_phone' => $phone_number->phoneNumber ]);
 
 			$user->verified_phone_number = true;
             $user->save();
