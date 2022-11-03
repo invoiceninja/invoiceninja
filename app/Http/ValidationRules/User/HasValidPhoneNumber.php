@@ -62,7 +62,11 @@ class HasValidPhoneNumber implements Rule
 		                                        ->fetch(["countryCode" => $countryCode]);
 
             $user = auth()->user();
-        	$user->phone = $phone_number->phoneNumber;
+
+            request()->merge([
+                'phone' => $phone_number->phoneNumber,
+            ]);
+
 			$user->verified_phone_number = true;
             $user->save();
             
