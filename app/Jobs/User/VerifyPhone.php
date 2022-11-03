@@ -53,7 +53,7 @@ class VerifyPhone implements ShouldQueue
 		if(!$sid)
 			return; // no twilio api credentials provided, bail.
 
-		$twilio = new Twilio\Rest\Client($sid, $token);
+		$twilio = new \Twilio\Rest\Client($sid, $token);
 
 		$country = $this->user->account?->companies()?->first()?->country();
 
