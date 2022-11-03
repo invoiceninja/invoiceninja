@@ -66,9 +66,9 @@ class HasValidPhoneNumber implements Rule
 
             $user = auth()->user();
 
-            request()->merge([
-                'phone' => $phone_number->phoneNumber,
-            ]);
+            $json = request()->json()->all();
+            $json['phone'] = $phone_number->phoneNumber;
+            request()->json()->replace($json);
 
 			$user->verified_phone_number = true;
             $user->save();
