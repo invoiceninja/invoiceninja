@@ -40,7 +40,8 @@ class HasValidPhoneNumber implements Rule
      */
     public function passes($attribute, $value)
     {
-        
+        nlog("hitting twilio");
+
 		$sid = config('ninja.twilio_account_sid');
 		$token = config('ninja.twilio_auth_token');
 
@@ -56,6 +57,8 @@ class HasValidPhoneNumber implements Rule
 
 		$countryCode = $country->iso_3166_2;
 
+        nlog("hitting twilio try");
+        
 		try{
 
 			$phone_number = $twilio->lookups->v1->phoneNumbers($value)
