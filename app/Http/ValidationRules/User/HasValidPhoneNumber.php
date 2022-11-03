@@ -47,11 +47,11 @@ class HasValidPhoneNumber implements Rule
 		if(!$sid)
 			return true; 
 
-		$twilio = new Twilio\Rest\Client($sid, $token);
+		$twilio = new \Twilio\Rest\Client($sid, $token);
 
 		$country = auth()->user()->account?->companies()?->first()?->country();
 
-		if(!$country || strlen($user->phone) < 2)
+		if(!$country || strlen(auth()->user()->phone) < 2)
 		  return true;
 
 		$countryCode = $country->iso_3166_2;
