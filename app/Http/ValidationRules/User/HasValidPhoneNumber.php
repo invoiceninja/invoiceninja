@@ -40,7 +40,6 @@ class HasValidPhoneNumber implements Rule
      */
     public function passes($attribute, $value)
     {
-        nlog("hitting twilio");
 
 		$sid = config('ninja.twilio_account_sid');
 		$token = config('ninja.twilio_auth_token');
@@ -56,8 +55,6 @@ class HasValidPhoneNumber implements Rule
 		  return true;
 
 		$countryCode = $country->iso_3166_2;
-
-        nlog("hitting twilio try");
         
 		try{
 
@@ -66,9 +63,7 @@ class HasValidPhoneNumber implements Rule
 
             $user = auth()->user();
 
-            $json = request()->json()->all();
-            $json['phone'] = $phone_number->phoneNumber;
-            request()->json()->replace($json);
+            request()->merge([ 'phone' => $phone_number->phoneNumber ]);
 
 			$user->verified_phone_number = true;
             $user->save();
