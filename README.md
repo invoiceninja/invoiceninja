@@ -28,9 +28,9 @@ The self-host zip includes all third party libraries whereas downloading the cod
 ## Mobile App
 * [iPhone](https://apps.apple.com/us/app/invoice-ninja-v5/id1503970375#?platform=iphone)
 * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
-* [Linux](https://github.com/invoiceninja/flutter-mobile)
 
 ## Desktop App
+* [Linux](https://github.com/invoiceninja/admin-portal)
 * [MacOS](https://apps.apple.com/app/id1503970375)
 * [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
 * [MacOS Desktop](https://snapcraft.io/invoiceninja)
