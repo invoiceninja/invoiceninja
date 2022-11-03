@@ -80,7 +80,7 @@ class InventoryManagementTest extends TestCase
         ])->post('/api/v1/invoices/', $invoice_array)
             ->assertStatus(200);
 
-        $product = $product->refresh();
+        $product = $product->fresh();
 
         $this->assertEquals(90, $product->in_stock_quantity);
 
