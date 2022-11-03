@@ -56,12 +56,6 @@ class UserRepository extends BaseRepository
         $company = auth()->user()->company();
         $account = $company->account;
 
-        /* If hosted and Enterprise we need to increment the num_users field on the accounts table*/
-        // 05-08-2022 This is an error, the num_users should _never_ increment
-        // if (! $user->id && $account->isEnterpriseClient()) {
-        //     $account->num_users++;
-        //     $account->save();
-        // }
         if(array_key_exists('oauth_provider_id', $details))
             unset($details['oauth_provider_id']);
         
@@ -140,7 +134,7 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        event(new UserWasDeleted($user, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->delete();
 
