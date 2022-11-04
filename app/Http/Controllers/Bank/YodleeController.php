@@ -33,6 +33,8 @@ class YodleeController extends BaseController
         $company = $request->getCompany();
 
 
+        //ensure user is enterprise!!
+
         if($company->account->bank_integration_account_id){
 
             $flow = 'edit';

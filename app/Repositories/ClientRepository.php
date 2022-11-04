@@ -75,7 +75,15 @@ class ClientRepository extends BaseRepository
             $client->country_id = $company->settings->country_id;
         }
 
-        $client->save();
+        try{
+            $client->save();
+        }
+        catch(\Exception $e) {
+
+            nlog("client save failed");
+            nlog($data);
+            
+        }
 
         if (! isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
             // $client->number = $this->getNextClientNumber($client);
