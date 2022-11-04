@@ -12,6 +12,9 @@
 namespace App\Providers;
 
 use App\Models\Activity;
+use App\Models\Bank;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -40,6 +43,8 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
+use App\Policies\BankIntegrationPolicy;
+use App\Policies\BankTransactionPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
@@ -79,7 +84,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Activity::class => ActivityPolicy::class,
-        Subscription::class => SubscriptionPolicy::class,
+        BankIntegration::class => BankIntegrationPolicy::class,
+        BankTransaction::class => BankTransactionPolicy::class,
         Client::class => ClientPolicy::class,
         Company::class => CompanyPolicy::class,
         CompanyToken::class => CompanyTokenPolicy::class,
@@ -95,17 +101,18 @@ class AuthServiceProvider extends ServiceProvider
         PaymentTerm::class => PaymentTermPolicy::class,
         Product::class => ProductPolicy::class,
         Project::class => ProjectPolicy::class,
+        PurchaseOrder::class => PurchaseOrderPolicy::class,
         Quote::class => QuotePolicy::class,
         RecurringExpense::class => RecurringExpensePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
-        Webhook::class => WebhookPolicy::class,
+        Subscription::class => SubscriptionPolicy::class,
         Task::class => TaskPolicy::class,
         TaskStatus::class => TaskStatusPolicy::class,
         TaxRate::class => TaxRatePolicy::class,
         User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,
-        PurchaseOrder::class => PurchaseOrderPolicy::class,
+        Webhook::class => WebhookPolicy::class,
     ];
 
     /**

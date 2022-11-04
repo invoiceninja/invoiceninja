@@ -11,6 +11,7 @@
 
 namespace Tests\Unit;
 
+use App\Utils\Traits\MakesHash;
 use Tests\TestCase;
 
 /**
@@ -19,6 +20,8 @@ use Tests\TestCase;
  */
 class CompareCollectionTest extends TestCase
 {
+    use MakesHash;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -40,6 +43,29 @@ class CompareCollectionTest extends TestCase
         $this->is_admin = true;
 
         $this->is_not_admin = false;
+    }
+
+    public function testCollectionCreation()
+    {
+        $collection = collect();
+
+        $invoice_ids = '';
+
+        $invoices = explode(",", $invoice_ids);
+
+        if(count($invoices) >= 1) 
+        {
+
+            foreach($invoices as $invoice){
+
+                if(is_string($invoice) && strlen($invoice) > 1)
+                    $collection->push($this->decodePrimaryKey($invoice));
+            }
+        
+        }
+
+        $this->assertEquals(0, $collection->count());
+
     }
 
     public function testCompareResultOfComparison()

@@ -112,6 +112,8 @@ class SelfUpdateController extends BaseController
 
         $zipFile->close();
 
+        $zipFile = null;
+        
         nlog('Finished extracting files');
 
         unlink($file);

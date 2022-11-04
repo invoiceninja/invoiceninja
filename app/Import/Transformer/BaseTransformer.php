@@ -44,6 +44,35 @@ class BaseTransformer
         $this->company = $company;
     }
 
+    public function parseDate($date)
+    {
+        
+        try{
+
+            $parsed_date = Carbon::parse($date);
+
+            return $parsed_date->format('Y-m-d');
+
+        }
+        catch(\Exception $e){
+
+            $parsed_date = date('Y-m-d', strtotime($date));
+
+            if($parsed_date == '1970-01-01')
+                return now()->format('Y-m-d');
+
+            return $parsed_date;
+
+        }
+
+
+    }
+
+    public function getNumber($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? (int)$data->$field : 0;
+    }
+
     public function getString($data, $field)
     {
         return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';

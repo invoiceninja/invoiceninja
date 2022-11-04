@@ -333,7 +333,7 @@ class BaseDriver extends AbstractPaymentDriver
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::INVOICE_FEE_APPLIED, $transaction, $invoice->company->db);
+            // TransactionLog::dispatch(TransactionEvent::INVOICE_FEE_APPLIED, $transaction, $invoice->company->db);
         });
     }
 

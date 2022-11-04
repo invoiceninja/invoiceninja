@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Jobs\Ninja\TransactionLog;
 use App\Models\Invoice;
 use App\Models\TransactionEvent;
@@ -22,7 +23,7 @@ class MarkInvoiceDeleted extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
+    public $invoice;
 
     private $adjustment_amount = 0;
 
@@ -41,6 +42,10 @@ class MarkInvoiceDeleted extends AbstractService
             return $this->invoice;
         }
 
+        if ($this->invoice->company->track_inventory) {
+            (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleDeletedInvoice();
+        }
+
         $this->cleanup()
              ->setAdjustmentAmount()
              ->deletePaymentables()
@@ -56,7 +61,7 @@ class MarkInvoiceDeleted extends AbstractService
             'metadata' => ['total_payments' => $this->total_payments, 'balance_adjustment' => $this->balance_adjustment, 'adjustment_amount' => $this->adjustment_amount],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

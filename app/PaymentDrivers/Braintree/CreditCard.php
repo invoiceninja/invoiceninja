@@ -126,6 +126,12 @@ class CreditCard
             ],
         ];
 
+        // uses the same auth id twice when this is enabled.
+        
+        // if($state['server_response']?->threeDSecureInfo){
+        //     $data['threeDSecureAuthenticationId'] = $state['server_response']?->threeDSecureInfo?->threeDSecureAuthenticationId;
+        // }
+
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
             $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
@@ -224,7 +230,8 @@ class CreditCard
      */
     private function processUnsuccessfulPayment($response)
     {
-        $this->braintree->sendFailureMail($response->transaction->additionalProcessorResponse);
+
+        $this->braintree->sendFailureMail($response?->transaction?->additionalProcessorResponse);
 
         $message = [
             'server_response' => $response,
@@ -240,7 +247,7 @@ class CreditCard
             $this->braintree->client->company,
         );
 
-        throw new PaymentFailed($response->transaction->additionalProcessorResponse, $response->transaction->processorResponseCode);
+        throw new PaymentFailed($response?->transaction?->additionalProcessorResponse ?: 'Unhandled error, please contact merchant', $response?->transaction?->processorResponseCode ?: 500);
     }
 
     private function storePaymentMethod($method, $customer_reference)

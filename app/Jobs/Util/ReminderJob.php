@@ -100,7 +100,7 @@ class ReminderJob implements ShouldQueue
                             
                              $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                                  EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                                 nlog("Firing reminder email for invoice {$invoice->number}");
+                                 nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                              });
 
                              if ($invoice->invitations->count() > 0) {
@@ -216,7 +216,7 @@ class ReminderJob implements ShouldQueue
             'metadata' => ['setLateFee'],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
 
         return $invoice;
     }

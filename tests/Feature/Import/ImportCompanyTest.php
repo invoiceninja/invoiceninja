@@ -51,6 +51,7 @@ use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use League\Csv\Reader;
@@ -78,8 +79,8 @@ class ImportCompanyTest extends TestCase
     {
         parent::setUp();
 
-       // $this->artisan('db:seed');
-
+        Artisan::call('db:seed');
+    
         $this->withoutMiddleware(
             ThrottleRequests::class
         );

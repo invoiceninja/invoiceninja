@@ -21,6 +21,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -197,14 +198,21 @@ class Handler extends ExceptionHandler
             // nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
-            return response()->json(['message' => $exception->getMessage()], 400);
+            return response()->json(['message' => "Relation `{$exception->relation}` is not a valid include."], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
-        }
+        } 
+
+
+        // elseif ($exception instanceof QueryException) {
+        //     return response()->json(['message' => 'We had a problem executing this query. Please retry.'], 500);
+        // } 
+
+
 
         return parent::render($request, $exception);
     }

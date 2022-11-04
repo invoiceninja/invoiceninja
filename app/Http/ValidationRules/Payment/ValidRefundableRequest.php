@@ -55,7 +55,7 @@ class ValidRefundableRequest implements Rule
         }
 
         $request_invoices = request()->has('invoices') ? $this->input['invoices'] : [];
-        $request_credits = request()->has('credits') ? $this->input['credits'] : [];
+        // $request_credits = request()->has('credits') ? $this->input['credits'] : [];
 
         if ($payment->invoices()->exists()) {
             foreach ($payment->invoices as $paymentable_invoice) {

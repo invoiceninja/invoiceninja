@@ -169,7 +169,7 @@ abstract class QueryFilters
     public function clientFilter()
     {
         if (auth()->guard('contact')->user()) {
-            return $this->builder->whereClientId(auth()->guard('contact')->user()->client->id);
+            return $this->builder->where('client_id', auth()->guard('contact')->user()->client->id);
         }
     }
 
@@ -178,6 +178,15 @@ abstract class QueryFilters
         $created_at = $value ? (int) $value : 0;
 
         $created_at = date('Y-m-d H:i:s', $value);
+
+        if(is_string($created_at)){
+
+            $created_at = strtotime(str_replace("/","-",$created_at));
+
+            if(!$created_at)
+                return $this->builder;
+
+        }
 
         return $this->builder->where('created_at', '>=', $created_at);
     }

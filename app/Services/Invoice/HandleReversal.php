@@ -147,7 +147,7 @@ class HandleReversal extends AbstractService
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_REVERSED, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_REVERSED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )

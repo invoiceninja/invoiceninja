@@ -95,7 +95,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             return $response->redirect();
         }
 
-        $this->sendFailureMail($response->getMessage() ?: '');
+        // $this->sendFailureMail($response->getMessage() ?: '');
 
         $message = [
             'server_response' => $response->getMessage(),

@@ -251,17 +251,17 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceField($field)
     {
-        $invoice = '';
+        $invoicex = '';
 
         foreach ($this->payment->invoices as $invoice) {
 
             $invoice_field = $invoice->{$field};
 
-            $invoice .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
+            $invoicex .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
 
         }
 
-        return $invoice;
+        return $invoicex;
 
     }
 
@@ -325,6 +325,20 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         foreach ($values as $key => $value) {
             $data[$key] = $value['value'];
+        }
+
+        return $data;
+    }
+
+    public function generateLabelsAndValues()
+    {
+        $data = [];
+
+        $values = $this->makePaymentVariables();
+
+        foreach ($values as $key => $value) {
+            $data['values'][$key] = $value['value'];
+            $data['labels'][$key.'_label'] = $value['label'];
         }
 
         return $data;

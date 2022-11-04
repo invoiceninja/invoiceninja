@@ -15,8 +15,14 @@ use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Transformers\PurchaseOrderTransformer;
+use App\Transformers\VendorContactTransformer;
+use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 class ActivityTransformer extends EntityTransformer
@@ -40,6 +46,9 @@ class ActivityTransformer extends EntityTransformer
         'payment',
         'expense',
         'task',
+        'purchase_order',
+        'vendor',
+        'vendor_contact',
     ];
 
     /**
@@ -56,6 +65,7 @@ class ActivityTransformer extends EntityTransformer
             'recurring_invoice_id' => $activity->recurring_invoice_id ? (string) $this->encodePrimaryKey($activity->recurring_invoice_id) : '',
             'recurring_expense_id' => $activity->recurring_expense_id ? (string) $this->encodePrimaryKey($activity->recurring_expense_id) : '',
             'purchase_order_id' => $activity->purchase_order_id ? (string) $this->encodePrimaryKey($activity->purchase_order_id) : '',
+            'vendor_id' => $activity->vendor_id ? (string) $this->encodePrimaryKey($activity->vendor_id) : '',
             'vendor_contact_id' => $activity->vendor_contact_id ? (string) $this->encodePrimaryKey($activity->vendor_contact_id) : '',
             'company_id' => $activity->company_id ? (string) $this->encodePrimaryKey($activity->company_id) : '',
             'user_id' => (string) $this->encodePrimaryKey($activity->user_id),
@@ -90,11 +100,25 @@ class ActivityTransformer extends EntityTransformer
         return $this->includeItem($activity->client, $transformer, Client::class);
     }
 
+    public function includeVendor(Activity $activity)
+    {
+        $transformer = new VendorTransformer($this->serializer);
+
+        return $this->includeItem($activity->vendor, $transformer, Vendor::class);
+    }
+
     public function includeContact(Activity $activity)
     {
         $transformer = new ClientContactTransformer($this->serializer);
 
         return $this->includeItem($activity->contact, $transformer, ClientContact::class);
+    }
+
+    public function includeVendorContact(Activity $activity)
+    {
+        $transformer = new VendorContactTransformer($this->serializer);
+
+        return $this->includeItem($activity->vendor_contact, $transformer, VendorContact::class);
     }
 
     public function includeRecurringInvoice(Activity $activity)
@@ -103,6 +127,14 @@ class ActivityTransformer extends EntityTransformer
 
         return $this->includeItem($activity->recurring_invoice, $transformer, RecurringInvoice::class);
     }
+
+    public function includePurchaseOrder(Activity $activity)
+    {
+        $transformer = new PurchaseOrderTransformer($this->serializer);
+
+        return $this->includeItem($activity->purchase_order(), $transformer, PurchaseOrder::class);
+    }
+
 
     public function includeQuote(Activity $activity)
     {

@@ -209,7 +209,7 @@ class PaymentRepository extends BaseRepository {
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
+        // TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
 
         return $payment->refresh();
     }
