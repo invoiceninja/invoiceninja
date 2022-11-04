@@ -116,6 +116,7 @@ class QuoteItemExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query = Quote::query()
+                        ->withTrashed()
                         ->with('client')->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
 

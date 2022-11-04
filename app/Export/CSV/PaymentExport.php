@@ -89,7 +89,10 @@ class PaymentExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query = Payment::query()->where('company_id', $this->company->id)->where('is_deleted', 0);
+        $query = Payment::query()
+                            ->withTrashed()
+                            ->where('company_id', $this->company->id)
+                            ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
