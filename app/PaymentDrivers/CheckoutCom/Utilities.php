@@ -84,10 +84,11 @@ trait Utilities
 
     public function processUnsuccessfulPayment($_payment, $throw_exception = true)
     {
+
         $error_message = '';
 
-        if (array_key_exists('response_summary', $_payment)) {
-            $error_message = $_payment['response_summary'];
+        if (array_key_exists('actions', $_payment) && array_key_exists('response_summary', end($_payment['actions']))) {
+            $error_message = end($_payment['actions'])['response_summary'];
         } elseif (array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
         }
