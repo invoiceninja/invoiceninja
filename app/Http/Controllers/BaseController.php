@@ -105,6 +105,8 @@ class BaseController extends Controller
           'company.vendors.documents',
           'company.webhooks',
           'company.system_logs',
+          'company.bank_integrations',
+          'company.bank_transactions',
         ];
 
     private $mini_load = [
@@ -122,6 +124,7 @@ class BaseController extends Controller
         'company.designs.company',
         'company.expense_categories',
         'company.subscriptions',
+        'company.bank_integrations',
     ];
 
     public function __construct()
@@ -438,11 +441,26 @@ class BaseController extends Controller
                         $query->where('subscriptions.user_id', $user->id);
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
+                    $query->whereNotNull('updated_at');
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            //27-10-2022 - enforce unsigned integer
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -453,6 +471,14 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
+    }
+
+    private function resolveQueryLimit()
+    {
+        if(request()->has('per_page'))
+            return abs((int)request()->input('per_page', 20));
+
+        return 20;
     }
 
     protected function miniLoadResponse($query)
@@ -497,11 +523,17 @@ class BaseController extends Controller
                         $query->where('activities.user_id', $user->id);
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -741,11 +773,25 @@ class BaseController extends Controller
 
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -794,7 +840,7 @@ class BaseController extends Controller
         }
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);

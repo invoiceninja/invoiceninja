@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\DataMapper\CompanySettings;
+use App\Models\BankTransaction;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\PurchaseOrder;
@@ -175,6 +176,16 @@ class Company extends BaseModel
     public function ledger()
     {
         return $this->hasMany(CompanyLedger::class);
+    }
+
+    public function bank_integrations()
+    {
+        return $this->hasMany(BankIntegration::class);
+    }
+
+    public function bank_transactions()
+    {
+        return $this->hasMany(BankTransaction::class);
     }
 
     public function getCompanyIdAttribute()

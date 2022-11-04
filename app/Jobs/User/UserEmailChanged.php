@@ -17,11 +17,13 @@ use App\Libraries\MultiDB;
 use App\Mail\User\UserNotificationMailer;
 use App\Models\Company;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use stdClass;
 
@@ -54,10 +56,13 @@ class UserEmailChanged implements ShouldQueue
 
     public function handle()
     {
-        nlog('notifying user of email change');
-
         //Set DB
         MultiDB::setDb($this->company->db);
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+        App::setLocale($this->company->getLocale());
 
         /*Build the object*/
         $mail_obj = new stdClass;

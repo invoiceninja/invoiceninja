@@ -113,7 +113,7 @@ class ApplyPayment extends AbstractService
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_PAYMENT_APPLIED, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_PAYMENT_APPLIED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

@@ -51,7 +51,7 @@ class HandleCancellation extends AbstractService
 
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
-        $this->invoice->fresh();
+        // $this->invoice->fresh();
 
         $this->invoice->service()->workFlow()->save();
 
@@ -65,7 +65,7 @@ class HandleCancellation extends AbstractService
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_CANCELLED, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_CANCELLED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

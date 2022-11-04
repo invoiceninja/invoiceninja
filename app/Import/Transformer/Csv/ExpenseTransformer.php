@@ -31,7 +31,7 @@ class ExpenseTransformer extends BaseTransformer
 
         return [
             'company_id' => $this->company->id,
-            'amount' => $this->getFloat($data, 'expense.amount'),
+            'amount' => abs($this->getFloat($data, 'expense.amount')),
             'currency_id' => $this->getCurrencyByCode(
                 $data,
                 'expense.currency_id'

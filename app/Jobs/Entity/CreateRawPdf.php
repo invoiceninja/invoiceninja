@@ -200,6 +200,8 @@ class CreateRawPdf implements ShouldQueue
         }
 
         if ($pdf) {
+            $maker =null;
+            $state = null;
             return $pdf;
         }
 

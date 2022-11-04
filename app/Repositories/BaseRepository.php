@@ -118,7 +118,7 @@ class BaseRepository
         
         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
-        $invitation = $invitation_class::where('key', $invitation['key'])->first();
+        $invitation = $invitation_class::with('company')->where('key', $invitation['key'])->first();
 
         return $invitation;
     }
@@ -152,7 +152,7 @@ class BaseRepository
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        $client = Client::where('id', $model->client_id)->withTrashed()->firstOrFail();    
+        $client = Client::with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();    
 
         $state = [];
 
@@ -304,8 +304,9 @@ class BaseRepository
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
-            //links tasks and expenses back to the invoice.
-            $model->service()->linkEntities()->save();
+            //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
+            if (\DB::transactionLevel() == 0) 
+                $model->service()->linkEntities()->save();
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Invoice', $model);

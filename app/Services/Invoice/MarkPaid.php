@@ -141,7 +141,7 @@ class MarkPaid extends AbstractService
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

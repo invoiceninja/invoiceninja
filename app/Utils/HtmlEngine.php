@@ -143,6 +143,7 @@ class HtmlEngine
         $data['$credit.datetime'] = &$data['$entity.datetime'];
         $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
+        $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
 
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
@@ -263,6 +264,12 @@ class HtmlEngine
         if ($this->entity_string == 'credit') {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
             $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.credit_balance')];
+            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
+        }
+
+        if ($this->entity_string == 'credit' && $this->entity->status_id == 1) {
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
+            $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.credit_balance')];
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
         }
 
@@ -894,6 +901,10 @@ html {
 
         $dom->appendChild($container);
 
-        return $dom->saveHTML();
+        $html = $dom->saveHTML();
+
+        $dom = null;
+
+        return $html;
     }
 }

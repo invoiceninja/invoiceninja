@@ -575,7 +575,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
             unset($modified['id']);
-            unset($modified['password']); //cant import passwords.
+            // unset($modified['password']); //cant import passwords.
             unset($modified['confirmation_code']); //cant import passwords.
             unset($modified['oauth_user_id']);
             unset($modified['oauth_provider_id']);
@@ -587,6 +587,7 @@ class Import implements ShouldQueue
             if($modified['deleted_at'])
                 $user->deleted_at = now();
             
+            $user->password = $modified['password'];
             $user->save();
             
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
