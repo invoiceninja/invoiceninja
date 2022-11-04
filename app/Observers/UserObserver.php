@@ -38,9 +38,9 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        if (Ninja::isHosted() && $user->isDirty('phone')) {
-            VerifyPhone::dispatch($user);
-        }
+        // if (Ninja::isHosted() && $user->isDirty('phone')) {
+        //     VerifyPhone::dispatch($user);
+        // }
     }
 
     /**

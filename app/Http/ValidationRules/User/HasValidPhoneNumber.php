@@ -40,29 +40,31 @@ class HasValidPhoneNumber implements Rule
      */
     public function passes($attribute, $value)
     {
-        
+
 		$sid = config('ninja.twilio_account_sid');
 		$token = config('ninja.twilio_auth_token');
 
 		if(!$sid)
 			return true; 
 
-		$twilio = new Twilio\Rest\Client($sid, $token);
+		$twilio = new \Twilio\Rest\Client($sid, $token);
 
 		$country = auth()->user()->account?->companies()?->first()?->country();
 
-		if(!$country || strlen($user->phone) < 2)
+		if(!$country || strlen(auth()->user()->phone) < 2)
 		  return true;
 
 		$countryCode = $country->iso_3166_2;
-
+        
 		try{
 
 			$phone_number = $twilio->lookups->v1->phoneNumbers($value)
 		                                        ->fetch(["countryCode" => $countryCode]);
 
             $user = auth()->user();
-        	$user->phone = $phone_number->phoneNumber;
+
+            request()->merge(['validated_phone' => $phone_number->phoneNumber ]);
+
 			$user->verified_phone_number = true;
             $user->save();
             

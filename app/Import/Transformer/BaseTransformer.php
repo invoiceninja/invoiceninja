@@ -68,6 +68,11 @@ class BaseTransformer
 
     }
 
+    public function getNumber($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? (int)$data->$field : 0;
+    }
+
     public function getString($data, $field)
     {
         return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';
