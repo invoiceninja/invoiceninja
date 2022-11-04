@@ -64,8 +64,8 @@ class BankTransactionSync implements ShouldQueue
 
             // $queue = Ninja::isHosted() ? 'bank' : 'default';
 
-            // if($account->isPaid())
-            // {
+            if($account->isPaid() && $account->plan == 'enterprise')
+            {
 
                 $account->bank_integrations->each(function ($bank_integration) use ($account){
                     
@@ -73,7 +73,7 @@ class BankTransactionSync implements ShouldQueue
 
                 });
 
-            // }
+            }
 
         });
     }

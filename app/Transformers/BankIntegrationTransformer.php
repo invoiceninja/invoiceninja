@@ -60,6 +60,7 @@ class BankIntegrationTransformer extends EntityTransformer
             'nickname' => (string)$bank_integration->nickname ?: '',
             'from_date' => (string)$bank_integration->from_date ?: '',
             'is_deleted' => (bool) $bank_integration->is_deleted,
+            'disabled_upstream' => (bool) $bank_integration->disabled_upstream,
             'created_at' => (int) $bank_integration->created_at,
             'updated_at' => (int) $bank_integration->updated_at,
             'archived_at' => (int) $bank_integration->deleted_at,

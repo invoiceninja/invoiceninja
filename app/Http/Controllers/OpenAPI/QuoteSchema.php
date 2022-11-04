@@ -26,7 +26,7 @@
  *       @OA\Property(property="tax_name3", type="string", example="", description="The tax name"),
  *       @OA\Property(property="tax_rate3", type="number", format="float", example="10.00", description="The tax rate"),
  *       @OA\Property(property="total_taxes", type="number", format="float", example="10.00", description="The total taxes for the quote"),
- *       @OA\Property(property="line_items", type="object", example="[{"product_key":"test", "unit_cost":10},{"product_key":"test", "unit_cost":10}]", description="An array of line items of the quote"),
+ *       @OA\Property(property="line_items", type="object", example="", description="An array of line items of the quote"),
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="The total amount of the quote"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="The balance due of the quote"),
  *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="The amount that has been paid to date on the quote"),
