@@ -14,6 +14,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BaseController;
@@ -361,4 +362,10 @@ Route::post('api/v1/get_migration_account', [HostedMigrationController::class, '
 Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/process_webhook', [AppleController::class, 'process_webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/confirm_purchase', [AppleController::class, 'confirm_purchase'])->middleware('throttle:1000,1');
+Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook'])->middleware('throttle:100,1');
+Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
+Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
+Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
+
+
 Route::fallback([BaseController::class, 'notFound']);
