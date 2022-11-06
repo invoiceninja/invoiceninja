@@ -71,7 +71,7 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        if ($entity instanceof User || $entity->company->is_disabled) {
+        if ($entity instanceof User || $entity->company->is_disabled || $entity->company?->account->isFreeHostedClient()) {
             return;
         }
 
