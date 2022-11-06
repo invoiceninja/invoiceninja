@@ -4777,7 +4777,8 @@ $LANG = array(
     'invoice_task_project' => 'Invoice Task Project',
     'invoice_task_project_help' => 'Add the project to the invoice line items',
     'bulk_action' => 'Bulk Action',
-    'phone_validation_error' => 'This phone number is not valid, please enter in E.164 format',    
+    'phone_validation_error' => 'This phone number is not valid, please enter in E.164 format',
+    'transaction' => 'Transaction',    
 );
 
 return $LANG;
