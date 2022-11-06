@@ -63,16 +63,6 @@ class UpdateInvoicePayment
             }
 
             $client->service()->updateBalanceAndPaidToDate($paid_amount*-1, $paid_amount);
-            
-            // \DB::connection(config('database.default'))->transaction(function () use($client, $paid_amount){
-
-            //     $update_client = Client::withTrashed()->where('id', $client->id)->lockForUpdate()->first();
-
-            //     $update_client->paid_to_date += $paid_amount;
-            //     $update_client->balance -= $paid_amount;
-            //     $update_client->save();
-
-            // }, 1);
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
             if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
@@ -86,8 +76,6 @@ class UpdateInvoicePayment
 
             $invoice =  $invoice->service() 
                                 ->clearPartial()
-                                // ->updateBalance($paid_amount * -1)
-                                // ->updatePaidToDate($paid_amount)
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->save();
