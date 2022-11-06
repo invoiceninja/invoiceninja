@@ -44,7 +44,7 @@ class UpdateUserRequest extends Request
         }
 
         if(Ninja::isHosted() && $this->phone_has_changed)
-            $rules['phone'] = ['sometimes', new HasValidPhoneNumber()];
+            $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];
 
         return $rules;
     }
