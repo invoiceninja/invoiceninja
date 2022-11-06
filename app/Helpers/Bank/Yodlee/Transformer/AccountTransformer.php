@@ -89,7 +89,7 @@ class AccountTransformer implements AccountTransformerInterface
             'account_type' => $account->CONTAINER,
             'account_name' => $account->accountName,
             'account_status' => $account->accountStatus,
-            'account_number' => $account->accountNumber,
+            'account_number' => property_exists($account, 'accountNumber') ? '**** ' . substr($account?->accountNumber, -7) : '',
             'provider_account_id' => $account->providerAccountId,
             'provider_id' => $account->providerId,
             'provider_name' => $account->providerName,

@@ -19,6 +19,7 @@ use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Http\Requests\Invoice\BulkInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
@@ -546,11 +547,11 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkInvoiceRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);

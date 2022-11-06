@@ -59,7 +59,13 @@ class StoreCreditRequest extends Request
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', auth()->user()->company()->id)];
         $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
-
+        $rules['tax_rate1'] = 'bail|sometimes|numeric';
+        $rules['tax_rate2'] = 'bail|sometimes|numeric';
+        $rules['tax_rate3'] = 'bail|sometimes|numeric';
+        $rules['tax_name1'] = 'bail|sometimes|string|nullable';
+        $rules['tax_name2'] = 'bail|sometimes|string|nullable';
+        $rules['tax_name3'] = 'bail|sometimes|string|nullable';
+        
         if ($this->invoice_id) {
             $rules['invoice_id'] = new ValidInvoiceCreditRule();
         }

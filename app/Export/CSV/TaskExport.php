@@ -91,7 +91,10 @@ class TaskExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        $query = Task::query()->where('company_id', $this->company->id)->where('is_deleted', 0);
+        $query = Task::query()
+                        ->withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
