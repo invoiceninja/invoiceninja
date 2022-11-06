@@ -13,9 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
+
+        if (Schema::hasColumn('backups', 'html_backup'))
+        {
+            Schema::table('backups', function (Blueprint $table)
+            {
+                $table->dropColumn('html_backup');
+            });
+        }
+
         Schema::table('backups', function (Blueprint $table) {
             $table->string('disk')->nullable();
-            $table->dropColumn('html_backup');
         });
     }
 
