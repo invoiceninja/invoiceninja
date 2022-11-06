@@ -59,6 +59,8 @@ class MatchBankTransactions implements ShouldQueue
 
     private float $available_balance = 0;
     
+    private float $applied_amount = 0;
+
     private array $attachable_invoices = [];
 
     public $bts;
@@ -209,17 +211,19 @@ class MatchBankTransactions implements ShouldQueue
             
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
-                if($invoices->count() == 1){
-                    $_amount = $this->available_balance;
-                }
-                elseif($invoices->count() > 1 && floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
+                // if($invoices->count() == 1){
+                //     $_amount = $this->available_balance;
+                // }
+                if(floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
                 {
                     $_amount = $this->invoice->balance;
+                    $this->applied_amount += $this->invoice->balance;
                     $this->available_balance = $this->available_balance - $this->invoice->balance;
                 }
-                elseif($invoices->count() > 1 && floatval($this->invoice->balance) > floatval($this->available_balance) && $this->available_balance > 0)
+                elseif(floatval($this->invoice->balance) > floatval($this->available_balance) && $this->available_balance > 0)
                 {
                     $_amount = $this->available_balance;
+                    $this->applied_amount += $this->available_balance;
                     $this->available_balance = 0;
                 }
 
@@ -241,7 +245,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
         $payment->amount = $amount;
-        $payment->applied = $amount;
+        $payment->applied = $this->applied_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->description;
