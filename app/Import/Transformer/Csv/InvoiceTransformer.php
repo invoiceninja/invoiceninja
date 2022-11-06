@@ -72,11 +72,11 @@ class InvoiceTransformer extends BaseTransformer
                 'invoice.private_notes'
             ),
             'tax_name1' => $this->getString($invoice_data, 'invoice.tax_name1'),
-            'tax_rate1' => $this->getFloat($invoice_data, 'invoice.tax_rate1'),
+            'tax_rate1' => $this->getFloat($invoice_data, 'invoice.tax_rate1') && strlen($this->getString($invoice_data, 'invoice.tax_name1')) > 1 ? $this->getFloat($invoice_data, 'invoice.tax_rate1') : null,
             'tax_name2' => $this->getString($invoice_data, 'invoice.tax_name2'),
-            'tax_rate2' => $this->getFloat($invoice_data, 'invoice.tax_rate2'),
+            'tax_rate2' => $this->getFloat($invoice_data, 'invoice.tax_rate2') && strlen($this->getString($invoice_data, 'invoice.tax_name2')) > 1 ? $this->getFloat($invoice_data, 'invoice.tax_rate2') : null,
             'tax_name3' => $this->getString($invoice_data, 'invoice.tax_name3'),
-            'tax_rate3' => $this->getFloat($invoice_data, 'invoice.tax_rate3'),
+            'tax_rate3' => $this->getFloat($invoice_data, 'invoice.tax_rate3') && strlen($this->getString($invoice_data, 'invoice.tax_name3')) > 1 ? $this->getFloat($invoice_data, 'invoice.tax_rate3') : null,
             'custom_value1' => $this->getString(
                 $invoice_data,
                 'invoice.custom_value1'
