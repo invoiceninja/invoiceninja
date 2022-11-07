@@ -16,6 +16,7 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -286,7 +287,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
 
                 if(!$hash){
-                    nlog("GoCardless couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
+                    nlog("GoCardless: couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
                     return; 
                 }
 
@@ -300,9 +301,38 @@ class GoCardlessPaymentDriver extends BaseDriver
                     $billing_request->payment_request->links->payment
                 );
 
-                    if ($billing_request->status === 'fulfilled') {
-                        $this->processSuccessfulPayment($payment);
+                if ($billing_request->status === 'fulfilled') {
+
+                    $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+                    $this->go_cardless->client = $invoices->first()->client;
+
+                    $invoices->each(function ($invoice){
+
+                        //if payments exist already, they just need to be confirmed.
+                        if($invoice->payments()->exists){
+                            
+                            $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment){
+                                $payment->status_id = 4;
+                                $payment->save();
+                            });
+
+                        }
+                    });
+
+                    // remove all paid invoices
+                    $invoices->filter(function ($invoice){
+                        return $invoice->isPayable();
+                    });
+
+                    //return early if nothing to do
+                    if($invoices->count() == 0){
+                        nlog("GoCardless: Could not harvest any invoices - probably all paid!!");
+                        return; 
                     }
+
+                    $this->processSuccessfulPayment($payment);
+                }
 
             }
 
