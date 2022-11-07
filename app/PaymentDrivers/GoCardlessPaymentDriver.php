@@ -353,6 +353,8 @@ class GoCardlessPaymentDriver extends BaseDriver
         ];
 
         $payment = $this->go_cardless->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->save();
 
         SystemLogger::dispatch(
             ['response' => $payment, 'data' => $data],

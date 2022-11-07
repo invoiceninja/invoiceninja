@@ -14,6 +14,7 @@ namespace Tests\Feature;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
@@ -159,7 +160,7 @@ class GoCardlessInstantBankPaymentTest extends TestCase
         $data_object->invoices = [$invoice_object];
         $data_object->client = $this->client->id;
         $data_object->amount_with_fee = $invoice->amount;
-        
+
         $payment_hash = new PaymentHash();
         $payment_hash->hash = "1234567890abc";
         $payment_hash->fee_total = 0;
@@ -177,6 +178,18 @@ class GoCardlessInstantBankPaymentTest extends TestCase
         $this->assertEquals($invoice->hashed_id, $test_invoice_object->invoice_id);
         $this->assertEquals($invoice->balance, $test_invoice_object->amount);
 
+
+        $cg = new CompanyGateway;
+        $cg->company_id = $this->company->id;
+        $cg->user_id = $this->user->id;
+        $cg->gateway_key = 'b9886f9257f0c6ee7c302f1c74475f6c';
+        $cg->require_cvv = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
+        $cg->update_details = true;
+        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->fees_and_limits = '';
+        $cg->save();
 
           foreach($this->mock['events'] as $event)
           {
@@ -213,21 +226,28 @@ class GoCardlessInstantBankPaymentTest extends TestCase
                   $this->assertEquals('my_mandate', $data['payment_method']);
                   $this->assertEquals('gocardless_payment_id', $data['transaction_reference']);
                   $this->assertEquals($invoice->balance, $data['amount']);
+
+                  $gocardless_driver = $cg->driver($this->client);
+                  $gocardless_driver->setPaymentHash($hash);
+
+                  $payment = $gocardless_driver->createPayment($data, Payment::STATUS_COMPLETED);
+
+                  $this->assertInstanceOf(Payment::class, $payment);
+
+                  $this->assertEquals(round($invoice->amount,2), round($payment->amount,2));
+                  $this->assertEquals(Payment::STATUS_COMPLETED, $payment->status_id);
+                  $this->assertEquals(1, $payment->invoices()->count());
+                  $this->assertEquals($invoice->number, $payment->invoices()->first()->number);
+                  $this->assertEquals(Invoice::STATUS_PAID, $payment->invoices()->first()->status_id);
+
+
+
                 }
 
           }
 
-
-
-
-
-
-
-
-
-
-
     }
+
 
 }
 
