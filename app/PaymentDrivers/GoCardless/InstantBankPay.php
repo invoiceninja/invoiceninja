@@ -59,7 +59,10 @@ class InstantBankPay implements MethodInterface
                         'description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
                         'amount' => (string) $data['amount_with_fee'] * 100,
                         'currency' => $this->go_cardless->client->getCurrencyCode(),
-                    ]
+                    ],
+                    'metadata' => [
+                        'payment_hash' => $this->go_cardless->payment_hash->hash,
+                    ],
                 ],
             ]);
 
@@ -72,9 +75,6 @@ class InstantBankPay implements MethodInterface
                     ]),
                     'links' => [
                         'billing_request' => $billing_request->id,
-                    ],
-                    'metadata' => [
-                        'payment_hash' => $this->go_cardless->payment_hash->hash,
                     ],
                 ],
             ]);
