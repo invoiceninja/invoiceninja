@@ -275,27 +275,36 @@ class GoCardlessPaymentDriver extends BaseDriver
             }
 
             //billing_request fulfilled
-            //PaymentHash::whereJsonContains('data->billing_request', 'BRQ0001BQ8JESEV')->first();
+            //
 
             //i need to build more context here, i need the client , the payment hash resolved and update the class properties.
             //after i resolve the payment hash, ensure the invoice has not been marked as paid and the payment does not already exist.
             //if it does exist, ensure it is completed and not pending.
-            
-            // if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
 
-            //     $billing_request = $this->go_cardless->gateway->billingRequests()->get(
-            //         $event['links']['billing_request']
-            //     );
+            if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
 
-            //     $payment = $this->go_cardless->gateway->payments()->get(
-            //         $billing_request->payment_request->links->payment
-            //     );
+                $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
 
-            //         if ($billing_request->status === 'fulfilled') {
-            //             $this->processSuccessfulPayment($payment);
-            //         }
+                if(!$hash){
+                    nlog("GoCardless couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
+                    return; 
+                }
 
-            // }
+                $this->go_cardless->setPaymentHash($hash);
+
+                $billing_request = $this->go_cardless->gateway->billingRequests()->get(
+                    $event['links']['billing_request']
+                );
+
+                $payment = $this->go_cardless->gateway->payments()->get(
+                    $billing_request->payment_request->links->payment
+                );
+
+                    if ($billing_request->status === 'fulfilled') {
+                        $this->processSuccessfulPayment($payment);
+                    }
+
+            }
 
         }
 
