@@ -273,10 +273,58 @@ class GoCardlessPaymentDriver extends BaseDriver
                     nlog('GoCardless completed');
                 }
             }
+
+            //billing_request fulfilled
+            //PaymentHash::whereJsonContains('data->billing_request', 'BRQ0001BQ8JESEV')->first();
+
+            //i need to build more context here, i need the client , the payment hash resolved and update the class properties.
+            // if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+
+            //     $billing_request = $this->go_cardless->gateway->billingRequests()->get(
+            //         $event['links']['billing_request']
+            //     );
+
+            //     $payment = $this->go_cardless->gateway->payments()->get(
+            //         $billing_request->payment_request->links->payment
+            //     );
+
+            //         if ($billing_request->status === 'fulfilled') {
+            //             $this->processSuccessfulPayment($payment);
+            //         }
+
+            // }
+
         }
 
         return response()->json([], 200);
     }
+
+
+    public function processSuccessfulPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    {
+        $data = [
+            'payment_method' => $payment->links->mandate,
+            'payment_type' => PaymentType::INSTANT_BANK_PAY,
+            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'transaction_reference' => $payment->id,
+            'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
+        ];
+
+        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+    }
+
+
+
 
     public function ensureMandateIsReady($token)
     {
