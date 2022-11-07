@@ -52,10 +52,10 @@ class GoCardlessInstantBankPaymentTest extends TestCase
       'id' => 'EV032JF67TF2',
       'links' => 
       [
-        'customer' => 'CU001ZDXYDR3',
-        'billing_request' => 'BRQ0005YJ7GHF',
-        'customer_bank_account' => 'BA001V2111PK',
-        'mandate_request_mandate' => 'MD001W5RP7GA',
+        'customer' => 'CU001DXYDR3',
+        'billing_request' => 'BRQ005YJ7GHF',
+        'customer_bank_account' => 'BA00V2111PK',
+        'mandate_request_mandate' => 'MD01W5RP7GA',
       ],
       'action' => 'fulfilled',
       'details' => 
@@ -105,6 +105,23 @@ class GoCardlessInstantBankPaymentTest extends TestCase
     {
 
       $this->assertIsArray($this->mock);
+
+      foreach($this->mock['events'] as $event)
+      {
+
+            if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+
+              $this->assertEquals('CU001DXYDR3', $event['links']['customer']);
+              $this->assertEquals('BRQ005YJ7GHF', $event['links']['billing_request']);
+              $this->assertEquals('BA00V2111PK', $event['links']['customer_bank_account']);
+
+            }
+
+      }
+
+      // mock the invoice and the payment hash 
+
+
     }
 
 }
