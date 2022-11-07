@@ -278,6 +278,9 @@ class GoCardlessPaymentDriver extends BaseDriver
             //PaymentHash::whereJsonContains('data->billing_request', 'BRQ0001BQ8JESEV')->first();
 
             //i need to build more context here, i need the client , the payment hash resolved and update the class properties.
+            //after i resolve the payment hash, ensure the invoice has not been marked as paid and the payment does not already exist.
+            //if it does exist, ensure it is completed and not pending.
+            
             // if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
 
             //     $billing_request = $this->go_cardless->gateway->billingRequests()->get(
