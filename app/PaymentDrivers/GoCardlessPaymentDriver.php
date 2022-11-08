@@ -288,7 +288,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
                 if(!$hash){
                     nlog("GoCardless: couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
-                    return; 
+                    return response()->json([], 200);
                 }
 
                 $this->go_cardless->setPaymentHash($hash);
@@ -328,7 +328,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                     //return early if nothing to do
                     if($invoices->count() == 0){
                         nlog("GoCardless: Could not harvest any invoices - probably all paid!!");
-                        return; 
+                        return response()->json([], 200);
                     }
 
                     $this->processSuccessfulPayment($payment);

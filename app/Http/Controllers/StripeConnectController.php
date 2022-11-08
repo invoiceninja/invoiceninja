@@ -54,7 +54,7 @@ class StripeConnectController extends BaseController
         if ($company_gateway) {
             $config = $company_gateway->getConfig();
 
-            if (property_exists($config, 'account_id') && strlen($config->account_id) > 1) {
+            if (property_exists($config, 'account_id') && strlen($config->account_id) > 5) {
                 return view('auth.connect.existing');
             }
         }
