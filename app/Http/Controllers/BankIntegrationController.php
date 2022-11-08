@@ -566,9 +566,17 @@ class BankIntegrationController extends BaseController
                 $bank_integration->currency = $account['account_currency'];
                 
                 $bank_integration->save();
+
             }
         }
 
+        $account = auth()->user()->account;
+        
+        $account->bank_integrations->each(function ($bank_integration) use ($account){
+            
+            ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
+
+        });
 
         return response()->json(BankIntegration::query()->company(), 200);
     }

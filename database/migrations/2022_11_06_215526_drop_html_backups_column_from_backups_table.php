@@ -25,6 +25,10 @@ return new class extends Migration
         Schema::table('backups', function (Blueprint $table) {
             $table->string('disk')->nullable();
         });
+
+        Schema::table('bank_integrations', function (Blueprint $table) {
+            $table->boolean('auto_sync')->default(false);
+        });
     }
 
     /**

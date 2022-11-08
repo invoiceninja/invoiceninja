@@ -31,7 +31,9 @@ class UpdateBankIntegrationRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
-        $rules = [];
+        $rules = [
+            'auto_sync' => 'sometimes|bool'
+        ];
 
         return $rules;
     }

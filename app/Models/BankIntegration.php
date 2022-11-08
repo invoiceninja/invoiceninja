@@ -27,6 +27,7 @@ class BankIntegration extends BaseModel
         'currency',
         'nickname',
         'from_date',
+        'auto_sync',
     ];
 
     protected $dates = [
