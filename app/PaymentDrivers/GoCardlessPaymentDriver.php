@@ -16,6 +16,7 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -273,10 +274,101 @@ class GoCardlessPaymentDriver extends BaseDriver
                     nlog('GoCardless completed');
                 }
             }
+
+            //billing_request fulfilled
+            //
+
+            //i need to build more context here, i need the client , the payment hash resolved and update the class properties.
+            //after i resolve the payment hash, ensure the invoice has not been marked as paid and the payment does not already exist.
+            //if it does exist, ensure it is completed and not pending.
+
+            if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+
+                $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
+
+                if(!$hash){
+                    nlog("GoCardless: couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
+                    return response()->json([], 200);
+                }
+
+                $this->go_cardless->setPaymentHash($hash);
+
+                $billing_request = $this->go_cardless->gateway->billingRequests()->get(
+                    $event['links']['billing_request']
+                );
+
+                $payment = $this->go_cardless->gateway->payments()->get(
+                    $billing_request->payment_request->links->payment
+                );
+
+                if ($billing_request->status === 'fulfilled') {
+
+                    $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+                    $this->go_cardless->client = $invoices->first()->client;
+
+                    $invoices->each(function ($invoice){
+
+                        //if payments exist already, they just need to be confirmed.
+                        if($invoice->payments()->exists){
+                            
+                            $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment){
+                                $payment->status_id = 4;
+                                $payment->save();
+                            });
+
+                        }
+                    });
+
+                    // remove all paid invoices
+                    $invoices->filter(function ($invoice){
+                        return $invoice->isPayable();
+                    });
+
+                    //return early if nothing to do
+                    if($invoices->count() == 0){
+                        nlog("GoCardless: Could not harvest any invoices - probably all paid!!");
+                        return response()->json([], 200);
+                    }
+
+                    $this->processSuccessfulPayment($payment);
+                }
+
+            }
+
         }
 
         return response()->json([], 200);
     }
+
+
+    public function processSuccessfulPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    {
+        $data = [
+            'payment_method' => $payment->links->mandate,
+            'payment_type' => PaymentType::INSTANT_BANK_PAY,
+            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'transaction_reference' => $payment->id,
+            'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
+        ];
+
+        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->save();
+
+        SystemLogger::dispatch(
+            ['response' => $payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+    }
+
+
+
 
     public function ensureMandateIsReady($token)
     {

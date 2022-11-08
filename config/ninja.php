@@ -43,7 +43,10 @@ return [
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     // Settings used by invoiceninja.com
-
+    'disks' => [
+        'backup' => env('BACKUP_DISK', 's3'),
+        'document' => env('DOCUMENT_DISK', 's3'),
+    ],
     'terms_of_service_url' => [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),

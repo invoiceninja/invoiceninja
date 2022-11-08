@@ -13,6 +13,7 @@ namespace App\Console\Commands;
 
 use App\Libraries\MultiDB;
 use App\Models\Backup;
+use App\Models\Company;
 use App\Models\Design;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -25,14 +26,14 @@ class BackupUpdate extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:backup-update';
+    protected $signature = 'ninja:backup-files {--disk=}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Shift backups from DB to storage';
+    protected $description = 'Shift files between object storage locations';
 
     /**
      * Create a new command instance.
@@ -74,17 +75,30 @@ class BackupUpdate extends Command
     {
         set_time_limit(0);
 
-        Backup::whereHas('activity')->whereRaw('html_backup IS NOT NULL')->cursor()->each(function ($backup) {
-            if (strlen($backup->html_backup) > 1 && $backup->activity->invoice->exists()) {
-                $client = $backup->activity->invoice->client;
-                $backup->storeRemotely($backup->html_backup, $client);
-            } elseif (strlen($backup->html_backup) > 1 && $backup->activity->quote->exists()) {
-                $client = $backup->activity->quote->client;
-                $backup->storeRemotely($backup->html_backup, $client);
-            } elseif (strlen($backup->html_backup) > 1 && $backup->activity->credit->exists()) {
-                $client = $backup->activity->credit->client;
-                $backup->storeRemotely($backup->html_backup, $client);
-            }
-        });
+        //logos
+
+        Company::query()
+               ->cursor()
+               ->each(function ($company){
+
+                    $logo = @file_get_contents($company->present()->logo());
+
+                    if($logo){
+
+                        $path = str_replace("https://object.invoicing.co/", "", $company->present()->logo());
+                        $path = str_replace("https://v5-at-backup.us-southeast-1.linodeobjects.com/", "", $path);
+
+                        Storage::disk($this->option('disk'))->put($path, $logo);
+
+                    }
+
+               });
+
+
+        //documents
+
+
+       //backups
+        
     }
 }

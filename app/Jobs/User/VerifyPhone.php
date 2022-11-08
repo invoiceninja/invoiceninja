@@ -70,6 +70,7 @@ class VerifyPhone implements ShouldQueue
 		catch(\Exception $e) {
 			$this->user->verified_phone_number = false;
 			$this->user->save();
+			return;
 		}
 
 		if($phone_number && strlen($phone_number->phoneNumber) > 1)

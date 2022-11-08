@@ -56,8 +56,8 @@ class UserRepository extends BaseRepository
         $company = auth()->user()->company();
         $account = $company->account;
 
-        if(array_key_exists('oauth_provider_id', $details))
-            unset($details['oauth_provider_id']);
+        // if(array_key_exists('oauth_provider_id', $details))
+        //     unset($details['oauth_provider_id']);
         
         if (request()->has('validated_phone'))
             $details['phone'] = request()->input('validated_phone');

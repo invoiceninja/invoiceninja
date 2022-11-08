@@ -88,6 +88,7 @@ class InvoiceItemExport extends BaseExport
     private array $decorate_keys = [
         'client',
         'currency_id',
+        'status'
     ];
 
     public function __construct(Company $company, array $input)
@@ -207,10 +208,10 @@ class InvoiceItemExport extends BaseExport
         if(in_array('currency_id', $this->input['report_keys']))
             $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
 
-        if(in_array('client_id', $this->input['report_keys']))
+        // if(in_array('client_id', $this->input['report_keys']))
             $entity['client'] = $invoice->client->present()->name();
 
-        if(in_array('status_id', $this->input['report_keys']))
+        // if(in_array('status_id', $this->input['report_keys']))
             $entity['status'] = $invoice->stringStatus($invoice->status_id);
 
         return $entity;

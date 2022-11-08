@@ -56,9 +56,6 @@ class UserTest extends TestCase
             PasswordProtection::class
         );
 
-        // if (config('ninja.testvars.travis') !== false) {
-        //     $this->markTestSkipped('Skip test for Travis');
-        // }
     }
 
     public function testUserList()
@@ -70,6 +67,82 @@ class UserTest extends TestCase
         ])->get('/api/v1/users');
 
         $response->assertStatus(200);
+    }
+
+    public function testValidationRulesPhoneIsNull()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob1@good.ole.boys.com',
+            'company_user' => [
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
+            'phone' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testValidationRulesPhoneIsBlankString()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob1@good.ole.boys.com',
+            'company_user' => [
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
+            'phone' => "",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $user_id = $this->decodePrimaryKey($arr['data']['id']);
+        $user = User::find($user_id);
+
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob1@good.ole.boys.com',
+            'company_user' => [
+                'is_admin' => false,
+                'is_owner' => false,
+                'permissions' => 'create_client,create_invoice',
+            ],
+            'phone' => "",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
     }
 
     public function testUserStore()

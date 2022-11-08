@@ -47,6 +47,9 @@ class HasValidPhoneNumber implements Rule
 		if(!$sid)
 			return true; 
 
+        if(is_null($value))
+            return false;
+        
 		$twilio = new \Twilio\Rest\Client($sid, $token);
 
 		$country = auth()->user()->account?->companies()?->first()?->country();

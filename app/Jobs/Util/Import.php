@@ -271,7 +271,8 @@ class Import implements ShouldQueue
         }
         
         /*After a migration first some basic jobs to ensure the system is up to date*/
-        VersionCheck::dispatch();
+        if(Ninja::isSelfHost())
+            VersionCheck::dispatch();
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
