@@ -68,7 +68,7 @@ class HasValidPhoneNumber implements Rule
 
             request()->merge(['validated_phone' => $phone_number->phoneNumber ]);
 
-			$user->verified_phone_number = true;
+			$user->verified_phone_number = false;
             $user->save();
             
             return true;
