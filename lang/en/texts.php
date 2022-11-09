@@ -4835,6 +4835,7 @@ $LANG = array(
     'code_was_sent_to' => 'A code has been sent via SMS to :number',
     'verify_phone_number_2fa_help' => 'Please verify your phone number for 2FA backup',
     'enable_applying_payments_later' => 'Enable Applying Payments Later',
+    'line_item_tax_rates' => 'Line Item Tax Rates',
 
 );
 
