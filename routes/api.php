@@ -109,7 +109,7 @@ Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], 
 Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
     Route::resource('bank_integrations', BankIntegrationController::class); // name = (clients. index / create / show / update / destroy / edit
-    Route::post('bank_integrations/refresh_accounts', [BankIntegrationController::class, 'refreshAccounts'])->name('bank_integrations.refresh_accounts')->middleware('throttle:1,1');
+    Route::post('bank_integrations/refresh_accounts', [BankIntegrationController::class, 'refreshAccounts'])->name('bank_integrations.refresh_accounts')->middleware('throttle:30,1');
     Route::post('bank_integrations/remove_account/{acc_id}', [BankIntegrationController::class, 'removeAccount'])->name('bank_integrations.remove_account');
     Route::post('bank_integrations/get_transactions/{acc_id}', [BankIntegrationController::class, 'getTransactions'])->name('bank_integrations.transactions')->middleware('throttle:1,1');
 
