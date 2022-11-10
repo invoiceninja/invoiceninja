@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\BankIntegrationFactory;
+use App\Filters\BankIntegrationFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
@@ -91,10 +92,10 @@ class BankIntegrationController extends BaseController
      * @param Request $request
      * @return Response|mixed
      */
-    public function index(Request $request)
+    public function index(BankIntegrationFilters $filters)
     {
 
-        $bank_integrations = BankIntegration::query()->company();
+        $bank_integrations = BankIntegration::filter($filters);
 
         return $this->listResponse($bank_integrations);
 
