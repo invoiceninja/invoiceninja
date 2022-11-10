@@ -30,7 +30,7 @@ class InvoiceItemSum
 
     private $gross_line_total;
 
-    private $gross_tax_total;
+    private $tax_amount;
 
     private $currency;
 
@@ -158,7 +158,7 @@ class InvoiceItemSum
 
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
 
-        $this->item->gross_tax_total = $item_tax;
+        $this->item->tax_amount = $item_tax;
 
         return $this;
     }

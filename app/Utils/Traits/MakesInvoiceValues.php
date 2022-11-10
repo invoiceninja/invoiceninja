@@ -206,7 +206,7 @@ trait MakesInvoiceValues
                 'tax_name1',
                 'tax_name2',
                 'tax_name3',
-                'gross_tax_total',
+                'tax_amount',
             ],
             [
                 'tax',
@@ -327,10 +327,10 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.gross_line_total'] = '';
             }
 
-            if (property_exists($item, 'gross_tax_total')) {
-                $data[$key][$table_type.'.gross_tax_total'] = ($item->gross_tax_total == 0) ? '' : Number::formatMoney($item->gross_tax_total, $entity);
+            if (property_exists($item, 'tax_amount')) {
+                $data[$key][$table_type.'.tax_amount'] = ($item->tax_amount == 0) ? '' : Number::formatMoney($item->tax_amount, $entity);
             } else {
-                $data[$key][$table_type.'.gross_tax_total'] = '';
+                $data[$key][$table_type.'.tax_amount'] = '';
             }
 
             if (isset($item->discount) && $item->discount > 0) {

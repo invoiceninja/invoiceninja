@@ -40,7 +40,7 @@ class InvoiceItemSumInclusive
 
     private $tax_collection;
 
-    private $gross_tax_total;
+    private $tax_amount;
 
     public function __construct($invoice)
     {
@@ -146,7 +146,7 @@ class InvoiceItemSumInclusive
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
         }
 
-        $this->item->gross_tax_total = $this->formatValue($item_tax, $this->currency->precision);
+        $this->item->tax_amount = $this->formatValue($item_tax, $this->currency->precision);
         
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
