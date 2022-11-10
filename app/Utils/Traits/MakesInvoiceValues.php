@@ -161,8 +161,6 @@ trait MakesInvoiceValues
 
         if (strlen($user_columns) > 1) {
             foreach ($items as $key => $item) {
-//                $tmp = str_replace(array_keys($data), array_values($data), $user_columns);
-//                $tmp = str_replace(array_keys($item), array_values($item), $tmp);
                 $tmp = strtr($user_columns, $data);
                 $tmp = strtr($tmp, $item);
 
@@ -178,8 +176,6 @@ trait MakesInvoiceValues
             $table_row .= '</tr>';
 
             foreach ($items as $key => $item) {
-                // $tmp = str_replace(array_keys($item), array_values($item), $table_row);
-                // $tmp = str_replace(array_keys($data), array_values($data), $tmp);
                 $tmp = strtr($table_row, $item);
                 $tmp = strtr($tmp, $data);
 
@@ -210,8 +206,10 @@ trait MakesInvoiceValues
                 'tax_name1',
                 'tax_name2',
                 'tax_name3',
+                'gross_tax_total',
             ],
             [
+                'tax',
                 'tax',
                 'tax',
                 'tax',
@@ -327,6 +325,12 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.gross_line_total'] = ($item->gross_line_total == 0) ? '' : Number::formatMoney($item->gross_line_total, $entity);
             } else {
                 $data[$key][$table_type.'.gross_line_total'] = '';
+            }
+
+            if (property_exists($item, 'gross_tax_total')) {
+                $data[$key][$table_type.'.gross_tax_total'] = ($item->gross_tax_total == 0) ? '' : Number::formatMoney($item->gross_tax_total, $entity);
+            } else {
+                $data[$key][$table_type.'.gross_tax_total'] = '';
             }
 
             if (isset($item->discount) && $item->discount > 0) {
