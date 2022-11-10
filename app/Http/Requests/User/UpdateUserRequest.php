@@ -13,9 +13,14 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\UniqueUserRule;
+use App\Http\ValidationRules\User\HasValidPhoneNumber;
+use App\Utils\Ninja;
 
 class UpdateUserRequest extends Request
 {
+
+    private bool $phone_has_changed = false;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -38,6 +43,9 @@ class UpdateUserRequest extends Request
             $rules['email'] = ['email', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
         }
 
+        if(Ninja::isHosted() && $this->phone_has_changed && $this->phone && isset($this->phone))
+            $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];
+
         return $rules;
     }
 
@@ -57,6 +65,14 @@ class UpdateUserRequest extends Request
             $input['last_name'] = strip_tags($input['last_name']);
         }
 
+        if(array_key_exists('phone', $input) && isset($input['phone']) && strlen($input['phone']) > 1 && ($this->user->phone != $input['phone'])){
+            $this->phone_has_changed = true;
+        }
+
+        if(array_key_exists('oauth_provider_id', $input) && $input['oauth_provider_id'] == '')
+            $input['oauth_user_id'] = '';
+
         $this->replace($input);
     }
+
 }

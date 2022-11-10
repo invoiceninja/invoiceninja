@@ -133,10 +133,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $this->nmo = null;
             $this->company = null;
-            
-               $mem_usage = memory_get_usage();
-
-               nlog('The script is now using: ' . round($mem_usage / 1024) . 'KBof memory.');
+            app('queue.worker')->shouldQuit  = 1;
     
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
@@ -179,7 +176,6 @@ class NinjaMailerJob implements ShouldQueue
             $message = null;
             $this->nmo = null;
             $this->company = null;
-            app('queue.worker')->shouldQuit  = 1;
     
         }
 
@@ -232,7 +228,33 @@ class NinjaMailerJob implements ShouldQueue
                 break;
         }
 
+
+        if(Ninja::isSelfHost())
+            $this->setSelfHostMultiMailer();
+
+
     }
+
+    private function setSelfHostMultiMailer()
+    {
+
+        if (env($this->company->id . '_MAIL_HOST')) 
+        {
+
+            config([
+                'mail.mailers.smtp' => [
+                    'transport' => 'smtp',
+                    'host' => env($this->company->id . '_MAIL_HOST'),
+                    'port' => env($this->company->id . '_MAIL_PORT'),
+                    'username' => env($this->company->id . '_MAIL_USERNAME'),
+                    'password' => env($this->company->id . '_MAIL_PASSWORD'),
+                ],
+            ]);
+
+        }
+
+    }
+
 
     private function setOfficeMailer()
     {

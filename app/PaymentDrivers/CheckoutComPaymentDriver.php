@@ -401,8 +401,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $this->unWindGatewayFees($payment_hash);
             $message = $e->getMessage();
 
+            $error_details = '';
+
+            if(property_exists($e, 'error_details'))
+                $error_details = $e->error_details;
+
             $data = [
-                'status' => '',
+                'status' => $e->error_details,
                 'error_type' => '',
                 'error_code' => $e->getCode(),
                 'param' => '',

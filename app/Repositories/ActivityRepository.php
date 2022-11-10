@@ -60,7 +60,7 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-        $this->createBackup($entity, $activity);
+       // $this->createBackup($entity, $activity);
     }
 
     /**
@@ -71,7 +71,7 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        if ($entity instanceof User || $entity->company->is_disabled) {
+        if ($entity instanceof User || $entity->company->is_disabled || $entity->company?->account->isFreeHostedClient()) {
             return;
         }
 
@@ -83,7 +83,6 @@ class ActivityRepository extends BaseRepository
             $backup = new Backup();
             $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
-            $backup->html_backup = '';
             $backup->amount = $entity->amount;
             $backup->activity_id = $activity->id;
             $backup->json_backup = '';

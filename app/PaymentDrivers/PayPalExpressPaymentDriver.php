@@ -43,6 +43,11 @@ class PayPalExpressPaymentDriver extends BaseDriver
         ];
     }
 
+    public function init()
+    {
+        return $this;
+    }
+
     /**
      * Initialize Omnipay PayPal_Express gateway.
      *

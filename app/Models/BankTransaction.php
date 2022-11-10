@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
+use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,7 +20,8 @@ class BankTransaction extends BaseModel
 {
     use SoftDeletes;
     use MakesHash;
-
+    use Filterable;
+    
     const STATUS_UNMATCHED = 1;
 
     const STATUS_MATCHED = 2;
@@ -95,4 +98,22 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Account::class)->withTrashed();
     }
 
+
+    public function matchInvoiceNumber()
+    {
+
+        if(strlen($this->description) > 1)
+        {
+
+            $i = Invoice::where('company_id', $this->company_id)
+                    ->whereIn('status_id', [1,2,3])
+                    ->where('is_deleted', 0)
+                    ->where('number', 'LIKE', '%'.$this->description.'%')
+                    ->first();
+
+            return $i ?: false;
+        }
+
+        return false;
+    }
 }

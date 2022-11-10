@@ -267,6 +267,12 @@ class HtmlEngine
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
         }
 
+        if ($this->entity_string == 'credit' && $this->entity->status_id == 1) {
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
+            $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.credit_balance')];
+            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
+        }
+
         // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
@@ -479,6 +485,7 @@ class HtmlEngine
         $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$product.gross_line_total'] = ['value' => '', 'label' => ctrans('texts.gross_line_total')];
+        $data['$product.tax_amount'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.product1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product1')];

@@ -83,9 +83,6 @@ class CSVIngest implements ShouldQueue
 
         $this->checkContacts();
 
-        if(Ninja::isHosted())
-            app('queue.worker')->shouldQuit  = 1;
-
     }
 
     private function checkContacts()

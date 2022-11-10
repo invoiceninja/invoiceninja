@@ -126,7 +126,7 @@ class ImportController extends Controller
 
     private function getEntityMap($entity_type)
     {
-        return sprintf('App\\Import\\Definitions\%sMap', ucfirst($entity_type));
+        return sprintf('App\\Import\\Definitions\%sMap', ucfirst(Str::camel($entity_type)));
     }
 
     private function getCsvData($csvfile)

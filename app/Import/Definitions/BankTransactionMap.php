@@ -16,16 +16,16 @@ class BankTransactionMap
     public static function importable()
     {
         return [
-            0 => 'bank.transaction_id',
-            1 => 'bank.amount',
-            2 => 'bank.currency',
-            3 => 'bank.account_type',
-            4 => 'bank.category_id',
-            5 => 'bank.category_type',
-            6 => 'bank.date',
-            7 => 'bank.bank_account_id',
-            8 => 'bank.description',
-            9 => 'bank.base_type',
+            0 => 'transaction.transaction_id',
+            1 => 'transaction.amount',
+            2 => 'transaction.currency',
+            3 => 'transaction.account_type',
+            4 => 'transaction.category_id',
+            5 => 'transaction.category_type',
+            6 => 'transaction.date',
+            7 => 'transaction.bank_account_id',
+            8 => 'transaction.description',
+            9 => 'transaction.base_type',
         ];
     }
 

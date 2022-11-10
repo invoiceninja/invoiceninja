@@ -44,38 +44,6 @@ class QuoteInvitation extends BaseModel
         return self::class;
     }
 
-    // public function getSignatureDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getSentDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getViewedDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getOpenedDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
     public function entityType()
     {
         return Quote::class;

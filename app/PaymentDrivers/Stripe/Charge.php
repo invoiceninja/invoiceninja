@@ -137,15 +137,18 @@ class Charge
             return false;
         }
 
-        if($response?->status != 'succeeded')
-            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
-
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
         } else {
             $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
             $status = Payment::STATUS_COMPLETED;
+        }
+
+        if($response?->status == 'processing'){
+            //allows us to jump over the next stage - used for SEPA
+        }elseif($response?->status != 'succeeded'){
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
         }
 
         $data = [
