@@ -60,14 +60,14 @@ class BankTransactionSync implements ShouldQueue
 
     public function syncTransactions()
     {
-        $a = Account::with('bank_integrations')->where('auto_sync', true)->whereNotNull('bank_integration_account_id')->cursor()->each(function ($account){
+        $a = Account::with('bank_integrations')->whereNotNull('bank_integration_account_id')->cursor()->each(function ($account){
 
             // $queue = Ninja::isHosted() ? 'bank' : 'default';
 
             if($account->isPaid() && $account->plan == 'enterprise')
             {
 
-                $account->bank_integrations->each(function ($bank_integration) use ($account){
+                $account->bank_integrations()->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account){
                     
                     ProcessBankTransactions::dispatchSync($account->bank_integration_account_id, $bank_integration);
 

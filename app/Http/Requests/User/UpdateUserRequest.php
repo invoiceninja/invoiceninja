@@ -65,8 +65,9 @@ class UpdateUserRequest extends Request
             $input['last_name'] = strip_tags($input['last_name']);
         }
 
-        if(array_key_exists('phone', $input) && isset($input['phone']) && strlen($input['phone']) > 1 && ($this->user->phone != $input['phone']))
+        if(array_key_exists('phone', $input) && isset($input['phone']) && strlen($input['phone']) > 1 && ($this->user->phone != $input['phone'])){
             $this->phone_has_changed = true;
+        }
 
         if(array_key_exists('oauth_provider_id', $input) && $input['oauth_provider_id'] == '')
             $input['oauth_user_id'] = '';

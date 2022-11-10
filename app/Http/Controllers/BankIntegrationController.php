@@ -27,7 +27,7 @@ use App\Services\Bank\BankService;
 use App\Transformers\BankIntegrationTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Cache;
 
 class BankIntegrationController extends BaseController
 {
@@ -572,11 +572,16 @@ class BankIntegrationController extends BaseController
 
         $account = auth()->user()->account;
         
+        if(Cache::get("throttle_polling:{$account->key}"))
+            return response()->json(BankIntegration::query()->company(), 200);
+
         $account->bank_integrations->each(function ($bank_integration) use ($account){
             
             ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
 
         });
+
+        Cache::put("throttle_polling:{$account->key}", true, 300);
 
         return response()->json(BankIntegration::query()->company(), 200);
     }
