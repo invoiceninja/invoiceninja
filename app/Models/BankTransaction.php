@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,7 +20,8 @@ class BankTransaction extends BaseModel
 {
     use SoftDeletes;
     use MakesHash;
-
+    use Filterable;
+    
     const STATUS_UNMATCHED = 1;
 
     const STATUS_MATCHED = 2;

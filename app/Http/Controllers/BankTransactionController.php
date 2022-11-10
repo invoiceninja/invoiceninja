@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\BankTransactionFactory;
+use App\Filters\BankTransactionFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
@@ -92,13 +93,13 @@ class BankTransactionController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param Request $request
+     * @param BankTransactionFilters $filter
      * @return Response|mixed
      */
-    public function index(Request $request)
+    public function index(BankTransactionFilters $filters)
     {
 
-        $bank_transactions = BankTransaction::query()->company();
+        $bank_transactions = BankTransaction::filter($filters);
 
         return $this->listResponse($bank_transactions);
 
