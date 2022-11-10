@@ -56,10 +56,10 @@ class BankTransformer extends BaseTransformer
     private function calculateType($transaction)
     {
 
-    	if(array_key_exists('bank.base_type', $transaction) && $transaction['bank.base_type'] == 'CREDIT')
+    	if(array_key_exists('bank.base_type', $transaction) && ($transaction['bank.base_type'] == 'CREDIT') || strtolower($transaction['bank.base_type']) == 'deposit')
     		return 'CREDIT';
 
-    	if(array_key_exists('bank.base_type', $transaction) && $transaction['bank.base_type'] == 'DEBIT')
+    	if(array_key_exists('bank.base_type', $transaction) && ($transaction['bank.base_type'] == 'DEBIT') || strtolower($transaction['bank.bank_type']) == 'withdrawal')
     		return 'DEBIT';
 
     	if(array_key_exists('bank.category_id', $transaction))
