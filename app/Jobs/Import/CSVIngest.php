@@ -76,16 +76,12 @@ class CSVIngest implements ShouldQueue
         $engine = $this->bootEngine();
 
         foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'expense', 'quote', 'bank_transaction'] as $entity) {
-            nlog("importing {$entity}");
             $engine->import($entity);
         }
 
         $engine->finalizeImport();
 
         $this->checkContacts();
-
-        // if(Ninja::isHosted())
-        //     app('queue.worker')->shouldQuit  = 1;
 
     }
 

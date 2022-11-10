@@ -115,13 +115,9 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-nlog($data);
-
         if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
         }
-
-nlog($data);
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
