@@ -76,6 +76,7 @@ class CSVIngest implements ShouldQueue
         $engine = $this->bootEngine();
 
         foreach (['client', 'product', 'invoice', 'payment', 'vendor', 'expense', 'quote', 'bank_transaction'] as $entity) {
+            nlog("importing {$entity}");
             $engine->import($entity);
         }
 
