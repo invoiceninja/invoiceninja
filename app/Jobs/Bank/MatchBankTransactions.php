@@ -26,7 +26,7 @@ use App\Models\Currency;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
