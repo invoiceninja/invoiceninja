@@ -15,6 +15,7 @@ use App\Libraries\MultiDB;
 use App\Models\Backup;
 use App\Models\Company;
 use App\Models\Design;
+use App\Models\Document;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use stdClass;
@@ -76,29 +77,51 @@ class BackupUpdate extends Command
         set_time_limit(0);
 
         //logos
-
-        Company::query()
-               ->cursor()
+        Company::cursor()
                ->each(function ($company){
 
-                    $logo = @file_get_contents($company->present()->logo());
+                  $company_logo = $company->present()->logo();
+
+                  if($company_logo == 'https://invoicing.co/images/new_logo.png')
+                    return;
+
+                  $logo = @file_get_contents($company_logo);
 
                     if($logo){
 
-                        $path = str_replace("https://object.invoicing.co/", "", $company->present()->logo());
+                        $path = str_replace("https://objects.invoicing.co/", "", $company->present()->logo());
                         $path = str_replace("https://v5-at-backup.us-southeast-1.linodeobjects.com/", "", $path);
 
                         Storage::disk($this->option('disk'))->put($path, $logo);
-
                     }
 
                });
 
 
         //documents
+        Document::cursor()
+                ->each(function ($document){
+
+                    $doc_bin = $document->getFile();
+
+                    if($doc_bin)
+                        Storage::disk($this->option('disk'))->put($document->url, $doc_bin);
+
+                });
 
 
        //backups
+        Backup::cursor()
+                ->each(function ($backup){
+
+                  $backup_bin = Storage::disk('s3')->get($backup->filename);
+
+                    if($backup_bin)
+                        Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
+
+                });
+
+
         
     }
 }
