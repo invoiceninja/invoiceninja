@@ -92,11 +92,14 @@ trait Utilities
         } elseif (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
         }
+        else {
+            $error_message = 'Error processing payment.';
+        }
 
         $this->getParent()->sendFailureMail($error_message);
 
         $message = [
-            'server_response' => $_payment,
+            'server_response' => $_payment ?: 'Server did not return any response. Most likely failed before payment was created.',
             'data' => $this->getParent()->payment_hash->data,
         ];
 
@@ -110,7 +113,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($_payment['status'].' '.$error_message, 500);
+            throw new PaymentFailed($error_message, 500);
         }
     }
 
