@@ -31,7 +31,7 @@ class BankTransactionRepository extends BaseRepository
 
         $bank_transaction->save();
 
-        if($bank_transaction->base_type == 'CREDIT' && $invoice = $bank_transaction->matchInvoiceNumber())
+        if($bank_transaction->base_type == 'CREDIT' && $invoice = $bank_transaction->service()->matchInvoiceNumber())
         {
              $bank_transaction->invoice_ids = $invoice->hashed_id;
              $bank_transaction->status_id = BankTransaction::STATUS_MATCHED;

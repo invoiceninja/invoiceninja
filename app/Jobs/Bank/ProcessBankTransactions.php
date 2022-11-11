@@ -16,7 +16,7 @@ use App\Libraries\MultiDB;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -79,7 +79,7 @@ class ProcessBankTransactions implements ShouldQueue
         }
         while($this->stop_loop);
 
-        BankService::dispatch($this->company->id, $this->company->db);
+        BankMatchingService::dispatch($this->company->id, $this->company->db);
 
     }
 
