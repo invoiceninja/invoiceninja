@@ -997,7 +997,8 @@ class BaseController extends Controller
     }
 
     public function reactCatch()
-    {
+    { 
+
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());
