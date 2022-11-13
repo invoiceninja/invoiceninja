@@ -88,8 +88,10 @@ class CompanyPresenter extends EntityPresenter
             return "data:image/png;base64, ". base64_encode(@file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
         else if(strlen($settings->company_logo) >= 1)
             return "data:image/png;base64, ". base64_encode(@file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
-        else
-            return "data:image/png;base64, ". base64_encode(@file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
+        else{
+            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            //return "data:image/png;base64, ". base64_encode(@file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
+        }
 
     }
 
