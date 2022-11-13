@@ -33,7 +33,8 @@ class StoreBankIntegrationRequest extends Request
     {
         
         $rules = [
-            'bank_account_name' => 'required|min:3'
+            'bank_account_name' => 'required|min:3',
+            'auto_sync' => 'sometimes|bool'
         ];
 
         return $rules;

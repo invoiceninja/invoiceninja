@@ -11,11 +11,13 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankIntegration extends BaseModel
 {
     use SoftDeletes;
+    use Filterable;
 
     protected $fillable = [
         'bank_account_name',
@@ -27,6 +29,7 @@ class BankIntegration extends BaseModel
         'currency',
         'nickname',
         'from_date',
+        'auto_sync',
     ];
 
     protected $dates = [

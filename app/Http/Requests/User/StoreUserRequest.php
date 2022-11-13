@@ -47,10 +47,13 @@ class StoreUserRequest extends Request
         } else {
             $rules['email'] = ['email', new AttachableUser()];
         }
-
+                
         if (Ninja::isHosted()) {
             $rules['id'] = new CanAddUserRule();
-            $rules['phone'] = ['sometimes', new HasValidPhoneNumber()];
+
+            if($this->phone && isset($this->phone))
+                $rules['phone'] = ['bail', 'string', 'sometimes', new HasValidPhoneNumber()];
+            
         }
 
         return $rules;

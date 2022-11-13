@@ -996,6 +996,42 @@ class BaseController extends Controller
         return redirect('/setup');
     }
 
+    public function reactCatch()
+    { 
+
+        if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+            if (config('ninja.require_https') && ! request()->isSecure()) {
+                return redirect()->secure(request()->getRequestUri());
+            }
+ 
+            $data = [];
+
+            //pass report errors bool to front end
+            $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
+
+            //pass referral code to front end
+            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') ? request()->input('build') : '';
+            $data['login'] = request()->has('login') ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+
+            $data['user_agent'] = request()->server('HTTP_USER_AGENT');
+
+            $data['path'] = $this->setBuild();
+
+            $this->buildCache();
+
+            if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
+                return view('react.index', $data);
+            } else {
+                abort('page not found', 404);
+            }
+        }
+
+        return redirect('/setup');
+    }
+
+
     private function setBuild()
     {
         $build = '';

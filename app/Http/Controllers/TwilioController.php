@@ -100,6 +100,7 @@ class TwilioController extends BaseController
             //on confirmation we set the users phone number.
             $user = auth()->user();
             $user->phone = $account->account_sms_verification_number;
+            $user->verified_phone_number = true;
             $user->save();
 
             return response()->json(['message' => 'SMS verified'], 200);
@@ -121,7 +122,6 @@ class TwilioController extends BaseController
         $token = config('ninja.twilio_auth_token');
 
         $twilio = new Client($sid, $token);
-
 
         try {
             $verification = $twilio->verify
@@ -163,8 +163,10 @@ class TwilioController extends BaseController
                                              "code" => $request->code
                                        ]);
         
-
         if($verification_check->status == 'approved'){
+
+            if($request->query('validate_only') == 'true')
+                return response()->json(['message' => 'SMS verified'], 200);
 
             $user->google_2fa_secret = '';
             $user->sms_verification_code = '';

@@ -26,7 +26,7 @@ use App\Models\Currency;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -92,11 +92,14 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->company = Company::find($this->company_id);
 
-        $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        if($this->company->account->bank_integration_account_id)
+            $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        else
+            $yodlee = false;
 
         $bank_categories = Cache::get('bank_categories');
         
-        if(!$bank_categories){
+        if(!$bank_categories && $yodlee){
             $_categories = $yodlee->getTransactionCategories();
             $this->categories = collect($_categories->transactionCategory);
             Cache::forever('bank_categories', $this->categories);
@@ -159,7 +162,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
         
-            $amount = $this->bt->amount;
+        $amount = $this->bt->amount;
 
         if($_invoices && $this->checkPayable($_invoices)){
 
@@ -220,7 +223,7 @@ class MatchBankTransactions implements ShouldQueue
                     $this->applied_amount += $this->invoice->balance;
                     $this->available_balance = $this->available_balance - $this->invoice->balance;
                 }
-                elseif(floatval($this->invoice->balance) > floatval($this->available_balance) && $this->available_balance > 0)
+                elseif(floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0)
                 {
                     $_amount = $this->available_balance;
                     $this->applied_amount += $this->available_balance;
