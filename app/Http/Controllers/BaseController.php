@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
@@ -819,12 +820,15 @@ class BaseController extends Controller
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
                 $query->where('id', auth()->user()->id);
-            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term','bank_transaction'])){
-                //need to pass these back regardless
+            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
+                $query->where('user_id', '=', auth()->user()->id);
+            }
+            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+                //need to pass these back regardless 
+                nlog($this->entity_type);
             }
             else
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
