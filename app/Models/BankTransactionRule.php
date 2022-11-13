@@ -36,6 +36,32 @@ class BankTransactionRule extends BaseModel
     protected $dates = [
     ];
     
+    /* Columns to search */
+    protected array $search_keys = [
+        'client_id' => 'client',
+        'vendor_id' => 'vendor',
+        'description' => 'description',
+        'transaction_reference' => 'transaction_reference',
+        'amount' => 'amount',
+    ];
+
+    /* Amount */
+    protected array $number_operators = [
+        '=',
+        '>',
+        '>=',
+        '<',
+        '<='
+    ];
+
+    /* Description, Client, Vendor, Reference Number */
+    protected array $string_operators = [
+        'is',
+        'contains',
+        'starts_with',
+        'is_empty',
+    ];
+
     public function getEntityType()
     {
         return self::class;

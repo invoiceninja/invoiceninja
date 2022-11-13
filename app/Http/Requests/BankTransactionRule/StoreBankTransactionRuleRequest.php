@@ -33,7 +33,12 @@ class StoreBankTransactionRuleRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [
-            'name' => 'bail|required|string'
+            'name' => 'bail|required|string',
+            'rules' => 'bail|array',
+            'auto_convert' => 'bail|sometimes|bool',
+            'matches_on_all' => 'bail|sometimes|bool',
+            'applies_to' => 'bail|sometimes|bool',
+            'record_as' => 'bail|sometimes|bool',
         ];
 
         if (isset($this->currency_id)) 
