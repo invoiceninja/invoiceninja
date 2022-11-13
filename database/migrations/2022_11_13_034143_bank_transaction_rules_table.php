@@ -24,7 +24,6 @@ return new class extends Migration
             $table->boolean('auto_convert')->default(false); //auto convert to match 
             $table->boolean('matches_on_all')->default(false); //match on all rules or just one
             $table->string('applies_to')->default('CREDIT'); //CREDIT/DEBIT
-            $table->string('record_as')->default('CREDIT'); //CREDIT/DEBIT
         
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('vendor_id')->nullable();

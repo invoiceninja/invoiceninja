@@ -56,7 +56,6 @@ class BankTransactionRuleTransformer extends EntityTransformer
             'auto_convert' => (bool) $bank_transaction_rule->auto_convert,
             'matches_on_all' => (bool) $bank_transaction_rule->matches_on_all,
             'applies_to' => (string) $bank_transaction_rule->applies_to,
-            'record_as' => (string) $bank_transaction_rule->record_as,
             'client_id' => $this->encodePrimaryKey($bank_transaction_rule->client_id) ?: '',
             'vendor_id' => $this->encodePrimaryKey($bank_transaction_rule->vendor_id) ?: '',
             'category_id' => $this->encodePrimaryKey($bank_transaction_rule->category_id) ?: '',

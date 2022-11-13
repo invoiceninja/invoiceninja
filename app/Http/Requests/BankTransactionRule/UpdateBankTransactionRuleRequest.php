@@ -37,7 +37,6 @@ class UpdateBankTransactionRuleRequest extends Request
             'auto_convert' => 'bail|sometimes|bool',
             'matches_on_all' => 'bail|sometimes|bool',
             'applies_to' => 'bail|sometimes|bool',
-            'record_as' => 'bail|sometimes|bool',
         ];
 
         if (isset($this->currency_id)) 

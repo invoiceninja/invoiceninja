@@ -27,7 +27,6 @@ class BankTransactionRule extends BaseModel
         'auto_convert',
         'matches_on_all',
         'applies_to',
-        'record_as',
         'client_id',
         'vendor_id',
         'category_id',
