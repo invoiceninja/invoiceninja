@@ -792,7 +792,7 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(25, count($this->backup_json_object->backups));
 
         $this->genericImportWithoutCompany(Backup::class,
-            ['activity_id', 'hashed_id'],
+            ['activity_id', 'hashed_id', 'html_backup'],
             [
                 ['activities' => 'activity_id'],
             ],

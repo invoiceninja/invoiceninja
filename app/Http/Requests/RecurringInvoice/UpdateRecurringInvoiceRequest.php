@@ -90,7 +90,7 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
-                if (is_numeric($input['invitations'][$key]['id'])) {
+                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
                 }
 

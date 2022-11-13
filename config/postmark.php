@@ -24,7 +24,7 @@ return [
     */
 
     'guzzle' => [
-        'timeout' => 10,
-        'connect_timeout' => 10,
+        'timeout' => 120,
+        'connect_timeout' => 120,
     ],
 ];

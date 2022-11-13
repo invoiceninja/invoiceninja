@@ -47,6 +47,9 @@ class HasValidPhoneNumber implements Rule
 		if(!$sid)
 			return true; 
 
+        if(is_null($value))
+            return false;
+        
 		$twilio = new \Twilio\Rest\Client($sid, $token);
 
 		$country = auth()->user()->account?->companies()?->first()?->country();
@@ -65,7 +68,7 @@ class HasValidPhoneNumber implements Rule
 
             request()->merge(['validated_phone' => $phone_number->phoneNumber ]);
 
-			$user->verified_phone_number = true;
+			$user->verified_phone_number = false;
             $user->save();
             
             return true;

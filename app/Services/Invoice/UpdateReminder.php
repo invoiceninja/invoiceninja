@@ -138,11 +138,14 @@ class UpdateReminder extends AbstractService
         }
 
         if ($this->invoice->last_sent_date &&
-            $this->settings->enable_reminder_endless) {
+            $this->settings->enable_reminder_endless &&
+            ($this->invoice->reminder1_sent || $this->settings->schedule_reminder1 == "") &&
+            ($this->invoice->reminder2_sent || $this->settings->schedule_reminder2 == "") &&
+            ($this->invoice->reminder3_sent || $this->settings->schedule_reminder3 == "")) {
             $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int) $this->settings->endless_reminder_frequency_id);
 
             if ($reminder_date) {
-                $reminder_date->addSeconds($offset);
+                // $reminder_date->addSeconds($offset);
 
                 if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date))) {
                     $date_collection->push($reminder_date);

@@ -67,7 +67,7 @@ class BankTransactionSync implements ShouldQueue
             if($account->isPaid() && $account->plan == 'enterprise')
             {
 
-                $account->bank_integrations->each(function ($bank_integration) use ($account){
+                $account->bank_integrations()->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account){
                     
                     ProcessBankTransactions::dispatchSync($account->bank_integration_account_id, $bank_integration);
 

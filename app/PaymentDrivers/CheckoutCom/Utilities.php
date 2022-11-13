@@ -87,16 +87,19 @@ trait Utilities
 
         $error_message = '';
 
-        if (array_key_exists('actions', $_payment) && array_key_exists('response_summary', end($_payment['actions']))) {
+        if (is_array($_payment) && array_key_exists('actions', $_payment) && array_key_exists('response_summary', end($_payment['actions']))) {
             $error_message = end($_payment['actions'])['response_summary'];
-        } elseif (array_key_exists('status', $_payment)) {
+        } elseif (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
+        }
+        else {
+            $error_message = 'Error processing payment.';
         }
 
         $this->getParent()->sendFailureMail($error_message);
 
         $message = [
-            'server_response' => $_payment,
+            'server_response' => $_payment ?: 'Server did not return any response. Most likely failed before payment was created.',
             'data' => $this->getParent()->payment_hash->data,
         ];
 
@@ -110,7 +113,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($_payment['status'].' '.$error_message, 500);
+            throw new PaymentFailed($error_message, 500);
         }
     }
 
