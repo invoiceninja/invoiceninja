@@ -62,6 +62,16 @@ class BankTransactionRule extends BaseModel
         'is_empty',
     ];
 
+
+    // rule object looks like this:
+    //[
+    // {
+    //     'search_key': 'client_id',
+    //     'operator' : 'is',
+    //     'value' : 'Sparky'
+    // }
+    //]
+    
     public function getEntityType()
     {
         return self::class;
