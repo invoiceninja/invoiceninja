@@ -214,31 +214,34 @@ class MatchBankTransactions implements ShouldQueue
             
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
-                // if($invoices->count() == 1){
-                //     $_amount = $this->available_balance;
-                // }
-                if(floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
-                {
-                    $_amount = $this->invoice->balance;
-                    $this->applied_amount += $this->invoice->balance;
-                    $this->available_balance = $this->available_balance - $this->invoice->balance;
-                }
-                elseif(floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0)
-                {
-                    $_amount = $this->available_balance;
-                    $this->applied_amount += $this->available_balance;
-                    $this->available_balance = 0;
-                }
+                    $_amount = false;
 
-                $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+                    if(floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
+                    {
+                        $_amount = $this->invoice->balance;
+                        $this->applied_amount += $this->invoice->balance;
+                        $this->available_balance = $this->available_balance - $this->invoice->balance;
+                    }
+                    elseif(floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0)
+                    {
+                        $_amount = $this->available_balance;
+                        $this->applied_amount += $this->available_balance;
+                        $this->available_balance = 0;
+                    }
 
-                $this->invoice
-                    ->service()
-                    ->setExchangeRate()
-                    ->updateBalance($_amount * -1)
-                    ->updatePaidToDate($_amount)
-                    ->setCalculatedStatus()
-                    ->save();
+                    if($_amount)
+                    {
+
+                        $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+
+                        $this->invoice
+                            ->service()
+                            ->setExchangeRate()
+                            ->updateBalance($_amount * -1)
+                            ->updatePaidToDate($_amount)
+                            ->setCalculatedStatus()
+                            ->save();
+                    }
 
                 });
 
