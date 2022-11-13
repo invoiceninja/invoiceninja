@@ -823,7 +823,7 @@ class BaseController extends Controller
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
                 $query->where('id', auth()->user()->id);
-            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term','bank_transaction'])){
                 //need to pass these back regardless
             }
             else
