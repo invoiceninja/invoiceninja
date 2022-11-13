@@ -14,9 +14,10 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
+use App\Http\Controllers\BankTransactionRuleController;
+use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
@@ -118,6 +119,9 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::resource('bank_transactions', BankTransactionController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::post('bank_transactions/bulk', [BankTransactionController::class, 'bulk'])->name('bank_transactions.bulk');
     Route::post('bank_transactions/match', [BankTransactionController::class, 'match'])->name('bank_transactions.match');
+
+    Route::resource('bank_transaction_rules', BankTransactionRuleController::class); // name = (clients. index / create / show / update / destroy / edit
+    Route::post('bank_transaction_rules/bulk', [BankTransactionRuleController::class, 'bulk'])->name('bank_transaction_rules.bulk');
 
     Route::post('check_subdomain', [SubdomainController::class, 'index'])->name('check_subdomain');
     Route::get('ping', [PingController::class, 'index'])->name('ping');

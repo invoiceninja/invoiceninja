@@ -30,6 +30,7 @@ use App\Models\BankTransactionRule;
 use App\Repositories\BankTransactionRepository;
 use App\Repositories\BankTransactionRuleRepository;
 use App\Services\Bank\BankMatchingService;
+use App\Transformers\BankTransactionRuleTransformer;
 use App\Transformers\BankTransactionTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class BankTransactionRuleController extends BaseController
     
     protected $entity_type = BankTransactionRule::class;
 
-    protected $entity_transformer = BankTransactionTransformer::class;
+    protected $entity_transformer = BankTransactionRuleTransformer::class;
 
     protected $bank_transaction_repo;
 

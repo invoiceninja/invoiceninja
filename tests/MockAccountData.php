@@ -26,6 +26,7 @@ use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -153,6 +154,11 @@ trait MockAccountData
      */
     public $bank_transaction;
     
+    /**
+     * @var
+     */
+    public $bank_transaction_rule;
+
     /**
      * @var
      */
@@ -570,6 +576,11 @@ trait MockAccountData
             'user_id' => $user_id,
             'company_id' => $this->company->id,
             'bank_integration_id' => $this->bank_integration->id,
+        ]);
+
+        $this->bank_transaction_rule = BankTransactionRule::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
         ]);
 
         $invitations = CreditInvitation::whereCompanyId($this->credit->company_id)
