@@ -1107,7 +1107,7 @@ class CompanyImport implements ShouldQueue
 
             $storage_url = (object)$this->getObject('storage_url', true);
 
-            if(!Storage::exists($new_document->url)){
+            if(!Storage::exists($new_document->url) && is_string($storage_url)){
 
                 $url = $storage_url . $new_document->url;
 

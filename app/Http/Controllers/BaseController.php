@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
@@ -819,12 +820,15 @@ class BaseController extends Controller
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
                 $query->where('id', auth()->user()->id);
+            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
+                $query->where('user_id', '=', auth()->user()->id);
+            }
             elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
-                //need to pass these back regardless
+                //need to pass these back regardless 
+                nlog($this->entity_type);
             }
             else
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
@@ -995,6 +999,42 @@ class BaseController extends Controller
 
         return redirect('/setup');
     }
+
+    public function reactCatch()
+    { 
+
+        if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+            if (config('ninja.require_https') && ! request()->isSecure()) {
+                return redirect()->secure(request()->getRequestUri());
+            }
+ 
+            $data = [];
+
+            //pass report errors bool to front end
+            $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
+
+            //pass referral code to front end
+            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') ? request()->input('build') : '';
+            $data['login'] = request()->has('login') ? request()->input('login') : 'false';
+            $data['signup'] = request()->has('signup') ? request()->input('signup') : 'false';
+
+            $data['user_agent'] = request()->server('HTTP_USER_AGENT');
+
+            $data['path'] = $this->setBuild();
+
+            $this->buildCache();
+
+            if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
+                return view('react.index', $data);
+            } else {
+                abort('page not found', 404);
+            }
+        }
+
+        return redirect('/setup');
+    }
+
 
     private function setBuild()
     {

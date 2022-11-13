@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Models\Filterable;
 use App\Models\Invoice;
+use App\Services\Bank\BankService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -98,22 +99,9 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Account::class)->withTrashed();
     }
 
-
-    public function matchInvoiceNumber()
+    public function service() :BankService
     {
-
-        if(strlen($this->description) > 1)
-        {
-
-            $i = Invoice::where('company_id', $this->company_id)
-                    ->whereIn('status_id', [1,2,3])
-                    ->where('is_deleted', 0)
-                    ->where('number', 'LIKE', '%'.$this->description.'%')
-                    ->first();
-
-            return $i ?: false;
-        }
-
-        return false;
+        return new BankService($this);
     }
+
 }

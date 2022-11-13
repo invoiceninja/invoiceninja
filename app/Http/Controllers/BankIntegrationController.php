@@ -24,7 +24,7 @@ use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactions;
 use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use App\Transformers\BankIntegrationTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;

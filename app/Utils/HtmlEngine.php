@@ -12,6 +12,7 @@
 
 namespace App\Utils;
 
+use App\Helpers\Epc\EpcQrGenerator;
 use App\Helpers\SwissQr\SwissQrGenerator;
 use App\Models\Country;
 use App\Models\CreditInvitation;
@@ -579,6 +580,11 @@ class HtmlEngine
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
+        }
+
+        if($this->entity_string == 'invoice' && isset($this->company?->custom_fields?->company1))
+        {
+            $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity,$data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
         }
 
         $arrKeysLength = array_map('strlen', array_keys($data));

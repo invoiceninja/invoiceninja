@@ -27,7 +27,7 @@ use App\Http\Requests\Import\PreImportRequest;
 use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Repositories\BankTransactionRepository;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use App\Transformers\BankTransactionTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
