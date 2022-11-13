@@ -62,6 +62,7 @@ class BankTransactionRule extends BaseModel
         'is_empty',
     ];
 
+    private array $search_results = [];
 
     // rule object looks like this:
     //[
@@ -71,7 +72,70 @@ class BankTransactionRule extends BaseModel
     //     'value' : 'Sparky'
     // }
     //]
-    
+
+    public function processRule(BankTransaction $bank_transaction)
+    {
+        foreach($this->rules as $key => $rule)
+        {
+            $this->search($rule, $key, $bank_transaction);
+        }
+    }
+
+    private function search($rule, $key, $bank_transaction)
+    {
+        if($rule->search_key == 'amount')
+        {
+            //number search
+        }
+        else {
+            //string search
+        }
+    }
+
+    private function findAmount($amount, $bank_transaction)
+    {
+        if($bank_transaction->base_type == 'CREDIT'){
+            //search invoices
+        }
+        else{
+            //search expenses
+        }
+
+    }
+
+    private function searchClient($rule, $bank_transaction)
+    {
+        if($bank_transaction->base_type == 'CREDIT'){
+            //search invoices
+        }
+        else{
+            //search expenses
+        }
+
+    }
+
+    private function searchVendor($rule, $bank_transaction)
+    {
+        //search expenses
+        
+
+    }
+
+    private function searchDescription($rule, $bank_transaction)
+    {
+        //search expenses public notes
+    }
+
+    private function searchReference($rule, $bank_transaction)
+    {
+        if($bank_transaction->base_type == 'CREDIT'){
+            //search invoices
+        }
+        else{
+            //search expenses
+        }
+    }
+
     public function getEntityType()
     {
         return self::class;
@@ -101,5 +165,6 @@ class BankTransactionRule extends BaseModel
     {
         return $this->belongsTo(ExpenseCategory::class)->withTrashed();
     }
+        }
 
 }
