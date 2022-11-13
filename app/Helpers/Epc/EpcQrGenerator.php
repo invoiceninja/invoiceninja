@@ -13,6 +13,7 @@ namespace App\Helpers\Epc;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Utils\Ninja;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -77,10 +78,10 @@ class EpcQrGenerator
     private function validateFields()
     {
 
-        if(isset($this->company?->custom_fields?->company2))
+        if(Ninja::isSelfHost() && isset($this->company?->custom_fields?->company2))
             nlog('The BIC field is not present and _may_ be a required fields for EPC QR codes');
 
-        if(isset($this->company?->custom_fields?->company1))
+        if(Ninja::isSelfHost() && isset($this->company?->custom_fields?->company1))
             nlog('The IBAN field is required');
 
     }
