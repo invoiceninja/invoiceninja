@@ -1,0 +1,63 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Http\Requests\BankTransactionRule;
+
+use App\Http\Requests\Request;
+use App\Models\BankTransactionRule;
+use App\Utils\Traits\MakesHash;
+
+class StoreBankTransactionRuleRequest extends Request
+{
+    use MakesHash;
+
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize() : bool
+    {
+        return auth()->user()->can('create', BankTransactionRule::class);
+    }
+    
+    public function rules()
+    {
+        /* Ensure we have a client name, and that all emails are unique*/
+        $rules = [
+            'name' => 'bail|required|string'
+        ];
+
+        if (isset($this->currency_id)) 
+            $rules['category_Id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
+        
+        if(isset($this->vendor_id))
+            $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+        if(isset($this->client_id))
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+
+        return $rules;
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
+
+        $this->replace($input);
+    }
+
+
+
+}
