@@ -57,6 +57,8 @@ class HandleCancellation extends AbstractService
 
         event(new InvoiceWasCancelled($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Invoice', $this->invoice);
+
         $transaction = [
             'invoice' => $this->invoice->transaction_event(),
             'payment' => [],
