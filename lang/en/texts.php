@@ -4837,7 +4837,8 @@ $LANG = array(
     'enable_applying_payments_later' => 'Enable Applying Payments Later',
     'line_item_tax_rates' => 'Line Item Tax Rates',
     'show_tasks_in_client_portal' => 'Show Tasks in Client Portal',
-
+    'notification_quote_expired_subject' => 'Quote :invoice has expired for :client',
+    'notification_quote_expired' => 'The following Quote :invoice for client :client and :amount has now expired.',
 );
 
 return $LANG;
