@@ -251,6 +251,13 @@ class NinjaMailerJob implements ShouldQueue
                 ],
             ]);
 
+            if(env($this->company->id . '_MAIL_FROM_ADDRESS'))
+            {
+            $this->nmo
+                 ->mailable
+                 ->from(env($this->company->id . '_MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')), env($this->company->id . '_MAIL_FROM_NAME', env('MAIL_FROM_NAME')));
+             }
+
         }
 
     }
