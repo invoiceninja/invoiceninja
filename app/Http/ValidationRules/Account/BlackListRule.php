@@ -28,6 +28,7 @@ class BlackListRule implements Rule
         'wnpop.com',
         'dataservices.space',
         'karenkey.com',
+        'sharklasers.com',
     ];
 
     /**
