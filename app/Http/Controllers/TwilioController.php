@@ -165,8 +165,11 @@ class TwilioController extends BaseController
         
         if($verification_check->status == 'approved'){
 
-            if($request->query('validate_only') == 'true')
+            if($request->query('validate_only') == 'true'){
+                $user->verified_phone_number = true;
+                $user->save();
                 return response()->json(['message' => 'SMS verified'], 200);
+            }
 
             $user->google_2fa_secret = '';
             $user->sms_verification_code = '';
