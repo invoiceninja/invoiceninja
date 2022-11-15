@@ -26,7 +26,7 @@ use App\Models\Currency;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
@@ -59,6 +59,8 @@ class MatchBankTransactions implements ShouldQueue
 
     private float $available_balance = 0;
     
+    private float $applied_amount = 0;
+
     private array $attachable_invoices = [];
 
     public $bts;
@@ -90,11 +92,14 @@ class MatchBankTransactions implements ShouldQueue
 
         $this->company = Company::find($this->company_id);
 
-        $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        if($this->company->account->bank_integration_account_id)
+            $yodlee = new Yodlee($this->company->account->bank_integration_account_id);
+        else
+            $yodlee = false;
 
         $bank_categories = Cache::get('bank_categories');
         
-        if(!$bank_categories){
+        if(!$bank_categories && $yodlee){
             $_categories = $yodlee->getTransactionCategories();
             $this->categories = collect($_categories->transactionCategory);
             Cache::forever('bank_categories', $this->categories);
@@ -157,7 +162,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
         
-            $amount = $this->bt->amount;
+        $amount = $this->bt->amount;
 
         if($_invoices && $this->checkPayable($_invoices)){
 
@@ -209,29 +214,34 @@ class MatchBankTransactions implements ShouldQueue
             
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
 
-                if($invoices->count() == 1){
-                    $_amount = $this->available_balance;
-                }
-                elseif($invoices->count() > 1 && floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
-                {
-                    $_amount = $this->invoice->balance;
-                    $this->available_balance = $this->available_balance - $this->invoice->balance;
-                }
-                elseif($invoices->count() > 1 && floatval($this->invoice->balance) > floatval($this->available_balance) && $this->available_balance > 0)
-                {
-                    $_amount = $this->available_balance;
-                    $this->available_balance = 0;
-                }
+                    $_amount = false;
 
-                $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+                    if(floatval($this->invoice->balance) < floatval($this->available_balance) && $this->available_balance > 0)
+                    {
+                        $_amount = $this->invoice->balance;
+                        $this->applied_amount += $this->invoice->balance;
+                        $this->available_balance = $this->available_balance - $this->invoice->balance;
+                    }
+                    elseif(floatval($this->invoice->balance) >= floatval($this->available_balance) && $this->available_balance > 0)
+                    {
+                        $_amount = $this->available_balance;
+                        $this->applied_amount += $this->available_balance;
+                        $this->available_balance = 0;
+                    }
 
-                $this->invoice
-                    ->service()
-                    ->setExchangeRate()
-                    ->updateBalance($_amount * -1)
-                    ->updatePaidToDate($_amount)
-                    ->setCalculatedStatus()
-                    ->save();
+                    if($_amount)
+                    {
+
+                        $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
+
+                        $this->invoice
+                            ->service()
+                            ->setExchangeRate()
+                            ->updateBalance($_amount * -1)
+                            ->updatePaidToDate($_amount)
+                            ->setCalculatedStatus()
+                            ->save();
+                    }
 
                 });
 
@@ -241,7 +251,7 @@ class MatchBankTransactions implements ShouldQueue
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
         $payment->amount = $amount;
-        $payment->applied = $amount;
+        $payment->applied = $this->applied_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->description;

@@ -280,7 +280,7 @@ class BaseRepository
         $model = $model->service()->applyNumber()->save();
 
         /* Handle attempts where the deposit is greater than the amount/balance of the invoice */
-        if((int)$model->balance != 0 && $model->partial > $model->amount)
+        if((int)$model->balance != 0 && $model->partial > $model->amount && $model->amount > 0)
             $model->partial = min($model->amount, $model->balance);
 
         /* Update product details if necessary - if we are inside a transaction - do nothing */
@@ -304,8 +304,9 @@ class BaseRepository
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
-            //links tasks and expenses back to the invoice.
-            $model->service()->linkEntities()->save();
+            //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
+            if (\DB::transactionLevel() == 0) 
+                $model->service()->linkEntities()->save();
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Invoice', $model);

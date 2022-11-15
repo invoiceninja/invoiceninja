@@ -27,6 +27,8 @@ class TriggeredActions extends AbstractService
 
     private $invoice;
 
+    private bool $updated = false;
+
     public function __construct(Invoice $invoice, Request $request)
     {
         $this->request = $request;
@@ -37,29 +39,37 @@ class TriggeredActions extends AbstractService
     public function run()
     {
         if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
-            $this->invoice->service()->autoBill();
+            $this->invoice->service()->autoBill(); //update notification sends automatically for this.
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
-            $this->invoice = $this->invoice->service()->markPaid()->save();
+            $this->invoice = $this->invoice->service()->markPaid()->save(); //update notification sends automatically for this.
         }
 
-        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true') {
-            $this->invoice = $this->invoice->service()->markSent()->save();
+        if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
+            $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
+            $this->updated = true;
         }
         
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
             $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'))->save();
+            $this->updated = false;
         }
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->invoice->service()->markSent()->touchPdf()->save();
             $this->sendEmail();
+            $this->updated = false;
         }
 
         if ($this->request->has('cancel') && $this->request->input('cancel') == 'true') {
             $this->invoice = $this->invoice->service()->handleCancellation()->save();
+            $this->updated = false;
         }
+
+        if($this->updated)
+            event('eloquent.updated: App\Models\Invoice', $this->invoice);
+
 
         return $this->invoice;
     }

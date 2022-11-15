@@ -115,6 +115,7 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
+
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
@@ -128,7 +129,12 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
+            // nlog('Using ' . ((int) (memory_get_usage(true) / (1024 * 1024))) . 'MB ');
 
+            $this->nmo = null;
+            $this->company = null;
+            app('queue.worker')->shouldQuit  = 1;
+    
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
             nlog("error failed with {$e->getMessage()}");
@@ -166,7 +172,15 @@ class NinjaMailerJob implements ShouldQueue
             /* Don't send postmark failures to Sentry */
             if(Ninja::isHosted() && (!$e instanceof ClientException)) 
                 app('sentry')->captureException($e);
+
+            $message = null;
+            $this->nmo = null;
+            $this->company = null;
+    
         }
+
+        
+        
     }
 
     /* Switch statement to handle failure notifications */
@@ -188,6 +202,7 @@ class NinjaMailerJob implements ShouldQueue
 
         if ($this->nmo->to_user instanceof ClientContact) 
             $this->logMailError($message, $this->nmo->to_user->client);
+
     }
 
     private function setMailDriver()
@@ -213,7 +228,33 @@ class NinjaMailerJob implements ShouldQueue
                 break;
         }
 
+
+        if(Ninja::isSelfHost())
+            $this->setSelfHostMultiMailer();
+
+
     }
+
+    private function setSelfHostMultiMailer()
+    {
+
+        if (env($this->company->id . '_MAIL_HOST')) 
+        {
+
+            config([
+                'mail.mailers.smtp' => [
+                    'transport' => 'smtp',
+                    'host' => env($this->company->id . '_MAIL_HOST'),
+                    'port' => env($this->company->id . '_MAIL_PORT'),
+                    'username' => env($this->company->id . '_MAIL_USERNAME'),
+                    'password' => env($this->company->id . '_MAIL_PASSWORD'),
+                ],
+            ]);
+
+        }
+
+    }
+
 
     private function setOfficeMailer()
     {
@@ -381,7 +422,7 @@ class NinjaMailerJob implements ShouldQueue
     private function logMailError($errors, $recipient_object)
     {
 
-        SystemLogger::dispatch(
+        SystemLogger::dispatchSync(
             $errors,
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
@@ -396,6 +437,9 @@ class NinjaMailerJob implements ShouldQueue
 
         LightLogs::create($job_failure)
                  ->send();
+
+        $job_failure = null;
+
     }
 
     public function failed($exception = null)

@@ -401,8 +401,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $this->unWindGatewayFees($payment_hash);
             $message = $e->getMessage();
 
+            $error_details = '';
+
+            if(property_exists($e, 'error_details'))
+                $error_details = $e->error_details;
+
             $data = [
-                'status' => '',
+                'status' => $e->error_details,
                 'error_type' => '',
                 'error_code' => $e->getCode(),
                 'param' => '',
@@ -433,7 +438,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
 
-        //11-08-2022 check the user is autenticated
+        //11-08-2022 check the user is authenticated
         if (!Auth::guard('contact')->check()) {
             $client = $request->getClient();
             auth()->guard('contact')->loginUsingId($client->contacts()->first()->id, true);
@@ -450,6 +455,8 @@ class CheckoutComPaymentDriver extends BaseDriver
                 return $this->processUnsuccessfulPayment($payment);
             }
         } catch (CheckoutApiException | Exception $e) {
+            nlog("checkout");
+            nlog($e->getMessage());
             return $this->processInternallyFailedPayment($this, $e);
         }
     }

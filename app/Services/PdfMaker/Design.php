@@ -712,6 +712,8 @@ class Design extends BaseDesign
             $elements[] = $element;
         }
 
+        $document = null;
+        
         return $elements;
     }
 

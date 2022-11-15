@@ -24,12 +24,19 @@ class BankTransactionRepository extends BaseRepository
     public function save($data, BankTransaction $bank_transaction)
     {
 
-        if(!isset($bank_transaction->bank_integration_id) && array_key_exists('bank_integration_id', $data))
+        if(array_key_exists('bank_integration_id', $data))
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
 
         $bank_transaction->fill($data);
 
         $bank_transaction->save();
+
+        if($bank_transaction->base_type == 'CREDIT' && $invoice = $bank_transaction->service()->matchInvoiceNumber())
+        {
+             $bank_transaction->invoice_ids = $invoice->hashed_id;
+             $bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
+             $bank_transaction->save();   
+        }
 
         return $bank_transaction;
     }

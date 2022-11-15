@@ -182,9 +182,7 @@ class ActivityController extends BaseController
             } else {
                 $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->path($backup->filename));
             }
-        } elseif ($backup && $backup->html_backup) { //db
-            $html_backup = $backup->html_backup;
-        } elseif (! $backup || ! $backup->html_backup) { //failed
+        } else { //failed
             return response()->json(['message'=> ctrans('texts.no_backup_exists'), 'errors' => new stdClass], 404);
         }
 

@@ -51,6 +51,7 @@ use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use League\Csv\Reader;
@@ -78,8 +79,8 @@ class ImportCompanyTest extends TestCase
     {
         parent::setUp();
 
-       // $this->artisan('db:seed');
-
+        Artisan::call('db:seed');
+    
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -791,7 +792,7 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(25, count($this->backup_json_object->backups));
 
         $this->genericImportWithoutCompany(Backup::class,
-            ['activity_id', 'hashed_id'],
+            ['activity_id', 'hashed_id', 'html_backup'],
             [
                 ['activities' => 'activity_id'],
             ],

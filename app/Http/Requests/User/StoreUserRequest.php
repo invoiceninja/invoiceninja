@@ -16,6 +16,7 @@ use App\Factory\UserFactory;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Ninja\CanAddUserRule;
 use App\Http\ValidationRules\User\AttachableUser;
+use App\Http\ValidationRules\User\HasValidPhoneNumber;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
@@ -46,9 +47,13 @@ class StoreUserRequest extends Request
         } else {
             $rules['email'] = ['email', new AttachableUser()];
         }
-
+                
         if (Ninja::isHosted()) {
             $rules['id'] = new CanAddUserRule();
+
+            if($this->phone && isset($this->phone))
+                $rules['phone'] = ['bail', 'string', 'sometimes', new HasValidPhoneNumber()];
+            
         }
 
         return $rules;

@@ -145,6 +145,12 @@ class Charge
             $status = Payment::STATUS_COMPLETED;
         }
 
+        if($response?->status == 'processing'){
+            //allows us to jump over the next stage - used for SEPA
+        }elseif($response?->status != 'succeeded'){
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
+        }
+
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => $this->transformPaymentTypeToConstant($payment_method_type),

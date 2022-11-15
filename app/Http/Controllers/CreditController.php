@@ -33,6 +33,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Repositories\CreditRepository;
+use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
@@ -532,6 +533,20 @@ class CreditController extends BaseController
             ZipCredits::dispatch($credits, $credits->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
+        }
+
+        if($action == 'bulk_print' && auth()->user()->can('view', $credits->first())){
+
+            $paths = $credits->map(function ($credit){
+                return $credit->service()->getCreditPdf($credit->invitations->first());
+            });
+
+            $merge = (new PdfMerge($paths->toArray()))->run();
+
+                return response()->streamDownload(function () use ($merge) {
+                    echo ($merge);
+                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+
         }
 
         $credits->each(function ($credit, $key) use ($action) {

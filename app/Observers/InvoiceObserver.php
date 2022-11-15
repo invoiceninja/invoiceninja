@@ -46,7 +46,7 @@ class InvoiceObserver
      */
     public function updated(Invoice $invoice)
     {
-        $subscriptions = Webhook::where('company_id', $invoice->company_id)
+       $subscriptions = Webhook::where('company_id', $invoice->company_id)
                             ->where('event_id', Webhook::EVENT_UPDATE_INVOICE)
                             ->exists();
 

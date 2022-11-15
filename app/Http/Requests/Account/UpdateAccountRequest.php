@@ -26,7 +26,7 @@ class UpdateAccountRequest extends Request
      */
     public function authorize()
     {
-        return (auth()->user()->isAdmin() || auth()->user()->isOwner()) && (int) $this->account->id === auth()->user()->account_id;
+        return (auth()->user()->isAdmin() || auth()->user()->isOwner()) && ($this->account->id == auth()->user()->account_id);
     }
 
     /**

@@ -19,6 +19,7 @@ use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\InvoiceFactory;
 use App\Filters\InvoiceFilters;
 use App\Http\Requests\Invoice\ActionInvoiceRequest;
+use App\Http\Requests\Invoice\BulkInvoiceRequest;
 use App\Http\Requests\Invoice\CreateInvoiceRequest;
 use App\Http\Requests\Invoice\DestroyInvoiceRequest;
 use App\Http\Requests\Invoice\EditInvoiceRequest;
@@ -40,6 +41,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\TransactionEvent;
 use App\Repositories\InvoiceRepository;
+use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
@@ -545,11 +547,11 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkInvoiceRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -585,6 +587,20 @@ class InvoiceController extends BaseController
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
+
+        }
+
+        if($action == 'bulk_print' && auth()->user()->can('view', $invoices->first())){
+
+            $paths = $invoices->map(function ($invoice){
+                return $invoice->service()->getInvoicePdf();
+            });
+
+            $merge = (new PdfMerge($paths->toArray()))->run();
+
+                return response()->streamDownload(function () use ($merge) {
+                    echo ($merge);
+                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
 
         }
 

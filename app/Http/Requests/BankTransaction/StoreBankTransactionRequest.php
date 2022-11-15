@@ -34,6 +34,9 @@ class StoreBankTransactionRequest extends Request
         
         $rules = [];
 
+        if(isset($this->bank_integration_id))
+            $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
         return $rules;
     }
 

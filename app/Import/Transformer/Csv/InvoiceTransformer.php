@@ -57,10 +57,10 @@ class InvoiceTransformer extends BaseTransformer
             'discount' => $this->getFloat($invoice_data, 'invoice.discount'),
             'po_number' => $this->getString($invoice_data, 'invoice.po_number'),
             'date' => isset($invoice_data['invoice.date'])
-                ? date('Y-m-d', strtotime(str_replace("/","-",$invoice_data['invoice.date'])))
+                ? $this->parseDate($invoice_data['invoice.date'])
                 : now()->format('Y-m-d'),
             'due_date' => isset($invoice_data['invoice.due_date'])
-                ? date('Y-m-d', strtotime(str_replace("/","-",$invoice_data['invoice.due_date'])))
+                ? $this->parseDate($invoice_data['invoice.due_date'])
                 : null,
             'terms' => $this->getString($invoice_data, 'invoice.terms'),
             'public_notes' => $this->getString(
@@ -94,7 +94,7 @@ class InvoiceTransformer extends BaseTransformer
                 'invoice.custom_value4'
             ),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
-            'partial' => $this->getFloat($invoice_data, 'invoice.partial'),
+            'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ?: null,
             'partial_due_date' => $this->getString(
                 $invoice_data,
                 'invoice.partial_due_date'
@@ -140,10 +140,7 @@ class InvoiceTransformer extends BaseTransformer
             $transformed['payments'] = [
                 [
                     'date' => isset($invoice_data['payment.date'])
-                        ? date(
-                            'Y-m-d',
-                            strtotime($invoice_data['payment.date'])
-                        )
+                        ? $this->parseDate($invoice_data['payment.date'])
                         : date('y-m-d'),
                     'transaction_reference' => $this->getString(
                         $invoice_data,
@@ -159,10 +156,7 @@ class InvoiceTransformer extends BaseTransformer
             $transformed['payments'] = [
                 [
                     'date' => isset($invoice_data['payment.date'])
-                        ? date(
-                            'Y-m-d',
-                            strtotime($invoice_data['payment.date'])
-                        )
+                        ? $this->parseDate($invoice_data['payment.date'])
                         : date('y-m-d'),
                     'transaction_reference' => $this->getString(
                         $invoice_data,
@@ -182,10 +176,7 @@ class InvoiceTransformer extends BaseTransformer
             $transformed['payments'] = [
                 [
                     'date' => isset($invoice_data['payment.date'])
-                        ? date(
-                            'Y-m-d',
-                            strtotime($invoice_data['payment.date'])
-                        )
+                        ? $this->parseDate($invoice_data['payment.date'])
                         : date('y-m-d'),
                     'transaction_reference' => $this->getString(
                         $invoice_data,

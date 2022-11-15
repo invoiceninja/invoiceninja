@@ -16,7 +16,7 @@ use App\Libraries\MultiDB;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
-use App\Services\Bank\BankService;
+use App\Services\Bank\BankMatchingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -68,12 +68,18 @@ class ProcessBankTransactions implements ShouldQueue
 
         do{
 
-            $this->processTransactions();
+            try {
+                $this->processTransactions();
+            }
+            catch(\Exception $e) {
+                nlog("{$this->bank_integration_account_id} - exited abnormally => ". $e->getMessage());
+                return;
+            }
 
         }
         while($this->stop_loop);
 
-        BankService::dispatch($this->company->id, $this->company->db);
+        BankMatchingService::dispatch($this->company->id, $this->company->db);
 
     }
 
@@ -82,6 +88,14 @@ class ProcessBankTransactions implements ShouldQueue
     {
 
         $yodlee = new Yodlee($this->bank_integration_account_id);
+
+        if(!$yodlee->getAccount($this->bank_integration->bank_account_id)) 
+        {
+             $this->bank_integration->disabled_upstream = true;
+             $this->bank_integration->save();
+             $this->stop_loop = false;
+             return;   
+        }
 
         $data = [
             'top' => 500,
@@ -102,7 +116,8 @@ class ProcessBankTransactions implements ShouldQueue
         //if no transactions, update the from_date and move on
         if(count($transactions) == 0){
 
-            $this->bank_integration->from_date = now();
+            $this->bank_integration->from_date = now()->subDays(2);
+            $this->bank_integration->disabled_upstream = false;
             $this->bank_integration->save();
             $this->stop_loop = false;
             return;
@@ -144,8 +159,7 @@ class ProcessBankTransactions implements ShouldQueue
 
         if($count < 500){
             $this->stop_loop = false;
-
-            $this->bank_integration->from_date = now();
+            $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
 
         }

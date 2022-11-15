@@ -64,6 +64,7 @@ class ImportCustomers
             }
 
             $starting_after = end($customers->data)['id'];
+
         } while ($customers->has_more);
     }
 

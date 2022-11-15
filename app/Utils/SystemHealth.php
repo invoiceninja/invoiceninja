@@ -90,6 +90,9 @@ class SystemHealth
     private static function checkCurrencySanity()
     {
 
+        if(!self::simpleDbCheck())
+            return true;
+
         if(strlen(config('ninja.currency_converter_api_key')) == 0){
     
             $cs = DB::table('clients')

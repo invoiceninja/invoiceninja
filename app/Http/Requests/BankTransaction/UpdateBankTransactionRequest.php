@@ -33,7 +33,6 @@ class UpdateBankTransactionRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [
             'date' => 'bail|required|date',
-            'description' => 'bail|sometimes|string',
             'amount' => 'numeric|required',
         ];
 
@@ -45,6 +44,9 @@ class UpdateBankTransactionRequest extends Request
 
         if(isset($this->expense_id))
             $rules['expense_id'] = 'bail|required|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+        if(isset($this->bank_integration_id))
+            $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
 
         return $rules;
