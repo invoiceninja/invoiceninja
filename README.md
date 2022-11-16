@@ -26,15 +26,14 @@ All Pro and Enterprise features from the hosted app are included in the open-cod
 * [Support Forum](https://forum.invoiceninja.com)
 * [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
-## Mobile App
-* [iPhone](https://apps.apple.com/us/app/invoice-ninja-v5/id1503970375#?platform=iphone)
+## Mobile Apps
+* [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
 * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
-* [Linux](https://github.com/invoiceninja/flutter-mobile)
 
-## Desktop App
-* [MacOS](https://apps.apple.com/app/id1503970375)
+## Desktop Apps
+* [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
 * [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
-* [MacOS Desktop](https://snapcraft.io/invoiceninja)
+* [Linux](https://snapcraft.io/invoiceninja)
 
 
 ## Installation Options

@@ -291,13 +291,13 @@ class GoCardlessPaymentDriver extends BaseDriver
                     return response()->json([], 200);
                 }
 
-                $this->go_cardless->setPaymentHash($hash);
+                $this->setPaymentHash($hash);
 
-                $billing_request = $this->go_cardless->gateway->billingRequests()->get(
+                $billing_request = $this->gateway->billingRequests()->get(
                     $event['links']['billing_request']
                 );
 
-                $payment = $this->go_cardless->gateway->payments()->get(
+                $payment = $this->gateway->payments()->get(
                     $billing_request->payment_request->links->payment
                 );
 
@@ -305,7 +305,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
                     $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-                    $this->go_cardless->client = $invoices->first()->client;
+                    $this->client = $invoices->first()->client;
 
                     $invoices->each(function ($invoice){
 
@@ -347,12 +347,12 @@ class GoCardlessPaymentDriver extends BaseDriver
         $data = [
             'payment_method' => $payment->links->mandate,
             'payment_type' => PaymentType::INSTANT_BANK_PAY,
-            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'amount' => $this->payment_hash->data->amount_with_fee,
             'transaction_reference' => $payment->id,
             'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
         ];
 
-        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
 
