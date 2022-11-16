@@ -124,6 +124,7 @@ class RecurringInvoice extends BaseModel
         'exchange_rate',
         'vendor_id',
         'next_send_date_client',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [
