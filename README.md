@@ -86,16 +86,8 @@ pass: password
 ## Credits
 * [Hillel Coren](https://hillelcoren.com/)
 * [David Bomba](https://github.com/turbo124)
-* [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
-
-**Special thanks to:**
-* [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
-* [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
-* [Alexander Vanderveen](https://blog.technicallycomputers.ca/) - [Technically Computers](https://www.technicallycomputers.ca/)
-* [Efthymios Sarmpanis](https://github.com/esarbanis)
-* [Gianfranco Gasbarri](https://github.com/gincos)
-* [Clemens Mol](https://github.com/clemensmol)
 * [Benjamin Beganović](https://github.com/beganovich)
+* [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
 
 ## Security
 
