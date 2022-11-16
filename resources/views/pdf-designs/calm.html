@@ -291,6 +291,7 @@
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
+<div id="body">
 <table style="min-width: 100%">
    <thead>
       <tr>
@@ -302,7 +303,7 @@
    <tbody>
       <tr>
          <td>
-            <div id="body">
+            <div id="">
                <div class="header-wrapper">
                   <div>
                      <img class="company-logo" src="$company.logo" alt="$company.name logo">
@@ -317,7 +318,7 @@
                <div id="vendor-details"></div>
 
                <div>
-               <p class="entity-label" style="font-size:32px; color:$primary_color;">$entity_label</p>
+               <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
                <table id="entity-details" cellspacing="0" dir="ltr"></table>
                </div>
                </div>
@@ -344,6 +345,7 @@
       </tr>
    </tfoot>
 </table>
+</div>
 
 <div class="repeating-header" id="header"></div>
 

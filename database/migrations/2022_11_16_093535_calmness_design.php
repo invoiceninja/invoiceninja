@@ -1,10 +1,11 @@
 <?php
 
 use App\Models\Design;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
 
 return new class extends Migration
 {
@@ -16,26 +17,27 @@ return new class extends Migration
     public function up()
     {
         
-        $design_array = ['name' => 'Calm', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true];
+        if (Ninja::isHosted()) {
+            $design = new Design();
 
-        $design = Design::where('name', 'Calm')->whereNull('company_id')->first();
+            $design->name = 'Calm';
+            $design->is_custom = false;
+            $design->design = '';
+            $design->is_active = true;
 
-        if(!$design)
-            $design = Design::create($design_array);
+            $design->save();
+        } elseif (Design::count() !== 0) {
+            $design = new Design();
 
-        $template = new PdfMakerDesign(strtolower($design->name));
-        $template->document();
+            $design->name = 'Calm';
+            $design->is_custom = false;
+            $design->design = '';
+            $design->is_active = true;
 
-        $design_object = new \stdClass;
-        $design_object->includes = $template->getSectionHTML('style');
-        $design_object->header = $template->getSectionHTML('header');
-        $design_object->body = $template->getSectionHTML('body');
-        $design_object->product = '';
-        $design_object->task = '';
-        $design_object->footer = $template->getSectionHTML('footer');
+            $design->save();
+        }
 
-        $design->design = $design_object;
-        $design->save();
+        \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
 
     }
 
