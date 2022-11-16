@@ -37,6 +37,7 @@ class MatchBankTransactionRequest extends Request
 
         $rules['transactions.*.ninja_category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
         $rules['transactions.*.vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['transactions.*.id'] = 'bail|sometimes|exists:bank_transactions,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
 
