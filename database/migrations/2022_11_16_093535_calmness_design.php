@@ -16,9 +16,12 @@ return new class extends Migration
     public function up()
     {
         
-        $design = ['name' => 'Calm', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true];
+        $design_array = ['name' => 'Calm', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true];
 
-        $design = Design::create($design);
+        $design = Design::where('name', 'Calm')->whereNull('company_id')->first();
+
+        if(!$design)
+            $design = Design::create($design_array);
 
         $template = new PdfMakerDesign(strtolower($design->name));
         $template->document();
@@ -33,7 +36,6 @@ return new class extends Migration
 
         $design->design = $design_object;
         $design->save();
-
 
     }
 
