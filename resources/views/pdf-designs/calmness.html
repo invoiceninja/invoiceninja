@@ -15,7 +15,7 @@
         zoom: 80%;
     }
 
-   html {
+    html {
         margin: 0;
         padding-top: 1rem;
         padding-left: 4rem;
@@ -167,13 +167,13 @@
 	
 
 	#entity-details {
-	 text-align: left;
-     width: 100%;
+        text-align: left;
+        width: 100%;
 	}
 	
 	#entity-details th {
-	 font-weight:normal;
-     line-height: 1.5rem;
+        font-weight:normal;
+        line-height: 1.5rem;
 	}
 	
     #table-totals
@@ -224,43 +224,44 @@
         white-space: nowrap;
     }
 
-    /** .repeating-header,
-    .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
         height: 150px;
-
     }
+
     .repeating-header {
         position: fixed;
         top: 0;
     }
+
     .repeating-footer {
         position: fixed;
         bottom: 0;
 
     }
 
-#header {
-  position: fixed;
-  top: 0;
-}
+    #header {
+        position: fixed;
+        top: 0;
+    }
 
-#footer {
-  position: fixed;
-  bottom: 0;
-  border-top: 1px solid #000;
-  width: 82%;
-  min-height:100px;
-  padding-top: 0.5rem;
-  margin-top: 40px;
- }
+    #footer {
+        position: fixed;
+        bottom: 0;
+        border-top: 1px solid #000;
+        width: 82%;
+        min-height:100px;
+        padding-top: 0.5rem;
+        margin-top: 40px;
+    }
 
     [data-element='product_table-product.description-td'], td {
         min-width:100%;
         max-width: 300px;
         overflow-wrap: break-word; 
     }
+
+    [data-ref="total_table-public_notes"] { font-weight: normal; } 
 
     /** Useful snippets, uncomment to enable. **/
 
@@ -272,9 +273,6 @@
 
     /* Hide company address */
     /* #company-address > * { display: none } */
-
-    /* Hide public notes */
-    [data-ref="total_table-public_notes"] { font-weight: normal; } 
 
     /* Hide terms label */
     /* [data-ref="total_table-terms-label"] { display: none } */
@@ -318,7 +316,7 @@
                <div id="vendor-details"></div>
 
                <div>
-               <p class="entity-label" style="font-size:32px; color:#0096FF;">$entity_label</p>
+               <p class="entity-label" style="font-size:32px; color:$primary_color;">$entity_label</p>
                <table id="entity-details" cellspacing="0" dir="ltr"></table>
                </div>
                </div>
@@ -372,12 +370,25 @@
         </script>
     </div>
 </div>
-<script>
-document.querySelectorAll('#statement-invoice-table > thead > tr > th, #statement-payment-table > thead > tr > th, #statement-aging-table > thead > tr > th').forEach(t => {
-    t.hidden = false;
-});
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")})},!1);</script><script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(`[data-state="encoded-html"]`).forEach(e=>e.innerHTML=e.innerText)},!1);
-</script>
+
+        <script>
+            // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+            document.addEventListener('DOMContentLoaded', () => {
+                let tables = [
+                    'product-table', 'task-table', 'delivery-note-table',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
+                    'client-details','vendor-details', 'swiss-qr'
+                ];
+
+                tables.forEach((tableIdentifier) => {
+                    console.log(document.getElementById(tableIdentifier));
+
+                    document.getElementById(tableIdentifier)?.childElementCount === 0
+                        ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
+                        : '';
+                });
+            });
+        </script>
+        
 </div>
