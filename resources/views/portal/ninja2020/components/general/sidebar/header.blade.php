@@ -12,7 +12,7 @@
                 <div>
                     <span class="rounded shadow-sm">
                         <button x-on:click="open = !open" x-on:click.away="open = false" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:ring-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
-                            <span class="hidden md:block mr-1">{{ auth()->guard('contact')->user()->company->present()->name }}</span>
+                            <span class="hidden md:block mr-1">{{ ctrans('texts.select_company') }}</span>
                             <svg class="md:-mr-1 md:ml-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
@@ -25,7 +25,12 @@
                             @foreach($multiple_contacts as $contact)
                                 <a data-turbolinks="false"
                                    href="{{ route('client.switch_company', $contact->hashed_id) }}"
-                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->client->present()->name()}} - {{ $contact->company->present()->name() }}
+                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">
+                                   @if ( auth()->guard('contact')->user()->company->count() > 1)
+                                       {{ $contact->client->present()->name()}} - {{ $contact->company->present()->name() }}
+                                   @else
+                                       {{ $contact->client->present()->name()}}
+                                   @endif
                                     </a>
                             @endforeach
                         </div>
