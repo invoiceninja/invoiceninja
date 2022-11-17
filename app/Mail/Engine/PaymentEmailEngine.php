@@ -243,6 +243,14 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
 
+
+        if($this->payment->status_id == 4) {
+            $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
+        }
+        else
+            $data['$status_logo'] = ['value' => '', 'label' => ''];
+
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 

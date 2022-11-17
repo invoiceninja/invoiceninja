@@ -124,6 +124,7 @@ class HtmlEngine
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$status_logo'] = ['value' => '', 'label' => ''];
 
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
@@ -165,6 +166,10 @@ class HtmlEngine
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
+            }
+
+            if($this->entity->status_id == 4) {
+                $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
             }
 
             if($this->entity->vendor) {
