@@ -175,7 +175,7 @@ class SendRemindersCron extends Command
         /**Refresh Invoice values*/
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
-        $invoice->service()->deletePdf();
+        $invoice->service()->deletePdf()->save();
 
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;
