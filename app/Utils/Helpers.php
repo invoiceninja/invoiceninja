@@ -114,7 +114,7 @@ class Helpers
             return '';
         }
 
-        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expenseive process
+        // 04-10-2022 Return Early if no reserved keywords are present, this is a very expensive process
         $string_hit = false;
 
         foreach ( [':MONTH',':YEAR',':QUARTER',':WEEK'] as $string ) 
@@ -144,21 +144,21 @@ class Helpers
                 ':QUARTER' => 'Q'.now()->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
+                    Carbon::now()->subDays(6)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
                     Carbon::now()->translatedFormat($entity->date_format())
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format()),
+                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(14)->translatedFormat($entity->date_format())
+                    Carbon::now()->addDays(13)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s',
                     Carbon::now()->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format())
+                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format())
                 ),
             ],
             'raw' => [
