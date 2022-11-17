@@ -310,7 +310,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                     $invoices->each(function ($invoice){
 
                         //if payments exist already, they just need to be confirmed.
-                        if($invoice->payments()->exists){
+                        if($invoice->payments()->exists()){
                             
                             $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment){
                                 $payment->status_id = 4;
@@ -361,8 +361,8 @@ class GoCardlessPaymentDriver extends BaseDriver
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_GOCARDLESS,
-            $this->go_cardless->client,
-            $this->go_cardless->client->company,
+            $this->client,
+            $this->client->company,
         );
 
     }
