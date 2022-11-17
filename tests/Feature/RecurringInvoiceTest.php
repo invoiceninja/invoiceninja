@@ -61,7 +61,7 @@ class RecurringInvoiceTest extends TestCase
         $item->cost = 10;
         $item->task_id = $this->encodePrimaryKey($this->task->id);
         $item->expense_id = $this->encodePrimaryKey($this->expense->id);
-        $item->description = "Hello this is the month of :MONTH";
+        $item->notes = "Hello this is the month of :MONTH";
 
         $line_items[] = $item;
 
@@ -93,7 +93,9 @@ class RecurringInvoiceTest extends TestCase
         $arr = $response->json();
         $this->assertEquals(RecurringInvoice::STATUS_DRAFT, $arr['data']['status_id']);
 
-        $this->assertIsArray($arr['data']['line_items']);
+        $notes = end($arr['data']['line_items'])['notes'];
+
+        $this->assertTrue(str_contains($notes, ':MONTH'));
     }
 
 
