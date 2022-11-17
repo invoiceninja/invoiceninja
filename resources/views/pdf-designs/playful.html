@@ -293,6 +293,36 @@
         max-width: 300px;
         overflow-wrap: break-word; 
     }
+
+    .stamp {
+      transform: rotate(12deg);
+        color: #555;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 0.25rem solid #555;
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        text-transform: uppercase;
+        border-radius: 1rem;
+        font-family: 'Courier';
+        mix-blend-mode: multiply;
+        z-index:200 !important;
+        position:  fixed;
+        text-align: center;
+    }
+
+    .is-paid {
+        color:  #D23;
+        border: 1rem double  #D23;
+        transform: rotate(-5deg);
+        font-size: 6rem;
+        font-family: "Open sans", Helvetica, Arial, sans-serif;
+        border-radius: 0;
+        padding: 0.5rem;
+        opacity: 0.2;
+        z-index:200 !important;
+        position:  fixed;
+    } 
     
     /** Useful snippets, uncomment to enable. **/
 
@@ -323,7 +353,7 @@
     /** For more info, please check our docs: https://invoiceninja.github.io **/
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
-
+<div id="body">
 <table style="min-width: 100%">
    <thead>
       <tr>
@@ -335,7 +365,6 @@
    <tbody>
       <tr>
          <td>
-            <div id="body">
                <div class="header-wrapper">
                   <div>
                      <img class="company-logo" src="$company.logo" alt="$company.name logo">
@@ -367,8 +396,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
-            </div>
+               <div id="table-totals" cellspacing="0"></div>      
          </td>
       </tr>
    </tbody>
@@ -380,7 +408,7 @@
       </tr>
    </tfoot>
 </table>
-
+</div>
 <div class="repeating-header">
     <div id="header">
         <div style="background-color: #00968B"><!-- 1 --></div>
