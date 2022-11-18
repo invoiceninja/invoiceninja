@@ -4839,6 +4839,10 @@ $LANG = array(
     'show_tasks_in_client_portal' => 'Show Tasks in Client Portal',
     'notification_quote_expired_subject' => 'Quote :invoice has expired for :client',
     'notification_quote_expired' => 'The following Quote :invoice for client :client and :amount has now expired.',
+    'auto_sync' => 'Auto Sync',
+    'refresh_accounts' => 'Refresh Accounts',
+    'upgrade_to_connect_bank_account' => 'Upgrade to Enterprise to connect your bank account',
+    'click_here_to_connect_bank_account' => 'Click here to connect your bank account',
 );
 
 return $LANG;
