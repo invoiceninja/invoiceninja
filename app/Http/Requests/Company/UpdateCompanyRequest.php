@@ -22,6 +22,14 @@ class UpdateCompanyRequest extends Request
 {
     use MakesHash;
 
+    private array $protected_input = [
+        'client_portal_privacy_policy',
+        'client_portal_terms',
+        'portal_custom_footer',
+        'portal_custom_css',
+        'portal_custom_head'
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,6 +39,8 @@ class UpdateCompanyRequest extends Request
     {
         return auth()->user()->can('edit', $this->company);
     }
+
+
 
     public function rules()
     {
@@ -89,6 +99,14 @@ class UpdateCompanyRequest extends Request
     private function filterSaveableSettings($settings)
     {
         $account = $this->company->account;
+
+        if(Ninja::isHosted())
+        {
+            foreach($this->protected_input as $protected_var)
+            {
+                $settings[$protected_var] = str_replace("script", "", $settings[$protected_var]);
+            }
+        }
 
         if (! $account->isFreeHostedClient()) {
             return $settings;

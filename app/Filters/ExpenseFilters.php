@@ -45,6 +45,55 @@ class ExpenseFilters extends QueryFilters
     }
 
     /**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - logged
+     * - pending
+     * - invoiced
+     * - paid
+     * - unpaid
+     *
+     * @return Builder
+     */
+    public function client_status(string $value = '') :Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        if (in_array('logged', $status_parameters)) {
+            $this->builder->where('amount', '>', 0);
+        }
+
+        if (in_array('pending', $status_parameters)) {
+            $this->builder->whereNull('invoice_id')->whereNotNull('payment_date');
+        }
+
+        if (in_array('invoiced', $status_parameters)) {
+            $this->builder->whereNotNull('invoice_id');
+        }
+
+        if (in_array('paid', $status_parameters)) {
+            $this->builder->whereNotNull('payment_date');
+        }
+
+        if (in_array('unpaid', $status_parameters)) {
+            $this->builder->whereNull('payment_date');
+        }
+
+        return $this->builder;
+    }
+
+
+    /**
      * Filters the list based on the status
      * archived, active, deleted.
      *

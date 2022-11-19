@@ -21,8 +21,6 @@ class InvoiceEmailFailedActivity implements ShouldQueue
 {
     protected $activity_repo;
 
-    public $delay = 5;
-
     /**
      * Create the event listener.
      *

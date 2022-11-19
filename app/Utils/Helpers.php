@@ -144,9 +144,9 @@ class Helpers
                 ':QUARTER' => 'Q'.now()->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subDays(6)->translatedFormat($entity->date_format()),
+                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->translatedFormat($entity->date_format())
+                    Carbon::now()->subDays(1)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
@@ -156,9 +156,9 @@ class Helpers
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->translatedFormat($entity->date_format()),
+                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format())
+                    Carbon::now()->addDays(13)->translatedFormat($entity->date_format())
                 ),
             ],
             'raw' => [
