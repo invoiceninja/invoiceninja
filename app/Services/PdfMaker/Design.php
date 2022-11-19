@@ -73,7 +73,8 @@ class Design extends BaseDesign
     const PLAIN = 'plain';
     const PLAYFUL = 'playful';
     const CUSTOM = 'custom';
-
+    const CALM = 'calm';
+    
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
     const PURCHASE_ORDER = 'purchase_order';

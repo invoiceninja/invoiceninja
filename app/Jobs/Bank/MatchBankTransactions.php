@@ -160,6 +160,9 @@ class MatchBankTransactions implements ShouldQueue
     { 
         $this->bt = BankTransaction::find($input['id']);
 
+            if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+                return $this;
+
         $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
         
         $amount = $this->bt->amount;
@@ -179,6 +182,10 @@ class MatchBankTransactions implements ShouldQueue
     { 
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
         $this->bt = BankTransaction::find($input['id']);
+
+            if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+                return $this;
+
 
         $expense = ExpenseFactory::create($this->bt->company_id, $this->bt->user_id);
         $expense->category_id = $this->resolveCategory($input);
