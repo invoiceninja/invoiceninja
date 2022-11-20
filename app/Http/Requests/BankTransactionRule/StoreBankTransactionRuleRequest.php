@@ -40,8 +40,8 @@ class StoreBankTransactionRuleRequest extends Request
             'applies_to' => 'bail|sometimes|bool',
         ];
 
-        if (isset($this->currency_id)) 
-            $rules['category_Id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
+        if(isset($this->category_id)) 
+            $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
         
         if(isset($this->vendor_id))
             $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
