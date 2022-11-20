@@ -22,6 +22,7 @@ use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
+use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
@@ -69,6 +70,9 @@ class Kernel extends ConsoleKernel
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping();
+
+        /* Fires notifications for expired Quotes */
+        $schedule->job(new QuoteCheckExpired)->dailyAt('05:00')->withoutOverlapping();
 
         /* Performs auto billing */
         $schedule->job(new AutoBillCron)->dailyAt('06:00')->withoutOverlapping();

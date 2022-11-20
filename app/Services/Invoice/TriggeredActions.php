@@ -67,6 +67,22 @@ class TriggeredActions extends AbstractService
             $this->updated = false;
         }
 
+        if($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
+            $company = $this->invoice->company;
+            $settings = $company->settings;
+            $settings->invoice_footer = $this->invoice->footer;
+            $company->settings = $settings;
+            $company->save();
+        }
+
+        if($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
+            $company = $this->invoice->company;
+            $settings = $company->settings;
+            $settings->invoice_terms = $this->invoice->terms;
+            $company->settings = $settings;
+            $company->save();
+        }
+
         if($this->updated)
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
 

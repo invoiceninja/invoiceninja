@@ -55,6 +55,55 @@ class BankTransactionFilters extends QueryFilters
 
     }
 
+
+/**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - unmatched
+     * - matched
+     * - converted
+     * - deposits
+     * - withdrawals
+     *
+     * @return Builder
+     */
+    public function client_status(string $value = '') :Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        if (in_array('unmatched', $status_parameters)) {
+            $this->builder->where('status_id', BankTransaction::STATUS_UNMATCHED);
+        }
+
+        if (in_array('matched', $status_parameters)) {
+            $this->builder->where('status_id', BankTransaction::STATUS_MATCHED);
+        }
+
+        if (in_array('converted', $status_parameters)) {
+            $this->builder->where('status_id', BankTransaction::STATUS_CONVERTED);
+        }
+
+        if (in_array('deposits', $status_parameters)) {
+            $this->builder->where('base_type', 'CREDIT');
+        }
+
+        if (in_array('withdrawals', $status_parameters)) {
+            $this->builder->where('base_type', 'DEBIT');
+        }
+
+        return $this->builder;
+    }
+
     /**
      * Filters the list based on the status
      * archived, active, deleted.

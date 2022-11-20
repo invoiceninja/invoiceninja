@@ -52,6 +52,22 @@ class TriggeredActions extends AbstractService
         //     $this->purchase_order = $this->purchase_order->service()->handleCancellation()->save();
         // }
 
+        if($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
+            $company = $this->purchase_order->company;
+            $settings = $company->settings;
+            $settings->purchase_order_footer = $this->purchase_order->footer;
+            $company->settings = $settings;
+            $company->save();
+        }
+
+        if($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
+            $company = $this->purchase_order->company;
+            $settings = $company->settings;
+            $settings->purchase_order_terms = $this->purchase_order->terms;
+            $company->settings = $settings;
+            $company->save();
+        }
+
         return $this->purchase_order;
     }
 
