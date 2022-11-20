@@ -40,11 +40,9 @@ class BankService
 
     }
 
-    public function processRule($rule)
+    public function processRules()
     {
-        (new ProcessBankRule($this->bank_transaction, $rule))->run();
-
-        return $this;
+        (new ProcessBankRules($this->bank_transaction))->run();
     }
 
 }
