@@ -43,6 +43,7 @@ class ProcessBankRules extends AbstractService
 
     private function matchCredit()
     {
+
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
 
         $this->invoices = Invoice::where('company_id', $this->bank_transaction->company_id)
@@ -52,7 +53,7 @@ class ProcessBankRules extends AbstractService
 
         $invoice = $this->invoices->first(function ($value, $key){
 
-            return str_contains($this->bank_transaction, $value->number);
+            return str_contains($this->bank_transaction->description, $value->number);
                 
         });
 
@@ -87,10 +88,6 @@ class ProcessBankRules extends AbstractService
             foreach($bank_transaction_rule['rules'] as $rule)
             {
                 $rule_count = count($bank_transaction_rule['rules']);
-
-
-nlog($rule_count);
-nlog($rule);
 
                 if($rule['search_key'] == 'description')
                 {
@@ -193,14 +190,9 @@ nlog($rule);
         $rule_value = strtolower(str_replace(" ", "", $rule_value));
         $rule_length = iconv_strlen($rule_value);
 
-nlog($bt_value);
-nlog($rule_value);
-nlog($rule_length);
-nlog($operator);
-
         return match ($operator) {
             'is' =>  $bt_value == $rule_value,
-            'contains' => str_contains($bt_value, $rule_value),
+            'contains' => stripos($bt_value, $rule_value) !== false,
             'starts_with' => substr($bt_value, 0, $rule_length) == $rule_value,
             'is_empty' => empty($bt_value),
             default => false,
