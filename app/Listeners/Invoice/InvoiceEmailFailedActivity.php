@@ -15,7 +15,6 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
 use stdClass;
 
 class InvoiceEmailFailedActivity implements ShouldQueue
