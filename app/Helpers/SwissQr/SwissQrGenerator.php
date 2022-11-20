@@ -19,7 +19,7 @@ use Sprain\SwissQrBill as QrBill;
 /**
  * SwissQrGenerator.
  */
-class SwissQrGenerator 
+class SwissQrGenerator
 {
 
     protected Company $company;
@@ -33,7 +33,7 @@ class SwissQrGenerator
         $this->company = $company;
 
         $this->invoice = $invoice;
-    
+
         $this->client = $invoice->client;
     }
 
@@ -104,15 +104,43 @@ class SwissQrGenerator
 
     // Add payment reference
     // This is what you will need to identify incoming payments.
+        
+    if(stripos($this->invoice->number, "Live") === 0)
+    {
+        // we're currently in preview status. Let's give a dummy reference for now
+        $invoice_number = "123456789";
+    }
+    else
+    {
+        $tempInvoiceNumber = $this->invoice->number;
+        $tempInvoiceNumber = preg_replace('/[^A-Za-z0-9]/', '', $tempInvoiceNumber);
+        $tempInvoiceNumber = substr($tempInvoiceNumber, 1);
+        
+        $calcInvoiceNumber = "";
+        $array = str_split($tempInvoiceNumber);
+        foreach($array as $char)
+		{
+            if (is_numeric($char))
+			{
+				//
+			}
+			else
+			{
+				if ($char)
+				{
+					$char = strtolower($char);
+					$char = ord($char) - 96;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			$calcInvoiceNumber .= $char;
+		}
+       
+        $invoice_number = $calcInvoiceNumber;
 
-   if(stripos($this->invoice->number, "Live") === 0)                                                                                                                                                                            
-    {                                                                                                                                                                                                                             
-       // we're currently in preview status. Let's give a dummy reference for now                                                                                                                                                 
-       $invoice_number = "123456789";                                                                                                                                                                                              
-    }                                                                                                                                                                                                                             
-    else                                                                                                                                                                                                                          
-    {                                                                                                                                                                                                                             
-        $invoice_number = iconv("UTF-8", "ASCII", $this->invoice->number);                                                                                                                                                                                 
     }       
 
     if(strlen($this->company->present()->besr_id()) > 1)

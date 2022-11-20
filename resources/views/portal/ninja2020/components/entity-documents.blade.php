@@ -7,10 +7,10 @@
                     @foreach ($entity->documents as $document)
                         <div class="inline-flex items-center space-x-1">
                             @if($entity instanceof App\Models\PurchaseOrder)
-                            <a href="{{ route('vendor.documents.show', $document->hashed_id) }}" target="_blank"
+                            <a href="{{ route('vendor.documents.download', $document->hashed_id) }}" target="_blank"
                                 class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a>
                             @else
-                            <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
+                            <a href="{{ route('client.documents.download', $document->hashed_id) }}" target="_blank"
                                 class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a> 
                             @endif
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -30,10 +30,10 @@
                     @foreach ($entity->company->documents as $document)
                         <div class="inline-flex items-center space-x-1">
                             @if($entity instanceof App\Models\PurchaseOrder)
-                            <a href="{{ route('vendor.documents.show', $document->hashed_id) }}" target="_blank"
+                            <a href="{{ route('vendor.documents.download', $document->hashed_id) }}" target="_blank"
                                 class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a>
                             @else
-                            <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
+                            <a href="{{ route('client.documents.download', $document->hashed_id) }}" target="_blank"
                                 class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a>
                             @endif
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -54,7 +54,7 @@
                         @foreach ($entity->expense_documents() as $expense)
                             @foreach($expense->documents as $document)
                                 <div class="inline-flex items-center space-x-1">
-                                    <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
+                                    <a href="{{ route('client.documents.download', $document->hashed_id) }}" target="_blank"
                                         class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -77,7 +77,7 @@
                         @foreach ($entity->task_documents() as $task)
                             @foreach($task->documents as $document)
                                 <div class="inline-flex items-center space-x-1">
-                                    <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
+                                    <a href="{{ route('client.documents.download', $document->hashed_id) }}" target="_blank"
                                         class="block text-sm button-link text-primary">{{ Illuminate\Support\Str::limit($document->name, 40) }}</a>
 
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"

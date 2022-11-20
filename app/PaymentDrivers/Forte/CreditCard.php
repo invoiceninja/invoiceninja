@@ -92,12 +92,14 @@ class CreditCard
         $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
         $amount_with_fee = $payment_hash->data->total->amount_with_fee;
         $invoice_totals = $payment_hash->data->total->invoice_totals;
-        $fee_total = 0;
+        $fee_total = null;
 
         $fees_and_limits = $this->forte->company_gateway->getFeesAndLimits(GatewayType::CREDIT_CARD);
 
         if(property_exists($fees_and_limits, 'fee_percent') && $fees_and_limits->fee_percent > 0)
         {
+            $fee_total = 0;
+
             for ($i = ($invoice_totals * 100) ; $i < ($amount_with_fee * 100); $i++) { 
                 $calculated_fee = ( 3 * $i) / 100;
                 $calculated_amount_with_fee = round(($i + $calculated_fee) / 100,2);

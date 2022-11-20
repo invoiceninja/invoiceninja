@@ -87,7 +87,7 @@ class Csv extends BaseImport implements ImportInterface
 
             foreach($data as $key => $value)
             {
-                $data[$key]['bank.bank_integration_id'] = $this->decodePrimaryKey($this->request['bank_integration_id']);
+                $data[$key]['transaction.bank_integration_id'] = $this->decodePrimaryKey($this->request['bank_integration_id']);
             }
 
         }

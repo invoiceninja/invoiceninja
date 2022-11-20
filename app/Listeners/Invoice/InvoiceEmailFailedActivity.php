@@ -14,14 +14,20 @@ namespace App\Listeners\Invoice;
 use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Repositories\ActivityRepository;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use stdClass;
 
 class InvoiceEmailFailedActivity implements ShouldQueue
 {
-    protected $activity_repo;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $delay = 5;
+    public $delay = 10;
+
+    protected $activity_repo;
 
     /**
      * Create the event listener.
