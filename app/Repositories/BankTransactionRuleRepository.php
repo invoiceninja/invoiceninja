@@ -29,6 +29,7 @@ class BankTransactionRuleRepository extends BaseRepository
         $bank_transaction_rule->save();
 
         return $bank_transaction_rule;
+        
     }
 
 }
