@@ -19,7 +19,7 @@ class MigrationLookup
     private string $migration_notification = 'The Invoice Ninja v4 platform is now disabled for free users. Please <a class="btn btn-primary btn-sm" href="/migration/start">Migrate Now</a> to the new Invoice Ninja v5 platform to remain as a free account.<br><br>
 *Not ready for v5? Upgrade to Pro or Enterprise to remain on v4. *Please note that the v4 platform will be "sunset" in November 2022.';
 
-    private string $silo = 'V4 is now disabled for your account. Please migrate. <a class="btn btn-primary btn-sm" href="/migration/start">Migrate Now</a>';
+    private string $silo = 'V4 is now disabled for your account. Please migrate. <a class="btn btn-primary btn-sm" href="/migration/start">Migrate Now</a> Upgrade to v5 and take advantage of our <a class="btn btn-danger btn-sm" href="https://invoicing.co/campaign/black_friday_2022">Black friday promo</a>';
 
     public function handle(Request $request, Closure $next, $guard = 'user')
     {

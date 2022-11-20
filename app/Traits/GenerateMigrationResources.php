@@ -1441,6 +1441,8 @@ trait GenerateMigrationResources
                 return 31;
             case 2:
                 return 1;
+            case 3:
+                return 2;
                 
             default:
                 return $payment_type_id;
