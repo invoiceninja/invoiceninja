@@ -451,7 +451,7 @@ class EventServiceProvider extends ServiceProvider
             PaymentEmailedActivity::class,
         ],
         PaymentWasEmailedAndFailed::class => [
-            PaymentEmailFailureActivity::class,
+            // PaymentEmailFailureActivity::class,
         ],
         PurchaseOrderWasArchived::class => [
             PurchaseOrderArchivedActivity::class,
