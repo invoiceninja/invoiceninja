@@ -13,7 +13,7 @@ namespace App\Services\Bank;
 
 use App\Models\BankTransaction;
 use App\Models\Invoice;
-use App\Services\Bank\ProcessBankRule;
+use App\Services\Bank\ProcessBankRules;
 
 class BankService
 {

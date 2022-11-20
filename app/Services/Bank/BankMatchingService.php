@@ -33,21 +33,13 @@ class BankMatchingService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter;
 
-    private $company_id;
-
     private Company $company;
-
-    private $db;
 
     private $invoices;
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct($company_id, $db)
-    {
-        $this->company_id = $company_id;
-        $this->db = $db;
-    }
+    public function __construct(private int $company_id, private string $db){}
 
     public function handle()
     {
@@ -77,6 +69,6 @@ class BankMatchingService implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->company_key)];
+        return [new WithoutOverlapping($this->company_id)];
     }
 }

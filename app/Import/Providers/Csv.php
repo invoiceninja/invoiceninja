@@ -46,6 +46,7 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\VendorRepository;
+use App\Services\Bank\BankMatchingService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -106,6 +107,8 @@ class Csv extends BaseImport implements ImportInterface
         $this->transformer = new BankTransformer($this->company);
         $bank_transaction_count = $this->ingest($data, $entity_type);
         $this->entity_count['bank_transactions'] = $bank_transaction_count;
+
+        BankMatchingService::dispatchSync($this->company->id, $this->company->db);
 
     }
 
