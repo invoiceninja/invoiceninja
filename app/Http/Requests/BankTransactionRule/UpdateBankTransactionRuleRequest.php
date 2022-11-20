@@ -36,7 +36,7 @@ class UpdateBankTransactionRuleRequest extends Request
             'rules' => 'bail|array',
             'auto_convert' => 'bail|sometimes|bool',
             'matches_on_all' => 'bail|sometimes|bool',
-            'applies_to' => 'bail|sometimes|bool',
+            'applies_to' => 'bail|sometimes|string',
         ];
 
         if(isset($this->category_id)) 

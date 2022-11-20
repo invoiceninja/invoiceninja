@@ -42,6 +42,91 @@ class BankTransactionRuleApiTest extends TestCase
         Model::reguard();
     }
 
+/*
+$rules = [
+    'name' => 'bail|required|string',
+    'rules' => 'bail|array',
+    'auto_convert' => 'bail|sometimes|bool',
+    'matches_on_all' => 'bail|sometimes|bool',
+    'applies_to' => 'bail|sometimes|bool',
+];
+
+if(isset($this->category_id)) 
+    $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
+
+if(isset($this->vendor_id))
+    $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
+if(isset($this->client_id))
+    $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+*/
+    public function testBankRulePost()
+    {
+
+        $data = [
+           'name' => 'The First Rule',
+           'rules' => [],
+           'auto_convert' => false,
+           'matches_on_all' => false,
+           'applies_to' => 'CREDIT',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals('The First Rule', $arr['data']['name']);
+
+    }
+
+    public function testBankRulePut()
+    {
+
+        $data = [
+           'name' => 'The First Rule',
+           'rules' => [],
+           'auto_convert' => false,
+           'matches_on_all' => false,
+           'applies_to' => 'CREDIT',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals('The First Rule', $arr['data']['name']);
+
+        $data = [
+           'name' => 'A New Name For The First Rule',
+           'rules' => [],
+           'auto_convert' => false,
+           'matches_on_all' => false,
+           'applies_to' => 'CREDIT',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/bank_transaction_rules/'. $arr['data']['id'], $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals('A New Name For The First Rule', $arr['data']['name']);
+
+    }
+
     public function testBankTransactionRuleGet()
     {
         $response = $this->withHeaders([

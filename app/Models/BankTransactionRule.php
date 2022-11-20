@@ -32,6 +32,13 @@ class BankTransactionRule extends BaseModel
         'category_id',
     ];
 
+    protected $casts = [
+        'rules' => 'array',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
     protected $dates = [
     ];
     
