@@ -25,7 +25,7 @@ class InvoiceEmailFailedActivity implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $delay = 10;
+    // public $delay = 10;
 
     protected $activity_repo;
 
