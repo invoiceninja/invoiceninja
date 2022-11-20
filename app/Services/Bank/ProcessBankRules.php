@@ -91,10 +91,8 @@ class ProcessBankRules extends AbstractService
 
                 if($rule['search_key'] == 'description')
                 {
-                    nlog("searching key");
 
                     if($this->matchStringOperator($this->bank_transaction->description, $rule['value'], $rule['operator'])){
-                        nlog("found key");
                         $matches++;
                     }
 
@@ -103,7 +101,7 @@ class ProcessBankRules extends AbstractService
                 if($rule['search_key'] == 'amount')
                 {
 
-                    if($this->matchNumberOperator($this->bank_transaction->description, 'amount', $rule['operator'])){
+                    if($this->matchNumberOperator($this->bank_transaction->amount,  $rule['value'] , $rule['operator'])){
                         $matches++;
                     }
 

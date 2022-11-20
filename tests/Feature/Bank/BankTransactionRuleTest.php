@@ -39,8 +39,222 @@ class BankTransactionRuleTest extends TestCase
         );
     }
 
+    public function testMatchingBankTransactionExpenseAmountLessThanEqualTo()
+    {
 
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '<=',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => '',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
     
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNotNull($bt->expense_id);
+    }
+
+
+    public function testMatchingBankTransactionExpenseAmountLessThan()
+    {
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '<',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => '',
+            'base_type' => 'DEBIT',
+            'amount' => 99
+        ]);
+    
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNotNull($bt->expense_id);
+    }
+
+    public function testMatchingBankTransactionExpenseAmountGreaterThan()
+    {
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '>',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => '',
+            'base_type' => 'DEBIT',
+            'amount' => 101
+        ]);
+    
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNotNull($bt->expense_id);
+    }
+
+
+    public function testMatchingBankTransactionExpenseAmountMiss()
+    {
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '=',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => '',
+            'base_type' => 'DEBIT',
+            'amount' => 101
+        ]);
+    
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNull($bt->expense_id);
+    }
+
+    public function testMatchingBankTransactionExpenseAmount()
+    {
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '=',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => '',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
+    
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNotNull($bt->expense_id);
+    }
 
 
     public function testMatchingBankTransactionExpenseIsEmpty()
