@@ -164,7 +164,7 @@
         @yield('footer')
         @stack('footer')
 
-        @if((bool) \App\Utils\Ninja::isSelfHost() && !empty($settings->portal_custom_footer))
+        @if($company && $company->account->isPaid() && !empty($settings->portal_custom_footer))
             <div class="py-1 text-sm text-center text-white bg-primary">
                 {!! $settings->portal_custom_footer !!}
             </div>

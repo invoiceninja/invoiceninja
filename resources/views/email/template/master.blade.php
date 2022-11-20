@@ -143,6 +143,36 @@
             color: {{ $design == 'dark' ? '#ffffff' : '#000000' }} !important;
             opacity: {{ $design == 'dark' ? '87%': '100%' }} !important;
         }
+
+        .stamp {
+          transform: rotate(12deg);
+            color: #555;
+            font-size: 3rem;
+            font-weight: 700;
+            border: 0.25rem solid #555;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            text-transform: uppercase;
+            border-radius: 1rem;
+            font-family: 'Courier';
+            mix-blend-mode: multiply;
+            z-index:200 !important;
+            position:  fixed;
+            text-align: center;
+        }
+
+        .is-paid {
+            color:  #D23;
+            border: 1rem double  #D23;
+            transform: rotate(-5deg);
+            font-size: 6rem;
+            font-family: "Open sans", Helvetica, Arial, sans-serif;
+            border-radius: 0;
+            padding: 0.5rem;
+            opacity: 0.2;
+            z-index:200 !important;
+            position:  fixed;
+        } 
     </style>
 </head>
 
