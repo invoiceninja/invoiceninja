@@ -42,13 +42,9 @@ class BankTransactionRule extends BaseModel
     protected $dates = [
     ];
     
-    /* Columns to search */
     protected array $search_keys = [
-        'client_id' => 'client',
-        'vendor_id' => 'vendor',
-        'description' => 'description',
-        'transaction_reference' => 'transaction_reference',
-        'amount' => 'amount',
+        'description' => 'string',
+        'amount' => 'number',
     ];
 
     /* Amount */
@@ -79,68 +75,68 @@ class BankTransactionRule extends BaseModel
     // }
     //]
 
-    public function processRule(BankTransaction $bank_transaction)
-    {
-        foreach($this->rules as $key => $rule)
-        {
-            $this->search($rule, $key, $bank_transaction);
-        }
-    }
+    // public function processRule(BankTransaction $bank_transaction)
+    // {
+    //     foreach($this->rules as $key => $rule)
+    //     {
+    //         $this->search($rule, $key, $bank_transaction);
+    //     }
+    // }
 
-    private function search($rule, $key, $bank_transaction)
-    {
-        if($rule->search_key == 'amount')
-        {
-            //number search
-        }
-        else {
-            //string search
-        }
-    }
+    // private function search($rule, $key, $bank_transaction)
+    // {
+    //     if($rule->search_key == 'amount')
+    //     {
+    //         //number search
+    //     }
+    //     else {
+    //         //string search
+    //     }
+    // }
 
-    private function findAmount($amount, $bank_transaction)
-    {
-        if($bank_transaction->base_type == 'CREDIT'){
-            //search invoices
-        }
-        else{
-            //search expenses
-        }
+    // private function findAmount($amount, $bank_transaction)
+    // {
+    //     if($bank_transaction->base_type == 'CREDIT'){
+    //         //search invoices
+    //     }
+    //     else{
+    //         //search expenses
+    //     }
 
-    }
+    // }
 
-    private function searchClient($rule, $bank_transaction)
-    {
-        if($bank_transaction->base_type == 'CREDIT'){
-            //search invoices
-        }
-        else{
-            //search expenses
-        }
+    // private function searchClient($rule, $bank_transaction)
+    // {
+    //     if($bank_transaction->base_type == 'CREDIT'){
+    //         //search invoices
+    //     }
+    //     else{
+    //         //search expenses
+    //     }
 
-    }
+    // }
 
-    private function searchVendor($rule, $bank_transaction)
-    {
-        //search expenses
+    // private function searchVendor($rule, $bank_transaction)
+    // {
+    //     //search expenses
         
 
-    }
+    // }
 
-    private function searchDescription($rule, $bank_transaction)
-    {
-        //search expenses public notes
-    }
+    // private function searchDescription($rule, $bank_transaction)
+    // {
+    //     //search expenses public notes
+    // }
 
-    private function searchReference($rule, $bank_transaction)
-    {
-        if($bank_transaction->base_type == 'CREDIT'){
-            //search invoices
-        }
-        else{
-            //search expenses
-        }
-    }
+    // private function searchReference($rule, $bank_transaction)
+    // {
+    //     if($bank_transaction->base_type == 'CREDIT'){
+    //         //search invoices
+    //     }
+    //     else{
+    //         //search expenses
+    //     }
+    // }
 
     public function getEntityType()
     {

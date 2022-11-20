@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\CompanySettings;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\PurchaseOrder;
@@ -540,6 +541,23 @@ class Company extends BaseModel
     {
         return $this->company_users()->withTrashed()->where('is_owner', true)->first()?->user;
     }
+
+    public function credit_rules()
+    {
+        return BankTransactionRule::query()
+                                  ->where('company_id', $this->id)
+                                  ->where('applies_to', 'CREDIT')
+                                  ->get();
+    }
+
+    public function debit_rules()
+    {
+        return BankTransactionRule::query()
+                          ->where('company_id', $this->id)
+                          ->where('applies_to', 'DEBIT')
+                          ->get();
+    }
+
 
     public function resolveRouteBinding($value, $field = null)
     {
