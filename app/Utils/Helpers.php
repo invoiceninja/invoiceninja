@@ -134,6 +134,30 @@ class Helpers
 
         $replacements = [
             'literal' => [
+                ':MONTH_BEFORE' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->subMonth(1)->translatedFormat($entity->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->subDay(1)->translatedFormat($entity->date_format()),
+                ),
+                ':YEAR_BEFORE' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->subYear(1)->translatedFormat($entity->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->subDay(1)->translatedFormat($entity->date_format()),
+                ),
+                ':MONTH_AFTER' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->translatedFormat($entity->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->addMonth(1)->subDay(1)->translatedFormat($entity->date_format()),
+                ),
+                ':YEAR_AFTER' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->translatedFormat($entity->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->addYear(1)->subDay(1)->translatedFormat($entity->date_format()),
+                ),
                 ':MONTHYEAR' => \sprintf(
                     '%s %s',
                     Carbon::createFromDate(now()->month)->translatedFormat('F'),
@@ -150,15 +174,15 @@ class Helpers
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format()),
+                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
                     Carbon::now()->addDays(13)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
+                    Carbon::now()->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(13)->translatedFormat($entity->date_format())
+                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format())
                 ),
             ],
             'raw' => [
