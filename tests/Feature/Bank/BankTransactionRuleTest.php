@@ -19,6 +19,7 @@ use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -37,6 +38,8 @@ class BankTransactionRuleTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        $this->withoutExceptionHandling();
     }
 
     public function testUpdateValidationRules()
@@ -64,7 +67,7 @@ class BankTransactionRuleTest extends TestCase
             "applies_to" => "DEBIT", 
             "archived_at" => 0, 
             "auto_convert" => False, 
-            "category_id" => $this->expense_category, 
+            "category_id" => $this->expense_category->hashed_id, 
             "is_deleted" => False, 
             "isChanged" => True, 
             "matches_on_all" => True, 
@@ -73,16 +76,25 @@ class BankTransactionRuleTest extends TestCase
             "vendor_id" => $this->vendor->hashed_id
             ];
 
+        $response = null;
 
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id, $data);
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id, $data);
 
-        $arr = $response->json();
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
 
-        $response->assertStatus(200);      
+        if($response){
+            $arr = $response->json();
+
+            $response->assertStatus(200);      
+        }
 
     }
 
