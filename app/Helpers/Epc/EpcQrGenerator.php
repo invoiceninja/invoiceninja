@@ -49,9 +49,9 @@ class EpcQrGenerator
         $this->validateFields();
 
         try {
-        $qr = $writer->writeString($this->encodeMessage());
+            $qr = $writer->writeString($this->encodeMessage());
         }
-        catch(\Exception $e){
+        catch(BaconQrCode\Exception\WriterException $e){
             return '';
         }
         return "<svg viewBox='0 0 200 200' width='200' height='200' x='0' y='0' xmlns='http://www.w3.org/2000/svg'>
