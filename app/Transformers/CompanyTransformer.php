@@ -43,6 +43,7 @@ use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
 use App\Transformers\BankIntegrationTransformer;
+use App\Transformers\BankTransactionRuleTransformer;
 use App\Transformers\BankTransactionTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\RecurringExpenseTransformer;
@@ -104,6 +105,7 @@ class CompanyTransformer extends EntityTransformer
         'purchase_orders',
         'bank_integrations',
         'bank_transactions',
+        'bank_transaction_rules',
     ];
 
     /**
@@ -229,6 +231,14 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new BankTransactionTransformer($this->serializer);
 
         return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
+    }
+
+
+    public function includeBankTransactionRules(Company $company)
+    {
+        $transformer = new BankTransactionRuleTransformer($this->serializer);
+
+        return $this->includeCollection($company->bank_transaction_rules, $transformer, BankTransactionRule::class);
     }
 
     public function includeBankIntegrations(Company $company)

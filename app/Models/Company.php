@@ -189,6 +189,11 @@ class Company extends BaseModel
         return $this->hasMany(BankTransaction::class);
     }
 
+    public function bank_transaction_rules()
+    {
+        return $this->hasMany(BankTransactionRule::class);
+    }
+
     public function getCompanyIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);
