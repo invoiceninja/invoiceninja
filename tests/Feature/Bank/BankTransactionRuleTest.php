@@ -39,6 +39,53 @@ class BankTransactionRuleTest extends TestCase
         );
     }
 
+    public function testUpdateValidationRules()
+    {
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'rules' => [
+                [
+                    'search_key' => 'amount',
+                    'operator' => '<=',
+                    'value' => 100,
+                ]
+            ]
+        ]);
+
+
+        $data = [
+            "applies_to" => "DEBIT", 
+            "archived_at" => 0, 
+            "auto_convert" => False, 
+            "category_id" => $this->expense_category, 
+            "is_deleted" => False, 
+            "isChanged" => True, 
+            "matches_on_all" => True, 
+            "name" => "TEST 22", 
+            "updated_at" => 1669060432, 
+            "vendor_id" => $this->vendor->hashed_id
+            ];
+
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id, $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);      
+
+    }
+
     public function testMatchingBankTransactionExpenseAmountLessThanEqualTo()
     {
 
