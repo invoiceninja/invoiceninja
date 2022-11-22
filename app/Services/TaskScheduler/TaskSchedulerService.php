@@ -40,12 +40,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerService
 {
-    public Scheduler $scheduler;
-
-    public function __construct(Scheduler $scheduler)
-    {
-        $this->scheduler = $scheduler;
-    }
+    
+    public function __construct(public Scheduler $scheduler) {}
 
     public function store(Scheduler $scheduler, CreateScheduledTaskRequest $request)
     {

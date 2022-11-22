@@ -24,6 +24,8 @@ use App\Mail\Import\CompanyImportFailure;
 use App\Mail\Import\ImportCompleted;
 use App\Models\Activity;
 use App\Models\Backup;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -142,15 +144,16 @@ class CompanyImport implements ShouldQueue
         'expenses',
         'tasks',
         'payments',
-        // 'activities',
-        // 'backups',
         'company_ledger',
         'designs',
         'documents',
         'webhooks',
         'system_logs',
         'purchase_orders',
-        'purchase_order_invitations'
+        'purchase_order_invitations',
+        'bank_integrations',
+        'bank_transactions',
+        'payments',
     ];
 
     private $company_properties = [
@@ -525,6 +528,37 @@ class CompanyImport implements ShouldQueue
 
         return $this;
 
+    }
+
+    private function import_bank_integrations()
+    {
+        $this->genericImport(BankIntegration::class, 
+            ['assigned_user_id','account_id', 'company_id', 'id', 'hashed_id'], 
+            [
+                ['users' => 'user_id'], 
+            ], 
+            'bank_integrations',
+            'description');
+
+        return $this;
+    }
+
+    private function import_bank_transactions()
+    {
+        $this->genericImport(BankTransaction::class, 
+            ['assigned_user_id','company_id', 'id', 'hashed_id', 'user_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['expenses' => 'expense_id'],
+                ['vendors' => 'vendor_id'],
+                ['expense_categories' => 'ninja_category_id'],
+                ['expense_categories' => 'category_id'],
+                ['bank_integrations' => 'bank_integration_id']
+            ], 
+            'bank_transactions',
+            null);
+
+        return $this;
     }
 
     private function import_recurring_expenses()
@@ -979,6 +1013,7 @@ class CompanyImport implements ShouldQueue
                 ['vendors' => 'vendor_id'],
                 ['invoice_invitations' => 'invitation_id'],
                 ['company_gateways' => 'company_gateway_id'],
+                ['bank_transactions' => 'transaction_id'],
             ], 
             'payments',
             'number');
@@ -1568,6 +1603,28 @@ class CompanyImport implements ShouldQueue
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );
+            }
+            elseif($class == 'App\Models\BankIntegration'){
+                $new_obj = new BankIntegration();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->account_id = $this->account->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+            }
+            elseif($class == 'App\Models\BankTransaction'){
+
+                $new_obj = new BankTransaction();
+                $new_obj->company_id = $this->company->id;
+
+                $obj_array['invoice_ids'] = collect(explode(",",$obj_array['invoice_ids']))->map(function ($id) {
+                    return $this->transformId('invoices', $id); 
+                })->map(function ($encodeable){
+                    return $this->encodePrimaryKey($encodeable);
+                })->implode(",");
+
+
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
             }
             else{
                 $new_obj = $class::withTrashed()->firstOrNew(

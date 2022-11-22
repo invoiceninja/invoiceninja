@@ -186,7 +186,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::put('expenses/{expense}/upload', [ExpenseController::class, 'upload']);
     Route::post('expenses/bulk', [ExpenseController::class, 'bulk'])->name('expenses.bulk');
 
-    Route::post('export', [ExportController::class, 'index'])->name('export.index');
+    Route::post('export', [ExportController::class, 'index'])->middleware('throttle:2,1')->name('export.index');
 
     Route::resource('expense_categories', ExpenseCategoryController::class); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', [ExpenseCategoryController::class, 'bulk'])->name('expense_categories.bulk');
@@ -196,7 +196,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::put('group_settings/{group_setting}/upload', [GroupSettingController::class, 'upload'])->name('group_settings.upload');
 
     Route::post('import', [ImportController::class, 'import'])->name('import.import');
-    Route::post('import_json', [ImportJsonController::class, 'import'])->name('import.import_json');
+    Route::post('import_json', [ImportJsonController::class, 'import'])->middleware('throttle:2,1')->name('import.import_json');
     Route::post('preimport', [ImportController::class, 'preimport'])->name('import.preimport');
 
     Route::resource('invoices', InvoiceController::class); // name = (invoices. index / create / show / update / destroy / edit

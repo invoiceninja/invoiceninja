@@ -104,7 +104,6 @@ class DeletePayment
 
                     $client = $this->payment
                                    ->client
-                                   ->fresh()
                                    ->service()
                                    ->updateBalance($net_deletable)
                                    ->save();
@@ -136,9 +135,8 @@ class DeletePayment
             });
         }
 
-        $client = $this->payment->client->fresh();
-
-        $client
+        $this->payment
+        ->client
         ->service()
         ->updatePaidToDate(($this->payment->amount - $this->payment->refunded) * -1)
         ->save();
@@ -146,7 +144,7 @@ class DeletePayment
         $transaction = [
             'invoice' => [],
             'payment' => [],
-            'client' => $client->transaction_event(),
+            'client' => $this->payment->client->transaction_event(),
             'credit' => [],
             'metadata' => [],
         ];
