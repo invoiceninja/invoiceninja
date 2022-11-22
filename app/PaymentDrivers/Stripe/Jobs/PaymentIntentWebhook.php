@@ -93,7 +93,7 @@ class PaymentIntentWebhook implements ShouldQueue
             return;
 
 
-        if(optional($this->stripe_request['object']['charges']['data'][0])['id']){
+        if(isset($this->stripe_request['object']['charges']) && optional($this->stripe_request['object']['charges']['data'][0])['id']){
 
             $company = Company::where('company_key', $this->company_key)->first();
 
