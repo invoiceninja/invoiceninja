@@ -4843,6 +4843,10 @@ $LANG = array(
     'refresh_accounts' => 'Refresh Accounts',
     'upgrade_to_connect_bank_account' => 'Upgrade to Enterprise to connect your bank account',
     'click_here_to_connect_bank_account' => 'Click here to connect your bank account',
+    'include_tax' => 'Include tax',
+    'is_expense_billed' => '/',
+    'is_expense_billed' => '/',
+    'email_template_change' => 'E-mail template body can be changed on',
 );
 
 return $LANG;
