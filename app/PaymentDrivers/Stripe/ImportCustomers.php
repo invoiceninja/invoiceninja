@@ -63,7 +63,11 @@ class ImportCustomers
                 $this->addCustomer($customer);
             }
 
-            $starting_after = end($customers->data)['id'];
+            //handle 
+            if(is_array($customers->data) && end($customers->data) && array_key_exists('id', end($customers->data)))
+                $starting_after = end($customers->data)['id'];
+            else
+                break;
 
         } while ($customers->has_more);
     }
