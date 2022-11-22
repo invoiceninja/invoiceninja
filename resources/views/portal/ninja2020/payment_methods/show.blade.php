@@ -31,7 +31,7 @@
                                 {{ ctrans('texts.type') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ $payment_method->meta?->brand }}
+                                {{ property_exists($payment_method->meta, 'brand') ? $payment_method->meta?->brand : ''}}
                                 {{ property_exists($payment_method->meta, 'scheme') ? $payment_method->meta?->scheme : '' }}
                             </dd>
                         </div>

@@ -87,10 +87,10 @@ class SwissQrGenerator
     $qrBill->setUltimateDebtor(
         QrBill\DataGroup\Element\StructuredAddress::createWithStreet(
             substr($this->client->present()->name(), 0 , 70),
-            $this->client->address1 ? substr($this->client->address1, 0 , 70) : '',
-            $this->client->address2 ? substr($this->client->address2, 0 , 16) : '',
-            $this->client->postal_code ? substr($this->client->postal_code, 0, 16) : '',
-            $this->client->city ? substr($this->client->city, 0, 35) : '',
+            $this->client->address1 ? substr($this->client->address1, 0 , 70) : '_',
+            $this->client->address2 ? substr($this->client->address2, 0 , 16) : '_',
+            $this->client->postal_code ? substr($this->client->postal_code, 0, 16) : '_',
+            $this->client->city ? substr($this->client->city, 0, 35) : '_',
             'CH'
         ));
 
