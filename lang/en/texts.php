@@ -4843,6 +4843,11 @@ $LANG = array(
     'refresh_accounts' => 'Refresh Accounts',
     'upgrade_to_connect_bank_account' => 'Upgrade to Enterprise to connect your bank account',
     'click_here_to_connect_bank_account' => 'Click here to connect your bank account',
+    'task_update_authorization_error' => 'Insufficient permissions, or task may be locked',
+    'cash_vs_accrual' => 'Accrual accounting',
+    'cash_vs_accrual_help' => 'Turn on for accrual reporting, turn off for cash basis reporting.',
+    'expense_paid_report' => 'Expensed reporting',
+    'expense_paid_report_help' => 'Turn on for reporting all expense, turn off for reporting only paid expenses',
 );
 
 return $LANG;

@@ -186,6 +186,7 @@ class CompanyTransformer extends EntityTransformer
             'enabled_expense_tax_rates' => (int) $company->enabled_expense_tax_rates,
             'invoice_task_project' => (bool) $company->invoice_task_project,
             'report_include_deleted' => (bool) $company->report_include_deleted,
+            'invoice_task_lock' => (bool) $company->invoice_task_lock,
         ];
     }
 
