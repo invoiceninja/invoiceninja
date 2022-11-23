@@ -27,6 +27,15 @@ return new class extends Migration
         {
             $table->bigInteger('bank_rule_id')->nullable();
         });
+
+        Schema::table('subscriptions', function (Blueprint $table)
+        {
+            $table->boolean('registration_required')->default(false);
+            $table->text('optional_product_ids')->nullable();
+            $table->text('optional_recurring_product_ids')->nullable();
+            
+        });
+
     }
 
     /**
