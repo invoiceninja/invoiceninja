@@ -41,6 +41,7 @@ class ContactKeyLogin
             $request->session()->invalidate();
         }
 
+        //magic links survive for 1 hour
         if ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
             $payload = Cache::get($request->segment(3));
 
@@ -66,7 +67,11 @@ class ContactKeyLogin
             }
         } elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
-                if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
+                if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
+
+                    if($client_contact->company->settings->enable_client_portal_password)
+                        return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+
                     if (empty($client_contact->email)) {
                         $client_contact->email = Str::random(6).'@example.com';
                     }
@@ -82,7 +87,11 @@ class ContactKeyLogin
                 }
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
-            if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
+            if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
+
+                if($client_contact->company->settings->enable_client_portal_password)
+                    return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+
                 if (empty($client_contact->email)) {
                     $client_contact->email = Str::random(6).'@example.com';
                     $client_contact->save();
@@ -125,7 +134,11 @@ class ContactKeyLogin
                 return redirect($this->setRedirectPath());
             }
         } elseif ($request->segment(3)) {
-            if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
+            if ($client_contact = ClientContact::with('company')->where('contact_key', $request->segment(3))->first()) {
+
+                if($client_contact->company->settings->enable_client_portal_password)
+                    return redirect()->route('client.login', ['company_key' => $client_contact->company->company_key]);
+
                 if (empty($client_contact->email)) {
                     $client_contact->email = Str::random(6).'@example.com';
                     $client_contact->save();

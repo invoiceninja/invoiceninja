@@ -40,6 +40,7 @@ class Task extends BaseModel
         'number',
         'is_date_based',
         'status_order',
+        'invoice_lock'
     ];
 
     protected $touches = [];

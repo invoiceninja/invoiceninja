@@ -72,7 +72,6 @@ class TaskTransformer extends EntityTransformer
             'user_id' => (string) $this->encodePrimaryKey($task->user_id),
             'assigned_user_id' => (string) $this->encodePrimaryKey($task->assigned_user_id),
             'number' => (string) $task->number ?: '',
-            // 'start_time' => (int) $task->start_time,
             'description' => (string) $task->description ?: '',
             'duration' => (int) $task->duration ?: 0,
             'rate' => (float) $task->rate ?: 0,
@@ -93,6 +92,7 @@ class TaskTransformer extends EntityTransformer
             'status_sort_order' => (int) $task->status_sort_order, //deprecated 5.0.34
             'is_date_based' => (bool) $task->is_date_based,
             'status_order' => is_null($task->status_order) ? null : (int) $task->status_order,
+            'invoice_lock' => (bool) $task->invoice_lock,
         ];
     }
 }
