@@ -74,9 +74,9 @@ class UpdateCompanyRequest extends Request
     
         $input = $this->all();
 
-        if (Ninja::isHosted() && array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
+        if (array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
             $input['portal_domain'] = $this->addScheme($input['portal_domain']);
-            $input['portal_domain'] = strtolower($input['portal_domain']);
+            $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
         if (array_key_exists('settings', $input)) {

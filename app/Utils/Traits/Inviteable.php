@@ -95,7 +95,7 @@ trait Inviteable
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
         } else {
-            $domain = config('ninja.app_url');
+            $domain = strlen($this->company->portal_domain) > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
         switch ($this->company->portal_mode) {
