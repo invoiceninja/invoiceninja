@@ -28,17 +28,11 @@ class BankTransactionRepository extends BaseRepository
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
 
         $bank_transaction->fill($data);
-
         $bank_transaction->save();
 
-        if($bank_transaction->base_type == 'CREDIT' && $invoice = $bank_transaction->service()->matchInvoiceNumber())
-        {
-             $bank_transaction->invoice_ids = $invoice->hashed_id;
-             $bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-             $bank_transaction->save();   
-        }
+        $bank_transaction->service()->processRules();
 
-        return $bank_transaction;
+        return $bank_transaction->fresh();
     }
 
 }
