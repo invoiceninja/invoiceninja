@@ -60,6 +60,49 @@ if(isset($this->vendor_id))
 if(isset($this->client_id))
     $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 */
+    public function testBankRuleCategoryIdValidation()
+    {
+        $data = [
+           'name' => 'The First Rule',
+           'rules' => [
+            [
+                "operator" => "contains", 
+                "search_key" => "description", 
+                "value" => "mobile"
+            ],
+           ],
+           'assigned_user_id' => null,
+           'auto_convert' => false,
+           'matches_on_all' => true,
+           'applies_to' => 'DEBIT',
+           'category_id' => $this->expense_category->hashed_id,
+           'vendor_id' => $this->vendor->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transaction_rules/', $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals('DEBIT', $arr['data']['applies_to']);
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/bank_transaction_rules/'. $arr['data']['id'], $data);
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals('DEBIT', $arr['data']['applies_to']);
+    }
+
     public function testBankRulePost()
     {
 
