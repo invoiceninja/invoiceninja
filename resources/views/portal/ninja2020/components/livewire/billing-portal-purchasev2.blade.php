@@ -3,7 +3,7 @@
 </style>
 
 <div class="grid grid-cols-12">
-    <div class="col-span-12 xl:col-span-8 bg-gray-50 flex flex-col max-h-100px items-center">
+    <div class="col-span-12 xl:col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
         <div class="w-full p-8 md:max-w-3xl">
             <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
 
