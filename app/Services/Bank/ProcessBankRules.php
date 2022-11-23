@@ -112,8 +112,8 @@ class ProcessBankRules extends AbstractService
                 {
 
                     // $this->bank_transaction->client_id = empty($rule['client_id']) ? null : $rule['client_id'];
-                    $this->bank_transaction->vendor_id = empty($rule['vendor_id']) ? null : $rule['vendor_id'];
-                    $this->bank_transaction->ninja_category_id = empty($rule['category_id']) ? null : $rule['category_id'];
+                    $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
+                    $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
                     $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
                     $this->bank_transaction->bank_rule_id = $bank_transaction_rule->id;
                     $this->bank_transaction->save();
@@ -122,7 +122,7 @@ class ProcessBankRules extends AbstractService
                     {
 
                         $expense = ExpenseFactory::create($this->bank_transaction->company_id, $this->bank_transaction->user_id);
-                        $expense->category_id = $this->bank_transaction->ninja_category_id ?: $this->resolveCategory();
+                        $expense->category_id = $bank_transaction_rule->category_id ?: $this->resolveCategory();
                         $expense->amount = $this->bank_transaction->amount;
                         $expense->number = $this->getNextExpenseNumber($expense);
                         $expense->currency_id = $this->bank_transaction->currency_id;
@@ -130,7 +130,7 @@ class ProcessBankRules extends AbstractService
                         $expense->payment_date = Carbon::parse($this->bank_transaction->date);
                         $expense->transaction_reference = $this->bank_transaction->description;
                         $expense->transaction_id = $this->bank_transaction->id;
-                        $expense->vendor_id = $this->bank_transaction->vendor_id;
+                        $expense->vendor_id = $bank_transaction_rule->vendor_id;
                         $expense->invoice_documents = $this->bank_transaction->company->invoice_expense_documents;
                         $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
                         $expense->save();

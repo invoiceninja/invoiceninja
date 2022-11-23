@@ -42,6 +42,57 @@ class BankTransactionRuleTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+    public function testValidationContainsRule()
+    {
+        //[{"search_key":"description","operator":"contains","value":"hello"}]
+
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => true,
+            'applies_to' => 'DEBIT',
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+            'category_id' =>$this->expense_category->id,
+            'rules' => [
+                [
+                    'search_key' => 'description',
+                    'operator' => 'contains',
+                    'value' => 'hello',
+                ]
+            ]
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => 'HellO ThErE CowBoY',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
+    
+
+        $bt->service()->processRules();
+
+        $bt = $bt->fresh();
+
+        $this->assertNotNull($bt->expense_id);
+        $this->assertNotNull($bt->expense->category_id);
+        $this->assertNotNull($bt->expense->vendor_id);
+        
+
+    }
+
+
     public function testUpdateValidationRules()
     {
 
