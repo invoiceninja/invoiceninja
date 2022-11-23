@@ -28,6 +28,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
+use App\Jobs\Cron\AutoBill;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\StoreInvoice;
@@ -696,11 +697,14 @@ class InvoiceController extends BaseController
     {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
+            case 'auto_bill':
+                $invoice = AutoBill::dispatch($invoice->id, $invoice->company->db);
+                return $this->itemResponse($invoice);
+
             case 'clone_to_invoice':
                 $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
-
                 return $this->itemResponse($invoice);
-                break;
+                
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
 
