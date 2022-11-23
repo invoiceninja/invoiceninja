@@ -4847,7 +4847,7 @@ $LANG = array(
     'cash_vs_accrual' => 'Accrual accounting',
     'cash_vs_accrual_help' => 'Turn on for accrual reporting, turn off for cash basis reporting.',
     'expense_paid_report' => 'Expensed reporting',
-    'expense_paid_report_help' => 'Turn on for reporting all expense, turn off for reporting only paid expenses',
+    'expense_paid_report_help' => 'Turn on for reporting all expenses, turn off for reporting only paid expenses',
 );
 
 return $LANG;
