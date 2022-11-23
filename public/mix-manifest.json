@@ -1,5 +1,5 @@
 {
-    "/js/app.js": "/js/app.js?id=384185bf9d293949134d09b890c81369",
+    "/js/app.js": "/js/app.js?id=19300612c6880925e8043b61e8d49632",
     "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=9fb77e87fe0f85a367050e08f79ec9df",
     "/js/clients/payments/authorize-credit-card-payment.js": "/js/clients/payments/authorize-credit-card-payment.js?id=803182f668c39d631ca5c55437876da4",
     "/js/clients/payments/forte-credit-card-payment.js": "/js/clients/payments/forte-credit-card-payment.js?id=6e9f466c5504d3753f9b4ffc6f947095",
@@ -15,7 +15,7 @@
     "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=6fb63bae43d077b5061f4dadfe8dffc8",
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=cdc76607aaf0b47a5a4e554e4177713d",
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=809de47258a681f0ffebe787dd6a9a93",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=87367cce4927b42a92defdbae7a64711",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=27560b012f166f8b9417ced2188aab70",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=8ce33c3deae058ad314fb8357e5be63b",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=be5307abc990bb44f2f92628103b1d98",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=c2caa29f753ad1f3a12ca45acddacd72",
@@ -42,7 +42,7 @@
     "/js/clients/payments/stripe-przelewy24.js": "/js/clients/payments/stripe-przelewy24.js?id=3d53d2f7d0291d9f92cf7414dd2d351c",
     "/js/clients/payments/stripe-browserpay.js": "/js/clients/payments/stripe-browserpay.js?id=db71055862995fd6ae21becfc587a3de",
     "/js/clients/payments/stripe-fpx.js": "/js/clients/payments/stripe-fpx.js?id=914a6846ad1e5584635e7430fef76875",
-    "/css/app.css": "/css/app.css?id=6bafb560444b3b12f8d1ce59bd7fd703",
+    "/css/app.css": "/css/app.css?id=134313385d8e842c1589a0c057b0a112",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ada60afcedcb7c",
     "/vendor/clipboard.min.js": "/vendor/clipboard.min.js?id=15f52a1ee547f2bdd46e56747332ca2d"
 }
