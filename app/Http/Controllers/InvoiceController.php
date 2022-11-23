@@ -698,7 +698,7 @@ class InvoiceController extends BaseController
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'auto_bill':
-                $invoice = AutoBill::dispatch($invoice->id, $invoice->company->db);
+                AutoBill::dispatch($invoice->id, $invoice->company->db);
                 return $this->itemResponse($invoice);
 
             case 'clone_to_invoice':
