@@ -71,6 +71,8 @@ class ReminderJob implements ShouldQueue
     {
         nlog('Sending invoice reminders '.now()->format('Y-m-d h:i:s'));
 
+        set_time_limit(0);
+
         Invoice::query()
                  ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
@@ -90,7 +92,7 @@ class ReminderJob implements ShouldQueue
                          nlog("reminder template = {$reminder_template}");
                          $invoice = $this->calcLateFee($invoice, $reminder_template);
                          $invoice->service()->touchReminder($reminder_template)->save();
-                         $invoice->service()->touchPdf();
+                         $invoice->service()->touchPdf(true);
 
                          //20-04-2022 fixes for endless reminders - generic template naming was wrong
                          $enabled_reminder = 'enable_'.$reminder_template;
@@ -107,7 +109,7 @@ class ReminderJob implements ShouldQueue
                     (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
                             
                              $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                                 EmailEntity::dispatchSync($invitation, $invitation->company, $reminder_template);
+                                 EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                                  nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                              });
 
@@ -206,7 +208,7 @@ class ReminderJob implements ShouldQueue
         /**Refresh Invoice values*/
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
-        $invoice->service()->deletePdf();
+        // $invoice->service()->deletePdf(); 24-11-2022 no need to delete here because we regenerate later anyway
 
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;

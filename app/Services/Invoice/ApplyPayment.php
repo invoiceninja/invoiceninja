@@ -103,7 +103,7 @@ class ApplyPayment extends AbstractService
             }
         });
 
-        $this->invoice->service()->applyNumber()->workFlow()->save();
+        $this->invoice->service()->applyNumber()->workFlow()->touchPdf()->save();
 
         $transaction = [
             'invoice' => $this->invoice->transaction_event(),
