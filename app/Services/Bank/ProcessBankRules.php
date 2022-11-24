@@ -68,7 +68,7 @@ class ProcessBankRules extends AbstractService
         //stub for credit rules
         foreach($this->credit_rules as $rule)
         {
-            //   $this->bank_transaction->bank_rule_id = $bank_transaction_rule->id;
+            //   $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
 
         }
                        
@@ -115,7 +115,7 @@ class ProcessBankRules extends AbstractService
                     $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
                     $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
                     $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-                    $this->bank_transaction->bank_rule_id = $bank_transaction_rule->id;
+                    $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
                     $this->bank_transaction->save();
 
                     if($bank_transaction_rule['auto_convert'])

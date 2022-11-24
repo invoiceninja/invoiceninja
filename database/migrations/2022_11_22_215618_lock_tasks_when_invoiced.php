@@ -32,7 +32,7 @@ return new class extends Migration
 
         Schema::table('bank_transactions', function (Blueprint $table)
         {
-            $table->bigInteger('bank_rule_id')->nullable();
+            $table->bigInteger('bank_transaction_rule_id')->nullable();
         });
 
         Schema::table('subscriptions', function (Blueprint $table)
