@@ -179,7 +179,7 @@ class MatchBankTransactions implements ShouldQueue
     }
 
     private function matchExpense($input) :self
-    { nlog($input);
+    { 
         //if there is a category id, pull it from Yodlee and insert - or just reuse!!
         $this->bt = BankTransaction::find($input['id']);
 
