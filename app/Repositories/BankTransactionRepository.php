@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -35,4 +36,18 @@ class BankTransactionRepository extends BaseRepository
         return $bank_transaction->fresh();
     }
 
+    public function convert_matched($bank_transactions)
+    {
+
+        $data['transactions'] = $bank_transactions->map(function ($bt){
+            return ['id' => $bt->id, 'invoice_ids' => $bt->invoice_ids];
+
+        })->toArray();
+
+        $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $data))->handle();
+
+
+    }
+
+    
 }
