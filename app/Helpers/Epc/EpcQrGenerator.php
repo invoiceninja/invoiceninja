@@ -32,7 +32,8 @@ class EpcQrGenerator
         'identification' => 'SCT',
         'bic' => '',
         'purpose' => '',
-
+        'reference' => '',
+        'additionalInformation' => ''
     ];
 
     public function __construct(protected Company $company, protected Invoice $invoice, protected float $amount){}
@@ -70,14 +71,14 @@ class EpcQrGenerator
             sprintf('%03d', $this->sepa['version']),
             $this->sepa['characterSet'],
             $this->sepa['identification'],
-            isset($this->company?->custom_fields?->company2) ? $this->company->settings->custom_value2 : '',
+            isset($this->company?->custom_fields?->company2) ? $this->company->settings->custom_value2 : $this->sepa['bic'],
             $this->company->present()->name(),
             isset($this->company?->custom_fields?->company1) ? $this->company->settings->custom_value1 : '',
             $this->formatMoney($this->amount),
             $this->sepa['purpose'],
-            '',
+            $this->sepa['reference'],
             substr($this->invoice->number,0,139),
-            substr($this->invoice->public_notes,0,69)
+            $this->sepa['additionalInformation']
         )), "\n");
 
     }
