@@ -50,11 +50,20 @@ class ReminderJob implements ShouldQueue
             $this->processReminders();
         } else {
             //multiDB environment, need to
+            /*
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
                 nlog("set db {$db}");
                 $this->processReminders();
             }
+            */
+            //24-11-2022 fix for potential memory leak during a long running process, the second reminder may run twice
+            foreach (config('ninja.dbs') as $db) {
+                MultiDB::setDB($db);
+                nlog("set db {$db}");
+                $this->processReminders();
+            }
+
         }
     }
 
@@ -79,9 +88,8 @@ class ReminderJob implements ShouldQueue
                      if ($invoice->isPayable()) {
                          $reminder_template = $invoice->calculateTemplate('invoice');
                          nlog("reminder template = {$reminder_template}");
-                         $invoice->service()->touchReminder($reminder_template)->save();
                          $invoice = $this->calcLateFee($invoice, $reminder_template);
-
+                         $invoice->service()->touchReminder($reminder_template)->save();
                          $invoice->service()->touchPdf();
 
                          //20-04-2022 fixes for endless reminders - generic template naming was wrong
