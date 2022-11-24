@@ -260,6 +260,9 @@ class MatchBankTransactions implements ShouldQueue
 
         }, 1);
 
+        if(!$this->invoice)
+            return;
+        
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
