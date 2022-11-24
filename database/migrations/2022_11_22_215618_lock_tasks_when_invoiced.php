@@ -67,6 +67,8 @@ return new class extends Migration
             }
         }
 
+        \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
+
     }
 
     /**

@@ -61,6 +61,9 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
+        if(!isset($input['name']))
+            $input['name'] = 'Untitled Company';
+
         if (array_key_exists('google_analytics_url', $input)) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }

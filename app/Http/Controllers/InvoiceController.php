@@ -771,7 +771,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->deletePdf()->touchPdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);

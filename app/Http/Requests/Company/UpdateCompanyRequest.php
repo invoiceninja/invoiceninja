@@ -108,7 +108,7 @@ class UpdateCompanyRequest extends Request
             }
         }
 
-            $settings['email_style_custom'] = str_replace("{{", "", $settings['email_style_custom']);
+        $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
 
         if (! $account->isFreeHostedClient()) {
             return $settings;
@@ -127,9 +127,11 @@ class UpdateCompanyRequest extends Request
 
     private function addScheme($url, $scheme = 'https://')
     {
-        $url = str_replace('http://', '', $url);
-
-        $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+        if(Ninja::isHosted())
+        {
+            $url = str_replace('http://', '', $url);
+            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+        }
 
         return rtrim($url, '/');
     }

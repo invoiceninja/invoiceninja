@@ -74,55 +74,55 @@ class ReminderJob implements ShouldQueue
         set_time_limit(0);
 
         Invoice::query()
-                 ->where('is_deleted', 0)
-                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                 ->whereNull('deleted_at')
-                 ->where('balance', '>', 0)
-                 ->where('next_send_date', '<=', now()->toDateTimeString())
-                 ->whereHas('client', function ($query) {
-                     $query->where('is_deleted', 0)
-                           ->where('deleted_at', null);
-                 })
-                 ->whereHas('company', function ($query) {
-                     $query->where('is_disabled', 0);
-                 })
-                 ->with('invitations')->cursor()->each(function ($invoice) {
-                     if ($invoice->isPayable()) {
-                         $reminder_template = $invoice->calculateTemplate('invoice');
-                         nlog("reminder template = {$reminder_template}");
-                         $invoice = $this->calcLateFee($invoice, $reminder_template);
-                         $invoice->service()->touchReminder($reminder_template)->save();
-                         $invoice->service()->touchPdf(true);
+             ->where('is_deleted', 0)
+             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+             ->whereNull('deleted_at')
+             ->where('balance', '>', 0)
+             ->where('next_send_date', '<=', now()->toDateTimeString())
+             ->whereHas('client', function ($query) {
+                 $query->where('is_deleted', 0)
+                       ->where('deleted_at', null);
+             })
+             ->whereHas('company', function ($query) {
+                 $query->where('is_disabled', 0);
+             })
+             ->with('invitations')->cursor()->each(function ($invoice) {
+                 if ($invoice->isPayable()) {
+                     $reminder_template = $invoice->calculateTemplate('invoice');
+                     nlog("reminder template = {$reminder_template}");
+                     $invoice = $this->calcLateFee($invoice, $reminder_template);
+                     $invoice->service()->touchReminder($reminder_template)->save();
+                     $invoice->service()->touchPdf(true);
 
-                         //20-04-2022 fixes for endless reminders - generic template naming was wrong
-                         $enabled_reminder = 'enable_'.$reminder_template;
-
-                         if ($reminder_template == 'endless_reminder') {
-                             $enabled_reminder = 'enable_reminder_endless';
-                         }
-
-                         //check if this reminder needs to be emailed
-                         //15-01-2022 - insert addition if block if send_reminders is definitely set
-                         if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
-                    $invoice->client->getSetting($enabled_reminder) &&
-                    $invoice->client->getSetting('send_reminders') &&
-                    (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
-                            
-                             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                                 EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                                 nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
-                             });
-
-                             if ($invoice->invitations->count() > 0) {
-                                 event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
-                             }
-                         }
-                         $invoice->service()->setReminder()->save();
-                     } else {
-                         $invoice->next_send_date = null;
-                         $invoice->save();
+                     //20-04-2022 fixes for endless reminders - generic template naming was wrong
+                     $enabled_reminder = 'enable_'.$reminder_template;
+                     if ($reminder_template == 'endless_reminder') {
+                         $enabled_reminder = 'enable_reminder_endless';
                      }
-                 });
+
+                     //check if this reminder needs to be emailed
+                     //15-01-2022 - insert addition if block if send_reminders is definitely set
+                     if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
+                $invoice->client->getSetting($enabled_reminder) &&
+                $invoice->client->getSetting('send_reminders') &&
+                (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+
+                         $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
+                             EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
+                             nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
+                         });
+
+                         if ($invoice->invitations->count() > 0) {
+                             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
+                         }
+                     }
+                     $invoice->service()->setReminder()->save();
+                 } else {
+                     $invoice->next_send_date = null;
+                     $invoice->save();
+                 }
+
+             });
     }
 
     /**
@@ -206,22 +206,17 @@ class ReminderJob implements ShouldQueue
         $invoice->line_items = $invoice_items;
 
         /**Refresh Invoice values*/
-        $invoice->calc()->getInvoice()->save();
-        $invoice->fresh();
+        $invoice = $invoice->calc()->getInvoice();
         // $invoice->service()->deletePdf(); 24-11-2022 no need to delete here because we regenerate later anyway
 
-        /* Refresh the client here to ensure the balance is fresh */
-        $client = $invoice->client;
-        $client = $client->fresh();
-
         nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
-        $client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
+        $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         $transaction = [
             'invoice' => $invoice->transaction_event(),
             'payment' => [],
-            'client' => $client->transaction_event(),
+            'client' => $invoice->client->transaction_event(),
             'credit' => [],
             'metadata' => ['setLateFee'],
         ];

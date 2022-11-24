@@ -220,7 +220,6 @@ class InvoiceService
     public function markDeleted()
     {
         $this->removeUnpaidGatewayFees();
-        // $this->deletePdf();
 
         $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
@@ -380,6 +379,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+        $this->invoice->service()->touchPdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
