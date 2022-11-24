@@ -75,9 +75,9 @@ class EpcQrGenerator
             isset($this->company?->custom_fields?->company1) ? $this->company->settings->custom_value1 : '',
             $this->formatMoney($this->amount),
             $this->sepa['purpose'],
-            substr($this->invoice->number,0,34),
-            substr($this->invoice->public_notes,0,139),
-            ''
+            '',
+            substr($this->invoice->number,0,139),
+            substr($this->invoice->public_notes,0,69)
         )), "\n");
 
     }
