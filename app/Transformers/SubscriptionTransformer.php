@@ -68,6 +68,10 @@ class SubscriptionTransformer extends EntityTransformer
             'updated_at' => (int) $subscription->updated_at,
             'archived_at' => (int) $subscription->deleted_at,
             'plan_map' => '', //@deprecated 03/04/2021
+            'use_inventory_management' => (bool) $subscription->use_inventory_management,
+            'optional_recurring_product_ids' =>(string)$subscription->optional_recurring_product_ids,
+            'optional_product_ids' => (string) $subscription->optional_product_ids,
+            'registration_required' => (bool) $subscription->registration_required,
         ];
     }
 }

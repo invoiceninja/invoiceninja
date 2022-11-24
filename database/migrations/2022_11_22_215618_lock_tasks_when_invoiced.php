@@ -32,6 +32,7 @@ return new class extends Migration
         Schema::table('subscriptions', function (Blueprint $table)
         {
             $table->boolean('registration_required')->default(false);
+            $table->boolean('use_inventory_management')->default(false);
             $table->text('optional_product_ids')->nullable();
             $table->text('optional_recurring_product_ids')->nullable();
             

@@ -57,6 +57,7 @@ class Subscription extends BaseModel
         'registration_required',
         'optional_product_ids',
         'optional_recurring_product_ids',
+        'use_inventory_management',
     ];
 
     protected $casts = [

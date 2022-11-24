@@ -181,7 +181,7 @@ class MigrationController extends BaseController
         $company->tasks()->forceDelete();
         $company->vendors()->forceDelete();
         $company->expenses()->forceDelete();
-//        $company->bank_transaction_rules()->forceDelete();
+        $company->bank_transaction_rules()->forceDelete();
         $company->bank_transactions()->forceDelete();
         $company->bank_integrations()->forceDelete();
 
