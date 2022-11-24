@@ -64,6 +64,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
         'email',
         'is_primary',
         'vendor_id',
+        'send_email',
     ];
 
     public function avatar()
