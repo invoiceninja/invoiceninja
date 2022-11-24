@@ -215,7 +215,7 @@ class ReminderJob implements ShouldQueue
         $client = $client->fresh();
 
         nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.($invoice->balance - $temp_invoice_balance));
-        $client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
+        $client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         $transaction = [

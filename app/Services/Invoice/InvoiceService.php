@@ -117,7 +117,7 @@ class InvoiceService
     public function applyPayment(Payment $payment, float $payment_amount)
     {
         // $this->deletePdf();
-        $this->invoice = $this->markSent();
+        $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
 

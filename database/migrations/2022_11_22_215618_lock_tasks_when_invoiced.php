@@ -22,6 +22,12 @@ return new class extends Migration
         Schema::table('companies', function (Blueprint $table)
         {
             $table->boolean('invoice_task_lock')->default(false);
+            $table->boolean('use_vendor_currency')->default(false);
+        });
+
+        Schema::table('purchase_orders', function (Blueprint $table)
+        {
+            $table->unsignedInteger('currency_id')->nullable();
         });
 
         Schema::table('bank_transactions', function (Blueprint $table)

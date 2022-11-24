@@ -29,7 +29,6 @@ class ClientService
 
     public function updateBalance(float $amount)
     {
-        // $this->client->balance += $amount;
 
         \DB::connection(config('database.default'))->transaction(function () use($amount) {
 
@@ -44,8 +43,6 @@ class ClientService
 
     public function updateBalanceAndPaidToDate(float $balance, float $paid_to_date)
     {
-        // $this->client->balance += $amount;
-        // $this->client->paid_to_date += $amount;
 
         \DB::connection(config('database.default'))->transaction(function () use($balance, $paid_to_date) {
 

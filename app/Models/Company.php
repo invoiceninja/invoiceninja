@@ -125,6 +125,7 @@ class Company extends BaseModel
         'invoice_task_project',
         'report_include_deleted',
         'invoice_task_lock',
+        'use_vendor_currency',
     ];
 
     protected $hidden = [

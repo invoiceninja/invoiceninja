@@ -189,6 +189,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_project' => (bool) $company->invoice_task_project,
             'report_include_deleted' => (bool) $company->report_include_deleted,
             'invoice_task_lock' => (bool) $company->invoice_task_lock,
+            'use_vendor_currency' => (bool) $company->use_vendor_currency,
         ];
     }
 
