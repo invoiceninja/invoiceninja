@@ -88,6 +88,13 @@ class ReminderJob implements ShouldQueue
              })
              ->with('invitations')->cursor()->each(function ($invoice) {
                  if ($invoice->isPayable()) {
+
+                    //Attempts to prevent duplicates from sending
+                    if($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())){
+                        nlog("caught a duplicate reminder for invoice {$invoice->number}");
+                        return;
+                    }
+
                      $reminder_template = $invoice->calculateTemplate('invoice');
                      nlog("reminder template = {$reminder_template}");
                      $invoice = $this->calcLateFee($invoice, $reminder_template);
