@@ -48,7 +48,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new VersionCheck)->daily();
 
         /* Checks and cleans redundant files */
-        $schedule->job(new DiskCleanup)->daily()->withoutOverlapping();
+        $schedule->job(new DiskCleanup)->dailyAt('02:10')->withoutOverlapping();
 
         /* Send reminders */
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
@@ -63,7 +63,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping();
 
         /* Runs cleanup code for subscriptions */
-        $schedule->job(new SubscriptionCron)->daily()->withoutOverlapping();
+        $schedule->job(new SubscriptionCron)->dailyAt('00:01')->withoutOverlapping();
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
@@ -72,22 +72,22 @@ class Kernel extends ConsoleKernel
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping();
 
         /* Fires notifications for expired Quotes */
-        $schedule->job(new QuoteCheckExpired)->dailyAt('05:00')->withoutOverlapping();
+        $schedule->job(new QuoteCheckExpired)->dailyAt('05:10')->withoutOverlapping();
 
         /* Performs auto billing */
-        $schedule->job(new AutoBillCron)->dailyAt('06:00')->withoutOverlapping();
+        $schedule->job(new AutoBillCron)->dailyAt('06:20')->withoutOverlapping();
 
         /* Checks the status of the scheduler */
-        $schedule->job(new SchedulerCheck)->daily()->withoutOverlapping();
+        $schedule->job(new SchedulerCheck)->dailyAt('01:10')->withoutOverlapping();
 
         /* Checks for scheduled tasks */
-        $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
+        $schedule->job(new TaskScheduler())->dailyAt('06:50')->withoutOverlapping();
 
         /* Performs system maintenance such as pruning the backup table */
         $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
 
         /* Pulls in bank transactions from third party services */
-        $schedule->job(new BankTransactionSync)->dailyAt('04:00')->withoutOverlapping();
+        $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping();
 
         if (Ninja::isSelfHost()) {
 
