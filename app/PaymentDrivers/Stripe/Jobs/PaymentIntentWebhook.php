@@ -159,17 +159,101 @@ class PaymentIntentWebhook implements ShouldQueue
 
                 $this->updateAchPayment($payment_hash, $client);
             }
+
+            SystemLogger::dispatch(
+                ['response' => $this->stripe_request, 'data' => []],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_STRIPE,
+                null,
+                $company,
+            );
+
+            return;
+
         }
 
+        if(isset($this->stripe_request['object']['latest_charge']))
+        {
+            $pi = \Stripe\PaymentIntent::retrieve($this->stripe_request['object']['id'], $this->stripe_driver->stripe_connect_auth);
 
-        SystemLogger::dispatch(
-            ['response' => $this->stripe_request, 'data' => []],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_STRIPE,
-            null,
-            $company,
-        );
+            $charge = reset($pi->charges->data);
+
+            $company = Company::where('company_key', $this->company_key)->first();
+
+            $payment = Payment::query()
+                             ->where('company_id', $company->id)
+                             ->where('transaction_reference', $charge['id'])
+                             ->first();
+
+             //return early
+            if($payment && $payment->status_id == Payment::STATUS_COMPLETED){
+                nlog(" payment found and status correct - returning "); 
+                return;
+            }
+            elseif($payment){
+                $payment->status_id = Payment::STATUS_COMPLETED;
+                $payment->save();
+            }
+
+            $hash = optional($charge['metadata']['payment_hash']);
+
+            $payment_hash = PaymentHash::where('hash', $hash)->first();
+
+            if(!$payment_hash)
+                return;
+
+            if(isset($pi['allowed_source_types']) && in_array('card', $pi['allowed_source_types']))
+            {
+                nlog("hash found");
+
+                $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
+
+                $payment_hash = PaymentHash::where('hash', $hash)->first();
+                $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+                $client = $invoice->client;
+
+                $this->updateCreditCardPayment($payment_hash, $client);
+            }
+            elseif(isset($pi['payment_method_types']) && in_array('card', $pi['payment_method_types']))
+            {
+                nlog("hash found");
+
+                $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
+
+                $payment_hash = PaymentHash::where('hash', $hash)->first();
+                $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+                $client = $invoice->client;
+
+                $this->updateCreditCardPayment($payment_hash, $client);
+            }
+            elseif(isset($pi['payment_method_types']) && in_array('us_bank_account', $pi['payment_method_types']))
+            {
+                nlog("hash found");
+
+                $hash = $this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash'];
+
+                $payment_hash = PaymentHash::where('hash', $hash)->first();
+                $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+                $client = $invoice->client;
+
+                $this->updateAchPayment($payment_hash, $client);
+            }
+
+            SystemLogger::dispatch(
+                ['response' => $this->stripe_request, 'data' => []],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_STRIPE,
+                null,
+                $company,
+            );
+
+
+
+
+        }
+
 
 
     }

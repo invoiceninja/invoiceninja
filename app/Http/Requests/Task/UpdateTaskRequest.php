@@ -31,7 +31,7 @@ class UpdateTaskRequest extends Request
     public function authorize() : bool
     {
         //prevent locked tasks from updating
-        if($this->task->invoice_lock && $this->task->invoice_id)
+        if($this->task->invoice_id && $this->task->company->invoice_task_lock)
             return false;
 
         return auth()->user()->can('edit', $this->task);

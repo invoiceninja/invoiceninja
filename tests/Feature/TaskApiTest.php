@@ -81,9 +81,9 @@ class TaskApiTest extends TestCase
         $response->assertStatus(200);
 
         $task = Task::find($this->decodePrimaryKey($arr['data']['id']));
-        $task->invoice_lock =true;
+        $task->company->invoice_task_lock = true;
         $task->invoice_id = $this->invoice->id;
-        $task->save();
+        $task->push();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -97,32 +97,31 @@ class TaskApiTest extends TestCase
     }
 
 
-    public function testTaskLocking()
-    {
-        $data = [
-            'timelog' => [[1,2],[3,4]],
-            'invoice_lock' => true
-        ];
+    // public function testTaskLocking()
+    // {
+    //     $data = [
+    //         'timelog' => [[1,2],[3,4]],
+    //     ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/tasks', $data);
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->post('/api/v1/tasks', $data);
 
-        $arr = $response->json();
-        $response->assertStatus(200);
+    //     $arr = $response->json();
+    //     $response->assertStatus(200);
         
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/tasks/' . $arr['data']['id'], $data);
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->putJson('/api/v1/tasks/' . $arr['data']['id'], $data);
 
-        $arr = $response->json();
+    //     $arr = $response->json();
 
-        $response->assertStatus(200);
+    //     $response->assertStatus(200);
 
-    }
+    // }
 
 
 
