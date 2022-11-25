@@ -79,7 +79,8 @@ class PurchaseOrder extends BaseModel
         'partial',
         'paid_to_date',
         'vendor_id',
-        'last_viewed'
+        'last_viewed',
+        'currency_id',
     ];
 
     protected $casts = [

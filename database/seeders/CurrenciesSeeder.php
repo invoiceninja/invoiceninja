@@ -127,6 +127,15 @@ class CurrenciesSeeder extends Seeder
             ['id' => 102, 'name' => 'Moldovan Leu', 'code' => 'MDL', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 103, 'name' => 'Kazakhstani Tenge', 'code' => 'KZT', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 104, 'name' => 'Ethiopian Birr', 'code' => 'ETB', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 105, 'name' => 'Gambia Dalasi', 'code' => 'GMD', 'symbol' => 'D', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 106, 'name' => 'Paraguayan Guarani', 'code' => 'PYG', 'symbol' => '₲', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 107, 'name' => 'Malawi Kwacha', 'code' => 'MWK', 'symbol' => 'MK', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 108, 'name' => 'Zimbabwean Dollar', 'code' => 'ZWL', 'symbol' => 'Z$', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 109, 'name' => 'Cambodian Riel', 'code' => 'KHR', 'symbol' => '៛', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 110, 'name' => 'Vanuatu Vatu', 'code' => 'VUV', 'symbol' => 'VT', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 111, 'name' => 'Cuban Peso', 'code' => 'CUP', 'symbol' => '₱', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 112, 'name' => 'Cayman Island Dollar', 'code' => 'KYD', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 113, 'name' => 'Swazi lilangeni', 'code' => 'SZL', 'symbol' => 'E', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

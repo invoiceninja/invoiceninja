@@ -42,7 +42,7 @@ class S3Cleanup extends Command
      */
     public function handle()
     {
-        if (! Ninja::isHosted()) {
+        if (!Ninja::isHosted()) {
             return;
         }
 

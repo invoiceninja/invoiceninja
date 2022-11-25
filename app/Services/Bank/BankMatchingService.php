@@ -11,35 +11,35 @@
 
 namespace App\Services\Bank;
 
+use App\Factory\ExpenseCategoryFactory;
+use App\Factory\ExpenseFactory;
 use App\Libraries\MultiDB;
 use App\Models\BankTransaction;
 use App\Models\Company;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Services\Bank\BankService;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class BankMatchingService implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    private $company_id;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter;
 
     private Company $company;
-
-    private $db;
 
     private $invoices;
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct($company_id, $db)
-    {
-        $this->company_id = $company_id;
-        $this->db = $db;
-    }
+    public function __construct(private int $company_id, private string $db){}
 
     public function handle()
     {
@@ -48,37 +48,27 @@ class BankMatchingService implements ShouldQueue
 
         $this->company = Company::find($this->company_id);
 
-        $this->invoices = Invoice::where('company_id', $this->company->id)
-                                ->whereIn('status_id', [1,2,3])
-                                ->where('is_deleted', 0)
-                                ->get();
+        $this->matchTransactions();
+    
 
-        $this->match();
     }
 
-    private function match()
+    private function matchTransactions()
     {
-
+        
         BankTransaction::where('company_id', $this->company->id)
-                       ->where('status_id', BankTransaction::STATUS_UNMATCHED)
-                       ->cursor()
-                       ->each(function ($bt){
-                        
-                            $invoice = $this->invoices->first(function ($value, $key) use ($bt){
+           ->where('status_id', BankTransaction::STATUS_UNMATCHED)
+           ->cursor()
+           ->each(function ($bt){
+            
+               (new BankService($bt))->processRules();
 
-                                    return str_contains($bt->description, $value->number);
-                                    
-                                });
+           });
 
-                            if($invoice)
-                            {
-                                $bt->invoice_ids = $invoice->hashed_id;
-                                $bt->status_id = BankTransaction::STATUS_MATCHED;
-                                $bt->save();   
-                            }
-
-                       });
     }
 
-
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->company_id)];
+    }
 }
