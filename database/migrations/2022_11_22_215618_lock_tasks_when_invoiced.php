@@ -14,10 +14,6 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('tasks', function (Blueprint $table)
-        {
-            $table->boolean('invoice_lock')->default(false);
-        });
 
         Schema::table('companies', function (Blueprint $table)
         {
