@@ -112,10 +112,12 @@ class InvoiceService
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
      * @return InvoiceService          Parent class object
+     * @deprecated 24-11-2022 - cannot find any references to this method anywhere
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
-        $this->deletePdf();
+        // $this->deletePdf();
+        $this->invoice = $this->markSent()->save();
 
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
 
@@ -218,7 +220,6 @@ class InvoiceService
     public function markDeleted()
     {
         $this->removeUnpaidGatewayFees();
-        $this->deletePdf();
 
         $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
@@ -378,6 +379,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+        $this->invoice->service()->touchPdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;

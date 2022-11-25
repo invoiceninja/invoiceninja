@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\BankTransactionRule;
 use App\Models\Filterable;
 use App\Models\Invoice;
 use App\Services\Bank\BankService;

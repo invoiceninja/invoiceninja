@@ -481,19 +481,32 @@ class BankTransactionController extends BaseController
     {
         $action = request()->input('action');
 
-        if(!in_array($action, ['archive', 'restore', 'delete']))
+        if(!in_array($action, ['archive', 'restore', 'delete', 'convert_matched']))
             return response()->json(['message' => 'Unsupported action.'], 400);
 
         $ids = request()->input('ids');
             
         $bank_transactions = BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
-            if (auth()->user()->can('edit', $bank_transaction)) {
-                $this->bank_transaction_repo->{$action}($bank_transaction);
+        if($action == 'convert_matched') //catch this action
+        {
+            if(auth()->user()->isAdmin())
+            {
+                $this->bank_transaction_repo->convert_matched($bank_transactions);
             }
-        });
+            else 
+                return;
+        }
+        else {
 
+            $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
+                if (auth()->user()->can('edit', $bank_transaction)) {
+                    $this->bank_transaction_repo->{$action}($bank_transaction);
+                }
+            });
+
+        }
+        
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
         return $this->listResponse(BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());

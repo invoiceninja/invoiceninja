@@ -116,11 +116,14 @@ class StripePaymentDriver extends BaseDriver
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
+            
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+            // Stripe::setApiVersion('2022-11-15');
+
         }
 
         return $this;

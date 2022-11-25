@@ -61,22 +61,15 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
+        if(!isset($input['name']))
+            $input['name'] = 'Untitled Company';
+
         if (array_key_exists('google_analytics_url', $input)) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }
 
-        // $company_settings = CompanySettings::defaults();
-
-        //@todo this code doesn't make sense as we never return $company_settings anywhere
-        //@deprecated???
-        // if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
-        //     foreach ($input['settings'] as $key => $value) {
-        //         $company_settings->{$key} = $value;
-        //     }
-        // }
-
         if (array_key_exists('portal_domain', $input)) {
-            $input['portal_domain'] = strtolower($input['portal_domain']);
+            $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
         $this->replace($input);

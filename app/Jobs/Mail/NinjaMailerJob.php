@@ -129,11 +129,8 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
 
-            // nlog('Using ' . ((int) (memory_get_usage(true) / (1024 * 1024))) . 'MB ');
-
             $this->nmo = null;
             $this->company = null;
-            app('queue.worker')->shouldQuit  = 1;
     
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             

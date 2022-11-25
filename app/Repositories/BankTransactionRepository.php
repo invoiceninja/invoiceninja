@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -28,17 +29,25 @@ class BankTransactionRepository extends BaseRepository
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
 
         $bank_transaction->fill($data);
-
         $bank_transaction->save();
 
-        if($bank_transaction->base_type == 'CREDIT' && $invoice = $bank_transaction->service()->matchInvoiceNumber())
-        {
-             $bank_transaction->invoice_ids = $invoice->hashed_id;
-             $bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
-             $bank_transaction->save();   
-        }
+        $bank_transaction->service()->processRules();
 
-        return $bank_transaction;
+        return $bank_transaction->fresh();
     }
 
+    public function convert_matched($bank_transactions)
+    {
+
+        $data['transactions'] = $bank_transactions->map(function ($bt){
+            return ['id' => $bt->id, 'invoice_ids' => $bt->invoice_ids];
+
+        })->toArray();
+
+        $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $data))->handle();
+
+
+    }
+
+    
 }

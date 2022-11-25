@@ -95,10 +95,14 @@ class SystemHealth
 
         if(strlen(config('ninja.currency_converter_api_key')) == 0){
     
+        try{
             $cs = DB::table('clients')
                   ->select('settings->currency_id as id')
                             ->get();
-
+        }
+        catch(\Exception $e){
+            return true; //fresh installs, there may be no DB connection, nor migrations could have run yet.
+        }
 
             $currency_count = $cs->unique('id')->filter(function ($value){
                 return !is_null($value->id);
