@@ -132,6 +132,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'paid_to_date' => (float)$purchase_order->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($purchase_order->subscription_id),
             'expense_id' => $this->encodePrimaryKey($purchase_order->expense_id),
+            'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
         ];
     }
 

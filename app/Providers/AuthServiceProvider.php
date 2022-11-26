@@ -15,6 +15,7 @@ use App\Models\Activity;
 use App\Models\Bank;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -45,6 +46,7 @@ use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
 use App\Policies\BankIntegrationPolicy;
 use App\Policies\BankTransactionPolicy;
+use App\Policies\BankTransactionRulePolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
@@ -86,6 +88,7 @@ class AuthServiceProvider extends ServiceProvider
         Activity::class => ActivityPolicy::class,
         BankIntegration::class => BankIntegrationPolicy::class,
         BankTransaction::class => BankTransactionPolicy::class,
+        BankTransactionRule::class => BankTransactionRulePolicy::class,
         Client::class => ClientPolicy::class,
         Company::class => CompanyPolicy::class,
         CompanyToken::class => CompanyTokenPolicy::class,

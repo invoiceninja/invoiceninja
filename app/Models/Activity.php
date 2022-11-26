@@ -295,6 +295,14 @@ class Activity extends StaticModel
     /**
      * @return mixed
      */
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();

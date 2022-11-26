@@ -83,7 +83,7 @@ class SubscriptionApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
+        ])->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
 
         // nlog($response);
         $response->assertStatus(200);
@@ -98,7 +98,7 @@ class SubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'name' => Str::random(5)])
+            ->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 

@@ -182,7 +182,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
             return response()->json(['message'=>'Fatal error'], 500);
         } elseif ($exception instanceof AuthorizationException) {
-            return response()->json(['message'=>'You are not authorized to view or perform this action'], 401);
+            return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
             return redirect()
                     ->back()

@@ -22,6 +22,8 @@ use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -219,6 +221,18 @@ class DemoMode extends Command
         }
 
         Product::factory()->count(50)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'account_id' => $account->id,
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+
+        BankTransaction::factory()->count(50)->create([
+            'bank_integration_id' => $bi->id,
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]);

@@ -306,10 +306,53 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 try {
                     $response = $this->gateway->getCustomersClient()->create($request);
-                } catch (\Exception $e) {
-                    // API error
-                    throw new PaymentFailed($e->getMessage(), $e->getCode());
                 } 
+                catch (CheckoutApiException $e) {
+                    // API error
+                    $request_id = $e->request_id;
+                    $http_status_code = $e->http_status_code;
+                    $error_details = $e->error_details;
+
+                    if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+
+                    throw new PaymentFailed($human_exception);
+                } catch (CheckoutArgumentException $e) {
+                    // Bad arguments
+
+                    $error_details = $e->error_details;
+
+                    if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                    throw new PaymentFailed($human_exception);
+                } catch (CheckoutAuthorizationException $e) {
+                    // Bad Invalid authorization
+          
+                    $error_details = $e->error_details;
+         
+                     if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                    throw new PaymentFailed($human_exception);
+                }
+
+
+
+                // catch (\Exception $e) {
+                //     // API error
+                //     throw new PaymentFailed($e->getMessage(), $e->getCode());
+                // } 
 
             return $response;
         }

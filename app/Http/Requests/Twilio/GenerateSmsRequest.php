@@ -24,7 +24,7 @@ class GenerateSmsRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return true;
     }
 
 
