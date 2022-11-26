@@ -923,7 +923,7 @@ class SubscriptionService
         $recurring_invoice_repo->archive($recurring_invoice);
 
         /* Refund only if we are in the window - and there is nothing outstanding on the invoice */
-        if($refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
+        if($refund_end_date && $refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
         {
 
             if($outstanding_invoice->payments()->exists())
