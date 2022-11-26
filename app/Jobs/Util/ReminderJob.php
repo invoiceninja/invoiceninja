@@ -87,7 +87,8 @@ class ReminderJob implements ShouldQueue
                  $query->where('is_disabled', 0);
              })
              ->with('invitations')->cursor()->each(function ($invoice) {
-                 if ($invoice->refresh() && $invoice->isPayable()) {
+                 // if ($invoice->refresh() && $invoice->isPayable()) {
+                    if ($invoice->isPayable()) {
 
                     //Attempts to prevent duplicates from sending
                     if($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())){
