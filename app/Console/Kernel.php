@@ -84,7 +84,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TaskScheduler())->dailyAt('06:50')->withoutOverlapping();
 
         /* Performs system maintenance such as pruning the backup table */
-        $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
+        $schedule->job(new SystemMaintenance)->sundays()->at('02:30')->withoutOverlapping();
 
         /* Pulls in bank transactions from third party services */
         $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping();

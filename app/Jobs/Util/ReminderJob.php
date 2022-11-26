@@ -87,7 +87,7 @@ class ReminderJob implements ShouldQueue
                  $query->where('is_disabled', 0);
              })
              ->with('invitations')->cursor()->each(function ($invoice) {
-                 if ($invoice->isPayable()) {
+                 if ($invoice->refresh() && $invoice->isPayable()) {
 
                     //Attempts to prevent duplicates from sending
                     if($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())){
@@ -97,9 +97,8 @@ class ReminderJob implements ShouldQueue
 
                      $reminder_template = $invoice->calculateTemplate('invoice');
                      nlog("reminder template = {$reminder_template}");
-                     $invoice = $this->calcLateFee($invoice, $reminder_template);
                      $invoice->service()->touchReminder($reminder_template)->save();
-                     $invoice->service()->touchPdf(true);
+                     $invoice = $this->calcLateFee($invoice, $reminder_template);
 
                      //20-04-2022 fixes for endless reminders - generic template naming was wrong
                      $enabled_reminder = 'enable_'.$reminder_template;
@@ -220,15 +219,17 @@ class ReminderJob implements ShouldQueue
         $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance);
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
-        $transaction = [
-            'invoice' => $invoice->transaction_event(),
-            'payment' => [],
-            'client' => $invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => ['setLateFee'],
-        ];
+        // $transaction = [
+        //     'invoice' => $invoice->transaction_event(),
+        //     'payment' => [],
+        //     'client' => $invoice->client->transaction_event(),
+        //     'credit' => [],
+        //     'metadata' => ['setLateFee'],
+        // ];
 
         // TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $invoice->company->db);
+
+        $invoice->service()->touchPdf(true);
 
         return $invoice;
     }

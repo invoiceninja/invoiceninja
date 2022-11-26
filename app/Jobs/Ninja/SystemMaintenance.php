@@ -49,10 +49,6 @@ class SystemMaintenance implements ShouldQueue
 
         nlog('Starting System Maintenance');
 
-        if (Ninja::isHosted()) {
-            return;
-        }
-
         $delete_pdf_days = config('ninja.maintenance.delete_pdfs');
 
         nlog("Number of days to keep PDFs {$delete_pdf_days}");
