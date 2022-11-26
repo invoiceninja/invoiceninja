@@ -901,6 +901,8 @@ class SubscriptionService
      */
     public function handleCancellation(RecurringInvoice $recurring_invoice)
     {
+        $invoice_start_date = false;
+        $refund_end_date = false;
 
         //only refund if they are in the refund window.
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
@@ -909,8 +911,11 @@ class SubscriptionService
                                      ->orderBy('id', 'desc')
                                      ->first();
 
-        $invoice_start_date = Carbon::parse($outstanding_invoice->date);
-        $refund_end_date = $invoice_start_date->addSeconds($this->subscription->refund_period);
+        if($outstanding_invoice)
+        {
+            $invoice_start_date = Carbon::parse($outstanding_invoice->date);
+            $refund_end_date = $invoice_start_date->addSeconds($this->subscription->refund_period);
+        }
 
         /* Stop the recurring invoice and archive */
         $recurring_invoice->service()->stop()->save();
