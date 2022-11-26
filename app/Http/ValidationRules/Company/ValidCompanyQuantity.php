@@ -26,6 +26,7 @@ class ValidCompanyQuantity implements Rule
      */
     public function passes($attribute, $value)
     {
+        
         if (Ninja::isSelfHost()) {
             return auth()->user()->company()->account->companies->count() < 10;
         }

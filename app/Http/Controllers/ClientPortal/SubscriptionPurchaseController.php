@@ -41,6 +41,25 @@ class SubscriptionPurchaseController extends Controller
         ]);
     }
 
+    public function upgrade(Subscription $subscription, Request $request)
+    {
+        /* Make sure the contact is logged into the correct company for this subscription */
+        if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id != $subscription->company_id) {
+            auth()->guard('contact')->logout();
+            $request->session()->invalidate();
+        }
+
+        if ($request->has('locale')) {
+            $this->setLocale($request->query('locale'));
+        }
+
+        return view('billing-portal.purchasev2', [
+            'subscription' => $subscription,
+            'hash' => Str::uuid()->toString(),
+            'request_data' => $request->all(),
+        ]);
+    }
+
     /**
      * Set locale for incoming request.
      *
@@ -56,4 +75,7 @@ class SubscriptionPurchaseController extends Controller
             App::setLocale($record->locale);
         }
     }
+
+
+
 }

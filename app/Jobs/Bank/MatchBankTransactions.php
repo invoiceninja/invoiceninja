@@ -196,13 +196,19 @@ class MatchBankTransactions implements ShouldQueue
         $expense->payment_date = Carbon::parse($this->bt->date);
         $expense->transaction_reference = $this->bt->description;
         $expense->transaction_id = $this->bt->id;
-        $expense->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
+
+        if(array_key_exists('vendor_id', $input))
+            $expense->vendor_id = $input['vendor_id'];
+
         $expense->invoice_documents = $this->company->invoice_expense_documents;
         $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
         $this->bt->expense_id = $expense->id;
-        $this->bt->vendor_id = array_key_exists('vendor_id', $input) ? $input['vendor_id'] : null;
+
+        if(array_key_exists('vendor_id', $input))
+            $this->bt->vendor_id = $input['vendor_id'];
+        
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->save();
 
@@ -254,6 +260,9 @@ class MatchBankTransactions implements ShouldQueue
 
         }, 1);
 
+        if(!$this->invoice)
+            return;
+        
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 

@@ -74,9 +74,9 @@ class UpdateCompanyRequest extends Request
     
         $input = $this->all();
 
-        if (Ninja::isHosted() && array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
+        if (array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1) {
             $input['portal_domain'] = $this->addScheme($input['portal_domain']);
-            $input['portal_domain'] = strtolower($input['portal_domain']);
+            $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
         if (array_key_exists('settings', $input)) {
@@ -108,6 +108,8 @@ class UpdateCompanyRequest extends Request
             }
         }
 
+        $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
+
         if (! $account->isFreeHostedClient()) {
             return $settings;
         }
@@ -125,9 +127,11 @@ class UpdateCompanyRequest extends Request
 
     private function addScheme($url, $scheme = 'https://')
     {
-        $url = str_replace('http://', '', $url);
-
-        $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+        if(Ninja::isHosted())
+        {
+            $url = str_replace('http://', '', $url);
+            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+        }
 
         return rtrim($url, '/');
     }

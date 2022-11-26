@@ -110,6 +110,8 @@ class ActivityController extends BaseController
                     'vendor' => $activity->vendor ? $activity->vendor : '',
                     'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
                     'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
+                    'subscription' => $activity->subscription ? $activity->subscription : '',
+                    'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
                 ];
 
                 return array_merge($arr, $activity->toArray());

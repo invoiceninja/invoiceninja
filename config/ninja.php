@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.5.41',
-    'app_tag' => '5.5.41',
+    'app_version' => '5.5.42',
+    'app_tag' => '5.5.42',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -211,4 +211,5 @@ return [
         'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
+    'dbs' => ['db-ninja-01','db-ninja-02']
 ];
