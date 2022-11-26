@@ -36,6 +36,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
+use function Amp\call;
+
 class CompanyExport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
@@ -530,6 +532,15 @@ class CompanyExport implements ShouldQueue
         $file_name = date('Y-m-d').'_'.str_replace([" ", "/"],["_",""], $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
 
         $path = 'backups';
+
+        Storage::makeDirectory(public_path('storage/backups/'));
+
+        try {
+            mkdir(public_path('storage/backups/'));
+        }
+        catch(\Exception $e) {
+            nlog("could not create directory");
+        }
 
         $zip_path = public_path('storage/backups/'.$file_name);
         $zip = new \ZipArchive();

@@ -428,13 +428,13 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $transaction = [
-            'invoice' => $invoice->transaction_event(),
-            'payment' => [],
-            'client' => $invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
+        // $transaction = [
+        //     'invoice' => $invoice->transaction_event(),
+        //     'payment' => [],
+        //     'client' => $invoice->client->transaction_event(),
+        //     'credit' => [],
+        //     'metadata' => [],
+        // ];
 
         // TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
