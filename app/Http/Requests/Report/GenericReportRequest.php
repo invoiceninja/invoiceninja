@@ -55,6 +55,12 @@ class GenericReportRequest extends Request
             $input['send_email'] = true;
         }
 
+        if (array_key_exists('date_range', $input) && $input['date_range'] != 'custom') {
+            $input['start_date'] = null;
+            $input['end_date'] = null;
+        }
+
+
         $this->replace($input);
     }
 }
