@@ -785,7 +785,7 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        nlog("trigger webook");
+        nlog("trigger webhook");
 
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
             return ["message" => "Success", "status_code" => 200];
