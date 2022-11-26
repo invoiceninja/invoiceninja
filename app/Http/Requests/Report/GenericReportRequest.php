@@ -32,8 +32,6 @@ class GenericReportRequest extends Request
 
         return [
             'date_range' => 'bail|required|string',
-            // 'start_date' => [Rule::requiredIf($this->date_range === 'custom')],
-            // 'end_date' => [Rule::requiredIf($this->date_range === 'custom')],
             'end_date' => 'bail|required_if:date_range,custom|nullable|date',
             'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => 'present|array',
