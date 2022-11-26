@@ -44,26 +44,19 @@ class ReminderJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :void
     {
         if (! config('ninja.db.multi_db_enabled')) {
             $this->processReminders();
         } else {
             //multiDB environment, need to
-            /*
+            
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
                 nlog("set db {$db}");
                 $this->processReminders();
             }
-            */
-            //24-11-2022 fix for potential memory leak during a long running process, the second reminder may run twice
-            foreach (config('ninja.dbs') as $db) {
-                MultiDB::setDB($db);
-                nlog("set db {$db}");
-                $this->processReminders();
-            }
-
+            
         }
     }
 

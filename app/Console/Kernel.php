@@ -54,13 +54,13 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping()->name('reminder-job')->onOneServer();
 
         /* Returns the number of jobs in the queue */
-        $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping()->name('queue-size-job')->onOneServer();
 
         /* Checks for large companies and marked them as is_large */
         $schedule->job(new CompanySizeCheck)->dailyAt('23:20')->withoutOverlapping()->name('company-size-job')->onOneServer();
 
         /* Pulls in the latest exchange rates */
-        $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping();
+        $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping()->name('exchange-rate-job')->onOneServer();
 
         /* Runs cleanup code for subscriptions */
         $schedule->job(new SubscriptionCron)->dailyAt('00:01')->withoutOverlapping()->name('subscription-job')->onOneServer();
