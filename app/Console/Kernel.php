@@ -54,13 +54,13 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping()->name('reminder-job')->onOneServer();
 
         /* Returns the number of jobs in the queue */
-        $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
+        $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping()->name('queue-size-job')->onOneServer();
 
         /* Checks for large companies and marked them as is_large */
         $schedule->job(new CompanySizeCheck)->dailyAt('23:20')->withoutOverlapping()->name('company-size-job')->onOneServer();
 
         /* Pulls in the latest exchange rates */
-        $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping();
+        $schedule->job(new UpdateExchangeRates)->dailyAt('23:30')->withoutOverlapping()->name('exchange-rate-job')->onOneServer();
 
         /* Runs cleanup code for subscriptions */
         $schedule->job(new SubscriptionCron)->dailyAt('00:01')->withoutOverlapping()->name('subscription-job')->onOneServer();
@@ -105,11 +105,11 @@ class Kernel extends ConsoleKernel
             //not used @deprecate
             // $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
 
-            $schedule->command('ninja:check-data --database=db-ninja-01')->daily('02:00')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-01')->dailyAt('02:10')->withoutOverlapping()->name('check-data-db-1-job')->onOneServer();
 
-            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:05')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:20')->withoutOverlapping()->name('check-data-db-2-job')->onOneServer();
 
-            $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping();
+            $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping()->name('s3-cleanup-job')->onOneServer();
 
         }
 

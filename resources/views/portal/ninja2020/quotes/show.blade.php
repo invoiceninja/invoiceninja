@@ -25,7 +25,7 @@
         <div class="mb-4">
             @include('portal.ninja2020.quotes.includes.actions', ['quote' => $quote])
         </div>
-    @elseif($quote->status_id === \App\Models\Quote::STATUS_CONVERTED)
+    @elseif($quote->status_id == \App\Models\Quote::STATUS_CONVERTED)
 
         <div class="bg-white shadow sm:rounded-lg mb-4">
             <div class="px-4 py-5 sm:p-6">
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-    @elseif($quote->status_id === \App\Models\Quote::STATUS_APPROVED)
+    @elseif($quote->status_id == \App\Models\Quote::STATUS_APPROVED)
 
         <div class="bg-white shadow sm:rounded-lg mb-4">
             <div class="px-4 py-5 sm:p-6">
