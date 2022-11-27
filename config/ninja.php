@@ -211,5 +211,4 @@ return [
         'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
-    'dbs' => ['db-ninja-01','db-ninja-02']
 ];
