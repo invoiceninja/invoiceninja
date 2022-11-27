@@ -103,7 +103,7 @@ class EmailEntity implements ShouldQueue
     {
         /* Don't fire emails if the company is disabled */
         if ($this->company->is_disabled) {
-            return true;
+            return;
         }
 
         /* Set DB */
