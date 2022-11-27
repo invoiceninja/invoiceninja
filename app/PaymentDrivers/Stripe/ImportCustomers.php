@@ -67,10 +67,13 @@ class ImportCustomers
             }
 
             //handle 
-            if(is_array($customers->data) && end($customers->data) && array_key_exists('id', end($customers->data)))
-                $starting_after = end($customers->data)['id'];
-            else
-                break;
+            // if(is_array($customers->data) && end($customers->data) && array_key_exists('id', end($customers->data)))
+            //     $starting_after = end($customers->data)['id'];
+            // else
+            //     break;
+
+            $starting_after = end($customers->data)['id'];
+
 
         } while ($customers->has_more);
     }
