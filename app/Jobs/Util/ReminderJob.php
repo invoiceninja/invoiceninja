@@ -46,9 +46,11 @@ class ReminderJob implements ShouldQueue
      */
     public function handle() :void
     {
+
+        set_time_limit(0);
+
         if (! config('ninja.db.multi_db_enabled')) 
         {
-            set_time_limit(0);
 
             nlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
 
@@ -65,10 +67,15 @@ class ReminderJob implements ShouldQueue
                  ->whereHas('company', function ($query) {
                      $query->where('is_disabled', 0);
                  })
-                 ->with('invitations')->cursor()->each(function ($invoice) {
+                 ->with('invitations')->chunk(50, function ($invoices) {
                      
-                    $this->sendReminderForInvoice($invoice);
-                        
+                    foreach($invoices as $invoice)
+                    {
+                        $this->sendReminderForInvoice($invoice);
+                    }
+
+                    sleep(2);
+
                  });
 
 
@@ -95,11 +102,16 @@ class ReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
-                     ->with('invitations')->cursor()->each(function ($invoice) {
+                     ->with('invitations')->chunk(50, function ($invoices) {
                          // if ($invoice->refresh() && $invoice->isPayable()) {
                          
+                        foreach($invoices as $invoice)
+                        {
                             $this->sendReminderForInvoice($invoice);
-                            
+                        }
+
+                        sleep(2);
+                                                
                      });
 
             }
