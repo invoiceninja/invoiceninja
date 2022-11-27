@@ -72,8 +72,10 @@ class ImportCustomers
             // else
             //     break;
 
-            $starting_after = end($customers->data)['id'];
+            $starting_after = isset(end($customers->data)['id']) ? end($customers->data)['id'] : false;
 
+            if(!$starting_after)
+                break;
 
         } while ($customers->has_more);
     }
