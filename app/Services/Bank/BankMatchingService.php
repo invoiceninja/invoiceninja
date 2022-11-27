@@ -31,32 +31,16 @@ use Illuminate\Support\Facades\Cache;
 
 class BankMatchingService implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, GeneratesCounter;
-
-    private Company $company;
-
-    private $invoices;
-
-    public $deleteWhenMissingModels = true;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(private int $company_id, private string $db){}
 
-    public function handle()
+    public function handle() :void
     {
 
         MultiDB::setDb($this->db);
 
-        $this->company = Company::find($this->company_id);
-
-        $this->matchTransactions();
-    
-
-    }
-
-    private function matchTransactions()
-    {
-        
-        BankTransaction::where('company_id', $this->company->id)
+        BankTransaction::where('company_id', $this->company_id)
            ->where('status_id', BankTransaction::STATUS_UNMATCHED)
            ->cursor()
            ->each(function ($bt){
@@ -64,11 +48,11 @@ class BankMatchingService implements ShouldQueue
                (new BankService($bt))->processRules();
 
            });
-
+    
     }
 
-    public function middleware()
-    {
-        return [new WithoutOverlapping($this->company_id)];
-    }
+    // public function middleware()
+    // {
+    //     return [new WithoutOverlapping($this->company_id)];
+    // }
 }
