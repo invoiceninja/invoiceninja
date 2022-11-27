@@ -29,8 +29,6 @@ class InvoiceFailedEmailNotification
 
     use UserNotifies, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $delay = 10;
-
     public function __construct()
     {
     }
