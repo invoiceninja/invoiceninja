@@ -53,6 +53,6 @@ class BankMatchingService implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company_id)];
+        return [new WithoutOverlapping("bank_match_rate:{$this->company_id}")];
     }
 }
