@@ -138,6 +138,9 @@ class PaymentIntentWebhook implements ShouldQueue
 
         $hash = isset($charge['metadata']['payment_hash']) ? $charge['metadata']['payment_hash'] : false;
 
+        if(!$hash)
+            return;
+
         $payment_hash = PaymentHash::where('hash', $hash)->first();
 
         if(!$payment_hash)
