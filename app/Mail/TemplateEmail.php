@@ -120,31 +120,31 @@ class TemplateEmail extends Mailable
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-        if(Ninja::isHosted() && $this->invitation){
+        // if(Ninja::isHosted() && $this->invitation){
 
-            $path = false;
+        //     $path = false;
 
-            if($this->invitation->invoice)
-                $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
-            elseif($this->invitation->quote)
-                $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
-            elseif($this->invitation->credit)
-                $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
+        //     if($this->invitation->invoice)
+        //         $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
+        //     elseif($this->invitation->quote)
+        //         $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
+        //     elseif($this->invitation->credit)
+        //         $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
 
-            sleep(1);
+        //     sleep(1);
 
-            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
+        //     if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
-                sleep(2);
+        //         sleep(2);
 
-                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    (new CreateEntityPdf($this->invitation))->handle();
-                    sleep(2);
-                }
+        //         if(!Storage::disk(config('filesystems.default'))->exists($path)) {
+        //             (new CreateEntityPdf($this->invitation))->handle();
+        //             sleep(2);
+        //         }
 
-            }
+        //     }
 
-        }
+        // }
 
         //        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
 

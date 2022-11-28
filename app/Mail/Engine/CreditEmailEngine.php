@@ -11,6 +11,7 @@
 
 namespace App\Mail\Engine;
 
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
@@ -117,11 +118,17 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            if (Ninja::isHosted()) {
-                $this->setAttachments([$this->credit->pdf_file_path($this->invitation, 'url', true)]);
-            } else {
-                $this->setAttachments([$this->credit->pdf_file_path($this->invitation)]);
-            }
+            // if (Ninja::isHosted()) {
+            //     $this->setAttachments([$this->credit->pdf_file_path($this->invitation, 'url', true)]);
+            // } else {
+            //     $this->setAttachments([$this->credit->pdf_file_path($this->invitation)]);
+            // }
+
+             $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->credit->numberFormatter().'.pdf']]);   
+
+
         }
 
         //attach third party documents
@@ -129,11 +136,11 @@ class CreditEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->credit->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
 
             foreach ($this->credit->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
         }
 
