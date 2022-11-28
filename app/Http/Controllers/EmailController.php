@@ -141,7 +141,7 @@ class EmailController extends BaseController
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
+                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data)->delay(now()->addSeconds(2));
             }
         });
 
@@ -194,7 +194,7 @@ class EmailController extends BaseController
 
         $data['template'] = $template;
         
-        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
+        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data)->delay(now()->addSeconds(2));
         
         return $this->itemResponse($entity_obj);
 
