@@ -296,7 +296,7 @@ const RESOURCES = {
 "canvaskit/profiling/canvaskit.wasm": "95a45378b69e77af5ed2bc72b2209b94",
 "canvaskit/canvaskit.js": "2bc454a691c631b07a9307ac4ca47797",
 "canvaskit/canvaskit.wasm": "bf50631470eb967688cca13ee181af62",
-"/": "e8ea5617b9fb0e6f463217674420c6d2",
+"/": "1fc9dce3a7ed2367f77f767171c9ea1b",
 "version.json": "04dda2a311adc1947afc5c1055f19e16",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
