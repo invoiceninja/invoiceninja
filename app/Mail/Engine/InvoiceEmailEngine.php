@@ -143,11 +143,11 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->invoice->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             foreach ($this->invoice->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             $line_items = $this->invoice->line_items;
@@ -165,7 +165,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($expense) {
                                            foreach ($expense->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
                                            }
                                        });
                 }
@@ -181,7 +181,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($task) {
                                            foreach ($task->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
                                            }
                                        });
                 }

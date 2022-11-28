@@ -123,7 +123,7 @@ class QuoteEmailEngine extends BaseEmailEngine
             //     $this->setAttachments([$this->quote->pdf_file_path($this->invitation)]);
             // }
 
-             $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter().'.pdf']]);  
         }
@@ -133,11 +133,11 @@ class QuoteEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->quote->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             foreach ($this->quote->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
         }
 

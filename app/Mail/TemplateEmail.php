@@ -162,8 +162,11 @@ class TemplateEmail extends Mailable
             //     // $this->attachData($file_data, $file['name']);
             //     $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
             // }
-            
-            $this->attachData(base64_decode($file['file']), $file['name']);
+            if(array_key_exists('file', $file))
+                $this->attachData(base64_decode($file['file']), $file['name']);
+            else
+                $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+
         }
 
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {

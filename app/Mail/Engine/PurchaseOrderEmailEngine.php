@@ -143,13 +143,13 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->purchase_order->documents as $document) {
-                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
 
             foreach ($this->purchase_order->company->documents as $document) {
-                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
 
         }
