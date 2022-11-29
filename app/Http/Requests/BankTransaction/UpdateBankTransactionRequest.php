@@ -45,8 +45,7 @@ class UpdateBankTransactionRequest extends Request
         if(isset($this->expense_id))
             $rules['expense_id'] = 'bail|required|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
-        if(isset($this->bank_integration_id))
-            $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
 
         return $rules;
