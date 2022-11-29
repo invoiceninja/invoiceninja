@@ -15,6 +15,14 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('payment_types', function (Blueprint $table) {
+           $type = new GatewayType();
+
+            $type->id = 23;
+            $type->alias = 'BACS';
+            $type->name = 'BACS';
+
+            $type->save();            
+
             $type = new PaymentType();
 
             $type->id = 47;
