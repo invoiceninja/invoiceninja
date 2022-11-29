@@ -54,6 +54,7 @@ class RecurringInvoiceExport extends BaseExport
         'po_number' => 'po_number',
         'private_notes' => 'private_notes',
         'public_notes' => 'public_notes',
+        'next_send_date' => 'next_send_date',
         'status' => 'status_id',
         'tax_name1' => 'tax_name1',
         'tax_name2' => 'tax_name2',
@@ -66,6 +67,7 @@ class RecurringInvoiceExport extends BaseExport
         'currency' => 'currency_id',
         'vendor' => 'vendor_id',
         'project' => 'project_id',
+        'frequency' => 'frequency_id'
     ];
 
     private array $decorate_keys = [
@@ -161,6 +163,8 @@ class RecurringInvoiceExport extends BaseExport
         if (in_array('vendor_id', $this->input['report_keys'])) {
             $entity['vendor'] = $invoice->vendor ? $invoice->vendor->name : '';
         }
+
+        $entity['frequency'] = $invoice->frequencyForKey($invoice->frequency_id);
 
         return $entity;
     }
