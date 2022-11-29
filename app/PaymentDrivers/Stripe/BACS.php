@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,8 +13,6 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -29,7 +28,6 @@ class BACS
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
-        $this->stripe->init();
     }
 
     public function authorizeView($data)
@@ -42,18 +40,16 @@ class BACS
         $this->stripe->init();
 
         $data['gateway'] = $this->stripe;
-        $data['payment_method_id'] = GatewayType::BECS;
+        $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['client'] = $this->stripe->client;
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
-        $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
-            'currency' => $this->stripe->client->currency()->code,
+            'currency' => 'gbp',
             'payment_method_types' => ['bacs_debit'],
-            'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
             'metadata' => [
@@ -67,28 +63,41 @@ class BACS
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
 
-        return render('gateways.stripe.becs.pay', $data);
+        return render('gateways.stripe.bacs.pay', $data);
     }
 
-    public function paymentResponse(PaymentResponseRequest $request)
+    private function buildReturnUrl(): string
     {
-        $gateway_response = json_decode($request->gateway_response);
+        return route('client.payments.response', [
+            'company_gateway_id' => $this->stripe->company_gateway->id,
+            'payment_hash' => $this->stripe->payment_hash->hash,
+            'payment_method_id' => GatewayType::BACS,
+        ]);
+    }
 
+    public function paymentResponse($request)
+    {
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-            $this->stripe->init();
-            $this->storePaymentMethod($gateway_response);
-
-            return $this->processSuccessfulPayment($gateway_response->id);
+        if (in_array($request->redirect_status,  ['succeeded','pending'])) {
+            return $this->processSuccessfulPayment($request->payment_intent);
         }
 
         return $this->processUnsuccessfulPayment();
     }
 
-    public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
+    public function processSuccessfulPayment(string $payment_intent)
     {
+        /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
+
+        $this->stripe->init();
+
+        //catch duplicate submissions.
+        if (Payment::where('transaction_reference', $payment_intent)->exists()) {
+            return redirect()->route('client.payments.index');
+        }
+
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::BACS,
@@ -97,7 +106,7 @@ class BACS
             'gateway_type_id' => GatewayType::BACS,
         ];
 
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -108,19 +117,14 @@ class BACS
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', $payment->hashed_id);
+        return redirect()->route('client.payments.index');
     }
 
     public function processUnsuccessfulPayment()
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($server_response);
 
         $message = [
             'server_response' => $server_response,
@@ -137,28 +141,5 @@ class BACS
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
-    }
-
-    private function storePaymentMethod($intent)
-    {
-        try {
-            $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
-
-            $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bacs_debit->bank_code, ctrans('texts.becs'));
-            $payment_meta->last4 = (string) $method->bacs_debit->last4;
-            $payment_meta->state = 'authorized';
-            $payment_meta->type = GatewayType::BACS;
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $intent->payment_method,
-                'payment_method_id' => GatewayType::BACS,
-            ];
-
-            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
-        } catch (\Exception $e) {
-            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
-        }
     }
 }
