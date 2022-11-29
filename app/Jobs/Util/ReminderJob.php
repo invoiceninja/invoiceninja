@@ -148,7 +148,7 @@ class ReminderJob implements ShouldQueue
         (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
 
                  $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
+                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template)->delay(now()->addSeconds(3));
                      nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                  });
 
