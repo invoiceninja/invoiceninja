@@ -30,6 +30,7 @@ use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\ApplePay;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\BACS;
 use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Connect\Verify;
@@ -95,6 +96,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::EPS => EPS::class,
         GatewayType::BANCONTACT => Bancontact::class,
         GatewayType::BECS => BECS::class,
+        GatewayType::BACS => BACS::class,
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
     ];
@@ -231,6 +233,14 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && $this->client->currency()
+            && ($this->client->currency()->code == 'GBP')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['GB'])) {
+            $types[] = GatewayType::BACS;
+        }
+        
+        if ($this->client
+            && $this->client->currency()
             && in_array($this->client->currency()->code, ['CAD', 'USD'])
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['CAN', 'USA'])) {
@@ -282,6 +292,8 @@ class StripePaymentDriver extends BaseDriver
                 return 'gateways.stripe.bancontact';
             case GatewayType::BECS:
                 return 'gateways.stripe.becs';
+            case GatewayType::BACS:
+                return 'gateways.stripe.bacs';
             case GatewayType::ACSS:
                 return 'gateways.stripe.acss';
             case GatewayType::FPX:
