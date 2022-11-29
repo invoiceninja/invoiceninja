@@ -41,6 +41,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -53,7 +54,7 @@ use Illuminate\Support\Str;
 
 class DemoMode extends Command
 {
-    use MakesHash, GeneratesCounter;
+    use MakesHash, GeneratesCounter, AppSetup;
 
     protected $signature = 'ninja:demo-mode';
 
@@ -89,30 +90,8 @@ class DemoMode extends Command
         $this->info('Seeding');
         Artisan::call('db:seed --force');
 
-        foreach ($cached_tables as $name => $class) {
-            if (! Cache::has($name)) {
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
-                if ($name == 'payment_terms') {
-                    $orderBy = 'num_days';
-                } elseif ($name == 'fonts') {
-                    $orderBy = 'sort_order';
-                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if ($tableData->count()) {
-                    Cache::forever($name, $tableData);
-                }
-            }
-        }
-
-
-
+        $this->buildCache(true);
+        
         $this->info('Seeding Random Data');
         $this->createSmallAccount();
 

@@ -141,7 +141,16 @@ class Charge
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
         } else {
-            $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+
+            if(isset($response->latest_charge)) {
+                $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
+                $payment_method_type = $charge->payment_method_details->card->brand;
+            }
+            elseif(isset($response->charges->data[0]->payment_method_details->card->brand))
+                $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+            else
+                $payment_method_type = 'visa';
+
             $status = Payment::STATUS_COMPLETED;
         }
         
@@ -153,7 +162,6 @@ class Charge
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => $this->transformPaymentTypeToConstant($payment_method_type),
             'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
-            // 'transaction_reference' => $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 
@@ -161,6 +169,7 @@ class Charge
         $payment->meta = $cgt->meta;
         $payment->save();
 
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['payment_intent' => $response, 'amount_with_fee' => $amount]);
         $payment_hash->payment_id = $payment->id;
         $payment_hash->save();
 
