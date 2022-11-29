@@ -41,44 +41,62 @@ class SubscriptionCron
         nlog('Subscription Cron');
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $this->loopSubscriptions();
+
+            $invoices = Invoice::where('is_deleted', 0)
+                              ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                              ->where('balance', '>', 0)
+                              ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
+                              ->whereNull('deleted_at')
+                              ->whereNotNull('subscription_id')
+                              ->cursor();
+
+            $invoices->each(function ($invoice) {
+                $subscription = $invoice->subscription;
+
+                $body = [
+                    'context' => 'plan_expired',
+                    'client' => $invoice->client->hashed_id,
+                    'invoice' => $invoice->hashed_id,
+                    'subscription' => $subscription->hashed_id,
+                ];
+
+                $this->sendLoad($subscription, $body);
+                //This will send the notification daily.
+                //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
+            });
+
+
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $this->loopSubscriptions();
+                $invoices = Invoice::where('is_deleted', 0)
+                                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                  ->where('balance', '>', 0)
+                                  ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
+                                  ->whereNull('deleted_at')
+                                  ->whereNotNull('subscription_id')
+                                  ->cursor();
+
+                $invoices->each(function ($invoice) {
+                    $subscription = $invoice->subscription;
+
+                    $body = [
+                        'context' => 'plan_expired',
+                        'client' => $invoice->client->hashed_id,
+                        'invoice' => $invoice->hashed_id,
+                        'subscription' => $subscription->hashed_id,
+                    ];
+
+                    $this->sendLoad($subscription, $body);
+                    //This will send the notification daily.
+                    //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
+                });
+
+
             }
         }
     }
 
-    private function loopSubscriptions()
-    {
-        $invoices = Invoice::where('is_deleted', 0)
-                          ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                          ->where('balance', '>', 0)
-                          ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
-                          ->whereNull('deleted_at')
-                          ->whereNotNull('subscription_id')
-                          ->cursor();
-
-        $invoices->each(function ($invoice) {
-            $subscription = $invoice->subscription;
-
-            $body = [
-                'context' => 'plan_expired',
-                'client' => $invoice->client->hashed_id,
-                'invoice' => $invoice->hashed_id,
-                'subscription' => $subscription->hashed_id,
-            ];
-
-            $this->sendLoad($subscription, $body);
-            //This will send the notification daily.
-            //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
-        });
-    }
-
-    private function handleWebhook($invoice, $subscription)
-    {
-    }
 }

@@ -22,6 +22,8 @@ use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -39,6 +41,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Repositories\InvoiceRepository;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -51,7 +54,7 @@ use Illuminate\Support\Str;
 
 class DemoMode extends Command
 {
-    use MakesHash, GeneratesCounter;
+    use MakesHash, GeneratesCounter, AppSetup;
 
     protected $signature = 'ninja:demo-mode';
 
@@ -81,34 +84,14 @@ class DemoMode extends Command
 
         $cached_tables = config('ninja.cached_tables');
 
-        foreach ($cached_tables as $name => $class) {
-            if (! Cache::has($name)) {
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
-                if ($name == 'payment_terms') {
-                    $orderBy = 'num_days';
-                } elseif ($name == 'fonts') {
-                    $orderBy = 'sort_order';
-                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if ($tableData->count()) {
-                    Cache::forever($name, $tableData);
-                }
-            }
-        }
-
         $this->info('Migrating');
         Artisan::call('migrate:fresh --force');
 
         $this->info('Seeding');
         Artisan::call('db:seed --force');
 
+        $this->buildCache(true);
+        
         $this->info('Seeding Random Data');
         $this->createSmallAccount();
 
@@ -219,6 +202,18 @@ class DemoMode extends Command
         }
 
         Product::factory()->count(50)->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'account_id' => $account->id,
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+
+        BankTransaction::factory()->count(50)->create([
+            'bank_integration_id' => $bi->id,
             'user_id' => $user->id,
             'company_id' => $company->id,
         ]);

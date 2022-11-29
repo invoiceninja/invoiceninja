@@ -54,6 +54,10 @@ class Subscription extends BaseModel
         'price',
         'name',
         'currency_id',
+        'registration_required',
+        'optional_product_ids',
+        'optional_recurring_product_ids',
+        'use_inventory_management',
     ];
 
     protected $casts = [

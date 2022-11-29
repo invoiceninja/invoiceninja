@@ -108,6 +108,7 @@ class BaseController extends Controller
           'company.system_logs',
           'company.bank_integrations',
           'company.bank_transactions',
+          'company.bank_transaction_rules',
         ];
 
     private $mini_load = [
@@ -126,6 +127,7 @@ class BaseController extends Controller
         'company.expense_categories',
         'company.subscriptions',
         'company.bank_integrations',
+        'company.bank_transaction_rules',
     ];
 
     public function __construct()
@@ -456,6 +458,13 @@ class BaseController extends Controller
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
+                'company.bank_transaction_rules'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transaction_rules.user_id', $user->id);
+                    }
+                },
             ]
         );
 
@@ -528,6 +537,12 @@ class BaseController extends Controller
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transaction_rules'=> function ($query) use ($user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
             ]

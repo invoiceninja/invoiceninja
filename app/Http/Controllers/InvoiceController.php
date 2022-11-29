@@ -28,6 +28,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
+use App\Jobs\Cron\AutoBill;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\StoreInvoice;
@@ -427,13 +428,13 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $transaction = [
-            'invoice' => $invoice->transaction_event(),
-            'payment' => [],
-            'client' => $invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
+        // $transaction = [
+        //     'invoice' => $invoice->transaction_event(),
+        //     'payment' => [],
+        //     'client' => $invoice->client->transaction_event(),
+        //     'credit' => [],
+        //     'metadata' => [],
+        // ];
 
         // TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
@@ -696,11 +697,14 @@ class InvoiceController extends BaseController
     {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
+            case 'auto_bill':
+                AutoBill::dispatch($invoice->id, $invoice->company->db);
+                return $this->itemResponse($invoice);
+
             case 'clone_to_invoice':
                 $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
-
                 return $this->itemResponse($invoice);
-                break;
+                
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
 
@@ -767,7 +771,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->deletePdf()->touchPdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->touchPdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);
@@ -777,7 +781,7 @@ class InvoiceController extends BaseController
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
-                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
+                if (request()->has('email_type') && in_array(request()->input('email_type'), ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'custom1', 'custom2', 'custom3'])) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
                     $this->reminder_template = $invoice->calculateTemplate('invoice');

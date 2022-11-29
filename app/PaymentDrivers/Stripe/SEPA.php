@@ -84,7 +84,7 @@ class SEPA
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status === 'succeeded')) {
+        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status == 'succeeded')) {
             if ($request->store_card) {
                 $this->storePaymentMethod($gateway_response);
             }

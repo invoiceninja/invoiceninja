@@ -23,6 +23,7 @@ use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
+use App\Utils\Number;
 
 class CreditCard
 {
@@ -62,7 +63,7 @@ class CreditCard
 
         // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
-        $description = "Invoices: {$invoice_numbers} for {$data['total']['amount_with_fee']} for client {$this->stripe->client->present()->name()}";
+        $description = ctrans('text.stripe_paymenttext', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
 
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -138,7 +139,7 @@ class CreditCard
             'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
             'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)) ?: PaymentType::CREDIT_CARD_OTHER,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
+            'transaction_reference' => isset($this->stripe->payment_hash->data->payment_intent->latest_charge) ? $this->stripe->payment_hash->data->payment_intent->latest_charge : optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 

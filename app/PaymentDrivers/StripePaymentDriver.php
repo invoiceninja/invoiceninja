@@ -116,11 +116,14 @@ class StripePaymentDriver extends BaseDriver
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
+            
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+            // Stripe::setApiVersion('2022-11-15');
+
         }
 
         return $this;
@@ -657,14 +660,22 @@ class StripePaymentDriver extends BaseDriver
                 ], $this->stripe_connect_auth);
 
                 if ($charge->captured) {
-                    $payment = Payment::query()
-                        ->where('transaction_reference', $transaction['payment_intent'])
-                        ->where('company_id', $request->getCompany()->id)
-                        ->where(function ($query) use ($transaction) {
-                            $query->where('transaction_reference', $transaction['payment_intent'])
-                                  ->orWhere('transaction_reference', $transaction['id']);
-                        })
-                        ->first();
+
+                    $payment = false;
+
+                    if(isset($transaction['payment_intent']))
+                    {
+                        $payment = Payment::query()
+                            ->where('transaction_reference', $transaction['payment_intent'])
+                            ->where('company_id', $request->getCompany()->id)
+                            ->first();
+                    }
+                    elseif(isset($transaction['id'])) {
+                        $payment = Payment::query()
+                            ->where('transaction_reference', $transaction['id'])
+                            ->where('company_id', $request->getCompany()->id)
+                            ->first();
+                    }
 
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;

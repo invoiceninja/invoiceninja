@@ -99,11 +99,11 @@ class EmailEntity implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :void
     {
         /* Don't fire emails if the company is disabled */
         if ($this->company->is_disabled) {
-            return true;
+            return;
         }
 
         /* Set DB */

@@ -12,6 +12,7 @@
 namespace App\Filters;
 
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class TaskFilters extends QueryFilters
 {
+    use MakesHash;
+
     /**
      * Filter based on search text.
      *
@@ -109,6 +112,16 @@ class TaskFilters extends QueryFilters
                 $query->orWhere($table.'.is_deleted', '=', 1);
             }
         });
+    }
+
+    public function project_tasks($project)
+    {
+
+        if (strlen($project) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('project_id', $this->decodePrimaryKey($project));
     }
 
     /**

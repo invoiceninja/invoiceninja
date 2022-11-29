@@ -24,7 +24,7 @@ class ConfirmSmsRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return true;
     }
 
     public function rules()
