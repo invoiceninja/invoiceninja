@@ -60,6 +60,8 @@ class GatewayType extends StaticModel
     const INSTANT_BANK_PAY = 21;
 
     const FPX = 22;
+    
+    const BACS = 23;
 
     public function gateway()
     {
@@ -108,6 +110,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.eps');
             case self::BECS:
                 return ctrans('texts.becs');
+            case self::AECS:
+                return ctrans('texts.bacs');   
             case self::ACSS:
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:
