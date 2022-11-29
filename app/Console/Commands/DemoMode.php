@@ -83,6 +83,12 @@ class DemoMode extends Command
 
         $cached_tables = config('ninja.cached_tables');
 
+        $this->info('Migrating');
+        Artisan::call('migrate:fresh --force');
+
+        $this->info('Seeding');
+        Artisan::call('db:seed --force');
+
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
@@ -105,11 +111,7 @@ class DemoMode extends Command
             }
         }
 
-        $this->info('Migrating');
-        Artisan::call('migrate:fresh --force');
 
-        $this->info('Seeding');
-        Artisan::call('db:seed --force');
 
         $this->info('Seeding Random Data');
         $this->createSmallAccount();

@@ -331,7 +331,7 @@ class ACH
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => PaymentType::ACH,
-            'transaction_reference' => $response->charges->data[0]->id,
+            'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 

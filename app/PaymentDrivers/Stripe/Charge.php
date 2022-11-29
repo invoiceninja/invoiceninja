@@ -144,17 +144,16 @@ class Charge
             $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
             $status = Payment::STATUS_COMPLETED;
         }
-
-        if($response?->status == 'processing'){
-            //allows us to jump over the next stage - used for SEPA
-        }elseif($response?->status != 'succeeded'){
+        
+        if(!in_array($response?->status, ['succeeded', 'processing'])){
             $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
         }
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => $this->transformPaymentTypeToConstant($payment_method_type),
-            'transaction_reference' => $response->charges->data[0]->id,
+            'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
+            // 'transaction_reference' => $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 
