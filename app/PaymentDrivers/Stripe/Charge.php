@@ -62,9 +62,9 @@ class Charge
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('text.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => $amount, 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('text.stripe_paymenttext_without_invoice', ['amount' => $amount, 'client' => $this->stripe->client->present()->name()]);
         }
 
         $this->stripe->init();
