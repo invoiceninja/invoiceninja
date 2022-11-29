@@ -4,9 +4,12 @@ use App\Models\Currency;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Utils\Traits\AppSetup;
 
 return new class extends Migration
 {
+    use AppSetup;
+
     /**
      * Run the migrations.
      *
@@ -64,6 +67,9 @@ return new class extends Migration
         }
 
         \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
+
+        $this->buildCache(true);
+
 
     }
 

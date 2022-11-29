@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesReminders;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 
+//@deprecated 27-11-2022 - only ever should be used for testing
 class SendRemindersCron extends Command
 {
     use MakesReminders, MakesDates;

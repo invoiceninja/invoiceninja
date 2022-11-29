@@ -138,6 +138,9 @@ class PaymentIntentWebhook implements ShouldQueue
 
         $hash = isset($charge['metadata']['payment_hash']) ? $charge['metadata']['payment_hash'] : false;
 
+        if(!$hash)
+            return;
+
         $payment_hash = PaymentHash::where('hash', $hash)->first();
 
         if(!$payment_hash)
@@ -263,6 +266,39 @@ class PaymentIntentWebhook implements ShouldQueue
             nlog($e->getMessage());
         }
     }
+
+    // private function  updateSepaPayment($payment_hash, $client, $meta)
+    // {
+
+    //     $company_gateway = CompanyGateway::find($this->company_gateway_id);
+    //     $payment_method_type = GatewayType::SEPA;
+    //     $driver = $company_gateway->driver($client)->init()->setPaymentMethod($payment_method_type);
+
+    //     $payment_hash->data = array_merge((array) $payment_hash->data, $this->stripe_request);
+    //     $payment_hash->save();
+    //     $driver->setPaymentHash($payment_hash);
+
+    //     $data = [
+    //         'payment_method' => $payment_hash->data->object->payment_method,
+    //         'payment_type' => PaymentType::parseCardType(strtolower($meta['card_details'])) ?: PaymentType::CREDIT_CARD_OTHER,
+    //         'amount' => $payment_hash->data->amount_with_fee,
+    //         'transaction_reference' => $meta['transaction_reference'],
+    //         'gateway_type_id' => GatewayType::CREDIT_CARD,
+    //     ];
+        
+    //     $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
+
+    //     SystemLogger::dispatch(
+    //         ['response' => $this->stripe_request, 'data' => $data],
+    //         SystemLog::CATEGORY_GATEWAY_RESPONSE,
+    //         SystemLog::EVENT_GATEWAY_SUCCESS,
+    //         SystemLog::TYPE_STRIPE,
+    //         $client,
+    //         $client->company,
+    //     );
+
+
+    // }
 
 
     private function updateCreditCardPayment($payment_hash, $client, $meta)

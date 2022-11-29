@@ -33,8 +33,6 @@ class ClientService
         try {
             \DB::connection(config('database.default'))->transaction(function () use($amount) {
 
-                nlog("inside transaction - updating balance by {$amount}");
-
                 $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
                 $this->client->balance += $amount;
                 $this->client->save();
