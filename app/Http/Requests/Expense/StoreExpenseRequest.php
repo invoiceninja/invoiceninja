@@ -54,10 +54,6 @@ class StoreExpenseRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
-        }
-
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
             $input['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
@@ -65,7 +61,6 @@ class StoreExpenseRequest extends Request
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
         }
-
 
         /* Ensure the project is related */
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
