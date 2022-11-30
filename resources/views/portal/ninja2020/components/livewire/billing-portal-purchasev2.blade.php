@@ -3,8 +3,8 @@
 </style>
 
 <div class="grid grid-cols-12">
-    <div class="col-span-12 xl:col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
-        <div class="w-full p-8 md:max-w-3xl">
+    <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
+        <div class="w-full p-8">
             <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
 
             <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-6">
@@ -117,8 +117,8 @@
     </div>
 
 
-    <div class="col-span-12 xl:col-span-4 bg-blue-500 flex flex-col item-center ">
-        <div class="w-full p-4 md:max-w-3xl">
+    <div class="col-span-4 bg-blue-500 flex flex-col item-center ">
+        <div class="w-full p-4">
             <div id="summary" class="w-1/4 px-8 text-white">
                 <h1 class="font-semibold text-2xl border-b pb-8 text-white">Order Summary</h1>
                 <div class="flex justify-between mt-10 mb-5">
