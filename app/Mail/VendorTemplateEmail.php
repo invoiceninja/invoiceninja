@@ -110,40 +110,39 @@ class VendorTemplateEmail extends Mailable
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ]);
-            //->withSymfonyMessage(function ($message) {
-            //    $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-            //    $message->invitation = $this->invitation;
-            //});
-            // ->tag($this->company->company_key);
 
-        if(Ninja::isHosted() && $this->invitation){
 
-            $path = false;
+        // if(Ninja::isHosted() && $this->invitation){
 
-            if($this->invitation->purchase_order)
-                $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
+        //     $path = false;
 
-            sleep(1);
+        //     if($this->invitation->purchase_order)
+        //         $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
 
-            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
+        //     sleep(1);
 
-                sleep(2);
+        //     if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
-                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    (new CreatePurchaseOrderPdf($this->invitation))->handle();
-                    sleep(2);
-                }
+        //         sleep(2);
 
-            }
+        //         if(!Storage::disk(config('filesystems.default'))->exists($path)) {
+        //             (new CreatePurchaseOrderPdf($this->invitation))->handle();
+        //             sleep(2);
+        //         }
 
-        }
+        //     }
+
+        // }
 
         foreach ($this->build_email->getAttachments() as $file) {
-            if (is_string($file)) {
-                $this->attach($file);
-            } elseif (is_array($file)) {
-                $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-            }
+            // if (is_string($file)) {
+            //     $this->attach($file);
+            // } elseif (is_array($file)) {
+            //     $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+            // }
+
+            $this->attachData(base64_decode($file['file']), $file['name']);
+
         }
 
         return $this;

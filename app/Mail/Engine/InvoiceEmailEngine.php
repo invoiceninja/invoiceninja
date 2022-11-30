@@ -13,6 +13,7 @@ namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Task;
@@ -126,11 +127,15 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            if (Ninja::isHosted()) {
-                $this->setAttachments([$this->invoice->pdf_file_path($this->invitation, 'url', true)]);
-            } else {
-                $this->setAttachments([$this->invoice->pdf_file_path($this->invitation)]);
-            }
+            // if (Ninja::isHosted()) {
+            //     $this->setAttachments([$this->invoice->pdf_file_path($this->invitation, 'url', true)]);
+            // } else {
+            //     $this->setAttachments([$this->invoice->pdf_file_path($this->invitation)]);
+            // }
+        //        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
+            $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
+
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);   
         }
 
         //attach third party documents
@@ -138,11 +143,11 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->invoice->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             foreach ($this->invoice->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL]]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             $line_items = $this->invoice->line_items;
@@ -160,7 +165,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($expense) {
                                            foreach ($expense->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL]]);
+                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
                                            }
                                        });
                 }
@@ -176,7 +181,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($task) {
                                            foreach ($task->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL]]);
+                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
                                            }
                                        });
                 }

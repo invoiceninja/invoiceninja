@@ -28,6 +28,6 @@ class NinjaPdf
             RequestOptions::JSON => ['html' => $html],
         ]);
 
-        return $response->getBody();
+        return $response->getBody()->getContents();
     }
 }
