@@ -44,11 +44,12 @@ class HandleRestore extends AbstractService
             return $this->invoice;
         }
 
-        //determine whether we need to un-delete payments OR just modify the payment amount /applied balances.
-
+        //cannot restore an invoice with a deleted payment
         foreach ($this->invoice->payments as $payment) {
-            //restore the payment record
-            $this->invoice->restore();
+            
+            if(($this->invoice->paid_to_date == 0) && $payment->is_deleted)
+                return $this->invoice;
+
         }
 
         //adjust ledger balance
@@ -56,8 +57,7 @@ class HandleRestore extends AbstractService
 
         $this->invoice->client
                       ->service()
-                      ->updateBalance($this->invoice->balance)
-                      ->updatePaidToDate($this->invoice->paid_to_date)
+                      ->updateBalanceAndPaidToDate($this->invoice->balance,$this->invoice->paid_to_date)
                       ->save();
 
         $this->windBackInvoiceNumber();
@@ -120,11 +120,11 @@ class HandleRestore extends AbstractService
 
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
-        } else {
+        } 
 
             //adjust payments down by the amount applied to the invoice payment.
 
-            $this->invoice->payments->each(function ($payment) {
+            $this->invoice->payments->fresh()->each(function ($payment) {
                 $payment_adjustment = $payment->paymentables
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
@@ -141,8 +141,7 @@ class HandleRestore extends AbstractService
                 $payment->restore();
                 $payment->save();
             });
-        }
-
+        
         return $this;
     }
 
