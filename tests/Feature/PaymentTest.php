@@ -217,28 +217,28 @@ class PaymentTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
-        $this->invoice->client_id = $client->id;
-        $this->invoice->status_id = Invoice::STATUS_SENT;
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->status_id = Invoice::STATUS_SENT;
 
-        $this->invoice->line_items = $this->buildLineItems();
-        $this->invoice->uses_inclusive_Taxes = false;
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_Taxes = false;
 
-        $this->invoice->save();
+        $invoice->save();
 
-        $this->invoice_calc = new InvoiceSum($this->invoice);
-        $this->invoice_calc->build();
+        $invoice_calc = new InvoiceSum($this->invoice);
+        $invoice_calc->build();
 
-        $this->invoice = $this->invoice_calc->getInvoice();
-        $this->invoice->save();
+        $invoice = $this->invoice_calc->getInvoice();
+        $invoice->save();
 
         $data = [
-            'amount' => $this->invoice->amount,
+            'amount' => $invoice->amount,
             'client_id' => $client->hashed_id,
             'invoices' => [
                 [
-                    'invoice_id' => $this->invoice->hashed_id,
-                    'amount' => $this->invoice->amount,
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => $invoice->amount,
                 ],
             ],
             'date' => '2020/12/12',
