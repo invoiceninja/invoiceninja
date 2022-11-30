@@ -315,7 +315,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($amount*-1, $amount)
+             ->updateBalanceAndPaidToDate($this->applied_amount*-1, $amount)
              ->save();
 
         $this->invoice = $this->invoice
