@@ -116,8 +116,6 @@ class ClientApiTest extends TestCase
 
         Client::reguard();
 
-        nlog($c->toArray());
-
         $c->refresh();
 
         $this->assertEquals("3", $c->settings->currency_id);
