@@ -44,11 +44,12 @@ class HandleRestore extends AbstractService
             return $this->invoice;
         }
 
-        //determine whether we need to un-delete payments OR just modify the payment amount /applied balances.
-
+        //cannot restore an invoice with a deleted payment
         foreach ($this->invoice->payments as $payment) {
-            //restore the payment record
-            $this->invoice->restore();
+            
+            if(($this->invoice->paid_to_date == 0) && $payment->is_deleted)
+                return $this->invoice;
+
         }
 
         //adjust ledger balance
