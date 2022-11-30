@@ -39,6 +39,7 @@ class BankTransactionTransformer extends EntityTransformer
         'company',
         'account',
         'expense',
+        'payment',
         'vendor',
         'bank_account',
     ];
@@ -66,6 +67,7 @@ class BankTransactionTransformer extends EntityTransformer
             'base_type' => (string) $bank_transaction->base_type ?: '',
             'invoice_ids' => (string) $bank_transaction->invoice_ids ?: '',
             'expense_id'=> (string) $this->encodePrimaryKey($bank_transaction->expense_id) ?: '',
+            'payment_id'=> (string) $this->encodePrimaryKey($bank_transaction->payment_id) ?: '',
             'vendor_id'=> (string) $this->encodePrimaryKey($bank_transaction->vendor_id) ?: '',
             'bank_transaction_rule_id' => (string) $this->encodePrimaryKey($bank_transaction->bank_transaction_rule_id) ?: '',
             'is_deleted' => (bool) $bank_transaction->is_deleted,
@@ -101,6 +103,13 @@ class BankTransactionTransformer extends EntityTransformer
         $transformer = new VendorTransformer($this->serializer);
 
         return $this->includeItem($bank_transaction->vendor, $transformer, Vendor::class);
+    }
+
+    public function includePayment(BankTransaction $bank_transaction)
+    {
+        $transformer = new PaymentTransformer($this->serializer);
+
+        return $this->includeItem($bank_transaction->payment, $transformer, Payment::class);
     }
 
 }
