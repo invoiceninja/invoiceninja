@@ -41,6 +41,8 @@ class UpdateExpenseRequest extends Request
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
         }
 
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
         return $this->globalRules($rules);
     }
 

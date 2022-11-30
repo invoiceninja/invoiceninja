@@ -45,6 +45,8 @@ class StoreExpenseRequest extends Request
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
         }
 
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
         return $this->globalRules($rules);
     }
 
