@@ -110,11 +110,7 @@ class VendorTemplateEmail extends Mailable
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ]);
-            //->withSymfonyMessage(function ($message) {
-            //    $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-            //    $message->invitation = $this->invitation;
-            //});
-            // ->tag($this->company->company_key);
+
 
         // if(Ninja::isHosted() && $this->invitation){
 
