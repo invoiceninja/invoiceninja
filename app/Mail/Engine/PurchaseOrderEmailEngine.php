@@ -13,6 +13,7 @@ namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\PurchaseOrder;
@@ -125,11 +126,16 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            if (Ninja::isHosted()) {
-                $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation, 'url', true)]);
-            } else {
-                $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation)]);
-            }
+            // if (Ninja::isHosted()) {
+            //     $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation, 'url', true)]);
+            // } else {
+            //     $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation)]);
+            // }
+
+            $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
+
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);   
+
         }
 
         //attach third party documents
@@ -138,10 +144,12 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             // Storage::url
             foreach ($this->purchase_order->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
 
             foreach ($this->purchase_order->company->documents as $document) {
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
             }
 
         }
