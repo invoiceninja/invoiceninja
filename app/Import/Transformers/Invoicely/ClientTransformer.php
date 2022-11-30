@@ -34,7 +34,7 @@ class ClientTransformer extends BaseTransformer
         return [
             'company_id'     => $this->maps['company']->id,
             'name'           => $this->getString($data, 'Client Name'),
-            'work_phone'     => $this->getString($data, 'Phone'),
+            'phone'     => $this->getString($data, 'Phone'),
             'country_id'     => isset($data['Country']) ? $this->getCountryIdBy2($data['Country']) : null,
             'credit_balance' => 0,
             'settings'       => new \stdClass,

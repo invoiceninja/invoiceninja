@@ -120,45 +120,53 @@ class TemplateEmail extends Mailable
 
         /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-        if(Ninja::isHosted() && $this->invitation){
+        // if(Ninja::isHosted() && $this->invitation){
 
-            $path = false;
+        //     $path = false;
 
-            if($this->invitation->invoice)
-                $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
-            elseif($this->invitation->quote)
-                $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
-            elseif($this->invitation->credit)
-                $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
+        //     if($this->invitation->invoice)
+        //         $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
+        //     elseif($this->invitation->quote)
+        //         $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
+        //     elseif($this->invitation->credit)
+        //         $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
 
-            sleep(1);
+        //     sleep(1);
 
-            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
+        //     if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
 
-                sleep(2);
+        //         sleep(2);
 
-                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    (new CreateEntityPdf($this->invitation))->handle();
-                    sleep(2);
-                }
+        //         if(!Storage::disk(config('filesystems.default'))->exists($path)) {
+        //             (new CreateEntityPdf($this->invitation))->handle();
+        //             sleep(2);
+        //         }
 
-            }
+        //     }
 
-        }
+        // }
+
+        //        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
+
 
         //22-10-2022 - Performance - To improve the performance/reliability of sending emails, attaching as Data is much better, stubs in place
         foreach ($this->build_email->getAttachments() as $file) {
-            if (is_string($file)) {
-                // nlog($file);
-                // $file_data = file_get_contents($file);
-                // $this->attachData($file_data, basename($file));
-                $this->attach($file);
-            } elseif (is_array($file)) {
-                // nlog($file['path']);
-                // $file_data = file_get_contents($file['path']);
-                // $this->attachData($file_data, $file['name']);
+            // if (is_string($file)) {
+            //     // nlog($file);
+            //     // $file_data = file_get_contents($file);
+            //     // $this->attachData($file_data, basename($file));
+            //     $this->attach($file);
+            // } elseif (is_array($file)) {
+            //     // nlog($file['path']);
+            //     // $file_data = file_get_contents($file['path']);
+            //     // $this->attachData($file_data, $file['name']);
+            //     $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+            // }
+            if(array_key_exists('file', $file))
+                $this->attachData(base64_decode($file['file']), $file['name']);
+            else
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-            }
+
         }
 
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {

@@ -136,6 +136,8 @@ class ImportController extends Controller
         }
 
         $csv = Reader::createFromString($csvfile);
+        $csvdelimiter = self::detectDelimiter($csvfile);
+        $csv->setDelimiter($csvdelimiter);
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
@@ -155,5 +157,18 @@ class ImportController extends Controller
         }
 
         return $data;
+    }
+
+    public function detectDelimiter($csvfile)
+    {
+        $delimiters = array(',', '.', ';');
+        $bestDelimiter = false;
+        $count = 0;
+        foreach ($delimiters as $delimiter)
+            if (substr_count($csvfile, $delimiter) > $count) {
+                $count = substr_count($csvfile, $delimiter);
+                $bestDelimiter = $delimiter;
+            }
+        return $bestDelimiter;
     }
 }

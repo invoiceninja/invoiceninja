@@ -30,7 +30,7 @@ trait ClientGroupSettingsSaver
      * Saves a setting object.
      *
      * Works for groups|clients|companies
-     * @param  array $settings The request input settings array
+     * @param  array|object $settings The request input settings array
      * @param  object $entity   The entity which the settings belongs to
      * @return void
      */
@@ -62,19 +62,6 @@ trait ClientGroupSettingsSaver
         //iterate through set properties with new values;
         foreach ($settings as $key => $value) {
             $entity_settings->{$key} = $value;
-        }
-
-        $entity->settings = $entity_settings;
-
-        try{
-            $entity->save();
-        }
-        catch(\Exception $e){
-
-            nlog("client settings failure");
-            nlog($entity_settings);
-            nlog($e->getMessage());
-            
         }
 
         return $entity_settings;

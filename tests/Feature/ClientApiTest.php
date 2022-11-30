@@ -11,12 +11,20 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\ClientSettings;
+use App\Factory\ClientFactory;
+use App\Http\Requests\Client\StoreClientRequest;
+use App\Models\Client;
 use App\Models\Country;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
 use App\Utils\Number;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -30,6 +38,7 @@ class ClientApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+    use ClientGroupSettingsSaver;
 
     protected function setUp() :void
     {
@@ -43,6 +52,302 @@ class ClientApiTest extends TestCase
 
         Model::reguard();
     }
+
+    public function testCsvImportRepositoryPersistance()
+    {
+        Client::unguard();
+
+        $data = [
+          'company_id' => $this->company->id,
+          'name' => 'Christian xx',
+          'phone' => '',
+          'address1' => '',
+          'address2' => '',
+          'postal_code' => '',
+          'city' => '',
+          'state' => '',
+          'shipping_address1' => '',
+          'shipping_address2' => '',
+          'shipping_city' => '',
+          'shipping_state' => '',
+          'shipping_postal_code' => '',
+          'public_notes' => '',
+          'private_notes' => '',
+          'website' => '',
+          'vat_number' => '',
+          'id_number' => '',
+          'custom_value1' => '',
+          'custom_value2' => '',
+          'custom_value3' => '',
+          'custom_value4' => '',
+          'balance' => '0',
+          'paid_to_date' => '0',
+          'credit_balance' => 0,
+          'settings' => [
+             'entity' => 'App\\Models\\Client',
+             'currency_id' => '3',
+          ],
+          'client_hash' => 'xx',
+          'contacts' => 
+          [
+            [
+              'first_name' => '',
+              'last_name' => '',
+              'email' => '',
+              'phone' => '',
+              'custom_value1' => '',
+              'custom_value2' => '',
+              'custom_value3' => '',
+              'custom_value4' => '',
+            ]
+          ],
+          'country_id' => NULL,
+          'shipping_country_id' => NULL,
+          'user_id' => $this->user->id,
+        ];
+
+        $repository_name = ClientRepository::class;
+        $factory_name = ClientFactory::class;
+
+        $repository = app()->make($repository_name);
+        $repository->import_mode = true;
+
+        $c = $repository->save(array_diff_key($data, ['user_id' => false]), ClientFactory::create($this->company->id, $this->user->id));
+
+        Client::reguard();
+
+        $c->refresh();
+
+        $this->assertEquals("3", $c->settings->currency_id);
+
+    }
+
+    public function testClientSettingsSave()
+    {
+        
+        $std = new \stdClass;
+        $std->entity = 'App\\Models\\Client';
+        $std->currency_id = 3;
+
+        $this->settings = $this->client->settings;
+
+        $this->saveSettings($std, $this->client);
+
+        $this->assertTrue(true);
+
+    }
+
+
+    public function testClientSettingsSave2()
+    {
+
+        $std = new \stdClass;
+        $std->entity = 'App\\Models\\Client';
+        $std->industry_id = '';
+        $std->size_id = '';
+        $std->currency_id = 3;
+
+        $this->settings = $this->client->settings;
+
+        $this->saveSettings($std, $this->client);
+
+        $this->assertTrue(true);
+
+    }
+
+    public function testClientStoreValidation()
+    {
+
+         auth()->login($this->user, false);
+         auth()->user()->setCompany($this->company);
+
+        $data = array (
+          'company_id' => $this->company->id,
+          'name' => 'Christian xx',
+          'phone' => '',
+          'address1' => '',
+          'address2' => '',
+          'postal_code' => '',
+          'city' => '',
+          'state' => '',
+          'shipping_address1' => '',
+          'shipping_address2' => '',
+          'shipping_city' => '',
+          'shipping_state' => '',
+          'shipping_postal_code' => '',
+          'public_notes' => '',
+          'private_notes' => '',
+          'website' => '',
+          'vat_number' => '',
+          'id_number' => '',
+          'custom_value1' => '',
+          'custom_value2' => '',
+          'custom_value3' => '',
+          'custom_value4' => '',
+          'balance' => '0',
+          'paid_to_date' => '0',
+          'credit_balance' => 0,
+          'settings' => 
+          (object) array(
+             'entity' => 'App\\Models\\Client',
+             'currency_id' => '3',
+          ),
+          'client_hash' => 'xx',
+          'contacts' => 
+          array (
+            0 => 
+            array (
+              'first_name' => '',
+              'last_name' => '',
+              'email' => '',
+              'phone' => '',
+              'custom_value1' => '',
+              'custom_value2' => '',
+              'custom_value3' => '',
+              'custom_value4' => '',
+            ),
+          ),
+          'country_id' => NULL,
+          'shipping_country_id' => NULL,
+          'user_id' => $this->user->id,
+        );
+
+
+        $request_name = StoreClientRequest::class;
+        $repository_name = ClientRepository::class;
+        $factory_name = ClientFactory::class;
+
+        $repository = app()->make($repository_name);
+        $repository->import_mode = true;
+
+        $_syn_request_class = new $request_name;
+        $_syn_request_class->setContainer(app());
+        $_syn_request_class->initialize($data);
+        $_syn_request_class->prepareForValidation();
+
+        $validator = Validator::make($_syn_request_class->all(), $_syn_request_class->rules());
+
+        $_syn_request_class->setValidator($validator);
+
+        $this->assertFalse($validator->fails());
+
+
+    }
+
+
+
+    public function testClientImportDataStructure()
+    {
+
+
+        $data = array (
+          'company_id' => $this->company->id,
+          'name' => 'Christian xx',
+          'phone' => '',
+          'address1' => '',
+          'address2' => '',
+          'postal_code' => '',
+          'city' => '',
+          'state' => '',
+          'shipping_address1' => '',
+          'shipping_address2' => '',
+          'shipping_city' => '',
+          'shipping_state' => '',
+          'shipping_postal_code' => '',
+          'public_notes' => '',
+          'private_notes' => '',
+          'website' => '',
+          'vat_number' => '',
+          'id_number' => '',
+          'custom_value1' => '',
+          'custom_value2' => '',
+          'custom_value3' => '',
+          'custom_value4' => '',
+          'balance' => '0',
+          'paid_to_date' => '0',
+          'credit_balance' => 0,
+          'settings' => 
+          (object) array(
+             'entity' => 'App\\Models\\Client',
+             'currency_id' => '3',
+          ),
+          'client_hash' => 'xx',
+          'contacts' => 
+          array (
+            0 => 
+            array (
+              'first_name' => '',
+              'last_name' => '',
+              'email' => '',
+              'phone' => '',
+              'custom_value1' => '',
+              'custom_value2' => '',
+              'custom_value3' => '',
+              'custom_value4' => '',
+            ),
+          ),
+          'country_id' => NULL,
+          'shipping_country_id' => NULL,
+          'user_id' => $this->user->id,
+        );
+
+        $crepo = new ClientRepository(new ClientContactRepository());
+
+        $c = $crepo->save(array_diff_key($data, ['user_id' => false]), ClientFactory::create($this->company->id, $this->user->id));
+        $c->saveQuietly();
+
+        $this->assertEquals('Christian xx', $c->name);
+        $this->assertEquals('3', $c->settings->currency_id);
+    }
+
+    public function testClientCsvImport()
+    {
+
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = "840";
+
+        $data = [
+            'name' => $this->faker->firstName(),
+            'id_number' => 'Coolio',
+            'settings' => (array)$settings,
+            'contacts' => [
+                [
+                  'first_name' => '',
+                  'last_name' => '',
+                  'email' => '',
+                  'phone' => '',
+                  'custom_value1' => '',
+                  'custom_value2' => '',
+                  'custom_value3' => '',
+                  'custom_value4' => '',
+              ]
+            ]
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+        $crepo = new ClientRepository(new ClientContactRepository());
+
+        $c = $crepo->save($data, ClientFactory::create($this->company->id, $this->user->id));
+        $c->saveQuietly();
+
+
+    }
+
+
+
 
     public function testIllegalPropertiesInClientSettings()
     {

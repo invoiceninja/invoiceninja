@@ -131,8 +131,6 @@ class EmailController extends BaseController
         if(Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified)
               return response(['message' => 'Please verify your account to send emails.'], 400);
         
-        nlog($entity);
-
         if($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder'){
             return $this->sendPurchaseOrder($entity_obj, $data, $template);
         }
@@ -141,7 +139,7 @@ class EmailController extends BaseController
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
+                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data)->delay(now()->addSeconds(2));
             }
         });
 
@@ -194,7 +192,7 @@ class EmailController extends BaseController
 
         $data['template'] = $template;
         
-        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
+        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data)->delay(now()->addSeconds(2));
         
         return $this->itemResponse($entity_obj);
 

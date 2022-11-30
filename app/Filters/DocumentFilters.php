@@ -11,6 +11,7 @@
 
 namespace App\Filters;
 
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -52,6 +53,15 @@ class DocumentFilters extends QueryFilters
         $sort_col = explode('|', $sort);
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+    }
+
+
+    public function company_documents($value = 'false')
+    {
+        if($value == 'true')
+            return $this->builder->where('documentable_type', Company::class);
+    
+        return $this->builder;
     }
 
     /**

@@ -119,7 +119,7 @@ class CompanyPresenter extends EntityPresenter
             $str .= e($country->name).'<br/>';
         }
         if ($settings->phone) {
-            $str .= ctrans('texts.work_phone').': '.e($settings->phone).'<br/>';
+            $str .= ctrans('texts.phone').': '.e($settings->phone).'<br/>';
         }
         if ($settings->email) {
             $str .= ctrans('texts.work_email').': '.e($settings->email).'<br/>';

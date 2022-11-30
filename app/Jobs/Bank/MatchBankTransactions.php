@@ -266,7 +266,7 @@ class MatchBankTransactions implements ShouldQueue
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $amount;
+        $payment->amount = $this->bt->amount;
         $payment->applied = $this->applied_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
@@ -315,7 +315,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($amount*-1, $amount)
+             ->updateBalanceAndPaidToDate($this->applied_amount*-1, $amount)
              ->save();
 
         $this->invoice = $this->invoice
