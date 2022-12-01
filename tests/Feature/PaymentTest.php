@@ -263,12 +263,11 @@ class PaymentTest extends TestCase
 
             $payment_id = $arr['data']['id'];
 
-            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
-            $payment->load('invoices');
-
+            $payment = Payment::with('invoices')->find($this->decodePrimaryKey($payment_id));
+            
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
-            $this->assertEquals(1, $payment->invoices()->count());
+            $this->assertEquals(1, $payment->invoices->count());
         }
     }
 
@@ -1345,7 +1344,7 @@ class PaymentTest extends TestCase
 
             $payment_id = $arr['data']['id'];
 
-            $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
+            $payment = Payment::find($this->decodePrimaryKey($payment_id));
 
             // nlog($payment);
 
@@ -1527,7 +1526,7 @@ class PaymentTest extends TestCase
     public function testUniquePaymentNumbers()
     {
         $data = [
-            'amount' => $invoice->amount,
+            'amount' => $this->invoice->amount,
             'client_id' => $this->client->hashed_id,
             'date' => '2020/12/12',
             'number' => 'duplicate',
