@@ -42,7 +42,7 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         $first_notification_sent = true;
 
-        $invoice = $event->invitation->invoice;
+        $invoice = $event->invitation->invoice->fresh();
         $invoice->last_sent_date = now();
         $invoice->saveQuietly();
 
