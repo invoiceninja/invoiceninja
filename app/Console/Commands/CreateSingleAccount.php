@@ -198,6 +198,7 @@ class CreateSingleAccount extends Command
         $btr = BankTransactionRule::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
+            'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
         ]);
 
         $this->info('Creating '.$this->count.' clients');

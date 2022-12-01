@@ -26,7 +26,7 @@ class BankTransactionRuleFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
+            // 'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
             'matches_on_all' => (bool)rand(0,1),
             'auto_convert' => (bool)rand(0,1),
         ];
