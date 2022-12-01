@@ -879,6 +879,53 @@ class SubscriptionService
 
     }
 
+    /* OPTIONAL PRODUCTS*/
+    /**
+     * Get the single charge products for the
+     * subscription
+     *
+     */
+    public function optional_products()
+    {
+        if(!$this->subscription->optional_product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->optional_product_ids));
+
+        if(is_array($keys))
+            return Product::whereIn('id', $keys)->get();
+        else
+            return Product::where('id', $keys)->get();
+    }
+
+    /**
+     * Get the recurring products for the
+     * subscription
+     *
+     */
+    public function optional_recurring_products()
+    {
+        if(!$this->subscription->optional_recurring_product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->optional_recurring_product_ids));
+
+        if(is_array($keys)){
+            return Product::whereIn('id', $keys)->get();
+        }
+        else{
+            return Product::where('id', $keys)->get();
+        }
+
+    }
+
+
+
+
+
+
+
+
     /**
      * Get available upgrades & downgrades for the plan.
      *

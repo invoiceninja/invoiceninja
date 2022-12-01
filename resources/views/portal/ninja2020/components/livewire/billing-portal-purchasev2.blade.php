@@ -11,105 +11,138 @@
                 {{ $subscription->name }}
                 </h1>
             </div>
+            <!-- Recurring Plan Products-->
+            <ul role="list" class="-my-6 divide-y divide-gray-200">
             @if(!empty($subscription->recurring_product_ids))
-                <p
-                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-md text-xs font-medium">
-                    {{ ctrans('texts.recurring_purchases') }}
-                </p>
-              <ul role="list" class="divide-y divide-gray-200 bg-white">
                 @foreach($subscription->service()->recurring_products() as $product)
-                <li>
-                  <a href="#" class="block hover:bg-gray-50">
-                    <div class="px-4 py-4 sm:px-6">
-                      <div class="flex items-center justify-between">
-                        <div class="ml-2 flex flex-shrink-0">
-                          <p class="inline-flex rounded-md bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"></p>
-                        </div>
+                    <li class="flex py-6">
+                      @if(false)
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
                       </div>
-                      <div class="mt-0 sm:flex sm:justify-between">
-                        <div class="sm:flex">
-                          <p class="text-sm font-medium text-gray-900 mt-0">{!! nl2br($product->notes) !!}</p>
+                      @endif
+                      <div class="ml-0 flex flex-1 flex-col">
+                        <div>
+                          <div class="flex justify-between text-base font-medium text-gray-900">
+                            <h3>
+                              <a href="#">{!! nl2br($product->notes) !!}</a>
+                            </h3>
+                            <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
+                          </div>
+                          <p class="mt-1 text-sm text-gray-500"></p>
                         </div>
-                        <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                            <span data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                @endforeach
-            </ul>
-            @endif
-        </div>
-        <div class="w-full p-4 md:max-w-3xl">
+                        <div class="flex flex-1 items-end justify-between text-sm">
+                          <p class="text-gray-500"></p>
 
-            @if(!empty($subscription->product_ids))
-                <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-md text-xs font-medium">
-                    {{ ctrans('texts.one_time_purchases') }}
-                </p>
-                <ul role="list" class="divide-y divide-gray-200 bg-white">
-                    @foreach($subscription->service()->products() as $product)
-                    <li>
-                      <a href="#" class="block hover:bg-gray-50">
-                        <div class="px-4 py-4 sm:px-6">
-                          <div class="flex items-center justify-between">
-                            <p class="truncate text-sm font-medium text-gray-600"></p>
-                            <div class="ml-2 flex flex-shrink-0">
-                              <p class="inline-flex rounded-md bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"></p>
-                            </div>
-                          </div>
-                          <div class="mt-2 sm:flex sm:justify-between">
-                            <div class="sm:flex">
-                              <p class="text-sm font-medium text-gray-900 mt-2">{!! nl2br($product->notes) !!}</p>
-                            </div>
-                            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                <span data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-                            </div>
+                          <div class="flex">
+                            <p></p>
                           </div>
                         </div>
-                      </a>
+                      </div>
                     </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-
-        <div class="w-full px-4 pb-0 md:max-w-3xl">
-            <h2 class="text-2xl font-normal text-left">Optional products</h2>
-        </div>
-
-        <div class="w-full p-4 md:max-w-3xl">
-            @if(!empty($subscription->recurring_product_ids))
-                @foreach($subscription->service()->recurring_products() as $product)
-                <div class="flex items-center justify-between mb-4 bg-white rounded-md px-6 py-4 shadow-sm border">
-                    <div class="text-sm">{!! nl2br($product->notes) !!}</div>
-                    <div data-ref="price-and-quantity-container">
-                        <span data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</span>
-                        {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
-                    </div>
-                </div>
                 @endforeach
             @endif
-        </div>
-        <div class="w-full p-4 md:max-w-3xl">
-
+            <!-- One Time Plan Products-->
             @if(!empty($subscription->product_ids))
                 @foreach($subscription->service()->products() as $product)
-                    <div class="flex items-center justify-between mb-4 bg-white rounded-md px-6 py-4 shadow-sm border">
-                        <div class="text-sm">{!! nl2br($product->notes) !!}</div>
-                        <div data-ref="price-and-quantity-container">
-                            <span
-                                data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-                            {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
+                    <li class="flex py-6">
+                      @if(false)
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
+                      </div>
+                      @endif
+                      <div class="ml-0 flex flex-1 flex-col">
+                        <div>
+                          <div class="flex justify-between text-base font-medium text-gray-900">
+                            <h3>
+                              <a href="#">{!! nl2br($product->notes) !!}</a>
+                            </h3>
+                            <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
+                          </div>
+                          <p class="mt-1 text-sm text-gray-500"></p>
                         </div>
-                    </div>
+                        <div class="flex flex-1 items-end justify-between text-sm">
+                          <p class="text-gray-500"></p>
+                          <div class="flex">
+                          </div>
+                        </div>
+                      </div>
+                    </li>
                 @endforeach
             @endif
+            </ul>
+        </div>
+
+        <div class="w-full p-4 md:max-w-3xl">
+            <h2 class="text-2xl font-normal text-left border-b-4">Optional products</h2>
+        </div>
+
+        <div class="w-full px-4 md:max-w-3xl">
+
+            <!-- Optional Recurring Products-->
+            <ul role="list" class="-my-6 divide-y divide-gray-200">
+                @if(!empty($subscription->optional_recurring_product_ids))
+                    @foreach($subscription->service()->optional_recurring_products() as $product)
+                        <li class="flex py-6">
+                          @if(false)
+                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                            <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
+                          </div>
+                          @endif
+                          <div class="ml-0 flex flex-1 flex-col">
+                            <div>
+                              <div class="flex justify-between text-base font-medium text-gray-900">
+                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
+                              </div>
+                              <p class="mt-1 text-sm text-gray-500"></p>
+                            </div>
+                            <div class="flex content-end text-sm mt-1">
+                                <p class="text-gray-500 w-full"></p>
+                                <div class="flex place-content-end">
+                                    <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
+                                    <input type="text" name="optional_recurring_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
+                                </div>
+
+                            </div>
+                          </div>
+                        </li>
+                    @endforeach    
+                @endif
+                @if(!empty($subscription->optional_product_ids))
+                    @foreach($subscription->service()->optional_products() as $product)
+                        <li class="flex py-6">
+                          @if(false)
+                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                            <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
+                          </div>
+                          @endif
+                          <div class="ml-0 flex flex-1 flex-col">
+                            <div>
+                              <div class="flex justify-between text-base font-medium text-gray-900">
+                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
+                              </div>
+                              <p class="mt-1 text-sm text-gray-500"></p>
+                            </div>
+                            <div class="flex content-end text-sm mt-1">
+                                <p class="text-gray-500 w-full"></p>
+                                <div class="flex place-content-end">
+                                    <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
+                                    <input type="text" name="optional_recurring_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
+                                </div>
+
+                            </div>
+                          </div>
+                        </li>
+                    @endforeach    
+                @endif
+            </ul>
         </div>
     </div>
 
 
-    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2">
+    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 h-screen">
         <div class="w-full p-4">
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>
