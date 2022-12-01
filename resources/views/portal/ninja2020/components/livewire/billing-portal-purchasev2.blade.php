@@ -1,7 +1,3 @@
-<style type="text/css">
-    
-</style>
-
 <div class="grid grid-cols-12">
     <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
         <div class="w-full p-4 md:max-w-3xl">
@@ -14,7 +10,7 @@
             <!-- Recurring Plan Products-->
             <ul role="list" class="-my-6 divide-y divide-gray-200">
             @if(!empty($subscription->recurring_product_ids))
-                @foreach($subscription->service()->recurring_products() as $product)
+                @foreach($subscription->service()->recurring_products() as $index => $product)
                     <li class="flex py-6">
                       @if(false)
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
@@ -25,19 +21,34 @@
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              <a href="#">{!! nl2br($product->notes) !!}</a>
+                              {!! nl2br($product->notes) !!}
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                           </div>
                           <p class="mt-1 text-sm text-gray-500"></p>
                         </div>
-                        <div class="flex flex-1 items-end justify-between text-sm">
-                          <p class="text-gray-500"></p>
-
-                          <div class="flex">
-                            <p></p>
-                          </div>
+                        <div class="flex content-end text-sm mt-1">
+                            @if($subscription->per_seat_enabled)
+                            <p class="text-gray-500 w-full"></p>
+                            <div class="flex place-content-end">
+                                <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
+                                <input wire:model="data.{{ $index }}.recurring_qty" type="text" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0"/>
+                            </div>
+                            @endif
                         </div>
+                        {{ isset($data[$index]['recurring_qty']) ? $data[$index]['recurring_qty'] : 'merp' }}
+
+                        @if($errors)
+                            @foreach($errors as $error)
+                            {{ $error }}
+                            @endforeach
+                        @endif
+                        @error('data.{{$index}}.recurring_qty') 
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                            <span class="block sm:inline">{{ $message }} </span>
+                            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                        </div>
+                        @enderror
                       </div>
                     </li>
                 @endforeach
@@ -55,7 +66,7 @@
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              <a href="#">{!! nl2br($product->notes) !!}</a>
+                              {!! nl2br($product->notes) !!}
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                           </div>
@@ -82,7 +93,7 @@
             <!-- Optional Recurring Products-->
             <ul role="list" class="-my-6 divide-y divide-gray-200">
                 @if(!empty($subscription->optional_recurring_product_ids))
-                    @foreach($subscription->service()->optional_recurring_products() as $product)
+                    @foreach($subscription->service()->optional_recurring_products() as $index => $product)
                         <li class="flex py-6">
                           @if(false)
                           <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
@@ -101,16 +112,21 @@
                                 <p class="text-gray-500 w-full"></p>
                                 <div class="flex place-content-end">
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
-                                    <input type="text" name="optional_recurring_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
+                                    <input wire:model="data.{{ $index }}.optional_recurring_qty" type="text" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0"/>
                                 </div>
-
                             </div>
+                             
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                              <span class="block sm:inline">{{ isset($data[$index]['optional_recurring_qty']) ? $data[$index]['optional_recurring_qty'] : '' }}</span>
+                              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            </div>
+
                           </div>
                         </li>
                     @endforeach    
                 @endif
                 @if(!empty($subscription->optional_product_ids))
-                    @foreach($subscription->service()->optional_products() as $product)
+                    @foreach($subscription->service()->optional_products() as $index => $product)
                         <li class="flex py-6">
                           @if(false)
                           <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
@@ -129,9 +145,12 @@
                                 <p class="text-gray-500 w-full"></p>
                                 <div class="flex place-content-end">
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
-                                    <input type="text" name="optional_recurring_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
+                                    <input type="text" wire:model="data.{{ $index }}.optional_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
                                 </div>
-
+                            </div>
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                              <span class="block sm:inline">{{ isset($data[$index]['optional_qty']) ? $data[$index]['optional_qty'] : '' }}</span>
+                              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                           </div>
                         </li>
@@ -192,7 +211,4 @@
             </div>
         </div>
     </div>
-
-
 </div>
-
