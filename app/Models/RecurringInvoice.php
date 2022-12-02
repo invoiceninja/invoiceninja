@@ -557,6 +557,7 @@ class RecurringInvoice extends BaseModel
         switch ($this->due_date_days) {
             case 'terms':
             case '':
+            case '0':
                 return $this->calculateDateFromTerms($date);
                 break;
 				
