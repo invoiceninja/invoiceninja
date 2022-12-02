@@ -29,6 +29,7 @@ class RecurringInvoiceFactory
         $invoice->private_notes = '';
         $invoice->date = null;
         $invoice->due_date = null;
+        $invoice->due_date_days = 'terms';
         $invoice->partial_due_date = null;
         $invoice->is_deleted = false;
         $invoice->line_items = json_encode([]);

@@ -37,6 +37,88 @@ class BankTransactionTest extends TestCase
         );
     }
 
+    public function testLinkExpenseToTransaction()
+    {
+
+        $data = [];
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->status_id = BankTransaction::STATUS_UNMATCHED;
+        $bt->description = 'Fuel';
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'DEBIT';
+        $bt->save();
+
+        $data = [];
+
+        $data['transactions'][] = [
+            'id' => $bt->hashed_id,
+            'expense_id' => $this->expense->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transactions/match', $data);
+
+        $response->assertStatus(200);
+
+        $this->assertEquals($this->expense->refresh()->transaction_id, $bt->id);
+        $this->assertEquals($bt->refresh()->expense_id, $this->expense->id);
+        $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
+
+    }
+
+
+    public function testLinkPaymentToTransaction()
+    {
+
+        $data = [];
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->status_id = BankTransaction::STATUS_UNMATCHED;
+        $bt->description = 'Fuel';
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'CREDIT';
+        $bt->save();
+
+        $data = [];
+
+        $data['transactions'][] = [
+            'id' => $bt->hashed_id,
+            'payment_id' => $this->payment->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transactions/match', $data);
+
+        $response->assertStatus(200);
+
+        $this->assertEquals($this->payment->refresh()->transaction_id, $bt->id);
+        $this->assertEquals($bt->refresh()->payment_id, $this->payment->id);
+        $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
+
+    }
+
+
     public function testMatchBankTransactionsValidationShouldFail()
     {
         $data = [];
