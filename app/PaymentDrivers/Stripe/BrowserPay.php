@@ -28,6 +28,7 @@ use Illuminate\View\View;
 use Stripe\ApplePayDomain;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
+use App\Models\Invoice;
 
 class BrowserPay implements MethodInterface
 {
@@ -66,11 +67,21 @@ class BrowserPay implements MethodInterface
 
     public function paymentView(array $data): View
     {
+         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        } else {
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        }
+        
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
+            'description' =>  $description,
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::APPLE_PAY,
@@ -181,7 +192,7 @@ class BrowserPay implements MethodInterface
             $this->stripe->client->company,
         );
 
-        throw new PaymentFailed('Failed to process the payment.', 500);
+        throw new PaymentFailed(ctrans('texts.payment_provider_failed_process_payment'), 500);
     }
 
     /**
@@ -201,7 +212,7 @@ class BrowserPay implements MethodInterface
         $domain = $this->getAppleDomain();
 
         if (! $domain) {
-            throw new PaymentFailed('Unable to register Domain with Apple Pay', 500);
+            throw new PaymentFailed(ctrans('texts.stripe_error_register_apple_pay_domain'), 500);
         }
 
         $response = ApplePayDomain::create([
