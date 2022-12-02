@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 
@@ -49,13 +50,23 @@ class BECS
         $data['country'] = $this->stripe->client->country->iso_3166_2;
         $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
+         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        } else {
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        }
+        
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => $this->stripe->client->currency()->code,
             'payment_method_types' => ['au_becs_debit'],
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $description,
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BECS,
