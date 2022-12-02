@@ -22,6 +22,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
+use App\Models\Invoice;
 
 class ApplePay
 {
@@ -44,10 +45,21 @@ class ApplePay
         $data['currency'] = $this->stripe_driver->client->currency()->code;
         $data['stripe_amount'] = $this->stripe_driver->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe_driver->client->currency()->precision, $this->stripe_driver->client->currency());
         $data['invoices'] = $this->stripe_driver->payment_hash->invoices();
+        
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
 
+        if ($invoice) {
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        } else {
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        }
+        
         $data['intent'] = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => $this->stripe_driver->client->getCurrencyCode(),
+            'description' => $description,
             'metadata' => [
                 'payment_hash' => $this->stripe_driver->payment_hash->hash,
                 'gateway_type_id' => GatewayType::APPLE_PAY,
