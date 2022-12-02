@@ -90,7 +90,6 @@ class EmailEntity implements ShouldQueue
 
         $this->template_data = $template_data;
 
-        $this->email_entity_builder = $this->resolveEmailBuilder();
     }
 
     /**
@@ -105,6 +104,8 @@ class EmailEntity implements ShouldQueue
         if ($this->company->is_disabled) {
             return;
         }
+
+        $this->email_entity_builder = $this->resolveEmailBuilder();
 
         /* Set DB */
         MultiDB::setDB($this->company->db);
