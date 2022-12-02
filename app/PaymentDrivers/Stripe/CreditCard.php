@@ -18,6 +18,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
