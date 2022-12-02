@@ -25,7 +25,6 @@ use Tests\TestCase;
 
 class BankTransactionRuleTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -44,8 +43,21 @@ class BankTransactionRuleTest extends TestCase
 
     public function testValidationContainsRule()
     {
-        //[{"search_key":"description","operator":"contains","value":"hello"}]
 
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => 'HellO ThErE CowBoY',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
 
         $br = BankTransactionRule::factory()->create([
             'company_id' => $this->company->id,
@@ -63,24 +75,12 @@ class BankTransactionRuleTest extends TestCase
                     'value' => 'hello',
                 ]
             ]
-        ]);
+        ]);    
 
-        $bi = BankIntegration::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'account_id' => $this->account->id,
-        ]);
+        $bt = $bt->refresh();
 
-        $bt = BankTransaction::factory()->create([
-            'bank_integration_id' => $bi->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'description' => 'HellO ThErE CowBoY',
-            'base_type' => 'DEBIT',
-            'amount' => 100
-        ]);
-    
-
+        $debit_rules = $bt->company->debit_rules();
+   
         $bt->service()->processRules();
 
         $bt = $bt->fresh();
@@ -89,7 +89,7 @@ class BankTransactionRuleTest extends TestCase
         $this->assertNotNull($bt->expense->category_id);
         $this->assertNotNull($bt->expense->vendor_id);
         
-
+        $bt = null;
     }
 
 
@@ -152,6 +152,21 @@ class BankTransactionRuleTest extends TestCase
     public function testMatchingBankTransactionExpenseAmountLessThanEqualTo()
     {
 
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => 'xx',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
+
         $br = BankTransactionRule::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -168,28 +183,17 @@ class BankTransactionRuleTest extends TestCase
                 ]
             ]
         ]);
-
-        $bi = BankIntegration::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'account_id' => $this->account->id,
-        ]);
-
-        $bt = BankTransaction::factory()->create([
-            'bank_integration_id' => $bi->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'description' => '',
-            'base_type' => 'DEBIT',
-            'amount' => 100
-        ]);
+        
     
+        $bt->company->refresh();
 
-        $bt->service()->processRules();
+        $bt->refresh()->service()->processRules();
 
         $bt = $bt->fresh();
 
         $this->assertNotNull($bt->expense_id);
+
+        $bt=null;
     }
 
 
@@ -272,7 +276,7 @@ class BankTransactionRuleTest extends TestCase
         ]);
     
 
-        $bt->service()->processRules();
+        $bt->refresh()->service()->processRules();
 
         $bt = $bt->fresh();
 
@@ -402,6 +406,7 @@ class BankTransactionRuleTest extends TestCase
             'amount' => 100
         ]);
     
+        $bt = $bt->refresh();
 
         $bt->service()->processRules();
 
@@ -412,6 +417,22 @@ class BankTransactionRuleTest extends TestCase
 
     public function testMatchingBankTransactionExpenseIsEmptyMiss()
     {
+
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id,
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => 'asdadsa',
+            'base_type' => 'DEBIT',
+            'amount' => 100
+        ]);
+
 
         $br = BankTransactionRule::factory()->create([
             'company_id' => $this->company->id,
@@ -430,21 +451,8 @@ class BankTransactionRuleTest extends TestCase
             ]
         ]);
 
-        $bi = BankIntegration::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'account_id' => $this->account->id,
-        ]);
-
-        $bt = BankTransaction::factory()->create([
-            'bank_integration_id' => $bi->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'description' => 'asdadsa',
-            'base_type' => 'DEBIT',
-            'amount' => 100
-        ]);
     
+        $bt->load('company');
 
         $bt->service()->processRules();
 

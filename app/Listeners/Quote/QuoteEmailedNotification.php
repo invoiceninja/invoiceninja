@@ -42,7 +42,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
         // $first_notification_sent = true;
 
-        $quote = $event->invitation->quote;
+        $quote = $event->invitation->quote->fresh();
         $quote->last_sent_date = now();
         $quote->saveQuietly();
 

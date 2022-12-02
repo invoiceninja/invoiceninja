@@ -119,9 +119,9 @@
                     },
                     "content": {
                         "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
-                        "message": "This website uses cookies to ensure you get the best experience on our website.",
-                        "dismiss": "Got it!",
-                        "link": "Learn more",
+                        "message": "{{ ctrans('texts.cookie_message')}}",
+                        "dismiss": "{{ ctrans('texts.got_it')}}",
+                        "link": "{{ ctrans('texts.learn_more')}}",
                     }
                 })}
             );

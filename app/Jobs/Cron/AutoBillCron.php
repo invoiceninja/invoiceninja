@@ -62,7 +62,7 @@ class AutoBillCron
 
             nlog($auto_bill_partial_invoices->count().' partial invoices to auto bill');
 
-            $auto_bill_partial_invoices->chunk(100, function ($invoices) {
+            $auto_bill_partial_invoices->chunk(400, function ($invoices) {
 
                 foreach($invoices as $invoice)
                 {
@@ -86,7 +86,7 @@ class AutoBillCron
 
             nlog($auto_bill_invoices->count().' full invoices to auto bill');
 
-            $auto_bill_invoices->chunk(100, function ($invoices) {
+            $auto_bill_invoices->chunk(400, function ($invoices) {
 
                 foreach($invoices as $invoice)
                 {
@@ -114,7 +114,7 @@ class AutoBillCron
 
                 nlog($auto_bill_partial_invoices->count()." partial invoices to auto bill db = {$db}");
 
-                $auto_bill_partial_invoices->chunk(100, function ($invoices) use($db){
+                $auto_bill_partial_invoices->chunk(400, function ($invoices) use($db){
 
                     foreach($invoices as $invoice)
                     {
@@ -137,7 +137,7 @@ class AutoBillCron
 
                 nlog($auto_bill_invoices->count()." full invoices to auto bill db = {$db}");
 
-                $auto_bill_invoices->chunk(100, function ($invoices) use($db){
+                $auto_bill_invoices->chunk(400, function ($invoices) use($db){
 
                     foreach($invoices as $invoice)
                     {
