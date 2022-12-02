@@ -152,6 +152,6 @@ class Bancontact
             $this->stripe->client->company,
         );
 
-        throw new PaymentFailed('Failed to process the payment.', 500);
+        throw new PaymentFailed(ctrans('texts.payment_provider_failed_process_payment'), 500);
     }
 }
