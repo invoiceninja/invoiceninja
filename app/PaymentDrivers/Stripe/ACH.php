@@ -173,9 +173,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
 
@@ -211,9 +211,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_provider_paymenttext_tokenbilling', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice_tokenbilling', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($cgt->token, 0, 2) === 'pm') {
@@ -301,16 +301,16 @@ class ACH
                     $data['message'] = $e->getError()->message;
                 break;
                 case $e instanceof RateLimitException:
-                    $data['message'] = 'Too many requests made to the API too quickly';
+                    $data['message'] = ctrans('texts.stripe_error_rate_limit');
                 break;
                 case $e instanceof InvalidRequestException:
-                    $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
+                    $data['message'] = ctrans('texts.stripe_error_invalid_request');
                 break;
                 case $e instanceof AuthenticationException:
-                    $data['message'] = 'Authentication with Stripe\'s API failed';
+                    $data['message'] = ctrans('texts.stripe_error_authentication_failed');
                 break;
                 case $e instanceof ApiErrorException:
-                    $data['message'] = 'Network communication with Stripe failed';
+                    $data['message'] = ctrans('texts.stripe_error_api_error');
                 break;
 
                 default:
@@ -455,9 +455,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.payment_provider_paymenttext', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($source->token, 0, 2) === 'pm') {
