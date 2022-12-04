@@ -178,6 +178,8 @@ class MatchBankTransactions implements ShouldQueue
 
             $this->bt->expense_id = $expense->id;
             $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+            $this->bt->vendor_id = $expense->vendor_id;
+            $this->bt->ninja_category_id = $expense->category_id;
             $this->bt->save();
 
         }
@@ -201,6 +203,7 @@ class MatchBankTransactions implements ShouldQueue
 
             $this->bt->payment_id = $payment->id;
             $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+            $this->bt->invoice_ids = collect($payment->invoices)->pluck('hashed_id')->implode(',');
             $this->bt->save();
 
         }
