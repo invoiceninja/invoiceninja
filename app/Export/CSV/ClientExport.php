@@ -76,6 +76,7 @@ class ClientExport extends BaseExport
         'contact_custom_value3' => 'contact.custom_value3',
         'contact_custom_value4' => 'contact.custom_value4',
         'email' => 'contact.email',
+        'status' => 'status'
     ];
 
     private array $decorate_keys = [
@@ -173,6 +174,19 @@ class ClientExport extends BaseExport
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : '';
         }
 
+        $entity['status'] = $this->calculateStatus($client);
+
         return $entity;
+    }
+
+    private function calculateStatus($client)
+    {
+        if($client->is_deleted)
+            return ctrans('texts.deleted');
+
+        if($client->deleted_at)
+            return ctrans('texts.arcvived');
+
+        return ctrans('texts.active');
     }
 }
