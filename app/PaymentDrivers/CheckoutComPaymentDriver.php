@@ -302,7 +302,8 @@ class CheckoutComPaymentDriver extends BaseDriver
             }
             
                 $phone = new Phone();
-                $phone->number = $this->client->present()->phone();
+                // $phone->number = $this->client->present()->phone();
+                $phone->number = substr(str_pad($this->client->present()->phone(),6, "0", STR_PAD_RIGHT), 0 , 24);
 
                 $request->email = $this->client->present()->email();
                 $request->name = $this->client->present()->name();
