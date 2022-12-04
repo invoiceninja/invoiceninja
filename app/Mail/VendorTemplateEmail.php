@@ -141,7 +141,13 @@ class VendorTemplateEmail extends Mailable
             //     $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
             // }
 
-            $this->attachData(base64_decode($file['file']), $file['name']);
+       //     $this->attachData(base64_decode($file['file']), $file['name']);
+
+            if(array_key_exists('file', $file))
+                $this->attachData(base64_decode($file['file']), $file['name']);
+            else
+                $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+
 
         }
 

@@ -33,7 +33,7 @@ class BankMatchingService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(protected int $company_id, private string $db){}
+    public function __construct(public int $company_id, private string $db){}
 
     public function handle() :void
     {
@@ -53,6 +53,8 @@ class BankMatchingService implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping("bank_match_rate:{$this->company_id}")];
+        $middleware_key = "bank_match_rate:{$this->company_id}";
+        
+        return [new WithoutOverlapping($middleware_key)];
     }
 }
