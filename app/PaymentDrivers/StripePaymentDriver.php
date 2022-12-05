@@ -37,6 +37,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\GIROPAY;
+use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
@@ -97,6 +98,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BECS => BECS::class,
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
+        GatewayType::KLARNA => KLARNA::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -233,6 +235,13 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['CAN', 'USA'])) {
             $types[] = GatewayType::ACSS;
         }
+        if ($this->client
+            && $this->client->currency()
+            && in_array($this->client->currency()->code, ['EUR', 'USD', 'GBP', 'DKK', 'SEK', 'NOK'])
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['DE', 'AT', 'BE'])) {
+            $types[] = GatewayType::KLARNA;
+        }
 
         if (
             $this->client
@@ -270,6 +279,9 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::GIROPAY:
                 return 'gateways.stripe.giropay';
+                break;
+            case GatewayType::KLARNA:
+                return 'gateways.stripe.klarna';
                 break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
