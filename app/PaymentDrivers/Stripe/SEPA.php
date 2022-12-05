@@ -67,7 +67,7 @@ class SEPA
             ],
         ];
 
-        $intent = \Stripe\PaymentIntent::create($intent_data, $this->stripe->stripe_connect_auth);
+        $intent = \Stripe\PaymentIntent::create($intent_data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 

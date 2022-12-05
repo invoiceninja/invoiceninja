@@ -96,7 +96,7 @@ class Charge
                 $data['off_session'] = true;
             }
 
-            $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
+            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
