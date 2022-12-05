@@ -25,6 +25,9 @@ use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -47,6 +50,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
+use Database\Factories\BankTransactionRuleFactory;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -87,7 +91,7 @@ class CreateSingleAccount extends Command
         MultiDB::setDb($this->option('database'));
 
         $this->info(date('r').' Create Single Sample Account...');
-        $this->count = 1;
+        $this->count = 5;
         $this->gateway = $this->argument('gateway');
 
         $this->info('Warming up cache');
@@ -179,6 +183,23 @@ class CreateSingleAccount extends Command
             'rate' => 5
         ]);
 
+        $bi = BankIntegration::factory()->create([
+            'account_id' => $account->id,
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+
+        BankTransaction::factory()->count(50)->create([
+            'bank_integration_id' => $bi->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        $btr = BankTransactionRule::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
+        ]);
 
         $this->info('Creating '.$this->count.' clients');
 
@@ -358,7 +379,7 @@ class CreateSingleAccount extends Command
 
     private function createExpense($client)
     {
-        Expense::factory()->count(rand(1, 2))->create([
+        Expense::factory()->count(rand(1, 20))->create([
                 'user_id' => $client->user->id,
                 'client_id' => $client->id,
                 'company_id' => $client->company->id,
@@ -590,7 +611,6 @@ class CreateSingleAccount extends Command
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
-            if (! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
                 if (! Schema::hasTable((new $class())->getTable())) {
                     continue;
@@ -608,7 +628,6 @@ class CreateSingleAccount extends Command
                 if ($tableData->count()) {
                     Cache::forever($name, $tableData);
                 }
-            }
         }
     }
 

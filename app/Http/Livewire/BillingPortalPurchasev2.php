@@ -40,14 +40,6 @@ class BillingPortalPurchasev2 extends Component
     public $hash;
 
     /**
-     * Top level text on the left side of billing page.
-     *
-     * @var string
-     */
-    public $heading_text;
-
-
-    /**
      * E-mail address model for user input.
      *
      * @var string
@@ -80,9 +72,13 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var \string[][]
      */
-    protected $rules = [
-        'email' => ['required', 'email'],
-    ];
+    // protected $rules = [
+    //     'email' => ['required', 'email'],
+    //     'data' => ['required', 'array'],
+    //     'data.*.recurring_qty' => ['required', 'between:100,1000'],
+    //     'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
+    //     'data.*.optional_qty' => ['required', 'between:100,1000'],
+    // ];
 
     /**
      * Id for CompanyGateway record.
@@ -119,6 +115,8 @@ class BillingPortalPurchasev2 extends Component
         'not_eligible_message' => null,
         'payment_required' => true,
     ];
+
+    public $data = [];
 
     /**
      * List of payment methods fetched from client.
@@ -187,6 +185,8 @@ class BillingPortalPurchasev2 extends Component
 
         $this->quantity = 1;
 
+        $this->data = [];
+
         $this->price = $this->subscription->price;
 
         if (request()->query('coupon')) {
@@ -196,6 +196,44 @@ class BillingPortalPurchasev2 extends Component
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price;
         }
+    }
+
+    public function updatingData()
+    {
+        nlog('updating');
+        // nlog($this->data);
+    }
+
+    public function updatedData()
+    {
+        nlog('updated');
+        nlog($this->data);
+        $validatedData = $this->validate();
+        nlog( $validatedData );
+    }
+
+    public function updated($propertyName)
+    {
+        nlog("validating {$propertyName}");
+        $this->errors = $this->validateOnly($propertyName);
+
+        nlog($this->errors);
+        $validatedData = $this->validate();
+        nlog( $validatedData );
+
+    }
+
+    public function rules()
+    {
+         $rules = [
+            'email' => ['required', 'email'],
+            'data' => ['required', 'array'],
+            'data.*.recurring_qty' => ['required', 'between:100,1000'],
+            'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
+            'data.*.optional_qty' => ['required', 'between:100,1000'],
+        ];
+
+        return $rules;
     }
 
     /**
@@ -264,9 +302,6 @@ class BillingPortalPurchasev2 extends Component
                 $data['contacts'][0][$field] = $value;
             }
         }
-
-// nlog($this->subscription->group_settings->settings);
-// nlog($this->subscription->group_settings->settings->currency_id);
 
         if(array_key_exists('currency_id', $this->request_data)) {
 
@@ -524,5 +559,12 @@ class BillingPortalPurchasev2 extends Component
         }
 
         return render('components.livewire.billing-portal-purchasev2');
+    }
+
+    public function changeData()
+    {
+
+        nlog($this->data);
+
     }
 }

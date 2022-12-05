@@ -102,6 +102,10 @@ class CreateRawPdf implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->generate($this->invitation, true);
+        }
+
         $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {

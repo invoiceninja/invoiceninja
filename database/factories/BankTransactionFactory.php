@@ -34,7 +34,8 @@ class BankTransactionFactory extends Factory
             'date' => $this->faker->date('Y-m-d') ,
             'bank_account_id' => 1 ,
             'description' =>$this->faker->words(5, true) ,
-            'status_id'=> 1
+            'status_id'=> 1,
+            'base_type' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
         ];
     }
 }

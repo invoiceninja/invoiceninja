@@ -295,8 +295,13 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.item'] = is_null(optional($item)->item) ? $item->product_key : $item->item;
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
 
-            $data[$key][$table_type.'.notes'] = Helpers::processReservedKeywords($item->notes, $entity);
-            $data[$key][$table_type.'.description'] = Helpers::processReservedKeywords($item->notes, $entity);
+            $currentDateTime = null;
+            if (isset($this->entity->next_send_date)) {
+                $currentDateTime = Carbon::parse($this->entity->next_send_date);
+            }
+
+            $data[$key][$table_type.'.notes'] = Helpers::processReservedKeywords($item->notes, $entity, $currentDateTime);
+            $data[$key][$table_type.'.description'] = Helpers::processReservedKeywords($item->notes, $entity, $currentDateTime);
 
             $data[$key][$table_type.".{$_table_type}1"] = strlen($item->custom_value1) >= 1 ? $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}1", $item->custom_value1, $entity) : '';
             $data[$key][$table_type.".{$_table_type}2"] = strlen($item->custom_value2) >= 1 ? $helpers->formatCustomFieldValue($this->company->custom_fields, "{$_table_type}2", $item->custom_value2, $entity) : '';

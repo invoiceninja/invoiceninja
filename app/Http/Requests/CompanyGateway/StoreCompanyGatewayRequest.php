@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Models\Gateway;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
+use Illuminate\Validation\Rule;
 
 class StoreCompanyGatewayRequest extends Request
 {
@@ -33,7 +34,7 @@ class StoreCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [
-            'gateway_key' => 'required|alpha_num',
+            'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways','key')],
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
 
@@ -67,4 +68,5 @@ class StoreCompanyGatewayRequest extends Request
 
         $this->replace($input);
     }
+
 }

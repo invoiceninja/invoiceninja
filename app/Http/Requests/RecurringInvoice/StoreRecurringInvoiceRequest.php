@@ -65,6 +65,7 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['tax_name1'] = 'bail|sometimes|string|nullable';
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
+        $rules['due_date_days'] = 'bail|sometimes|string';
         
         return $rules;
     }
@@ -72,6 +73,10 @@ class StoreRecurringInvoiceRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])){
+            $input['due_date_days'] = 'terms';
+        }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];

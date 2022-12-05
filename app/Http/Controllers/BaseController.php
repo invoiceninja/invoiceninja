@@ -539,7 +539,7 @@ class BaseController extends Controller
                         $query->where('bank_integrations.user_id', $user->id);
                     }
                 },
-                'company.bank_transaction_rules'=> function ($query) use ($updated_at, $user) {
+                'company.bank_transaction_rules'=> function ($query) use ($user) {
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_transaction_rules.user_id', $user->id);

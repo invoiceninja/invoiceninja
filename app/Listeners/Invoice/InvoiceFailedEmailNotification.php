@@ -29,8 +29,6 @@ class InvoiceFailedEmailNotification
 
     use UserNotifies, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $delay = 10;
-
     public function __construct()
     {
     }
@@ -48,7 +46,7 @@ class InvoiceFailedEmailNotification
         $first_notification_sent = true;
 
         $invoice = $event->invitation->invoice;
-        $invoice->update(['last_sent_date' => now()]);
+        // $invoice->update(['last_sent_date' => now()]);
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());

@@ -56,6 +56,8 @@ class ClientRepository extends BaseRepository
      */
     public function save(array $data, Client $client) : ?Client
     {
+        $contact_data = $data;
+        unset($data['contacts']);
 
         /* When uploading documents, only the document array is sent, so we must return early*/
         if (array_key_exists('documents', $data) && count($data['documents']) >= 1) {
@@ -67,7 +69,7 @@ class ClientRepository extends BaseRepository
         $client->fill($data);
 
         if (array_key_exists('settings', $data)) {
-            $client->saveSettings($data['settings'], $client);
+            $client->settings = $client->saveSettings($data['settings'], $client);
         }
 
         if (! $client->country_id) {
@@ -75,19 +77,9 @@ class ClientRepository extends BaseRepository
             $client->country_id = $company->settings->country_id;
         }
 
-        try{
-            $client->save();
-        }
-        catch(\Exception $e) {
-
-            nlog("client save failed");
-            nlog($data);
-            
-        }
+        $client->save();
 
         if (! isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
-            // $client->number = $this->getNextClientNumber($client);
-            // $client->save();
 
             $x = 1;
 
@@ -111,7 +103,7 @@ class ClientRepository extends BaseRepository
             $data['name'] = $client->present()->name();
         }
 
-        $this->contact_repo->save($data, $client);
+        $this->contact_repo->save($contact_data, $client);
 
         return $client;
     }

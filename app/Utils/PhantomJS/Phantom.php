@@ -42,7 +42,7 @@ class Phantom
      *
      * @param $invitation
      */
-    public function generate($invitation)
+    public function generate($invitation, $return_pdf = false)
     {
         $entity = false;
 
@@ -111,6 +111,9 @@ class Phantom
         }
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
+
+        if($return_pdf)
+            return $pdf;
 
         return $file_path;
     }
