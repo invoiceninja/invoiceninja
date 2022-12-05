@@ -42,39 +42,54 @@ class CompanySizeCheck implements ShouldQueue
     public function handle()
     {
         if (! config('ninja.db.multi_db_enabled')) {
-            $this->check();
+            
+            Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
+                if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
+                    nlog("Marking company {$company->id} as large");
+
+                    $company->account->companies()->update(['is_large' => true]);
+                }
+            });
+
+            nlog("updating all client credit balances");
+
+            Client::where('updated_at', '>', now()->subDay())
+                  ->cursor()
+                  ->each(function ($client){
+
+                    $client->credit_balance = $client->service()->getCreditBalance();
+                    $client->save();
+
+                  });
+
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $this->check();
+                nlog("Company size check db {$db}");
+
+                Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
+                    if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
+                        nlog("Marking company {$company->id} as large");
+
+                        $company->account->companies()->update(['is_large' => true]);
+                    }
+                });
+
+                nlog("updating all client credit balances");
+
+                Client::where('updated_at', '>', now()->subDay())
+                      ->cursor()
+                      ->each(function ($client){
+
+                        $client->credit_balance = $client->service()->getCreditBalance();
+                        $client->save();
+
+                      });
+
             }
         }
     }
 
-    private function check()
-    {
-        nlog("Checking all company sizes");
-        
-        Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
-            if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
-                nlog("Marking company {$company->id} as large");
-
-                $company->account->companies()->update(['is_large' => true]);
-            }
-        });
-
-        nlog("updating all client credit balances");
-
-        Client::where('updated_at', '>', now()->subDay())
-              ->cursor()
-              ->each(function ($client){
-
-                $client->credit_balance = $client->service()->getCreditBalance();
-                $client->save();
-
-              });
-              
-    }
 }

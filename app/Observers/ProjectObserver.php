@@ -61,7 +61,14 @@ class ProjectObserver
      */
     public function deleted(Project $project)
     {
-        //
+        //EVENT_PROJECT_DELETE
+        $subscriptions = Webhook::where('company_id', $project->company_id)
+                            ->where('event_id', Webhook::EVENT_PROJECT_DELETE)
+                            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_DELETE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
+        }
     }
 
     /**

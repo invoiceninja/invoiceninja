@@ -41,7 +41,7 @@ class ClientTransformer extends BaseTransformer
         return [
             'company_id'    => $this->maps['company']->id,
             'name'          => $this->getString($data, 'Company Name'),
-            'work_phone'    => $this->getString($data, 'Phone'),
+            'phone'    => $this->getString($data, 'Phone'),
             'private_notes' => $this->getString($data, 'Notes'),
             'website'       => $this->getString($data, 'Website'),
             'id_number'		=> $this->getString($data, 'Customer ID'),

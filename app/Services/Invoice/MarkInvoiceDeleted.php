@@ -53,16 +53,6 @@ class MarkInvoiceDeleted extends AbstractService
              ->adjustPaidToDateAndBalance()
              ->adjustLedger();
 
-        $transaction = [
-            'invoice' => $this->invoice->transaction_event(),
-            'payment' => $this->invoice->payments()->exists() ? $this->invoice->payments()->first()->transaction_event() : [],
-            'client' => $this->invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => ['total_payments' => $this->total_payments, 'balance_adjustment' => $this->balance_adjustment, 'adjustment_amount' => $this->adjustment_amount],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
-
         return $this->invoice;
     }
 
@@ -87,26 +77,17 @@ class MarkInvoiceDeleted extends AbstractService
         return $this;
     }
 
-    // @deprecated
-    private function adjustBalance()
-    {
-        // $client = $this->invoice->client->fresh();
-        // $client->balance += $this->balance_adjustment * -1;
-        // $client->save();
-
-        // $this->invoice->client->service()->updateBalance($this->balance_adjustment * -1)->save(); //reduces the client balance by the invoice amount.
-
-        return $this;
-    }
-
     /* Adjust the payment amounts */
     private function adjustPayments()
     {
         //if total payments = adjustment amount - that means we need to delete the payments as well.
 
-        if ($this->adjustment_amount == $this->total_payments) {
+nlog($this->adjustment_amount);
+nlog($this->total_payments);
+
+        if ($this->adjustment_amount == $this->total_payments) 
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
-        } else {
+      
 
             //adjust payments down by the amount applied to the invoice payment.
 
@@ -125,7 +106,7 @@ class MarkInvoiceDeleted extends AbstractService
                 $payment->applied -= $payment_adjustment;
                 $payment->save();
             });
-        }
+        
 
         return $this;
     }

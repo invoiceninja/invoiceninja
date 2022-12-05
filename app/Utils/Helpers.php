@@ -106,9 +106,10 @@ class Helpers
      *
      * @param string $value
      * @param Client|Company $entity
+     * @param null|Carbon $currentDateTime
      * @return null|string
      */
-    public static function processReservedKeywords(?string $value, $entity): ?string
+    public static function processReservedKeywords(?string $value, $entity, $currentDateTime = null): ?string
     {
         if (! $value) {
             return '';
@@ -132,71 +133,75 @@ class Helpers
 
         Carbon::setLocale($entity->locale());
 
+        if (!$currentDateTime) {
+            $currentDateTime = Carbon::now();
+        }
+
         $replacements = [
             'literal' => [
                 ':MONTH_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subMonth(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subMonth(1)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subDay(1)->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subYear(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subYear(1)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subDay(1)->translatedFormat($entity->date_format()),
                 ),
                 ':MONTH_AFTER' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->translatedFormat($entity->date_format()),
+                    $currentDateTime->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addMonth(1)->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->addMonth(1)->subDay(1)->translatedFormat($entity->date_format()),
                 ),
                 ':YEAR_AFTER' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->translatedFormat($entity->date_format()),
+                    $currentDateTime->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addYear(1)->subDay(1)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->addYear(1)->subDay(1)->translatedFormat($entity->date_format()),
                 ),
                 ':MONTHYEAR' => \sprintf(
                     '%s %s',
-                    Carbon::createFromDate(now()->month)->translatedFormat('F'),
-                    now()->year,
+                    Carbon::createFromDate($currentDateTime->month)->translatedFormat('F'),
+                    $currentDateTime->year,
                 ),
-                ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
-                ':YEAR' => now()->year,
-                ':QUARTER' => 'Q'.now()->quarter,
+                ':MONTH' => Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F'),
+                ':YEAR' => $currentDateTime->year,
+                ':QUARTER' => 'Q'.$currentDateTime->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->subDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->subDays(1)->translatedFormat($entity->date_format())
+                    $currentDateTime->copy()->subDays(1)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format()),
+                    $currentDateTime->copy()->addDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(13)->translatedFormat($entity->date_format())
+                    $currentDateTime->copy()->addDays(13)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->translatedFormat($entity->date_format()),
+                    $currentDateTime->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(6)->translatedFormat($entity->date_format())
+                    $currentDateTime->copy()->addDays(6)->translatedFormat($entity->date_format())
                 ),
             ],
             'raw' => [
-                ':MONTHYEAR' => now()->month,
-                ':MONTH' => now()->month,
-                ':YEAR' => now()->year,
-                ':QUARTER' => now()->quarter,
+                ':MONTHYEAR' => $currentDateTime->month,
+                ':MONTH' => $currentDateTime->month,
+                ':YEAR' => $currentDateTime->year,
+                ':QUARTER' => $currentDateTime->quarter,
             ],
             'ranges' => [
-                'MONTHYEAR' => Carbon::createFromDate(now()->year, now()->month),
+                'MONTHYEAR' => Carbon::createFromDate($currentDateTime->year, $currentDateTime->month),
             ],
             'ranges_raw' => [
-                'MONTH' => now()->month,
-                'YEAR' => now()->year,
+                'MONTH' => $currentDateTime->month,
+                'YEAR' => $currentDateTime->year,
             ],
         ];
 
@@ -221,12 +226,12 @@ class Helpers
                     continue;
                 }
 
-                $_left = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
+                $_left = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
                 if (! Str::contains($right, ['-', '+', '/', '*'])) {
-                    $_right = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
+                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
                 }
 
                 // If right side contains one of math operations, calculate.
@@ -237,7 +242,7 @@ class Helpers
 
                     $_value = explode($_operation, $right); // [MONTHYEAR, 4]
 
-                    $_right = Carbon::createFromDate(now()->year, now()->month)->addMonths($_value[1])->translatedFormat('F Y');
+                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths($_value[1])->translatedFormat('F Y');
                 }
 
                 $replacement = sprintf('%s to %s', $_left, $_right);
@@ -304,7 +309,7 @@ class Helpers
                 }
 
                 if ($matches->keys()->first() == ':MONTHYEAR') {
-                    $final_date = now()->addMonths($output - now()->month);
+                    $final_date = $currentDateTime->copy()->addMonths($output - $currentDateTime->month);
 
                     $output = \sprintf(
                             '%s %s',

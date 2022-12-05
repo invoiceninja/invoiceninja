@@ -40,7 +40,7 @@ class CreditEmailedNotification implements ShouldQueue
 
         // $first_notification_sent = true;
 
-        $credit = $event->invitation->credit;
+        $credit = $event->invitation->credit->fresh();
         $credit->last_sent_date = now();
         $credit->saveQuietly();
 

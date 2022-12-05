@@ -44,7 +44,7 @@ class StoreBankIntegrationRequest extends Request
     {
         $input = $this->all();
 
-        if(!array_key_exists('provider_name', $input) || strlen($input['provider_name']) == 0)
+        if((!array_key_exists('provider_name', $input) || strlen($input['provider_name']) == 0) && array_key_exists('bank_account_name', $input))
             $input['provider_name'] = $input['bank_account_name'];
 
         $this->replace($input);

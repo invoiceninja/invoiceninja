@@ -23,6 +23,7 @@ use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\Currency;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -112,6 +113,10 @@ class MatchBankTransactions implements ShouldQueue
         {
             if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) > 1)
                 $this->matchInvoicePayment($input);
+            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) > 1)
+                $this->linkPayment($input);
+            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1)
+                $this->linkExpense($input);
             else
                 $this->matchExpense($input);
         }
@@ -154,6 +159,55 @@ class MatchBankTransactions implements ShouldQueue
 
         return true;
 
+    }
+
+    private function linkExpense($input)
+    {
+
+        $this->bt = BankTransaction::find($input['id']);
+
+        if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+            return $this;
+
+        $expense = Expense::withTrashed()->find($input['expense_id']);
+
+        if($expense && !$expense->transaction_id) {
+
+            $expense->transaction_id = $this->bt->id;
+            $expense->save();
+
+            $this->bt->expense_id = $expense->id;
+            $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+            $this->bt->vendor_id = $expense->vendor_id;
+            $this->bt->ninja_category_id = $expense->category_id;
+            $this->bt->save();
+
+        }
+        
+    }
+
+    private function linkPayment($input)
+    {
+
+        $this->bt = BankTransaction::find($input['id']);
+
+        if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
+            return $this;
+
+        $payment = Payment::withTrashed()->find($input['payment_id']);
+        
+        if($payment && !$payment->transaction_id) {
+
+            $payment->transaction_id = $this->bt->id;
+            $payment->save();
+
+            $this->bt->payment_id = $payment->id;
+            $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+            $this->bt->invoice_ids = collect($payment->invoices)->pluck('hashed_id')->implode(',');
+            $this->bt->save();
+
+        }
+        
     }
 
     private function matchInvoicePayment($input) :self
@@ -266,7 +320,7 @@ class MatchBankTransactions implements ShouldQueue
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
-        $payment->amount = $amount;
+        $payment->amount = $this->bt->amount;
         $payment->applied = $this->applied_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
@@ -315,7 +369,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($amount*-1, $amount)
+             ->updateBalanceAndPaidToDate($this->applied_amount*-1, $amount)
              ->save();
 
         $this->invoice = $this->invoice

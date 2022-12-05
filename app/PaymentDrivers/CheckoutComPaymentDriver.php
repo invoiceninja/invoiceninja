@@ -34,6 +34,7 @@ use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
+use Checkout\Common\Phone;
 use Checkout\Customers\CustomerRequest;
 use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
@@ -300,9 +301,13 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $request = new CustomerRequest();
             }
             
-            $request->email = $this->client->present()->email();
-            $request->name = $this->client->present()->name();
-            $request->phone = $this->client->present()->phone();
+                $phone = new Phone();
+                // $phone->number = $this->client->present()->phone();
+                $phone->number = substr(str_pad($this->client->present()->phone(),6, "0", STR_PAD_RIGHT), 0 , 24);
+
+                $request->email = $this->client->present()->email();
+                $request->name = $this->client->present()->name();
+                $request->phone = $phone;
 
                 try {
                     $response = $this->gateway->getCustomersClient()->create($request);

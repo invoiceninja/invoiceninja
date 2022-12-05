@@ -42,7 +42,7 @@ class ClientTransformer extends BaseTransformer
             'company_id'     => $this->company->id,
             'name'           => $this->getString($data, 'customer_name'),
             'number'         => $this->getValueOrNull($data, 'account_number'),
-            'work_phone'     => $this->getString($data, 'phone'),
+            'phone'     => $this->getString($data, 'phone'),
             'website'     	 => $this->getString($data, 'website'),
             'country_id'     => ! empty($data['country']) ? $this->getCountryId($data['country']) : null,
             'state'          => $this->getString($data, 'province/state'),

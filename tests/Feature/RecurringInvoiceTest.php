@@ -52,6 +52,65 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testRecurringInvoicePropertiesOnConversion()
+    {
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $recurring_invoice = RecurringInvoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $client->id,
+            'frequency_id' => 3,
+            'remaining_cycles' => -1,
+            'auto_bill' => 'optout',
+            'auto_bill_enabled' => 0,
+            'line_items' => $this->buildLineItems(),
+        ]);
+
+        // Generate Standard Invoice
+        $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $client);
+
+        if ($recurring_invoice->auto_bill === 'always') {
+            $invoice->auto_bill_enabled = true;
+        } elseif ($recurring_invoice->auto_bill === 'optout' || $recurring_invoice->auto_bill === 'optin') {
+        } elseif ($recurring_invoice->auto_bill === 'off') {
+            $invoice->auto_bill_enabled = false;
+        }
+
+        $invoice->date = date('Y-m-d');
+        $invoice->total_taxes = 0;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->custom_surcharge_tax1 = '';
+        $invoice->custom_surcharge_tax2 = '';
+        $invoice->custom_surcharge_tax3 = '';
+        $invoice->custom_surcharge_tax4 = '';
+
+        $invoice->due_date = $recurring_invoice->calculateDueDate(date('Y-m-d'));
+        $invoice->recurring_id = $recurring_invoice->id;
+        $invoice->saveQuietly();
+
+        if ($invoice->client->getSetting('auto_email_invoice')) {
+            $invoice = $invoice->service()
+                               ->markSent()
+                               ->applyNumber()
+                               ->fillDefaults()
+                               ->adjustInventory()
+                               ->save();
+        } else {
+            $invoice = $invoice->service()
+                               ->fillDefaults()
+                               ->save();
+        }
+
+
+        $this->assertEquals(0, $invoice->auto_bill_enabled);
+
+    }
+
     public function testPostRecurringInvoiceWithPlaceholderVariables()
     {
         $line_items = [];

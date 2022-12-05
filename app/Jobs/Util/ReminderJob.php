@@ -44,92 +44,128 @@ class ReminderJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :void
     {
-        if (! config('ninja.db.multi_db_enabled')) {
-            $this->processReminders();
-        } else {
-            //multiDB environment, need to
-            /*
-            foreach (MultiDB::$dbs as $db) {
-                MultiDB::setDB($db);
-                nlog("set db {$db}");
-                $this->processReminders();
-            }
-            */
-            //24-11-2022 fix for potential memory leak during a long running process, the second reminder may run twice
-            foreach (config('ninja.dbs') as $db) {
-                MultiDB::setDB($db);
-                nlog("set db {$db}");
-                $this->processReminders();
-            }
-
-        }
-    }
-
-    private function processReminders()
-    {
-        nlog('Sending invoice reminders '.now()->format('Y-m-d h:i:s'));
 
         set_time_limit(0);
 
-        Invoice::query()
-             ->where('is_deleted', 0)
-             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-             ->whereNull('deleted_at')
-             ->where('balance', '>', 0)
-             ->where('next_send_date', '<=', now()->toDateTimeString())
-             ->whereHas('client', function ($query) {
-                 $query->where('is_deleted', 0)
-                       ->where('deleted_at', null);
-             })
-             ->whereHas('company', function ($query) {
-                 $query->where('is_disabled', 0);
-             })
-             ->with('invitations')->cursor()->each(function ($invoice) {
-                 // if ($invoice->refresh() && $invoice->isPayable()) {
-                    if ($invoice->isPayable()) {
+        if (! config('ninja.db.multi_db_enabled')) 
+        {
 
-                    //Attempts to prevent duplicates from sending
-                    if($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())){
-                        nlog("caught a duplicate reminder for invoice {$invoice->number}");
-                        return;
+            nlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
+
+            Invoice::query()
+                 ->where('is_deleted', 0)
+                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->whereNull('deleted_at')
+                 ->where('balance', '>', 0)
+                 ->where('next_send_date', '<=', now()->toDateTimeString())
+                 ->whereHas('client', function ($query) {
+                     $query->where('is_deleted', 0)
+                           ->where('deleted_at', null);
+                 })
+                 ->whereHas('company', function ($query) {
+                     $query->where('is_disabled', 0);
+                 })
+                 ->with('invitations')->chunk(50, function ($invoices) {
+                     
+                    foreach($invoices as $invoice)
+                    {
+                        $this->sendReminderForInvoice($invoice);
                     }
 
-                     $reminder_template = $invoice->calculateTemplate('invoice');
-                     nlog("reminder template = {$reminder_template}");
-                     $invoice->service()->touchReminder($reminder_template)->save();
-                     $invoice = $this->calcLateFee($invoice, $reminder_template);
+                    sleep(2);
 
-                     //20-04-2022 fixes for endless reminders - generic template naming was wrong
-                     $enabled_reminder = 'enable_'.$reminder_template;
-                     if ($reminder_template == 'endless_reminder') {
-                         $enabled_reminder = 'enable_reminder_endless';
-                     }
+                 });
 
-                     //check if this reminder needs to be emailed
-                     //15-01-2022 - insert addition if block if send_reminders is definitely set
-                     if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
-                $invoice->client->getSetting($enabled_reminder) &&
-                $invoice->client->getSetting('send_reminders') &&
-                (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
 
-                         $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                             EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                             nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
-                         });
+        } else {
+            //multiDB environment, need to
+            
+            foreach (MultiDB::$dbs as $db) 
+            {
 
-                         if ($invoice->invitations->count() > 0) {
-                             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
-                         }
-                     }
-                     $invoice->service()->setReminder()->save();
-                 } else {
-                     $invoice->next_send_date = null;
-                     $invoice->save();
+                MultiDB::setDB($db);
+
+                nlog("Sending invoice reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
+
+                Invoice::query()
+                     ->where('is_deleted', 0)
+                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                     ->whereNull('deleted_at')
+                     ->where('balance', '>', 0)
+                     ->where('next_send_date', '<=', now()->toDateTimeString())
+                     ->whereHas('client', function ($query) {
+                         $query->where('is_deleted', 0)
+                               ->where('deleted_at', null);
+                     })
+                     ->whereHas('company', function ($query) {
+                         $query->where('is_disabled', 0);
+                     })
+                     ->with('invitations')->chunk(50, function ($invoices) {
+                         // if ($invoice->refresh() && $invoice->isPayable()) {
+                         
+                        foreach($invoices as $invoice)
+                        {
+                            $this->sendReminderForInvoice($invoice);
+                        }
+
+                        sleep(2);
+                                                
+                     });
+
+            }
+            
+        }
+    }
+
+    private function sendReminderForInvoice($invoice) {
+
+        if ($invoice->isPayable()) {
+
+            //Attempts to prevent duplicates from sending
+            if($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())){
+                nlog("caught a duplicate reminder for invoice {$invoice->number}");
+                return;
+            }
+
+             $reminder_template = $invoice->calculateTemplate('invoice');
+             nlog("reminder template = {$reminder_template}");
+             $invoice->service()->touchReminder($reminder_template)->save();
+             $invoice = $this->calcLateFee($invoice, $reminder_template);
+
+             //20-04-2022 fixes for endless reminders - generic template naming was wrong
+             $enabled_reminder = 'enable_'.$reminder_template;
+             if ($reminder_template == 'endless_reminder') {
+                 $enabled_reminder = 'enable_reminder_endless';
+             }
+
+             //check if this reminder needs to be emailed
+             //15-01-2022 - insert addition if block if send_reminders is definitely set
+             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
+        $invoice->client->getSetting($enabled_reminder) &&
+        $invoice->client->getSetting('send_reminders') &&
+        (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
+
+                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
+
+                    if($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email) {
+                         EmailEntity::dispatch($invitation, $invitation->company, $reminder_template)->delay(now()->addSeconds(3));
+                         nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
+                    }
+
+                 });
+
+                 if ($invoice->invitations->count() > 0) {
+                     event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
                  }
+             }
+             $invoice->service()->setReminder()->save();
+         } else {
+             $invoice->next_send_date = null;
+             $invoice->save();
+         }
 
-             });
     }
 
     /**

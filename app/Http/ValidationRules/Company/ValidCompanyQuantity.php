@@ -39,6 +39,6 @@ class ValidCompanyQuantity implements Rule
      */
     public function message()
     {
-        return ctrans('texts.company_limit_reached');
+        return ctrans('texts.company_limit_reached', ['limit' => Ninja::isSelfHost() ? 10 : auth()->user()->company()->account->hosted_company_count]);
     }
 }
