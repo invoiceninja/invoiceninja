@@ -161,6 +161,11 @@ class SendRecurring implements ShouldQueue
      */
     private function createRecurringInvitations($invoice) :Invoice
     {
+
+        if($this->recurring_invoice->invitations->count() == 0) {
+            $this->recurring_invoice = $this->recurring_invoice->service()->createInvitations()->save();
+        }
+
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use ($invoice) {
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
             $ii->key = $this->createDbHash($invoice->company->db);

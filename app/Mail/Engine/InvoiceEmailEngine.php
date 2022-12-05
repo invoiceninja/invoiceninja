@@ -127,12 +127,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            // if (Ninja::isHosted()) {
-            //     $this->setAttachments([$this->invoice->pdf_file_path($this->invitation, 'url', true)]);
-            // } else {
-            //     $this->setAttachments([$this->invoice->pdf_file_path($this->invitation)]);
-            // }
-        //        $file = (new CreateRawPdf($invitation, $invitation->company->db))->handle();
+            
             $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);   
