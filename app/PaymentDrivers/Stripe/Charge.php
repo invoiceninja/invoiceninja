@@ -60,7 +60,7 @@ class Charge
         }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
         if ($invoice_numbers.length > 0) {
             $description = ctrans('texts.payment_provider_paymenttext_tokenbilling', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
@@ -154,7 +154,7 @@ class Charge
 
             $status = Payment::STATUS_COMPLETED;
         }
-        
+
         if(!in_array($response?->status, ['succeeded', 'processing'])){
             $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
         }

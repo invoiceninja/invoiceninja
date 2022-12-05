@@ -54,10 +54,11 @@ class SEPA
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
         $data['payment_hash'] = $this->stripe->payment_hash->hash;
-        
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
+        $amount = $data['total']['amount_with_fee'];
 
-        if ($invoice_numbers.length > 0) {
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
+
+        if ($invoice_numbers > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);

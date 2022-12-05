@@ -168,9 +168,9 @@ class ACH
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $amount = $data['total']['amount_with_fee'];
 
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers.length > 0) {
+        if ($invoice_numbers > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
@@ -204,16 +204,16 @@ class ACH
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers.length > 0) {
+        if ($invoice_numbers > 0) {
             $description = ctrans('texts.payment_provider_paymenttext_tokenbilling', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice_tokenbilling', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($cgt->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $invoice, $description, $cgt, false);
+            return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
         }
 
         $this->stripe->init();
@@ -254,7 +254,7 @@ class ACH
         }
     }
 
-    public function paymentIntentTokenBilling($amount, $invoice, $description, $cgt, $client_present = true)
+    public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true)
     {
         $this->stripe->init();
 
