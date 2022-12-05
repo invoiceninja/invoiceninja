@@ -57,7 +57,7 @@ class Bancontact
                 'gateway_type_id' => GatewayType::BANCONTACT,
             ],
 
-        ], $this->stripe->stripe_connect_auth);
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 

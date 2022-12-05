@@ -14,6 +14,8 @@ namespace Tests\Feature\Bank;
 
 use App\Factory\BankIntegrationFactory;
 use App\Factory\BankTransactionFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Models\BankTransaction;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -57,6 +59,9 @@ class BankTransactionTest extends TestCase
         $bt->base_type = 'DEBIT';
         $bt->save();
 
+        $this->expense->vendor_id = $this->vendor->id;
+        $this->expense->save();
+
         $data = [];
 
         $data['transactions'][] = [
@@ -73,7 +78,69 @@ class BankTransactionTest extends TestCase
 
         $this->assertEquals($this->expense->refresh()->transaction_id, $bt->id);
         $this->assertEquals($bt->refresh()->expense_id, $this->expense->id);
+        $this->assertEquals($this->vendor->id, $bt->vendor_id);
         $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
+
+    }
+
+    public function testLinkingManuallyPaidInvoices()
+    {
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->number = "InvoiceMatchingNumber123";
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 325;
+        $item->type_id = 1;
+
+        $line_items[] = $item;
+
+        $invoice->line_items = $line_items;
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $invoice->service()->markPaid();
+
+        $p = $invoice->payments->first();
+
+
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->status_id = BankTransaction::STATUS_UNMATCHED;
+        $bt->description = 'InvoiceMatchingNumber123';
+        $bt->amount = 325;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'CREDIT';
+        $bt->save();
+
+        $data = [];
+
+        $data['transactions'][] = [
+            'id' => $bt->hashed_id,
+            'payment_id' => $p->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/bank_transactions/match', $data);
+
+        $response->assertStatus(200);
+
+        $this->assertEquals($p->refresh()->transaction_id, $bt->id);
+        $this->assertEquals($bt->refresh()->payment_id, $p->id);
+        $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
+        $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
 
     }
 

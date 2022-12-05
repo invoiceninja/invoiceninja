@@ -89,14 +89,14 @@ class TranslationsExport extends Command
      */
     public function handle()
     {
-        Storage::makeDirectory(storage_path('lang'));
+        Storage::disk('local')->makeDirectory('lang');
 
         foreach ($this->langs as $lang) {
-            Storage::makeDirectory(storage_path("lang/{$lang}"));
+            Storage::disk('local')->makeDirectory("lang/{$lang}");
 
             $translations = Lang::getLoader()->load($lang, 'texts');
 
-            Storage::put(storage_path("lang/{$lang}/{$lang}.json"), json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
+            Storage::disk('local')->put("lang/{$lang}/{$lang}.json", json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
         }
     }
 }

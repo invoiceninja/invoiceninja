@@ -76,7 +76,7 @@
         "pragmarx/google2fa": "^8.0",
         "turbo124/predis": "^1.1",
         "razorpay/razorpay": "2.*",
-        "sentry/sentry-laravel": "^2",
+        "sentry/sentry-laravel": "^3",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
         "socialiteproviders/apple": "^5.2",

@@ -32,6 +32,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use PDOException;
+use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
 use Swift_TransportException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -84,7 +85,7 @@ class Handler extends ExceptionHandler
         }
 
         if (Ninja::isHosted() && ! ($exception instanceof ValidationException)) {
-            app('sentry')->configureScope(function (Scope $scope): void {
+            Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
                 if (auth()->guard('contact') && auth()->guard('contact')->user()) {
@@ -104,9 +105,9 @@ class Handler extends ExceptionHandler
                 ]);
             });
 
-            app('sentry')->captureException($exception);
+            Integration::captureUnhandledException($exception);
         } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
-            app('sentry')->configureScope(function (Scope $scope): void {
+            Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->guard('contact')->user()->company->account->key,
@@ -123,7 +124,7 @@ class Handler extends ExceptionHandler
             });
 
             if ($this->validException($exception)) {
-                app('sentry')->captureException($exception);
+                Integration::captureUnhandledException($exception);
             }
         }
 
