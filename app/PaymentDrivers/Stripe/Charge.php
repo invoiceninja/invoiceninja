@@ -79,7 +79,7 @@ class Charge
                 'payment_method' => $cgt->token,
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
-                'off_session' => true,
+                // 'off_session' => true,
                 'description' => $description,
                 'metadata' => [
                     'payment_hash' => $payment_hash->hash,
@@ -89,6 +89,11 @@ class Charge
 
             if ($cgt->gateway_type_id == GatewayType::SEPA) {
                 $data['payment_method_types'] = ['sepa_debit'];
+            }
+
+            /* Should improve token billing with client not present */
+            if (!auth()->guard('contact')->check()) {
+                $data['off_session'] = true;
             }
 
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
