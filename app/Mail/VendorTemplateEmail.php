@@ -112,42 +112,12 @@ class VendorTemplateEmail extends Mailable
             ]);
 
 
-        // if(Ninja::isHosted() && $this->invitation){
-
-        //     $path = false;
-
-        //     if($this->invitation->purchase_order)
-        //         $path = $this->vendor->purchase_order_filepath($this->invitation).$this->invitation->purchase_order->numberFormatter().'.pdf';
-
-        //     sleep(1);
-
-        //     if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
-
-        //         sleep(2);
-
-        //         if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-        //             (new CreatePurchaseOrderPdf($this->invitation))->handle();
-        //             sleep(2);
-        //         }
-
-        //     }
-
-        // }
-
         foreach ($this->build_email->getAttachments() as $file) {
-            // if (is_string($file)) {
-            //     $this->attach($file);
-            // } elseif (is_array($file)) {
-            //     $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-            // }
-
-       //     $this->attachData(base64_decode($file['file']), $file['name']);
 
             if(array_key_exists('file', $file))
                 $this->attachData(base64_decode($file['file']), $file['name']);
             else
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-
 
         }
 
