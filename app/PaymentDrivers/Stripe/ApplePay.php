@@ -46,12 +46,10 @@ class ApplePay
         $data['stripe_amount'] = $this->stripe_driver->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe_driver->client->currency()->precision, $this->stripe_driver->client->currency());
         $data['invoices'] = $this->stripe_driver->payment_hash->invoices();
         
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
-                          ->withTrashed()
-                          ->first();
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
 
-        if ($invoice) {
-            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        if ($invoice_numbers.length > 0) {
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(','), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
