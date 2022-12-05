@@ -182,8 +182,12 @@ class MatchBankTransactions implements ShouldQueue
             $this->bt->ninja_category_id = $expense->category_id;
             $this->bt->save();
 
+            $this->bts->push($this->bt->id);
+
         }
-        
+    
+        return $this;
+
     }
 
     private function linkPayment($input)
@@ -206,8 +210,10 @@ class MatchBankTransactions implements ShouldQueue
             $this->bt->invoice_ids = collect($payment->invoices)->pluck('hashed_id')->implode(',');
             $this->bt->save();
 
+            $this->bts->push($this->bt->id);
         }
-        
+
+        return $this;
     }
 
     private function matchInvoicePayment($input) :self
@@ -225,9 +231,9 @@ class MatchBankTransactions implements ShouldQueue
 
             $this->createPayment($_invoices, $amount);
 
-        }
+            $this->bts->push($this->bt->id);
 
-        $this->bts->push($this->bt->id);
+        }
 
         return $this;
     }
