@@ -69,13 +69,20 @@ class Alipay
     public function processSuccesfulRedirect(string $source)
     {
         $this->stripe->init();
+        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
 
+        if ($invoice_numbers.length > 0) {
+            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(','), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        } else {
+            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        }
         $data = [
             'payment_method' => $this->stripe->payment_hash->data->source,
             'payment_type' => PaymentType::ALIPAY,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $source,
             'gateway_type_id' => GatewayType::ALIPAY,
+            'description' => $description,
 
         ];
 
