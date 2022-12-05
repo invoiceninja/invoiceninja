@@ -410,7 +410,7 @@ class StripePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        $params = [];
+        $params = ['usage' => 'off_session'];
         $meta = $this->stripe_connect_auth;
 
         return SetupIntent::create($params, $meta);
@@ -669,14 +669,22 @@ class StripePaymentDriver extends BaseDriver
                 ], $this->stripe_connect_auth);
 
                 if ($charge->captured) {
-                    $payment = Payment::query()
-                        ->where('transaction_reference', $transaction['payment_intent'])
-                        ->where('company_id', $request->getCompany()->id)
-                        ->where(function ($query) use ($transaction) {
-                            $query->where('transaction_reference', $transaction['payment_intent'])
-                                  ->orWhere('transaction_reference', $transaction['id']);
-                        })
-                        ->first();
+
+                    $payment = false;
+
+                    if(isset($transaction['payment_intent']))
+                    {
+                        $payment = Payment::query()
+                            ->where('transaction_reference', $transaction['payment_intent'])
+                            ->where('company_id', $request->getCompany()->id)
+                            ->first();
+                    }
+                    elseif(isset($transaction['id'])) {
+                        $payment = Payment::query()
+                            ->where('transaction_reference', $transaction['id'])
+                            ->where('company_id', $request->getCompany()->id)
+                            ->first();
+                    }
 
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
