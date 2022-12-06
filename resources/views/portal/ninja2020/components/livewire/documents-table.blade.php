@@ -95,7 +95,7 @@
                                 <input type="checkbox" class="form-checkbox cursor-pointer" onchange="appendToElement('multiple-downloads', '{{ $document->hashed_id }}')" />
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                                {{ Illuminate\Support\Str::limit($document->name, 20) }}
+                                {{ Illuminate\Support\Str::limit($document->name, 40) }}
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
