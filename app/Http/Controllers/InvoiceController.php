@@ -219,6 +219,9 @@ class InvoiceController extends BaseController
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
+        if($clientPublicId != 0)
+            $clients->where('public_id', $clientPublicId);
+
         $data = [
             'clients' => $clients->get(),
             'entityType' => $invoice->getEntityType(),
