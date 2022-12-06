@@ -751,7 +751,7 @@ trait GeneratesCounter
             $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
-            $replace[] = $client->id_number;
+            $replace[] = $client->id_number ?: $client->number;
 
             $search[] = '{$clientIdNumber}';
             $replace[] = $client->id_number ?: $client->number;
