@@ -59,8 +59,10 @@ class UserRepository extends BaseRepository
         // if(array_key_exists('oauth_provider_id', $details))
         //     unset($details['oauth_provider_id']);
         
-        if (request()->has('validated_phone'))
+        if (request()->has('validated_phone')){
             $details['phone'] = request()->input('validated_phone');
+            $user->verified_phone_number = false;
+        }
 
         $user->fill($details);
 

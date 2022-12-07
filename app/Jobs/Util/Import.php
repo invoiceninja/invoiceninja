@@ -167,7 +167,7 @@ class Import implements ShouldQueue
 
     public $tries = 1;
 
-    public $timeout = 0;
+    public $timeout = 10000000;
 
     // public $backoff = 86430;
 
@@ -188,10 +188,10 @@ class Import implements ShouldQueue
         $this->resources = $resources;
     }
 
-    public function middleware()
-    {
-        return [new WithoutOverlapping("only_one_migration_at_a_time_ever")];
-    }
+    // public function middleware()
+    // {
+    //     return [new WithoutOverlapping("only_one_migration_at_a_time_ever")];
+    // }
 
     /**
      * Execute the job.
