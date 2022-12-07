@@ -46,14 +46,14 @@ class ProcessKlarna {
                 {
                     payment_method: {
                         billing_details: {
-                            name: document.querySelector('meta[name=name]').value,
+                            name: document.querySelector('meta[name=name]').content,
                             email: document.querySelector('meta[name=email]').content,
                             address: {
-                                line1: document.querySelector('meta[name=address-1]').value,
-                                line2: document.querySelector('meta[name=address-2]').value,
-                                city: document.querySelector('meta[name=city]').value,
-                                postal_code: document.querySelector('meta[name=plz]').value,
-                                state: document.querySelector('meta[name=state]').value,
+                                line1: document.querySelector('meta[name=address-1]').content,
+                                line2: document.querySelector('meta[name=address-2]').content,
+                                city: document.querySelector('meta[name=city]').content,
+                                postal_code: document.querySelector('meta[name=plz]').content,
+                                state: document.querySelector('meta[name=state]').content,
                                 country: document.querySelector('meta[name=country]').content,
                             }
                         },
