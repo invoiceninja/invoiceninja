@@ -3,8 +3,23 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-
-        @if (config('services.analytics.tracking_id'))
+         @if (config('services.analytics.matomo_url') && config('services.analytics.matomo_id'))
+            <script>
+                var _paq = window._paq = window._paq || [];
+                /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+                _paq.push(['trackPageView']);
+                _paq.push(['enableLinkTracking']);
+                _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->company->present()->name }}']);
+                (function() {
+                var u="{{ config('services.analytics.matomo_url') }}";
+                _paq.push(['setTrackerUrl', u+'matomo.php']);
+                _paq.push(['setSiteId', '{{ config('services.analytics.matomo_id') }}']);
+                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+                })();
+            </script>
+            <noscript><p><img src="{{ config('services.analytics.matomo_url) }}/matomo.php?idsite={{ config('services.analytics.matomo_id') }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+        @elseif (config('services.analytics.tracking_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
