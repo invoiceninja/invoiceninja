@@ -4202,6 +4202,7 @@ $LANG = array(
      'count_minutes' => ':count Minutes',
      'password_timeout' => 'Password Timeout',
      'shared_invoice_credit_counter' => 'Share Invoice/Credit Counter',
+
     'activity_80' => ':user created subscription :subscription',
     'activity_81' => ':user updated subscription :subscription',
     'activity_82' => ':user archived subscription :subscription',
@@ -4209,6 +4210,7 @@ $LANG = array(
     'activity_84' => ':user restored subscription :subscription',
     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
     'click_to_continue' => 'Click to continue',
+
     'notification_invoice_created_body' => 'The following invoice :invoice was created for client :client for :amount.',
     'notification_invoice_created_subject' => 'Invoice :invoice was created for :client',
     'notification_quote_created_body' => 'The following quote :invoice was created for client :client for :amount.',
@@ -4294,7 +4296,6 @@ $LANG = array(
     'przelewy24_accept' => 'I declare that I have familiarized myself with the regulations and information obligation of the Przelewy24 service.',
     'giropay' => 'GiroPay',
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
-    'klarna' => 'Klarna',
     'eps' => 'EPS',
     'becs' => 'BECS Direct Debit',
     'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
@@ -4779,7 +4780,7 @@ $LANG = array(
     'invoice_task_project_help' => 'Add the project to the invoice line items',
     'bulk_action' => 'Bulk Action',
     'phone_validation_error' => 'This mobile/cell phone number is not valid, please enter in E.164 format',
-    'transaction' => 'Transaction',
+    'transaction' => 'Transaction',    
     'disable_2fa' => 'Disable 2FA',
     'change_number' => 'Change Number',
     'resend_code' => 'Resend Code',
