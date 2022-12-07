@@ -33,6 +33,16 @@ class ProcessKlarna {
         return this;
     };
 
+    handleError = (message) => {
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
+
+        this.errors.textContent = '';
+        this.errors.textContent = message;
+        this.errors.hidden = false;
+    };
+
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
@@ -46,14 +56,28 @@ class ProcessKlarna {
                 {
                     payment_method: {
                         billing_details: {
-                            name: document.getElementById("giropay-name").value,
+                            name: document.getElementById("klarna-name").value,
+                            email: document.querySelector('meta[name=email').content,
+                            address: {
+                              line1: document.querySelector('input[name=address1]').value,
+                              line2: document.querySelector('input[name=address2]').value,
+                              city: document.querySelector('input[name=city]').value,
+                              postal_code: document.querySelector('input[name=postal_code]').value,
+                              state: document.querySelector('input[name=state]').value,
+                              country: document.querySelector('meta[name=country').content,
+                            }      
                         },
                     },
                     return_url: document.querySelector(
                         'meta[name="return-url"]'
                     ).content,
                 }
-            );
+            ).then((result) => {
+                if (result.hasOwnProperty('error')) {
+                    return this.handleError(result.error.message);
+                }
+
+            });;
         });
     };
 }
