@@ -14,8 +14,8 @@ class AddIndexToPaymentHash extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->varchar('matomo_url');
-            $table->bigInteger('matomo_id');
+            $table->varchar('matomo_url')->nullable();
+            $table->bigInteger('matomo_id')->nullable();
         });
     }
 }
