@@ -4295,6 +4295,7 @@ $LANG = array(
     'giropay' => 'GiroPay',
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
     'klarna' => 'Klarna',
+    'payment_type_Klarna' => 'Klarna',
     'eps' => 'EPS',
     'becs' => 'BECS Direct Debit',
     'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
