@@ -3,7 +3,7 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-         @if ($company && $company->matomo_url && $company->matomo_id)
+         @if (isset($company) && $company->matomo_url && $company->matomo_id)
             <script>
                 var _paq = window._paq = window._paq || [];
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
