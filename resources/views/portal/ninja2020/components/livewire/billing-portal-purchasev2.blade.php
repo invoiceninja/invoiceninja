@@ -160,7 +160,7 @@
 
     </form>
 
-    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 h-screen">
+    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 h-screen" wire:init="buildBundle">
         <div class="w-full p-4">
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>

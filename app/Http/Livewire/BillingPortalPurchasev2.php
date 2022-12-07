@@ -212,14 +212,14 @@ class BillingPortalPurchasev2 extends Component
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
         $this->optional_products = $this->subscription->service()->optional_products();
 
-        $this->buildBundle();
-
+        // $this->buildBundle();
+        $this->bundle = collect();
         
     }
 
     public function buildBundle()
     {
-        $this->bundle = collect();
+            $this->bundle = collect();
 
             $data = $this->data;
 
