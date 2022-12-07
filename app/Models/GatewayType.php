@@ -61,8 +61,6 @@ class GatewayType extends StaticModel
 
     const FPX = 22;
 
-    const KLARNA = 23;
-
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -118,8 +116,6 @@ class GatewayType extends StaticModel
                 return ctrans('texts.payment_type_instant_bank_pay');
             case self::FPX:
                 return ctrans('texts.fpx');
-            case self::KLARNA:
-                return ctrans('texts.klarna');
             default:
                 return ' ';
                 break;
