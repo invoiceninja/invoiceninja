@@ -60,7 +60,7 @@ trait GeneratesCounter
 
             $counter_entity = $client;
         } elseif ((strpos($pattern, 'groupCounter') !== false) || (strpos($pattern, 'group_counter') !== false)) {
-            if (property_exists($client->group_settings, $counter_string)) {
+            if (property_exists($client, 'group_settings') && property_exists($client->group_settings, $counter_string)) {
                 $counter = $client->group_settings->{$counter_string};
             } else {
                 $counter = 1;
@@ -751,7 +751,7 @@ trait GeneratesCounter
             $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
-            $replace[] = $client->id_number;
+            $replace[] = $client->id_number ?: $client->number;
 
             $search[] = '{$clientIdNumber}';
             $replace[] = $client->id_number ?: $client->number;

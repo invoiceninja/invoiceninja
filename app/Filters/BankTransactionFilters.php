@@ -152,7 +152,22 @@ class BankTransactionFilters extends QueryFilters
     public function sort(string $sort) : Builder
     {
         $sort_col = explode('|', $sort);
+
+        if(!is_array($sort_col))
+            return $this->builder;
         
+        if($sort_col[0] == 'deposit')
+            return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $sort_col[1]);
+
+        if($sort_col[0] == 'withdrawal')
+            return $this->builder->where('base_type', 'DEBIT')->orderBy('amount', $sort_col[1]);
+
+        if($sort_col[0] == 'status')
+            $sort_col[0] = 'status_id';
+
+        if(in_array($sort_col[0],['invoices','expense']))
+            return $this->builder;
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 

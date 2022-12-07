@@ -11,6 +11,7 @@
 
 namespace App\Http\Livewire;
 
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -19,15 +20,17 @@ use App\Mail\ContactPasswordlessLogin;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\DataMapper\ClientSettings;
 use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
@@ -179,6 +182,13 @@ class BillingPortalPurchasev2 extends Component
      */
     public $campaign;
 
+    public $bundle;
+    public $recurring_products;
+    public $products;
+    public $optional_recurring_products;
+    public $optional_products;
+    public $total;
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -196,44 +206,154 @@ class BillingPortalPurchasev2 extends Component
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price;
         }
+
+        $this->recurring_products = $this->subscription->service()->recurring_products();
+        $this->products = $this->subscription->service()->products();
+        $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
+        $this->optional_products = $this->subscription->service()->optional_products();
+
+        // $this->buildBundle();
+        $this->bundle = collect();
+        
     }
 
-    public function updatingData()
+    public function buildBundle()
     {
-        nlog('updating');
-        // nlog($this->data);
+            $this->bundle = collect();
+
+            $data = $this->data;
+
+            foreach($this->recurring_products as $key => $p)
+            {
+
+                $qty = isset($data[$key]['recurring_qty']) ? $data[$key]['recurring_qty'] : 1;
+                $total = $p->price * $qty;
+
+                $this->bundle->push([
+                    'product' => nl2br(substr($p->notes, 0, 50)),
+                    'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                    'total' => $total,
+                    'qty' => $qty,
+                    'is_recurring' => true
+                ]);
+            }
+
+            foreach($this->products as $key => $p)
+            {
+
+                $qty = 1;
+                $total = $p->price * $qty;
+
+                $this->bundle->push([
+                    'product' => nl2br(substr($p->notes, 0, 50)),
+                    'price' => Number::formatMoney($total, $this->subscription->company),
+                    'total' => $total,
+                    'qty' => $qty,
+                    'is_recurring' => false
+                ]);
+            }
+
+            foreach($this->data as $key => $value)
+            {
+                if(isset($this->data[$key]['optional_recurring_qty']))
+                {
+                    $p = $this->optional_recurring_products->first(function ($v,$k) use($key){
+                        return $k == $key;
+                    });
+
+                    $qty = isset($this->data[$key]['optional_recurring_qty']) ? $this->data[$key]['optional_recurring_qty'] : 0;
+                    $total = $p->price * $qty;
+
+                   if($qty == 0)
+                        return;
+
+
+                    $this->bundle->push([
+                        'product' => nl2br(substr($p->notes, 0, 50)),
+                        'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                        'total' => $total,
+                        'qty' => $qty,
+                        'is_recurring' => true
+                    ]);
+
+                }
+
+                if(isset($this->data[$key]['optional_qty']))
+                {
+                    $p = $this->optional_products->first(function ($v,$k) use($key){
+                        return $k == $key;
+                    });
+
+                    $qty = isset($this->data[$key]['optional_qty']) ? $this->data[$key]['optional_qty'] : 0;
+                    $total = $p->price * $qty;
+
+                    if($qty == 0)
+                        return;
+
+                    $this->bundle->push([
+                        'product' => nl2br(substr($p->notes, 0, 50)),
+                        'price' => Number::formatMoney($total, $this->subscription->company),
+                        'total' => $total,
+                        'qty' => $qty,
+                        'is_recurring' => false
+                    ]);
+
+                }
+
+
+            }
+
+        $this->total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+
+        return $this;
     }
 
     public function updatedData()
     {
-        nlog('updated');
-        nlog($this->data);
-        $validatedData = $this->validate();
-        nlog( $validatedData );
+    }
+
+    public function updating($prop)
+    {
+        // $this->resetValidation($prop);
+        // $this->resetErrorBag($prop);
     }
 
     public function updated($propertyName)
     {
-        nlog("validating {$propertyName}");
-        $this->errors = $this->validateOnly($propertyName);
+        $x = $this->validateOnly($propertyName, $this->rules(), [], $this->attributes());
 
-        nlog($this->errors);
-        $validatedData = $this->validate();
-        nlog( $validatedData );
+        // // $validatedData = $this->validate();
+        $this->buildBundle();
+
+        // $order_validator = Validator::make($this->all(), $this->rules(), [], $this->attributes());
 
     }
 
     public function rules()
     {
-         $rules = [
-            'email' => ['required', 'email'],
-            'data' => ['required', 'array'],
-            'data.*.recurring_qty' => ['required', 'between:100,1000'],
-            'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
-            'data.*.optional_qty' => ['required', 'between:100,1000'],
+        $rules = [
+            'data.*.recurring_qty' => 'numeric|between:0,1000',
+            'data.*.optional_recurring_qty' => 'numeric|between:0,1000',
+            'data.*.optional_qty' => 'numeric|between:0,1000',
         ];
 
         return $rules;
+    }
+
+    public function attributes()
+    {
+        $attributes = [
+            'data.*.recurring_qty' => 'recurring_qty',
+            'data.*.optional_recurring_qty' => 'optional_recurring_qty',
+            'data.*.optional_qty' => 'optional_qty',
+        ];
+
+        return $attributes;
+    }
+
+    public function store()
+    {
+    
     }
 
     /**
