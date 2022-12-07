@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIndexToPaymentHash extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,8 @@ class AddIndexToPaymentHash extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->varchar('matomo_url')->nullable();
+            $table->string('matomo_url',191)->nullable();
             $table->bigInteger('matomo_id')->nullable();
         });
     }
-}
+};
