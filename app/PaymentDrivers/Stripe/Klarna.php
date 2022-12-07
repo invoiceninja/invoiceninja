@@ -50,7 +50,7 @@ class Klarna
 
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers.length > 0) {
+        if ($invoice_numbers > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
@@ -58,15 +58,15 @@ class Klarna
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
+            'currency' => $this->stripe->client->getCurrencyCode(),
             'payment_method_types' => ['klarna'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $description,
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::GIROPAY,
+                'gateway_type_id' => GatewayType::KLARNA,
             ],
-        ], $this->stripe->stripe_connect_auth);
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -109,7 +109,7 @@ class Klarna
 
         $data = [
             'payment_method' => $payment_intent,
-            'payment_type' => PaymentType::GIROPAY,
+            'payment_type' => PaymentType::KLARNA,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_intent,
             'gateway_type_id' => GatewayType::KLARNA,
