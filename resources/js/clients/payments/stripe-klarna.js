@@ -46,7 +46,16 @@ class ProcessKlarna {
                 {
                     payment_method: {
                         billing_details: {
-                            name: document.getElementById("giropay-name").value,
+                            name: document.querySelector('meta[name=name]').value,
+                            email: document.querySelector('meta[name=email]').content,
+                            address: {
+                                line1: document.querySelector('meta[name=address-1]').value,
+                                line2: document.querySelector('meta[name=address-2]').value,
+                                city: document.querySelector('meta[name=city]').value,
+                                postal_code: document.querySelector('meta[name=plz]').value,
+                                state: document.querySelector('meta[name=state]').value,
+                                country: document.querySelector('meta[name=country]').content,
+                            }
                         },
                     },
                     return_url: document.querySelector(
