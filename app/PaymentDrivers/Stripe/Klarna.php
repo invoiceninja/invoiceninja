@@ -50,10 +50,10 @@ class Klarna
 
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers > 0) {
-            $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        if ($invoice_numbers->count() >0) {
+            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         $intent = \Stripe\PaymentIntent::create([
@@ -149,6 +149,6 @@ class Klarna
             $this->stripe->client->company,
         );
 
-        throw new PaymentFailed(ctrans('texts.payment_provider_failed_process_payment'), 500);
+        throw new PaymentFailed(ctrans('texts.gateway_error'), 500);
     }
 }
