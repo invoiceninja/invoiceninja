@@ -21,6 +21,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use PDOException;
+use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
 use Swift_TransportException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -83,7 +85,7 @@ class Handler extends ExceptionHandler
         }
 
         if (Ninja::isHosted() && ! ($exception instanceof ValidationException)) {
-            app('sentry')->configureScope(function (Scope $scope): void {
+            Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
                 if (auth()->guard('contact') && auth()->guard('contact')->user()) {
@@ -103,9 +105,9 @@ class Handler extends ExceptionHandler
                 ]);
             });
 
-            app('sentry')->captureException($exception);
+            Integration::captureUnhandledException($exception);
         } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
-            app('sentry')->configureScope(function (Scope $scope): void {
+            Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->guard('contact')->user()->company->account->key,
@@ -122,7 +124,7 @@ class Handler extends ExceptionHandler
             });
 
             if ($this->validException($exception)) {
-                app('sentry')->captureException($exception);
+                Integration::captureUnhandledException($exception);
             }
         }
 
@@ -181,7 +183,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
             return response()->json(['message'=>'Fatal error'], 500);
         } elseif ($exception instanceof AuthorizationException) {
-            return response()->json(['message'=>'You are not authorized to view or perform this action'], 401);
+            return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
             return redirect()
                     ->back()
@@ -197,14 +199,21 @@ class Handler extends ExceptionHandler
             // nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
-            return response()->json(['message' => $exception->getMessage()], 400);
+            return response()->json(['message' => "Relation `{$exception->relation}` is not a valid include."], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
-        }
+        } 
+
+
+        // elseif ($exception instanceof QueryException) {
+        //     return response()->json(['message' => 'We had a problem executing this query. Please retry.'], 500);
+        // } 
+
+
 
         return parent::render($request, $exception);
     }

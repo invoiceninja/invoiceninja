@@ -295,6 +295,14 @@ class Activity extends StaticModel
     /**
      * @return mixed
      */
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class)->withTrashed();
+    }
+
+    /**
+     * @return mixed
+     */
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();
@@ -303,6 +311,16 @@ class Activity extends StaticModel
     public function expense()
     {
         return $this->belongsTo(Expense::class)->withTrashed();
+    }
+
+    public function purchase_order()
+    {
+        return $this->belongsTo(PurchaseOrder::class)->withTrashed();
+    }
+
+    public function vendor_contact()
+    {
+        return $this->belongsTo(VendorContact::class)->withTrashed();
     }
 
     public function task()

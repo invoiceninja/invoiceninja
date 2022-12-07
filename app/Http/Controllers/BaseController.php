@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\User;
 use App\Transformers\ArraySerializer;
@@ -105,6 +106,9 @@ class BaseController extends Controller
           'company.vendors.documents',
           'company.webhooks',
           'company.system_logs',
+          'company.bank_integrations',
+          'company.bank_transactions',
+          'company.bank_transaction_rules',
         ];
 
     private $mini_load = [
@@ -122,6 +126,8 @@ class BaseController extends Controller
         'company.designs.company',
         'company.expense_categories',
         'company.subscriptions',
+        'company.bank_integrations',
+        'company.bank_transaction_rules',
     ];
 
     public function __construct()
@@ -438,11 +444,33 @@ class BaseController extends Controller
                         $query->where('subscriptions.user_id', $user->id);
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
+                    $query->whereNotNull('updated_at');
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
+                'company.bank_transaction_rules'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transaction_rules.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            //27-10-2022 - enforce unsigned integer
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -453,6 +481,14 @@ class BaseController extends Controller
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
+    }
+
+    private function resolveQueryLimit()
+    {
+        if(request()->has('per_page'))
+            return abs((int)request()->input('per_page', 20));
+
+        return 20;
     }
 
     protected function miniLoadResponse($query)
@@ -497,11 +533,23 @@ class BaseController extends Controller
                         $query->where('activities.user_id', $user->id);
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transaction_rules'=> function ($query) use ($user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transaction_rules.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -741,11 +789,25 @@ class BaseController extends Controller
 
                     }
                 },
+                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_integrations.user_id', $user->id);
+                    }
+                },
+                'company.bank_transactions'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
             ]
         );
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
@@ -773,8 +835,19 @@ class BaseController extends Controller
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-            //03-09-2022
-            $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
+            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
+                $query->where('id', auth()->user()->id);
+            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
+                $query->where('user_id', '=', auth()->user()->id);
+            }
+            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+                //need to pass these back regardless 
+                nlog($this->entity_type);
+            }
+            else
+                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
         }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
@@ -786,7 +859,7 @@ class BaseController extends Controller
         }
 
         if ($query instanceof Builder) {
-            $limit = request()->input('per_page', 20);
+            $limit = $this->resolveQueryLimit();
             $paginator = $query->paginate($limit);
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);

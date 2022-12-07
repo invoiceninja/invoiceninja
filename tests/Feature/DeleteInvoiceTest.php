@@ -162,6 +162,7 @@ class DeleteInvoiceTest extends TestCase
         $payment = $payment->fresh();
 
         $this->assertTrue($payment->is_deleted);
+        $this->assertEquals(0, $payment->amount);
         $this->assertEquals(4, $payment->status_id);
 
         $client->fresh();

@@ -19,9 +19,10 @@ use stdClass;
 
 class InvoiceEmailFailedActivity implements ShouldQueue
 {
-    protected $activity_repo;
 
-    public $delay = 5;
+    // public $delay = 10;
+
+    protected $activity_repo;
 
     /**
      * Create the event listener.

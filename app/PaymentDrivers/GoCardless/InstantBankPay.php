@@ -60,6 +60,9 @@ class InstantBankPay implements MethodInterface
                         'amount' => (string) $data['amount_with_fee'] * 100,
                         'currency' => $this->go_cardless->client->getCurrencyCode(),
                     ],
+                    'metadata' => [
+                        'payment_hash' => $this->go_cardless->payment_hash->hash,
+                    ],
                 ],
             ]);
 
@@ -94,6 +97,8 @@ class InstantBankPay implements MethodInterface
         $this->go_cardless->setPaymentHash(
             $request->getPaymentHash()
         );
+        
+        $this->go_cardless->init();
 
         try {
             $billing_request = $this->go_cardless->gateway->billingRequests()->get(

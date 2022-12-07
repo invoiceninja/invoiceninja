@@ -111,7 +111,10 @@ class PayPal
             'paymentMethodNonce' => $gateway_response->nonce,
         ]);
 
-        return $payment_method->paymentMethod->token;
+        if($payment_method->success)
+            return $payment_method->paymentMethod->token;
+        else
+            throw new PaymentFailed(property_exists($payment_method, 'message') ? $payment_method->message : 'Undefined error storing payment token.', 0);
     }
 
     /**

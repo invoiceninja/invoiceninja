@@ -37,7 +37,7 @@ class AdjustProductInventory implements ShouldQueue
 
     public array $old_invoice;
 
-    public function __construct(Company $company, Invoice $invoice, ?array $old_invoice = [])
+    public function __construct(Company $company, Invoice $invoice, $old_invoice = [])
     {
         $this->company = $company;
         $this->invoice = $invoice;
@@ -59,6 +59,44 @@ class AdjustProductInventory implements ShouldQueue
         }
 
         return $this->newInventoryAdjustment();
+    }
+
+    public function handleDeletedInvoice()
+    {
+
+       MultiDB::setDb($this->company->db);
+
+       foreach ($this->invoice->line_items as $item) {
+
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
+
+            if (! $p) {
+                continue;
+            }
+
+            $p->in_stock_quantity += $item->quantity;
+
+            $p->saveQuietly();
+        }
+
+    }
+
+    public function handleRestoredInvoice()
+    {
+
+       MultiDB::setDb($this->company->db);
+
+       foreach ($this->invoice->line_items as $item) {
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
+
+            if (! $p) {
+                continue;
+            }
+
+            $p->in_stock_quantity -= $item->quantity;
+            $p->saveQuietly();
+        }
+
     }
 
     public function middleware()

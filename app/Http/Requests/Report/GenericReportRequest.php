@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 
 class GenericReportRequest extends Request
 {
@@ -27,11 +28,12 @@ class GenericReportRequest extends Request
 
     public function rules()
     {
+        nlog($this->date_range);
+
         return [
-            'start_date' => 'string|date',
-            'end_date' => 'string|date',
-            'date_key' => 'string',
-            'date_range' => 'sometimes|string',
+            'date_range' => 'bail|required|string',
+            'end_date' => 'bail|required_if:date_range,custom|nullable|date',
+            'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => 'present|array',
             'send_email' => 'required|bool',
         ];
@@ -52,6 +54,12 @@ class GenericReportRequest extends Request
         if (! array_key_exists('send_email', $input)) {
             $input['send_email'] = true;
         }
+
+        if (array_key_exists('date_range', $input) && $input['date_range'] != 'custom') {
+            $input['start_date'] = null;
+            $input['end_date'] = null;
+        }
+
 
         $this->replace($input);
     }

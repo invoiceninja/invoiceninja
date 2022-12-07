@@ -288,10 +288,20 @@ class Credit extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
+        try {
+            $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
+        } catch (\Exception $e) {
+            nlog($e->getMessage());
+        }
+
+        if ($file_exists) {
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+
+
         if (Storage::disk('public')->exists($file_path)) {
             return Storage::disk('public')->{$type}($file_path);
         }
-
 
         $file_path = (new CreateEntityPdf($invitation))->handle();
 

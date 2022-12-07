@@ -12,6 +12,7 @@
 namespace App\Filters;
 
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class TaskFilters extends QueryFilters
 {
+    use MakesHash;
+
     /**
      * Filter based on search text.
      *
@@ -40,6 +43,37 @@ class TaskFilters extends QueryFilters
                           ->orWhere('tasks.custom_value4', 'like', '%'.$filter.'%');
         });
     }
+
+
+    /**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - invoiced
+     *
+     * @param string client_status The invoice status as seen by the client
+     * @return Builder
+     */
+    public function client_status(string $value = '') :Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        if (in_array('invoiced', $status_parameters)) {
+            $this->builder->whereNotNull('invoice_id');
+        }
+
+        return $this->builder;
+    }
+
 
     /**
      * Filters the list based on the status
@@ -78,6 +112,16 @@ class TaskFilters extends QueryFilters
                 $query->orWhere($table.'.is_deleted', '=', 1);
             }
         });
+    }
+
+    public function project_tasks($project)
+    {
+
+        if (strlen($project) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('project_id', $this->decodePrimaryKey($project));
     }
 
     /**

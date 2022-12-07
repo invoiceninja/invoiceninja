@@ -26,6 +26,7 @@ use App\Utils\Traits\MakesReminders;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 
+//@deprecated 27-11-2022 - only ever should be used for testing
 class SendRemindersCron extends Command
 {
     use MakesReminders, MakesDates;
@@ -175,7 +176,7 @@ class SendRemindersCron extends Command
         /**Refresh Invoice values*/
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
-        $invoice->service()->deletePdf();
+        $invoice->service()->deletePdf()->save();
 
         /* Refresh the client here to ensure the balance is fresh */
         $client = $invoice->client;

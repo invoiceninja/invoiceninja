@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TwoFactor\EnableTwoFactorRequest;
 use App\Models\User;
 use App\Transformers\UserTransformer;
 use Crypt;
@@ -51,17 +52,16 @@ class TwoFactorController extends BaseController
         return response()->json(['data' => $data], 200);
     }
 
-    public function enableTwoFactor()
+    public function enableTwoFactor(EnableTwoFactorRequest $request)
     {
         $google2fa = new Google2FA();
 
         $user = auth()->user();
-        $secret = request()->input('secret');
-        $oneTimePassword = request()->input('one_time_password');
+        $secret = $request->input('secret');
+        $oneTimePassword = $request->input('one_time_password');
 
         if ($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->email_verified_at) {
             $user->google_2fa_secret = encrypt($secret);
-
             $user->save();
 
             return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
@@ -71,6 +71,11 @@ class TwoFactorController extends BaseController
 
         return response()->json(['message' => 'No phone record or user is not confirmed'], 400);
     }
+
+    /*
+    * @param App\Models\User $user
+    * @param App\Models\User auth()->user()
+    */
 
     public function disableTwoFactor()
     {

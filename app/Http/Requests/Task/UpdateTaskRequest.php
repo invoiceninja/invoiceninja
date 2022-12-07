@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Models\Project;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends Request
@@ -29,6 +30,10 @@ class UpdateTaskRequest extends Request
      */
     public function authorize() : bool
     {
+        //prevent locked tasks from updating
+        if($this->task->invoice_id && $this->task->company->invoice_task_lock)
+            return false;
+
         return auth()->user()->can('edit', $this->task);
     }
 
@@ -87,4 +92,11 @@ class UpdateTaskRequest extends Request
 
         $this->replace($input);
     }
+
+
+    protected function failedAuthorization()
+    {
+        throw new AuthorizationException(ctrans('texts.task_update_authorization_error'));
+    }
+
 }

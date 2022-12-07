@@ -1,2 +1,130 @@
-/*! For license information please see braintree-paypal.js.LICENSE.txt */
-(()=>{function e(e,t){for(var n=0;n<t.length;n++){var a=t[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(e,a.key,a)}}(new(function(){function t(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,t)}var n,a,o;return n=t,o=[{key:"getPaymentDetails",value:function(){return{flow:"vault"}}},{key:"handleErrorMessage",value:function(e){var t=document.getElementById("errors");t.innerText=e,t.hidden=!1}}],(a=[{key:"initBraintreeDataCollector",value:function(){window.braintree.client.create({authorization:document.querySelector("meta[name=client-token]").content},(function(e,t){window.braintree.dataCollector.create({client:t,paypal:!0},(function(e,t){e||(document.querySelector("input[name=client-data]").value=t.deviceData)}))}))}},{key:"handlePaymentWithToken",value:function(){Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(e){return e.addEventListener("click",(function(e){document.getElementById("paypal-button").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=e.target.dataset.token,document.getElementById("pay-now-with-token").classList.remove("hidden"),document.getElementById("pay-now").classList.add("hidden")}))}));var e=document.getElementById("pay-now-with-token");e.addEventListener("click",(function(t){e.disabled=!0,e.querySelector("svg").classList.remove("hidden"),e.querySelector("span").classList.add("hidden"),document.getElementById("server-response").submit()}))}},{key:"handle",value:function(){this.initBraintreeDataCollector(),this.handlePaymentWithToken(),braintree.client.create({authorization:document.querySelector("meta[name=client-token]").content}).then((function(e){return braintree.paypalCheckout.create({client:e})})).then((function(e){return e.loadPayPalSDK({vault:!0}).then((function(e){return paypal.Buttons({fundingSource:paypal.FUNDING.PAYPAL,createBillingAgreement:function(){return e.createPayment(t.getPaymentDetails())},onApprove:function(t,n){return e.tokenizePayment(t).then((function(e){var t=document.querySelector('input[name="token-billing-checkbox"]:checked');t&&(document.querySelector('input[name="store_card"]').value=t.value),document.querySelector("input[name=gateway_response]").value=JSON.stringify(e),document.getElementById("server-response").submit()}))},onCancel:function(e){},onError:function(e){console.log(e.message),t.handleErrorMessage(e.message)}}).render("#paypal-button")}))})).catch((function(e){console.log(e.message),t.handleErrorMessage(e.message)}))}}])&&e(n.prototype,a),o&&e(n,o),Object.defineProperty(n,"prototype",{writable:!1}),t}())).handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!***********************************************************!*\
+  !*** ./resources/js/clients/payments/braintree-paypal.js ***!
+  \***********************************************************/
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */
+var BraintreePayPal = /*#__PURE__*/function () {
+  function BraintreePayPal() {
+    _classCallCheck(this, BraintreePayPal);
+  }
+
+  _createClass(BraintreePayPal, [{
+    key: "initBraintreeDataCollector",
+    value: function initBraintreeDataCollector() {
+      window.braintree.client.create({
+        authorization: document.querySelector('meta[name=client-token]').content
+      }, function (err, clientInstance) {
+        window.braintree.dataCollector.create({
+          client: clientInstance,
+          paypal: true
+        }, function (err, dataCollectorInstance) {
+          if (err) {
+            return;
+          }
+
+          document.querySelector('input[name=client-data]').value = dataCollectorInstance.deviceData;
+        });
+      });
+    }
+  }, {
+    key: "handlePaymentWithToken",
+    value: function handlePaymentWithToken() {
+      Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+        return element.addEventListener('click', function (element) {
+          document.getElementById('paypal-button').classList.add('hidden');
+          document.getElementById('save-card--container').style.display = 'none';
+          document.querySelector('input[name=token]').value = element.target.dataset.token;
+          document.getElementById('pay-now-with-token').classList.remove('hidden');
+          document.getElementById('pay-now').classList.add('hidden');
+        });
+      });
+      var payNowWithToken = document.getElementById('pay-now-with-token');
+      payNowWithToken.addEventListener('click', function (element) {
+        payNowWithToken.disabled = true;
+        payNowWithToken.querySelector('svg').classList.remove('hidden');
+        payNowWithToken.querySelector('span').classList.add('hidden');
+        document.getElementById('server-response').submit();
+      });
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      this.initBraintreeDataCollector();
+      this.handlePaymentWithToken();
+      braintree.client.create({
+        authorization: document.querySelector('meta[name=client-token]').content
+      }).then(function (clientInstance) {
+        return braintree.paypalCheckout.create({
+          client: clientInstance
+        });
+      }).then(function (paypalCheckoutInstance) {
+        return paypalCheckoutInstance.loadPayPalSDK({
+          vault: true
+        }).then(function (paypalCheckoutInstance) {
+          return paypal.Buttons({
+            fundingSource: paypal.FUNDING.PAYPAL,
+            createBillingAgreement: function createBillingAgreement() {
+              return paypalCheckoutInstance.createPayment(BraintreePayPal.getPaymentDetails());
+            },
+            onApprove: function onApprove(data, actions) {
+              return paypalCheckoutInstance.tokenizePayment(data).then(function (payload) {
+                var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+
+                if (tokenBillingCheckbox) {
+                  document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+                }
+
+                document.querySelector('input[name=gateway_response]').value = JSON.stringify(payload);
+                document.getElementById('server-response').submit();
+              });
+            },
+            onCancel: function onCancel(data) {// ..
+            },
+            onError: function onError(err) {
+              console.log(err.message);
+              BraintreePayPal.handleErrorMessage(err.message);
+            }
+          }).render('#paypal-button');
+        });
+      })["catch"](function (err) {
+        console.log(err.message);
+        BraintreePayPal.handleErrorMessage(err.message);
+      });
+    }
+  }], [{
+    key: "getPaymentDetails",
+    value: function getPaymentDetails() {
+      return {
+        flow: 'vault'
+      };
+    }
+  }, {
+    key: "handleErrorMessage",
+    value: function handleErrorMessage(message) {
+      var errorsContainer = document.getElementById('errors');
+      errorsContainer.innerText = message;
+      errorsContainer.hidden = false;
+    }
+  }]);
+
+  return BraintreePayPal;
+}();
+
+new BraintreePayPal().handle();
+/******/ })()
+;

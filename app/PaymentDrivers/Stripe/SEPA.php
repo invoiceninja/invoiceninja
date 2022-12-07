@@ -39,6 +39,7 @@ class SEPA
         $data['client'] = $this->stripe->client;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
         $data['currency'] = $this->stripe->client->currency();
+        $data['payment_hash'] = 'x';
 
         return render('gateways.stripe.sepa.authorize', $data);
     }
@@ -66,7 +67,7 @@ class SEPA
             ],
         ];
 
-        $intent = \Stripe\PaymentIntent::create($intent_data, $this->stripe->stripe_connect_auth);
+        $intent = \Stripe\PaymentIntent::create($intent_data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -83,7 +84,7 @@ class SEPA
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status === 'succeeded')) {
+        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status == 'succeeded')) {
             if ($request->store_card) {
                 $this->storePaymentMethod($gateway_response);
             }

@@ -34,6 +34,7 @@ use Checkout\CheckoutArgumentException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutDefaultSdk;
 use Checkout\CheckoutFourSdk;
+use Checkout\Common\Phone;
 use Checkout\Customers\CustomerRequest;
 use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
@@ -300,16 +301,63 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $request = new CustomerRequest();
             }
             
-            $request->email = $this->client->present()->email();
-            $request->name = $this->client->present()->name();
-            $request->phone = $this->client->present()->phone();
+                $phone = new Phone();
+                // $phone->number = $this->client->present()->phone();
+                $phone->number = substr(str_pad($this->client->present()->phone(),6, "0", STR_PAD_RIGHT), 0 , 24);
+
+                $request->email = $this->client->present()->email();
+                $request->name = $this->client->present()->name();
+                $request->phone = $phone;
 
                 try {
                     $response = $this->gateway->getCustomersClient()->create($request);
-                } catch (\Exception $e) {
-                    // API error
-                    throw new PaymentFailed($e->getMessage(), $e->getCode());
                 } 
+                catch (CheckoutApiException $e) {
+                    // API error
+                    $request_id = $e->request_id;
+                    $http_status_code = $e->http_status_code;
+                    $error_details = $e->error_details;
+
+                    if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+
+                    throw new PaymentFailed($human_exception);
+                } catch (CheckoutArgumentException $e) {
+                    // Bad arguments
+
+                    $error_details = $e->error_details;
+
+                    if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                    throw new PaymentFailed($human_exception);
+                } catch (CheckoutAuthorizationException $e) {
+                    // Bad Invalid authorization
+          
+                    $error_details = $e->error_details;
+         
+                     if(is_array($error_details)) {
+                        $error_details = end($e->error_details['error_codes']);
+                    }
+
+                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                    throw new PaymentFailed($human_exception);
+                }
+
+
+
+                // catch (\Exception $e) {
+                //     // API error
+                //     throw new PaymentFailed($e->getMessage(), $e->getCode());
+                // } 
 
             return $response;
         }
@@ -401,8 +449,13 @@ class CheckoutComPaymentDriver extends BaseDriver
             $this->unWindGatewayFees($payment_hash);
             $message = $e->getMessage();
 
+            $error_details = '';
+
+            if(property_exists($e, 'error_details'))
+                $error_details = $e->error_details;
+
             $data = [
-                'status' => '',
+                'status' => $e->error_details,
                 'error_type' => '',
                 'error_code' => $e->getCode(),
                 'param' => '',
@@ -433,7 +486,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
 
-        //11-08-2022 check the user is autenticated
+        //11-08-2022 check the user is authenticated
         if (!Auth::guard('contact')->check()) {
             $client = $request->getClient();
             auth()->guard('contact')->loginUsingId($client->contacts()->first()->id, true);
@@ -450,6 +503,8 @@ class CheckoutComPaymentDriver extends BaseDriver
                 return $this->processUnsuccessfulPayment($payment);
             }
         } catch (CheckoutApiException | Exception $e) {
+            nlog("checkout");
+            nlog($e->getMessage());
             return $this->processInternallyFailedPayment($this, $e);
         }
     }

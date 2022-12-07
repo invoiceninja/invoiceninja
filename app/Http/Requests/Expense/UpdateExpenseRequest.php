@@ -41,6 +41,8 @@ class UpdateExpenseRequest extends Request
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);
         }
 
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+
         return $this->globalRules($rules);
     }
 
@@ -49,10 +51,6 @@ class UpdateExpenseRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
-        }
 
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);

@@ -18,13 +18,16 @@ use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityFailedSendObject;
 use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 class InvoiceFailedEmailNotification
 {
-    use UserNotifies;
 
-    public $delay = 5;
+    use UserNotifies, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct()
     {
@@ -43,7 +46,7 @@ class InvoiceFailedEmailNotification
         $first_notification_sent = true;
 
         $invoice = $event->invitation->invoice;
-        $invoice->update(['last_sent_date' => now()]);
+        // $invoice->update(['last_sent_date' => now()]);
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());

@@ -14,6 +14,7 @@ namespace App\Http\Controllers\VendorPortal;
 use App\Events\Credit\CreditWasViewed;
 use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
+use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
@@ -83,7 +84,8 @@ class InvitationController extends Controller
 
             $invitation->markViewed();
             event(new InvitationWasViewed($invitation->purchase_order, $invitation, $invitation->company, Ninja::eventVars()));
-            
+            event(new PurchaseOrderWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+
         }
         else{
 

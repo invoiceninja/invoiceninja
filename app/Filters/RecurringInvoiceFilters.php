@@ -11,6 +11,7 @@
 
 namespace App\Filters;
 
+use App\Models\RecurringInvoice;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -39,6 +40,46 @@ class RecurringInvoiceFilters extends QueryFilters
                           ->orWhere('recurring_invoices.custom_value4', 'like', '%'.$filter.'%');
         });
     }
+
+    /**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - active
+     * - paused
+     * - completed
+     *
+     * @param string client_status The invoice status as seen by the client
+     * @return Builder
+     */
+    public function client_status(string $value = '') :Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        if (in_array('active', $status_parameters)) {
+            $this->builder->where('status_id', RecurringInvoice::STATUS_ACTIVE);
+        }
+
+        if (in_array('paused', $status_parameters)) {
+            $this->builder->where('status_id', RecurringInvoice::STATUS_PAUSED);
+        }
+
+        if (in_array('completed', $status_parameters)) {
+            $this->builder->where('status_id', RecurringInvoice::STATUS_COMPLETED);
+        }
+
+        return $this->builder;
+    }
+
 
     /**
      * Filters the list based on the status

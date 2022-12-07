@@ -62,21 +62,13 @@ class UpdateInvoicePayment
                 $paid_amount = $paid_invoice->amount;
             }
 
-            $client->service()->updateBalanceAndPaidToDate($paid_amount*-1, $paid_amount);
-            
-            // \DB::connection(config('database.default'))->transaction(function () use($client, $paid_amount){
-
-            //     $update_client = Client::withTrashed()->where('id', $client->id)->lockForUpdate()->first();
-
-            //     $update_client->paid_to_date += $paid_amount;
-            //     $update_client->balance -= $paid_amount;
-            //     $update_client->save();
-
-            // }, 1);
+            $client->service()->updatePaidToDate($paid_amount); //always use the payment->amount
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
             if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
                 $paid_amount = $invoice->balance;
+
+            $client->service()->updateBalance($paid_amount*-1); //only ever use the amount applied to the invoice
 
             /*Improve performance here - 26-01-2022 - also change the order of events for invoice first*/
             //caution what if we amount paid was less than partial - we wipe it!
@@ -86,8 +78,6 @@ class UpdateInvoicePayment
 
             $invoice =  $invoice->service() 
                                 ->clearPartial()
-                                // ->updateBalance($paid_amount * -1)
-                                // ->updatePaidToDate($paid_amount)
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->save();
@@ -119,7 +109,7 @@ class UpdateInvoicePayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
+            // TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
 
 
         });

@@ -640,7 +640,14 @@ class ClientController extends BaseController
     {
         //delete all documents
         $client->documents->each(function ($document) {
-            Storage::disk(config('filesystems.default'))->delete($document->url);
+
+            try{
+                Storage::disk(config('filesystems.default'))->delete($document->url);
+            }
+            catch(\Exception $e){
+                nlog($e->getMessage());
+            }
+
         });
 
         //force delete the client
@@ -662,7 +669,7 @@ class ClientController extends BaseController
      *
      *
      * @OA\Post(
-     *      path="/api/v1/clients/{id}/{mergaeble_client_hashed_id}/merge",
+     *      path="/api/v1/clients/{id}/{mergeable_client_hashed_id}/merge",
      *      operationId="mergeClient",
      *      tags={"clients"},
      *      summary="Merges two clients",
@@ -683,7 +690,7 @@ class ClientController extends BaseController
      *          ),
      *      ),
      *      @OA\Parameter(
-     *          name="mergeable_client_hashedid",
+     *          name="mergeable_client_hashed_id",
      *          in="path",
      *          description="The Mergeable Client Hashed ID",
      *          example="D2J234DFA",

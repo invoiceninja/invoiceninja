@@ -12,6 +12,7 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Account;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
@@ -89,11 +90,15 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $this->payment->invoices->each(function ($invoice) {
-                if (Ninja::isHosted()) {
-                    $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first(), 'url', true)]);
-                } else {
-                    $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
-                }
+                // if (Ninja::isHosted()) {
+                //     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first(), 'url', true)]);
+                // } else {
+                //     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
+                // }
+            $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
+
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
+
             });
         }
 
@@ -243,6 +248,14 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.due_date'] = ['value' => $this->formatInvoiceField('due_date'), 'label' => ctrans('texts.invoices')];
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
 
+
+        if($this->payment->status_id == 4) {
+            $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
+        }
+        else
+            $data['$status_logo'] = ['value' => '', 'label' => ''];
+
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
@@ -251,17 +264,23 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoiceField($field)
     {
-        $invoice = '';
+        $invoicex = '';
 
         foreach ($this->payment->invoices as $invoice) {
 
             $invoice_field = $invoice->{$field};
 
-            $invoice .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
+            if(in_array($field, ['amount', 'balance']))
+                $invoice_field = Number::formatMoney($invoice_field, $this->client);
+
+            if($field == 'due_date')
+                $invoice_field = $this->translateDate($invoice_field, $this->client->date_format(), $this->client->locale());
+
+            $invoicex .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
 
         }
 
-        return $invoice;
+        return $invoicex;
 
     }
 
@@ -325,6 +344,20 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         foreach ($values as $key => $value) {
             $data[$key] = $value['value'];
+        }
+
+        return $data;
+    }
+
+    public function generateLabelsAndValues()
+    {
+        $data = [];
+
+        $values = $this->makePaymentVariables();
+
+        foreach ($values as $key => $value) {
+            $data['values'][$key] = $value['value'];
+            $data['labels'][$key.'_label'] = $value['label'];
         }
 
         return $data;

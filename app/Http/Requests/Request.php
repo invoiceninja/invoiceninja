@@ -109,6 +109,10 @@ class Request extends FormRequest
             $input['invoice_id'] = $this->decodePrimaryKey($input['invoice_id']);
         }
 
+        if (array_key_exists('expense_id', $input) && is_string($input['expense_id'])) {
+            $input['expense_id'] = $this->decodePrimaryKey($input['expense_id']);
+        }
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
@@ -119,6 +123,10 @@ class Request extends FormRequest
 
         if (array_key_exists('company_gateway_id', $input) && is_string($input['company_gateway_id'])) {
             $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
+        }
+
+        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
+            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
 
         if (isset($input['client_contacts'])) {

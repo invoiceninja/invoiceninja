@@ -126,9 +126,9 @@
                     },
                     "content": {
                         "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
-                        "message": "This website uses cookies to ensure you get the best experience on our website.",
-                        "dismiss": "Got it!",
-                        "link": "Learn more",
+                        "message": "{{ ctrans('texts.cookie_message')}}",
+                        "dismiss": "{{ ctrans('texts.got_it')}}",
+                        "link": "{{ ctrans('texts.learn_more')}}",
                     }
                 })}
             );
@@ -164,7 +164,7 @@
         @yield('footer')
         @stack('footer')
 
-        @if((bool) \App\Utils\Ninja::isSelfHost() && !empty($settings->portal_custom_footer))
+        @if($company && $company->account->isPaid() && !empty($settings->portal_custom_footer))
             <div class="py-1 text-sm text-center text-white bg-primary">
                 {!! $settings->portal_custom_footer !!}
             </div>

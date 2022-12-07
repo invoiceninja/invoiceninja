@@ -11,6 +11,7 @@
 
 namespace App\Import\Transformer\Csv;
 
+use App\DataMapper\ClientSettings;
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 use Illuminate\Support\Str;
@@ -31,13 +32,13 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists');
         }
 
-        $settings = new \stdClass();
+        $settings = ClientSettings::defaults();
         $settings->currency_id = (string) $this->getCurrencyByCode($data);
 
         return [
             'company_id' => $this->company->id,
             'name' => $this->getString($data, 'client.name'),
-            'work_phone' => $this->getString($data, 'client.phone'),
+            'phone' => $this->getString($data, 'client.phone'),
             'address1' => $this->getString($data, 'client.address1'),
             'address2' => $this->getString($data, 'client.address2'),
             'postal_code' => $this->getString($data, 'client.postal_code'),

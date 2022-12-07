@@ -115,6 +115,7 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
+
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
@@ -122,17 +123,27 @@ class NinjaMailerJob implements ShouldQueue
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
 
-            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
-                     ->batch();
-
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
 
-        } catch (\Exception | \RuntimeException $e) {
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
+                     ->send();
+
+            $this->nmo = null;
+            $this->company = null;
+    
+        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
             nlog("error failed with {$e->getMessage()}");
 
             $message = $e->getMessage();
+
+            if($e instanceof \Google\Service\Exception){
+
+                if(($e->getCode() == 429) && ($this->nmo->to_user instanceof ClientContact))
+                    $this->logMailError("Google rate limiter hit, we will retry in 30 seconds.", $this->nmo->to_user->client);
+
+            }
 
             /**
              * Post mark buries the proper message in a a guzzle response
@@ -158,7 +169,15 @@ class NinjaMailerJob implements ShouldQueue
             /* Don't send postmark failures to Sentry */
             if(Ninja::isHosted() && (!$e instanceof ClientException)) 
                 app('sentry')->captureException($e);
+
+            $message = null;
+            $this->nmo = null;
+            $this->company = null;
+    
         }
+
+        
+        
     }
 
     /* Switch statement to handle failure notifications */
@@ -180,6 +199,7 @@ class NinjaMailerJob implements ShouldQueue
 
         if ($this->nmo->to_user instanceof ClientContact) 
             $this->logMailError($message, $this->nmo->to_user->client);
+
     }
 
     private function setMailDriver()
@@ -205,7 +225,40 @@ class NinjaMailerJob implements ShouldQueue
                 break;
         }
 
+
+        if(Ninja::isSelfHost())
+            $this->setSelfHostMultiMailer();
+
+
     }
+
+    private function setSelfHostMultiMailer()
+    {
+
+        if (env($this->company->id . '_MAIL_HOST')) 
+        {
+
+            config([
+                'mail.mailers.smtp' => [
+                    'transport' => 'smtp',
+                    'host' => env($this->company->id . '_MAIL_HOST'),
+                    'port' => env($this->company->id . '_MAIL_PORT'),
+                    'username' => env($this->company->id . '_MAIL_USERNAME'),
+                    'password' => env($this->company->id . '_MAIL_PASSWORD'),
+                ],
+            ]);
+
+            if(env($this->company->id . '_MAIL_FROM_ADDRESS'))
+            {
+            $this->nmo
+                 ->mailable
+                 ->from(env($this->company->id . '_MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')), env($this->company->id . '_MAIL_FROM_NAME', env('MAIL_FROM_NAME')));
+             }
+
+        }
+
+    }
+
 
     private function setOfficeMailer()
     {
@@ -373,7 +426,7 @@ class NinjaMailerJob implements ShouldQueue
     private function logMailError($errors, $recipient_object)
     {
 
-        SystemLogger::dispatch(
+        SystemLogger::dispatchSync(
             $errors,
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
@@ -387,7 +440,10 @@ class NinjaMailerJob implements ShouldQueue
         $job_failure->string_metric6 = substr($errors, 0, 150);
 
         LightLogs::create($job_failure)
-                 ->queue();
+                 ->send();
+
+        $job_failure = null;
+
     }
 
     public function failed($exception = null)

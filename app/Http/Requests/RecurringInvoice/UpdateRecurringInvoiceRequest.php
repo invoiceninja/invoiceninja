@@ -54,13 +54,23 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
-
+        $rules['tax_rate1'] = 'bail|sometimes|numeric';
+        $rules['tax_rate2'] = 'bail|sometimes|numeric';
+        $rules['tax_rate3'] = 'bail|sometimes|numeric';
+        $rules['tax_name1'] = 'bail|sometimes|string|nullable';
+        $rules['tax_name2'] = 'bail|sometimes|string|nullable';
+        $rules['tax_name3'] = 'bail|sometimes|string|nullable';
+        
         return $rules;
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])){
+            $input['due_date_days'] = 'terms';
+        }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
@@ -84,7 +94,7 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
-                if (is_numeric($input['invitations'][$key]['id'])) {
+                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
                     unset($input['invitations'][$key]['id']);
                 }
 

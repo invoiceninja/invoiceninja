@@ -79,8 +79,6 @@ class NewAccountNotification extends Notification
     {
         $content = "New Trial Started\n";
         $content .= "{$this->client->name}\n";
-        $content .= "Account key: {$this->account->key}\n";
-        $content .= "Users: {$this->account->users()->pluck('email')}\n";
         $content .= "Contacts: {$this->client->contacts()->pluck('email')}\n";
         
 

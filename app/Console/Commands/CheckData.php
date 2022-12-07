@@ -703,13 +703,32 @@ class CheckData extends Command
                             ->count();
 
                 if($count == 0){
-                    $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be 0");
+                    
+                    //factor in over payments to the client balance
+                    $over_payment = Payment::where('client_id', $client->id)
+                                            ->where('is_deleted', 0)
+                                            ->whereIn('status_id', [1,4])
+                                            ->selectRaw('sum(amount - applied) as p')
+                                            ->pluck('p')
+                                            ->first();
 
-                    if($this->option('client_balance')){
+                    $over_payment = $over_payment*-1;
+
+                    if(floatval($over_payment) == floatval($client->balance)){
+
+                    }
+                    else {
+
+                        $this->logMessage("# {$client->id} # {$client->name} {$client->balance} is invalid should be {$over_payment}");
+
+                    }
+
+
+                    if($this->option('client_balance') && (floatval($over_payment) != floatval($client->balance) )){
                         
                         $this->logMessage("# {$client->id} " . $client->present()->name().' - '.$client->number." Fixing {$client->balance} to 0");
 
-                        $client->balance = 0;
+                        $client->balance = $over_payment;
                         $client->save();
 
                     }
@@ -1028,6 +1047,29 @@ class CheckData extends Command
                 $cu->save();
 
                 $this->logMessage("Fixing - {$ninja_portal_url}");
+            }
+            else{
+
+                $c =  Client::on('db-ninja-01')->where("company_id", config('ninja.ninja_default_company_id'))->where('custom_value2', $cu->account->key)->first();
+
+                    if($c)
+                    {
+
+                      $cc = $c->contacts()->first();
+                      
+                      if($cc)
+                      {
+                        $ninja_portal_url = "https://invoiceninja.invoicing.co/client/ninja/{$cc->contact_key}/{$cu->account->key}";
+
+                        $cu->ninja_portal_url = $ninja_portal_url;
+                        $cu->save();
+
+                        $this->logMessage("Fixing - {$ninja_portal_url}");
+
+                      }
+
+                    }
+
             }
 
         });

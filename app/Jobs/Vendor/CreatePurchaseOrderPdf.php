@@ -99,18 +99,11 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         if ($pdf) {
 
             try{
-                
-                if(!Storage::disk($this->disk)->exists($this->path)) 
-                    Storage::disk($this->disk)->makeDirectory($this->path, 0775);
-
-                Storage::disk($this->disk)->put($this->file_path, $pdf, 'public');
-
+                Storage::disk($this->disk)->put($this->file_path, $pdf);
             }
             catch(\Exception $e)
             {
-
                 throw new FilePermissionsFailure($e->getMessage());
-
             }
         }
         
@@ -134,7 +127,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom)->generate($this->invitation);
+            return (new Phantom)->generate($this->invitation, true);
         }
 
         $entity_design_id = '';
@@ -209,7 +202,6 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
                 if($numbered_pdf)
                     $pdf = $numbered_pdf;
-                
 
             }
 
@@ -221,6 +213,9 @@ class CreatePurchaseOrderPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
+        $maker = null;
+        $state = null;
+        
         return $pdf;
 
     }

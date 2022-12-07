@@ -124,6 +124,7 @@ class RecurringInvoice extends BaseModel
         'exchange_rate',
         'vendor_id',
         'next_send_date_client',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [
@@ -556,6 +557,7 @@ class RecurringInvoice extends BaseModel
         switch ($this->due_date_days) {
             case 'terms':
             case '':
+            case '0':
                 return $this->calculateDateFromTerms($date);
                 break;
 				

@@ -63,7 +63,7 @@ class RecurringQuoteTest extends TestCase
     {
         RecurringQuote::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
-        $RecurringQuote = RecurringQuote::where('user_id', $this->user->id)->first();
+        $RecurringQuote = RecurringQuote::query()->where('user_id', $this->user->id)->orderBy('id','DESC')->first();
         $RecurringQuote->save();
 
         $response = $this->withHeaders([

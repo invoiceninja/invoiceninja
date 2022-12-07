@@ -46,7 +46,7 @@ class InvoiceTransformer extends BaseTransformer
             'due_date'     => isset($invoice_data['Due Date']) ? date('Y-m-d', strtotime($invoice_data['Due Date'])) : null,
             'po_number'    => $this->getString($invoice_data, 'PurchaseOrder'),
             'public_notes' => $this->getString($invoice_data, 'Notes'),
-            'currency_id'  => $this->getCurrencyByCode($invoice_data, 'Currency'),
+            // 'currency_id'  => $this->getCurrencyByCode($invoice_data, 'Currency'),
             'amount'       => $this->getFloat($invoice_data, 'Total'),
             'balance'      => $this->getFloat($invoice_data, 'Balance'),
             'status_id'    => $invoiceStatusMap[$status =

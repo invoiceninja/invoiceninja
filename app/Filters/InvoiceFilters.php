@@ -56,8 +56,6 @@ class InvoiceFilters extends QueryFilters
         if (in_array('unpaid', $status_parameters)) {
             $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
         }
-        //->where('due_date', '>', Carbon::now())
-        //->orWhere('partial_due_date', '>', Carbon::now());
 
         if (in_array('overdue', $status_parameters)) {
             $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
@@ -167,7 +165,7 @@ class InvoiceFilters extends QueryFilters
                 ->orderBy('due_date', 'ASC');
     }
 
-    public function payable(string $client_id)
+    public function payable(string $client_id = '')
     {
         if (strlen($client_id) == 0) {
             return $this->builder;
@@ -185,7 +183,7 @@ class InvoiceFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = '') : Builder
     {
         $sort_col = explode('|', $sort);
 

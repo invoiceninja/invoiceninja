@@ -112,6 +112,10 @@ class UpdateClientRequest extends Request
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
         }
 
+        if (array_key_exists('name', $input)) {
+            $input['name'] = strip_tags($input['name']);
+        }
+        
         $this->replace($input);
     }
 

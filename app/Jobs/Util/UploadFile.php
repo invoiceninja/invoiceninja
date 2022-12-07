@@ -167,7 +167,7 @@ class UploadFile implements ShouldQueue
                     $previewHeight = $height * Document::DOCUMENT_PREVIEW_SIZE / $width;
                 } else {
                     $previewHeight = Document::DOCUMENT_PREVIEW_SIZE;
-                    $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
+                    $previewWidth = $width * Document::DOCUMENT_PREVIEW_SIZE / $height;
                 }
 
                 $img->resize($previewWidth, $previewHeight);

@@ -141,8 +141,10 @@ class MarkPaid extends AbstractService
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
+        // TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
 
+        event('eloquent.updated: App\Models\Invoice', $this->invoice);
+        
         return $this->invoice;
     }
 

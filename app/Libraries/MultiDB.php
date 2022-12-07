@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\Document;
 use App\Models\User;
+use App\Models\VendorContact;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -364,6 +365,23 @@ class MultiDB
         return false;
     }
 
+    public static function findAndSetDbByVendorContactKey($contact_key) :bool
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if (VendorContact::on($db)->where('contact_key', $contact_key)->exists()) {
+                self::setDb($db);
+
+                return true;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
     public static function findAndSetDbByClientHash($client_hash) :bool
     {
         $current_db = config('database.default');
@@ -497,17 +515,10 @@ class MultiDB
     {
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
-
-        // for some reason this breaks everything _hard_
-        // DB::purge($database);
-        // DB::reconnect($database);
     }
 
     public static function setDefaultDatabase()
     {
         config(['database.default' => config('ninja.db.default')]);
-
-        // DB::purge(config('ninja.db.default'));
-        // DB::reconnect(config('ninja.db.default'));
     }
 }

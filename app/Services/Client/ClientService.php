@@ -29,32 +29,42 @@ class ClientService
 
     public function updateBalance(float $amount)
     {
-        // $this->client->balance += $amount;
 
-        \DB::connection(config('database.default'))->transaction(function () use($amount) {
+        try {
+            \DB::connection(config('database.default'))->transaction(function () use($amount) {
 
-            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-            $this->client->balance += $amount;
-            $this->client->save();
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->balance += $amount;
+                $this->client->save();
 
-        }, 2);
+            }, 2);
+        }
+        catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+        }
 
         return $this;
+        
     }
 
     public function updateBalanceAndPaidToDate(float $balance, float $paid_to_date)
     {
-        // $this->client->balance += $amount;
-        // $this->client->paid_to_date += $amount;
 
-        \DB::connection(config('database.default'))->transaction(function () use($balance, $paid_to_date) {
+        try {
+            \DB::connection(config('database.default'))->transaction(function () use($balance, $paid_to_date) {
 
-            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-            $this->client->balance += $balance;
-            $this->client->paid_to_date += $paid_to_date;
-            $this->client->save();
+                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+                $this->client->balance += $balance;
+                $this->client->paid_to_date += $paid_to_date;
+                $this->client->save();
 
-        }, 2);
+            }, 2);
+        }
+        catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+        }
+   
+
 
         return $this;
     }

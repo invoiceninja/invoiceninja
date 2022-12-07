@@ -389,14 +389,17 @@ class UserController extends BaseController
         $new_user = $user->fresh();
 
         /* When changing email address we store the former email in case we need to rollback */
+        /* 27-10-2022 we need to wipe the oauth data at this point*/
         if ($old_user_email != $new_email) {
             $user->last_confirmed_email_address = $old_user_email;
             $user->email_verified_at = null;
+            $user->oauth_user_id = null;
+            $user->oauth_provider_id = null;
+            $user->oauth_user_refresh_token = null;
+            $user->oauth_user_token = null;
             $user->save();
             UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
         }
-
-       // $user->company_users()->update(["permissions_updated_at" => now()]);        
 
         event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

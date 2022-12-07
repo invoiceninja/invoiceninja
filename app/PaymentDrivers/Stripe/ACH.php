@@ -36,6 +36,7 @@ use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\PaymentIntent;
+use App\Utils\Number;
 
 class ACH
 {
@@ -68,7 +69,7 @@ class ACH
         $customer = $this->stripe->findOrCreateCustomer();
 
         try {
-            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
@@ -165,6 +166,18 @@ class ACH
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $amount = $data['total']['amount_with_fee'];
+
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        } else {
+            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        }
+
 
         $intent = false;
 
@@ -176,6 +189,11 @@ class ACH
                 'setup_future_usage' => 'off_session',
                 'customer' => $data['customer']->id,
                 'payment_method_types' => ['us_bank_account'],
+                'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ],
             ]
             );
         }
@@ -193,9 +211,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($cgt->token, 0, 2) === 'pm') {
@@ -314,7 +332,7 @@ class ACH
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => PaymentType::ACH,
-            'transaction_reference' => $response->charges->data[0]->id,
+            'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 
@@ -437,9 +455,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($source->token, 0, 2) === 'pm') {

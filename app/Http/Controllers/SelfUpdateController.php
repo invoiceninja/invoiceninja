@@ -102,7 +102,7 @@ class SelfUpdateController extends BaseController
         nlog('Extracting zip');
 
         //clean up old snappdf installations
-        $this->cleanOldSnapChromeBinaries();
+        //$this->cleanOldSnapChromeBinaries();
 
         $zipFile = new \PhpZip\ZipFile();
 
@@ -112,6 +112,8 @@ class SelfUpdateController extends BaseController
 
         $zipFile->close();
 
+        $zipFile = null;
+        
         nlog('Finished extracting files');
 
         unlink($file);

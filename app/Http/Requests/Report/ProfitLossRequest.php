@@ -28,10 +28,10 @@ class ProfitLossRequest extends Request
     public function rules()
     {
         return [
-            'start_date' => 'string|date',
-            'end_date' => 'string|date',
+            'start_date' => 'required_if:date_range,custom|string|date',
+            'end_date' => 'required_if:date_range,custom|string|date',
             'is_income_billed' => 'required|bail|bool',
-            'is_expense_billed' => 'required|bail|bool',
+            'is_expense_billed' => 'bool',
             'include_tax' => 'required|bail|bool',
             'date_range' => 'sometimes|string',
             'send_email' => 'bool',

@@ -11,6 +11,7 @@
 
 namespace App\Filters;
 
+use App\Models\Quote;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -33,12 +34,58 @@ class QuoteFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('quotes.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('quotes.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('quotes.number', 'like', '%'.$filter.'%')
+                  ->orwhere('quotes.custom_value1', 'like', '%'.$filter.'%')
+                  ->orWhere('quotes.custom_value2', 'like', '%'.$filter.'%')
+                  ->orWhere('quotes.custom_value3', 'like', '%'.$filter.'%')
+                  ->orWhere('quotes.custom_value4', 'like', '%'.$filter.'%');
         });
     }
+
+    /**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - active
+     * - paused
+     * - completed
+     *
+     * @param string client_status The invoice status as seen by the client
+     * @return Builder
+     */
+    public function client_status(string $value = '') :Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        if (in_array('draft', $status_parameters)) {
+            $this->builder->where('status_id', Quote::STATUS_DRAFT);
+        }
+
+        if (in_array('sent', $status_parameters)) {
+            $this->builder->where('status_id', Quote::STATUS_SENT);
+        }
+
+        if (in_array('approved', $status_parameters)) {
+            $this->builder->where('status_id', Quote::STATUS_APPROVED);
+        }
+
+        if (in_array('expired', $status_parameters)) {
+            $this->builder->where('status_id', Quote::STATUS_SENT)
+                          ->where('due_date', '<=', now()->toDateString());
+        }
+
+        return $this->builder;
+    }
+
 
     /**
      * Filters the list based on the status

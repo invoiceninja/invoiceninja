@@ -34,6 +34,9 @@ use Illuminate\Support\Str;
  */
 trait GeneratesCounter
 {
+
+    private int $update_counter;
+
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
@@ -57,7 +60,7 @@ trait GeneratesCounter
 
             $counter_entity = $client;
         } elseif ((strpos($pattern, 'groupCounter') !== false) || (strpos($pattern, 'group_counter') !== false)) {
-            if (property_exists($client->group_settings, $counter_string)) {
+            if (property_exists($client, 'group_settings') && property_exists($client->group_settings, $counter_string)) {
                 $counter = $client->group_settings->{$counter_string};
             } else {
                 $counter = 1;
@@ -418,7 +421,7 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-
+            
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
@@ -432,11 +435,15 @@ trait GeneratesCounter
 
             if ($check_counter > 100) {
                 
+                $this->update_counter = $counter--;
+
                 return $number.'_'.Str::random(5);
 
             }
 
         } while ($check);
+
+        $this->update_counter = $counter--;
 
         return $number;
     }
@@ -469,7 +476,8 @@ trait GeneratesCounter
             $settings->{$counter_name} = 1;
         }
 
-        $settings->{$counter_name} = $settings->{$counter_name} + 1;
+        // $settings->{$counter_name} = $settings->{$counter_name} + 1;
+        $settings->{$counter_name} = $this->update_counter;
 
         $entity->settings = $settings;
 
@@ -743,10 +751,10 @@ trait GeneratesCounter
             $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
-            $replace[] = $client->id_number;
+            $replace[] = $client->id_number ?: $client->number;
 
             $search[] = '{$clientIdNumber}';
-            $replace[] = $client->id_number;
+            $replace[] = $client->id_number ?: $client->number;
         }
 
         return str_replace($search, $replace, $pattern);

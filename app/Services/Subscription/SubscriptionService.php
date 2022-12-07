@@ -785,7 +785,7 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        nlog("trigger webook");
+        nlog("trigger webhook");
 
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
             return ["message" => "Success", "status_code" => 200];
@@ -879,6 +879,53 @@ class SubscriptionService
 
     }
 
+    /* OPTIONAL PRODUCTS*/
+    /**
+     * Get the single charge products for the
+     * subscription
+     *
+     */
+    public function optional_products()
+    {
+        if(!$this->subscription->optional_product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->optional_product_ids));
+
+        if(is_array($keys))
+            return Product::whereIn('id', $keys)->get();
+        else
+            return Product::where('id', $keys)->get();
+    }
+
+    /**
+     * Get the recurring products for the
+     * subscription
+     *
+     */
+    public function optional_recurring_products()
+    {
+        if(!$this->subscription->optional_recurring_product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->optional_recurring_product_ids));
+
+        if(is_array($keys)){
+            return Product::whereIn('id', $keys)->get();
+        }
+        else{
+            return Product::where('id', $keys)->get();
+        }
+
+    }
+
+
+
+
+
+
+
+
     /**
      * Get available upgrades & downgrades for the plan.
      *
@@ -901,6 +948,8 @@ class SubscriptionService
      */
     public function handleCancellation(RecurringInvoice $recurring_invoice)
     {
+        $invoice_start_date = false;
+        $refund_end_date = false;
 
         //only refund if they are in the refund window.
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
@@ -909,8 +958,11 @@ class SubscriptionService
                                      ->orderBy('id', 'desc')
                                      ->first();
 
-        $invoice_start_date = Carbon::parse($outstanding_invoice->date);
-        $refund_end_date = $invoice_start_date->addSeconds($this->subscription->refund_period);
+        if($outstanding_invoice)
+        {
+            $invoice_start_date = Carbon::parse($outstanding_invoice->date);
+            $refund_end_date = $invoice_start_date->addSeconds($this->subscription->refund_period);
+        }
 
         /* Stop the recurring invoice and archive */
         $recurring_invoice->service()->stop()->save();
@@ -918,7 +970,7 @@ class SubscriptionService
         $recurring_invoice_repo->archive($recurring_invoice);
 
         /* Refund only if we are in the window - and there is nothing outstanding on the invoice */
-        if($refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
+        if($refund_end_date && $refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
         {
 
             if($outstanding_invoice->payments()->exists())

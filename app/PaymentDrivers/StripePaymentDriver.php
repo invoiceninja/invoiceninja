@@ -118,11 +118,14 @@ class StripePaymentDriver extends BaseDriver
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
+            
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+            Stripe::setApiVersion('2022-11-15');
+
         }
 
         return $this;
@@ -396,7 +399,7 @@ class StripePaymentDriver extends BaseDriver
 
         $meta = $this->stripe_connect_auth;
 
-        return PaymentIntent::create($data, $meta);
+        return PaymentIntent::create($data, array_merge($meta, ['idempotency_key' => uniqid("st",true)]));
     }
 
     /**
@@ -413,7 +416,7 @@ class StripePaymentDriver extends BaseDriver
         $params = ['usage' => 'off_session'];
         $meta = $this->stripe_connect_auth;
 
-        return SetupIntent::create($params, $meta);
+        return SetupIntent::create($params, array_merge($meta, ['idempotency_key' => uniqid("st",true)]));
     }
 
     /**
@@ -490,7 +493,7 @@ class StripePaymentDriver extends BaseDriver
         $data['address']['state'] = $this->client->state;
         $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : '';
 
-        $customer = Customer::create($data, $this->stripe_connect_auth);
+        $customer = Customer::create($data, array_merge($this->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         if (! $customer) {
             throw new Exception('Unable to create gateway customer');

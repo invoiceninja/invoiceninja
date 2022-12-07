@@ -90,7 +90,6 @@ class EmailEntity implements ShouldQueue
 
         $this->template_data = $template_data;
 
-        $this->email_entity_builder = $this->resolveEmailBuilder();
     }
 
     /**
@@ -99,12 +98,14 @@ class EmailEntity implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :void
     {
         /* Don't fire emails if the company is disabled */
         if ($this->company->is_disabled) {
-            return true;
+            return;
         }
+
+        $this->email_entity_builder = $this->resolveEmailBuilder();
 
         /* Set DB */
         MultiDB::setDB($this->company->db);
@@ -128,6 +129,17 @@ class EmailEntity implements ShouldQueue
         $nmo->entity = $this->entity;
 
         (new NinjaMailerJob($nmo))->handle();
+
+        $nmo = null;
+        $this->invitation = null;
+        $this->company = null;
+        $this->entity_string = null;
+        $this->entity = null;
+        $this->settings = null;
+        $this->reminder_template = null;
+        $this->html_engine = null;
+        $this->template_data = null;
+        $this->email_entity_builder = null;
     }
 
     private function resolveEntityString() :string

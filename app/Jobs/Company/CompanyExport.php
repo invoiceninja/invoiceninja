@@ -36,6 +36,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
+use function Amp\call;
+
 class CompanyExport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
@@ -77,6 +79,7 @@ class CompanyExport implements ShouldQueue
         set_time_limit(0);
 
         $this->export_data['app_version'] = config('ninja.app_version');
+        $this->export_data['storage_url'] = Storage::url('');
 
         $this->export_data['activities'] = $this->company->all_activities->map(function ($activity){
 
@@ -167,7 +170,8 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['company'] = $this->company->toArray();
-
+        $this->export_data['company']['company_key'] = $this->createHash();
+        
         $this->export_data['company_gateways'] = $this->company->company_gateways()->withTrashed()->cursor()->map(function ($company_gateway){
 
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
@@ -291,7 +295,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['payments'] = $this->company->payments()->orderBy('number', 'DESC')->cursor()->map(function ($payment){
 
             $payment = $this->transformBasicEntities($payment);
-            $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
+            $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id', 'transaction_id']);
 
             $payment->paymentables = $this->transformPaymentable($payment);
 
@@ -454,7 +458,6 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-
         $this->export_data['purchase_order_invitations'] = PurchaseOrderInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($purchase_order){
 
             $purchase_order = $this->transformArrayOfKeys($purchase_order, ['company_id', 'user_id', 'vendor_contact_id', 'purchase_order_id']);
@@ -464,6 +467,21 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
+        $this->export_data['bank_integrations'] = $this->company->bank_integrations()->orderBy('id', 'ASC')->cursor()->map(function ($bank_integration){
+
+            $bank_integration = $this->transformArrayOfKeys($bank_integration, ['account_id','company_id', 'user_id']);
+
+            return $bank_integration->makeVisible(['id','user_id','company_id','account_id']);
+
+        })->all();
+
+        $this->export_data['bank_transactions'] = $this->company->bank_transactions()->orderBy('id', 'ASC')->cursor()->map(function ($bank_transaction){
+
+            $bank_transaction = $this->transformArrayOfKeys($bank_transaction, ['company_id', 'user_id','bank_integration_id','expense_id','category_id','ninja_category_id','vendor_id']);
+
+            return $bank_transaction->makeVisible(['id','user_id','company_id']);
+
+        })->all();
 
         //write to tmp and email to owner();
         
@@ -514,9 +532,15 @@ class CompanyExport implements ShouldQueue
         $file_name = date('Y-m-d').'_'.str_replace([" ", "/"],["_",""], $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
 
         $path = 'backups';
-        
-        if(!Storage::disk(config('filesystems.default'))->exists($path))
-            Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
+
+        Storage::makeDirectory(public_path('storage/backups/'));
+
+        try {
+            mkdir(public_path('storage/backups/'));
+        }
+        catch(\Exception $e) {
+            nlog("could not create directory");
+        }
 
         $zip_path = public_path('storage/backups/'.$file_name);
         $zip = new \ZipArchive();

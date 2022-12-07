@@ -59,6 +59,8 @@ class Account extends BaseModel
         'user_agent',
         'platform',
         'set_react_as_default_ap',
+        'inapp_transaction_id',
+        'num_users',
     ];
 
     /**
@@ -136,6 +138,11 @@ class Account extends BaseModel
     public function companies()
     {
         return $this->hasMany(Company::class);
+    }
+
+    public function bank_integrations()
+    {
+        return $this->hasMany(BankIntegration::class);
     }
 
     public function company_users()
@@ -357,9 +364,9 @@ class Account extends BaseModel
                 'plan_price' => $price,
                 'trial' => false,
                 'plan' => $plan,
-                'started' => DateTime::createFromFormat('Y-m-d', $this->plan_started),
+                'started' => $this->plan_started ? DateTime::createFromFormat('Y-m-d', $this->plan_started) : false,
                 'expires' => $plan_expires,
-                'paid' => DateTime::createFromFormat('Y-m-d', $this->plan_paid),
+                'paid' => $this->plan_paid ? DateTime::createFromFormat('Y-m-d', $this->plan_paid) : false,
                 'term' => $this->plan_term,
                 'active' => $plan_active,
             ];

@@ -3,7 +3,6 @@
 </p>
 
 ![v5-develop phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
-![v5-stable phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-stable)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d16c78aad8574466bf83232b513ef4fb)](https://www.codacy.com/gh/turbo124/invoiceninja/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=turbo124/invoiceninja&amp;utm_campaign=Badge_Grade)
 <a href="https://cla-assistant.io/invoiceninja/invoiceninja"><img src="https://cla-assistant.io/readme/badge/invoiceninja/invoiceninja" alt="CLA assistant" /></a>
 
@@ -19,18 +18,33 @@ Just make sure to add the `invoice-ninja` tag to your question.
 
 Version 5 of Invoice Ninja is here! We've taken the best parts of version 4 and bolted on all of the most requested features to produce a invoicing application like no other. 
 
-The new interface has a lot more functionality so it isn't a carbon copy of v4, but once you get used to the new layout and functionality we are sure you will love it!
+All Pro and Enterprise features from the hosted app are included in the open-code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
-## Referral Program
-* Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* [Videos](https://www.youtube.com/@appinvoiceninja)
+* [API Documentation](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
+* [APP Documentation](https://invoiceninja.github.io/)
+* [Support Forum](https://forum.invoiceninja.com)
+* [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
+## Mobile Apps
+* [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
+* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
+
+## Desktop Apps
+* [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
+* [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
+* [Linux](https://snapcraft.io/invoiceninja)
+
+
+## Installation Options
+* [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
+* [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
+* [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
+ 
 ## Recommended Providers
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Development
-* [API Documentation](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
-* [APP Documentation](https://invoiceninja.github.io/)
 
 ## Quick Start
 
@@ -68,43 +82,11 @@ user: user@example.com
 pass: password
 ```
 
-## Contribution guide.
-
-Code Style to follow [PSR-2](https://www.php-fig.org/psr/psr-2/) standards.
-
-All methods names to be in CamelCase
-
-All variables names to be in snake_case
-
-Where practical code should be strongly typed, ie your methods must return a type ie
-
-`public function doThis() : void`
-
-PHP >= 7.3 allows the return type Nullable so there should be no circumstance a type cannot be return by using the following:
-
-`public function doThat() ?:string`
-
-To improve chances of PRs being merged please include tests to ensure your code works well and integrates with the rest of the project.
-
-## Documentation
-
-API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
-
-Installation, Configuration and Troubleshooting documentation can be found [HERE] (https://invoiceninja.github.io)
-
 ## Credits
 * [Hillel Coren](https://hillelcoren.com/)
 * [David Bomba](https://github.com/turbo124)
-* [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
-
-**Special thanks to:**
-* [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
-* [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
-* [Alexander Vanderveen](https://blog.technicallycomputers.ca/) - [Technically Computers](https://www.technicallycomputers.ca/)
-* [Efthymios Sarmpanis](https://github.com/esarbanis)
-* [Gianfranco Gasbarri](https://github.com/gincos)
-* [Clemens Mol](https://github.com/clemensmol)
 * [Benjamin Beganović](https://github.com/beganovich)
+* [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
 
 ## Security
 

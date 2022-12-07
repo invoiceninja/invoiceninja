@@ -43,6 +43,11 @@ class PayPalExpressPaymentDriver extends BaseDriver
         ];
     }
 
+    public function init()
+    {
+        return $this;
+    }
+
     /**
      * Initialize Omnipay PayPal_Express gateway.
      *
@@ -95,7 +100,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             return $response->redirect();
         }
 
-        $this->sendFailureMail($response->getMessage() ?: '');
+        // $this->sendFailureMail($response->getMessage() ?: '');
 
         $message = [
             'server_response' => $response->getMessage(),

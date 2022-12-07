@@ -57,10 +57,10 @@ class QuoteTransformer extends BaseTransformer
             'discount' => $this->getFloat($quote_data, 'quote.discount'),
             'po_number' => $this->getString($quote_data, 'quote.po_number'),
             'date' => isset($quote_data['quote.date'])
-                ? date('Y-m-d', strtotime($quote_data['quote.date']))
+                ? date('Y-m-d', strtotime(str_replace("/","-",$quote_data['quote.date'])))
                 : now()->format('Y-m-d'),
             'due_date' => isset($quote_data['quote.due_date'])
-                ? date('Y-m-d', strtotime($quote_data['quote.due_date']))
+                ? date('Y-m-d', strtotime(str_replace("/","-",$quote_data['quote.due_date'])))
                 : null,
             'terms' => $this->getString($quote_data, 'quote.terms'),
             'public_notes' => $this->getString(

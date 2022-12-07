@@ -91,7 +91,8 @@ class TemplateEmail extends Mailable
         if (strlen($settings->bcc_email) > 1) {
             if (Ninja::isHosted()) {
                 $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
-                $this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
+                $this->bcc(array_slice($bccs, 0, 2));
+                //$this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
             } else {
                 $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
             }//remove whitespace if any has been inserted.
@@ -116,46 +117,15 @@ class TemplateEmail extends Mailable
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
             ]);
-            // ->withSymfonyMessage(function ($message) use ($company) {
-            //    $message->getHeaders()->addTextHeader('Tag', $company->company_key);
-            //    $message->invitation = $this->invitation;
-            //});
-            // ->tag($company->company_key);
 
-        /*In the hosted platform we need to slow things down a little for Storage to catch up.*/
 
-        if(Ninja::isHosted() && $this->invitation){
-
-            $path = false;
-
-            if($this->invitation->invoice)
-                $path = $this->client->invoice_filepath($this->invitation).$this->invitation->invoice->numberFormatter().'.pdf';
-            elseif($this->invitation->quote)
-                $path = $this->client->quote_filepath($this->invitation).$this->invitation->quote->numberFormatter().'.pdf';
-            elseif($this->invitation->credit)
-                $path = $this->client->credit_filepath($this->invitation).$this->invitation->credit->numberFormatter().'.pdf';
-
-            sleep(1);
-
-            if($path && !Storage::disk(config('filesystems.default'))->exists($path)){
-
-                sleep(2);
-
-                if(!Storage::disk(config('filesystems.default'))->exists($path)) {
-                    (new CreateEntityPdf($this->invitation))->handle();
-                    sleep(2);
-                }
-
-            }
-
-        }
-
+        //22-10-2022 - Performance - To improve the performance/reliability of sending emails, attaching as Data is much better, stubs in place
         foreach ($this->build_email->getAttachments() as $file) {
-            if (is_string($file)) {
-                $this->attach($file);
-            } elseif (is_array($file)) {
+            if(array_key_exists('file', $file))
+                $this->attachData(base64_decode($file['file']), $file['name']);
+            else
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-            }
+
         }
 
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {

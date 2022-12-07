@@ -32,6 +32,7 @@ use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\StripeClient;
+use App\Utils\Number;
 
 class Charge
 {
@@ -62,9 +63,9 @@ class Charge
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         $this->stripe->init();
@@ -78,6 +79,7 @@ class Charge
                 'payment_method' => $cgt->token,
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
+                // 'off_session' => true,
                 'description' => $description,
                 'metadata' => [
                     'payment_hash' => $payment_hash->hash,
@@ -89,7 +91,12 @@ class Charge
                 $data['payment_method_types'] = ['sepa_debit'];
             }
 
-            $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
+            /* Should improve token billing with client not present */
+            if (!auth()->guard('contact')->check()) {
+                $data['off_session'] = true;
+            }
+
+            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
@@ -140,14 +147,27 @@ class Charge
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
         } else {
-            $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+
+            if(isset($response->latest_charge)) {
+                $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
+                $payment_method_type = $charge->payment_method_details->card->brand;
+            }
+            elseif(isset($response->charges->data[0]->payment_method_details->card->brand))
+                $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+            else
+                $payment_method_type = 'visa';
+
             $status = Payment::STATUS_COMPLETED;
+        }
+        
+        if(!in_array($response?->status, ['succeeded', 'processing'])){
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
         }
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => $this->transformPaymentTypeToConstant($payment_method_type),
-            'transaction_reference' => $response->charges->data[0]->id,
+            'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 
@@ -155,6 +175,7 @@ class Charge
         $payment->meta = $cgt->meta;
         $payment->save();
 
+        $payment_hash->data = array_merge((array) $payment_hash->data, ['payment_intent' => $response, 'amount_with_fee' => $amount]);
         $payment_hash->payment_id = $payment->id;
         $payment_hash->save();
 

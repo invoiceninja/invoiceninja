@@ -53,6 +53,8 @@ class ACH
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->forte;
+
         return render('gateways.forte.ach.authorize', $data);
     }
 
@@ -81,13 +83,13 @@ class ACH
         $this->forte->payment_hash->data = array_merge((array) $this->forte->payment_hash->data, $data);
         $this->forte->payment_hash->save();
 
-        $data['gateway'] = $this;
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.ach.pay', $data);
     }
 
     public function paymentResponse($request)
     {
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
 
         try {
             $curl = curl_init();

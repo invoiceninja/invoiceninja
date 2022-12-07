@@ -54,6 +54,7 @@ class CreditCard
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.credit_card.authorize', $data);
     }
 
@@ -82,24 +83,31 @@ class CreditCard
         $this->forte->payment_hash->data = array_merge((array) $this->forte->payment_hash->data, $data);
         $this->forte->payment_hash->save();
 
-        $data['gateway'] = $this;
+        $data['gateway'] = $this->forte;
         return render('gateways.forte.credit_card.pay', $data);
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
         $amount_with_fee = $payment_hash->data->total->amount_with_fee;
         $invoice_totals = $payment_hash->data->total->invoice_totals;
-        $fee_total = 0;
+        $fee_total = null;
 
-        for ($i = ($invoice_totals * 100) ; $i < ($amount_with_fee * 100); $i++) { 
-            $calculated_fee = ( 3 * $i) / 100;
-            $calculated_amount_with_fee = round(($i + $calculated_fee) / 100,2);
-            if ($calculated_amount_with_fee == $amount_with_fee) {
-                $fee_total = round($calculated_fee / 100,2);
-                $amount_with_fee = $calculated_amount_with_fee;
-                break;
+        $fees_and_limits = $this->forte->company_gateway->getFeesAndLimits(GatewayType::CREDIT_CARD);
+
+        if(property_exists($fees_and_limits, 'fee_percent') && $fees_and_limits->fee_percent > 0)
+        {
+            $fee_total = 0;
+
+            for ($i = ($invoice_totals * 100) ; $i < ($amount_with_fee * 100); $i++) { 
+                $calculated_fee = ( 3 * $i) / 100;
+                $calculated_amount_with_fee = round(($i + $calculated_fee) / 100,2);
+                if ($calculated_amount_with_fee == $amount_with_fee) {
+                    $fee_total = round($calculated_fee / 100,2);
+                    $amount_with_fee = $calculated_amount_with_fee;
+                    break;
+                }
             }
         }
         

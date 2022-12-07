@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.5.25',
-    'app_tag' => '5.5.25',
+    'app_version' => '5.5.47',
+    'app_tag' => '5.5.47',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -38,12 +38,15 @@ return [
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
     'local_download' => env('LOCAL_DOWNLOAD', false),
-    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://39389664f3f14969b4c43dadda00a40b@sentry2.invoicing.co/5'),
+    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', null),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     // Settings used by invoiceninja.com
-
+    'disks' => [
+        'backup' => env('BACKUP_DISK', 's3'),
+        'document' => env('DOCUMENT_DISK', 's3'),
+    ],
     'terms_of_service_url' => [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
@@ -200,5 +203,12 @@ return [
     'twilio_account_sid' => env('TWILIO_ACCOUNT_SID',false),
     'twilio_auth_token' => env('TWILIO_AUTH_TOKEN',false),
     'twilio_verify_sid' => env('TWILIO_VERIFY_SID',false),
-
+    'yodlee' => [
+        'client_id' => env('YODLEE_CLIENT_ID',false),
+        'client_secret' => env('YODLEE_CLIENT_SECRET', false),
+        'admin_name' => env('YODLEE_LOGIN_ADMIN_NAME', false),
+        'test_mode' => env("YODLEE_TEST_MODE", false),
+        'dev_mode' => env("YODLEE_DEV_MODE", false),
+        'config_name' => env("YODLEE_CONFIG_NAME", false),
+    ],
 ];

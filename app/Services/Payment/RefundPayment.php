@@ -16,10 +16,12 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailRefundPayment;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
 use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
@@ -75,7 +77,12 @@ class RefundPayment
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
+        // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
+
+        $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : ";
+        $notes .= $this->refund_data['gateway_refund'] !== false ? ctrans('texts.yes') : ctrans('texts.no');
+
+        $this->createActivity($notes);
 
         return $this->payment;
     }
@@ -93,8 +100,6 @@ class RefundPayment
                 $response = $this->payment->company_gateway->driver($this->payment->client)->refund($this->payment, $this->total_refund);
 
                 $this->payment->refunded += $this->total_refund;
-
-                $this->createActivity($this->payment);
 
                 if ($response['success'] == false) {
                     $this->payment->save();
@@ -129,7 +134,7 @@ class RefundPayment
         $fields->company_id = $this->payment->company_id;
         $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
         // $fields->credit_id = $this->credit_note->id; // TODO
-        $fields->notes = json_encode($notes);
+        $fields->notes = $notes;
 
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
@@ -272,6 +277,9 @@ class RefundPayment
                     $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
                 }
 
+                //26-10-2022 - disable autobill to prevent future billings;
+                $invoice->auto_bill_enabled = false;
+
                 $invoice->saveQuietly();
 
                 //06-09-2022
@@ -279,10 +287,6 @@ class RefundPayment
                                   ->service()
                                   ->updateBalance($refunded_invoice['amount'])
                                   ->save();
-
-                // $client = $invoice->client;
-                // $client->balance += $refunded_invoice['amount'];
-                // $client->save();
 
                 $transaction = [
                     'invoice' => $invoice->transaction_event(),
@@ -292,7 +296,7 @@ class RefundPayment
                     'metadata' => [],
                 ];
 
-                TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
+                // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
 
                 if ($invoice->is_deleted) {
                     $invoice->delete();
@@ -315,7 +319,7 @@ class RefundPayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
+            // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
 
@@ -335,7 +339,7 @@ class RefundPayment
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
+            // TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
         }
 
         return $this;
