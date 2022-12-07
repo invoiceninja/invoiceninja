@@ -97,6 +97,8 @@ class Company extends BaseModel
         'first_month_of_year',
         'slack_webhook_url',
         'google_analytics_key',
+        'matomo_url',
+        'matomo_id',
         'client_can_register',
         'enable_shop_api',
         'invoice_task_timelog',
@@ -440,7 +442,7 @@ class Company extends BaseModel
             return $item->id == $this->settings->language_id;
         })->first();
 
-        
+
     }
 
     public function getLocale()
