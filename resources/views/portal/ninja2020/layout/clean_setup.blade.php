@@ -3,7 +3,7 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-         @if (config('services.analytics.matomo_url') && config('services.analytics.matomo_id'))
+         @if ($company && $company->matomo_url && $company->matomo_id)
             <script>
                 var _paq = window._paq = window._paq || [];
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
@@ -11,14 +11,14 @@
                 _paq.push(['enableLinkTracking']);
                 _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->company->present()->name }}']);
                 (function() {
-                var u="{{ config('services.analytics.matomo_url') }}";
+                var u="{{ $company->matomo_url }}";
                 _paq.push(['setTrackerUrl', u+'matomo.php']);
-                _paq.push(['setSiteId', '{{ config('services.analytics.matomo_id') }}']);
+                _paq.push(['setSiteId', '{{ $company->matomo_id }}']);
                 var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
                 g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
                 })();
             </script>
-            <noscript><p><img src="{{ config('services.analytics.matomo_url) }}/matomo.php?idsite={{ config('services.analytics.matomo_id') }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+            <noscript><p><img src="{{ $company->matomo_url }}/matomo.php?idsite={{ $company->matomo_id }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
         @elif (config('services.analytics.tracking_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
             <script>
