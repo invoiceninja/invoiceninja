@@ -4,8 +4,6 @@ return [
 
     'analytics' => [
         'tracking_id' => env('TRACKING_ID'),
-        'matomo_url' => env('MATOMO_URL', false),
-        'matomo_id' => env('MATOMO_ID', false),
     ],
 
     /*
