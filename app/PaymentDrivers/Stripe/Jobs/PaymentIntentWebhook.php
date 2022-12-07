@@ -154,31 +154,6 @@ class PaymentIntentWebhook implements ShouldQueue
             'card_details' => isset($charge['payment_method_details']['card']['brand']) ? $charge['payment_method_details']['card']['brand'] : PaymentType::CREDIT_CARD_OTHER
         ];
 
-        if(isset($pi['allowed_source_types']) && in_array('card', $pi['allowed_source_types']))
-        {
-
-            $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
-            $client = $invoice->client;
-
-            $this->updateCreditCardPayment($payment_hash, $client, $meta);
-        }
-        elseif(isset($pi['payment_method_types']) && in_array('card', $pi['payment_method_types']))
-        {
-
-            $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
-            $client = $invoice->client;
-
-            $this->updateCreditCardPayment($payment_hash, $client, $meta);
-        }
-        elseif(isset($pi['payment_method_types']) && in_array('us_bank_account', $pi['payment_method_types']))
-        {
-
-            $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
-            $client = $invoice->client;
-
-            $this->updateAchPayment($payment_hash, $client, $meta);
-        }
-
         SystemLogger::dispatch(
             ['response' => $this->stripe_request, 'data' => []],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -188,6 +163,39 @@ class PaymentIntentWebhook implements ShouldQueue
             $company,
         );
 
+        if(isset($pi['allowed_source_types']) && in_array('card', $pi['allowed_source_types']))
+        {
+
+            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
+            $client = $invoice->client;
+
+            if($invoice->is_deleted)
+                return;
+
+            $this->updateCreditCardPayment($payment_hash, $client, $meta);
+        }
+        elseif(isset($pi['payment_method_types']) && in_array('card', $pi['payment_method_types']))
+        {
+
+            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
+            $client = $invoice->client;
+
+            if($invoice->is_deleted)
+                return;
+
+            $this->updateCreditCardPayment($payment_hash, $client, $meta);
+        }
+        elseif(isset($pi['payment_method_types']) && in_array('us_bank_account', $pi['payment_method_types']))
+        {
+
+            $invoice = Invoice::with('client')->withTrashed()->find($payment_hash->fee_invoice_id);
+            $client = $invoice->client;
+
+            if($invoice->is_deleted)
+                return;
+
+            $this->updateAchPayment($payment_hash, $client, $meta);
+        }
 
     }
 
