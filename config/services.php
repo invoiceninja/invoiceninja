@@ -4,6 +4,8 @@ return [
 
     'analytics' => [
         'tracking_id' => env('TRACKING_ID'),
+        'matomo_url' => env('MATOMO_URL', false),
+        'matomo_id' => env('MATOMO_ID', false),
     ],
 
     /*
@@ -94,11 +96,6 @@ return [
         'client_id' => env('BITBUCKET_CLIENT_ID'),
         'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
         'redirect' => env('BITBUCKET_OAUTH_REDIRECT'),
-    ],
-    'analytics' => [
-        'tracking_id' => env('TRACKING_ID'),
-        'matomo_url' => env('MATOMO_URL', false),
-        'matomo_id' => env('MATOMO_ID', false),
     ],
 
 ];
