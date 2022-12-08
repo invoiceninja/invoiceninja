@@ -91,7 +91,7 @@ class CreditCard
                 if ($payment->status === 'open') {
                     $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                    return redirect($payment->getCheckoutUrl());
+                    return redirect()->away($payment->getCheckoutUrl());
                 }
             } catch (\Exception $e) {
                 return $this->processUnsuccessfulPayment($e);
@@ -151,7 +151,7 @@ class CreditCard
             if ($payment->status === 'open') {
                 $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                return redirect($payment->getCheckoutUrl());
+                return redirect()->away($payment->getCheckoutUrl());
             }
         } catch (\Exception $e) {
             $this->processUnsuccessfulPayment($e);
