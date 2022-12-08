@@ -173,9 +173,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
 
@@ -211,9 +211,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($cgt->token, 0, 2) === 'pm') {
@@ -455,9 +455,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         if (substr($source->token, 0, 2) === 'pm') {
