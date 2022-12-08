@@ -446,7 +446,7 @@ class ACH
         $this->stripe->payment_hash->save();
 
         $amount = array_sum(array_column($this->stripe->payment_hash->invoices(), 'amount')) + $this->stripe->payment_hash->fee_total;
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')
+        $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number');
 
         if ($invoice_numbers->count() > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
@@ -455,7 +455,7 @@ class ACH
         }
 
         if (substr($source->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $invoice, $description, $source);
+            return $this->paymentIntentTokenBilling($amount, $description, $source);
         }
 
         try {

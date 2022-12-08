@@ -40,6 +40,7 @@ class Alipay
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['invoices'] = $this->stripe->payment_hash->invoices();
 
+
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
 
@@ -71,7 +72,7 @@ class Alipay
     {
         $this->stripe->init();
         $amount = $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
+        $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number');
 
         if ($invoice_numbers->count() > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
