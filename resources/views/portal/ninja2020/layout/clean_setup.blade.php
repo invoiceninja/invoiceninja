@@ -19,7 +19,7 @@
                 })();
             </script>
             <noscript><p><img src="{{ $company->matomo_url }}/matomo.php?idsite={{ $company->matomo_id }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-        @elif (config('services.analytics.tracking_id'))
+        @elseif (config('services.analytics.tracking_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
