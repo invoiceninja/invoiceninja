@@ -5,6 +5,7 @@
     "/js/clients/payments/forte-credit-card-payment.js": "/js/clients/payments/forte-credit-card-payment.js?id=f42dd0caddb3603e71db061924c4b172",
     "/js/clients/payments/forte-ach-payment.js": "/js/clients/payments/forte-ach-payment.js?id=b8173c7c0dee76bf9ae6312a963ae0e4",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=207f218c44553470287f35f33a7eb154",
+    "/js/clients/payments/stripe-klarna.js": "/js/clients/payments/stripe-klarna.js?id=1c248bc1f4f45310cd585a95a5055375",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=404b7ee18e420de0e73f5402b7e39122",
     "/js/clients/purchase_orders/action-selectors.js": "/js/clients/purchase_orders/action-selectors.js?id=2f0c4e3bab30a98e33ac768255113174",
     "/js/clients/purchase_orders/accept.js": "/js/clients/purchase_orders/accept.js?id=9bb483a89a887f753e49c0b635d6276a",

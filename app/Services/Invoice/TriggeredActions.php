@@ -48,7 +48,7 @@ class TriggeredActions extends AbstractService
 
         if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
             $this->invoice = $this->invoice->service()->markSent()->save(); //update notification NOT sent
-            $this->updated = true;
+            $this->updated = false;
         }
         
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
