@@ -66,9 +66,6 @@
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
-        {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer>
- --}}
         <style>
             @font-face {
               font-family: 'Open Sans';
