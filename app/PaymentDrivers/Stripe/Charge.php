@@ -60,9 +60,9 @@ class Charge
         }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
+        $invoice_numbers = collect($payment_hash->invoices())->pluck('invoice_number');
 
-        if ($invoice_numbers.length > 0) {
+        if ($invoice_numbers->count() > 0) {
             $description = ctrans('texts.payment_provider_paymenttext_tokenbilling', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice_tokenbilling', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);

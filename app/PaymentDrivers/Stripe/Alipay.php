@@ -20,6 +20,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Number;
 
 class Alipay
 {
@@ -69,10 +70,10 @@ class Alipay
     public function processSuccesfulRedirect(string $source)
     {
         $this->stripe->init();
-        $amount = $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+        $amount = $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers > 0) {
+        if ($invoice_numbers->count() > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);

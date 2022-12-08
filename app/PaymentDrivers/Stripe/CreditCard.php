@@ -64,7 +64,7 @@ class CreditCard
         $amount = $data['total']['amount_with_fee'];
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
-        if ($invoice_numbers > 0) {
+        if ($invoice_numbers->count() > 0) {
             $description = ctrans('texts.payment_provider_paymenttext', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
             $description = ctrans('texts.payment_prvoder_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
