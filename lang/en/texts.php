@@ -4891,7 +4891,7 @@ $LANG = array(
     'restored_transaction_rule' => 'Successfully restored transaction rule',
     'search_transaction_rule' => 'Search Transaction Rule',
     'search_transaction_rules' => 'Search Transaction Rules',
-
+    'payment_type_Interac E-Transfer' => 'Interac E-Transfer',
 );
 
 return $LANG;
