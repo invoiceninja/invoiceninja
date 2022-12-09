@@ -97,7 +97,6 @@ class BillingPortalPurchasev2 extends Component
      */
     public $payment_method_id;
 
-    private $user_coupon;
 
     /**
      * List of steps that frontend form follows.
@@ -189,12 +188,14 @@ class BillingPortalPurchasev2 extends Component
     public $optional_products;
     public $total;
     public $discount;
+    public $sub_total;
 
     public function mount()
     {
         MultiDB::setDb($this->company->db);
 
         $this->discount = 0;
+        $this->sub_total = 0;
 
         $this->data = [];
 
@@ -213,17 +214,34 @@ class BillingPortalPurchasev2 extends Component
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
         $this->optional_products = $this->subscription->service()->optional_products();
 
-        // $this->buildBundle();
         $this->bundle = collect();
         
     }
 
+    /**
+     * Handle a coupon being entered into the checkout
+     */
+
+    public function handleCoupon()
+    {
+
+        if($this->coupon == $this->subscription->promo_code) 
+            $this->buildBundle();
+        else
+            $this->discount = 0;
+
+    }
+
+    /**
+     * Build the bundle in the checkout
+     */
     public function buildBundle()
     {
             $this->bundle = collect();
 
             $data = $this->data;
 
+            /* Recurring products can have a variable quantity */
             foreach($this->recurring_products as $key => $p)
             {
 
@@ -239,6 +257,7 @@ class BillingPortalPurchasev2 extends Component
                 ]);
             }
 
+            /* One time products can only have a single quantity */
             foreach($this->products as $key => $p)
             {
 
@@ -252,10 +271,13 @@ class BillingPortalPurchasev2 extends Component
                     'qty' => $qty,
                     'is_recurring' => false
                 ]);
+
             }
 
             foreach($this->data as $key => $value)
             {
+
+                /* Optional recurring products can have a variable quantity */
                 if(isset($this->data[$key]['optional_recurring_qty']))
                 {
                     $p = $this->optional_recurring_products->first(function ($v,$k) use($key){
@@ -279,6 +301,7 @@ class BillingPortalPurchasev2 extends Component
 
                 }
 
+                /* Optional products can have a variable quantity */
                 if(isset($this->data[$key]['optional_qty']))
                 {
                     $p = $this->optional_products->first(function ($v,$k) use($key){
@@ -301,10 +324,25 @@ class BillingPortalPurchasev2 extends Component
 
                 }
 
-
             }
 
-        $this->total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->total = $this->sub_total;
+
+        if($this->coupon == $this->subscription->promo_code) 
+        {
+
+            if($this->subscription->is_amount_discount)
+                $discount = $this->subscription->promo_discount;
+            else
+                $discount = round($this->bundle->sum('total') * ($this->subscription->promo_discount / 100), 2);
+
+            $this->discount = Number::formatMoney($discount, $this->subscription->company);
+
+            $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $this->subscription->company);
+
+        }
+
 
         return $this;
     }
@@ -329,9 +367,6 @@ class BillingPortalPurchasev2 extends Component
     public function rules()
     {
         $rules = [
-            'data.*.recurring_qty' => 'numeric|between:0,1000',
-            'data.*.optional_recurring_qty' => 'numeric|between:0,1000',
-            'data.*.optional_qty' => 'numeric|between:0,1000',
         ];
 
         return $rules;
@@ -340,9 +375,6 @@ class BillingPortalPurchasev2 extends Component
     public function attributes()
     {
         $attributes = [
-            'data.*.recurring_qty' => 'recurring_qty',
-            'data.*.optional_recurring_qty' => 'optional_recurring_qty',
-            'data.*.optional_qty' => 'optional_qty',
         ];
 
         return $attributes;
@@ -566,7 +598,7 @@ class BillingPortalPurchasev2 extends Component
     {
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
-            // 'quantity' => $this->quantity,
+            'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
         ]);
@@ -585,7 +617,6 @@ class BillingPortalPurchasev2 extends Component
             return;
         }
 
-
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
@@ -593,25 +624,6 @@ class BillingPortalPurchasev2 extends Component
             'client_id' => $this->contact->client->id,
             'coupon' => $this->coupon,
         ]);
-    }
-
-    public function handleCoupon()
-    {
-
-        nlog("coupy coup");
-
-        if($this->steps['discount_applied']){
-            $this->price = $this->subscription->promo_price;
-            return;
-        }
-
-        if ($this->coupon == $this->subscription->promo_code) {
-            $this->price = $this->subscription->promo_price;
-            $this->quantity = 1;
-            $this->steps['discount_applied'] = true;
-        }
-        else
-            $this->price = $this->subscription->price;
     }
 
     public function passwordlessLogin()
@@ -648,10 +660,10 @@ class BillingPortalPurchasev2 extends Component
         return render('components.livewire.billing-portal-purchasev2');
     }
 
-    public function changeData()
-    {
+    // public function changeData()
+    // {
 
-        nlog($this->data);
+    //     nlog($this->data);
 
-    }
+    // }
 }

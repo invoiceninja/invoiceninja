@@ -197,13 +197,13 @@
                 @if(!empty($subscription->promo_code) && !$subscription->trial_enabled)
                     <form wire:submit.prevent="handleCoupon" class="">
                     @csrf
-                        <div class="mt-2">
+                        <div class="mt-4">
                           <label for="coupon" class="block text-sm font-medium text-white">{{ ctrans('texts.promo_code') }}</label>
                           <div class="mt-1 flex rounded-md shadow-sm">
                             <div class="relative flex flex-grow items-stretch focus-within:z-10">
                               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                               </div>
-                              <input type="text" wire:model.debounce.300ms="coupon" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
+                              <input type="text" wire:model.defer="coupon" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
                             </div>
                             <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                               
@@ -214,15 +214,18 @@
                     </form>
                 @endif
 
-                <div class="border-t-2 border-gray-200 border-opacity-50 mt-8">
-                  
+                <div class="border-t-2 border-gray-200 border-opacity-50 mt-4">
                     @if($discount)
-                    <div class="flex font-semibold justify-between py-6 text-sm uppercase">
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase">
+                        <span>{{ ctrans('texts.subtotal') }}</span>
+                        <span>{{ $sub_total }}</span>
+                    </div>
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.discount') }}</span>
                         <span>{{ $discount }}</span>
                     </div>
                     @endif
-                    <div class="flex font-semibold justify-between py-6 text-sm uppercase">
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
                         <span>{{ ctrans('texts.total') }}</span>
                         <span>{{ $total }}</span>
                     </div>
