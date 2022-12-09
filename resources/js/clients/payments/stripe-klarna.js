@@ -32,7 +32,17 @@ class ProcessKlarna {
 
         return this;
     };
+    
+    handleError = (message) => {
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
 
+        this.errors.textContent = '';
+        this.errors.textContent = message;
+        this.errors.hidden = false;
+    };
+    
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
@@ -62,7 +72,12 @@ class ProcessKlarna {
                         'meta[name="return-url"]'
                     ).content,
                 }
-            );
+                ).then((result) => {
+                if (result.hasOwnProperty('error')) {
+                    return this.handleError(result.error.message);
+                }
+
+            });
         });
     };
 }
