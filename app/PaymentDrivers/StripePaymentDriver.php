@@ -20,6 +20,7 @@ use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Country;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -118,7 +119,7 @@ class StripePaymentDriver extends BaseDriver
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
-            
+
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
@@ -240,8 +241,16 @@ class StripePaymentDriver extends BaseDriver
         }
         if ($this->client
             && $this->client->currency()
-            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'USD', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF'])
+            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF'])
             && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR'])) {
+            $types[] = GatewayType::KLARNA;
+        }
+        if ($this->client
+            && $this->client->currency()
+            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
+            && isset($this->client->country)
+            && in_array(Country::find($this->client->company->country()), ['USA'])
             && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
