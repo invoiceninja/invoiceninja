@@ -222,24 +222,16 @@ class BillingPortalPurchasev2 extends Component
         
     }
 
-    public function updatedLogin()
+
+    public function handleLogin($log)
     {
-                nlog($this->login);
-
+        nlog($log);
     }
-    public function handleLogin()
-    {
-        nlog($this->all());
-
-        nlog($this->login);
-        nlog($this->otp);
-        nlog($this->value);
-    }
-
 
     public function handleEmail()
     {
          $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
+     
          $rand = rand(100000,999999);
 
          $email_hash = "{$this->email}:" . $rand;

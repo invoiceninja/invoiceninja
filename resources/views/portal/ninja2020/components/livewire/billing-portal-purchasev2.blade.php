@@ -258,46 +258,44 @@
                     </form>
                     @endif
 
+                    @if($email && !$errors->has('email'))
                     <div class="py-6 px-6 w-80 border mx-auto text-center my-6">
-                    <form wire:submit.prevent="handleLogin" action="#" class="" x-data="otpForm()">
-                        <div class="flex justify-between">
-                          <template x-for="(input, index) in length" :key="index">
-                            <input
-                                type="text"
-                                maxlength="1"
-                                class="border border-gray-500 w-10 h-10 text-center text-gray-700"
-                                :x-ref="index"
-                                x-on:input="handleInput($event)"
-                                x-on:paste="handlePaste($event)"
-                                x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
-                            />
-                          </template>
-                        </div>
-                        <input type="hidden" wire:model.defer="login" x-model="value" x-data="value">
-                         <button type="submit" class="btn-primary mx-auto block bg-gray-500 w-full p-2 mt-2 text-white">
-                            {{ ctrans('texts.login') }}
-                        </button>
-                        <p class="absolute bottom-0" x-text="`value: ${value}`"></p>
-
-                    </form>
+                        <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
+                            <p class="mb-4">Enter the code we emailed</p>
+                            <div class="flex justify-between">
+                              <template x-for="(input, index) in length" :key="index">
+                                <input
+                                    type="text"
+                                    maxlength="1"
+                                    class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                    :x-ref="index"
+                                    x-on:input="handleInput($event)"
+                                    x-on:paste="handlePaste($event)"
+                                    x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                                />
+                              </template>
+                            </div>
+                             <button x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled" class="btn-primary mx-auto block bg-gray-500 w-full p-2 mt-2 text-white">
+                                {{ ctrans('texts.verify') }}
+                            </button>
+                        </form>
                     </div>
-
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-</div>
-
 <script>
     function otpForm() {
         return {
             length: 6,
-            value: "",
+            login: "",
+            buttonDisabled: true,
 
             handleInput(e) {
                 const input = e.target;
 
-                this.value = Array.from(Array(this.length), (element, i) => {
+                this.login = Array.from(Array(this.length), (element, i) => {
                 return this.$refs[i].value || "";
                 }).join("");
 
@@ -305,6 +303,15 @@
                     input.nextElementSibling.focus();
                     input.nextElementSibling.select();
                 }
+
+                if(this.login.length == 6){
+                    this.$wire.handleLogin(this.login);
+                    this.buttonDisabled = false;
+                }
+                else{
+                    this.buttonDisabled = true;   
+                }
+
             },
 
             handlePaste(e) {
@@ -325,3 +332,5 @@
       };
     }
 </script>
+</div>
+
