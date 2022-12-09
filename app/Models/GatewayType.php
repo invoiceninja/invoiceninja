@@ -118,6 +118,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.payment_type_instant_bank_pay');
             case self::FPX:
                 return ctrans('texts.fpx');
+            case self::KLARNA:
+                return ctrans('texts.klarna');
             default:
                 return ' ';
                 break;
