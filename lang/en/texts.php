@@ -4895,6 +4895,7 @@ $LANG = array(
     'delete_bank_account' => 'Delete Bank Account',
     'archive_transaction' => 'Archive Transaction',
     'delete_transaction' => 'Delete Transaction',
+    'otp_code_message' => 'Enter the code emailed.'
 );
 
 return $LANG;

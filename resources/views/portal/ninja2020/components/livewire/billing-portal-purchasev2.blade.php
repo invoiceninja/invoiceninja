@@ -254,6 +254,7 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                             @enderror
+                            
                         </div>
                     </form>
                     @endif
@@ -261,7 +262,7 @@
                     @if($email && !$errors->has('email'))
                     <div class="py-6 px-6 w-80 border mx-auto text-center my-6">
                         <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
-                            <p class="mb-4">Enter the code we emailed</p>
+                            <p class="mb-4">{{ ctrans('texts.otp_code_message')}}</p>
                             <div class="flex justify-between">
                               <template x-for="(input, index) in length" :key="index">
                                 <input
@@ -275,10 +276,13 @@
                                 />
                               </template>
                             </div>
-                             <button x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled" class="btn-primary mx-auto block bg-gray-500 w-full p-2 mt-2 text-white">
-                                {{ ctrans('texts.verify') }}
-                            </button>
                         </form>
+                        @error("login") 
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                <span class="block sm:inline">{{ $message }} </span>
+                                <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            </div>
+                        @enderror
                     </div>
                     @endif
                 </div>
@@ -290,7 +294,6 @@
         return {
             length: 6,
             login: "",
-            buttonDisabled: true,
 
             handleInput(e) {
                 const input = e.target;
@@ -306,10 +309,6 @@
 
                 if(this.login.length == 6){
                     this.$wire.handleLogin(this.login);
-                    this.buttonDisabled = false;
-                }
-                else{
-                    this.buttonDisabled = true;   
                 }
 
             },
@@ -328,6 +327,7 @@
             handleBackspace(e) {
                 const previous = parseInt(e, 10) - 1;
                 this.$refs[previous] && this.$refs[previous].focus();
+                this.$wire.loginValidation(); 
             },
       };
     }

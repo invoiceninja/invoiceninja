@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
@@ -222,10 +223,30 @@ class BillingPortalPurchasev2 extends Component
         
     }
 
-
-    public function handleLogin($log)
+    public function loginValidation()
     {
-        nlog($log);
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');   
+    }
+
+    public function handleLogin()
+    {
+
+        $code = Cache::get("subscriptions:otp:{$this->email}");
+
+        $this->validateOnly('login', ['login' => ['required',Rule::in([$code])]], ['login' => ctrans('texts.invalid_code')]);
+
+        $contact = ClientContact::where('email', $this->email)->first();
+
+        if($contact){
+            Auth::guard('contact')->loginUsingId($contact->id, true);
+            $this->contact = $contact;
+        }
+        else {
+
+        }
+
+
     }
 
     public function handleEmail()
@@ -234,9 +255,9 @@ class BillingPortalPurchasev2 extends Component
      
          $rand = rand(100000,999999);
 
-         $email_hash = "{$this->email}:" . $rand;
+         $email_hash = "subscriptions:otp:{$this->email}";
          
-         Cache::put($email_hash, 120);
+         Cache::put($email_hash, $rand, 120);
 
     }
 
@@ -368,18 +389,36 @@ class BillingPortalPurchasev2 extends Component
         return $this;
     }
 
-    public function updatedData()
+    private function createClientContact()
     {
 
-    }
+        $company = $this->subscription->company;
+        $user = $this->subscription->user;
+        $user->setCompany($company);
 
-    public function updating($prop)
-    {
+        $client_repo = new ClientRepository(new ClientContactRepository());
+        $data = [
+            'name' => '',
+            'contacts' => [
+                ['email' => $this->email],
+            ],
+            'client_hash' => Str::random(40),
+            'settings' => ClientSettings::defaults(),
+        ];
 
-    }
+        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+
+        $this->contact = $client->fresh()->contacts()->first();
+        Auth::guard('contact')->loginUsingId($this->contact->id, true);
+
+    } 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function updated($propertyName)
     {
+        if(in_array($propertyName, ['login','email']))
+            return;
 
         $this->buildBundle();
 
@@ -439,6 +478,9 @@ class BillingPortalPurchasev2 extends Component
             $this->getPaymentMethods($contact);
         }
     }
+
+   
+
 
     /**
      * Create a blank client. Used for new customers purchasing.
