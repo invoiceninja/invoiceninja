@@ -14,9 +14,9 @@
             @if(!empty($subscription->recurring_product_ids))
                 @foreach($recurring_products as $index => $product)
                     <li class="flex py-6">
-                      @if(false)
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
+                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -52,9 +52,9 @@
             @if(!empty($subscription->product_ids))
                 @foreach($products as $product)
                     <li class="flex py-6">
-                      @if(false)
+                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -79,10 +79,11 @@
             </ul>
         </div>
 
+        @if(!empty($subscription->optional_recurring_product_ids) || !empty($subscription->optional_product_ids))
         <div class="w-full p-4 md:max-w-3xl">
             <h2 class="text-2xl font-normal text-left border-b-4">Optional products</h2>
         </div>
-
+        @endif
         <div class="w-full px-4 md:max-w-3xl">
 
             <!-- Optional Recurring Products-->
@@ -90,11 +91,11 @@
                 @if(!empty($subscription->optional_recurring_product_ids))
                     @foreach($optional_recurring_products as $index => $product)
                         <li class="flex py-6">
-                          @if(false)
-                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                            <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
-                          </div>
-                          @endif
+                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                      </div>
+                      @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
@@ -104,19 +105,19 @@
                               <p class="mt-1 text-sm text-gray-500"></p>
                             </div>
                             <div class="flex content-end text-sm mt-1">
+                                @if(is_numeric($product->custom_value2))
                                 <p class="text-gray-500 w-full"></p>
                                 <div class="flex place-content-end">
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
-                                    <input wire:model.debounce.300ms="data.{{ $index }}.optional_recurring_qty" type="text" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0"/>
+                                    <select wire:model.debounce.300ms="data.{{ $index }}.optional_recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                        <option value="0" selected="selected">0</option>
+                                        @for ($i = 1; $i < $product->custom_value2; $i++)
+                                        <option value="{{$i}}">{{$i}}</option>
+                                        @endfor
+                                    </select>
                                 </div>
+                                @endif
                             </div>
-                             
-                            @error("data.{$index}.optional_recurring_qty") 
-                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                              <span class="block sm:inline">{{ $message }} </span>
-                              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                            </div>
-                            @enderror
                           </div>
                         </li>
                     @endforeach    
@@ -124,11 +125,11 @@
                 @if(!empty($subscription->optional_product_ids))
                     @foreach($optional_products as $index => $product)
                         <li class="flex py-6">
-                          @if(false)
-                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                            <img src="https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt." class="h-full w-full object-cover object-center">
-                          </div>
-                          @endif
+                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                      </div>
+                      @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
@@ -138,18 +139,19 @@
                               <p class="mt-1 text-sm text-gray-500"></p>
                             </div>
                             <div class="flex content-end text-sm mt-1">
+                                @if(is_numeric($product->custom_value2))
                                 <p class="text-gray-500 w-full"></p>
                                 <div class="flex place-content-end">
                                     <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
-                                    <input type="text" wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="w-1/4 rounded-md border-gray-300 shadow-sm sm:text-sm text-center" placeholder="0">
+                                    <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                        <option value="0" selected="selected">0</option>
+                                        @for ($i = 1; $i < $product->custom_value2; $i++)
+                                        <option value="{{$i}}">{{$i}}</option>
+                                        @endfor
+                                    </select>
                                 </div>
+                                @endif
                             </div>
-                            @error("data.{$index}.optional_qty") 
-                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                            <span class="block sm:inline">{{ $message }} </span>
-                              <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                            </div>
-                            @enderror
                           </div>
                         </li>
                     @endforeach    

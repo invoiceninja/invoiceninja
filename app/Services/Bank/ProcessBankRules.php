@@ -46,6 +46,10 @@ class ProcessBankRules extends AbstractService
 
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
 
+        if(!is_array($this->credit_rules))
+            return;
+
+
         $this->invoices = Invoice::where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
@@ -80,6 +84,9 @@ class ProcessBankRules extends AbstractService
         $this->debit_rules = $this->bank_transaction->company->debit_rules();
 
         $this->categories = collect(Cache::get('bank_categories'));
+
+        if(!is_array($this->debit_rules))
+            return;
 
         foreach($this->debit_rules as $bank_transaction_rule)
         {

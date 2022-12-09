@@ -234,7 +234,7 @@ class BillingPortalPurchasev2 extends Component
                     'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                     'total' => $total,
                     'qty' => $qty,
-                    'is_recurring' => true
+                    'is_recurring' => true,
                 ]);
             }
 
