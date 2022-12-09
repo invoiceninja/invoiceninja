@@ -52,6 +52,8 @@ class CreditCard
     {
         $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
+        $description = sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->mollie->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+
         $this->mollie->payment_hash
             ->withData('gateway_type_id', GatewayType::CREDIT_CARD)
             ->withData('client_id', $this->mollie->client->id);
@@ -68,7 +70,7 @@ class CreditCard
                     'mandateId' => $request->token,
                     'customerId' => $cgt->gateway_customer_reference,
                     'sequenceType' => 'recurring',
-                    'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
+                    'description' => $description,
                     'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
                     'idempotencyKey' => uniqid("st",true),
                     'metadata' => [
@@ -91,7 +93,11 @@ class CreditCard
                 if ($payment->status === 'open') {
                     $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                    return redirect($payment->getCheckoutUrl());
+                    if(!$payment->getCheckoutUrl())
+                        return render('gateways.mollie.mollie_placeholder');
+                    else
+                        return redirect()->away($payment->getCheckoutUrl());
+
                 }
             } catch (\Exception $e) {
                 return $this->processUnsuccessfulPayment($e);
@@ -104,7 +110,7 @@ class CreditCard
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $amount,
                 ],
-                'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
+                'description' => $description,
                 'redirectUrl' => route('mollie.3ds_redirect', [
                     'company_key' => $this->mollie->client->company->company_key,
                     'company_gateway_id' => $this->mollie->company_gateway->hashed_id,
@@ -151,7 +157,13 @@ class CreditCard
             if ($payment->status === 'open') {
                 $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-                return redirect($payment->getCheckoutUrl());
+                nlog("Mollie");
+                nlog($payment);
+
+                if(!$payment->getCheckoutUrl())
+                    return render('gateways.mollie.mollie_placeholder');
+                else
+                    return redirect()->away($payment->getCheckoutUrl());
             }
         } catch (\Exception $e) {
             $this->processUnsuccessfulPayment($e);

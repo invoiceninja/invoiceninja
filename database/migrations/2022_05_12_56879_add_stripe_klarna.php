@@ -14,21 +14,37 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::table('payment_types', function (Blueprint $table) {
-            $type = new PaymentType();
+        $pt = PaymentType::find(47);
 
+        if(!$pt)
+        {
+            $type = new PaymentType();
             $type->id = 47;
             $type->name = 'Klarna';
             $type->gateway_type_id = GatewayType::KLARNA;
-
             $type->save();
-        });
-        $type = new GatewayType();
+        }
 
-        $type->id = 23;
-        $type->alias = 'klarna';
-        $type->name = 'Klarna';
 
-        $type->save();
+        $pt = PaymentType::find(48);
+
+        if(!$pt)
+        {
+            $type = new PaymentType();
+            $type->id = 48;
+            $type->name = 'Interac E-Transfer';
+            $type->save();
+        }
+
+        $gt = GatewayType::find(23);
+
+        if(!$gt)
+        {
+            $type = new GatewayType();
+            $type->id = 23;
+            $type->alias = 'klarna';
+            $type->name = 'Klarna';
+            $type->save();
+        }
     }
 };

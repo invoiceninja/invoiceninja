@@ -3,7 +3,7 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-         @if (isset($company) && $company->matomo_url && $company->matomo_id)
+        @if (isset($company) && $company->matomo_url && $company->matomo_id)
             <script>
                 var _paq = window._paq = window._paq || [];
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
@@ -66,9 +66,6 @@
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
-        {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer>
- --}}
         <style>
             @font-face {
               font-family: 'Open Sans';

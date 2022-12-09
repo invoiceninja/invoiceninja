@@ -107,6 +107,8 @@ class Csv extends BaseImport implements ImportInterface
         $this->transformer = new BankTransformer($this->company);
         $bank_transaction_count = $this->ingest($data, $entity_type);
         $this->entity_count['bank_transactions'] = $bank_transaction_count;
+        
+        nlog("bank matching co id = {$this->company->id}");
 
         BankMatchingService::dispatchSync($this->company->id, $this->company->db);
 

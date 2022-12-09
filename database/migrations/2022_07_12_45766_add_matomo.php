@@ -17,5 +17,6 @@ return new class extends Migration
             $table->string('matomo_url',191)->nullable();
             $table->bigInteger('matomo_id')->nullable();
         });
+
     }
 };

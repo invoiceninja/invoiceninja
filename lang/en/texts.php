@@ -254,8 +254,8 @@ $LANG = array(
     'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
     'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
     'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
-    'stripe_paymenttext' => 'Invoice :invoicenumber for :amount for client :client',
-    'stripe_paymenttext_without_invoice' => 'Payment with no invoice for amount :amount for client :client',
+    'stripe_payment_text' => 'Invoice :invoicenumber for :amount for client :client',
+    'stripe_payment_text_without_invoice' => 'Payment with no invoice for amount :amount for client :client',
     'reset_password' => 'You can reset your account password by clicking the following button:',
     'secure_payment' => 'Secure Payment',
     'card_number' => 'Card Number',
@@ -4778,7 +4778,7 @@ $LANG = array(
     'invoice_task_project' => 'Invoice Task Project',
     'invoice_task_project_help' => 'Add the project to the invoice line items',
     'bulk_action' => 'Bulk Action',
-    'phone_validation_error' => 'This mobile/cell phone number is not valid, please enter in E.164 format',
+    'phone_validation_error' => 'This mobile (cell) phone number is not valid, please enter in E.164 format',
     'transaction' => 'Transaction',
     'disable_2fa' => 'Disable 2FA',
     'change_number' => 'Change Number',
@@ -4891,7 +4891,11 @@ $LANG = array(
     'restored_transaction_rule' => 'Successfully restored transaction rule',
     'search_transaction_rule' => 'Search Transaction Rule',
     'search_transaction_rules' => 'Search Transaction Rules',
-
+    'payment_type_Interac E-Transfer' => 'Interac E-Transfer',
+    'delete_bank_account' => 'Delete Bank Account',
+    'archive_transaction' => 'Archive Transaction',
+    'delete_transaction' => 'Delete Transaction',
+    'otp_code_message' => 'Enter the code emailed.'
 );
 
 return $LANG;
