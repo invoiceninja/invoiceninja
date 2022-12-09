@@ -44,12 +44,6 @@ class ProcessBankRules extends AbstractService
     private function matchCredit()
     {
 
-        $this->credit_rules = $this->bank_transaction->company->credit_rules();
-
-        if(!is_array($this->credit_rules))
-            return;
-
-
         $this->invoices = Invoice::where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)
@@ -69,6 +63,8 @@ class ProcessBankRules extends AbstractService
             return;
         }
 
+        $this->credit_rules = $this->bank_transaction->company->credit_rules();
+
         //stub for credit rules
         foreach($this->credit_rules as $rule)
         {
@@ -85,13 +81,15 @@ class ProcessBankRules extends AbstractService
 
         $this->categories = collect(Cache::get('bank_categories'));
 
-        if(!is_array($this->debit_rules))
-            return;
+
 
         foreach($this->debit_rules as $bank_transaction_rule)
         {
             
             $matches = 0;
+
+            if(!is_array($bank_transaction_rule['rules']))
+                continue;
 
             foreach($bank_transaction_rule['rules'] as $rule)
             {

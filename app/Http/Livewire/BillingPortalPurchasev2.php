@@ -188,12 +188,13 @@ class BillingPortalPurchasev2 extends Component
     public $optional_recurring_products;
     public $optional_products;
     public $total;
+    public $discount;
 
     public function mount()
     {
         MultiDB::setDb($this->company->db);
 
-        $this->quantity = 1;
+        $this->discount = 0;
 
         $this->data = [];
 
@@ -310,22 +311,18 @@ class BillingPortalPurchasev2 extends Component
 
     public function updatedData()
     {
+
     }
 
     public function updating($prop)
     {
-        // $this->resetValidation($prop);
-        // $this->resetErrorBag($prop);
+
     }
 
     public function updated($propertyName)
     {
-        $x = $this->validateOnly($propertyName, $this->rules(), [], $this->attributes());
 
-        // // $validatedData = $this->validate();
         $this->buildBundle();
-
-        // $order_validator = Validator::make($this->all(), $this->rules(), [], $this->attributes());
 
     }
 
@@ -526,7 +523,7 @@ class BillingPortalPurchasev2 extends Component
             ]],
             'user_input_promo_code' => $this->coupon,
             'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            'quantity' => $this->quantity,
+            // 'quantity' => $this->quantity,
         ];
 
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
@@ -569,7 +566,7 @@ class BillingPortalPurchasev2 extends Component
     {
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
-            'quantity' => $this->quantity,
+            // 'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
         ]);
@@ -598,40 +595,10 @@ class BillingPortalPurchasev2 extends Component
         ]);
     }
 
-    /**
-     * Update quantity property.
-     *
-     * @param string $option
-     * @return int
-     */
-    public function updateQuantity(string $option): int
-    {
-        $this->handleCoupon();
-
-        if ($this->quantity == 1 && $option == 'decrement') {
-            $this->price = $this->price * 1;
-            return $this->quantity;
-        }
-
-        if ($this->quantity > $this->subscription->max_seats_limit && $option == 'increment') {
-            $this->price = $this->price * $this->subscription->max_seats_limit;
-            return $this->quantity;
-        }
-
-        if ($option == 'increment') {
-            $this->quantity++;
-            $this->price = $this->price * $this->quantity;
-            return $this->quantity;
-        }
-
-            $this->quantity--;
-            $this->price = $this->price * $this->quantity;
-
-            return $this->quantity;
-    }
-
     public function handleCoupon()
     {
+
+        nlog("coupy coup");
 
         if($this->steps['discount_applied']){
             $this->price = $this->subscription->promo_price;
