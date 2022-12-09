@@ -82,6 +82,20 @@ class PaymentFilters extends QueryFilters
     }
 
     /**
+     * Returns a list of payments that can be matched to bank transactions
+     */
+    public function match_transactions($value = '')
+    {
+
+        if($value == 'true')
+        {
+            return $this->builder->where('is_deleted',0)->whereNull('transaction_id');
+        }
+
+        return $this->builder;
+    }
+
+    /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc

@@ -37,6 +37,8 @@ class BankMatchingService implements ShouldQueue
 
     protected $db;
 
+    protected $middleware_key;
+    
     public function __construct($company_id, $db)
     {
         $this->company_id = $company_id;

@@ -30,7 +30,7 @@ class MarkSent extends AbstractService
         $this->invoice = $invoice;
     }
 
-    public function run()
+    public function run($fire_webhook = false)
     {
 
         /* Return immediately if status is not draft or invoice has been deleted */
@@ -67,6 +67,10 @@ class MarkSent extends AbstractService
         $this->invoice->markInvitationsSent();
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        if($fire_webhook)
+            event('eloquent.updated: App\Models\Invoice', $this->invoice);
+
 
         return $this->invoice->fresh();
     }

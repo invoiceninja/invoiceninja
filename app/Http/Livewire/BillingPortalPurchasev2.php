@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
@@ -97,7 +98,6 @@ class BillingPortalPurchasev2 extends Component
      */
     public $payment_method_id;
 
-    private $user_coupon;
 
     /**
      * List of steps that frontend form follows.
@@ -188,12 +188,19 @@ class BillingPortalPurchasev2 extends Component
     public $optional_recurring_products;
     public $optional_products;
     public $total;
+    public $discount;
+    public $sub_total;
+    public $authenticated = false;
+    public $otp;
+    public $login;
+    public $value;
 
     public function mount()
     {
         MultiDB::setDb($this->company->db);
 
-        $this->quantity = 1;
+        $this->discount = 0;
+        $this->sub_total = 0;
 
         $this->data = [];
 
@@ -212,17 +219,71 @@ class BillingPortalPurchasev2 extends Component
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
         $this->optional_products = $this->subscription->service()->optional_products();
 
-        // $this->buildBundle();
         $this->bundle = collect();
         
     }
 
+    public function loginValidation()
+    {
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');   
+    }
+
+    public function handleLogin()
+    {
+
+        $code = Cache::get("subscriptions:otp:{$this->email}");
+
+        $this->validateOnly('login', ['login' => ['required',Rule::in([$code])]], ['login' => ctrans('texts.invalid_code')]);
+
+        $contact = ClientContact::where('email', $this->email)->first();
+
+        if($contact){
+            Auth::guard('contact')->loginUsingId($contact->id, true);
+            $this->contact = $contact;
+        }
+        else {
+
+        }
+
+
+    }
+
+    public function handleEmail()
+    {
+         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
+     
+         $rand = rand(100000,999999);
+
+         $email_hash = "subscriptions:otp:{$this->email}";
+         
+         Cache::put($email_hash, $rand, 120);
+
+    }
+
+    /**
+     * Handle a coupon being entered into the checkout
+     */
+    public function handleCoupon()
+    {
+
+        if($this->coupon == $this->subscription->promo_code) 
+            $this->buildBundle();
+        else
+            $this->discount = 0;
+
+    }
+
+    /**
+     * Build the bundle in the checkout
+     */
     public function buildBundle()
     {
             $this->bundle = collect();
 
             $data = $this->data;
 
+            /* Recurring products can have a variable quantity */
             foreach($this->recurring_products as $key => $p)
             {
 
@@ -234,10 +295,11 @@ class BillingPortalPurchasev2 extends Component
                     'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                     'total' => $total,
                     'qty' => $qty,
-                    'is_recurring' => true
+                    'is_recurring' => true,
                 ]);
             }
 
+            /* One time products can only have a single quantity */
             foreach($this->products as $key => $p)
             {
 
@@ -251,10 +313,13 @@ class BillingPortalPurchasev2 extends Component
                     'qty' => $qty,
                     'is_recurring' => false
                 ]);
+
             }
 
             foreach($this->data as $key => $value)
             {
+
+                /* Optional recurring products can have a variable quantity */
                 if(isset($this->data[$key]['optional_recurring_qty']))
                 {
                     $p = $this->optional_recurring_products->first(function ($v,$k) use($key){
@@ -278,6 +343,7 @@ class BillingPortalPurchasev2 extends Component
 
                 }
 
+                /* Optional products can have a variable quantity */
                 if(isset($this->data[$key]['optional_qty']))
                 {
                     $p = $this->optional_products->first(function ($v,$k) use($key){
@@ -300,41 +366,67 @@ class BillingPortalPurchasev2 extends Component
 
                 }
 
-
             }
 
-        $this->total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->total = $this->sub_total;
+
+        if($this->coupon == $this->subscription->promo_code) 
+        {
+
+            if($this->subscription->is_amount_discount)
+                $discount = $this->subscription->promo_discount;
+            else
+                $discount = round($this->bundle->sum('total') * ($this->subscription->promo_discount / 100), 2);
+
+            $this->discount = Number::formatMoney($discount, $this->subscription->company);
+
+            $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $this->subscription->company);
+
+        }
+
 
         return $this;
     }
 
-    public function updatedData()
+    private function createClientContact()
     {
-    }
 
-    public function updating($prop)
-    {
-        // $this->resetValidation($prop);
-        // $this->resetErrorBag($prop);
-    }
+        $company = $this->subscription->company;
+        $user = $this->subscription->user;
+        $user->setCompany($company);
+
+        $client_repo = new ClientRepository(new ClientContactRepository());
+        $data = [
+            'name' => '',
+            'contacts' => [
+                ['email' => $this->email],
+            ],
+            'client_hash' => Str::random(40),
+            'settings' => ClientSettings::defaults(),
+        ];
+
+        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+
+        $this->contact = $client->fresh()->contacts()->first();
+        Auth::guard('contact')->loginUsingId($this->contact->id, true);
+
+    } 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function updated($propertyName)
     {
-        $x = $this->validateOnly($propertyName, $this->rules(), [], $this->attributes());
+        if(in_array($propertyName, ['login','email']))
+            return;
 
-        // // $validatedData = $this->validate();
         $this->buildBundle();
-
-        // $order_validator = Validator::make($this->all(), $this->rules(), [], $this->attributes());
 
     }
 
     public function rules()
     {
         $rules = [
-            'data.*.recurring_qty' => 'numeric|between:0,1000',
-            'data.*.optional_recurring_qty' => 'numeric|between:0,1000',
-            'data.*.optional_qty' => 'numeric|between:0,1000',
         ];
 
         return $rules;
@@ -343,9 +435,6 @@ class BillingPortalPurchasev2 extends Component
     public function attributes()
     {
         $attributes = [
-            'data.*.recurring_qty' => 'recurring_qty',
-            'data.*.optional_recurring_qty' => 'optional_recurring_qty',
-            'data.*.optional_qty' => 'optional_qty',
         ];
 
         return $attributes;
@@ -389,6 +478,9 @@ class BillingPortalPurchasev2 extends Component
             $this->getPaymentMethods($contact);
         }
     }
+
+   
+
 
     /**
      * Create a blank client. Used for new customers purchasing.
@@ -526,7 +618,7 @@ class BillingPortalPurchasev2 extends Component
             ]],
             'user_input_promo_code' => $this->coupon,
             'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            'quantity' => $this->quantity,
+            // 'quantity' => $this->quantity,
         ];
 
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
@@ -588,7 +680,6 @@ class BillingPortalPurchasev2 extends Component
             return;
         }
 
-
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
@@ -596,55 +687,6 @@ class BillingPortalPurchasev2 extends Component
             'client_id' => $this->contact->client->id,
             'coupon' => $this->coupon,
         ]);
-    }
-
-    /**
-     * Update quantity property.
-     *
-     * @param string $option
-     * @return int
-     */
-    public function updateQuantity(string $option): int
-    {
-        $this->handleCoupon();
-
-        if ($this->quantity == 1 && $option == 'decrement') {
-            $this->price = $this->price * 1;
-            return $this->quantity;
-        }
-
-        if ($this->quantity > $this->subscription->max_seats_limit && $option == 'increment') {
-            $this->price = $this->price * $this->subscription->max_seats_limit;
-            return $this->quantity;
-        }
-
-        if ($option == 'increment') {
-            $this->quantity++;
-            $this->price = $this->price * $this->quantity;
-            return $this->quantity;
-        }
-
-            $this->quantity--;
-            $this->price = $this->price * $this->quantity;
-
-            return $this->quantity;
-    }
-
-    public function handleCoupon()
-    {
-
-        if($this->steps['discount_applied']){
-            $this->price = $this->subscription->promo_price;
-            return;
-        }
-
-        if ($this->coupon == $this->subscription->promo_code) {
-            $this->price = $this->subscription->promo_price;
-            $this->quantity = 1;
-            $this->steps['discount_applied'] = true;
-        }
-        else
-            $this->price = $this->subscription->price;
     }
 
     public function passwordlessLogin()
@@ -681,10 +723,10 @@ class BillingPortalPurchasev2 extends Component
         return render('components.livewire.billing-portal-purchasev2');
     }
 
-    public function changeData()
-    {
+    // public function changeData()
+    // {
 
-        nlog($this->data);
+    //     nlog($this->data);
 
-    }
+    // }
 }
