@@ -61,6 +61,8 @@ class GatewayType extends StaticModel
 
     const FPX = 22;
 
+    const KLARNA = 23;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);

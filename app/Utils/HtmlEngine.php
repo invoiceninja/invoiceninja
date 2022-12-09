@@ -285,6 +285,9 @@ class HtmlEngine
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
         }
 
+        // $data['$amount_in_words'] = ['value' => (new \NumberFormatter($this->client->locale(), \NumberFormatter::SPELLOUT))->format($this->entity->amount), 'label' => ''];
+        // $data['$balance_in_words'] = ['value' => (new \NumberFormatter($this->client->locale(), \NumberFormatter::SPELLOUT))->format($this->entity->balance), 'label' => ''];
+
         // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];

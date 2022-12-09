@@ -54,6 +54,8 @@ class UpdateCompanyRequest extends Request
         $rules['size_id'] = 'integer|nullable';
         $rules['country_id'] = 'integer|nullable';
         $rules['work_email'] = 'email|nullable';
+        $rules['matomo_id'] = 'nullable|integer';
+        
         // $rules['client_registration_fields'] = 'array';
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
