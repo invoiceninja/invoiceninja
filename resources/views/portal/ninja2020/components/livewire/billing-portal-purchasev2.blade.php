@@ -229,9 +229,99 @@
                         <span>{{ ctrans('texts.total') }}</span>
                         <span>{{ $total }}</span>
                     </div>
-                  <button class="bg-white font-semibold hover:bg-gray-600 py-3 text-sm text-blue-500 uppercase w-full">Checkout</button>
+
+                    @if($authenticated)
+                    <button class="bg-white font-semibold hover:bg-gray-600 py-3 text-sm text-blue-500 uppercase w-full">Checkout</button>
+                    @else
+                    <form wire:submit.prevent="handleEmail" class="">
+                    @csrf
+                        <div class="mt-4">
+                          <label for="email" class="block text-sm font-medium text-white">{{ ctrans('texts.email') }}</label>
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <div class="relative flex flex-grow items-stretch focus-within:z-10">
+                              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                              </div>
+                              <input type="text" wire:model.defer="email" class="block w-full rounded-none rounded-l-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" placeholder="">
+                            </div>
+                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                              
+                              <span>{{ ctrans('texts.login') }}</span>
+                            </button>
+                          </div>
+                            @error("email") 
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                <span class="block sm:inline">{{ $message }} </span>
+                                <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            </div>
+                            @enderror
+                        </div>
+                    </form>
+                    @endif
+
+                    <div class="py-6 px-6 w-80 border mx-auto text-center my-6">
+                    <form wire:submit.prevent="handleLogin" action="#" class="" x-data="otpForm()">
+                        <div class="flex justify-between">
+                          <template x-for="(input, index) in length" :key="index">
+                            <input
+                                type="text"
+                                maxlength="1"
+                                class="border border-gray-500 w-10 h-10 text-center text-gray-700"
+                                :x-ref="index"
+                                x-on:input="handleInput($event)"
+                                x-on:paste="handlePaste($event)"
+                                x-on:keydown.backspace="$event.target.value || handleBackspace($event.target.getAttribute('x-ref'))"
+                            />
+                          </template>
+                        </div>
+                        <input type="hidden" wire:model.defer="login" x-model="value" x-data="value">
+                         <button type="submit" class="btn-primary mx-auto block bg-gray-500 w-full p-2 mt-2 text-white">
+                            {{ ctrans('texts.login') }}
+                        </button>
+                        <p class="absolute bottom-0" x-text="`value: ${value}`"></p>
+
+                    </form>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function otpForm() {
+        return {
+            length: 6,
+            value: "",
+
+            handleInput(e) {
+                const input = e.target;
+
+                this.value = Array.from(Array(this.length), (element, i) => {
+                return this.$refs[i].value || "";
+                }).join("");
+
+                if (input.nextElementSibling && input.value) {
+                    input.nextElementSibling.focus();
+                    input.nextElementSibling.select();
+                }
+            },
+
+            handlePaste(e) {
+                const paste = e.clipboardData.getData('text');
+                this.value = paste;
+
+                const inputs = Array.from(Array(this.length));
+
+                inputs.forEach((element, i) => {
+                    this.$refs[i].value = paste[i] || '';
+                });
+            },
+
+            handleBackspace(e) {
+                const previous = parseInt(e, 10) - 1;
+                this.$refs[previous] && this.$refs[previous].focus();
+            },
+      };
+    }
+</script>

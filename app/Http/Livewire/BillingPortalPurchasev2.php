@@ -189,6 +189,10 @@ class BillingPortalPurchasev2 extends Component
     public $total;
     public $discount;
     public $sub_total;
+    public $authenticated = false;
+    public $otp;
+    public $login;
+    public $value;
 
     public function mount()
     {
@@ -218,10 +222,35 @@ class BillingPortalPurchasev2 extends Component
         
     }
 
+    public function updatedLogin()
+    {
+                nlog($this->login);
+
+    }
+    public function handleLogin()
+    {
+        nlog($this->all());
+
+        nlog($this->login);
+        nlog($this->otp);
+        nlog($this->value);
+    }
+
+
+    public function handleEmail()
+    {
+         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
+         $rand = rand(100000,999999);
+
+         $email_hash = "{$this->email}:" . $rand;
+         
+         Cache::put($email_hash, 120);
+
+    }
+
     /**
      * Handle a coupon being entered into the checkout
      */
-
     public function handleCoupon()
     {
 
