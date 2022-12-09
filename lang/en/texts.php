@@ -4778,13 +4778,8 @@ $LANG = array(
     'invoice_task_project' => 'Invoice Task Project',
     'invoice_task_project_help' => 'Add the project to the invoice line items',
     'bulk_action' => 'Bulk Action',
-<<<<<<< HEAD
-    'phone_validation_error' => 'This mobile/cell phone number is not valid, please enter in E.164 format',
-    'transaction' => 'Transaction',    
-=======
     'phone_validation_error' => 'This mobile (cell) phone number is not valid, please enter in E.164 format',
     'transaction' => 'Transaction',
->>>>>>> v5-develop
     'disable_2fa' => 'Disable 2FA',
     'change_number' => 'Change Number',
     'resend_code' => 'Resend Code',

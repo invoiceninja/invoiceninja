@@ -98,10 +98,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BECS => BECS::class,
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
-<<<<<<< HEAD
-=======
         GatewayType::KLARNA => Klarna::class,
->>>>>>> v5-develop
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
