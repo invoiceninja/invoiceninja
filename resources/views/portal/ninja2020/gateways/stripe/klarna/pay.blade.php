@@ -12,7 +12,6 @@
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="email" content="{{ $gateway->client->present()->email() }}">
-    <meta name="name" content="{{ $gateway->client->present()->name() }}">
     <meta name="address-2" content="{{ $gateway->client->address2 }}">
     <meta name="address-1" content="{{ $gateway->client->address1 }}">
     <meta name="city" content="{{ $gateway->client->city }}">

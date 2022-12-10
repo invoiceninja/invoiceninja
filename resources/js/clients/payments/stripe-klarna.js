@@ -46,12 +46,12 @@ class ProcessKlarna {
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
-            let name = document.querySelector('meta[name=name]').content;
-            if (! "/^[A-Za-z\s]*$/".test(name)){
-                document.getElementById('klarna-name').textContent = name.replace("/^[A-Za-z\s]*$/", "")
+            let name = document.getElementById("klarna-name").value;
+            if (! /^[A-Za-z\s]*$/.test(name)){
+                document.getElementById('klarna-name').textContent = name.replace(/^[A-Za-z\s]*$/, "")
                 document.getElementById('klarna-name').focus();
                 errors.textContent = document.querySelector(
-                    'meta[name=translation-email-required]'
+                    'meta[name=translation-name-without-special-characters]'
                 ).content;
                 errors.hidden = false;
             }
