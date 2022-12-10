@@ -56,7 +56,7 @@ class ProcessKlarna {
                 {
                     payment_method: {
                         billing_details: {
-                            name: document.querySelector('meta[name=name]').content,
+                            name: document.querySelector('meta[name=name]').content.replace(",", ""),
                             email: document.querySelector('meta[name=email]').content,
                             address: {
                                 line1: document.querySelector('meta[name=address-1]').content,
