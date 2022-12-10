@@ -19,6 +19,7 @@
     <meta name="state" content="{{ $gateway->client->state }}">
     <meta name="plz" content="{{ $gateway->client->postal_code }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
+    <meta name="translation-name-without-special-characters" content="{{ ctrans('texts.name_without_special_characters') }}">
 @endsection
 
 @section('gateway_content')
@@ -29,6 +30,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.klarna') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
+    @include('portal.ninja2020.gateways.stripe.klarna.klarna')
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 

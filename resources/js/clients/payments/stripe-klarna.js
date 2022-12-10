@@ -32,7 +32,7 @@ class ProcessKlarna {
 
         return this;
     };
-    
+
     handleError = (message) => {
         document.getElementById('pay-now').disabled = false;
         document.querySelector('#pay-now > svg').classList.add('hidden');
@@ -42,42 +42,50 @@ class ProcessKlarna {
         this.errors.textContent = message;
         this.errors.hidden = false;
     };
-    
+
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
-
-            document.getElementById('pay-now').disabled = true;
-            document.querySelector('#pay-now > svg').classList.remove('hidden');
-            document.querySelector('#pay-now > span').classList.add('hidden');
-
-            this.stripe.confirmKlarnaPayment(
-                document.querySelector('meta[name=pi-client-secret').content,
-                {
-                    payment_method: {
-                        billing_details: {
-                            name: document.querySelector('meta[name=name]').content.replace(",", ""),
-                            email: document.querySelector('meta[name=email]').content,
-                            address: {
-                                line1: document.querySelector('meta[name=address-1]').content,
-                                line2: document.querySelector('meta[name=address-2]').content,
-                                city: document.querySelector('meta[name=city]').content,
-                                postal_code: document.querySelector('meta[name=plz]').content,
-                                state: document.querySelector('meta[name=state]').content,
-                                country: document.querySelector('meta[name=country]').content,
-                            }
+            let name = document.querySelector('meta[name=name]').content;
+            if (! "/^[A-Za-z\s]*$/".test(name)){
+                document.getElementById('klarna-name').textContent = name.replace("/^[A-Za-z\s]*$/", "")
+                document.getElementById('klarna-name').focus();
+                errors.textContent = document.querySelector(
+                    'meta[name=translation-email-required]'
+                ).content;
+                errors.hidden = false;
+            }
+            else {
+                document.getElementById('pay-now').disabled = true;
+                document.querySelector('#pay-now > svg').classList.remove('hidden');
+                document.querySelector('#pay-now > span').classList.add('hidden');
+                this.stripe.confirmKlarnaPayment(
+                    document.querySelector('meta[name=pi-client-secret').content,
+                    {
+                        payment_method: {
+                            billing_details: {
+                                name: name,
+                                email: document.querySelector('meta[name=email]').content,
+                                address: {
+                                    line1: document.querySelector('meta[name=address-1]').content,
+                                    line2: document.querySelector('meta[name=address-2]').content,
+                                    city: document.querySelector('meta[name=city]').content,
+                                    postal_code: document.querySelector('meta[name=plz]').content,
+                                    state: document.querySelector('meta[name=state]').content,
+                                    country: document.querySelector('meta[name=country]').content,
+                                }
+                            },
                         },
-                    },
-                    return_url: document.querySelector(
-                        'meta[name="return-url"]'
-                    ).content,
-                }
-                ).then((result) => {
-                if (result.hasOwnProperty('error')) {
-                    return this.handleError(result.error.message);
-                }
+                        return_url: document.querySelector(
+                            'meta[name="return-url"]'
+                        ).content,
+                    }
+                    ).then((result) => {
+                    if (result.hasOwnProperty('error')) {
+                        return this.handleError(result.error.message);
+                    }
 
-            });
+                });}
         });
     };
 }
