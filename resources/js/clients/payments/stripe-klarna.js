@@ -48,6 +48,7 @@ class ProcessKlarna {
             let errors = document.getElementById('errors');
             let name = document.getElementById("klarna-name").value;
             if (! /^[A-Za-z\s]*$/.test(name)){
+                document.getElementById('klarna-name-correction').hidden = false;
                 document.getElementById('klarna-name').textContent = name.replace(/^[A-Za-z\s]*$/, "")
                 document.getElementById('klarna-name').focus();
                 errors.textContent = document.querySelector(
