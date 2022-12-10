@@ -192,9 +192,8 @@ class BillingPortalPurchasev2 extends Component
     public $discount;
     public $sub_total;
     public $authenticated = false;
-    public $otp;
     public $login;
-    public $value;
+    public $float_amount_total;
 
     public function mount()
     {
@@ -202,6 +201,7 @@ class BillingPortalPurchasev2 extends Component
 
         $this->discount = 0;
         $this->sub_total = 0;
+        $this->float_amount_total = 0;
 
         $this->data = [];
 
@@ -257,11 +257,20 @@ class BillingPortalPurchasev2 extends Component
             $this->createClientContact();
         }
 
+        $this->authenticated = true;
+
+        $this->getPaymentMethods();
+
     }
 
     public function showClientRequiredFields()
     {
 
+    }
+
+    public function resetEmail()
+    {
+        $this->email = null;
     }
 
     public function handleEmail()
@@ -415,6 +424,7 @@ class BillingPortalPurchasev2 extends Component
 
             $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $this->subscription->company);
 
+            $this->float_amount_total = ($this->bundle->sum('total') - $discount);
         }
 
 
@@ -479,39 +489,39 @@ class BillingPortalPurchasev2 extends Component
     
     }
 
-    /**
-     * Handle user authentication
-     *
-     * @return $this|bool|void
-     */
-    public function authenticate()
-    {
-        $this->validate();
+    // /**
+    //  * Handle user authentication
+    //  *
+    //  * @return $this|bool|void
+    //  */
+    // public function authenticate()
+    // {
+    //     $this->validate();
 
-        $contact = ClientContact::where('email', $this->email)
-            ->where('company_id', $this->subscription->company_id)
-            ->first();
+    //     $contact = ClientContact::where('email', $this->email)
+    //         ->where('company_id', $this->subscription->company_id)
+    //         ->first();
 
-        if ($contact && $this->steps['existing_user'] === false) {
-            return $this->steps['existing_user'] = true;
-        }
+    //     if ($contact && $this->steps['existing_user'] === false) {
+    //         return $this->steps['existing_user'] = true;
+    //     }
 
-        if ($contact && $this->steps['existing_user']) {
-            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
+    //     if ($contact && $this->steps['existing_user']) {
+    //         $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
 
-            return $attempt
-                ? $this->getPaymentMethods($contact)
-                : session()->flash('message', 'These credentials do not match our records.');
-        }
+    //         return $attempt
+    //             ? $this->getPaymentMethods($contact)
+    //             : session()->flash('message', 'These credentials do not match our records.');
+    //     }
 
-        $this->steps['existing_user'] = false;
+    //     $this->steps['existing_user'] = false;
 
-        $contact = $this->createBlankClient();
+    //     $contact = $this->createBlankClient();
 
-        if ($contact && $contact instanceof ClientContact) {
-            $this->getPaymentMethods($contact);
-        }
-    }
+    //     if ($contact && $contact instanceof ClientContact) {
+    //         $this->getPaymentMethods($contact);
+    //     }
+    // }
 
    
 
@@ -593,27 +603,26 @@ class BillingPortalPurchasev2 extends Component
      * @param ClientContact $contact
      * @return $this
      */
-    protected function getPaymentMethods(ClientContact $contact): self
+    protected function getPaymentMethods(): self
     {
-        Auth::guard('contact')->loginUsingId($contact->id, true);
 
-        $this->contact = $contact;
+        $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
 
-        if ($this->subscription->trial_enabled) {
-            $this->heading_text = ctrans('texts.plan_trial');
-            $this->steps['show_start_trial'] = true;
+        // if ($this->subscription->trial_enabled) {
+        //     $this->heading_text = ctrans('texts.plan_trial');
+        //     $this->steps['show_start_trial'] = true;
 
-            return $this;
-        }
+        //     return $this;
+        // }
 
-        if ((int)$this->price == 0)
-            $this->steps['payment_required'] = false;
-        else
-            $this->steps['fetched_payment_methods'] = true;
+        // if ((int)$this->price == 0)
+        //     $this->steps['payment_required'] = false;
+        // else
+        //     $this->steps['fetched_payment_methods'] = true;
 
-        $this->methods = $contact->client->service()->getPaymentMethods($this->price);
+        // $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
-        $this->heading_text = ctrans('texts.payment_methods');
+        // $this->heading_text = ctrans('texts.payment_methods');
 
         return $this;
     }

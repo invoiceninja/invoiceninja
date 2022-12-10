@@ -79,7 +79,6 @@ class Charge
                 'payment_method' => $cgt->token,
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
-                // 'off_session' => true,
                 'description' => $description,
                 'metadata' => [
                     'payment_hash' => $payment_hash->hash,
