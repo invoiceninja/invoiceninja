@@ -4895,7 +4895,9 @@ $LANG = array(
     'delete_bank_account' => 'Delete Bank Account',
     'archive_transaction' => 'Archive Transaction',
     'delete_transaction' => 'Delete Transaction',
-    'otp_code_message' => 'Enter the code emailed.'
+    'otp_code_message' => 'Enter the code emailed.',
+    'otp_code_subject' => 'Your one time passcode code',
+    'otp_code_body' => 'Your one time passcode is :code',
 );
 
 return $LANG;

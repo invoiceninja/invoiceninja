@@ -17,6 +17,7 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
+use App\Mail\Subscription\OtpCode;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -229,12 +230,22 @@ class BillingPortalPurchasev2 extends Component
         $this->resetValidation('login');   
     }
 
-    public function handleLogin()
+    public function handleLogin($user_code)
     {
+
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');
 
         $code = Cache::get("subscriptions:otp:{$this->email}");
 
-        $this->validateOnly('login', ['login' => ['required',Rule::in([$code])]], ['login' => ctrans('texts.invalid_code')]);
+        // $this->validateOnly('login', ['login' => 'required'], ['login' => ctrans('texts.invalid_code')]);
+
+        if($user_code != $code){
+            nlog($code);
+            nlog($user_code);
+            $errors = $this->getErrorBag();
+            $errors->add('login', ctrans('texts.invalid_code'));
+        }
 
         $contact = ClientContact::where('email', $this->email)->first();
 
@@ -243,9 +254,13 @@ class BillingPortalPurchasev2 extends Component
             $this->contact = $contact;
         }
         else {
-
+            $this->createClientContact();
         }
 
+    }
+
+    public function showClientRequiredFields()
+    {
 
     }
 
@@ -259,7 +274,24 @@ class BillingPortalPurchasev2 extends Component
          
          Cache::put($email_hash, $rand, 120);
 
+         $this->emailOtpCode($rand);
     }
+
+    private function emailOtpCode($code)
+    {
+
+        $cc = new ClientContact();
+        $cc->email = $this->email;
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new OtpCode($this->subscription->company, $this->contact, $code);
+        $nmo->company = $this->subscription->company;
+        $nmo->settings = $this->subscription->company->settings;
+        $nmo->to_user = $cc;
+        NinjaMailerJob::dispatch($nmo);
+
+    }
+
 
     /**
      * Handle a coupon being entered into the checkout
@@ -411,9 +443,9 @@ class BillingPortalPurchasev2 extends Component
         $this->contact = $client->fresh()->contacts()->first();
         Auth::guard('contact')->loginUsingId($this->contact->id, true);
 
+        return $this;
     } 
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public function updated($propertyName)
     {
@@ -424,6 +456,8 @@ class BillingPortalPurchasev2 extends Component
 
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     public function rules()
     {
         $rules = [
