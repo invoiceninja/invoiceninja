@@ -250,11 +250,10 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
             && isset($this->client->country)
-            && in_array(Country::find($this->client->company->country()), ['USA'])
+            && in_array($this->client->company->country()->getID(), ['840'])
             && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
-
         if (
             $this->client
             && isset($this->client->country)
