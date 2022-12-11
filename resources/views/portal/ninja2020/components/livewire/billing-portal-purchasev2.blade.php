@@ -231,8 +231,42 @@
                     </div>
 
                     @if($authenticated)
-                    <button class="bg-white font-semibold hover:bg-gray-600 py-3 text-sm text-blue-500 uppercase w-full">Checkout</button>
-                    @else
+                    <div class="mx-auto text-center mt-20 content-center">
+                    <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
+                        @if (session()->has('message'))
+                            @component('portal.ninja2020.components.message')
+                                {{ session('message') }}
+                            @endcomponent
+                        @endif
+                        @if(count($methods) > 0 && !$payment_started)
+                        <div class="mt-4">
+                            @foreach($methods as $method)
+                                <button
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    {{ $method['label'] }}
+                                </button>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        @if($payment_started)
+                        <div class="mt-4 container mx-auto flex w-full justify-center">
+                            <span class="">
+                                <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
+                                     fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-75" cx="12" cy="12" r="10" stroke="hsl(210, 70, 75)" stroke-linecap="round"
+                                            stroke-width="4" animation="dash 1.5s ease-in-out infinite"></circle>
+                                    <path class="opacity-75" fill="#fff"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    @if(!$email || $errors->has('email'))
                     <form wire:submit.prevent="handleEmail" class="">
                     @csrf
                         <div class="mt-4">
@@ -259,8 +293,9 @@
                     </form>
                     @endif
 
-                    @if($email && !$errors->has('email'))
-                    <div class="py-6 px-6 w-80 border mx-auto text-center my-6">
+                    @if($email && !$errors->has('email') && !$authenticated)
+                    <div class="py-6 px-6 w-80 mx-auto text-center my-6">
+                        <p class="w-full p-2">{{$email}}</p>
                         <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
                             <p class="mb-4">{{ ctrans('texts.otp_code_message')}}</p>
                             <div class="flex justify-between">
@@ -276,6 +311,7 @@
                                 />
                               </template>
                             </div>
+                            
                         </form>
                         @error("login") 
                             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -283,6 +319,9 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                         @enderror
+                        <div class="flex w-full place-content-end mb-0 mt-4">
+                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-gray-300 bg-gray-50 px-1 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ ctrans('texts.reset') }}</button>
+                        </div>
                     </div>
                     @endif
                 </div>
