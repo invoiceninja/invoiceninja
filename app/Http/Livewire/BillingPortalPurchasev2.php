@@ -195,6 +195,7 @@ class BillingPortalPurchasev2 extends Component
     public $login;
     public $float_amount_total;
     public $payment_started = false;
+    public $valid_coupon = false;
 
     public function mount()
     {
@@ -308,10 +309,14 @@ class BillingPortalPurchasev2 extends Component
     public function handleCoupon()
     {
 
-        if($this->coupon == $this->subscription->promo_code) 
+        if($this->coupon == $this->subscription->promo_code) {
             $this->buildBundle();
-        else
+            $this->valid_coupon = true;
+        }
+        else{
             $this->discount = 0;
+            $this->valid_coupon = false;
+        }
 
     }
 
@@ -332,6 +337,7 @@ class BillingPortalPurchasev2 extends Component
                 $total = $p->price * $qty;
 
                 $this->bundle->push([
+                    'description' => $p->notes,
                     'product_key' => $p->product_key,
                     'unit_cost' => $p->price,
                     'product' => nl2br(substr($p->notes, 0, 50)),
@@ -350,6 +356,7 @@ class BillingPortalPurchasev2 extends Component
                 $total = $p->price * $qty;
 
                 $this->bundle->push([
+                    'description' => $p->notes,
                     'product_key' => $p->product_key,
                     'unit_cost' => $p->price,
                     'product' => nl2br(substr($p->notes, 0, 50)),
@@ -379,6 +386,7 @@ class BillingPortalPurchasev2 extends Component
 
 
                     $this->bundle->push([
+                        'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'product' => nl2br(substr($p->notes, 0, 50)),
@@ -404,6 +412,7 @@ class BillingPortalPurchasev2 extends Component
                         return;
 
                     $this->bundle->push([
+                        'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'product' => nl2br(substr($p->notes, 0, 50)),
@@ -535,7 +544,7 @@ class BillingPortalPurchasev2 extends Component
 
         $this->invoice = $this->subscription
             ->service()
-            ->createInvoiceV2($this->bundle)
+            ->createInvoiceV2($this->bundle, $this->contact->client_id, $this->valid_coupon)
             ->service()
             // ->markSent()
             ->fillDefaults()
