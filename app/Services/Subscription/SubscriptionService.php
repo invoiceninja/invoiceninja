@@ -704,6 +704,28 @@ class SubscriptionService
 
     }
 
+    public function createInvoiceV2($bundle)
+    {
+
+        $invoice_repo = new InvoiceRepository();
+        $subscription_repo = new SubscriptionRepository();
+
+        $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->subscription_id = $this->subscription->id;
+
+        $line_items = $bundle->map(function ($item){
+
+            $line_item = new InvoiceItem;
+            
+
+        })->toArray();
+
+        $invoice->line_items = $line_items;
+
+
+
+    }
+
     /**
      * Generates the first invoice when a subscription is purchased
      *

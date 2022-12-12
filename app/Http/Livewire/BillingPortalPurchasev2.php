@@ -332,6 +332,8 @@ class BillingPortalPurchasev2 extends Component
                 $total = $p->price * $qty;
 
                 $this->bundle->push([
+                    'product_key' => $p->product_key,
+                    'unit_cost' => $p->price,
                     'product' => nl2br(substr($p->notes, 0, 50)),
                     'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                     'total' => $total,
@@ -348,6 +350,8 @@ class BillingPortalPurchasev2 extends Component
                 $total = $p->price * $qty;
 
                 $this->bundle->push([
+                    'product_key' => $p->product_key,
+                    'unit_cost' => $p->price,
                     'product' => nl2br(substr($p->notes, 0, 50)),
                     'price' => Number::formatMoney($total, $this->subscription->company),
                     'total' => $total,
@@ -375,6 +379,8 @@ class BillingPortalPurchasev2 extends Component
 
 
                     $this->bundle->push([
+                        'product_key' => $p->product_key,
+                        'unit_cost' => $p->price,
                         'product' => nl2br(substr($p->notes, 0, 50)),
                         'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                         'total' => $total,
@@ -398,6 +404,8 @@ class BillingPortalPurchasev2 extends Component
                         return;
 
                     $this->bundle->push([
+                        'product_key' => $p->product_key,
+                        'unit_cost' => $p->price,
                         'product' => nl2br(substr($p->notes, 0, 50)),
                         'price' => Number::formatMoney($total, $this->subscription->company),
                         'total' => $total,
@@ -503,19 +511,19 @@ class BillingPortalPurchasev2 extends Component
     {
         $this->payment_started = true;
 
-        // $data = [
-        //     'client_id' => $this->contact->client->id,
-        //     'date' => now()->format('Y-m-d'),
-        //     'invitations' => [[
-        //         'key' => '',
-        //         'client_contact_id' => $this->contact->hashed_id,
-        //     ]],
-        //     'user_input_promo_code' => $this->coupon,
-        //     'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-        //     // 'quantity' => $this->quantity,
-        // ];
+        $data = [
+            'client_id' => $this->contact->client->id,
+            'date' => now()->format('Y-m-d'),
+            'invitations' => [[
+                'key' => '',
+                'client_contact_id' => $this->contact->hashed_id,
+            ]],
+            'user_input_promo_code' => $this->coupon,
+            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
+            // 'quantity' => $this->quantity,
+        ];
 
-        // $is_eligible = $this->subscription->service()->isEligible($this->contact);
+        $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
         // if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
         //     $this->steps['not_eligible'] = true;
@@ -525,14 +533,14 @@ class BillingPortalPurchasev2 extends Component
         //     return;
         // }
 
-        // $this->invoice = $this->subscription
-        //     ->service()
-        //     ->createInvoice($data, $this->quantity)
-        //     ->service()
-        //     ->markSent()
-        //     ->fillDefaults()
-        //     ->adjustInventory()
-        //     ->save();
+        $this->invoice = $this->subscription
+            ->service()
+            ->createInvoiceV2($this->bundle)
+            ->service()
+            // ->markSent()
+            ->fillDefaults()
+            ->adjustInventory()
+            ->save();
 
         // Cache::put($this->hash, [
         //     'subscription_id' => $this->subscription->id,
