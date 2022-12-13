@@ -413,6 +413,10 @@ class LoginController extends BaseController
 
             return $this->timeConstrainedResponse($cu);
         }
+        
+        nlog("socialite");
+        nlog($user);
+
         $name = OAuth::splitName($user->name);
 
         $new_account = [
