@@ -4898,6 +4898,8 @@ $LANG = array(
     'otp_code_message' => 'Enter the code emailed.',
     'otp_code_subject' => 'Your one time passcode code',
     'otp_code_body' => 'Your one time passcode is :code',
+    'delete_tax_rate' => 'Delete Tax Rate',
+    'restore_tax_rate' => 'Restore Tax Rate',
 );
 
 return $LANG;

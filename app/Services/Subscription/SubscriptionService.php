@@ -704,6 +704,41 @@ class SubscriptionService
 
     }
 
+    public function createInvoiceV2($bundle, $client_id, $valid_coupon = false)
+    {
+
+        $invoice_repo = new InvoiceRepository();
+        $subscription_repo = new SubscriptionRepository();
+
+        $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->subscription_id = $this->subscription->id;
+        $invoice->client_id = $client_id;
+
+        $line_items = $bundle->map(function ($item){
+
+            $line_item = new InvoiceItem;
+            $line_item->product_key = $item['product_key'];
+            $line_item->quantity = $item['qty'];
+            $line_item->cost = $item['unit_cost'];
+            $line_item->notes = $item['description'];
+
+            return $line_item;
+            
+        })->toArray();
+
+nlog($line_items);
+
+        $invoice->line_items = $line_items;
+
+        if($valid_coupon){
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
+        return $invoice_repo->save([], $invoice);
+
+    }
+
     /**
      * Generates the first invoice when a subscription is purchased
      *
