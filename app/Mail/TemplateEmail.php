@@ -118,7 +118,10 @@ class TemplateEmail extends Mailable
                 'logo' => $this->company->present()->logo($settings),
             ]);
 
-        foreach ($this->build_email->getAttachments() as $file) {
+        nlog($this->build_email->getAttachments());
+
+
+        foreach (array_reverse($this->build_email->getAttachments()) as $file) {
             if(array_key_exists('file', $file))
                 $this->attachData(base64_decode($file['file']), $file['name']);
             else
