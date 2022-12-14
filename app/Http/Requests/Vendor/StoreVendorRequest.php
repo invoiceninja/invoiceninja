@@ -58,7 +58,7 @@ class StoreVendorRequest extends Request
 
         $input = $this->all();
 
-        if(!array_key_exists('currency_id', $input)){
+        if(!array_key_exists('currency_id', $input) || empty($input['currency_id'])){
             $input['currency_id'] = $user->company()->settings->currency_id;
         }
 

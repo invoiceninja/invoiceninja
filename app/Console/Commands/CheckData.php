@@ -118,6 +118,7 @@ class CheckData extends Command
         $this->checkBalanceVsPaidStatus();
         $this->checkDuplicateRecurringInvoices();
         $this->checkOauthSanity();
+        $this->checkVendorSettings();
 
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
@@ -983,6 +984,27 @@ class CheckData extends Command
         }
 
     }
+
+    public function checkVendorSettings()
+    {
+
+        if ($this->option('fix') == 'true') 
+        {
+
+            Vendor::query()->whereNull('currency_id')->cursor()->each(function ($vendor){
+
+                $vendor->currency_id = $vendor->company->settings->currency_id;
+                $vendor->save();
+
+                $this->logMessage("Fixing vendor currency for # {$vendor->id}");
+
+            });
+
+        }
+
+    }
+
+
 
     public function checkBalanceVsPaidStatus()
     {
