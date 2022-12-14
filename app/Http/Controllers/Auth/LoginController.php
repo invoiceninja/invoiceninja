@@ -419,6 +419,11 @@ class LoginController extends BaseController
 
         $name = OAuth::splitName($user->name);
 
+        if($provider == 'apple') {
+            $name[0] = request()->has('first_name') ? request()->input('first_name') : $name[0];
+            $name[1] = request()->has('last_name') ? request()->input('last_name') : $name[1];
+        }
+
         $new_account = [
             'first_name' => $name[0],
             'last_name' => $name[1],
