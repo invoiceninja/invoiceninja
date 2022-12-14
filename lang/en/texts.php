@@ -4855,7 +4855,7 @@ $LANG = array(
     'payment_type_Klarna' => 'Klarna',
     'online_payment_email_help' => 'Send an email when an online payment is made',
     'manual_payment_email_help' => 'Send an email when manually entering a payment',
-    'mark_paid_payment_email_help' => 'Send an email when marking an invoice as pad',
+    'mark_paid_payment_email_help' => 'Send an email when marking an invoice as paid',
     'linked_transaction' => 'Successfully linked transaction',
     'link_payment' => 'Link Payment',
     'link_expense' => 'Link Expense',
@@ -4901,6 +4901,8 @@ $LANG = array(
     'otp_code_body' => 'Your one time passcode is :code',
     'delete_tax_rate' => 'Delete Tax Rate',
     'restore_tax_rate' => 'Restore Tax Rate',
+    'company_backup_file' => 'Select company backup file',
+    'company_backup_file_help' => 'Please upload the .zip file used to create this backup.'
 );
 
 return $LANG;
