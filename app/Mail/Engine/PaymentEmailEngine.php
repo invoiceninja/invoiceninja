@@ -89,17 +89,18 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            
             $this->payment->invoices->each(function ($invoice) {
-                // if (Ninja::isHosted()) {
-                //     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first(), 'url', true)]);
-                // } else {
-                //     $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
-                // }
-            $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
+                $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
+
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
 
             });
+
+            // foreach ($this->payment->documents as $document) {
+            //     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+            // }
         }
 
         return $this;
