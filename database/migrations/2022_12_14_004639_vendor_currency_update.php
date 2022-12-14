@@ -14,6 +14,12 @@ return new class extends Migration
      */
     public function up()
     {
+
+        Schema::table('companies', function (Blueprint $table)
+        {
+            $table->dropColumn('use_vendor_currency');
+        });
+
         Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor){
 
             $vendor->currency_id = $vendor->company->settings->currency_id;
