@@ -991,7 +991,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') 
         {
 
-            Vendor::query()->whereNull('currency_id')->cursor()->each(function ($vendor){
+            Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor){
 
                 $vendor->currency_id = $vendor->company->settings->currency_id;
                 $vendor->save();
