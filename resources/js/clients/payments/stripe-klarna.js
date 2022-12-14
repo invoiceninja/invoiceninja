@@ -71,7 +71,7 @@ class ProcessKlarna {
                                     line1: document.querySelector('meta[name=address-1]').content,
                                     line2: document.querySelector('meta[name=address-2]').content,
                                     city: document.querySelector('meta[name=city]').content,
-                                    postal_code: document.querySelector('meta[name=plz]').content,
+                                    postal_code: document.querySelector('meta[name=postal_code]').content,
                                     state: document.querySelector('meta[name=state]').content,
                                     country: document.querySelector('meta[name=country]').content,
                                 }
