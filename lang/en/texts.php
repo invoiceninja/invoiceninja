@@ -2503,6 +2503,7 @@ $LANG = array(
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
     'sepa' => 'SEPA Direct Debit',
+    'name_without_special_characters' => 'Please enter a name with only the letters a-z and whitespaces',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
