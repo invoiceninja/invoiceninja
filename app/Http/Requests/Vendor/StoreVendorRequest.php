@@ -49,12 +49,19 @@ class StoreVendorRequest extends Request
         //     $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id);
         // }
 
+        $rules['currency_id'] = 'bail|required|exists:currencies,id';
+        
+
         return $rules;
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+
+        if(!array_key_exists('currency_id', $input)){
+            $input['currency_id'] = auth()->user()->company()->settings->currency_id;
+        }
 
         $input = $this->decodePrimaryKeys($input);
 
