@@ -72,6 +72,7 @@ nlog($p->toArray());
 
                 /*Ensure we don't relink an existing payment*/
                 if(!$p || is_numeric($p->transaction_id)){
+                    nlog("unlinking for some reason");
                     unset($inputs['transactions'][$key]);
                 }
 

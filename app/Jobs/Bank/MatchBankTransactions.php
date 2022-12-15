@@ -111,6 +111,8 @@ class MatchBankTransactions implements ShouldQueue
 
         foreach($this->input as $input)
         {
+            nlog($input);
+            
             if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) > 1)
                 $this->matchInvoicePayment($input);
             elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) > 1)
