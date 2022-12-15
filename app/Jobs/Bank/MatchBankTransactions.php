@@ -112,14 +112,14 @@ class MatchBankTransactions implements ShouldQueue
         foreach($this->input as $input)
         {
             nlog($input);
-            
-            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) > 1)
+
+            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1)
                 $this->matchInvoicePayment($input);
-            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) > 1)
+            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1)
                 $this->linkPayment($input);
-            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1)
+            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) >= 1)
                 $this->linkExpense($input);
-            elseif((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) > 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) > 1))
+            elseif((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) >= 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1))
                 $this->matchExpense($input);
         }
 
