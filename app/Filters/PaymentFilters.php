@@ -88,7 +88,7 @@ class PaymentFilters extends QueryFilters
     {
 
         if($value == 'true')
-            return $this->builder->where('is_deleted',0)->whereNull('transaction_id');
+            return $this->builder->where('is_deleted',0)->whereNull('transaction_id')->orWhere("transaction_id","");
 
         return $this->builder;
     }
