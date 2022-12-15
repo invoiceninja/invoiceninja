@@ -8,28 +8,27 @@
                 </h1>
             </div>
 
+            @if(isset($invoice))
+            <div class="flex items-center mt-4 text-sm">
+                <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+                      method="post"
+                      id="payment-method-form">
+                    @csrf
 
-@if(isset($invoice))
-<div class="flex items-center mt-4 text-sm">
-    <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
-          method="post"
-          id="payment-method-form">
-        @csrf
+                    @if($invoice instanceof \App\Models\Invoice)
+                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+                        <input type="hidden" name="payable_invoices[0][amount]"
+                               value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
+                        <input type="hidden" name="payable_invoices[0][invoice_id]"
+                               value="{{ $invoice->hashed_id }}">
+                    @endif
 
-        @if($invoice instanceof \App\Models\Invoice)
-            <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
-            <input type="hidden" name="payable_invoices[0][amount]"
-                   value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
-            <input type="hidden" name="payable_invoices[0][invoice_id]"
-                   value="{{ $invoice->hashed_id }}">
-        @endif
-
-        <input type="hidden" name="action" value="payment">
-        <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
-        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
-    </form>
-</div>
-@endif
+                    <input type="hidden" name="action" value="payment">
+                    <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
+                    <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
+                </form>
+            </div>
+            @endif
 
             <form wire:submit.prevent="submit">
             <!-- Recurring Plan Products-->
@@ -65,7 +64,6 @@
                                         @endfor
                                     </select>
                             </div>
-
                             @endif
                         </div>
                         @error("data.{$index}.recurring_qty") 
@@ -83,7 +81,7 @@
                 @foreach($products as $product)
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
                         <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
@@ -121,18 +119,17 @@
                 @if(!empty($subscription->optional_recurring_product_ids))
                     @foreach($optional_recurring_products as $index => $product)
                         <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
-                      </div>
-                      @endif
+                          @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                          </div>
+                          @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
                                 <h3>{!! nl2br($product->notes) !!}</h3>
-                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} </p>
+                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
-                              
                             </div>
                             <div class="flex justify-between text-sm mt-1">
                                 @if(is_numeric($product->custom_value2))
@@ -149,7 +146,7 @@
                                         @endif
                                         >
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -164,7 +161,7 @@
                     @foreach($optional_products as $index => $product)
                         <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
                         <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
@@ -187,7 +184,7 @@
                                     @endif
                                     <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->custom_value2)) : min(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
