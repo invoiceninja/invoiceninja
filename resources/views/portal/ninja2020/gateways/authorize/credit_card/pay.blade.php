@@ -74,7 +74,7 @@
 @endsection
 
 <script type="text/javascript">    
-
+ $(function() {
     CardJs.EXPIRY_USE_DROPDOWNS = true;
-
+});
 </script>
