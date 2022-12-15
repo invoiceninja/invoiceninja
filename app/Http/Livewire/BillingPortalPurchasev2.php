@@ -33,6 +33,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use InvalidArgumentException;
 use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
@@ -52,13 +54,6 @@ class BillingPortalPurchasev2 extends Component
     public $email;
 
     /**
-     * Password model for user input.
-     *
-     * @var string
-     */
-    public $password;
-
-    /**
      * Instance of subscription.
      *
      * @var Subscription
@@ -71,19 +66,6 @@ class BillingPortalPurchasev2 extends Component
      * @var null|ClientContact
      */
     public $contact;
-
-    /**
-     * Rules for validating the form.
-     *
-     * @var \string[][]
-     */
-    // protected $rules = [
-    //     'email' => ['required', 'email'],
-    //     'data' => ['required', 'array'],
-    //     'data.*.recurring_qty' => ['required', 'between:100,1000'],
-    //     'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
-    //     'data.*.optional_qty' => ['required', 'between:100,1000'],
-    // ];
 
     /**
      * Id for CompanyGateway record.
@@ -99,27 +81,10 @@ class BillingPortalPurchasev2 extends Component
      */
     public $payment_method_id;
 
-
     /**
-     * List of steps that frontend form follows.
-     *
-     * @var array
+     * Array of front end variables for
+     * the subscription
      */
-    public $steps = [
-        'passed_email' => false,
-        'existing_user' => false,
-        'fetched_payment_methods' => false,
-        'fetched_client' => false,
-        'show_start_trial' => false,
-        'passwordless_login_sent' => false,
-        'started_payment' => false,
-        'discount_applied' => false,
-        'show_loading_bar' => false,
-        'not_eligible' => null,
-        'not_eligible_message' => null,
-        'payment_required' => true,
-    ];
-
     public $data = [];
 
     /**
@@ -158,18 +123,6 @@ class BillingPortalPurchasev2 extends Component
     public $request_data;
 
     /**
-     * @var string
-     */
-    public $price;
-
-    /**
-     * Disabled state of passwordless login button.
-     *
-     * @var bool
-     */
-    public $passwordless_login_btn = false;
-
-    /**
      * Instance of company.
      *
      * @var Company
@@ -197,6 +150,7 @@ class BillingPortalPurchasev2 extends Component
     public $payment_started = false;
     public $valid_coupon = false;
     public $payable_invoices = [];
+    public $payment_confirmed = false;
 
     public function mount()
     {
@@ -249,7 +203,9 @@ class BillingPortalPurchasev2 extends Component
             return $this;
         }
 
-        $contact = ClientContact::where('email', $this->email)->first();
+        $contact = ClientContact::where('email', $this->email)
+                                ->where('company_id', $this->subscription->company_id)
+                                ->first();
 
         if($contact){
             Auth::guard('contact')->loginUsingId($contact->id, true);
@@ -259,14 +215,10 @@ class BillingPortalPurchasev2 extends Component
             $this->createClientContact();
         }
 
-        $this->authenticated = true;
-
         $this->getPaymentMethods();
 
-    }
-
-    public function showClientRequiredFields()
-    {
+        $this->authenticated = true;
+        $this->payment_started = true;
 
     }
 
@@ -302,7 +254,6 @@ class BillingPortalPurchasev2 extends Component
         NinjaMailerJob::dispatch($nmo);
 
     }
-
 
     /**
      * Handle a coupon being entered into the checkout
@@ -455,6 +406,11 @@ class BillingPortalPurchasev2 extends Component
         return $this;
     }
 
+    /**
+     * @return $this 
+     * @throws PresenterException 
+     * @throws InvalidArgumentException 
+     */
     private function createClientContact()
     {
 
@@ -475,19 +431,26 @@ class BillingPortalPurchasev2 extends Component
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
 
         $this->contact = $client->fresh()->contacts()->first();
+
         Auth::guard('contact')->loginUsingId($this->contact->id, true);
 
         return $this;
     } 
 
 
-    public function updated($propertyName)
+    /**
+     * @param mixed $propertyName 
+     * 
+     * @return BillingPortalPurchasev2 
+     */
+    public function updated($propertyName) :self
     {
         if(in_array($propertyName, ['login','email']))
-            return;
+            return $this;
 
         $this->buildBundle();
 
+        return $this;
     }
 
     /**
@@ -495,9 +458,10 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return $this
      */
-    protected function getPaymentMethods(): self
+    protected function getPaymentMethods() :self
     {
-        $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
+        if($this->contact)
+            $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
 
         return $this;
     }
@@ -511,6 +475,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleMethodSelectingEvent($company_gateway_id, $gateway_type_id)
     {
+        $this->payment_confirmed = true;
 
         $this->company_gateway_id = $company_gateway_id;
         $this->payment_method_id = $gateway_type_id;
@@ -525,7 +490,6 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleBeforePaymentEvents() :void
     {
-        $this->payment_started = true;
 
         $data = [
             'client_id' => $this->contact->client->id,
@@ -722,58 +686,6 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function handleTrial()
-    {
-        return $this->subscription->service()->startTrial([
-            'email' => $this->email ?? $this->contact->email,
-            'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
-        ]);
-    }
-
-    public function handlePaymentNotRequired()
-    {
-
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
-        
-        if ($is_eligible['status_code'] != 200) {
-            $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['message'];
-            $this->steps['show_loading_bar'] = false;
-
-            return;
-        }
-
-        return $this->subscription->service()->handleNoPaymentRequired([
-            'email' => $this->email ?? $this->contact->email,
-            'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
-            'coupon' => $this->coupon,
-        ]);
-    }
-
-    public function passwordlessLogin()
-    {
-        $this->passwordless_login_btn = true;
-
-        $contact = ClientContact::query()
-            ->where('email', $this->email)
-            ->where('company_id', $this->subscription->company_id)
-            ->first();
-
-        $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
-        $mailer->company = $this->subscription->company;
-        $mailer->settings = $this->subscription->company->settings;
-        $mailer->to_user = $contact;
-
-        NinjaMailerJob::dispatch($mailer);
-
-        $this->steps['passwordless_login_sent'] = true;
-        $this->passwordless_login_btn = false;
-    }
 
     public function render()
     {
@@ -782,16 +694,10 @@ class BillingPortalPurchasev2 extends Component
         }
 
         if ($this->contact instanceof ClientContact) {
-            $this->getPaymentMethods($this->contact);
+            $this->getPaymentMethods();
         }
 
         return render('components.livewire.billing-portal-purchasev2');
     }
 
-    // public function changeData()
-    // {
-
-    //     nlog($this->data);
-
-    // }
 }

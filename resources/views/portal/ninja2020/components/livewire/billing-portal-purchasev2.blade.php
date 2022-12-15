@@ -253,8 +253,7 @@
                         <span>{{ $total }}</span>
                     </div>
 
-                    @if($authenticated)
-                    <div class="mx-auto text-center mt-20 content-center">
+                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed')}" x-show.important="open" x-transition>
                     <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
                         @if (session()->has('message'))
                             @component('portal.ninja2020.components.message')
@@ -262,7 +261,7 @@
                             @endcomponent
                         @endif
                         @if(count($methods) > 0)
-                        <div class="mt-4">
+                        <div class="mt-4" x-show.important="!toggle">
                             @foreach($methods as $method)
                                 <button
                                     wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
@@ -273,8 +272,7 @@
                         </div>
                         @endif
 
-                        @if($payment_started)
-                        <div class="mt-4 container mx-auto flex w-full justify-center">
+                        <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle">
                             <span class="">
                                 <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
                                      fill="none" viewBox="0 0 24 24">
@@ -285,9 +283,8 @@
                                 </svg>
                             </span>
                         </div>
-                        @endif
+                        
                     </div>
-                    @endif
 
                     @if(!$email || $errors->has('email'))
                     <form wire:submit.prevent="handleEmail" class="">
