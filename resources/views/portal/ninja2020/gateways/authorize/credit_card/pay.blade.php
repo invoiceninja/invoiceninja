@@ -78,7 +78,7 @@
  
 $(function() {
  var myCard = $('#my-card');
- myCard.CardJs.EXPIRY_USE_DROPDOWNS = true;
+ myCard.EXPIRY_USE_DROPDOWNS = true;
 });
 
 </script>
