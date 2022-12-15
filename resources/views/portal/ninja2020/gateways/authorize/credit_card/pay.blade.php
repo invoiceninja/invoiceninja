@@ -75,9 +75,11 @@
 
 @push('footer')
 <script defer>
-
- CardJs.EXPIRY_USE_DROPDOWNS = true;
-
+ 
+$(function() {
+ var myCard = $('#my-card');
+ myCard.CardJs.EXPIRY_USE_DROPDOWNS = true;
+});
 
 </script>
 @endpush
