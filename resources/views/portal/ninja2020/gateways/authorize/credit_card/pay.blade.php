@@ -73,8 +73,7 @@
     <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
 @endsection
 
-<script type="text/javascript">    
- $(function() {
+<script type="text/javascript" defer>    
     CardJs.EXPIRY_USE_DROPDOWNS = true;
-});
+
 </script>
