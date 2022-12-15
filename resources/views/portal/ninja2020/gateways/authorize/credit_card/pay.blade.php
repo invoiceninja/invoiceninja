@@ -79,6 +79,13 @@
 $(function() {
  var myCard = $('#my-card');
  myCard.EXPIRY_USE_DROPDOWNS = true;
+
+document.getElementsByName('expiry-month')[0].attr("x-autocompletetype", "cc-exp-month");
+document.getElementsByName('expiry-month')[0].attr("autocompletetype", "cc-exp-month");
+
+document.getElementsByName('expiry-year')[0].attr("x-autocompletetype", "cc-exp-year");
+document.getElementsByName('expiry-year')[0].attr("autocompletetype", "cc-exp-year");
+
 });
 
 </script>
