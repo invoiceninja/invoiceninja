@@ -66,6 +66,10 @@ class MatchBankTransactionRequest extends Request
                 $inputs['transactions'][$key]['payment_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['payment_id']);
                 $p = Payment::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['payment_id'])->first();
 
+nlog(auth()->user()->company()->id);
+nlog($inputs['transactions'][$key]['payment_id']);
+nlog($p->toArray());
+
                 /*Ensure we don't relink an existing payment*/
                 if(!$p || is_numeric($p->transaction_id)){
                     unset($inputs['transactions'][$key]);
