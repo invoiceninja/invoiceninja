@@ -130,7 +130,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
             
             $pdf = ((new CreateRawPdf($this->invitation, $this->invitation->company->db))->handle());
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => ctrans('texts.invoice') . " " .$this->invoice->numberFormatter().'.pdf']]);   
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);   
         }
 
         //attach third party documents
@@ -138,11 +138,11 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->invoice->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             foreach ($this->invoice->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             $line_items = $this->invoice->line_items;

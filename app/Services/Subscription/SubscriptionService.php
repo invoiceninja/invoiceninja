@@ -79,7 +79,11 @@ class SubscriptionService
         // if we have a recurring product - then generate a recurring invoice
         if(strlen($this->subscription->recurring_product_ids) >=1){
 
-            $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
+            if(isset($payment_hash->data->billing_context->bundle))
+                $recurring_invoice = $this->convertInvoiceToRecurringBundle($payment_hash->payment->client_id, $payment_hash->data->billing_context->bundle);
+            else
+                $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
+
             $recurring_invoice_repo = new RecurringInvoiceRepository();
 
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
@@ -718,18 +722,16 @@ class SubscriptionService
 
             $line_item = new InvoiceItem;
             $line_item->product_key = $item['product_key'];
-            $line_item->quantity = $item['qty'];
-            $line_item->cost = $item['unit_cost'];
+            $line_item->quantity = (float)$item['qty'];
+            $line_item->cost = (float)$item['unit_cost'];
             $line_item->notes = $item['description'];
 
             return $line_item;
             
         })->toArray();
 
-nlog($line_items);
-
         $invoice->line_items = $line_items;
-
+        
         if($valid_coupon){
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
@@ -802,6 +804,41 @@ nlog($line_items);
         $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
         return $recurring_invoice;
     }
+
+
+    /**
+     * Generates a recurring invoice based on
+     * the specifications of the subscription USING BUNDLE
+     *
+     * @param  int $client_id The Client Id
+     * @return RecurringInvoice
+     */
+    public function convertInvoiceToRecurringBundle($client_id, $bundle) :RecurringInvoice
+    {
+        MultiDB::setDb($this->subscription->company->db);
+        
+        $client = Client::withTrashed()->find($client_id);
+
+        $subscription_repo = new SubscriptionRepository();
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $recurring_invoice->client_id = $client_id;
+        $recurring_invoice->line_items = $subscription_repo->generateBundleLineItems($bundle, true, false);
+        $recurring_invoice->subscription_id = $this->subscription->id;
+        $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
+        $recurring_invoice->date = now();
+        $recurring_invoice->remaining_cycles = -1;
+        $recurring_invoice->auto_bill = $client->getSetting('auto_bill');
+        $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
+        $recurring_invoice->due_date_days = 'terms';
+        $recurring_invoice->next_send_date = now()->format('Y-m-d');
+        $recurring_invoice->next_send_date_client = now()->format('Y-m-d');
+        $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
+        $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
+
+        return $recurring_invoice;
+    }
+
 
     private function setAutoBillFlag($auto_bill)
     {
