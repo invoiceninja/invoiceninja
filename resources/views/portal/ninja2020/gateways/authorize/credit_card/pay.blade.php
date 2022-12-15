@@ -74,7 +74,7 @@
 @endsection
 
 @push('footer')
-<script>
+<script defer>
 $(function() {
 
  CardJs.EXPIRY_USE_DROPDOWNS = true;
