@@ -84,7 +84,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Returns a list of payments that can be matched to bank transactions
      */
-    public function match_transactions($value = 'true')
+    public function match_transactions($value = 'true') :Builder
     {
 
         if($value == 'true')
