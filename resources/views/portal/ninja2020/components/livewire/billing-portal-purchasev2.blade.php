@@ -253,7 +253,7 @@
                         <span>{{ $total }}</span>
                     </div>
 
-                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed')}" x-show.important="open" x-transition>
+                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed'), buttonDisabled: false}" x-show.important="open" x-transition>
                     <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
                         @if (session()->has('message'))
                             @component('portal.ninja2020.components.message')
@@ -261,9 +261,10 @@
                             @endcomponent
                         @endif
                         @if(count($methods) > 0)
-                        <div class="mt-4" x-show.important="!toggle">
+                        <div class="mt-4" x-show.important="!toggle" x-transition>
                             @foreach($methods as $method)
                                 <button
+                                    x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
                                     wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
                                     class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {{ $method['label'] }}
@@ -272,7 +273,7 @@
                         </div>
                         @endif
 
-                        <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle">
+                        <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
                             <span class="">
                                 <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
                                      fill="none" viewBox="0 0 24 24">
