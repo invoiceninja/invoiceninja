@@ -117,7 +117,7 @@ class MatchBankTransactions implements ShouldQueue
                 $this->linkPayment($input);
             elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1)
                 $this->linkExpense($input);
-            else
+            elseif((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) > 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) > 1))
                 $this->matchExpense($input);
         }
 

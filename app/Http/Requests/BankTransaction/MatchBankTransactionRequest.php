@@ -67,7 +67,7 @@ class MatchBankTransactionRequest extends Request
                 $p = Payment::withTrashed()->find($inputs['transactions'][$key]['payment_id']);
 
                 /*Ensure we don't relink an existing payment*/
-                if(!$p || $p->transaction_id){
+                if(!$p || is_numeric($p->transaction_id)){
                     unset($inputs['transactions'][$key]);
                 }
 
@@ -78,8 +78,8 @@ class MatchBankTransactionRequest extends Request
                 $e = Expense::withTrashed()->find($inputs['transactions'][$key]['expense_id']);
 
                 /*Ensure we don't relink an existing expense*/
-                if(!$e || $e->transaction_id)
-                    $inputs['transactions'][$key]['expense_id'] = null;
+                if(!$e || is_numeric($e->transaction_id))
+                    unset($inputs['transactions'][$key]['expense_id']);
 
             }
 
