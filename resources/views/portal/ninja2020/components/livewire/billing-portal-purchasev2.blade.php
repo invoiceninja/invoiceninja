@@ -8,28 +8,27 @@
                 </h1>
             </div>
 
+            @if(isset($invoice))
+            <div class="flex items-center mt-4 text-sm">
+                <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+                      method="post"
+                      id="payment-method-form">
+                    @csrf
 
-@if(isset($invoice))
-<div class="flex items-center mt-4 text-sm">
-    <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
-          method="post"
-          id="payment-method-form">
-        @csrf
+                    @if($invoice instanceof \App\Models\Invoice)
+                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+                        <input type="hidden" name="payable_invoices[0][amount]"
+                               value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
+                        <input type="hidden" name="payable_invoices[0][invoice_id]"
+                               value="{{ $invoice->hashed_id }}">
+                    @endif
 
-        @if($invoice instanceof \App\Models\Invoice)
-            <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
-            <input type="hidden" name="payable_invoices[0][amount]"
-                   value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
-            <input type="hidden" name="payable_invoices[0][invoice_id]"
-                   value="{{ $invoice->hashed_id }}">
-        @endif
-
-        <input type="hidden" name="action" value="payment">
-        <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
-        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
-    </form>
-</div>
-@endif
+                    <input type="hidden" name="action" value="payment">
+                    <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
+                    <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
+                </form>
+            </div>
+            @endif
 
             <form wire:submit.prevent="submit">
             <!-- Recurring Plan Products-->
@@ -65,7 +64,6 @@
                                         @endfor
                                     </select>
                             </div>
-
                             @endif
                         </div>
                         @error("data.{$index}.recurring_qty") 
@@ -83,7 +81,7 @@
                 @foreach($products as $product)
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
                         <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
@@ -121,18 +119,17 @@
                 @if(!empty($subscription->optional_recurring_product_ids))
                     @foreach($optional_recurring_products as $index => $product)
                         <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
-                      </div>
-                      @endif
+                          @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                          </div>
+                          @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
                                 <h3>{!! nl2br($product->notes) !!}</h3>
-                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} </p>
+                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
-                              
                             </div>
                             <div class="flex justify-between text-sm mt-1">
                                 @if(is_numeric($product->custom_value2))
@@ -149,7 +146,7 @@
                                         @endif
                                         >
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -164,7 +161,7 @@
                     @foreach($optional_products as $index => $product)
                         <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
                         <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
                       </div>
                       @endif
@@ -187,7 +184,7 @@
                                     @endif
                                     <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->custom_value2)) : min(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -253,8 +250,7 @@
                         <span>{{ $total }}</span>
                     </div>
 
-                    @if($authenticated)
-                    <div class="mx-auto text-center mt-20 content-center">
+                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed'), buttonDisabled: false}" x-show.important="open" x-transition>
                     <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
                         @if (session()->has('message'))
                             @component('portal.ninja2020.components.message')
@@ -262,9 +258,10 @@
                             @endcomponent
                         @endif
                         @if(count($methods) > 0)
-                        <div class="mt-4">
+                        <div class="mt-4" x-show.important="!toggle" x-transition>
                             @foreach($methods as $method)
                                 <button
+                                    x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
                                     wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
                                     class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {{ $method['label'] }}
@@ -273,8 +270,7 @@
                         </div>
                         @endif
 
-                        @if($payment_started)
-                        <div class="mt-4 container mx-auto flex w-full justify-center">
+                        <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
                             <span class="">
                                 <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
                                      fill="none" viewBox="0 0 24 24">
@@ -285,9 +281,8 @@
                                 </svg>
                             </span>
                         </div>
-                        @endif
+                        
                     </div>
-                    @endif
 
                     @if(!$email || $errors->has('email'))
                     <form wire:submit.prevent="handleEmail" class="">

@@ -96,11 +96,17 @@ class PaymentEmailEngine extends BaseEmailEngine
 
                 $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
 
+                //attach invoice documents also to payments
+                if ($this->client->getSetting('document_email_attachment') !== false)
+                {
+                    foreach ($invoice->documents as $document) {
+                        $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                    }
+                }
+
             });
 
-            // foreach ($this->payment->documents as $document) {
-            //     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
-            // }
+
         }
 
         return $this;
