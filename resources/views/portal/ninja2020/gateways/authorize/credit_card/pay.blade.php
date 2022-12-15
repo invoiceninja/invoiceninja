@@ -78,30 +78,15 @@
  
 $(function() {
 
-document.getElementsByClassName("expiry")[0].addEventListener('change', function() {
+    document.getElementsByClassName("expiry")[0].addEventListener('change', function() {
 
-str = document.getElementsByClassName("expiry")[0].value.replace(/\s/g, '');
-const myArray = str.split("/");
+    str = document.getElementsByClassName("expiry")[0].value.replace(/\s/g, '');
+    const expiryArray = str.split("/");
 
-document.getElementsByName('expiry-month')[0].value = myArray[0];
-document.getElementsByName('expiry-year')[0].value = myArray[1];
+    document.getElementsByName('expiry-month')[0].value = expiryArray[0];
+    document.getElementsByName('expiry-year')[0].value = expiryArray[1];
 
-});
-
-
-
-
-//  var myCard = $('#my-card');
-//  myCard.EXPIRY_USE_DROPDOWNS = true;
-
-// document.getElementsByName('expiry-month')[0].setAttribute("x-autocompletetype", "cc-exp-month");
-// document.getElementsByName('expiry-month')[0].setAttribute("autocompletetype", "cc-exp-month");
-// document.getElementsByName('expiry-month')[0].setAttribute("autocomplete", "on");
-// document.getElementsByClassName('expiry')[0].setAttribute("autocomplete", "on");
-
-// document.getElementsByName('expiry-year')[0].setAttribute("x-autocompletetype", "cc-exp-year");
-// document.getElementsByName('expiry-year')[0].setAttribute("autocompletetype", "cc-exp-year");
-// document.getElementsByName('expiry-year')[0].setAttribute("autocomplete", "on");
+    });
 
 });
 
