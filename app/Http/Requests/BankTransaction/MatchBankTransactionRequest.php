@@ -67,8 +67,9 @@ class MatchBankTransactionRequest extends Request
                 $p = Payment::withTrashed()->find($inputs['transactions'][$key]['payment_id']);
 
                 /*Ensure we don't relink an existing payment*/
-                if(!$p || $p->transaction_id)
-                    $inputs['transactions'][$key]['payment_id'] = null;
+                if(!$p || $p->transaction_id){
+                    unset($inputs['transactions'][$key]);
+                }
 
             }
 
