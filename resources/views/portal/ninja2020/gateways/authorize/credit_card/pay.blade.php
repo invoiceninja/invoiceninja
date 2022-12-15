@@ -82,9 +82,11 @@ $(function() {
 
 document.getElementsByName('expiry-month')[0].setAttribute("x-autocompletetype", "cc-exp-month");
 document.getElementsByName('expiry-month')[0].setAttribute("autocompletetype", "cc-exp-month");
+document.getElementsByName('expiry-month')[0].setAttribute("autocomplete", "on");
 
 document.getElementsByName('expiry-year')[0].setAttribute("x-autocompletetype", "cc-exp-year");
 document.getElementsByName('expiry-year')[0].setAttribute("autocompletetype", "cc-exp-year");
+document.getElementsByName('expiry-year')[0].setAttribute("autocomplete", "on");
 
 });
 
