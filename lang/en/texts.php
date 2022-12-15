@@ -4902,7 +4902,11 @@ $LANG = array(
     'delete_tax_rate' => 'Delete Tax Rate',
     'restore_tax_rate' => 'Restore Tax Rate',
     'company_backup_file' => 'Select company backup file',
-    'company_backup_file_help' => 'Please upload the .zip file used to create this backup.'
+    'company_backup_file_help' => 'Please upload the .zip file used to create this backup.',
+    'backup_restore' => 'Backup | Restore',
+    'export_company' => 'Create company backup',
+    'backup' => 'Backup',
+    
 );
 
 return $LANG;

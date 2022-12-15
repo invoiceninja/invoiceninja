@@ -196,6 +196,7 @@ class BillingPortalPurchasev2 extends Component
     public $float_amount_total;
     public $payment_started = false;
     public $valid_coupon = false;
+    public $payable_invoices = [];
 
     public function mount()
     {
@@ -310,12 +311,13 @@ class BillingPortalPurchasev2 extends Component
     {
 
         if($this->coupon == $this->subscription->promo_code) {
-            $this->buildBundle();
             $this->valid_coupon = true;
+            $this->buildBundle();
         }
         else{
             $this->discount = 0;
             $this->valid_coupon = false;
+            $this->buildBundle();
         }
 
     }
@@ -378,24 +380,24 @@ class BillingPortalPurchasev2 extends Component
                         return $k == $key;
                     });
 
-                    $qty = isset($this->data[$key]['optional_recurring_qty']) ? $this->data[$key]['optional_recurring_qty'] : 0;
+                    $qty = isset($this->data[$key]['optional_recurring_qty']) ? $this->data[$key]['optional_recurring_qty'] : false;
                     $total = $p->price * $qty;
 
-                   if($qty == 0)
-                        return;
+                   if($qty)
+                    {
 
+                        $this->bundle->push([
+                            'description' => $p->notes,
+                            'product_key' => $p->product_key,
+                            'unit_cost' => $p->price,
+                            'product' => nl2br(substr($p->notes, 0, 50)),
+                            'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                            'total' => $total,
+                            'qty' => $qty,
+                            'is_recurring' => true
+                        ]);
 
-                    $this->bundle->push([
-                        'description' => $p->notes,
-                        'product_key' => $p->product_key,
-                        'unit_cost' => $p->price,
-                        'product' => nl2br(substr($p->notes, 0, 50)),
-                        'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
-                        'total' => $total,
-                        'qty' => $qty,
-                        'is_recurring' => true
-                    ]);
-
+                    }
                 }
 
                 /* Optional products can have a variable quantity */
@@ -405,23 +407,23 @@ class BillingPortalPurchasev2 extends Component
                         return $k == $key;
                     });
 
-                    $qty = isset($this->data[$key]['optional_qty']) ? $this->data[$key]['optional_qty'] : 0;
+                    $qty = isset($this->data[$key]['optional_qty']) ? $this->data[$key]['optional_qty'] : false;
                     $total = $p->price * $qty;
 
-                    if($qty == 0)
-                        return;
-
-                    $this->bundle->push([
-                        'description' => $p->notes,
-                        'product_key' => $p->product_key,
-                        'unit_cost' => $p->price,
-                        'product' => nl2br(substr($p->notes, 0, 50)),
-                        'price' => Number::formatMoney($total, $this->subscription->company),
-                        'total' => $total,
-                        'qty' => $qty,
-                        'is_recurring' => false
-                    ]);
-
+                    if($qty)
+                    {
+                        $this->bundle->push([
+                            'description' => $p->notes,
+                            'product_key' => $p->product_key,
+                            'unit_cost' => $p->price,
+                            'product' => nl2br(substr($p->notes, 0, 50)),
+                            'price' => Number::formatMoney($total, $this->subscription->company),
+                            'total' => $total,
+                            'qty' => $qty,
+                            'is_recurring' => false
+                        ]);
+                    }
+                    
                 }
 
             }
@@ -429,7 +431,7 @@ class BillingPortalPurchasev2 extends Component
         $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
         $this->total = $this->sub_total;
 
-        if($this->coupon == $this->subscription->promo_code) 
+        if($this->valid_coupon) 
         {
 
             if($this->subscription->is_amount_discount)
@@ -442,6 +444,11 @@ class BillingPortalPurchasev2 extends Component
             $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $this->subscription->company);
 
             $this->float_amount_total = ($this->bundle->sum('total') - $discount);
+        }
+        else {
+            $this->float_amount_total = $this->bundle->sum('total');
+            $this->total = Number::formatMoney($this->float_amount_total, $this->subscription->company);
+
         }
 
 
@@ -490,7 +497,6 @@ class BillingPortalPurchasev2 extends Component
      */
     protected function getPaymentMethods(): self
     {
-
         $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
 
         return $this;
@@ -505,6 +511,7 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleMethodSelectingEvent($company_gateway_id, $gateway_type_id)
     {
+
         $this->company_gateway_id = $company_gateway_id;
         $this->payment_method_id = $gateway_type_id;
 
@@ -546,19 +553,20 @@ class BillingPortalPurchasev2 extends Component
             ->service()
             ->createInvoiceV2($this->bundle, $this->contact->client_id, $this->valid_coupon)
             ->service()
-            // ->markSent()
+            ->markSent()
             ->fillDefaults()
             ->adjustInventory()
             ->save();
 
-        // Cache::put($this->hash, [
-        //     'subscription_id' => $this->subscription->id,
-        //     'email' => $this->email ?? $this->contact->email,
-        //     'client_id' => $this->contact->client->id,
-        //     'invoice_id' => $this->invoice->id,
-        //     'context' => 'purchase',
-        //     'campaign' => $this->campaign,
-        // ], now()->addMinutes(60));
+        Cache::put($this->hash, [
+            'subscription_id' => $this->subscription->id,
+            'email' => $this->email ?? $this->contact->email,
+            'client_id' => $this->contact->client->id,
+            'invoice_id' => $this->invoice->id,
+            'context' => 'purchase',
+            'campaign' => $this->campaign,
+            'bundle' => $this->bundle,
+        ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
     }

@@ -25,8 +25,8 @@
         @endif
 
         <input type="hidden" name="action" value="payment">
-        <input type="hidden" name="company_gateway_id" value=""/>
-        <input type="hidden" name="payment_method_id" value=""/>
+        <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
+        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
     </form>
 </div>
 @endif
@@ -261,7 +261,7 @@
                                 {{ session('message') }}
                             @endcomponent
                         @endif
-                        @if(count($methods) > 0 && !$payment_started)
+                        @if(count($methods) > 0)
                         <div class="mt-4">
                             @foreach($methods as $method)
                                 <button
