@@ -29,6 +29,7 @@ use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\ApplePay;
+use App\PaymentDrivers\Stripe\BACS;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
 use App\PaymentDrivers\Stripe\BrowserPay;
@@ -100,6 +101,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
         GatewayType::KLARNA => Klarna::class,
+        GatewayType::BACS => BACS::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -241,7 +243,7 @@ class StripePaymentDriver extends BaseDriver
         }
         if ($this->client
             && $this->client->currency()
-            && in_array($this->client->currency()->code, ['GDB'])
+            && in_array($this->client->currency()->code, ['GBP'])
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['GBR'])) {
             $types[] = GatewayType::BACS;
