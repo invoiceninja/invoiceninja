@@ -29,7 +29,6 @@ use App\Utils\Number;
 class BACS
 {
     public $stripe;
-    public $session;
 
     public function __construct(StripePaymentDriver $stripe)
     {
@@ -44,17 +43,14 @@ class BACS
             'mode' => 'setup',
             'customer' => $customer->id,
             'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildReturnUrl())),
-            'cancel_url' => 'https://example.com/cancel',
+            'cancel_url' => route('client.payment_methods.index'),
         ]);
-        $session = $data['session'];
-
         return render('gateways.stripe.bacs.authorize', $data);
     }
     private function buildReturnUrl(): string
     {
-        return route('client.payment_methods.store', [
-            'company_gateway_id' => $this->stripe->company_gateway->id,
-            'payment_method_id' => GatewayType::BACS,
+        return route('client.payments.confirm', [
+            'method' => GatewayType::BACS,
             'session_id' => "{CHECKOUT_SESSION_ID}",
         ]);
     }
@@ -62,14 +58,14 @@ class BACS
     public function authorizeResponse($request)
     {
         $this->stripe->init();
-
-        $customer = $this->stripe->findOrCreateCustomer();
+        file_put_contents("/home/blumagin/domains/blumagine.de/invoiceninja/log2.txt", $request);
+        $this->stripe->setupIntents->retrieve('seti_1EzVO3HssDVaQm2PJjXHmLlM', []);
 
         $stripe_response = json_decode($request->input('gateway_response'));
 
         $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
 
-        $this->storePaymentMethod($stripe_method, $request->payment_method_id, $customer);
+        $this->storePaymentMethod($stripe_method, $request->payment_method_id, $this->stripe->findOrCreateCustomer());
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -209,10 +205,9 @@ class BACS
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->exp_month = (string) $method->card->exp_month;
-            $payment_meta->exp_year = (string) $method->card->exp_year;
-            $payment_meta->brand = (string) $method->card->brand;
-            $payment_meta->last4 = (string) $method->card->last4;
+            $payment_meta->brand = (string) "";
+            $payment_meta->last4 = (string) "";
+            $payment_meta->state = 'authorized';
             $payment_meta->type = GatewayType::BACS;
 
             $data = [
