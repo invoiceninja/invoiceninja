@@ -34,12 +34,12 @@ class ProcessBACS {
     };
 
     handle = () => {
-        document.getElementById('pay-now').addEventListener('click', (e) => {
+        document.getElementById('authorize-bacs').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
 
-            document.getElementById('pay-now').disabled = true;
-            document.querySelector('#pay-now > svg').classList.remove('hidden');
-            document.querySelector('#pay-now > span').classList.add('hidden');
+            document.getElementById('authorize-bacs').disabled = true;
+            document.querySelector('#authorize-bacs > svg').classList.remove('hidden');
+            document.querySelector('#authorize-bacs > span').classList.add('hidden');
             location.href=document.querySelector('meta[name=stripe-redirect-url').content;
         });
     };
