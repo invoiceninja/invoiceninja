@@ -52,7 +52,6 @@ class BACS
     {
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
-            'payment_hash' => $this->stripe->payment_hash->hash,
             'payment_method_id' => GatewayType::BACS,
         ]);
     }
@@ -60,6 +59,8 @@ class BACS
     public function authorizeResponse($request)
     {
         $this->stripe->init();
+
+        $customer = $this->stripe->findOrCreateCustomer();
 
         $stripe_response = json_decode($request->input('gateway_response'));
 
