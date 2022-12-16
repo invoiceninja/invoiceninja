@@ -49,7 +49,7 @@ class BACS
     }
     private function buildReturnUrl(): string
     {
-        return route('client.payments.confirm', [
+        return route('client.payment_methods.confirm', [
             'method' => GatewayType::BACS,
             'session_id' => "{CHECKOUT_SESSION_ID}",
         ]);
