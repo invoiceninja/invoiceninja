@@ -113,6 +113,7 @@ class Gateway extends StaticModel
                     GatewayType::EPS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::BANCONTACT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::BECS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::BACS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::IDEAL => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::ACSS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::KLARNA => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'payment_intent.succeeded']],
