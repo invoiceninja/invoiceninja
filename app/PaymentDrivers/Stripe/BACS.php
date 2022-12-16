@@ -43,7 +43,7 @@ class BACS
             'payment_method_types' => ['bacs_debit'],
             'mode' => 'setup',
             'customer' => $customer->id,
-            'success_url' => $this->buildReturnUrl(),
+            'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildReturnUrl())),
             'cancel_url' => 'https://example.com/cancel',
         ]);
         $session = $data['session'];
