@@ -458,6 +458,29 @@ class Client extends BaseModel implements HasLocalePreference
 
         return null;
     }
+    public function getBACSGateway() :?CompanyGateway
+    {
+        $pms = $this->service()->getPaymentMethods(-1);
+
+        foreach ($pms as $pm) {
+            if ($pm['gateway_type_id'] == GatewayType::BACS) {
+                $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BACS)) {
+                    $fees_and_limits = $cg->fees_and_limits;
+                    $fees_and_limits->{GatewayType::BACS} = new FeesAndLimits;
+                    $cg->fees_and_limits = $fees_and_limits;
+                    $cg->save();
+                }
+
+                if ($cg && $cg->fees_and_limits->{GatewayType::BACS}->is_enabled) {
+                    return $cg;
+                }
+            }
+        }
+
+        return null;
+    }
 
     //todo refactor this  - it is only searching for existing tokens
     public function getBankTransferGateway() :?CompanyGateway
