@@ -38,7 +38,7 @@ class BACS
     public function authorizeView(array $data)
     {
         $customer = $this->stripe->findOrCreateCustomer();
-        $session = Session::create([
+        $data['session'] = Session::create([
             'payment_method_types' => ['bacs_debit'],
             'mode' => 'setup',
             'customer' => $customer->id,
@@ -46,7 +46,7 @@ class BACS
             'cancel_url' => 'https://example.com/cancel',
         ]);
 
-        return render('gateways.stripe.bacs.authorize', array_merge($data, $session));
+        return render('gateways.stripe.bacs.authorize', $data);
     }
     private function buildReturnUrl(): string
     {

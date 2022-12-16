@@ -8,7 +8,7 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
-    <meta name="stripe-redirect-url" content="{{ $session->url }}">
+    <meta name="stripe-redirect-url" content="{{ $data['session']->url }}">
 
 @endsection
 
