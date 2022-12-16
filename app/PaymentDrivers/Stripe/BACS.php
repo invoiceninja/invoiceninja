@@ -62,7 +62,7 @@ class BACS
             $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
         }
         file_put_contents("/home/blumagin/domains/blumagine.de/invoiceninja/log2.txt", $session);
-        $this->storePaymentMethod($session->setup_intent->payment_method, 1, $this->stripe->findOrCreateCustomer());
+        $this->storePaymentMethod($session, 1, $this->stripe->findOrCreateCustomer());
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -209,8 +209,8 @@ class BACS
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $method,
-                'payment_method_id' => $payment_method_id,
+                'token' => $method->setup_intent->payment_method,
+                'payment_method_id' => GatewayType::BACS,
             ];
 
             $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
