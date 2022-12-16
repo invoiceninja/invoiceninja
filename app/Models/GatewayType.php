@@ -61,6 +61,8 @@ class GatewayType extends StaticModel
 
     const KLARNA = 23;
 
+    const BACS = 24;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -108,6 +110,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.eps');
             case self::BECS:
                 return ctrans('texts.becs');
+            case self::BACS:
+                return ctrans('texts.bacs');
             case self::ACSS:
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:
