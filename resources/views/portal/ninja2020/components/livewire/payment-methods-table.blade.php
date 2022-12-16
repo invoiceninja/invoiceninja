@@ -9,7 +9,7 @@
                 <option>20</option>
             </select>
         </div>
-        <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">Add BACS
+        <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
             <!-- Add payment method button -->
             @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
                 <button x-on:click="open = !open" class="button button-primary bg-primary" data-cy="add-payment-method">{{ ctrans('texts.add_payment_method') }}</button>
