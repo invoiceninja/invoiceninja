@@ -61,8 +61,7 @@ class BACS
         if ($request->session_id){
             $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
         }
-        file_put_contents("/home/blumagin/domains/blumagine.de/invoiceninja/log2.txt", $session);
-        $this->storePaymentMethod($session, 1, $this->stripe->findOrCreateCustomer());
+        $this->storePaymentMethod($session, $this->stripe->findOrCreateCustomer());
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -198,7 +197,7 @@ class BACS
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
-    private function storePaymentMethod($method, $payment_method_id, $customer)
+    private function storePaymentMethod($method, $customer)
     {
         try {
             $payment_meta = new \stdClass;
