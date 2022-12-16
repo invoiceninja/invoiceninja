@@ -40,20 +40,7 @@ class ProcessBACS {
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
-
-            this.stripe.confirmGiropayPayment(
-                document.querySelector('meta[name=pi-client-secret').content,
-                {
-                    payment_method: {
-                        billing_details: {
-                            name: document.getElementById("giropay-name").value,
-                        },
-                    },
-                    return_url: document.querySelector(
-                        'meta[name="return-url"]'
-                    ).content,
-                }
-            );
+            location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
         });
     };
 }

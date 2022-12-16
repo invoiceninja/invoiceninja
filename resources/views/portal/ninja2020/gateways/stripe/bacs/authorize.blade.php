@@ -8,9 +8,7 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
-    <meta name="stripe-secret" content="{{ $intent->client_secret }}">
-    <meta name="only-authorization" content="true">
-    <meta name="stripe-token" content="">
+    <meta name="stripe-redirect-url" content="{{ $session->url }}">
 
 @endsection
 
@@ -25,12 +23,6 @@
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
-    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
-        {{ ctrans('texts.credit_card') }}
-    @endcomponent
-
-    @include('portal.ninja2020.gateways.stripe.includes.card_widget', ['show_save_method' => false])
-
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
         {{ ctrans('texts.add_payment_method') }}
     @endcomponent
@@ -38,5 +30,5 @@
 
 @section('gateway_footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-credit-card.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/stripe-bacs.js') }}"></script>
 @endsection

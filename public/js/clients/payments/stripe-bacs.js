@@ -1,2 +1,55 @@
-/*! For license information please see stripe-bacs.js.LICENSE.txt */
-(()=>{var e,t,n,r;function o(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function i(e,t,n){return t&&o(e.prototype,t),n&&o(e,n),Object.defineProperty(e,"prototype",{writable:!1}),e}function a(e,t,n){return t in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var c=i((function e(t,n){var r=this;!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),a(this,"setupStripe",(function(){return r.stripeConnect?r.stripe=Stripe(r.key,{stripeAccount:r.stripeConnect}):r.stripe=Stripe(r.key),r})),a(this,"handle",(function(){document.getElementById("pay-now").addEventListener("click",(function(e){document.getElementById("errors");document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),r.stripe.confirmGiropayPayment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:{billing_details:{name:document.getElementById("giropay-name").value}},return_url:document.querySelector('meta[name="return-url"]').content})}))})),this.key=t,this.errors=document.getElementById("errors"),this.stripeConnect=n}));new c(null!==(e=null===(t=document.querySelector('meta[name="stripe-publishable-key"]'))||void 0===t?void 0:t.content)&&void 0!==e?e:"",null!==(n=null===(r=document.querySelector('meta[name="stripe-account-id"]'))||void 0===r?void 0:r.content)&&void 0!==n?n:"").setupStripe().handle()})();
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+class ProcessBACS {
+    constructor(key, stripeConnect) {
+        this.key = key;
+        this.errors = document.getElementById('errors');
+        this.stripeConnect = stripeConnect;
+    }
+
+    setupStripe = () => {
+
+        if (this.stripeConnect){
+           // this.stripe.stripeAccount = this.stripeConnect;
+
+           this.stripe = Stripe(this.key, {
+              stripeAccount: this.stripeConnect,
+            });
+
+        }
+        else {
+            this.stripe = Stripe(this.key);
+        }
+
+
+        return this;
+    };
+
+    handle = () => {
+        document.getElementById('pay-now').addEventListener('click', (e) => {
+            let errors = document.getElementById('errors');
+
+            document.getElementById('pay-now').disabled = true;
+            document.querySelector('#pay-now > svg').classList.remove('hidden');
+            document.querySelector('#pay-now > span').classList.add('hidden');
+            location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
+        });
+    };
+}
+
+const publishableKey = document.querySelector(
+    'meta[name="stripe-publishable-key"]'
+)?.content ?? '';
+
+const stripeConnect =
+    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+
+new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();

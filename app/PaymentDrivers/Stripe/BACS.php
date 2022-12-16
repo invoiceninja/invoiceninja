@@ -36,9 +36,24 @@ class BACS
 
     public function authorizeView(array $data)
     {
-        $intent['intent'] = $this->stripe->getSetupIntent();
+        $customer = $this->stripe->findOrCreateCustomer();
+        $session = $this->stripe->Checkout->Session::create([
+            'payment_method_types' => ['bacs_debit'],
+            'mode' => 'setup',
+            'customer' => $customer->id,
+            'success_url' => $this->buildReturnUrl(),
+            'cancel_url' => 'https://example.com/cancel',
+        ]);
 
-        return render('gateways.stripe.bacs.authorize', array_merge($data, $intent));
+        return render('gateways.stripe.bacs.authorize', array_merge($data, $session));
+    }
+    private function buildReturnUrl(): string
+    {
+        return route('client.payments.response', [
+            'company_gateway_id' => $this->stripe->company_gateway->id,
+            'payment_hash' => $this->stripe->payment_hash->hash,
+            'payment_method_id' => GatewayType::BACS,
+        ]);
     }
 
     public function authorizeResponse($request)
@@ -46,10 +61,6 @@ class BACS
         $this->stripe->init();
 
         $stripe_response = json_decode($request->input('gateway_response'));
-
-        $customer = $this->stripe->findOrCreateCustomer();
-
-        $this->stripe->attach($stripe_response->payment_method, $customer);
 
         $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
 
