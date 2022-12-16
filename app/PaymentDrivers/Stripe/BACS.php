@@ -58,14 +58,11 @@ class BACS
     public function authorizeResponse($request)
     {
         $this->stripe->init();
-        file_put_contents("/home/blumagin/domains/blumagine.de/invoiceninja/log2.txt", $request);
-        $this->stripe->setupIntents->retrieve('seti_1EzVO3HssDVaQm2PJjXHmLlM', []);
-
-        $stripe_response = json_decode($request->input('gateway_response'));
-
-        $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
-
-        $this->storePaymentMethod($stripe_method, $request->payment_method_id, $this->stripe->findOrCreateCustomer());
+        if ($request->session_id){
+            $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
+        }
+        file_put_contents("/home/blumagin/domains/blumagine.de/invoiceninja/log2.txt", $session);
+        $this->storePaymentMethod($session->setup_intent->payment_method, 1, $this->stripe->findOrCreateCustomer());
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -212,7 +209,7 @@ class BACS
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $method->id,
+                'token' => $method,
                 'payment_method_id' => $payment_method_id,
             ];
 
