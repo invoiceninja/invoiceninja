@@ -9,7 +9,7 @@
                 <option>20</option>
             </select>
         </div>
-        <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
+        <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">Add BACS
             <!-- Add payment method button -->
             @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
                 <button x-on:click="open = !open" class="button button-primary bg-primary" data-cy="add-payment-method">{{ ctrans('texts.add_payment_method') }}</button>
@@ -23,6 +23,11 @@
                         @if($client->getBankTransferGateway())
                             <a data-cy="add-bank-account-link" href="{{ route('client.payment_methods.create', ['method' => $client->getBankTransferMethodType()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                                 {{ ctrans('texts.bank_account') }}
+                            </a>
+                        @endif
+                        @if($client->getBACSGateway())
+                            <a data-cy="add-bacs-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::BACS]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.bacs') }}
                             </a>
                         @endif
                     </div>
