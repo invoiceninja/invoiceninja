@@ -18,10 +18,10 @@ class ProcessBACS {
     setupStripe = () => {
 
         if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
+            // this.stripe.stripeAccount = this.stripeConnect;
 
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
             });
 
         }
@@ -40,7 +40,7 @@ class ProcessBACS {
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
-            location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
+            location.href=document.querySelector('meta[name=stripe-redirect-url').content;
         });
     };
 }
