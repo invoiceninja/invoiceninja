@@ -11,13 +11,16 @@
 
 namespace App\Filters;
 
+use App\Models\Expense;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 /**
- * PaymentFilters.
+ * ExpenseCategoryFilters.
  */
-class PaymentFilters extends QueryFilters
+class ExpenseCategoryFilters extends QueryFilters
 {
     /**
      * Filter based on search text.
@@ -32,14 +35,8 @@ class PaymentFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('payments.amount', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.date', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value4', 'like', '%'.$filter.'%');
-        });
+        return  $this->builder->where('expense_categories.name', 'like', '%'.$filter.'%');
+
     }
 
     /**
@@ -55,7 +52,7 @@ class PaymentFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'payments';
+        $table = 'expense_categories';
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
@@ -82,25 +79,6 @@ class PaymentFilters extends QueryFilters
     }
 
     /**
-     * Returns a list of payments that can be matched to bank transactions
-     */
-    public function match_transactions($value = 'true') :Builder
-    {
-
-        if($value == 'true'){
-            return $this->builder
-                        ->where('is_deleted',0)
-                        ->where(function ($query){
-                            $query->whereNull('transaction_id')
-                            ->orWhere("transaction_id","");
-                        });
-                        
-        }
-
-        return $this->builder;
-    }
-
-    /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
@@ -110,12 +88,11 @@ class PaymentFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
+        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name'])) {
+            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        }
 
-    public function number(string $number) : Builder
-    {
-        return $this->builder->where('number', $number);
+        return $this->builder;
     }
 
     /**
@@ -128,6 +105,9 @@ class PaymentFilters extends QueryFilters
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
+
+        return $this->builder;
+
     }
 
     /**
@@ -137,23 +117,8 @@ class PaymentFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        if (auth()->guard('contact')->user()) {
-            return $this->contactViewFilter();
-        } else {
-            return $this->builder->company();
-        }
-    }
 
-    /**
-     * We need additional filters when showing invoices for the
-     * client portal. Need to automatically exclude drafts and cancelled invoices.
-     *
-     * @return Builder
-     */
-    private function contactViewFilter() : Builder
-    {
-        return $this->builder
-                    ->whereCompanyId(auth()->guard('contact')->user()->company->id)
-                    ->whereIsDeleted(false);
+        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
+        return $this->builder->company();
     }
 }

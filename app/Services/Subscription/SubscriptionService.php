@@ -166,7 +166,11 @@ class SubscriptionService
         //create recurring invoice with start date = trial_duration + 1 day
         $recurring_invoice_repo = new RecurringInvoiceRepository();
 
-        $recurring_invoice = $this->convertInvoiceToRecurring($client_contact->client_id);
+        if(isset($data['bundle']))
+            $recurring_invoice = $this->convertInvoiceToRecurringBundle($client_contact->client_id, $data['bundle']->map(function ($bundle){ return (object) $bundle;}));
+        else
+            $recurring_invoice = $this->convertInvoiceToRecurring($client_contact->client_id);
+        
         $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->next_send_date_client = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->backup = 'is_trial';
@@ -180,7 +184,6 @@ class SubscriptionService
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
-
 
         $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
 

@@ -402,7 +402,6 @@ class BillingPortalPurchasev2 extends Component
 
         }
 
-
         return $this;
     }
 
@@ -449,6 +448,8 @@ class BillingPortalPurchasev2 extends Component
             return $this;
 
         $this->buildBundle();
+
+nlog($this->bundle);
 
         return $this;
     }
@@ -535,7 +536,16 @@ class BillingPortalPurchasev2 extends Component
         $this->emit('beforePaymentEventsCompleted');
     }
 
-
+    public function handleTrial()
+    {
+        return $this->subscription->service()->startTrial([
+            'email' => $this->email ?? $this->contact->email,
+            'quantity' => $this->quantity,
+            'contact_id' => $this->contact->id,
+            'client_id' => $this->contact->client->id,
+            'bundle' => $this->bundle,
+        ]);
+    }
 
 
 

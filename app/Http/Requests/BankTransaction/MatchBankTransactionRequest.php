@@ -64,21 +64,22 @@ class MatchBankTransactionRequest extends Request
 
             if(array_key_exists('payment_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['payment_id']) >= 1){
                 $inputs['transactions'][$key]['payment_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['payment_id']);
-                $p = Payment::withTrashed()->find($inputs['transactions'][$key]['payment_id']);
+                $p = Payment::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['payment_id'])->first();
 
                 /*Ensure we don't relink an existing payment*/
-                if(!$p || $p->transaction_id)
-                    $inputs['transactions'][$key]['payment_id'] = null;
+                if(!$p || is_numeric($p->transaction_id)){
+                    unset($inputs['transactions'][$key]);
+                }
 
             }
 
             if(array_key_exists('expense_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['expense_id']) >= 1){
                 $inputs['transactions'][$key]['expense_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['expense_id']);
-                $e = Expense::withTrashed()->find($inputs['transactions'][$key]['expense_id']);
+                $e = Expense::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['expense_id'])->first();
 
                 /*Ensure we don't relink an existing expense*/
-                if(!$e || $e->transaction_id)
-                    $inputs['transactions'][$key]['expense_id'] = null;
+                if(!$e || is_numeric($e->transaction_id))
+                    unset($inputs['transactions'][$key]['expense_id']);
 
             }
 
