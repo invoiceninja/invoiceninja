@@ -72,3 +72,23 @@
 
     <script src="{{ asset('js/clients/payments/authorize-credit-card-payment.js') }}"></script>
 @endsection
+
+@push('footer')
+<script defer>
+ 
+$(function() {
+
+    document.getElementsByClassName("expiry")[0].addEventListener('change', function() {
+
+    str = document.getElementsByClassName("expiry")[0].value.replace(/\s/g, '');
+    const expiryArray = str.split("/");
+
+    document.getElementsByName('expiry-month')[0].value = expiryArray[0];
+    document.getElementsByName('expiry-year')[0].value = expiryArray[1];
+
+    });
+
+});
+
+</script>
+@endpush

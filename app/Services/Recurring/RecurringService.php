@@ -127,7 +127,7 @@ class RecurringService
     
         if($this->recurring_entity instanceof RecurringInvoice && $this->recurring_entity->status_id == RecurringInvoice::STATUS_DRAFT){
             $this->start()->save();
-            SendRecurring::dispatchSync($this->recurring_entity, $this->recurring_entity->company->db); 
+           (new SendRecurring($this->recurring_entity, $this->recurring_entity->company->db))->handle(); 
         }
 
         $this->recurring_entity = $this->recurring_entity->fresh();

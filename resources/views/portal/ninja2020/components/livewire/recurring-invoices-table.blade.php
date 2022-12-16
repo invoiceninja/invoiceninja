@@ -53,7 +53,7 @@
                                 {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                                {{ $invoice->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()) }}
+                                {{ $invoice->translateDate(\Carbon\Carbon::parse($invoice->next_send_date)->subSeconds($invoice->client->timezone_offset()), $invoice->client->date_format(), $invoice->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $invoice->remaining_cycles == '-1' ? ctrans('texts.endless') : $invoice->remaining_cycles }}

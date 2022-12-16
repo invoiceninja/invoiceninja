@@ -16,6 +16,7 @@ use App\Factory\ExpenseFactory;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Expense;
 use App\Utils\Traits\GeneratesCounter;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\QueryException;
 
@@ -31,12 +32,12 @@ class ExpenseRepository extends BaseRepository
     /**
      * Saves the expense and its contacts.
      *
-     * @param      array  $data    The data
-     * @param      \App\Models\Expense              $expense  The expense
+     * @param      array                     $data     The data
+     * @param      \App\Models\Expense       $expense  The expense
      *
-     * @return     \App\Models\Expense|null  expense Object
+     * @return     \App\Models\Expense 
      */
-    public function save(array $data, Expense $expense): ?Expense
+    public function save(array $data, Expense $expense): Expense
     {
         $expense->fill($data);
 
@@ -71,6 +72,12 @@ class ExpenseRepository extends BaseRepository
         );
     }
 
+    /**
+     * @param mixed $data 
+     * @param mixed $expense 
+     * @return Expense 
+     * @throws InvalidFormatException 
+     */
     public function processExchangeRates($data, $expense): Expense
     {
         if (array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1) {

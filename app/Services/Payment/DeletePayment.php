@@ -17,24 +17,26 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class DeletePayment
 {
-    public $payment;
+    private float $_paid_to_date_deleted = 0;
 
-    private $activity_repository;
+    /**
+     * @param mixed $payment 
+     * @return void 
+     */
+    public function __construct(public Payment $payment, private bool $update_client_paid_to_date) {}
 
-    public function __construct($payment)
-    {
-        $this->payment = $payment;
-
-        $this->activity_repository = new ActivityRepository();
-    }
-
+    /**
+     * @return mixed 
+     * @throws BindingResolutionException 
+     */
     public function run()
     {
 
-        \DB::connection(config('database.default'))->transaction(function ()  {
+        \DB::connection(config('database.default'))->transaction(function () {
 
 
             if ($this->payment->is_deleted) {
@@ -46,7 +48,6 @@ class DeletePayment
             $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
                 ->updateCreditables() //return the credits first
                 ->adjustInvoices()
-                ->updateClient()
                 ->deletePaymentables()
                 ->cleanupPayment()
                 ->save();
@@ -58,6 +59,7 @@ class DeletePayment
     
     }
 
+    /** @return $this  */
     private function cleanupPayment()
     {
         $this->payment->is_deleted = true;
@@ -66,6 +68,7 @@ class DeletePayment
         return $this;
     }
 
+    /** @return $this  */
     private function deletePaymentables()
     {
         $this->payment->paymentables()->update(['deleted_at' => now()]);
@@ -73,20 +76,16 @@ class DeletePayment
         return $this;
     }
 
-    private function updateClient()
-    {
-        //$this->payment->client->service()->updatePaidToDate(-1 * $this->payment->amount)->save();
-
-        return $this;
-    }
-
+    /** @return $this  */
     private function adjustInvoices()
     {
+        $this->_paid_to_date_deleted = 0;
+        
         if ($this->payment->invoices()->exists()) {
             $this->payment->invoices()->each(function ($paymentable_invoice) {
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
 
-                $client = $this->payment->client->fresh();
+                $this->_paid_to_date_deleted += $net_deletable;
 
                 nlog("net deletable amount - refunded = {$net_deletable}");
 
@@ -105,7 +104,7 @@ class DeletePayment
                     $client = $this->payment
                                    ->client
                                    ->service()
-                                   ->updateBalance($net_deletable)
+                                   ->updateBalanceAndPaidToDate($net_deletable, $net_deletable*-1)
                                    ->save();
 
                     if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
@@ -114,46 +113,30 @@ class DeletePayment
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
                 } else {
-                    $paymentable_invoice->restore();
 
-                    //If the invoice is deleted we only update the meta data on the invoice
-                    //and reduce the clients paid to date
+                    $paymentable_invoice->restore();
                     $paymentable_invoice->service()
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
                 }
 
-                $transaction = [
-                    'invoice' => $paymentable_invoice->transaction_event(),
-                    'payment' => $this->payment->transaction_event(),
-                    'client' => $client->transaction_event(),
-                    'credit' => [],
-                    'metadata' => [],
-                ];
-
-                // TransactionLog::dispatch(TransactionEvent::PAYMENT_DELETED, $transaction, $paymentable_invoice->company->db);
             });
         }
 
-        $this->payment
-        ->client
-        ->service()
-        ->updatePaidToDate(($this->payment->amount - $this->payment->refunded) * -1)
-        ->save();
-
-        $transaction = [
-            'invoice' => [],
-            'payment' => [],
-            'client' => $this->payment->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $this->payment->company->db);
-
+        //sometimes the payment is NOT created properly, this catches the payment and prevents the paid to date reducing inappropriately.
+        if($this->update_client_paid_to_date)
+        {
+            $this->payment
+            ->client
+            ->service()
+            ->updatePaidToDate(min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1))
+            ->save();
+        }
+    
         return $this;
     }
 
+    /** @return $this  */
     private function updateCreditables()
     {
         if ($this->payment->credits()->exists()) {
@@ -183,6 +166,10 @@ class DeletePayment
         return $this;
     }
 
+    /**
+     * @param mixed $status 
+     * @return $this 
+     */
     private function setStatus($status)
     {
         $this->payment->status_id = Payment::STATUS_CANCELLED;

@@ -226,12 +226,6 @@ abstract class QueryFilters
             return $this->builder->where('is_deleted', 0);
         }
 
-        // if($value == 'true'){
-
-        //     $this->builder->withTrashed();
-
-        // }
-
         return $this->builder;
     }
 

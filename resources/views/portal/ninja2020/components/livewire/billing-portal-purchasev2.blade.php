@@ -3,12 +3,34 @@
         <div class="w-full p-4 md:max-w-3xl">
             <div class="w-full mb-4">
                 <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
-                <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-6">
+                <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-6  border-b-2">
                 {{ $subscription->name }}
                 </h1>
             </div>
-            <form wire:submit.prevent="submit">
 
+            @if(isset($invoice))
+            <div class="flex items-center mt-4 text-sm">
+                <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+                      method="post"
+                      id="payment-method-form">
+                    @csrf
+
+                    @if($invoice instanceof \App\Models\Invoice)
+                        <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+                        <input type="hidden" name="payable_invoices[0][amount]"
+                               value="{{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
+                        <input type="hidden" name="payable_invoices[0][invoice_id]"
+                               value="{{ $invoice->hashed_id }}">
+                    @endif
+
+                    <input type="hidden" name="action" value="payment">
+                    <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
+                    <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
+                </form>
+            </div>
+            @endif
+
+            <form wire:submit.prevent="submit">
             <!-- Recurring Plan Products-->
             <ul role="list" class="-my-6 divide-y divide-gray-200">
             @if(!empty($subscription->recurring_product_ids))
@@ -16,7 +38,7 @@
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -42,7 +64,6 @@
                                         @endfor
                                     </select>
                             </div>
-
                             @endif
                         </div>
                         @error("data.{$index}.recurring_qty") 
@@ -60,8 +81,8 @@
                 @foreach($products as $product)
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center  p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -88,7 +109,7 @@
 
         @if(!empty($subscription->optional_recurring_product_ids) || !empty($subscription->optional_product_ids))
         <div class="w-full p-4 md:max-w-3xl">
-            <h2 class="text-2xl font-normal text-left border-b-4">Optional products</h2>
+            <h2 class="text-2xl font-normal text-left border-b-2">{{ ctrans('texts.optional_products') }}</h2>
         </div>
         @endif
         <div class="w-full px-4 md:max-w-3xl">
@@ -98,18 +119,17 @@
                 @if(!empty($subscription->optional_recurring_product_ids))
                     @foreach($optional_recurring_products as $index => $product)
                         <li class="flex py-6">
-                      @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
-                      </div>
-                      @endif
+                          @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
+                          <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
+                          </div>
+                          @endif
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
                                 <h3>{!! nl2br($product->notes) !!}</h3>
-                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} </p>
+                                <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
-                              
                             </div>
                             <div class="flex justify-between text-sm mt-1">
                                 @if(is_numeric($product->custom_value2))
@@ -126,7 +146,7 @@
                                         @endif
                                         >
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -141,8 +161,8 @@
                     @foreach($optional_products as $index => $product)
                         <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
-                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                      <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                           <div class="ml-0 flex flex-1 flex-col">
@@ -164,7 +184,7 @@
                                     @endif
                                     <select wire:model.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity,$product->custom_value2) : $product->custom_value2); $i++)
+                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->custom_value2)) : min(100,$product->custom_value2)); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -187,10 +207,10 @@
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>
 
-                @foreach($bundle as $item)
+                @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
                       <span class="font-light text-sm uppercase">{{$item['product']}} x {{$item['qty']}}</span>
-                      <span class="font-semibold text-sm">{{ $item['price'] }}</span>
+                      <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach
 
@@ -214,7 +234,7 @@
                     </form>
                 @endif
 
-                <div class="border-t-2 border-gray-200 border-opacity-50 mt-4">
+                <div class="border-gray-200 border-opacity-50 mt-4">
                     @if($discount)
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.subtotal') }}</span>
@@ -230,9 +250,55 @@
                         <span>{{ $total }}</span>
                     </div>
 
-                    @if($authenticated)
-                    <button class="bg-white font-semibold hover:bg-gray-600 py-3 text-sm text-blue-500 uppercase w-full">Checkout</button>
-                    @else
+                    <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started'), toggle: @entangle('payment_confirmed'), buttonDisabled: false}" x-show.important="open" x-transition>
+                    <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
+                        @if (session()->has('message'))
+                            @component('portal.ninja2020.components.message')
+                                {{ session('message') }}
+                            @endcomponent
+                        @endif
+                        @if($subscription->trial_enabled)
+                            <form wire:submit.prevent="handleTrial" class="mt-8">
+                            @csrf
+                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            {{ ctrans('texts.trial_call_to_action') }}
+                            </button>
+                            </form>
+                        @elseif(count($methods) > 0)
+                        <div class="mt-4" x-show.important="!toggle" x-transition>
+                            @foreach($methods as $method)
+                                <button
+                                    x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    {{ $method['label'] }}
+                                </button>
+                            @endforeach
+                        </div>
+                        @elseif(intval($float_amount_total) == 0)
+                            <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                                @csrf
+                                <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    {{ ctrans('texts.click_to_continue') }}
+                                </button>
+                            </form>
+                        @endif
+
+                        <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
+                            <span class="">
+                                <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
+                                     fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-75" cx="12" cy="12" r="10" stroke="hsl(210, 70, 75)" stroke-linecap="round"
+                                            stroke-width="4" animation="dash 1.5s ease-in-out infinite"></circle>
+                                    <path class="opacity-75" fill="#fff"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        
+                    </div>
+
+                    @if(!$email || $errors->has('email'))
                     <form wire:submit.prevent="handleEmail" class="">
                     @csrf
                         <div class="mt-4">
@@ -250,7 +316,7 @@
                           </div>
                             @error("email") 
                             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                                <span class="block sm:inline">{{ $message }} </span>
+                                <span class="block sm:inline text-sm">{{ $message }} </span>
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                             @enderror
@@ -259,10 +325,13 @@
                     </form>
                     @endif
 
-                    @if($email && !$errors->has('email'))
-                    <div class="py-6 px-6 w-80 border mx-auto text-center my-6">
+                    @if($email && !$errors->has('email') && !$authenticated)
+                    <div class="w-full mx-auto text-center my-2">
+                        <p class="w-full p-2">{{ ctrans('texts.otp_code_message', ['email' => $email])}}</p>
+                    </div>
+                    <div class="pb-6 px-6 w-80 mx-auto text-center">
                         <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
-                            <p class="mb-4">{{ ctrans('texts.otp_code_message')}}</p>
+                            <p class="mb-4"></p>
                             <div class="flex justify-between">
                               <template x-for="(input, index) in length" :key="index">
                                 <input
@@ -276,6 +345,7 @@
                                 />
                               </template>
                             </div>
+                            
                         </form>
                         @error("login") 
                             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -283,6 +353,9 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                         @enderror
+                        <div class="flex w-full place-content-end mb-0 mt-4">
+                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-gray-300 bg-gray-50 px-1 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ ctrans('texts.reset') }}</button>
+                        </div>
                     </div>
                     @endif
                 </div>
