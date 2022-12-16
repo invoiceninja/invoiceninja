@@ -21,6 +21,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
+use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 use App\Utils\Number;
@@ -37,7 +38,7 @@ class BACS
     public function authorizeView(array $data)
     {
         $customer = $this->stripe->findOrCreateCustomer();
-        $session = $this->stripe->Checkout->Session::create([
+        $session = Session::create([
             'payment_method_types' => ['bacs_debit'],
             'mode' => 'setup',
             'customer' => $customer->id,
