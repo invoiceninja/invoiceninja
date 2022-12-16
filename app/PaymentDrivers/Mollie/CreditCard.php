@@ -70,6 +70,7 @@ class CreditCard
                     'sequenceType' => 'recurring',
                     'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
                     'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
+                    'idempotencyKey' => uniqid("st",true),
                     'metadata' => [
                         'client_id' => $this->mollie->client->hashed_id,
                         'hash' => $this->mollie->payment_hash->hash,
