@@ -118,6 +118,36 @@ class SubscriptionRepository extends BaseRepository
         return $line_items;
     }
 
+    public function generateBundleLineItems($bundle, $is_recurring = false, $is_credit = false)
+    {
+        $multiplier = $is_credit ? -1 : 1;
+
+        $line_items = [];
+
+        $line_items = collect($bundle)->filter(function ($item){
+
+            return $item->is_recurring;
+            
+        })->map(function ($item){
+
+                $line_item = new InvoiceItem;
+                $line_item->product_key = $item->product_key;
+                $line_item->quantity = (float)$item->qty;
+                $line_item->cost = (float)$item->unit_cost;
+                $line_item->notes = $item->description;
+
+                return $line_item;
+            
+
+        })->toArray();
+
+
+        $line_items = $this->cleanItems($line_items);
+
+        return $line_items;
+    }
+
+
     private function makeLineItem($product, $multiplier)
     {
         $item = new InvoiceItem;

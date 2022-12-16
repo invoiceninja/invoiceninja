@@ -118,14 +118,11 @@ class TemplateEmail extends Mailable
                 'logo' => $this->company->present()->logo($settings),
             ]);
 
-
-        //22-10-2022 - Performance - To improve the performance/reliability of sending emails, attaching as Data is much better, stubs in place
         foreach ($this->build_email->getAttachments() as $file) {
             if(array_key_exists('file', $file))
                 $this->attachData(base64_decode($file['file']), $file['name']);
             else
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-
         }
 
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {

@@ -42,6 +42,7 @@ class UpdateVendorRequest extends Request
         }
         
         $rules['contacts.*.email'] = 'nullable|distinct';
+        $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
 
         return $rules;
     }

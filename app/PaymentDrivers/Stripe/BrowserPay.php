@@ -229,6 +229,6 @@ class BrowserPay implements MethodInterface
             $domain = config('ninja.app_url');
         }
 
-        return str_replace('https://', '', $domain);
+        return str_replace(['https://', '/public'], '', $domain);
     }
 }

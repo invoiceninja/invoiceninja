@@ -60,7 +60,7 @@ class BankTransactionSync implements ShouldQueue
 
                         $account->bank_integrations()->where('auto_sync', true)->cursor()->each(function ($bank_integration) use ($account){
                             
-                            ProcessBankTransactions::dispatchSync($account->bank_integration_account_id, $bank_integration);
+                            (new ProcessBankTransactions($account->bank_integration_account_id, $bank_integration))->handle();
 
                         });
 

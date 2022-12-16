@@ -110,7 +110,7 @@ class Csv extends BaseImport implements ImportInterface
         
         nlog("bank matching co id = {$this->company->id}");
 
-        BankMatchingService::dispatchSync($this->company->id, $this->company->db);
+        (new BankMatchingService($this->company->id, $this->company->db))->handle();
 
     }
 

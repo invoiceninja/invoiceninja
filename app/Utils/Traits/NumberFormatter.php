@@ -22,7 +22,6 @@ trait NumberFormatter
 
         return number_format($this->parseFloat(rtrim(sprintf('%f', $value), '0')), $precision, '.', '');
 
-        // return number_format($this->parseFloat($value), $precision, '.', '');
     }
 
     /**

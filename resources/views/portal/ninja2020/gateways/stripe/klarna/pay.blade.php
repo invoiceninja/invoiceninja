@@ -2,17 +2,23 @@
 
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
-    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
-    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+        <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+        <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
     @else
-    <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
+        <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
     <meta name="return-url" content="{{ $return_url }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="email" content="{{ $gateway->client->present()->email() }}">
+    <meta name="address-2" content="{{ $gateway->client->address2 }}">
+    <meta name="address-1" content="{{ $gateway->client->address1 }}">
+    <meta name="city" content="{{ $gateway->client->city }}">
+    <meta name="state" content="{{ $gateway->client->state }}">
+    <meta name="postal_code" content="{{ $gateway->client->postal_code }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
+    <meta name="translation-name-without-special-characters" content="{{ ctrans('texts.name_without_special_characters') }}">
 @endsection
 
 @section('gateway_content')

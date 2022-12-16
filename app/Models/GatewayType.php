@@ -11,8 +11,6 @@
 
 namespace App\Models;
 
-use function Symfony\Component\String\s;
-
 class GatewayType extends StaticModel
 {
     public $timestamps = false;

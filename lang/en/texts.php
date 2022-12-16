@@ -2503,6 +2503,7 @@ $LANG = array(
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
     'sepa' => 'SEPA Direct Debit',
+    'name_without_special_characters' => 'Please enter a name with only the letters a-z and whitespaces',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
@@ -4854,7 +4855,7 @@ $LANG = array(
     'payment_type_Klarna' => 'Klarna',
     'online_payment_email_help' => 'Send an email when an online payment is made',
     'manual_payment_email_help' => 'Send an email when manually entering a payment',
-    'mark_paid_payment_email_help' => 'Send an email when marking an invoice as pad',
+    'mark_paid_payment_email_help' => 'Send an email when marking an invoice as paid',
     'linked_transaction' => 'Successfully linked transaction',
     'link_payment' => 'Link Payment',
     'link_expense' => 'Link Expense',
@@ -4895,7 +4896,17 @@ $LANG = array(
     'delete_bank_account' => 'Delete Bank Account',
     'archive_transaction' => 'Archive Transaction',
     'delete_transaction' => 'Delete Transaction',
-    'otp_code_message' => 'Enter the code emailed.'
+    'otp_code_message' => 'We have sent a code to :email enter this code to proceed.',
+    'otp_code_subject' => 'Your one time passcode code',
+    'otp_code_body' => 'Your one time passcode is :code',
+    'delete_tax_rate' => 'Delete Tax Rate',
+    'restore_tax_rate' => 'Restore Tax Rate',
+    'company_backup_file' => 'Select company backup file',
+    'company_backup_file_help' => 'Please upload the .zip file used to create this backup.',
+    'backup_restore' => 'Backup | Restore',
+    'export_company' => 'Create company backup',
+    'backup' => 'Backup',
+    
 );
 
 return $LANG;
