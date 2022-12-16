@@ -198,7 +198,7 @@ class BACS
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
-    private function storePaymentMethod(PaymentMethod $method, $payment_method_id, $customer)
+    private function storePaymentMethod($method, $payment_method_id, $customer)
     {
         try {
             $payment_meta = new \stdClass;
