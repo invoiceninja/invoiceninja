@@ -1031,8 +1031,6 @@ $LANG = array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-
-
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
@@ -4906,7 +4904,16 @@ $LANG = array(
     'backup_restore' => 'Backup | Restore',
     'export_company' => 'Create company backup',
     'backup' => 'Backup',
-    
+    'credit_payment_error' => 'The credit amount can not be greater than the payment amount',
+    'convert_payment_currency_help' => 'Set an exchange rate when entering a manual payment',
+    'convert_expense_currency_help' => 'Set an exchange rate when creating an expense',
+    'matomo_url' => 'Matomo URL',
+    'matomo_id' => 'Matomo Id',
+    'action_add_to_invoice' => 'Add To Invoice',
+    'match_expense' => 'Match Expense',
+    'match_payment' => 'Match Payment',
+    'link_to_payment' => 'Link payment',
+    'link_to_expense' => 'Link Expense',
 );
 
 return $LANG;
