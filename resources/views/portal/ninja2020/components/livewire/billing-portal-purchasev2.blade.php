@@ -207,7 +207,7 @@
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>
 
-                @foreach($bundle as $item)
+                @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
                       <span class="font-light text-sm uppercase">{{$item['product']}} x {{$item['qty']}}</span>
                       <span class="font-semibold text-sm">{{ $item['price'] }}</span>
@@ -257,7 +257,14 @@
                                 {{ session('message') }}
                             @endcomponent
                         @endif
-                        @if(count($methods) > 0)
+                        @if($subscription->trial_enabled)
+                            <form wire:submit.prevent="handleTrial" class="mt-8">
+                            @csrf
+                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            {{ ctrans('texts.trial_call_to_action') }}
+                            </button>
+                            </form>
+                        @elseif(count($methods) > 0)
                         <div class="mt-4" x-show.important="!toggle" x-transition>
                             @foreach($methods as $method)
                                 <button
@@ -268,6 +275,13 @@
                                 </button>
                             @endforeach
                         </div>
+                        @elseif(intval($float_amount_total) == 0)
+                            <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                                @csrf
+                                <button class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    {{ ctrans('texts.click_to_continue') }}
+                                </button>
+                            </form>
                         @endif
 
                         <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
@@ -312,10 +326,12 @@
                     @endif
 
                     @if($email && !$errors->has('email') && !$authenticated)
-                    <div class="py-6 px-6 w-80 mx-auto text-center my-6">
-                        <p class="w-full p-2">{{$email}}</p>
+                    <div class="w-full mx-auto text-center my-2">
+                        <p class="w-full p-2">{{ ctrans('texts.otp_code_message', ['email' => $email])}}</p>
+                    </div>
+                    <div class="pb-6 px-6 w-80 mx-auto text-center">
                         <form wire:submit.prevent="handleLogin" class="" x-data="otpForm()">
-                            <p class="mb-4">{{ ctrans('texts.otp_code_message')}}</p>
+                            <p class="mb-4"></p>
                             <div class="flex justify-between">
                               <template x-for="(input, index) in length" :key="index">
                                 <input
