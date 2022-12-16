@@ -3,7 +3,7 @@
         <div class="w-full p-4 md:max-w-3xl">
             <div class="w-full mb-4">
                 <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
-                <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-6">
+                <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-6  border-b-2">
                 {{ $subscription->name }}
                 </h1>
             </div>
@@ -38,7 +38,7 @@
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -82,7 +82,7 @@
                     <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center  p-2">
                       </div>
                       @endif
                       <div class="ml-0 flex flex-1 flex-col">
@@ -109,7 +109,7 @@
 
         @if(!empty($subscription->optional_recurring_product_ids) || !empty($subscription->optional_product_ids))
         <div class="w-full p-4 md:max-w-3xl">
-            <h2 class="text-2xl font-normal text-left border-b-4">Optional products</h2>
+            <h2 class="text-2xl font-normal text-left border-b-2">{{ ctrans('texts.optional_products') }}</h2>
         </div>
         @endif
         <div class="w-full px-4 md:max-w-3xl">
@@ -121,7 +121,7 @@
                         <li class="flex py-6">
                           @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                           <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                            <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
                           </div>
                           @endif
                           <div class="ml-0 flex flex-1 flex-col">
@@ -162,7 +162,7 @@
                         <li class="flex py-6">
                       @if(filter_var($product->custom_value1, FILTER_VALIDATE_URL))
                       <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 mr-2">
-                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center">
+                        <img src="{{$product->custom_value1}}" alt="" class="h-full w-full object-cover object-center p-2">
                       </div>
                       @endif
                           <div class="ml-0 flex flex-1 flex-col">
@@ -210,7 +210,7 @@
                 @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
                       <span class="font-light text-sm uppercase">{{$item['product']}} x {{$item['qty']}}</span>
-                      <span class="font-semibold text-sm">{{ $item['price'] }}</span>
+                      <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach
 
@@ -234,7 +234,7 @@
                     </form>
                 @endif
 
-                <div class="border-t-2 border-gray-200 border-opacity-50 mt-4">
+                <div class="border-gray-200 border-opacity-50 mt-4">
                     @if($discount)
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.subtotal') }}</span>
@@ -316,7 +316,7 @@
                           </div>
                             @error("email") 
                             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                                <span class="block sm:inline">{{ $message }} </span>
+                                <span class="block sm:inline text-sm">{{ $message }} </span>
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                             @enderror
