@@ -52,7 +52,7 @@ class BACS
     }
     private function buildReturnUrl(): string
     {
-        return route('client.payments.store', [
+        return route('client.payment_methods.store', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
             'payment_method_id' => GatewayType::BACS,
             'session_id' => "{CHECKOUT_SESSION_ID}",
