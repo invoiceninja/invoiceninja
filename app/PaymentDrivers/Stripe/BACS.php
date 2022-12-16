@@ -29,6 +29,7 @@ use App\Utils\Number;
 class BACS
 {
     public $stripe;
+    public $session;
 
     public function __construct(StripePaymentDriver $stripe)
     {
@@ -45,14 +46,16 @@ class BACS
             'success_url' => $this->buildReturnUrl(),
             'cancel_url' => 'https://example.com/cancel',
         ]);
+        $session = $data['session'];
 
         return render('gateways.stripe.bacs.authorize', $data);
     }
     private function buildReturnUrl(): string
     {
-        return route('client.payments.response', [
+        return route('client.payments.store', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
             'payment_method_id' => GatewayType::BACS,
+            'session_id' => "{CHECKOUT_SESSION_ID}",
         ]);
     }
 

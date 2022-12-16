@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\PaymentMethod\CreatePaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
