@@ -68,14 +68,6 @@ class BACS
         }
         return redirect()->route('client.payment_methods.index');
     }
-    private function buildPaymentUrl(): string
-    {
-        return route('client.payments.response', [
-            'method' => GatewayType::BACS,
-            'session_id' => "{CHECKOUT_SESSION_ID}",
-        ]);
-    }
-
     public function paymentView(array $data)
     {
 
@@ -97,7 +89,6 @@ class BACS
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this->stripe;
-        $data['payment_url'] = $this->buildPaymentUrl();
 
         return render('gateways.stripe.bacs.pay', $data);
     }
