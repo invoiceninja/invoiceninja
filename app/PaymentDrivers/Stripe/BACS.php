@@ -78,6 +78,7 @@ class BACS
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $description,
+            'payment_method_types' => ['bacs_debit'],
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BACS,
