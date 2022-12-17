@@ -35,6 +35,7 @@ class ProcessBACS {
     };
 
     handle = () => {
+
         if (this.onlyAuthorization) {
             document.getElementById('authorize-bacs').addEventListener('click', (e) => {
                 document.getElementById('authorize-bacs').disabled = true;
@@ -43,6 +44,20 @@ class ProcessBACS {
                 location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
             });}
         else{
+
+            Array.from(
+                document.getElementsByClassName('toggle-payment-with-token')
+            ).forEach((element) =>
+                element.addEventListener('click', (element) => {
+                    document
+                        .getElementById('stripe--payment-container')
+                        .classList.add('hidden');
+                    document.getElementById('save-card--container').style.display =
+                        'none';
+                    document.querySelector('input[name=token]').value =
+                        element.target.dataset.token;
+                })
+            );
             document.getElementById('pay-now').addEventListener('click', (e) => {
                 let payNowButton = document.getElementById('pay-now');
                 this.payNowButton = payNowButton;
