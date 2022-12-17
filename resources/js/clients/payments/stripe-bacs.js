@@ -51,11 +51,36 @@ class ProcessBACS {
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
                 this.stripe.confirmBacsDebitPayment(
-                    document.querySelector('meta[name=pi-client-secret').content,
-                                    );
+                    document.querySelector('meta[name=pi-client-secret').content, {
+                    payment_method: token}).then((result) => {
+                    if (result.error) {
+                        return this.handleFailure(result.error.message);
+                    }
+
+                    return this.handleSuccess(result);
+                });
             });
         }
     };
+
+    handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
+    handleSuccess(result) {
+        document.querySelector(
+            'input[name="gateway_response"]'
+        ).value = JSON.stringify(result.paymentIntent);
+
+        document.getElementById('server-response').submit();
+    }
 }
 
 const publishableKey = document.querySelector(

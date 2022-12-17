@@ -18,8 +18,6 @@
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
-        <input type="hidden" name="store_card">
-        <input type="hidden" name="token">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
