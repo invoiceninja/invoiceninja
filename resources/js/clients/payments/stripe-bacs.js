@@ -50,15 +50,20 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
-                this.stripe.confirmBacsDebitPayment(
-                    document.querySelector('meta[name=pi-client-secret]').content, {
-                    payment_method: token}).then((result) => {
-                    if (result.error) {
-                        return this.handleFailure(result.error.message);
-                    }
+                this.stripe
+                    .confirmBacsDebitPayment(
+                        document.querySelector('meta[name=pi-client-secret')
+                            .content, {
+                            payment_method: document.querySelector('input[name=token]').value
+                        }
+                    )
+                    .then((result) => {
+                        if (result.error) {
+                            return this.handleFailure(result.error.message);
+                        }
 
-                    return this.handleSuccess(result);
-                });
+                        return this.handleSuccess(result);
+                    });
             });
         }
     };
