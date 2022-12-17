@@ -148,7 +148,11 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
-        } else {
+        } elseif ($cgt->gateway_type_id == GatewayType::BACS){
+            $payment_method_type = PaymentType::SEPA;
+            $status = Payment::STATUS_PENDING;
+        }
+        else {
 
             if(isset($response->latest_charge)) {
                 $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
@@ -209,6 +213,8 @@ class Charge
                 break;
             case PaymentType::SEPA:
                 return PaymentType::SEPA;
+            case PaymentType::BACS:
+                return PaymentType::BACS;
             default:
                 return PaymentType::CREDIT_CARD_OTHER;
                 break;
