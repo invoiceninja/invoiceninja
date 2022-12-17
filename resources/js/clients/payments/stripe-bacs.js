@@ -51,7 +51,7 @@ class ProcessBACS {
                 this.payNowButton.querySelector('span').classList.add('hidden');
 
                 this.stripe.confirmBecsDebitPayment(
-                    document.querySelector('meta[name=pi-client-secret')
+                    document.querySelector('meta[name=stripe-secret')
                         .content,
                     {}
                 ).then((result) => {

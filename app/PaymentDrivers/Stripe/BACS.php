@@ -58,11 +58,13 @@ class BACS
     public function authorizeResponse($request)
     {
         $this->stripe->init();
-        if ($request->session_id){
+        if ($request->session_id) {
             $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
-        }
-        $this->storePaymentMethod($session, $this->stripe->findOrCreateCustomer());
 
+            $customer = $this->stripe->findOrCreateCustomer();
+            $this->stripe->attach($session->setup_intent->payment_method, $customer);
+            $this->storePaymentMethod($session, $customer);
+        }
         return redirect()->route('client.payment_methods.index');
     }
 
