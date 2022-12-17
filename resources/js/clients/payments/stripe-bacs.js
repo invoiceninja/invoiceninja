@@ -42,22 +42,25 @@ class ProcessBACS {
                 location.href=document.querySelector('meta[name=stripe-redirect-url').content;
             });}
         else{
-            let token = document.querySelector('input[name=token]').value;
-            let payNowButton = document.getElementById('pay-now');
-            this.payNowButton = payNowButton;
-            this.payNowButton.disabled = true;
-            this.payNowButton.querySelector('svg').classList.remove('hidden');
-            this.payNowButton.querySelector('span').classList.add('hidden');
+            document.getElementById('pay-now').addEventListener('click', (e) => {
+                let token = document.querySelector('input[name=token]').value;
+                let payNowButton = document.getElementById('pay-now');
+                this.payNowButton = payNowButton;
+                this.payNowButton.disabled = true;
+                this.payNowButton.querySelector('svg').classList.remove('hidden');
+                this.payNowButton.querySelector('span').classList.add('hidden');
 
-            this.stripe.confirmBecsDebitPayment(
-                document.querySelector('meta[name=pi-client-secret').content,
-                {}
-            ).then((result) => {
-                if (result.error) {
-                    return this.handleFailure(result.error.message);
-                }
+                this.stripe.confirmBecsDebitPayment(
+                    document.querySelector('meta[name=pi-client-secret')
+                        .content,
+                    {}
+                ).then((result) => {
+                    if (result.error) {
+                        return this.handleFailure(result.error.message);
+                    }
 
-                return this.handleSuccess(result);
+                    return this.handleSuccess(result);
+                });
             });
         }
     };
