@@ -50,7 +50,7 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
-                stripe.confirmBacsDebitPayment(
+                this.stripe.confirmBacsDebitPayment(
                     document.querySelector('meta[name=pi-client-secret').content,
                                     );
             });
