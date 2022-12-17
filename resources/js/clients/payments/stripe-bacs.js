@@ -40,7 +40,7 @@ class ProcessBACS {
                 document.getElementById('authorize-bacs').disabled = true;
                 document.querySelector('#authorize-bacs > svg').classList.remove('hidden');
                 document.querySelector('#authorize-bacs > span').classList.add('hidden');
-                location.href=document.querySelector('meta[name=stripe-redirect-url').content;
+                location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
             });}
         else{
             document.getElementById('pay-now').addEventListener('click', (e) => {
@@ -51,7 +51,7 @@ class ProcessBACS {
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
                 this.stripe.confirmBacsDebitPayment(
-                    document.querySelector('meta[name=pi-client-secret').content, {
+                    document.querySelector('meta[name=pi-client-secret]').content, {
                     payment_method: token}).then((result) => {
                     if (result.error) {
                         return this.handleFailure(result.error.message);
