@@ -62,7 +62,8 @@ class BACS
             $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
 
             $customer = $this->stripe->findOrCreateCustomer();
-            $payment_method = $this->stripe->attach($session->setup_intent->payment_method, $customer);
+            $this->stripe->attach($session->setup_intent->payment_method, $customer);
+            $payment_method =  $this->stripe->getStripePaymentMethod($session->setup_intent->payment_method);
             $this->storePaymentMethod($payment_method, $customer);
         }
         return redirect()->route('client.payment_methods.index');
