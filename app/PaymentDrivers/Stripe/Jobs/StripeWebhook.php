@@ -49,6 +49,9 @@ class StripeWebhook implements ShouldQueue
         'charge.failed',
         'payment_intent.succeeded',
         'payment_intent.payment_failed',
+        'mandate.updated',
+        'checkout.session.completed',
+        'payment_method.automatically_updated'
     ];
 
     public function __construct(string $company_key, int $company_gateway_id)

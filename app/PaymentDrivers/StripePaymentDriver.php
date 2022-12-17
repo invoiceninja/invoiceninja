@@ -714,6 +714,13 @@ class StripePaymentDriver extends BaseDriver
                     }
                 }
             }
+        } elseif ($request->type === "payment_method.automatically_updated"){
+            return response()->json([], 200);
+        } elseif ($request->type === "checkout.session.completed"){
+            return response()->json([], 200);
+        } elseif ($request->type === "mandate.updated"){
+
+            return response()->json([], 200);
         }
 
         return response()->json([], 200);
