@@ -149,7 +149,7 @@ class Charge
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
         } elseif ($cgt->gateway_type_id == GatewayType::BACS){
-            $payment_method_type = PaymentType::SEPA;
+            $payment_method_type = PaymentType::BACS;
             $status = Payment::STATUS_PENDING;
         }
         else {
