@@ -50,7 +50,9 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
-                location.href=document.querySelector('meta[name=redirect-url').content + "&payment_id=" + token;
+                stripe.confirmBacsDebitPayment(
+                    document.querySelector('meta[name=pi-client-secret').content,
+                                    );
             });
         }
     };
