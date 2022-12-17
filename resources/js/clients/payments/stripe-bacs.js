@@ -49,11 +49,6 @@ class ProcessBACS {
                 document.getElementsByClassName('toggle-payment-with-token')
             ).forEach((element) =>
                 element.addEventListener('click', (element) => {
-                    document
-                        .getElementById('stripe--payment-container')
-                        .classList.add('hidden');
-                    document.getElementById('save-card--container').style.display =
-                        'none';
                     document.querySelector('input[name=token]').value =
                         element.target.dataset.token;
                 })
