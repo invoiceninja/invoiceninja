@@ -89,6 +89,9 @@ class Charge
             if ($cgt->gateway_type_id == GatewayType::SEPA) {
                 $data['payment_method_types'] = ['sepa_debit'];
             }
+            if ($cgt->gateway_type_id == GatewayType::BACS) {
+                $data['payment_method_types'] = ['bacs_debit'];
+            }
 
             /* Should improve token billing with client not present */
             if (!auth()->guard('contact')->check()) {
@@ -158,7 +161,7 @@ class Charge
 
             $status = Payment::STATUS_COMPLETED;
         }
-        
+
         if(!in_array($response?->status, ['succeeded', 'processing'])){
             $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
         }
