@@ -13,6 +13,7 @@ class ProcessBACS {
         this.key = key;
         this.errors = document.getElementById('errors');
         this.stripeConnect = stripeConnect;
+        this.onlyAuthorization = onlyAuthorization;
     }
 
     setupStripe = () => {
