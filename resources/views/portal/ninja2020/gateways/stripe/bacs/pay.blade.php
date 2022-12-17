@@ -9,6 +9,7 @@
     @endif
     <meta name="only-authorization" content="">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
+    <meta name="redirect-url" content="{{ $payment_url }}">
 @endsection
 
 @section('gateway_content')

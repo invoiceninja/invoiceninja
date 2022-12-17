@@ -42,12 +42,12 @@ class BACS
             'payment_method_types' => ['bacs_debit'],
             'mode' => 'setup',
             'customer' => $customer->id,
-            'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildReturnUrl())),
+            'success_url' => str_replace("%7B", "{", str_replace("%7D", "}", $this->buildAuthorizeUrl())),
             'cancel_url' => route('client.payment_methods.index'),
         ]);
         return render('gateways.stripe.bacs.authorize', $data);
     }
-    private function buildReturnUrl(): string
+    private function buildAuthorizeUrl(): string
     {
         return route('client.payment_methods.confirm', [
             'method' => GatewayType::BACS,
@@ -67,6 +67,13 @@ class BACS
             $this->storePaymentMethod($payment_method, $customer);
         }
         return redirect()->route('client.payment_methods.index');
+    }
+    private function buildPaymentUrl(): string
+    {
+        return route('client.payments.response', [
+            'method' => GatewayType::BACS,
+            'session_id' => "{CHECKOUT_SESSION_ID}",
+        ]);
     }
 
     public function paymentView(array $data)
@@ -90,13 +97,14 @@ class BACS
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this->stripe;
+        $data['payment_url'] = $this->buildPaymentUrl();
 
         return render('gateways.stripe.bacs.pay', $data);
     }
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $this->stripe->init();
-
+        nlog($request);
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'payment_hash' => $request->payment_hash,
