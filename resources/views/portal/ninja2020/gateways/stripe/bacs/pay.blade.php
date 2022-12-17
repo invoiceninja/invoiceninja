@@ -25,7 +25,7 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
-        {{ ctrans('texts.sepa') }} ({{ ctrans('texts.bank_transfer') }})
+        {{ ctrans('texts.bacs') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
