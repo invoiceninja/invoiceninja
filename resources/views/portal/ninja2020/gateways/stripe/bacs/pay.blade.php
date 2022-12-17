@@ -7,9 +7,6 @@
     @else
         <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
-    <meta name="amount" content="{{ $stripe_amount }}">
-    <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
-    <meta name="si-client-secret" content="{{ $si_client_secret ?? '' }}">
 @endsection
 
 @section('gateway_content')
