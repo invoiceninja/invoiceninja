@@ -34,14 +34,21 @@ class ProcessBACS {
     };
 
     handle = () => {
-        document.getElementById('authorize-bacs').addEventListener('click', (e) => {
-            let errors = document.getElementById('errors');
-
-            document.getElementById('authorize-bacs').disabled = true;
-            document.querySelector('#authorize-bacs > svg').classList.remove('hidden');
-            document.querySelector('#authorize-bacs > span').classList.add('hidden');
-            location.href=document.querySelector('meta[name=stripe-redirect-url').content;
-        });
+        if (this.onlyAuthorization) {
+            document.getElementById('authorize-bacs').addEventListener('click', (e) => {
+                document.getElementById('authorize-bacs').disabled = true;
+                document.querySelector('#authorize-bacs > svg').classList.remove('hidden');
+                document.querySelector('#authorize-bacs > span').classList.add('hidden');
+                location.href=document.querySelector('meta[name=stripe-redirect-url').content;
+            });}
+        else{
+            let token = document.querySelector('input[name=token]').value;
+            let payNowButton = document.getElementById('pay-now');
+            this.payNowButton = payNowButton;
+            this.payNowButton.disabled = true;
+            this.payNowButton.querySelector('svg').classList.remove('hidden');
+            this.payNowButton.querySelector('span').classList.add('hidden');
+        }
     };
 }
 
@@ -51,5 +58,7 @@ const publishableKey = document.querySelector(
 
 const stripeConnect =
     document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+const onlyAuthorization =
+    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
 
 new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();

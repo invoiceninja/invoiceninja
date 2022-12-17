@@ -100,7 +100,6 @@ class BACS
         ];
 
         $state = array_merge($state, $request->all());
-        $state['store_card'] = boolval($state['store_card']);
 
         if ($request->has('token') && ! is_null($request->token)) {
             $state['store_card'] = false;

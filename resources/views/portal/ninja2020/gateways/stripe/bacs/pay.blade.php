@@ -7,6 +7,7 @@
     @else
         <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
+    <meta name="only-authorization" content="">
 @endsection
 
 @section('gateway_content')

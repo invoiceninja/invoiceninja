@@ -9,6 +9,7 @@
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
     <meta name="stripe-redirect-url" content="{{ $session->url }}">
+    <meta name="only-authorization" content="true">
 
 @endsection
 
