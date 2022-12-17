@@ -62,8 +62,8 @@ class BACS
             $session = $this->stripe->stripe->checkout->sessions->retrieve($request->session_id, ['expand' => ['setup_intent']]);
 
             $customer = $this->stripe->findOrCreateCustomer();
-            $this->stripe->attach($session->setup_intent->payment_method, $customer);
-            $this->storePaymentMethod($session, $customer);
+            $payment_method = $this->stripe->attach($session->setup_intent->payment_method, $customer);
+            $this->storePaymentMethod($payment_method, $customer);
         }
         return redirect()->route('client.payment_methods.index');
     }
@@ -202,14 +202,14 @@ class BACS
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) "";
-            $payment_meta->last4 = (string) "";
+            $payment_meta->brand = (string) $method->bacs_debit->sort_code;
+            $payment_meta->last4 = (string) $method->bacs_debit->last4;
             $payment_meta->state = 'authorized';
             $payment_meta->type = GatewayType::BACS;
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $method->setup_intent->payment_method,
+                'token' => $method->id,
                 'payment_method_id' => GatewayType::BACS,
             ];
 
