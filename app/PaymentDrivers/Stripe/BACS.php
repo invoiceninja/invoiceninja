@@ -83,7 +83,7 @@ class BACS
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BACS,
             ],
-            'setup_future_usage' => 'off_session',
+            'confirm' => true,
         ];
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
