@@ -44,7 +44,6 @@ class ProcessBACS {
             });}
         else{
             document.getElementById('pay-now').addEventListener('click', (e) => {
-                let token = document.querySelector('input[name=token]').value;
                 let payNowButton = document.getElementById('pay-now');
                 this.payNowButton = payNowButton;
                 this.payNowButton.disabled = true;
