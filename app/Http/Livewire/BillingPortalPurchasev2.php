@@ -151,7 +151,9 @@ class BillingPortalPurchasev2 extends Component
     public $valid_coupon = false;
     public $payable_invoices = [];
     public $payment_confirmed = false;
-
+    public $is_eligible = true;
+    public $not_eligible_message = '';
+    
     public function mount()
     {
         MultiDB::setDb($this->company->db);
@@ -449,8 +451,6 @@ class BillingPortalPurchasev2 extends Component
 
         $this->buildBundle();
 
-nlog($this->bundle);
-
         return $this;
     }
 
@@ -489,8 +489,19 @@ nlog($this->bundle);
      *
      * @return void
      */
-    public function handleBeforePaymentEvents() :void
+    public function handleBeforePaymentEvents() :self
     {
+
+        $eligibility_check = $this->subscription->service()->isEligible($this->contact);
+
+        if(is_array($eligibility_check) && $eligibility_check['message'] != 'Success'){
+            
+            $this->is_eligible = false;
+            $this->not_eligible_message =$eligibility_check['message'];
+
+            return $this;
+
+        }
 
         $data = [
             'client_id' => $this->contact->client->id,
@@ -501,18 +512,8 @@ nlog($this->bundle);
             ]],
             'user_input_promo_code' => $this->coupon,
             'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            // 'quantity' => $this->quantity,
+
         ];
-
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
-
-        // if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
-        //     $this->steps['not_eligible'] = true;
-        //     $this->steps['not_eligible_message'] = $is_eligible['message'];
-        //     $this->steps['show_loading_bar'] = false;
-
-        //     return;
-        // }
 
         $this->invoice = $this->subscription
             ->service()
@@ -534,6 +535,9 @@ nlog($this->bundle);
         ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
+
+        return $this;
+
     }
 
     public function handleTrial()

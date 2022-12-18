@@ -289,11 +289,8 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $this->subscription->price ,2);
-
-        // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
-        // nlog("invoice amount = {$invoice->amount}");
-        // nlog("pro rata refund = {$pro_rata_refund}");
+        //18-12-2022 - change $this->subscription->price => $invoice->amount if there was a discount on the invoice, we should not use the subscription price.
+        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
 
         return $pro_rata_refund;
 
@@ -323,10 +320,6 @@ class SubscriptionService
 
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
 
-        // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
-        // nlog("invoice amount = {$invoice->amount}");
-        // nlog("pro rata refund = {$pro_rata_refund}");
-
         return $pro_rata_refund;
 
     }
@@ -353,7 +346,6 @@ class SubscriptionService
 
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
-        // $days_in_frequency = $this->getDaysInFrequency();
         $days_in_frequency = $invoice->subscription->service()->getDaysInFrequency();
 
         $ratio = ($days_in_frequency - $days_of_subscription_used)/$days_in_frequency;
@@ -663,7 +655,9 @@ class SubscriptionService
         $credit = CreditFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $credit->date = now()->format('Y-m-d');
         $credit->subscription_id = $this->subscription->id;
-
+        $credit->discount = $last_invoice->discount;
+        $credit->is_amount_discount = $last_invoice->is_amount_discount;
+        
         $line_items = $subscription_repo->generateLineItems($target, false, true);
 
         $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, $last_invoice_is_credit));

@@ -284,6 +284,7 @@
                             </form>
                         @endif
 
+                        @if($is_eligible)
                         <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
                             <span class="">
                                 <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
@@ -295,6 +296,9 @@
                                 </svg>
                             </span>
                         </div>
+                        @else
+                           <small class="mt-4 block">{{ $this->not_eligible_message }}</small>
+                        @endif
                         
                     </div>
 
