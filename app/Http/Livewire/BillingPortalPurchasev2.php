@@ -11,23 +11,30 @@
 
 namespace App\Http\Livewire;
 
+use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
+use App\Mail\Subscription\OtpCode;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\DataMapper\ClientSettings;
+use Illuminate\Validation\Rule;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use InvalidArgumentException;
 use Livewire\Component;
 
 class BillingPortalPurchasev2 extends Component
@@ -47,13 +54,6 @@ class BillingPortalPurchasev2 extends Component
     public $email;
 
     /**
-     * Password model for user input.
-     *
-     * @var string
-     */
-    public $password;
-
-    /**
      * Instance of subscription.
      *
      * @var Subscription
@@ -66,19 +66,6 @@ class BillingPortalPurchasev2 extends Component
      * @var null|ClientContact
      */
     public $contact;
-
-    /**
-     * Rules for validating the form.
-     *
-     * @var \string[][]
-     */
-    // protected $rules = [
-    //     'email' => ['required', 'email'],
-    //     'data' => ['required', 'array'],
-    //     'data.*.recurring_qty' => ['required', 'between:100,1000'],
-    //     'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
-    //     'data.*.optional_qty' => ['required', 'between:100,1000'],
-    // ];
 
     /**
      * Id for CompanyGateway record.
@@ -94,28 +81,10 @@ class BillingPortalPurchasev2 extends Component
      */
     public $payment_method_id;
 
-    private $user_coupon;
-
     /**
-     * List of steps that frontend form follows.
-     *
-     * @var array
+     * Array of front end variables for
+     * the subscription
      */
-    public $steps = [
-        'passed_email' => false,
-        'existing_user' => false,
-        'fetched_payment_methods' => false,
-        'fetched_client' => false,
-        'show_start_trial' => false,
-        'passwordless_login_sent' => false,
-        'started_payment' => false,
-        'discount_applied' => false,
-        'show_loading_bar' => false,
-        'not_eligible' => null,
-        'not_eligible_message' => null,
-        'payment_required' => true,
-    ];
-
     public $data = [];
 
     /**
@@ -154,18 +123,6 @@ class BillingPortalPurchasev2 extends Component
     public $request_data;
 
     /**
-     * @var string
-     */
-    public $price;
-
-    /**
-     * Disabled state of passwordless login button.
-     *
-     * @var bool
-     */
-    public $passwordless_login_btn = false;
-
-    /**
      * Instance of company.
      *
      * @var Company
@@ -179,96 +136,487 @@ class BillingPortalPurchasev2 extends Component
      */
     public $campaign;
 
+    public $bundle;
+    public $recurring_products;
+    public $products;
+    public $optional_recurring_products;
+    public $optional_products;
+    public $total;
+    public $discount;
+    public $sub_total;
+    public $authenticated = false;
+    public $login;
+    public $float_amount_total;
+    public $payment_started = false;
+    public $valid_coupon = false;
+    public $payable_invoices = [];
+    public $payment_confirmed = false;
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
 
-        $this->quantity = 1;
+        $this->discount = 0;
+        $this->sub_total = 0;
+        $this->float_amount_total = 0;
 
         $this->data = [];
 
-        $this->price = $this->subscription->price;
+        $this->price = $this->subscription->price; // ?
 
-        if (request()->query('coupon')) {
+        $this->recurring_products = $this->subscription->service()->recurring_products();
+        $this->products = $this->subscription->service()->products();
+        $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
+        $this->optional_products = $this->subscription->service()->optional_products();
+
+        $this->bundle = collect();
+
+        //every thing below is redundant
+
+        if (request()->query('coupon')) { 
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
         }
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
-            $this->price = $this->subscription->promo_price;
+            $this->price = $this->subscription->promo_price; 
         }
+        
     }
 
-    public function updatingData()
+    public function loginValidation()
     {
-        nlog('updating');
-        // nlog($this->data);
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');   
     }
 
-    public function updatedData()
+    public function handleLogin($user_code)
     {
-        nlog('updated');
-        nlog($this->data);
-        $validatedData = $this->validate();
-        nlog( $validatedData );
+
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');
+
+        $code = Cache::get("subscriptions:otp:{$this->email}");
+
+        if($user_code != $code){
+            $errors = $this->getErrorBag();
+            $errors->add('login', ctrans('texts.invalid_code'));
+            return $this;
+        }
+
+        $contact = ClientContact::where('email', $this->email)
+                                ->where('company_id', $this->subscription->company_id)
+                                ->first();
+
+        if($contact){
+            Auth::guard('contact')->loginUsingId($contact->id, true);
+            $this->contact = $contact;
+        }
+        else {
+            $this->createClientContact();
+        }
+
+        $this->getPaymentMethods();
+
+        $this->authenticated = true;
+        $this->payment_started = true;
+
     }
 
-    public function updated($propertyName)
+    public function resetEmail()
     {
-        nlog("validating {$propertyName}");
-        $this->errors = $this->validateOnly($propertyName);
+        $this->email = null;
+    }
 
-        nlog($this->errors);
-        $validatedData = $this->validate();
-        nlog( $validatedData );
+    public function handleEmail()
+    {
+         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
+     
+         $rand = rand(100000,999999);
+
+         $email_hash = "subscriptions:otp:{$this->email}";
+         
+         Cache::put($email_hash, $rand, 120);
+
+         $this->emailOtpCode($rand);
+    }
+
+    private function emailOtpCode($code)
+    {
+
+        $cc = new ClientContact();
+        $cc->email = $this->email;
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new OtpCode($this->subscription->company, $this->contact, $code);
+        $nmo->company = $this->subscription->company;
+        $nmo->settings = $this->subscription->company->settings;
+        $nmo->to_user = $cc;
+        NinjaMailerJob::dispatch($nmo);
 
     }
 
+    /**
+     * Handle a coupon being entered into the checkout
+     */
+    public function handleCoupon()
+    {
+
+        if($this->coupon == $this->subscription->promo_code) {
+            $this->valid_coupon = true;
+            $this->buildBundle();
+        }
+        else{
+            $this->discount = 0;
+            $this->valid_coupon = false;
+            $this->buildBundle();
+        }
+
+    }
+
+    /**
+     * Build the bundle in the checkout
+     */
+    public function buildBundle()
+    {
+            $this->bundle = collect();
+
+            $data = $this->data;
+
+            /* Recurring products can have a variable quantity */
+            foreach($this->recurring_products as $key => $p)
+            {
+
+                $qty = isset($data[$key]['recurring_qty']) ? $data[$key]['recurring_qty'] : 1;
+                $total = $p->price * $qty;
+
+                $this->bundle->push([
+                    'description' => $p->notes,
+                    'product_key' => $p->product_key,
+                    'unit_cost' => $p->price,
+                    'product' => nl2br(substr($p->notes, 0, 50)),
+                    'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                    'total' => $total,
+                    'qty' => $qty,
+                    'is_recurring' => true,
+                ]);
+            }
+
+            /* One time products can only have a single quantity */
+            foreach($this->products as $key => $p)
+            {
+
+                $qty = 1;
+                $total = $p->price * $qty;
+
+                $this->bundle->push([
+                    'description' => $p->notes,
+                    'product_key' => $p->product_key,
+                    'unit_cost' => $p->price,
+                    'product' => nl2br(substr($p->notes, 0, 50)),
+                    'price' => Number::formatMoney($total, $this->subscription->company),
+                    'total' => $total,
+                    'qty' => $qty,
+                    'is_recurring' => false
+                ]);
+
+            }
+
+            foreach($this->data as $key => $value)
+            {
+
+                /* Optional recurring products can have a variable quantity */
+                if(isset($this->data[$key]['optional_recurring_qty']))
+                {
+                    $p = $this->optional_recurring_products->first(function ($v,$k) use($key){
+                        return $k == $key;
+                    });
+
+                    $qty = isset($this->data[$key]['optional_recurring_qty']) ? $this->data[$key]['optional_recurring_qty'] : false;
+                    $total = $p->price * $qty;
+
+                   if($qty)
+                    {
+
+                        $this->bundle->push([
+                            'description' => $p->notes,
+                            'product_key' => $p->product_key,
+                            'unit_cost' => $p->price,
+                            'product' => nl2br(substr($p->notes, 0, 50)),
+                            'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
+                            'total' => $total,
+                            'qty' => $qty,
+                            'is_recurring' => true
+                        ]);
+
+                    }
+                }
+
+                /* Optional products can have a variable quantity */
+                if(isset($this->data[$key]['optional_qty']))
+                {
+                    $p = $this->optional_products->first(function ($v,$k) use($key){
+                        return $k == $key;
+                    });
+
+                    $qty = isset($this->data[$key]['optional_qty']) ? $this->data[$key]['optional_qty'] : false;
+                    $total = $p->price * $qty;
+
+                    if($qty)
+                    {
+                        $this->bundle->push([
+                            'description' => $p->notes,
+                            'product_key' => $p->product_key,
+                            'unit_cost' => $p->price,
+                            'product' => nl2br(substr($p->notes, 0, 50)),
+                            'price' => Number::formatMoney($total, $this->subscription->company),
+                            'total' => $total,
+                            'qty' => $qty,
+                            'is_recurring' => false
+                        ]);
+                    }
+                    
+                }
+
+            }
+
+        $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->total = $this->sub_total;
+
+        if($this->valid_coupon) 
+        {
+
+            if($this->subscription->is_amount_discount)
+                $discount = $this->subscription->promo_discount;
+            else
+                $discount = round($this->bundle->sum('total') * ($this->subscription->promo_discount / 100), 2);
+
+            $this->discount = Number::formatMoney($discount, $this->subscription->company);
+
+            $this->total = Number::formatMoney(($this->bundle->sum('total') - $discount), $this->subscription->company);
+
+            $this->float_amount_total = ($this->bundle->sum('total') - $discount);
+        }
+        else {
+            $this->float_amount_total = $this->bundle->sum('total');
+            $this->total = Number::formatMoney($this->float_amount_total, $this->subscription->company);
+
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return $this 
+     * @throws PresenterException 
+     * @throws InvalidArgumentException 
+     */
+    private function createClientContact()
+    {
+
+        $company = $this->subscription->company;
+        $user = $this->subscription->user;
+        $user->setCompany($company);
+
+        $client_repo = new ClientRepository(new ClientContactRepository());
+        $data = [
+            'name' => '',
+            'contacts' => [
+                ['email' => $this->email],
+            ],
+            'client_hash' => Str::random(40),
+            'settings' => ClientSettings::defaults(),
+        ];
+
+        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+
+        $this->contact = $client->fresh()->contacts()->first();
+
+        Auth::guard('contact')->loginUsingId($this->contact->id, true);
+
+        return $this;
+    } 
+
+
+    /**
+     * @param mixed $propertyName 
+     * 
+     * @return BillingPortalPurchasev2 
+     */
+    public function updated($propertyName) :self
+    {
+        if(in_array($propertyName, ['login','email']))
+            return $this;
+
+        $this->buildBundle();
+
+nlog($this->bundle);
+
+        return $this;
+    }
+
+    /**
+     * Fetching payment methods from the client.
+     *
+     * @return $this
+     */
+    protected function getPaymentMethods() :self
+    {
+        if($this->contact)
+            $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
+
+        return $this;
+    }
+
+    /**
+     * Middle method between selecting payment method &
+     * submitting the from to the backend.
+     *
+     * @param $company_gateway_id
+     * @param $gateway_type_id
+     */
+    public function handleMethodSelectingEvent($company_gateway_id, $gateway_type_id)
+    {
+        $this->payment_confirmed = true;
+
+        $this->company_gateway_id = $company_gateway_id;
+        $this->payment_method_id = $gateway_type_id;
+
+        $this->handleBeforePaymentEvents();
+    }
+
+    /**
+     * Method to handle events before payments.
+     *
+     * @return void
+     */
+    public function handleBeforePaymentEvents() :void
+    {
+
+        $data = [
+            'client_id' => $this->contact->client->id,
+            'date' => now()->format('Y-m-d'),
+            'invitations' => [[
+                'key' => '',
+                'client_contact_id' => $this->contact->hashed_id,
+            ]],
+            'user_input_promo_code' => $this->coupon,
+            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
+            // 'quantity' => $this->quantity,
+        ];
+
+        $is_eligible = $this->subscription->service()->isEligible($this->contact);
+
+        // if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
+        //     $this->steps['not_eligible'] = true;
+        //     $this->steps['not_eligible_message'] = $is_eligible['message'];
+        //     $this->steps['show_loading_bar'] = false;
+
+        //     return;
+        // }
+
+        $this->invoice = $this->subscription
+            ->service()
+            ->createInvoiceV2($this->bundle, $this->contact->client_id, $this->valid_coupon)
+            ->service()
+            ->markSent()
+            ->fillDefaults()
+            ->adjustInventory()
+            ->save();
+
+        Cache::put($this->hash, [
+            'subscription_id' => $this->subscription->id,
+            'email' => $this->email ?? $this->contact->email,
+            'client_id' => $this->contact->client->id,
+            'invoice_id' => $this->invoice->id,
+            'context' => 'purchase',
+            'campaign' => $this->campaign,
+            'bundle' => $this->bundle,
+        ], now()->addMinutes(60));
+
+        $this->emit('beforePaymentEventsCompleted');
+    }
+
+    public function handleTrial()
+    {
+        return $this->subscription->service()->startTrial([
+            'email' => $this->email ?? $this->contact->email,
+            'quantity' => $this->quantity,
+            'contact_id' => $this->contact->id,
+            'client_id' => $this->contact->client->id,
+            'bundle' => $this->bundle,
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     public function rules()
     {
-         $rules = [
-            'email' => ['required', 'email'],
-            'data' => ['required', 'array'],
-            'data.*.recurring_qty' => ['required', 'between:100,1000'],
-            'data.*.optional_recurring_qty' => ['required', 'between:100,1000'],
-            'data.*.optional_qty' => ['required', 'between:100,1000'],
+        $rules = [
         ];
 
         return $rules;
     }
 
-    /**
-     * Handle user authentication
-     *
-     * @return $this|bool|void
-     */
-    public function authenticate()
+    public function attributes()
     {
-        $this->validate();
+        $attributes = [
+        ];
 
-        $contact = ClientContact::where('email', $this->email)
-            ->where('company_id', $this->subscription->company_id)
-            ->first();
-
-        if ($contact && $this->steps['existing_user'] === false) {
-            return $this->steps['existing_user'] = true;
-        }
-
-        if ($contact && $this->steps['existing_user']) {
-            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
-
-            return $attempt
-                ? $this->getPaymentMethods($contact)
-                : session()->flash('message', 'These credentials do not match our records.');
-        }
-
-        $this->steps['existing_user'] = false;
-
-        $contact = $this->createBlankClient();
-
-        if ($contact && $contact instanceof ClientContact) {
-            $this->getPaymentMethods($contact);
-        }
+        return $attributes;
     }
+
+    public function store()
+    {
+    
+    }
+
+    // /**
+    //  * Handle user authentication
+    //  *
+    //  * @return $this|bool|void
+    //  */
+    // public function authenticate()
+    // {
+    //     $this->validate();
+
+    //     $contact = ClientContact::where('email', $this->email)
+    //         ->where('company_id', $this->subscription->company_id)
+    //         ->first();
+
+    //     if ($contact && $this->steps['existing_user'] === false) {
+    //         return $this->steps['existing_user'] = true;
+    //     }
+
+    //     if ($contact && $this->steps['existing_user']) {
+    //         $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
+
+    //         return $attempt
+    //             ? $this->getPaymentMethods($contact)
+    //             : session()->flash('message', 'These credentials do not match our records.');
+    //     }
+
+    //     $this->steps['existing_user'] = false;
+
+    //     $contact = $this->createBlankClient();
+
+    //     if ($contact && $contact instanceof ClientContact) {
+    //         $this->getPaymentMethods($contact);
+    //     }
+    // }
+
+   
+
 
     /**
      * Create a blank client. Used for new customers purchasing.
@@ -341,212 +689,13 @@ class BillingPortalPurchasev2 extends Component
         return $client->fresh()->contacts->first();
     }
 
-    /**
-     * Fetching payment methods from the client.
-     *
-     * @param ClientContact $contact
-     * @return $this
-     */
-    protected function getPaymentMethods(ClientContact $contact): self
-    {
-        Auth::guard('contact')->loginUsingId($contact->id, true);
 
-        $this->contact = $contact;
-
-        if ($this->subscription->trial_enabled) {
-            $this->heading_text = ctrans('texts.plan_trial');
-            $this->steps['show_start_trial'] = true;
-
-            return $this;
-        }
-
-        if ((int)$this->price == 0)
-            $this->steps['payment_required'] = false;
-        else
-            $this->steps['fetched_payment_methods'] = true;
-
-        $this->methods = $contact->client->service()->getPaymentMethods($this->price);
-
-        $this->heading_text = ctrans('texts.payment_methods');
-
-        return $this;
-    }
-
-    /**
-     * Middle method between selecting payment method &
-     * submitting the from to the backend.
-     *
-     * @param $company_gateway_id
-     * @param $gateway_type_id
-     */
-    public function handleMethodSelectingEvent($company_gateway_id, $gateway_type_id)
-    {
-        $this->company_gateway_id = $company_gateway_id;
-        $this->payment_method_id = $gateway_type_id;
-
-        $this->handleBeforePaymentEvents();
-    }
-
-    /**
-     * Method to handle events before payments.
-     *
-     * @return void
-     */
-    public function handleBeforePaymentEvents()
-    {
-        $this->steps['started_payment'] = true;
-        $this->steps['show_loading_bar'] = true;
-
-        $data = [
-            'client_id' => $this->contact->client->id,
-            'date' => now()->format('Y-m-d'),
-            'invitations' => [[
-                'key' => '',
-                'client_contact_id' => $this->contact->hashed_id,
-            ]],
-            'user_input_promo_code' => $this->coupon,
-            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            'quantity' => $this->quantity,
-        ];
-
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
-
-        if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
-            $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['message'];
-            $this->steps['show_loading_bar'] = false;
-
-            return;
-        }
-
-        $this->invoice = $this->subscription
-            ->service()
-            ->createInvoice($data, $this->quantity)
-            ->service()
-            ->markSent()
-            ->fillDefaults()
-            ->adjustInventory()
-            ->save();
-
-        Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
-            'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
-            'context' => 'purchase',
-            'campaign' => $this->campaign,
-        ], now()->addMinutes(60));
-
-        $this->emit('beforePaymentEventsCompleted');
-    }
-
+    
     /**
      * Proxy method for starting the trial.
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function handleTrial()
-    {
-        return $this->subscription->service()->startTrial([
-            'email' => $this->email ?? $this->contact->email,
-            'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
-        ]);
-    }
-
-    public function handlePaymentNotRequired()
-    {
-
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
-        
-        if ($is_eligible['status_code'] != 200) {
-            $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['message'];
-            $this->steps['show_loading_bar'] = false;
-
-            return;
-        }
-
-
-        return $this->subscription->service()->handleNoPaymentRequired([
-            'email' => $this->email ?? $this->contact->email,
-            'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
-            'coupon' => $this->coupon,
-        ]);
-    }
-
-    /**
-     * Update quantity property.
-     *
-     * @param string $option
-     * @return int
-     */
-    public function updateQuantity(string $option): int
-    {
-        $this->handleCoupon();
-
-        if ($this->quantity == 1 && $option == 'decrement') {
-            $this->price = $this->price * 1;
-            return $this->quantity;
-        }
-
-        if ($this->quantity > $this->subscription->max_seats_limit && $option == 'increment') {
-            $this->price = $this->price * $this->subscription->max_seats_limit;
-            return $this->quantity;
-        }
-
-        if ($option == 'increment') {
-            $this->quantity++;
-            $this->price = $this->price * $this->quantity;
-            return $this->quantity;
-        }
-
-            $this->quantity--;
-            $this->price = $this->price * $this->quantity;
-
-            return $this->quantity;
-    }
-
-    public function handleCoupon()
-    {
-
-        if($this->steps['discount_applied']){
-            $this->price = $this->subscription->promo_price;
-            return;
-        }
-
-        if ($this->coupon == $this->subscription->promo_code) {
-            $this->price = $this->subscription->promo_price;
-            $this->quantity = 1;
-            $this->steps['discount_applied'] = true;
-        }
-        else
-            $this->price = $this->subscription->price;
-    }
-
-    public function passwordlessLogin()
-    {
-        $this->passwordless_login_btn = true;
-
-        $contact = ClientContact::query()
-            ->where('email', $this->email)
-            ->where('company_id', $this->subscription->company_id)
-            ->first();
-
-        $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
-        $mailer->company = $this->subscription->company;
-        $mailer->settings = $this->subscription->company->settings;
-        $mailer->to_user = $contact;
-
-        NinjaMailerJob::dispatch($mailer);
-
-        $this->steps['passwordless_login_sent'] = true;
-        $this->passwordless_login_btn = false;
-    }
 
     public function render()
     {
@@ -555,16 +704,10 @@ class BillingPortalPurchasev2 extends Component
         }
 
         if ($this->contact instanceof ClientContact) {
-            $this->getPaymentMethods($this->contact);
+            $this->getPaymentMethods();
         }
 
         return render('components.livewire.billing-portal-purchasev2');
     }
 
-    public function changeData()
-    {
-
-        nlog($this->data);
-
-    }
 }

@@ -351,7 +351,7 @@ class MolliePaymentDriver extends BaseDriver
 
             if ($record) {
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    $record->service()->deletePayment();
+                    $record->service()->deletePayment(false); //sometimes mollie does not return but we still decrement the paid to date, this is incorrect.
                 }
 
                 $record->status_id = $codes[$payment->status];

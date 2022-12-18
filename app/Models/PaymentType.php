@@ -55,6 +55,8 @@ class PaymentType extends StaticModel
     const ACSS = 44;
     const INSTANT_BANK_PAY = 45;
     const FPX = 46;
+    const KLARNA = 47;
+    const Interac_E_Transfer = 48;
 
     public static function parseCardType($cardName)
     {

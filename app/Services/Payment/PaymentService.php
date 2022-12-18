@@ -87,9 +87,9 @@ class PaymentService
         return ((new RefundPayment($this->payment, $data)))->run();
     }
 
-    public function deletePayment() :?Payment
+    public function deletePayment($update_client_paid_to_date = true) :?Payment
     {
-        return (new DeletePayment($this->payment))->run();
+        return (new DeletePayment($this->payment, $update_client_paid_to_date))->run();
     }
 
     public function updateInvoicePayment(PaymentHash $payment_hash) :?Payment

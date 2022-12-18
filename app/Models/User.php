@@ -212,7 +212,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Returns the current company.
      *
-     * @return Collection
+     * @return App\Models\Company $company
      */
     public function company()
     {

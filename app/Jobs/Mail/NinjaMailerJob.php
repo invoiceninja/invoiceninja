@@ -426,14 +426,14 @@ class NinjaMailerJob implements ShouldQueue
     private function logMailError($errors, $recipient_object)
     {
 
-        SystemLogger::dispatchSync(
+        (new SystemLogger(
             $errors,
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
             $recipient_object,
             $this->nmo->company
-        );
+        ))->handle();
 
         $job_failure = new EmailFailure($this->nmo->company->company_key);
         $job_failure->string_metric5 = 'failed_email';

@@ -63,9 +63,9 @@ class Charge
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         } else {
-            $description = ctrans('texts.stripe_paymenttext_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         }
 
         $this->stripe->init();
@@ -79,7 +79,6 @@ class Charge
                 'payment_method' => $cgt->token,
                 'customer' => $cgt->gateway_customer_reference,
                 'confirm' => true,
-                // 'off_session' => true,
                 'description' => $description,
                 'metadata' => [
                     'payment_hash' => $payment_hash->hash,
@@ -96,7 +95,7 @@ class Charge
                 $data['off_session'] = true;
             }
 
-            $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
+            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {

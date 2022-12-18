@@ -687,7 +687,7 @@ class BankIntegrationController extends BaseController
 
         auth()->user()->account->bank_integrations->each(function ($bank_integration) {
             
-            ProcessBankTransactions::dispatchSync(auth()->user()->account->bank_integration_account_id, $bank_integration);
+            (new ProcessBankTransactions(auth()->user()->account->bank_integration_account_id, $bank_integration))->handle();
 
         });
 

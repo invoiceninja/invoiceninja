@@ -16,6 +16,8 @@ use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * InvoiceFilters.
@@ -136,6 +138,10 @@ class InvoiceFilters extends QueryFilters
         });
     }
 
+    /**
+     * @return Builder 
+     * @throws RuntimeException 
+     */
     public function without_deleted_clients()
     {
 
@@ -144,6 +150,10 @@ class InvoiceFilters extends QueryFilters
                        });
     }
 
+    /**
+     * @return Builder 
+     * @throws InvalidArgumentException 
+     */
     public function upcoming()
     {
         return $this->builder
@@ -154,6 +164,10 @@ class InvoiceFilters extends QueryFilters
                     ->orderBy('due_date', 'ASC');
     }
 
+    /**
+     * @return void 
+     * @throws InvalidArgumentException 
+     */
     public function overdue()
     {
         $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
@@ -165,6 +179,11 @@ class InvoiceFilters extends QueryFilters
                 ->orderBy('due_date', 'ASC');
     }
 
+    /**
+     * @param string $client_id 
+     * @return Builder 
+     * @throws InvalidArgumentException 
+     */
     public function payable(string $client_id = '')
     {
         if (strlen($client_id) == 0) {
@@ -222,8 +241,20 @@ class InvoiceFilters extends QueryFilters
         } else {            
             return $this->builder->company()->with(['invitations.company'], ['documents.company']);
         }
+    }
 
-//            return $this->builder->whereCompanyId(auth()->user()->company()->id);
+    /**
+     * @param string $filter 
+     * @return Builder 
+     * @throws InvalidArgumentException 
+     */
+    public function private_notes($filter = '') :Builder
+    {
+        if (strlen($filter) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('private_notes', 'LIKE', '%'.$filter.'%');
     }
 
     /**
