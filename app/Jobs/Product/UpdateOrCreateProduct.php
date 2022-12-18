@@ -112,10 +112,19 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->tax_rate2 = isset($item->tax_rate2) ? $item->tax_rate2 : 0;
             $product->tax_name3 = isset($item->tax_name3) ? $item->tax_name3 : '';
             $product->tax_rate3 = isset($item->tax_rate3) ? $item->tax_rate3 : 0;
-            $product->custom_value1 = isset($item->custom_value1) ? $item->custom_value1 : '';
-            $product->custom_value2 = isset($item->custom_value2) ? $item->custom_value2 : '';
-            $product->custom_value3 = isset($item->custom_value3) ? $item->custom_value3 : '';
-            $product->custom_value4 = isset($item->custom_value4) ? $item->custom_value4 : '';
+
+            if(isset($item->custom_value1) && strlen($item->custom_value1) >=1)
+                $product->custom_value1 = $item->custom_value1;
+
+            if(isset($item->custom_value2) && strlen($item->custom_value1) >=1)
+                $product->custom_value2 = $item->custom_value2;
+            
+            if(isset($item->custom_value3) && strlen($item->custom_value1) >=1)
+                $product->custom_value3 = $item->custom_value3;
+            
+            if(isset($item->custom_value4) && strlen($item->custom_value1) >=1)
+                $product->custom_value4 = $item->custom_value4;
+                       
             $product->user_id = $this->invoice->user_id;
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;

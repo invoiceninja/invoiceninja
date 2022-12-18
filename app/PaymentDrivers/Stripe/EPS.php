@@ -56,7 +56,7 @@ class EPS
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::EPS,
             ],
-        ], $this->stripe->stripe_connect_auth);
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 

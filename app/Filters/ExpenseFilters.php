@@ -92,6 +92,20 @@ class ExpenseFilters extends QueryFilters
         return $this->builder;
     }
 
+    /**
+     * Returns a list of expenses that can be matched to bank transactions
+     */
+    public function match_transactions($value = '')
+    {
+
+        if($value == 'true')
+        {
+            return $this->builder->where('is_deleted',0)->whereNull('transaction_id');
+        }
+
+        return $this->builder;
+    }
+
 
     /**
      * Filters the list based on the status

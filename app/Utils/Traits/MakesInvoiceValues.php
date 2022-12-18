@@ -264,7 +264,7 @@ trait MakesInvoiceValues
     public function transformLineItems($items, $table_type = '$product') :array
     {   //$start = microtime(true);
 
-        $entity = $this->client ? $this->client : $this->company;
+        $entity = $this->client ? $this->client : $this->vendor;
 
         $data = [];
 

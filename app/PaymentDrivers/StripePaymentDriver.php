@@ -20,6 +20,7 @@ use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Country;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -37,6 +38,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\GIROPAY;
+use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
@@ -97,6 +99,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BECS => BECS::class,
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
+        GatewayType::KLARNA => Klarna::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -116,13 +119,13 @@ class StripePaymentDriver extends BaseDriver
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
-            
+
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            // Stripe::setApiVersion('2022-11-15');
+            Stripe::setApiVersion('2022-11-15');
 
         }
 
@@ -236,7 +239,21 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['CAN', 'USA'])) {
             $types[] = GatewayType::ACSS;
         }
-
+        if ($this->client
+            && $this->client->currency()
+            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF'])
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR'])) {
+            $types[] = GatewayType::KLARNA;
+        }
+        if ($this->client
+            && $this->client->currency()
+            && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
+            && isset($this->client->country)
+            && in_array($this->client->company->country()->getID(), ['840'])
+            && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
+            $types[] = GatewayType::KLARNA;
+        }
         if (
             $this->client
             && isset($this->client->country)
@@ -273,6 +290,9 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::GIROPAY:
                 return 'gateways.stripe.giropay';
+                break;
+            case GatewayType::KLARNA:
+                return 'gateways.stripe.klarna';
                 break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
@@ -387,7 +407,7 @@ class StripePaymentDriver extends BaseDriver
 
         $meta = $this->stripe_connect_auth;
 
-        return PaymentIntent::create($data, $meta);
+        return PaymentIntent::create($data, array_merge($meta, ['idempotency_key' => uniqid("st",true)]));
     }
 
     /**
@@ -404,7 +424,7 @@ class StripePaymentDriver extends BaseDriver
         $params = ['usage' => 'off_session'];
         $meta = $this->stripe_connect_auth;
 
-        return SetupIntent::create($params, $meta);
+        return SetupIntent::create($params, array_merge($meta, ['idempotency_key' => uniqid("st",true)]));
     }
 
     /**
@@ -481,7 +501,7 @@ class StripePaymentDriver extends BaseDriver
         $data['address']['state'] = $this->client->state;
         $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : '';
 
-        $customer = Customer::create($data, $this->stripe_connect_auth);
+        $customer = Customer::create($data, array_merge($this->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
 
         if (! $customer) {
             throw new Exception('Unable to create gateway customer');

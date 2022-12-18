@@ -28,7 +28,6 @@ class GenericReportRequest extends Request
 
     public function rules()
     {
-        nlog($this->date_range);
 
         return [
             'date_range' => 'bail|required|string',

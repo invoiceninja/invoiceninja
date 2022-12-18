@@ -17,6 +17,7 @@ use App\Models\Client as ClientModel;
 use App\Models\SystemLog;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
+use App\Utils\Ninja;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
@@ -65,11 +66,12 @@ class WebhookHandler implements ShouldQueue
      * @return bool
      */
     public function handle()
-    {//todo set multidb here
+    {
 
         MultiDB::setDb($this->company->db);
 
-        if (! $this->company || $this->company->is_disabled) {
+        //If the company is disabled, or if on hosted, the user is not a paid hosted user return early
+        if (! $this->company || $this->company->is_disabled || (Ninja::isHosted() && !$this->company->account->isPaidHostedClient())) {
             return true;
         }
 

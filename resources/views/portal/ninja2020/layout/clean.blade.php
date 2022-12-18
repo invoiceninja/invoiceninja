@@ -3,8 +3,23 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-
-        @if (config('services.analytics.tracking_id'))
+        @if (isset($company) && $company->matomo_url && $company->matomo_id)
+            <script>
+                var _paq = window._paq = window._paq || [];
+                /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+                _paq.push(['trackPageView']);
+                _paq.push(['enableLinkTracking']);
+                _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->company->present()->name }}']);
+                (function() {
+                var u="{{ $company->matomo_url }}";
+                _paq.push(['setTrackerUrl', u+'matomo.php']);
+                _paq.push(['setSiteId', '{{ $company->matomo_id }}']);
+                var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+                })();
+            </script>
+            <noscript><p><img src="{{ $company->matomo_url }}/matomo.php?idsite={{ $company->matomo_id }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+        @elseif (config('services.analytics.tracking_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
@@ -51,9 +66,6 @@
         <script src="{{ asset('vendor/alpinejs@2.8.2/alpine.js') }}" defer></script>
 
         <!-- Fonts -->
-        {{-- <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet" type="text/css" defer>
- --}}
         <style>
             @font-face {
               font-family: 'Open Sans';

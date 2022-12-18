@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire\RecurringInvoices;
 
+use App\Models\Invoice;
 use Livewire\Component;
 
 class UpdateAutoBilling extends Component
@@ -24,6 +25,12 @@ class UpdateAutoBilling extends Component
         if ($this->invoice->auto_bill == 'optin' || $this->invoice->auto_bill == 'optout') {
             $this->invoice->auto_bill_enabled = ! $this->invoice->auto_bill_enabled;
             $this->invoice->saveQuietly();
+
+            Invoice::where('recurring_id', $this->invoice->id)
+                        ->whereIn('status_id', [2,3])
+                        ->where('is_deleted',0)
+                        ->where('balance', '>', 0)
+                        ->update(['auto_bill_enabled' => $this->invoice->auto_bill_enabled]);
         }
     }
 

@@ -12,12 +12,14 @@
 namespace App\Http\Controllers;
 
 use App\Factory\ExpenseCategoryFactory;
+use App\Filters\ExpenseCategoryFilters;
 use App\Http\Requests\ExpenseCategory\CreateExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\DestroyExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\EditExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\ShowExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\StoreExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\UpdateExpenseCategoryRequest;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Repositories\BaseRepository;
 use App\Transformers\ExpenseCategoryTransformer;
@@ -79,12 +81,14 @@ class ExpenseCategoryController extends BaseController
      *
      * @return Response
      */
-    public function index()
+    public function index(ExpenseCategoryFilters $filters)
     {
-        $expense_categories = ExpenseCategory::scope();
+        $expense_categories = ExpenseCategory::filter($filters);
 
         return $this->listResponse($expense_categories);
     }
+
+
 
     /**
      * Show the form for creating a new resource.

@@ -149,6 +149,8 @@ class CompanyTransformer extends EntityTransformer
             'slack_webhook_url' => (string) $company->slack_webhook_url,
             'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate 1-2-2021
             'google_analytics_key' => (string) $company->google_analytics_key,
+            'matomo_url' => (string) $company->matomo_url,
+            'matomo_id' => (string) $company->matomo_id ?: '',
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
             'is_large' => (bool) $company->is_large,
@@ -189,7 +191,8 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_project' => (bool) $company->invoice_task_project,
             'report_include_deleted' => (bool) $company->report_include_deleted,
             'invoice_task_lock' => (bool) $company->invoice_task_lock,
-            'use_vendor_currency' => (bool) $company->use_vendor_currency,
+            'convert_payment_currency' => (bool) $company->convert_payment_currency,
+            'convert_expense_currency' => (bool) $company->convert_expense_currency,
         ];
     }
 

@@ -175,9 +175,9 @@ class InvoiceService
         return $this;
     }
 
-    public function markSent()
+    public function markSent($fire_event = false)
     {
-        $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run();
+        $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run($fire_event);
 
         $this->setExchangeRate();
 

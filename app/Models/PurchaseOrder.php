@@ -239,7 +239,8 @@ class PurchaseOrder extends BaseModel
         return $this->belongsTo(Invoice::class);
     }
 
-    public function service()
+    /** @return PurchaseOrderService  */
+    public function service() :PurchaseOrderService
     {
         return new PurchaseOrderService($this);
     }

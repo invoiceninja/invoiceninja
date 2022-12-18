@@ -63,7 +63,7 @@ class CreditCard
 
         // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
-        $description = ctrans('texts.stripe_paymenttext', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
 
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -112,7 +112,7 @@ class CreditCard
             $state['store_card'] = false;
         }
 
-        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, $this->stripe->stripe_connect_auth);
+        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
         $state['customer'] = $state['payment_intent']->customer;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);

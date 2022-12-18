@@ -35,17 +35,14 @@ class UpdateVendorRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
 
-        $rules['country_id'] = 'integer|nullable';
+        $rules['country_id'] = 'integer';
 
         if ($this->number) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
         }
-
-        // if($this->id_number)
-        //     $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
-
+        
         $rules['contacts.*.email'] = 'nullable|distinct';
-        // $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
+        $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
 
         return $rules;
     }
@@ -66,6 +63,9 @@ class UpdateVendorRequest extends Request
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
+
+        if(array_key_exists('country_id', $input) && is_null($input['country_id']))
+            unset($input['country_id']);
 
         $input = $this->decodePrimaryKeys($input);
 

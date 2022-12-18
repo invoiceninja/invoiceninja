@@ -142,13 +142,13 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $this->invitation->opened_date = now();
         $this->invitation->save();
 
-        SystemLogger::dispatchSync($this->request, 
+        (new SystemLogger($this->request, 
             SystemLog::CATEGORY_MAIL, 
             SystemLog::EVENT_MAIL_OPENED, 
             SystemLog::TYPE_WEBHOOK_RESPONSE, 
             $this->invitation->contact->client,
             $this->invitation->company
-        );
+        ))->handle();
 
     }
 
@@ -171,13 +171,13 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $this->invitation->email_status = 'delivered';
         $this->invitation->save();
 
-        SystemLogger::dispatchSync($this->request, 
+        (new SystemLogger($this->request, 
             SystemLog::CATEGORY_MAIL, 
             SystemLog::EVENT_MAIL_DELIVERY, 
             SystemLog::TYPE_WEBHOOK_RESPONSE, 
             $this->invitation->contact->client,
             $this->invitation->company
-        );
+        ))->handle();
     }
 
 // {
@@ -219,7 +219,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         LightLogs::create($bounce)->send();
 
-        SystemLogger::dispatchSync($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+        (new SystemLogger($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company))->handle();
 
         // if(config('ninja.notification.slack'))
             // $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
@@ -265,7 +265,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         LightLogs::create($spam)->send();
 
-        SystemLogger::dispatchSync($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+        (new SystemLogger($this->request, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company))->handle();
 
         if(config('ninja.notification.slack'))
             $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
