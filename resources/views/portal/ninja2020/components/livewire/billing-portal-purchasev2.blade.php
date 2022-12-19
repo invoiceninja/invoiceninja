@@ -209,7 +209,7 @@
 
                 @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
-                      <span class="font-light text-sm">{{ substr(str_replace(["\r","\n","<BR>","<BR />","<br>","<br />"]," ", $item['product']), 0, 30) . "..." }} x {{ $item['qty'] }}</span>
+                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ substr(str_replace(["\r","\n","<BR>","<BR />","<br>","<br />"]," ", $item['product']), 0, 30) . "..." }}</span>
                       <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach

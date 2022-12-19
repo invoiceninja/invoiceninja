@@ -101,7 +101,7 @@ class SubscriptionService
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
-                'contact' => auth()->guard('contact')->user() ? auth()->guard('contact')->user()->hashed_id : $recurring_invoice->client->contacts()->first()->hashed_id,
+                'contact' => auth()->guard('contact')->user() ? auth()->guard('contact')->user()->hashed_id : $recurring_invoice->client->contacts()->whereNotNull('email')->first()->hashed_id,
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
