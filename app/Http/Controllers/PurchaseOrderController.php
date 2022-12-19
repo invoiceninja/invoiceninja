@@ -198,7 +198,7 @@ class PurchaseOrderController extends BaseController
 
         event(new PurchaseOrderWasCreated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($purchase_order);
+        return $this->itemResponse($purchase_order->fresh());
     }
     /**
      * Display the specified resource.

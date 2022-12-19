@@ -854,13 +854,10 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        nlog("trigger webhook");
 
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
             return ["message" => "Success", "status_code" => 200];
         }
-
-        nlog("past first if");
 
         $response = false;
 
@@ -869,8 +866,6 @@ class SubscriptionService
         ]);
 
         $response = $this->sendLoad($this->subscription, $body);
-
-        nlog("after response");
 
         /* Append the response to the system logger body */
         if(is_array($response)){

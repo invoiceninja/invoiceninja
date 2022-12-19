@@ -179,7 +179,7 @@ class BillingPortalPurchasev2 extends Component
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
         }
-        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+        elseif(isset($this->subscription->promo_code) && strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price; 
         }
         
@@ -226,6 +226,8 @@ class BillingPortalPurchasev2 extends Component
 
     public function resetEmail()
     {
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');  
         $this->email = null;
     }
 
@@ -497,7 +499,7 @@ class BillingPortalPurchasev2 extends Component
         if(is_array($eligibility_check) && $eligibility_check['message'] != 'Success'){
             
             $this->is_eligible = false;
-            $this->not_eligible_message =$eligibility_check['message'];
+            $this->not_eligible_message = $eligibility_check['message'];
 
             return $this;
 
