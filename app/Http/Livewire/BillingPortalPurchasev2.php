@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
 use App\Mail\Subscription\OtpCode;
@@ -532,6 +533,8 @@ class BillingPortalPurchasev2 extends Component
             ->fillDefaults()
             ->adjustInventory()
             ->save();
+
+            CleanStaleInvoiceOrder::dispatch($this->invoice->id, $this->company->db)->delay(600);
 
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->id,

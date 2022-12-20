@@ -82,9 +82,6 @@ class MarkInvoiceDeleted extends AbstractService
     {
         //if total payments = adjustment amount - that means we need to delete the payments as well.
 
-nlog($this->adjustment_amount);
-nlog($this->total_payments);
-
         if ($this->adjustment_amount == $this->total_payments) 
             $this->invoice->payments()->update(['payments.deleted_at' => now(), 'payments.is_deleted' => true]);
       

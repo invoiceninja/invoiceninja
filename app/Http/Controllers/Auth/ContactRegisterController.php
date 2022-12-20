@@ -58,7 +58,7 @@ class ContactRegisterController extends Controller
 
         Auth::guard('contact')->loginUsingId($client_contact->id, true);
 
-        return redirect()->intended('client.dashboard');
+        return redirect()->intended(route('client.dashboard'));
     }
 
     private function getClient(array $data)

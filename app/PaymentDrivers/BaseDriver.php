@@ -325,15 +325,6 @@ class BaseDriver extends AbstractPaymentDriver
                 $invoice->service()->toggleFeesPaid()->save();
             }
 
-            $transaction = [
-                'invoice' => $invoice->transaction_event(),
-                'payment' => [],
-                'client' => $invoice->client->transaction_event(),
-                'credit' => [],
-                'metadata' => [],
-            ];
-
-            // TransactionLog::dispatch(TransactionEvent::INVOICE_FEE_APPLIED, $transaction, $invoice->company->db);
         });
     }
 
