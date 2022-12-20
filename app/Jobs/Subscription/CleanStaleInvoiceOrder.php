@@ -30,7 +30,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      * @param int invoice_id
      * @param string $db
      */
-    public function __construct(private int $invoice_id, private string $db){}
+    public function __construct(){}
 
     /**
      * @param InvoiceRepository $repo 
@@ -38,13 +38,38 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      */
     public function handle(InvoiceRepository $repo) : void
     {
-        MultiDB::setDb($this->db);
 
-        $invoice = Invoice::withTrashed()->find($this->invoice_id);
+         if (! config('ninja.db.multi_db_enabled')) {
 
-        if($invoice->is_proforma){
-            $invoice->is_proforma = false;
-            $repo->delete($invoice);
+            Invoice::query()
+                    ->withTrashed()
+                    ->where('is_proforma', 1)
+                    ->where('created_at', '<', now()->subHour())
+                    ->cursor()
+                    ->each(function ($invoice) use ($repo) {
+                        $invoice->is_proforma = false;
+                        $repo->delete($invoice);
+                    });
+
+            return;
+         }
+
+
+        foreach (MultiDB::$dbs as $db) 
+        {
+
+            MultiDB::setDB($db);
+
+            Invoice::query()
+                    ->withTrashed()
+                    ->where('is_proforma', 1)
+                    ->where('created_at', '<', now()->subHour())
+                    ->cursor()
+                    ->each(function ($invoice) use ($repo) {
+                        $invoice->is_proforma = false;
+                        $repo->delete($invoice);
+                    });
+        
         }
 
     }

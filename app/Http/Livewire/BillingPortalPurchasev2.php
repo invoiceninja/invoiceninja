@@ -534,8 +534,6 @@ class BillingPortalPurchasev2 extends Component
             ->adjustInventory()
             ->save();
 
-            CleanStaleInvoiceOrder::dispatch($this->invoice->id, $this->company->db)->delay(600);
-
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->id,
             'email' => $this->email ?? $this->contact->email,
