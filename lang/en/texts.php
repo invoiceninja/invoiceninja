@@ -4910,6 +4910,8 @@ $LANG = array(
     'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',    
     'notification_purchase_order_sent_subject' => 'Purchase Order :purchase_order was sent to :vendor',
     'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
+    'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
+    'subscription_blocked_title' => 'Product not available.',
 );
 
 return $LANG;

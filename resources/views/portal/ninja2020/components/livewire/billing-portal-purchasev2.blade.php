@@ -196,6 +196,13 @@
                         </li>
                     @endforeach    
                 @endif
+                @if(auth()->guard('contact')->check())
+                <li class="flex py-6">
+                    <div class="flex w-full text-left mt-8">
+                        <a href="{{route('client.dashboard')}}" class="button-link text-primary">{{ ctrans('texts.go_back') }}</a>
+                    </div>
+                </li>
+                @endif
             </ul>
         </div>
     </div>

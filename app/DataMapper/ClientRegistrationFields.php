@@ -93,6 +93,10 @@ class ClientRegistrationFields
                 'key' => 'vat_number',
                 'required' => false,
             ],
+            [
+                'key' => 'currency_id',
+                'required' => false,
+            ],
         ];
 
         return $data;

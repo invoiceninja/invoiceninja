@@ -158,6 +158,13 @@ class BillingPortalPurchasev2 extends Component
     {
         MultiDB::setDb($this->company->db);
 
+        if(auth()->guard('contact')->check()){
+            $this->email = auth()->guard('contact')->user()->email;
+            $this->contact = auth()->guard('contact')->user();
+            $this->authenticated = true;
+            $this->payment_started = true;
+        }
+
         $this->discount = 0;
         $this->sub_total = 0;
         $this->float_amount_total = 0;
