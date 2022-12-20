@@ -19,7 +19,7 @@
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
-            <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
+            <form id="register-form" action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
                 @if($register_company)
                 <input type="hidden" name="company_key" value="{{ $register_company->company_key }}">
                 @endif
@@ -132,6 +132,9 @@
                 </div>
 
                 <div class="flex justify-between items-center mt-8">
+                   
+                    <a href="{{route('client.login')}}" class="button button-info bg-green-600 text-white">{{ ctrans('texts.login_label') }}</a>
+
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
                             @if(!empty($register_company->settings->client_portal_terms) || !empty($register_company->settings->client_portal_privacy_policy))
                                 <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
@@ -148,8 +151,10 @@
                             @enderror
                         </span>
                     </span>
-
-                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">{{ ctrans('texts.register')}}</button>
+                    
+                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">
+                        {{ ctrans('texts.register')}}
+                    </button>
 
                 </div>
             </form>
