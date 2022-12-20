@@ -87,6 +87,9 @@ trait Utilities
 
         $error_message = '';
 
+        nlog("checkout failure");
+        nlog($_payment);
+        
         if (is_array($_payment) && array_key_exists('actions', $_payment) && array_key_exists('response_summary', end($_payment['actions']))) {
             $error_message = end($_payment['actions'])['response_summary'];
         } elseif (is_array($_payment) && array_key_exists('status', $_payment)) {
