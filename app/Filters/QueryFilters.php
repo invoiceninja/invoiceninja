@@ -180,12 +180,8 @@ abstract class QueryFilters
         $created_at = date('Y-m-d H:i:s', $value);
 
         if(is_string($created_at)){
-
-            $created_at = strtotime(str_replace("/","-",$created_at));
-
-            if(!$created_at)
+            if(!strtotime(str_replace("/","-",$created_at)))
                 return $this->builder;
-
         }
 
         return $this->builder->where('created_at', '>=', $created_at);
