@@ -78,6 +78,7 @@ class BankTransactionFilters extends QueryFilters
         $status_parameters = explode(',', $value);
 
         $status_array = [];
+        
         $debit_or_withdrawal_array = [];
 
         if (in_array('all', $status_parameters)) {

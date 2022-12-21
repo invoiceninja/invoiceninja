@@ -66,25 +66,31 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
+        $quote_filters = [];
+
         if (in_array('draft', $status_parameters)) {
-            $this->builder->where('status_id', Quote::STATUS_DRAFT);
+            $quote_filters[] = Quote::STATUS_DRAFT;
         }
 
         if (in_array('sent', $status_parameters)) {
-            $this->builder->where('status_id', Quote::STATUS_SENT);
+            $quote_filters[] = Quote::STATUS_SENT;
         }
 
         if (in_array('approved', $status_parameters)) {
-            $this->builder->where('status_id', Quote::STATUS_APPROVED);
+            $quote_filters[] = Quote::STATUS_APPROVED;
+        }
+
+        if(count($quote_filters) >=1){
+            $this->builder->whereIn('status_id', $quote_filters);
         }
 
         if (in_array('expired', $status_parameters)) {
-            $this->builder->where('status_id', Quote::STATUS_SENT)
+            $this->builder->orWhere('status_id', Quote::STATUS_SENT)
                           ->where('due_date', '>=', now()->toDateString());
         }
 
         if (in_array('upcoming', $status_parameters)) {
-            $this->builder->where('status_id', Quote::STATUS_SENT)
+            $this->builder->orWhere('status_id', Quote::STATUS_SENT)
                           ->where('due_date', '<=', now()->toDateString())
                           ->orderBy('due_date', 'DESC');
         }
