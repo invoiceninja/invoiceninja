@@ -182,7 +182,7 @@ abstract class QueryFilters
 
         try{
 
-            $created_at = Carbon::parse($value)->toDateTimeString();
+            $created_at = Carbon::parse($value)->timestamp;
 
             return $this->builder->where('created_at', '>=', $created_at);
 
