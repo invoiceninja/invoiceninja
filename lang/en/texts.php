@@ -4301,7 +4301,7 @@ $LANG = array(
     'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
     'direct_debit' => 'Direct Debit',
-    'clone_to_expense' => 'Clone to expense',
+    'clone_to_expense' => 'Clone to Expense',
     'checkout' => 'Checkout',
     'acss' => 'Pre-authorized debit payments',
     'invalid_amount' => 'Invalid amount. Number/Decimal values only.',

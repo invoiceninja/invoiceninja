@@ -42,11 +42,9 @@ class ApplyNumber extends AbstractService
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-            nlog("when saved");
                 $this->trySaving();
                 break;
             case 'when_sent':
-            nlog("when sent");
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
                     $this->trySaving();
                 }
