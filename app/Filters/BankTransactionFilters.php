@@ -114,7 +114,7 @@ class BankTransactionFilters extends QueryFilters
         }
 
         if(count($debit_or_withdrawal_array) >=1) {
-            $this->builder->whereIn('base_type', $debit_or_withdrawal_array);
+            $this->builder->orWhereIn('base_type', $debit_or_withdrawal_array);
         }
 
         return $this->builder;
