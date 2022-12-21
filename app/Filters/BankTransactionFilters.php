@@ -77,28 +77,44 @@ class BankTransactionFilters extends QueryFilters
 
         $status_parameters = explode(',', $value);
 
+        $status_array = [];
+        $debit_or_withdrawal_array = [];
+
         if (in_array('all', $status_parameters)) {
             return $this->builder;
         }
 
         if (in_array('unmatched', $status_parameters)) {
-            $this->builder->where('status_id', BankTransaction::STATUS_UNMATCHED);
+            $status_array[] = BankTransaction::STATUS_UNMATCHED;
+            // $this->builder->orWhere('status_id', BankTransaction::STATUS_UNMATCHED);
         }
 
         if (in_array('matched', $status_parameters)) {
-            $this->builder->where('status_id', BankTransaction::STATUS_MATCHED);
+            $status_array[] = BankTransaction::STATUS_MATCHED;
+            // $this->builder->where('status_id', BankTransaction::STATUS_MATCHED);
         }
 
         if (in_array('converted', $status_parameters)) {
-            $this->builder->where('status_id', BankTransaction::STATUS_CONVERTED);
+            $status_array[] = BankTransaction::STATUS_CONVERTED;
+            // $this->builder->where('status_id', BankTransaction::STATUS_CONVERTED);
         }
 
         if (in_array('deposits', $status_parameters)) {
-            $this->builder->where('base_type', 'CREDIT');
+            $debit_or_withdrawal_array[] = 'CREDIT';
+            // $this->builder->where('base_type', 'CREDIT');
         }
 
         if (in_array('withdrawals', $status_parameters)) {
-            $this->builder->where('base_type', 'DEBIT');
+            $debit_or_withdrawal_array[] = 'DEBIT';
+            // $this->builder->where('base_type', 'DEBIT');
+        }
+
+        if(count($status_array) >=1) {
+            $this->builder->whereIn('status_id', $status_array);
+        }
+
+        if(count($debit_or_withdrawal_array) >=1) {
+            $this->builder->whereIn('base_type', $debit_or_withdrawal_array);
         }
 
         return $this->builder;
