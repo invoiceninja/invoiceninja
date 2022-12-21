@@ -176,15 +176,21 @@ abstract class QueryFilters
 
     public function created_at($value = '')
     {
+        
         if($value == '')
             return $this->builder;
 
         try{
+
             $created_at = Carbon::parse($value);
+
             return $this->builder->where('created_at', '>=', $created_at);
+
         }
         catch(\Exception $e) {
+
             return $this->builder;
+
         }
         
     }
