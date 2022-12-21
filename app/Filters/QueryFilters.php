@@ -174,25 +174,22 @@ abstract class QueryFilters
         }
     }
 
-    public function created_at($value = '')
+    public function created_at($value)
     {
-        
-        if($value == '')
-            return $this->builder;
+        $created_at = $value ? (int) $value : 0;
 
-        try{
+        $created_at = date('Y-m-d H:i:s', $value);
 
-            $created_at = Carbon::parse($value)->timestamp;
+        if(is_string($created_at)){
 
-            return $this->builder->where('created_at', '>=', $created_at);
+            $created_at = strtotime(str_replace("/","-",$created_at));
 
-        }
-        catch(\Exception $e) {
-
-            return $this->builder;
+            if(!$created_at)
+                return $this->builder;
 
         }
-        
+
+        return $this->builder->where('created_at', '>=', $created_at);
     }
 
     public function is_deleted($value)
