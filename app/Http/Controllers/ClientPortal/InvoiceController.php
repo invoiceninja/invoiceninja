@@ -52,7 +52,7 @@ class InvoiceController extends Controller
      *
      * @return Factory|View
      */
-    public function show(ShowInvoiceRequest $request, Invoice $invoice, ?string $hash)
+    public function show(ShowInvoiceRequest $request, Invoice $invoice, ?string $hash = null)
     {
         set_time_limit(0);
 
