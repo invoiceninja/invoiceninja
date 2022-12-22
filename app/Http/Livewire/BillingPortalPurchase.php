@@ -188,6 +188,7 @@ class BillingPortalPurchase extends Component
         MultiDB::setDb($this->db);
 
         $this->subscription = Subscription::with('company')->find($this->subscription);
+
         $this->company = $this->subscription->company;
 
         $this->quantity = 1;
@@ -230,10 +231,10 @@ class BillingPortalPurchase extends Component
 
         $this->steps['existing_user'] = false;
 
-        $contact = $this->createBlankClient();
+        $this->contact = $this->createBlankClient();
 
-        if ($contact && $contact instanceof ClientContact) {
-            $this->getPaymentMethods($contact);
+        if ($this->contact && $this->contact instanceof ClientContact) {
+            $this->getPaymentMethods($this->contact);
         }
     }
 
@@ -269,9 +270,6 @@ class BillingPortalPurchase extends Component
                 $data['contacts'][0][$field] = $value;
             }
         }
-
-// nlog($this->subscription->group_settings->settings);
-// nlog($this->subscription->group_settings->settings->currency_id);
 
         if(array_key_exists('currency_id', $this->request_data)) {
 
@@ -334,8 +332,6 @@ class BillingPortalPurchase extends Component
             $this->steps['payment_required'] = false;
         else
             $this->steps['fetched_payment_methods'] = true;
-
-nlog("payment methods price = {$this->price}");
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 

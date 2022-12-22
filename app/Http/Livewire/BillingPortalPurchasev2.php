@@ -130,6 +130,8 @@ class BillingPortalPurchasev2 extends Component
      */
     public $company;
 
+    public $db;
+
     /**
      * Campaign reference.
      *
@@ -157,7 +159,11 @@ class BillingPortalPurchasev2 extends Component
     
     public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
+
+        $this->subscription = Subscription::with('company')->find($this->subscription);
+
+        $this->company = $this->subscription->company;
 
         if(auth()->guard('contact')->check()){
             $this->email = auth()->guard('contact')->user()->email;
