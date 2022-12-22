@@ -14,8 +14,8 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
-        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="token">
+        <input type="hidden" name="amount" value={{ $amount }}>
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>

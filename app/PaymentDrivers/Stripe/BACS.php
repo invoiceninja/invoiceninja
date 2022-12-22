@@ -70,13 +70,19 @@ class BACS
     }
     public function paymentView(array $data)
     {
+        $data['gateway'] = $this->stripe;
+        $data['amount'] = $data['total']['amount_with_fee'];
 
-        // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
-        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
-
+        return render('gateways.stripe.bacs.pay', $data);
+    }
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+        $this->stripe->init();
+        nlog($request);
+        $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number')->implode(',');
+        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($request->amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         $payment_intent_data = [
-            'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $description,
@@ -85,21 +91,12 @@ class BACS
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BACS,
             ],
+            'payment_method' => $request->token,
             'confirm' => true,
         ];
-        $data['intent'] = $payment_intent_data;
-        $data['gateway'] = $this->stripe;
-
-        return render('gateways.stripe.bacs.pay', $data);
-    }
-    public function paymentResponse(PaymentResponseRequest $request)
-    {
-        $this->stripe->init();
-        nlog($request);
-
+        $this->stripe->createPaymentIntent($payment_intent_data);
         $state = [
-            'server_response' => json_decode($request->gateway_response),
-            'payment_hash' => $request->payment_hash,
+            'payment_hash' => $this->stripe->payment_hash->hash,
         ];
 
         $state = array_merge($state, $request->all());
