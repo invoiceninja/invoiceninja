@@ -8,7 +8,6 @@
         <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
     <meta name="only-authorization" content="">
-    <meta name="pi-client-secret" content="{{ $intent->client_secret }}">
 @endsection
 
 @section('gateway_content')
