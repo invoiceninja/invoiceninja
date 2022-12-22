@@ -85,9 +85,9 @@ class BACS
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BACS,
             ],
+            'confirm' => true,
         ];
-
-        $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
+        $data['intent'] = $payment_intent_data;
         $data['gateway'] = $this->stripe;
 
         return render('gateways.stripe.bacs.pay', $data);
@@ -96,6 +96,7 @@ class BACS
     {
         $this->stripe->init();
         nlog($request);
+
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'payment_hash' => $request->payment_hash,

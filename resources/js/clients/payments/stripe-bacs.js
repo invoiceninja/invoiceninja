@@ -59,39 +59,14 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
-                this.stripe
-                    .confirmBacsDebitPayment(
-                        document.querySelector('meta[name=pi-client-secret')
-                            .content, {
-                            payment_method: document.querySelector('input[name=token]').value
-                        }
-                    )
-                    .then((result) => {
-                        if (result.error) {
-                            return this.handleFailure(result.error.message);
-                        }
-
-                        return this.handleSuccess(result);
-                    });
+                this.handleResult();
             });
         }
     };
-
-    handleFailure(message) {
-        let errors = document.getElementById('errors');
-
-        errors.textContent = '';
-        errors.textContent = message;
-        errors.hidden = false;
-
-        document.getElementById('pay-now').disabled = false;
-        document.querySelector('#pay-now > svg').classList.add('hidden');
-        document.querySelector('#pay-now > span').classList.remove('hidden');
-    }
-    handleSuccess(result) {
+    handleResult() {
         document.querySelector(
             'input[name="gateway_response"]'
-        ).value = JSON.stringify(result.paymentIntent);
+        ).value = ocument.querySelector('input[name=token]').value;
 
         document.getElementById('server-response').submit();
     }

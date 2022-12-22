@@ -14,9 +14,7 @@
 @section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
-        <input type="hidden" name="gateway_response">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
-        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="token">
     </form>
