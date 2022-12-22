@@ -48,7 +48,7 @@ class InstantPayment
 
     public function run()
     {
-
+nlog($this->request->all());
         $is_credit_payment = false;
 
         $tokens = [];
@@ -220,6 +220,9 @@ class InstantPayment
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
+        }
+        elseif($this->request->hash){
+            $hash_data['billing_context'] = Cache::get($this->request->hash);
         }
 
         $payment_hash = new PaymentHash;

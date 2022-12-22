@@ -52,7 +52,7 @@ class InvoiceController extends Controller
      *
      * @return Factory|View
      */
-    public function show(ShowInvoiceRequest $request, Invoice $invoice)
+    public function show(ShowInvoiceRequest $request, Invoice $invoice, ?string $hash)
     {
         set_time_limit(0);
 
@@ -69,6 +69,7 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
             'invitation' => $invitation ?: $invoice->invitations->first(),
             'key' => $invitation ? $invitation->key : false,
+            'hash' => $hash,
         ];
 
         if ($request->query('mode') === 'fullscreen') {

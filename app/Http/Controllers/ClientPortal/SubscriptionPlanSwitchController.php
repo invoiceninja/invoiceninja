@@ -33,7 +33,9 @@ class SubscriptionPlanSwitchController extends Controller
     {
         $amount = $recurring_invoice->subscription
                                     ->service()
-                                    ->calculateUpgradePrice($recurring_invoice, $target);
+                                    ->calculateUpgradePriceV2($recurring_invoice, $target);
+
+        nlog("upgrade amoutn = {$amount}");
         /**
          * Null value here is a proxy for
          * denying the user a change plan option
