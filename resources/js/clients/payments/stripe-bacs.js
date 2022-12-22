@@ -59,17 +59,10 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
-                this.handleResult();
+                document.getElementById('server-response').submit();
             });
         }
     };
-    handleResult() {
-        document.querySelector(
-            'input[name="gateway_response"]'
-        ).value = ocument.querySelector('input[name=token]').value;
-
-        document.getElementById('server-response').submit();
-    }
 }
 
 const publishableKey = document.querySelector(
