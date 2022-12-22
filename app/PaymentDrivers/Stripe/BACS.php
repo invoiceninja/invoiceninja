@@ -72,13 +72,13 @@ class BACS
     {
         $data['gateway'] = $this->stripe;
         $data['amount'] = $data['total']['amount_with_fee'];
+        $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
         return render('gateways.stripe.bacs.pay', $data);
     }
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $this->stripe->init();
-        nlog($request);
         $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number')->implode(',');
         $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($request->amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         $payment_intent_data = [
@@ -96,7 +96,7 @@ class BACS
         ];
         $this->stripe->createPaymentIntent($payment_intent_data);
         $state = [
-            'payment_hash' => $this->stripe->payment_hash->hash,
+            'payment_hash' => $request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
