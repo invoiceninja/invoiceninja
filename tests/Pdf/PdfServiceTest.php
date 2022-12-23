@@ -65,4 +65,24 @@ class PdfServiceTest extends TestCase
         $this->assertEquals(2, $service->config->design->id);
 
     }
+
+    public function testHtmlIsArray()
+    {
+        $invitation = $this->invoice->invitations->first();
+        
+        $service = new PdfService($invitation);
+
+        $this->assertIsArray($service->html_variables);
+
+    }
+
+    public function testTemplateResolution()
+    {
+        $invitation = $this->invoice->invitations->first();
+        
+        $service = new PdfService($invitation);
+
+        $this->assertIsString($service->designer->template);
+
+    }
 }

@@ -12,6 +12,7 @@
 namespace App\Services\Pdf;
 
 use App\Services\Pdf\PdfConfiguration;
+use App\Utils\HtmlEngine;
 
 class PdfService
 {
@@ -20,12 +21,29 @@ class PdfService
 
     public PdfConfiguration $config;
 
+    public PdfBuilder $builder;
+
+    public PdfDesigner $designer;
+
+    public array $html_variables;
+
     public function __construct($invitation)
     {
 
         $this->invitation = $invitation;
 
         $this->config = (new PdfConfiguration($this))->init();
+
+        $this->html_variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+
+        $this->builder = (new PdfBuilder($this));
+
+        $this->designer = (new PdfDesigner($this))->build();
+    }
+
+    public function build()
+    {
+        $this->builder->build();
 
     }
 
@@ -38,5 +56,31 @@ class PdfService
     {
 
     }
+
+
+        // $state = [
+        //     'template' => $template->elements([
+        //         'client' => $this->client,
+        //         'entity' => $this->entity,
+        //         'pdf_variables' => (array) $this->company->settings->pdf_variables,
+        //         '$product' => $design->design->product,
+        //         'variables' => $variables,
+        //     ]),
+        //     'variables' => $variables,
+        //     'options' => [
+        //         'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
+        //         'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+        //     ],
+        //     'process_markdown' => $this->entity->client->company->markdown_enabled,
+        // ];
+
+        // $maker = new PdfMakerService($state);
+
+        // $maker
+        //     ->design($template)
+        //     ->build();
+
+
+
 
 }
