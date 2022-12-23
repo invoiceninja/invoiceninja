@@ -100,6 +100,7 @@ class SubscriptionService
             //update the invoice and attach to the recurring invoice!!!!!
             $invoice = Invoice::find($payment_hash->fee_invoice_id);
             $invoice->recurring_id = $recurring_invoice->id;
+            $invoice->is_proforma = false;
             $invoice->save();
 
             //execute any webhooks
@@ -253,6 +254,7 @@ class SubscriptionService
         }
 
         nlog("{$target->price} - {$refund} - {$outstanding_credit}");
+
         return $target->price - $refund - $outstanding_credit;
 
     }
@@ -346,7 +348,7 @@ class SubscriptionService
 
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
 
-        return $pro_rata_refund;
+        return max(0, $pro_rata_refund);
 
     }    
 
@@ -472,6 +474,7 @@ class SubscriptionService
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
         $is_credit = false;
+        $credit = false;
 
         /* Get last invoice */
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
@@ -483,9 +486,8 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        // $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription);
-
-        $credit = $this->createCredit($last_invoice, $target_subscription, false);
+        if($this->calculateProRataRefundForSubscription($last_invoice) > 0)
+            $credit = $this->createCredit($last_invoice, $target_subscription, false);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
@@ -513,12 +515,7 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            if($credit){
-                return '/client/invoices/'.$invoice->hashed_id;
-            }
-            else{
-                return '/client/invoices';
-            }
+            return '/client/recurring_invoices/'.$new_recurring_invoice->hashed_id;
 
     }
 
@@ -783,9 +780,6 @@ class SubscriptionService
         $credit->discount = $last_invoice->discount;
         $credit->is_amount_discount = $last_invoice->is_amount_discount;
         
-        // $line_items = $subscription_repo->generateLineItems($target, false, true);
-
-        // $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, $last_invoice_is_credit));
         $credit->line_items = $this->calculateProRataRefundItems($last_invoice, true);
 
         $data = [
@@ -816,6 +810,7 @@ class SubscriptionService
         $invoice->subscription_id = $target->id;
 
         $invoice->line_items = array_merge($subscription_repo->generateLineItems($target), $this->calculateProRataRefundItems($last_invoice));
+        $invoice->is_proforma = true;
 
         $data = [
             'client_id' => $client_id,
@@ -848,6 +843,7 @@ class SubscriptionService
         $invoice->subscription_id = $target->id;
 
         $invoice->line_items = $subscription_repo->generateLineItems($target);
+        $invoice->is_proforma = true;
 
         $data = [
             'client_id' => $client_id,
@@ -914,6 +910,7 @@ class SubscriptionService
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);
         $invoice->subscription_id = $this->subscription->id;
+        $invoice->is_proforman = true;
 
         if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
         {
@@ -924,7 +921,6 @@ class SubscriptionService
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
-
 
         return $invoice_repo->save($data, $invoice);
 
@@ -1246,8 +1242,6 @@ class SubscriptionService
 
 
             });
-
-
 
             return $this->handleRedirect('client/subscriptions');
 

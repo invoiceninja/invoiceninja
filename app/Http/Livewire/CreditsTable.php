@@ -13,6 +13,7 @@
 namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -23,26 +24,31 @@ class CreditsTable extends Component
     use WithPagination;
     use WithSorting;
 
-    public $per_page = 10;
+    public int $per_page = 10;
 
-    public $company;
+    public Company $company;
+
+    public string $db;
+
+    public int $company_id;
 
     public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
+
+        $this->company = Company::find($this->company_id);
     }
 
     public function render()
     {
         $query = Credit::query()
-            ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('company_id', $this->company->id)
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('status_id', '<>', Credit::STATUS_DRAFT)
             ->where('is_deleted', 0)
             ->where(function ($query) {
                 $query->whereDate('due_date', '>=', now())
                       ->orWhereNull('due_date');
-                //->orWhere('due_date', '=', '');
             })
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->withTrashed()

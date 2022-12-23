@@ -190,7 +190,7 @@ return [
     'ninja_stripe_client_id' => env('NINJA_STRIPE_CLIENT_ID', null),
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
-    'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', null),
+    'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', ''),
     'ninja_hosted_header' =>env('NINJA_HEADER',''),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),

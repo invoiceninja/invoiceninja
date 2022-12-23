@@ -121,7 +121,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var array
      */
-    public $request_data;
+    public $request_data = [];
 
     /**
      * Instance of company.
@@ -130,7 +130,13 @@ class BillingPortalPurchasev2 extends Component
      */
     public $company;
 
-    public $db;
+
+    /**
+     * Instance of company.
+     *
+     * @var string
+     */
+    public string $db;
 
     /**
      * Campaign reference.
