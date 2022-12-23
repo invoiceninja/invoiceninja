@@ -19,6 +19,8 @@ class PdfService
 
     public $invitation;
 
+    public Company $company;
+
     public PdfConfiguration $config;
 
     public PdfBuilder $builder;
@@ -31,6 +33,8 @@ class PdfService
     {
 
         $this->invitation = $invitation;
+
+        $this->company = $invitation->company;
 
         $this->config = (new PdfConfiguration($this))->init();
 

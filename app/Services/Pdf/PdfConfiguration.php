@@ -11,6 +11,7 @@
 
 namespace App\Services\Pdf;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -47,6 +48,8 @@ class PdfConfiguration
 
     public $service;
 
+    public array $pdf_variables;
+
     public function __construct(PdfService $service)
     {
 
@@ -59,7 +62,28 @@ class PdfConfiguration
 
         $this->setEntityType()
              ->setEntityProperties()
+             ->setPdfVariables()
              ->setDesign();
+
+        return $this;
+
+    }
+
+    private function setPdfVariables() :self
+    {
+
+        $default = (array) CompanySettings::getEntityVariableDefaults();
+        $variables = $this->service->company->pdf_variables;
+
+        foreach ($default as $property => $value) {
+            if (array_key_exists($property, $variables)) {
+                continue;
+            }
+
+            $variables[$property] = $value;
+        }
+
+        $this->pdf_variables = $variables;
 
         return $this;
 
