@@ -111,6 +111,7 @@ class CreateEntityPdf implements ShouldQueue
 
         /* Init a new copy of the translator*/
         $t = app('translator');
+        
         /* Set the locale*/
         App::setLocale($this->client->locale());
 
