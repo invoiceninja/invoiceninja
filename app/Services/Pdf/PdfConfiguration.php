@@ -13,6 +13,7 @@ namespace App\Services\Pdf;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -25,6 +26,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Services\Pdf\PdfService;
 use App\Utils\Traits\MakesHash;
 
@@ -36,7 +38,11 @@ class PdfConfiguration
 
     public ?Client $client;
 
+    public ?ClientContact $contact;
+
     public ?Vendor $vendor;
+
+    public ?VendorContact $vendor_contact;
 
     public object $settings;
 
@@ -121,6 +127,7 @@ class PdfConfiguration
         if ($this->entity instanceof Invoice) {
 
             $this->client = $this->entity->client;
+            $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->invoice_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
@@ -129,6 +136,7 @@ class PdfConfiguration
         } elseif ($this->entity instanceof Quote) {
 
             $this->client = $this->entity->client;
+            $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->quote_filepath($this->service->invitation);
             $this->entity_design_id = 'quote_design_id';
             $this->settings = $this->client->getMergedSettings();
@@ -137,6 +145,7 @@ class PdfConfiguration
         } elseif ($this->entity instanceof Credit) {
 
             $this->client = $this->entity->client;
+            $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->credit_filepath($this->service->invitation);
             $this->entity_design_id = 'credit_design_id';
             $this->settings = $this->client->getMergedSettings();
@@ -145,6 +154,7 @@ class PdfConfiguration
         } elseif ($this->entity instanceof RecurringInvoice) {
 
             $this->client = $this->entity->client;
+            $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->recurring_invoice_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
@@ -153,6 +163,7 @@ class PdfConfiguration
         } elseif ($this->entity instanceof PurchaseOrder) {
 
             $this->vendor = $this->entity->vendor;
+            $this->vendor_contact = $this->service->invitation->contact;
             $this->path = $this->vendor->purchase_order_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->entity_design_id = 'purchase_order_design_id';
