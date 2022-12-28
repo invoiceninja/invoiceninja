@@ -35,12 +35,14 @@ class PdfService
 
     public string $document_type;
 
+    public array $options;
+
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
     const PURCHASE_ORDER = 'purchase_order';
     const PRODUCT = 'product';
 
-    public function __construct($invitation, $document_type = 'product')
+    public function __construct($invitation, $document_type = 'product', $options = [])
     {
 
         $this->invitation = $invitation;
@@ -48,7 +50,7 @@ class PdfService
         $this->company = $invitation->company;
 
         $this->account = $this->company->account;
-        
+
         $this->config = (new PdfConfiguration($this))->init();
 
         $this->html_variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
@@ -58,6 +60,8 @@ class PdfService
         $this->designer = (new PdfDesigner($this))->build();
 
         $this->document_type = $document_type;
+
+        $this->options = $options;
 
     }
 

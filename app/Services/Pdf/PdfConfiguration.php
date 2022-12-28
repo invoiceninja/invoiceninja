@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Currency;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -56,6 +57,14 @@ class PdfConfiguration
 
     public array $pdf_variables;
 
+    public Currency $currency;
+
+    /**
+     * The parent object of the currency 
+     * @var App\Models\Client | App\Models\Vendor
+     */
+    public $currency_entity;
+
     public function __construct(PdfService $service)
     {
 
@@ -69,7 +78,19 @@ class PdfConfiguration
         $this->setEntityType()
              ->setEntityProperties()
              ->setPdfVariables()
-             ->setDesign();
+             ->setDesign()
+             ->setCurrency();
+
+        return $this;
+
+    }
+
+    private function setCurrency() :self
+    {
+
+        $this->currency = $this->client ? $this->client->currency() : $this->vendor->currency();
+
+        $this->currency_entity = $this->client ? $this->client : $this->vendor;
 
         return $this;
 
