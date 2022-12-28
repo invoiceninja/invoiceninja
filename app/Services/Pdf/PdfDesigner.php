@@ -61,6 +61,15 @@ class PdfDesigner
     /**
      * If the user has implemented a custom design, then we need to rebuild the design at this point
      */
+
+    /**
+     * Returns the custom HTML design as 
+     * a string
+     * 
+     * @param  array
+     * @return string
+     * 
+     */
     private function composeFromPartials(array $partials) :string
     {
         $html = '';
@@ -72,9 +81,5 @@ class PdfDesigner
 
         return $html;
     }
-
-
-
-
     
 }

@@ -69,6 +69,8 @@ class PdfService
     {
         $this->builder->build();
 
+        return $this;
+
     }
 
     public function getPdf()
@@ -78,7 +80,7 @@ class PdfService
 
     public function getHtml()
     {
-
+        return $this->builder->getCompiledHTML();
     }
 
 

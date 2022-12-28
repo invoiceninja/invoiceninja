@@ -52,7 +52,11 @@ class PdfBuilder
     {
 
         $this->getTemplate()
-             ->buildSections()
+             ->buildSections();
+
+             nlog($this->sections);
+
+             $this
              ->getEmptyElements()
              ->updateElementProperties()
              ->updateVariables();
@@ -85,9 +89,11 @@ class PdfBuilder
         $document = new DOMDocument();
 
         $document->validateOnParse = true;
-        @$document->loadHTML(mb_convert_encoding($this->service->config->designer->template, 'HTML-ENTITIES', 'UTF-8'));
+
+        @$document->loadHTML(mb_convert_encoding($this->service->designer->template, 'HTML-ENTITIES', 'UTF-8'));
 
         $this->document = $document;
+
         $this->xpath = new DOMXPath($document);
 
         return $this;
@@ -112,6 +118,13 @@ class PdfBuilder
 
     }
 
+    private function mergeSections(array $section) :self
+    {
+        $this->sections = array_merge($this->sections, $section);
+
+        return $this;
+    }
+
     /**
      * Generates delivery note sections
      * 
@@ -124,7 +137,7 @@ class PdfBuilder
         $this->genericSectionBuilder()
              ->getProductTotals();
 
-        $this->sections[] = [            
+        $this->mergeSections([            
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDeliveryDetails(),
@@ -137,7 +150,7 @@ class PdfBuilder
                 'id' => 'entity-details',
                 'elements' => $this->deliveryNoteDetails(),
             ],
-        ];
+        ]);
 
         return $this;
 
@@ -154,7 +167,7 @@ class PdfBuilder
 
         $this->genericSectionBuilder();
 
-        $this->sections[] = [
+        $this->mergeSections( [
             'statement-invoice-table' => [
                 'id' => 'statement-invoice-table',
                 'elements' => $this->statementInvoiceTable(),
@@ -179,7 +192,7 @@ class PdfBuilder
                 'id' => 'table-totals',
                 'elements' => $this->statementTableTotals(),
             ],
-        ];
+        ]);
 
         return $this;
 
@@ -308,7 +321,7 @@ class PdfBuilder
         $this->genericSectionBuilder()
              ->getProductTotals();
 
-        $this->sections[] = [            
+        $this->mergeSections([            
             'vendor-details' => [
                 'id' => 'vendor-details',
                 'elements' => $this->vendorDetails(),
@@ -317,7 +330,7 @@ class PdfBuilder
                 'id' => 'entity-details',
                 'elements' => $this->purchaseOrderDetails(),
             ],
-        ];
+        ]);
 
         return $this;
 
@@ -333,7 +346,7 @@ class PdfBuilder
     private function genericSectionBuilder(): self
     {
 
-        $this->sections[] = [
+        $this->mergeSections([
             'company-details' => [
                 'id' => 'company-details',
                 'elements' => $this->companyDetails(),
@@ -348,7 +361,7 @@ class PdfBuilder
                     $this->sharedFooterElements(),
                 ],
             ],
-        ];
+        ]);
 
         return $this;
     }
@@ -394,7 +407,7 @@ class PdfBuilder
     {
         $elements = [];
 
-        $items = $this->transformLineItems($this->entity->line_items, $type);
+        $items = $this->transformLineItems($this->service->config->entity->line_items, $type);
 
         $this->processNewLines($items);
 
@@ -436,12 +449,12 @@ class PdfBuilder
             $element = ['element' => 'tr', 'elements' => []];
 
             if (
-                array_key_exists($type, $this->context) &&
-                !empty($this->context[$type]) &&
-                !is_null($this->context[$type])
+                array_key_exists($type, $this->service->options) &&
+                !empty($this->service->options[$type]) &&
+                !is_null($this->service->options[$type])
             ) {
                 $document = new DOMDocument();
-                $document->loadHTML($this->context[$type], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                $document->loadHTML($this->service->options[$type], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
                 $td = $document->getElementsByTagName('tr')->item(0);
 
@@ -751,12 +764,12 @@ class PdfBuilder
     private function getProductTotals(): self
     {
 
-        $this->sections[] = [    
+        $this->mergeSections([    
             'table-totals' => [
                 'id' => 'table-totals',
                 'elements' => $this->getTableTotals(),
             ],
-        ];
+        ]);
 
         return $this;
     }
@@ -776,33 +789,33 @@ class PdfBuilder
 
         if($this->service->config->entity_string == 'invoice')
         {
-            $this->sections[] = [
+            $this->mergeSections( [
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->invoiceDetails(),
                 ],
-            ];
+            ]);
         }
         elseif($this->service->config->entity_string == 'quote')
         {
 
-            $this->sections[] = [
+            $this->mergeSections( [
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->quoteDetails(),
                 ],
-            ];
+            ]);
 
         }
         elseif($this->service->config->entity_string == 'credit')
         {
 
-            $this->sections[] = [
+            $this->mergeSections( [
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->creditDetails(),
                 ],
-            ];
+            ]);
 
         }
 
@@ -820,8 +833,8 @@ class PdfBuilder
     private function buildSections() :self
     {
 
-        return  match ($this->service->config->document_type) {
-            PdfService::PRODUCT => $this->getProductSections,
+        return  match ($this->service->document_type) {
+            PdfService::PRODUCT => $this->getProductSections(),
             PdfService::DELIVERY_NOTE => $this->getDeliveryNoteSections(),
             PdfService::STATEMENT => $this->getStatementSections(),
             PdfService::PURCHASE_ORDER => $this->getPurchaseOrderSections(),
@@ -919,7 +932,7 @@ class PdfBuilder
         ];
 
 
-        if ($this->service->config->document_type == PdfService::DELIVERY_NOTE) {
+        if ($this->service->document_type == PdfService::DELIVERY_NOTE) {
             return $elements;
         }
 
@@ -1028,7 +1041,7 @@ class PdfBuilder
     public function getProductAndTaskTables(): self
     {
         
-        $this->sections[] = [
+        $this->mergeSections( [
             'product-table' => [
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
@@ -1037,7 +1050,7 @@ class PdfBuilder
                 'id' => 'task-table',
                 'elements' => $this->taskTable(),
             ],
-        ];
+        ]);
 
         return $this;
     }
@@ -1050,12 +1063,12 @@ class PdfBuilder
      */
     public function getClientDetails(): self
     {
-        $this->sections[] = [
+        $this->mergeSections( [
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
             ],
-        ];
+        ]);
 
         return $this;
     }
@@ -1317,7 +1330,7 @@ class PdfBuilder
             ['element' => 'th', 'content' => '$product.quantity_label', 'properties' => ['data-ref' => 'delivery_note-product.quantity_label']],
         ];
 
-        $items = $this->transformLineItems($this->service->config->entity->line_items, $this->service->config->document_type);
+        $items = $this->transformLineItems($this->service->config->entity->line_items, $this->service->document_type);
 
         $this->processNewLines($items);
 
@@ -1422,9 +1435,9 @@ class PdfBuilder
     }
 
 
-////////////////////////////////////////
+    ////////////////////////////////////////
     // Dom Traversal
-    ///////////////
+    ///////////////////////////////////////
 
 
     public function getSectionNode(string $selector)
@@ -1482,7 +1495,7 @@ class PdfBuilder
             $contains_html = false;
 
             if ($child['element'] !== 'script') {
-                if (array_key_exists('process_markdown', $this->data) && array_key_exists('content', $child) && $this->data['process_markdown']) {
+                if (array_key_exists('process_markdown', $this->service->options) && array_key_exists('content', $child) && $this->service->options['process_markdown']) {
                     $child['content'] = str_replace('<br>', "\r", $child['content']);
                     $child['content'] = $this->commonmark->convert($child['content'] ?? '');
                 }
@@ -1530,9 +1543,9 @@ class PdfBuilder
 
     public function updateVariables()
     {
-        $html = strtr($this->getCompiledHTML(), $this->service->config->html_variables['labels']);
+        $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
 
-        $html = strtr($html, $this->service->config->html_variables['values']);
+        $html = strtr($html, $this->service->html_variables['values']);
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
@@ -1562,7 +1575,7 @@ class PdfBuilder
     {
         foreach ($this->sections as $element) {
             if (isset($element['elements'])) {
-                $this->getEmptyChildrens($element['elements'], $this->service->config->html_variables);
+                $this->getEmptyChildrens($element['elements'], $this->service->html_variables);
             }
         }
 
@@ -1573,7 +1586,7 @@ class PdfBuilder
     {
         foreach ($children as $key => $child) {
             if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
-                $value = strtr($child['content'], $this->service->config->html_variables['values']);
+                $value = strtr($child['content'], $this->service->html_variables['values']);
                 if ($value === '' || $value === '&nbsp;') {
                     $child['is_empty'] = true;
                 }
