@@ -20,6 +20,7 @@ use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use League\CommonMark\CommonMarkConverter;
 
 class PdfBuilder
 {
@@ -27,11 +28,21 @@ class PdfBuilder
 
     public PdfService $service;
 
+    private CommonMarkConverter $commonmark;
+
     /**
      * an array of sections to be injected into the template
+     * 
      * @var array
      */
     public array $sections = [];
+
+    /**
+     * The DOM Document;
+     *
+     * @var $document
+     */
+    public DomDocument $document;
 
     /**
      * @param PdfService $service 
@@ -39,7 +50,13 @@ class PdfBuilder
      */
     public function __construct(PdfService $service)
     {
+
         $this->service = $service;
+
+        $this->commonmark = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ]);
+
     }
 
     /**
@@ -52,11 +69,7 @@ class PdfBuilder
     {
 
         $this->getTemplate()
-             ->buildSections();
-
-             nlog($this->sections);
-
-             $this
+             ->buildSections()
              ->getEmptyElements()
              ->updateElementProperties()
              ->updateVariables();
@@ -97,6 +110,7 @@ class PdfBuilder
         $this->xpath = new DOMXPath($document);
 
         return $this;
+
     }
 
     /**
@@ -120,9 +134,11 @@ class PdfBuilder
 
     private function mergeSections(array $section) :self
     {
+
         $this->sections = array_merge($this->sections, $section);
 
         return $this;
+
     }
 
     /**
@@ -212,6 +228,7 @@ class PdfBuilder
         return [
             ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->service->config->client)],
         ];
+
     }
 
 
@@ -222,6 +239,7 @@ class PdfBuilder
      */
     public function statementPaymentTable(): array
     {
+
         if (is_null($this->service->option['payments'])) {
             return [];
         }
@@ -255,6 +273,7 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
         ];
+
     }
 
     /**
@@ -666,6 +685,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
  /**
@@ -680,6 +700,7 @@ class PdfBuilder
      */
     public function processTaxColumns(string $type): void
     {
+
         if ($type == 'product') {
             $type_id = 1;
         }
@@ -722,6 +743,7 @@ class PdfBuilder
                 array_splice($this->service->config->pdf_variables["{$type}_columns"], $key, 1, $taxes);
             }
         }
+
     }
 
     /**
@@ -752,6 +774,7 @@ class PdfBuilder
             ['element' => 'script', 'content' => $javascript],
             ['element' => 'script', 'content' => $html_decode],
         ]];
+
     }
 
     /**
@@ -772,6 +795,7 @@ class PdfBuilder
         ]);
 
         return $this;
+
     }
 
     /**
@@ -785,7 +809,6 @@ class PdfBuilder
      */
     private function getProductEntityDetails(): self
     {
-
 
         if($this->service->config->entity_string == 'invoice')
         {
@@ -821,7 +844,6 @@ class PdfBuilder
 
         return $this;
         
-
     }
 
     /**
@@ -850,6 +872,7 @@ class PdfBuilder
      */
     private function statementTableTotals(): array
     {
+
         return [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
@@ -857,6 +880,7 @@ class PdfBuilder
                 ]],
             ]],
         ];
+
     }
 
     /**
@@ -898,6 +922,7 @@ class PdfBuilder
         }
 
         return false;
+
     }
 
     //First pass done, need a second pass to abstract this content completely.
@@ -1053,6 +1078,7 @@ class PdfBuilder
         ]);
 
         return $this;
+
     }
 
     /**
@@ -1063,6 +1089,7 @@ class PdfBuilder
      */
     public function getClientDetails(): self
     {
+
         $this->mergeSections( [
             'client-details' => [
                 'id' => 'client-details',
@@ -1071,6 +1098,7 @@ class PdfBuilder
         ]);
 
         return $this;
+
     }
 
 /**
@@ -1080,6 +1108,7 @@ class PdfBuilder
      */
     public function productTable(): array
     {
+
         $product_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         });
@@ -1092,6 +1121,7 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('product')],
             ['element' => 'tbody', 'elements' => $this->buildTableBody('$product')],
         ];
+
     }
 
     /**
@@ -1101,6 +1131,7 @@ class PdfBuilder
      */
     public function taskTable(): array
     {
+
         $task_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
             return $item->type_id == 2;
         });
@@ -1113,6 +1144,7 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('task')],
             ['element' => 'tbody', 'elements' => $this->buildTableBody('$task')],
         ];
+
     }
 
 
@@ -1156,6 +1188,7 @@ class PdfBuilder
        $variables = $this->service->config->pdf_variables['invoice_details'];
 
         return $this->genericDetailsBuilder($variables);
+
     }
 
     /**
@@ -1166,6 +1199,7 @@ class PdfBuilder
      */
     public function quoteDetails(): array
     {
+
         $variables = $this->service->config->pdf_variables['quote_details'];
         
         if ($this->service->config->entity->partial > 0) {
@@ -1173,6 +1207,7 @@ class PdfBuilder
         }
 
         return $this->genericDetailsBuilder($variables);
+
     }
 
 
@@ -1188,6 +1223,7 @@ class PdfBuilder
         $variables = $this->service->config->pdf_variables['credit_details'];
     
         return $this->genericDetailsBuilder($variables);
+
     }
 
     /**
@@ -1220,6 +1256,7 @@ class PdfBuilder
         });
 
         return $this->genericDetailsBuilder($variables);
+
     }
 
     /**
@@ -1255,6 +1292,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
 
@@ -1301,6 +1339,7 @@ class PdfBuilder
      */
     public function clientDetails(): array
     {
+
         $elements = [];
 
         if(!$this->service->config->client)
@@ -1313,6 +1352,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
     /**
@@ -1323,7 +1363,6 @@ class PdfBuilder
     public function deliveryNoteTable(): array
     {
         /* Static array of delivery note columns*/
-    
         $thead = [
             ['element' => 'th', 'content' => '$item_label', 'properties' => ['data-ref' => 'delivery_note-item_label']],
             ['element' => 'th', 'content' => '$description_label', 'properties' => ['data-ref' => 'delivery_note-description_label']],
@@ -1354,6 +1393,7 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $thead],
             ['element' => 'tbody', 'elements' => $this->buildTableBody(PdfService::DELIVERY_NOTE)],
         ];
+
     }
 
     /**
@@ -1366,6 +1406,7 @@ class PdfBuilder
      */
     public function processNewLines(array &$items): void
     {
+
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
                 $item[$variable] = str_replace("\n", '<br>', $value);
@@ -1373,6 +1414,7 @@ class PdfBuilder
 
             $items[$key] = $item;
         }
+
     }
 
     /**
@@ -1383,6 +1425,7 @@ class PdfBuilder
      */
     public function companyDetails(): array
     {
+
         $variables = $this->service->config->pdf_variables['company_details'];
 
         $elements = [];
@@ -1392,6 +1435,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
     /**
@@ -1403,6 +1447,7 @@ class PdfBuilder
      */
     public function companyAddress(): array
     {
+
         $variables = $this->service->config->pdf_variables['company_address'];
 
         $elements = [];
@@ -1412,6 +1457,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
     /**
@@ -1423,6 +1469,7 @@ class PdfBuilder
      */
     public function vendorDetails(): array
     {
+
         $elements = [];
 
         $variables = $this->service->config->pdf_variables['vendor_details'];
@@ -1432,6 +1479,7 @@ class PdfBuilder
         }
 
         return $elements;
+
     }
 
 
@@ -1442,11 +1490,14 @@ class PdfBuilder
 
     public function getSectionNode(string $selector)
     {
+
         return $this->document->getElementById($selector);
+
     }
 
     public function updateElementProperties() :self
     {
+
         foreach ($this->sections as $element) {
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
@@ -1468,6 +1519,7 @@ class PdfBuilder
         }
 
         return $this;
+
     }
 
     public function updateElementProperty($element, string $attribute, ?string $value)
@@ -1487,15 +1539,17 @@ class PdfBuilder
         }
 
         return $element;
+
     }
 
     public function createElementContent($element, $children) :self
     {
+
         foreach ($children as $child) {
             $contains_html = false;
 
             if ($child['element'] !== 'script') {
-                if (array_key_exists('process_markdown', $this->service->options) && array_key_exists('content', $child) && $this->service->options['process_markdown']) {
+                if ($this->service->company->markdown_enabled && array_key_exists('content', $child)) {
                     $child['content'] = str_replace('<br>', "\r", $child['content']);
                     $child['content'] = $this->commonmark->convert($child['content'] ?? '');
                 }
@@ -1539,10 +1593,12 @@ class PdfBuilder
         }
 
         return $this;
+
     }
 
     public function updateVariables()
     {
+
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
 
         $html = strtr($html, $this->service->html_variables['values']);
@@ -1552,10 +1608,12 @@ class PdfBuilder
         $this->document->saveHTML();
 
         return $this;
+
     }
 
     public function updateVariable(string $element, string $variable, string $value)
     {
+
         $element = $this->document->getElementById($element);
 
         $original = $element->nodeValue;
@@ -1569,10 +1627,12 @@ class PdfBuilder
         );
 
         return $element;
+    
     }
 
     public function getEmptyElements() :self
     {
+
         foreach ($this->sections as $element) {
             if (isset($element['elements'])) {
                 $this->getEmptyChildrens($element['elements'], $this->service->html_variables);
@@ -1580,10 +1640,12 @@ class PdfBuilder
         }
 
         return $this;
+
     }
 
     public function getEmptyChildrens(array $children)
     {
+
         foreach ($children as $key => $child) {
             if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
                 $value = strtr($child['content'], $this->service->html_variables['values']);
@@ -1598,6 +1660,7 @@ class PdfBuilder
         }
 
         return $this;
+
     }
 
 }

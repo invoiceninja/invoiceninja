@@ -12,12 +12,18 @@
 namespace App\Services\Pdf;
 
 use App\Models\Account;
-use App\Services\Pdf\PdfConfiguration;
-use App\Utils\HtmlEngine;
 use App\Models\Company;
+use App\Services\Pdf\PdfConfiguration;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
 
 class PdfService
 {
+
+    use PdfMaker, PageNumbering;
 
     public $invitation;
 
@@ -55,58 +61,90 @@ class PdfService
 
         $this->html_variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
 
-        $this->builder = (new PdfBuilder($this));
-
         $this->designer = (new PdfDesigner($this))->build();
 
         $this->document_type = $document_type;
 
         $this->options = $options;
 
-    }
-
-    public function build()
-    {
-        $this->builder->build();
-
-        return $this;
+        $this->builder = (new PdfBuilder($this))->build();
 
     }
 
+    /**
+     * Resolves the PDF generation type and
+     * attempts to generate a PDF from the HTML
+     * string.
+     * 
+     * @return mixed
+     * 
+     */
     public function getPdf()
     {
 
+        try {
+
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') 
+            {
+            
+                $pdf = (new Phantom)->convertHtmlToPdf($this->getHtml());
+            
+            } 
+            elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') 
+            {
+            
+                $pdf = (new NinjaPdf())->build($this->getHtml());
+            
+            } 
+            else 
+            {
+            
+                $pdf = $this->makePdf(null, null, $this->getHtml());
+            
+            }
+
+            $numbered_pdf = $this->pageNumbering($pdf, $this->company);
+
+            if ($numbered_pdf) 
+            {
+            
+                $pdf = $numbered_pdf;
+            
+            }
+
+
+        } catch (\Exception $e) {
+
+            nlog(print_r($e->getMessage(), 1));
+
+            throw new \Exception($e->getMessage(), $e->getCode());
+
+        }
+
+        return $pdf;
+
     }
 
-    public function getHtml()
+    /**
+     * Renders the dom document to HTML
+     * 
+     * @return string
+     * 
+     */
+    public function getHtml(): string
     {
-        return $this->builder->getCompiledHTML();
+
+        $html = $this->builder->getCompiledHTML();
+
+        if (config('ninja.log_pdf_html')) 
+        {
+        
+            info($html);
+        
+        }
+
+        return $html;
+
     }
-
-
-        // $state = [
-        //     'template' => $template->elements([
-        //         'client' => $this->client,
-        //         'entity' => $this->entity,
-        //         'pdf_variables' => (array) $this->company->settings->pdf_variables,
-        //         '$product' => $design->design->product,
-        //         'variables' => $variables,
-        //     ]),
-        //     'variables' => $variables,
-        //     'options' => [
-        //         'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-        //         'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
-        //     ],
-        //     'process_markdown' => $this->entity->client->company->markdown_enabled,
-        // ];
-
-        // $maker = new PdfMakerService($state);
-
-        // $maker
-        //     ->design($template)
-        //     ->build();
-
-
-
 
 }

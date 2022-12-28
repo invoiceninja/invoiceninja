@@ -33,6 +33,17 @@ class PdfServiceTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testPdfGeneration()
+    {
+
+        $invitation = $this->invoice->invitations->first();
+        
+        $service = new PdfService($invitation);
+
+        $this->assertNotNull($service->getPdf());
+
+    }
+
     public function testHtmlGeneration()
     {
 
@@ -40,9 +51,7 @@ class PdfServiceTest extends TestCase
         
         $service = new PdfService($invitation);
 
-        $this->assertIsString($service->build()->getHtml());
-
-        nlog($service->build()->getHtml());
+        $this->assertIsString($service->getHtml());
         
     }
 

@@ -29,7 +29,9 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Services\Pdf\PdfService;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\App;
 
 class PdfConfiguration
 {
@@ -61,7 +63,9 @@ class PdfConfiguration
 
     /**
      * The parent object of the currency 
+     * 
      * @var App\Models\Client | App\Models\Vendor
+     * 
      */
     public $currency_entity;
 
@@ -72,20 +76,36 @@ class PdfConfiguration
         
     }
 
-    public function init()
+    public function init(): self
     {
 
         $this->setEntityType()
              ->setEntityProperties()
              ->setPdfVariables()
              ->setDesign()
-             ->setCurrency();
+             ->setCurrency()
+             ->setLocale();
 
         return $this;
 
     }
 
-    private function setCurrency() :self
+    private function setLocale(): self
+    {
+
+        App::forgetInstance('translator');
+
+        $t = app('translator');
+
+        App::setLocale($this->settings_object->locale());
+
+        $t->replace(Ninja::transformTranslations($this->settings));
+
+        return $this;
+
+    }
+
+    private function setCurrency(): self
     {
 
         $this->currency = $this->client ? $this->client->currency() : $this->vendor->currency();
@@ -100,6 +120,7 @@ class PdfConfiguration
     {
 
         $default = (array) CompanySettings::getEntityVariableDefaults();
+
         $variables = (array)$this->service->company->settings->pdf_variables;
 
         foreach ($default as $property => $value) {
@@ -139,11 +160,13 @@ class PdfConfiguration
         }
 
         return $this;
+
     }
 
     private function setEntityProperties()
     {
-         $entity_design_id = '';
+
+        $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {
 
@@ -198,6 +221,7 @@ class PdfConfiguration
         $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         return $this;
+        
     }
 
     private function setDesign()
