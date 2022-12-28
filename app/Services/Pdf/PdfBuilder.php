@@ -937,16 +937,16 @@ class PdfBuilder
         //need to see where we don't pass all these particular variables. try and refactor thisout
         $_variables = array_key_exists('variables', $this->service->options)
             ? $this->service->options['variables']
-            : ['values' => ['$this->service->config->entity.public_notes' => $this->service->config->entity->public_notes, '$this->service->config->entity.terms' => $this->service->config->entity->terms, '$this->service->config->entity_footer' => $this->service->config->entity->footer], 'labels' => []];
+            : ['values' => ['$entity.public_notes' => $this->service->config->entity->public_notes, '$entity.terms' => $this->service->config->entity->terms, '$entity_footer' => $this->service->config->entity->footer], 'labels' => []];
 
         $variables = $this->service->config->pdf_variables['total_columns'];
 
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
-                ['element' => 'p', 'content' => strtr(str_replace(["labels","values"], ["",""], $_variables['values']['$this->service->config->entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
+                ['element' => 'p', 'content' => strtr(str_replace(["labels","values"], ["",""], $_variables['values']['$entity.public_notes']), $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
                 ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column; page-break-inside: auto;'], 'elements' => [
-                    ['element' => 'span', 'content' => '$this->service->config->entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$this->service->config->entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
-                    ['element' => 'span', 'content' => strtr(str_replace("labels", "", $_variables['values']['$this->service->config->entity.terms']), $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
+                    ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
+                    ['element' => 'span', 'content' => strtr(str_replace("labels", "", $_variables['values']['$entity.terms']), $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
                 ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start; page-break-inside: auto;'], 'elements' => [
