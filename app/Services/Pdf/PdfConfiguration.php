@@ -100,7 +100,7 @@ class PdfConfiguration
     {
 
         $default = (array) CompanySettings::getEntityVariableDefaults();
-        $variables = $this->service->company->pdf_variables;
+        $variables = (array)$this->service->company->settings->pdf_variables;
 
         foreach ($default as $property => $value) {
             if (array_key_exists($property, $variables)) {

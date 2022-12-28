@@ -27,21 +27,58 @@ class PdfBuilder
 
     public PdfService $service;
 
+    /**
+     * an array of sections to be injected into the template
+     * @var array
+     */
     public array $sections = [];
 
+    /**
+     * @param PdfService $service 
+     * @return void 
+     */
     public function __construct(PdfService $service)
     {
         $this->service = $service;
     }
 
-    public function build()
+    /**
+     * Builds the template sections
+     * 
+     * @return self
+     * 
+     */
+    public function build(): self
     {
 
         $this->getTemplate()
-             ->buildSections();
+             ->buildSections()
+             ->getEmptyElements()
+             ->updateElementProperties()
+             ->updateVariables();
 
+        return $this;
     }
 
+     /**
+     * Final method to get compiled HTML.
+     *
+     * @param bool $final @deprecated // is it? i still see it being called elsewhere
+     * @return mixed
+     */
+    public function getCompiledHTML($final = false)
+    {
+        $html = $this->document->saveHTML();
+
+        return str_replace('%24', '$', $html);
+    }
+
+    /**
+     * Generate the template
+     * 
+     * @return self
+     * 
+     */
     private function getTemplate() :self
     {
 
@@ -56,6 +93,12 @@ class PdfBuilder
         return $this;
     }
 
+    /**
+     * Generates product entity sections
+     * 
+     * @return self
+     * 
+     */
     private function getProductSections(): self
     {
      
@@ -69,6 +112,12 @@ class PdfBuilder
 
     }
 
+    /**
+     * Generates delivery note sections
+     * 
+     * @return self
+     * 
+     */
     private function getDeliveryNoteSections(): self
     {
 
@@ -94,6 +143,12 @@ class PdfBuilder
 
     }
 
+    /**
+     * Generates statement sections
+     * 
+     * @return self
+     * 
+     */
     private function getStatementSections(): self
     {
 
@@ -130,7 +185,12 @@ class PdfBuilder
 
     }
 
-
+    /**
+     * Parent method for building invoice table totals
+     * for statements.
+     *
+     * @return array
+     */
     public function statementInvoiceTableTotals(): array
     {
 
@@ -184,6 +244,12 @@ class PdfBuilder
         ];
     }
 
+    /**
+     * Generates the statement payments table
+     * 
+     * @return array
+     * 
+     */
     public function statementPaymentTableTotals(): array
     {
         if (is_null($this->service->options['payments']) || !$this->service->options['payments']->first()) {
@@ -201,6 +267,12 @@ class PdfBuilder
         ];
     }
 
+    /**
+     * Generates the statement aging table
+     * 
+     * @return array
+     * 
+     */
     public function statementAgingTable(): array
     {
 
@@ -224,6 +296,12 @@ class PdfBuilder
     }
 
 
+    /**
+     * Generates the purchase order sections
+     * 
+     * @return self
+     * 
+     */
     private function getPurchaseOrderSections(): self
     {
 
@@ -245,17 +323,24 @@ class PdfBuilder
 
     }
 
+    /**
+     * Generates the generic section which apply
+     * across all design templates
+     * 
+     * @return self
+     * 
+     */
     private function genericSectionBuilder(): self
     {
 
         $this->sections[] = [
             'company-details' => [
                 'id' => 'company-details',
-                'elements' => $this->service->companyDetails(),
+                'elements' => $this->companyDetails(),
             ],
             'company-address' => [
                 'id' => 'company-address',
-                'elements' => $this->service->companyAddress(),
+                'elements' => $this->companyAddress(),
             ],
             'footer-elements' => [
                 'id' => 'footer',
@@ -268,6 +353,12 @@ class PdfBuilder
         return $this;
     }
 
+    /**
+     * Generates the invoices table for statements
+     * 
+     * @return array
+     * 
+     */
     public function statementInvoiceTable(): array
     {
 
@@ -277,10 +368,10 @@ class PdfBuilder
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->service->config->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->service->config->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->service->config->client) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->service->config->client) ?: ' '];
 
             $tbody[] = $element;
         }
@@ -297,6 +388,7 @@ class PdfBuilder
      *
      * @param string $type "$product" or "$task"
      * @return array
+     * 
      */
     public function buildTableBody(string $type): array
     {
@@ -369,7 +461,7 @@ class PdfBuilder
             } else {
                 $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
 
-                foreach ($this->context['pdf_variables']["{$_type}_columns"] as $key => $cell) {
+                foreach ($this->service->config->pdf_variables["{$_type}_columns"] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
@@ -404,8 +496,6 @@ class PdfBuilder
         return $elements;
     }
 
-
-
     /**
      * Formats the line items for display.
      *
@@ -419,9 +509,6 @@ class PdfBuilder
     { 
 
         $data = [];
-
-        if (! is_array($items)) {
-        }
 
         $locale_info = localeconv();
 
@@ -448,8 +535,8 @@ class PdfBuilder
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
 
             $currentDateTime = null;
-            if (isset($this->entity->next_send_date)) {
-                $currentDateTime = Carbon::parse($this->entity->next_send_date);
+            if (isset($this->service->config->entity->next_send_date)) {
+                $currentDateTime = Carbon::parse($this->service->config->entity->next_send_date);
             }
 
             $data[$key][$table_type.'.notes'] = Helpers::processReservedKeywords($item->notes, $this->service->config->currency_entity, $currentDateTime);
@@ -531,6 +618,7 @@ class PdfBuilder
      *
      * @param string $type "product" or "task"
      * @return array
+     * 
      */
     public function buildTableHeader(string $type): array
     {
@@ -546,7 +634,7 @@ class PdfBuilder
             '$task.rate' => '$task.cost',
         ];
 
-        foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
+        foreach ($this->service->config->pdf_variables["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.discount' && !$this->service->company->enable_product_discount) {
@@ -623,7 +711,13 @@ class PdfBuilder
         }
     }
 
-
+    /**
+     * Generates the javascript block for 
+     * hiding elements which need to be hidden
+     * 
+     * @return array
+     * 
+     */
     public function sharedFooterElements(): array
     {
         // We want to show headers for statements, no exceptions.
@@ -647,6 +741,13 @@ class PdfBuilder
         ]];
     }
 
+    /**
+     * Generates the totals table for 
+     * the product type entities
+     * 
+     * @return self
+     * 
+     */
     private function getProductTotals(): self
     {
 
@@ -660,6 +761,15 @@ class PdfBuilder
         return $this;
     }
 
+    /**
+     * Generates the entity details for
+     * Credits
+     * Quotes
+     * Invoices
+     * 
+     * @return self
+     * 
+     */
     private function getProductEntityDetails(): self
     {
 
@@ -701,7 +811,12 @@ class PdfBuilder
 
     }
 
-    /* Parent entry point when building sections of the design content */
+    /**
+     * Parent entry point when building sections of the design content
+     * 
+     * @return self
+     * 
+     */
     private function buildSections() :self
     {
 
@@ -714,6 +829,12 @@ class PdfBuilder
 
     }
 
+    /**
+     * Generates the table totals for statements
+     * 
+     * @return array
+     * 
+     */
     private function statementTableTotals(): array
     {
         return [
@@ -725,6 +846,14 @@ class PdfBuilder
         ];
     }
 
+    /**
+     * Performs a variable check to ensure
+     * the variable exists
+     * 
+     * @param  string $variables
+     * @return bool
+     * 
+     */
     public function entityVariableCheck(string $variable): bool
     {
         // When it comes to invoice balance, we'll always show it.
@@ -747,11 +876,11 @@ class PdfBuilder
             $_variable = $aliases[$variable];
         }
 
-        if (is_null($this->entity->{$_variable})) {
+        if (is_null($this->service->config->entity->{$_variable})) {
             return true;
         }
 
-        if (empty($this->entity->{$_variable})) {
+        if (empty($this->service->config->entity->{$_variable})) {
             return true;
         }
 
@@ -759,11 +888,17 @@ class PdfBuilder
     }
 
     //First pass done, need a second pass to abstract this content completely.
+    /**
+     * Builds the table totals for all entities, we'll want to split this
+     * 
+     * @return array
+     * 
+     */
     public function getTableTotals() :array
     {
         //need to see where we don't pass all these particular variables. try and refactor thisout
-        $_variables = array_key_exists('variables', $this->context)
-            ? $this->context['variables']
+        $_variables = array_key_exists('variables', $this->service->options)
+            ? $this->service->options['variables']
             : ['values' => ['$this->service->config->entity.public_notes' => $this->service->config->entity->public_notes, '$this->service->config->entity.terms' => $this->service->config->entity->terms, '$this->service->config->entity_footer' => $this->service->config->entity->footer], 'labels' => []];
 
         $variables = $this->service->config->pdf_variables['total_columns'];
@@ -1287,25 +1422,169 @@ class PdfBuilder
     }
 
 
+////////////////////////////////////////
+    // Dom Traversal
+    ///////////////
 
 
+    public function getSectionNode(string $selector)
+    {
+        return $this->document->getElementById($selector);
+    }
 
+    public function updateElementProperties() :self
+    {
+        foreach ($this->sections as $element) {
+            if (isset($element['tag'])) {
+                $node = $this->document->getElementsByTagName($element['tag'])->item(0);
+            } elseif (! is_null($this->document->getElementById($element['id']))) {
+                $node = $this->document->getElementById($element['id']);
+            } else {
+                continue;
+            }
 
- //         if (isset($this->data['template']) && isset($this->data['variables'])) {
- //            $this->getEmptyElements($this->data['template'], $this->data['variables']);
- //        }
+            if (isset($element['properties'])) {
+                foreach ($element['properties'] as $property => $value) {
+                    $this->updateElementProperty($node, $property, $value);
+                }
+            }
 
- //        if (isset($this->data['template'])) {
- //            $this->updateElementProperties($this->data['template']);
- //        }
+            if (isset($element['elements'])) {
+                $this->createElementContent($node, $element['elements']);
+            }
+        }
 
- //        if (isset($this->data['variables'])) {
- //            $this->updateVariables($this->data['variables']);
- //        }
+        return $this;
+    }
 
- //        return $this;
+    public function updateElementProperty($element, string $attribute, ?string $value)
+    {
+        // We have exception for "hidden" property.
+        // hidden="true" or hidden="false" will both hide the element,
+        // that's why we have to create an exception here for this rule.
 
+        if ($attribute == 'hidden' && ($value == false || $value == 'false')) {
+            return $element;
+        }
 
+        $element->setAttribute($attribute, $value);
 
-    
+        if ($element->getAttribute($attribute) === $value) {
+            return $element;
+        }
+
+        return $element;
+    }
+
+    public function createElementContent($element, $children) :self
+    {
+        foreach ($children as $child) {
+            $contains_html = false;
+
+            if ($child['element'] !== 'script') {
+                if (array_key_exists('process_markdown', $this->data) && array_key_exists('content', $child) && $this->data['process_markdown']) {
+                    $child['content'] = str_replace('<br>', "\r", $child['content']);
+                    $child['content'] = $this->commonmark->convert($child['content'] ?? '');
+                }
+            }
+
+            if (isset($child['content'])) {
+                if (isset($child['is_empty']) && $child['is_empty'] === true) {
+                    continue;
+                }
+
+                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
+            }
+
+            if ($contains_html) {
+                // If the element contains the HTML, we gonna display it as is. Backend is going to
+                // encode it for us, preventing any errors on the processing stage.
+                // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
+                // To get all elements that need frontend decoding, we use 'data-state' property.
+
+                $_child = $this->document->createElement($child['element'], '');
+                $_child->setAttribute('data-state', 'encoded-html');
+                $_child->nodeValue = htmlspecialchars($child['content']);
+            } else {
+                // .. in case string doesn't contain any HTML, we'll just return
+                // raw $content.
+
+                $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
+            }
+
+            $element->appendChild($_child);
+
+            if (isset($child['properties'])) {
+                foreach ($child['properties'] as $property => $value) {
+                    $this->updateElementProperty($_child, $property, $value);
+                }
+            }
+
+            if (isset($child['elements'])) {
+                $this->createElementContent($_child, $child['elements']);
+            }
+        }
+
+        return $this;
+    }
+
+    public function updateVariables()
+    {
+        $html = strtr($this->getCompiledHTML(), $this->service->config->html_variables['labels']);
+
+        $html = strtr($html, $this->service->config->html_variables['values']);
+
+        @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+
+        $this->document->saveHTML();
+
+        return $this;
+    }
+
+    public function updateVariable(string $element, string $variable, string $value)
+    {
+        $element = $this->document->getElementById($element);
+
+        $original = $element->nodeValue;
+
+        $element->nodeValue = '';
+
+        $replaced = strtr($original, [$variable => $value]);
+
+        $element->appendChild(
+            $this->document->createTextNode($replaced)
+        );
+
+        return $element;
+    }
+
+    public function getEmptyElements() :self
+    {
+        foreach ($this->sections as $element) {
+            if (isset($element['elements'])) {
+                $this->getEmptyChildrens($element['elements'], $this->service->config->html_variables);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getEmptyChildrens(array $children)
+    {
+        foreach ($children as $key => $child) {
+            if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
+                $value = strtr($child['content'], $this->service->config->html_variables['values']);
+                if ($value === '' || $value === '&nbsp;') {
+                    $child['is_empty'] = true;
+                }
+            }
+
+            if (isset($child['elements'])) {
+                $this->getEmptyChildrens($child['elements']);
+            }
+        }
+
+        return $this;
+    }
+
 }
