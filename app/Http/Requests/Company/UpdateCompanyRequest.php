@@ -110,7 +110,8 @@ class UpdateCompanyRequest extends Request
             }
         }
 
-        $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
+        if(isset($settings['email_style_custom']))
+            $settings['email_style_custom'] = str_replace(['{{','}}'], ['',''], $settings['email_style_custom']);
 
         if (! $account->isFreeHostedClient()) {
             return $settings;

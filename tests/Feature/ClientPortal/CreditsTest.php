@@ -100,7 +100,7 @@ class CreditsTest extends TestCase
         $c2->load('client');
         $c3->load('client');
 
-        Livewire::test(CreditsTable::class, ['company' => $company])
+        Livewire::test(CreditsTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertDontSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');
@@ -167,7 +167,7 @@ class CreditsTest extends TestCase
 
         $this->actingAs($client->contacts->first(), 'contact');
 
-        Livewire::test(CreditsTable::class, ['company' => $company])
+        Livewire::test(CreditsTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertSee('testing-number-03');

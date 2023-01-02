@@ -25,7 +25,7 @@ class PDF extends FPDI
         $this->SetTextColor(135, 135, 135);
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
-        $trans = iconv('UTF-8', 'ISO-8859-7', $trans);
+        // $trans = iconv('UTF-8', 'ISO-8859-7', $trans);
         $this->Cell(0, 5, $trans, 0, 0, $this->text_alignment);
     }
 

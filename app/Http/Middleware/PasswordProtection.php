@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 use stdClass;
 
 class PasswordProtection
@@ -111,7 +112,18 @@ class PasswordProtection
                     return $next($request);
                 }
             }
+            elseif(auth()->user()->oauth_provider_id == 'apple')
+            {
+                
+                $user = Socialite::driver('apple')->userFromToken($request->header('X-API-OAUTH-PASSWORD'));
 
+                if($user && ($user->email == auth()->user()->email)){
+
+                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                    return $next($request);
+                }
+                
+            }
 
 
             return response()->json($error, 412);

@@ -26,6 +26,6 @@
     </div>
 
     <div class="flex flex-col mt-4">
-        @livewire('quotes-table', ['company' => $company])
+        @livewire('quotes-table', ['company_id' => $company->id, 'db' => $company->db])
     </div>
 @endsection

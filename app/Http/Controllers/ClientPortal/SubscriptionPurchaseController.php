@@ -53,6 +53,16 @@ class SubscriptionPurchaseController extends Controller
             $this->setLocale($request->query('locale'));
         }
 
+        if(!auth()->guard('contact')->check() && $subscription->registration_required && $subscription->company->client_can_register) {
+
+            session()->put('url.intended', route('client.subscription.upgrade',['subscription' => $subscription->hashed_id]));
+
+            return redirect()->route('client.register', ['company_key' => $subscription->company->company_key]);
+        }
+        elseif(!auth()->guard('contact')->check() && $subscription->registration_required && ! $subscription->company->client_can_register) {
+            return render('generic.subscription_blocked', ['account' => $subscription->company->account, 'company' => $subscription->company]);
+        }
+
         return view('billing-portal.purchasev2', [
             'subscription' => $subscription,
             'hash' => Str::uuid()->toString(),
