@@ -58,13 +58,48 @@ class EntitySentObject
 
         $this->setTemplate();
 
-        $mail_obj = new stdClass;
-        $mail_obj->amount = $this->getAmount();
-        $mail_obj->subject = $this->getSubject();
-        $mail_obj->data = $this->getData();
-        $mail_obj->markdown = 'email.admin.generic';
-        $mail_obj->tag = $this->company->company_key;
+        if($this->template == 'purchase_order')
+        {
 
+            $mail_obj = new stdClass;
+            $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
+            $mail_obj->subject = ctrans($this->template_subject,
+                [
+                    'vendor' => $this->contact->vendor->present()->name(),
+                    'purchase_order' => $this->entity->number,
+                ]
+            );
+            $mail_obj->data = [
+                'title' => $mail_obj->subject,
+                'message' => ctrans($this->template_body,
+                            [
+                                'amount' => $mail_obj->amount,
+                                'vendor' => $this->contact->vendor->present()->name(),
+                                'purchase_order' => $this->entity->number,
+                            ]
+                        ),
+                'url' => $this->invitation->getAdminLink(),
+                'button' => ctrans("texts.view_{$this->entity_type}"),
+                'signature' => $this->company->settings->email_signature,
+                'logo' => $this->company->present()->logo(),
+                'settings' => $this->company->settings,
+                'whitelabel' => $this->company->account->isPaid() ? true : false,
+            ];
+            $mail_obj->markdown = 'email.admin.generic';
+            $mail_obj->tag = $this->company->company_key;
+        
+        }
+        else {
+        
+            $mail_obj = new stdClass;
+            $mail_obj->amount = $this->getAmount();
+            $mail_obj->subject = $this->getSubject();
+            $mail_obj->data = $this->getData();
+            $mail_obj->markdown = 'email.admin.generic';
+            $mail_obj->tag = $this->company->company_key;
+        
+        }
+        
         return $mail_obj;
     }
 
@@ -101,7 +136,10 @@ class EntitySentObject
                 $this->template_subject = 'texts.notification_credit_sent_subject';
                 $this->template_body = 'texts.notification_credit_sent';
                 break;
-
+            case 'purchase_order':
+                $this->template_subject = 'texts.notification_purchase_order_sent_subject';
+                $this->template_body = 'texts.notification_purchase_order_sent';
+                break;
             default:
                 $this->template_subject = 'texts.notification_invoice_sent_subject';
                 $this->template_body = 'texts.notification_invoice_sent';

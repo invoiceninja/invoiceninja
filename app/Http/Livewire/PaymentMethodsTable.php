@@ -3,7 +3,9 @@
 namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
+use App\Models\Company;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -13,17 +15,23 @@ class PaymentMethodsTable extends Component
     use WithPagination;
     use WithSorting;
 
-    public $per_page = 10;
+    public int $per_page = 10;
 
-    public $client;
+    public Client $client;
 
-    public $company;
+    public Company $company;
 
-    public function mount($client)
+    public int $client_id;
+
+    public string $db;
+
+    public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
 
-        $this->client = $client;
+        $this->client = Client::with('company')->find($this->client_id);
+
+        $this->company = $this->client->company;
     }
 
     public function render()

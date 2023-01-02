@@ -119,7 +119,8 @@ class CheckData extends Command
         $this->checkDuplicateRecurringInvoices();
         $this->checkOauthSanity();
         $this->checkVendorSettings();
-
+        $this->checkClientSettings();
+        
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -952,24 +953,24 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
 
-            Client::query()->whereNull('settings->currency_id')->cursor()->each(function ($client){
+            // Client::query()->whereNull('settings->currency_id')->cursor()->each(function ($client){
 
-                if(is_array($client->settings) && count($client->settings) == 0)
-                {
-                    $settings = ClientSettings::defaults();
-                    $settings->currency_id = $client->company->settings->currency_id;
-                }
-                else {
-                    $settings = $client->settings;
-                    $settings->currency_id = $client->company->settings->currency_id;
-                }
+            //     if(is_array($client->settings) && count($client->settings) == 0)
+            //     {
+            //         $settings = ClientSettings::defaults();
+            //         $settings->currency_id = $client->company->settings->currency_id;
+            //     }
+            //     else {
+            //         $settings = $client->settings;
+            //         $settings->currency_id = $client->company->settings->currency_id;
+            //     }
 
-                $client->settings = $settings;
-                $client->save();
+            //     $client->settings = $settings;
+            //     $client->save();
 
-                $this->logMessage("Fixing currency for # {$client->id}");
+            //     $this->logMessage("Fixing currency for # {$client->id}");
 
-            });
+            // });
 
 
             Client::query()->whereNull('country_id')->cursor()->each(function ($client){

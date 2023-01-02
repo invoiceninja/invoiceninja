@@ -238,7 +238,6 @@ class ClientFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }

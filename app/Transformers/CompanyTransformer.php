@@ -193,6 +193,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_lock' => (bool) $company->invoice_task_lock,
             'convert_payment_currency' => (bool) $company->convert_payment_currency,
             'convert_expense_currency' => (bool) $company->convert_expense_currency,
+            'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
         ];
     }
 

@@ -23,6 +23,7 @@ use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Quote\QuoteCheckExpired;
+use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
@@ -67,6 +68,9 @@ class Kernel extends ConsoleKernel
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping()->name('recurring-invoice-job')->onOneServer();
+
+        /* Stale Invoice Cleanup*/
+        $schedule->job(new CleanStaleInvoiceOrder)->hourly()->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping()->name('recurring-expense-job')->onOneServer();

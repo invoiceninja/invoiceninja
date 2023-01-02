@@ -47,20 +47,27 @@ class InvoiceFilters extends QueryFilters
 
         $status_parameters = explode(',', $value);
 
+        $invoice_filters = [];
+
         if (in_array('all', $status_parameters)) {
             return $this->builder;
         }
 
         if (in_array('paid', $status_parameters)) {
-            $this->builder->where('status_id', Invoice::STATUS_PAID);
+            $invoice_filters[] = Invoice::STATUS_PAID;
         }
 
         if (in_array('unpaid', $status_parameters)) {
-            $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
+            $invoice_filters[] = Invoice::STATUS_SENT;
+            $invoice_filters[] = Invoice::STATUS_PARTIAL;
         }
 
+        if(count($invoice_filters) >0){
+            $this->builder->whereIn('status_id', $invoice_filters);
+        }
+        
         if (in_array('overdue', $status_parameters)) {
-            $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+            $this->builder->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                             ->where('due_date', '<', Carbon::now())
                             ->orWhere('partial_due_date', '<', Carbon::now());
         }
