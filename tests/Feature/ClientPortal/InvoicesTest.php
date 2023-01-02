@@ -86,12 +86,12 @@ class InvoicesTest extends TestCase
 
         $this->actingAs($client->contacts->first(), 'contact');
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $db])
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->assertSee($sent->number)
             ->assertSee($paid->number)
             ->assertSee($unpaid->number);
 
-        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $db])
+        Livewire::test(InvoicesTable::class, ['company_id' => $company->id, 'db' => $company->db])
             ->set('status', ['paid'])
             ->assertSee($paid->number)
             ->assertDontSee($unpaid->number);
