@@ -196,6 +196,13 @@
                         </li>
                     @endforeach    
                 @endif
+                @if(auth()->guard('contact')->check())
+                <li class="flex py-6">
+                    <div class="flex w-full text-left mt-8">
+                        <a href="{{route('client.dashboard')}}" class="button-link text-primary">{{ ctrans('texts.go_back') }}</a>
+                    </div>
+                </li>
+                @endif
             </ul>
         </div>
     </div>
@@ -209,7 +216,7 @@
 
                 @foreach($bundle->toArray() as $item)
                     <div class="flex justify-between mt-1 mb-1">
-                      <span class="font-light text-sm uppercase">{{$item['product']}} x {{$item['qty']}}</span>
+                      <span class="font-light text-sm">{{ $item['qty'] }} x {{ substr(str_replace(["\r","\n","<BR>","<BR />","<br>","<br />"]," ", $item['product']), 0, 30) . "..." }}</span>
                       <span class="font-bold text-sm">{{ $item['price'] }}</span>
                     </div>
                 @endforeach
@@ -284,6 +291,7 @@
                             </form>
                         @endif
 
+                        @if($is_eligible)
                         <div class="mt-4 container mx-auto flex w-full justify-center" x-show.important="toggle" x-transition>
                             <span class="">
                                 <svg class="animate-spin h-8 w-8 text-primary mx-auto justify-center w-full" xmlns="http://www.w3.org/2000/svg"
@@ -295,6 +303,9 @@
                                 </svg>
                             </span>
                         </div>
+                        @else
+                           <small class="mt-4 block">{{ $this->not_eligible_message }}</small>
+                        @endif
                         
                     </div>
 

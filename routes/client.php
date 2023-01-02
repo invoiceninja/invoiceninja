@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::post('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'bulk'])->name('invoices.bulk');
     Route::get('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'catch_bulk'])->name('invoices.catch_bulk');
     Route::post('invoices/download', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'download'])->name('invoices.download');
-    Route::get('invoices/{invoice}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show');
+    Route::get('invoices/{invoice}/{hash?}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show');
     Route::get('invoices/{invoice_invitation}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show_invitation');
 
     Route::get('recurring_invoices', [App\Http\Controllers\ClientPortal\RecurringInvoiceController::class, 'index'])->name('recurring_invoices.index')->middleware('portal_enabled');

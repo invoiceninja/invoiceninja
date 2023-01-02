@@ -80,11 +80,19 @@ class UpdateInvoicePayment
                                 ->clearPartial()
                                 ->updateStatus()
                                 ->touchPdf()
+                                ->workFlow()
                                 ->save();
             
-            $invoice->service()
-                ->workFlow()
-                ->save();
+            if($invoice->is_proforma)
+            {
+                $invoice->number = '';
+                $invoice->is_proforma = false;
+                
+                $invoice->service()
+                        ->applyNumber()
+                        ->save();
+            }
+
 
             /* Updates the company ledger */
             $this->payment
@@ -100,17 +108,6 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->save();
 
             $this->payment->applied += $paid_amount;
-
-            $transaction = [
-                'invoice' => $invoice->transaction_event(),
-                'payment' => $this->payment->transaction_event(),
-                'client' => $client->transaction_event(),
-                'credit' => [],
-                'metadata' => [],
-            ];
-
-            // TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
-
 
         });
         

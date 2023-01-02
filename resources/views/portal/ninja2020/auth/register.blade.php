@@ -5,13 +5,21 @@
 
     <div class="grid lg:grid-cols-12 py-8">
         <div class="col-span-12 lg:col-span-8 lg:col-start-3 xl:col-span-6 xl:col-start-4 px-6">
+            @if($register_company->account && !$register_company->account->isPaid())
             <div class="flex justify-center">
-                <img class="h-32 w-auto" src="{{ $register_company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
-            </div>
+                    <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
+                         class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+                </div>
+            @elseif(isset($register_company) && !is_null($register_company))
+            <div class="flex justify-center">
+                    <img src="{{ $register_company->present()->logo()  }}"
+                         class="mx-auto border-b border-gray-100 h-18 pb-4" alt="{{ $register_company->present()->name() }} logo">
+                </div>
+            @endif
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
-            <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
+            <form id="register-form" action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{more: false, busy: false, isSubmitted: false}" x-on:submit="isSubmitted = true">
                 @if($register_company)
                 <input type="hidden" name="company_key" value="{{ $register_company->company_key }}">
                 @endif
@@ -54,6 +62,18 @@
                                         type="password"
                                         name="{{ $field['key'] }}"
                                          />
+                                @elseif($field['key'] === 'currency_id')
+                                    <select 
+                                        id="currency_id"
+                                        class="input w-full form-select bg-white"
+                                        name="currency_id">
+                                        @foreach(App\Utils\TranslationHelper::getCurrencies() as $currency)
+                                            <option
+                                                {{ $currency->id == $register_company->settings->currency_id ? 'selected' : null }} value="{{ $currency->id }}">
+                                                {{ $currency->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 @elseif($field['key'] === 'country_id')
                                     <select 
                                         id="shipping_country"
@@ -112,6 +132,9 @@
                 </div>
 
                 <div class="flex justify-between items-center mt-8">
+                   
+                    <a href="{{route('client.login')}}" class="button button-info bg-green-600 text-white">{{ ctrans('texts.login_label') }}</a>
+
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
                             @if(!empty($register_company->settings->client_portal_terms) || !empty($register_company->settings->client_portal_privacy_policy))
                                 <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
@@ -128,8 +151,10 @@
                             @enderror
                         </span>
                     </span>
-
-                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">{{ ctrans('texts.register')}}</button>
+                    
+                    <button class="button button-primary bg-blue-600" :disabled={{ $submitsForm == 'true' ? 'isSubmitted' : 'busy'}} x-on:click="busy = true">
+                        {{ ctrans('texts.register')}}
+                    </button>
 
                 </div>
             </form>

@@ -46,6 +46,7 @@ class UpdateRecurringExpenseRequest extends Request
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $this->globalRules($rules);
     }
@@ -68,10 +69,6 @@ class UpdateRecurringExpenseRequest extends Request
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }
-
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
 
         if (array_key_exists('documents', $input)) {

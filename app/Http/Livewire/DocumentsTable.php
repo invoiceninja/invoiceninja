@@ -14,6 +14,7 @@ namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Expense;
@@ -31,21 +32,27 @@ class DocumentsTable extends Component
 {
     use WithPagination, WithSorting;
 
-    public $client;
+    public Company $company;
 
-    public $per_page = 10;
+    public Client $client;
 
-    public $company;
+    public int $client_id;
+
+    public int $per_page = 10;
 
     public string $tab = 'documents';
 
+    public string $db;
+
     protected $query;
 
-    public function mount($client)
+    public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
 
-        $this->client = $client;
+        $this->client = Client::with('company')->find($this->client_id);
+
+        $this->company = $this->client->company;
 
         $this->query = $this->documents();
     }
