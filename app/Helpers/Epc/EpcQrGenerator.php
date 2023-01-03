@@ -13,6 +13,7 @@ namespace App\Helpers\Epc;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -35,7 +36,7 @@ class EpcQrGenerator
 
     ];
 
-    public function __construct(protected Company $company, protected Invoice $invoice, protected float $amount){}
+    public function __construct(protected Company $company, protected Invoice|RecurringInvoice $invoice, protected float $amount){}
 
     public function getQrCode()
     {
