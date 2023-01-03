@@ -396,6 +396,10 @@ class HtmlEngine
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->entity->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$city_postal'] = ['value' => $this->entity->present()->cityZip($this->client->city, $this->client->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_postal')];
+        $data['$client.city_postal'] = &$data['$city_postal'];
+        $data['$postal_city'] = ['value' => $this->entity->present()->cityZip($this->client->city, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
+        $data['$client.postal_city'] = &$data['$postal_city'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
         
@@ -446,6 +450,8 @@ class HtmlEngine
 
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+        $data['$company.city_postal'] = ['value' => $this->company->present()->cityZip($this->settings->city, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_postal')];
+        $data['$company.postal_city'] = ['value' => $this->company->present()->cityZip($this->settings->city, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
         $data['$company.name'] = ['value' => $this->settings->name ?: ctrans('texts.untitled_account'), 'label' => ctrans('texts.company_name')];
         $data['$account'] = &$data['$company.name'];
 
