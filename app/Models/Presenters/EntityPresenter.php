@@ -84,6 +84,21 @@ class EntityPresenter extends Presenter
         }
     }
 
+    public function getShippingCity()
+    {
+        $client = $this->entity;
+        $swap = $client->shipping_country && $client->shipping_country->swap_postal_code;
+
+        $city = e($client->shipping_city);
+        $postalCode = e($client->shipping_postal_code);
+
+        if ($city || $postalCode) {
+            return $this->cityZip($city, $postalCode, $swap);
+        } else {
+            return false;
+        }
+    }
+
     public function getShippingCityState()
     {
         $client = $this->entity;
@@ -97,6 +112,15 @@ class EntityPresenter extends Presenter
             return $this->cityStateZip($city, $state, $postalCode, $swap);
         } else {
             return false;
+        }
+    }
+
+    public function cityZip($city, $postalCode, $swap)
+    {
+        if ($swap) {
+            return $postalCode.' '.$city;
+        } else {
+            return $city.' '.$postalCode;
         }
     }
 
