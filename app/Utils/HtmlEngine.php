@@ -596,7 +596,7 @@ class HtmlEngine
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
         }
 
-        if($this->entity_string == 'invoice' && isset($this->company?->custom_fields?->company1))
+        if(($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1))
         {
             $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity,$data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
         }
