@@ -503,7 +503,6 @@ trait MockAccountData
         $this->credit->status_id = Quote::STATUS_SENT;
         $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
 
-        //$this->quote->service()->createInvitations()->markSent();
 
         CreditInvitation::factory()->create([
             'user_id' => $user_id,
@@ -524,6 +523,7 @@ trait MockAccountData
 
         $this->credit->save();
 
+        $this->credit->service()->createInvitations()->markSent();
 
 
         $this->purchase_order = PurchaseOrderFactory::create($this->company->id, $user_id);
