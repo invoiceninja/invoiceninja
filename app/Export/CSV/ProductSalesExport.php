@@ -22,6 +22,7 @@ use App\Transformers\ProductTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use Illuminate\Support\Carbon;
 
 class ProductSalesExport extends BaseExport
 {
@@ -51,11 +52,16 @@ class ProductSalesExport extends BaseExport
         'discount' => 'discount',
         'line_total' => 'line_total',
         'gross_line_total' => 'gross_line_total',
+        'status' => 'status',
+        'date' => 'date',
+        'currency' => 'currency',
+        'client' => 'client',
     ];
 
     private array $decorate_keys = [
         'client',
         'currency',
+        'date',
     ];
 
     public function __construct(Company $company, array $input)
@@ -124,6 +130,8 @@ class ProductSalesExport extends BaseExport
     {
         $entity['client'] = $invoice->client->present()->name();
         $entity['currency'] = $invoice->client->currency()->code;
+        $entity['status'] = $invoice->stringStatus($invoice->status_id);
+        $entity['date'] = Carbon::parse($invoice->date)->format($this->company->date_format());
 
         return $entity;
     }

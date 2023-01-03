@@ -174,9 +174,9 @@ class ProductSalesReportTest extends TestCase
         $response = $pl->run();
 
         $this->assertIsString($response);
-nlog($response);
+// nlog($response);
 
-        // $this->account->delete();
+        $this->account->delete();
     }
 
 
