@@ -80,9 +80,9 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function index(): \Illuminate\Http\Response
+    public function index(SubscriptionFilters $filters): \Illuminate\Http\Response
     {
-        $subscriptions = Subscription::query()->company();
+        $subscriptions = Subscription::filter($filters);
 
         return $this->listResponse($subscriptions);
     }
