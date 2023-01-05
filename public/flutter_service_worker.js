@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "main.dart.js": "9445fa11f73d795670b45a3413ddc6f1",
+  "main.dart.js": "6fb173427decd3f7284172ef60f63170",
 "canvaskit/canvaskit.wasm": "bf50631470eb967688cca13ee181af62",
 "canvaskit/profiling/canvaskit.wasm": "95a45378b69e77af5ed2bc72b2209b94",
 "canvaskit/profiling/canvaskit.js": "38164e5a72bdad0faa4ce740c9b8e564",
@@ -299,7 +299,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/assets/google_fonts/Roboto-Regular.ttf": "8a36205bd9b83e03af0591a004bc97f4",
 "assets/NOTICES": "1a34e70168d56fad075adfb4bdbb20eb",
-"/": "086c7ccb621482956fc20d188409794a",
+"/": "66a0ca32eb7aeb2dbe2ebe8ff94d0556",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "version.json": "43e72e92e1557ca9db0b6a8ef41236ef"
 };
