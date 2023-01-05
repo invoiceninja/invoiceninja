@@ -86,6 +86,7 @@ class QuoteFilters extends QueryFilters
 
         if (in_array('expired', $status_parameters)) {
             $this->builder->where('status_id', Quote::STATUS_SENT)
+                          ->whereNotNull('due_date')
                           ->where('due_date', '<=', now()->toDateString());
         }
 
