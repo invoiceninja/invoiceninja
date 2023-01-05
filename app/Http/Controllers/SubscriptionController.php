@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
+use App\Filters\SubscriptionFilters;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
 use App\Http\Requests\Subscription\EditSubscriptionRequest;
