@@ -1112,6 +1112,9 @@ class CompanyImport implements ShouldQueue
 
         foreach((object)$this->getObject("documents") as $document)
         {
+            //todo enable this for v5.5.51
+            if(!$this->transformDocumentId($document->documentable_id, $document->documentable_type))
+                continue;
 
             $new_document = new Document();
             $new_document->user_id = $this->transformId('users', $document->user_id);
@@ -1279,6 +1282,9 @@ class CompanyImport implements ShouldQueue
             case Payment::class:
                 return $this->transformId('payments', $id);
                 break;
+            case Project::class:
+                return $this->transformId('projects', $id);
+                break;
             case Product::class:
                 return $this->transformId('products', $id);
                 break;
@@ -1294,7 +1300,7 @@ class CompanyImport implements ShouldQueue
 
             
             default:
-                # code...
+                return false;
                 break;
         }
     }
