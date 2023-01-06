@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Quote;
+namespace App\Jobs\Invoice;
 
 use App\Jobs\Util\WebhookHandler;
 use App\Libraries\MultiDB;

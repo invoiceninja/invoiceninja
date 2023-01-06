@@ -22,7 +22,7 @@ use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Quote\InvoiceCheckLateWebhook;
+use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
