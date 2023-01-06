@@ -1155,6 +1155,10 @@ class CompanyImport implements ShouldQueue
                 {
                     try{
                         Storage::disk(config('filesystems.default'))->put($new_document->url, $file);
+
+                        $new_document->disk = config('filesystems.default');
+                        $new_document->save();
+                        
                     }
                     catch(\Exception $e)
                     {

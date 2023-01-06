@@ -22,6 +22,7 @@ use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
+use App\Jobs\Quote\InvoiceCheckLateWebhook;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
@@ -77,6 +78,9 @@ class Kernel extends ConsoleKernel
 
         /* Fires notifications for expired Quotes */
         $schedule->job(new QuoteCheckExpired)->dailyAt('05:10')->withoutOverlapping()->name('quote-expired-job')->onOneServer();
+
+        /* Fires webhooks for overdue Invoice */
+        $schedule->job(new InvoiceCheckLateWebhook)->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-job')->onOneServer();
 
         /* Performs auto billing */
         $schedule->job(new AutoBillCron)->dailyAt('06:20')->withoutOverlapping()->name('auto-bill-job')->onOneServer();
