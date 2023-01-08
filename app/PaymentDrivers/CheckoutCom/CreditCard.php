@@ -230,7 +230,7 @@ class CreditCard implements MethodInterface
     private function completePayment($paymentRequest, PaymentResponseRequest $request)
     {
         $paymentRequest->amount = $this->checkout->payment_hash->data->value;
-        $paymentRequest->reference = $this->checkout->getDescription();
+        $paymentRequest->reference = substr($this->checkout->getDescription(),0 , 49);
         $paymentRequest->customer = $this->checkout->getCustomer();
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
         $paymentRequest->currency = $this->checkout->client->getCurrencyCode();

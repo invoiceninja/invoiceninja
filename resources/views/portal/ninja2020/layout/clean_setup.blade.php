@@ -9,7 +9,6 @@
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
                 _paq.push(['trackPageView']);
                 _paq.push(['enableLinkTracking']);
-                _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->company->present()->name }}']);
                 (function() {
                 var u="{{ $company->matomo_url }}";
                 _paq.push(['setTrackerUrl', u+'matomo.php']);
@@ -46,7 +45,7 @@
         @endif
 
         <!-- Title -->
-        @auth()
+        @auth('contact')
             <title>@yield('meta_title', '') — {{ auth()->guard('contact')->user()->user->account->isPaid() ? auth()->guard('contact')->user()->company->present()->name() : 'Invoice Ninja' }}</title>
         @endauth
 
