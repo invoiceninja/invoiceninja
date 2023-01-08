@@ -70,8 +70,6 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         
         $this->entity = $invitation->purchase_order;
 
-        $this->contact = $invitation->contact;
-
         $this->vendor = $invitation->contact->vendor;
         
         $this->disk = $disk ?? config('filesystems.default');
