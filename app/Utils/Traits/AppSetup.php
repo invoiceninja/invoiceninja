@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
