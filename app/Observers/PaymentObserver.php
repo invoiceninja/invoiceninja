@@ -42,6 +42,13 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
+        $subscriptions = Webhook::where('company_id', $payment->company->id)
+                            ->where('event_id', Webhook::EVENT_UPDATE_PAYMENT)
+                            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(now()->addSeconds(20));
+        }
     }
 
     /**
