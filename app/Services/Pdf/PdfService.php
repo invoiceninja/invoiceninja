@@ -13,6 +13,9 @@ namespace App\Services\Pdf;
 
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
 use App\Services\Pdf\PdfConfiguration;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
@@ -25,7 +28,7 @@ class PdfService
 
     use PdfMaker, PageNumbering;
 
-    public $invitation;
+    public InvoiceInvitation | QuoteInvitation | CreditInvitation $invitation;
 
     public Company $company;
 
@@ -76,7 +79,7 @@ class PdfService
      * attempts to generate a PDF from the HTML
      * string.
      * 
-     * @return mixed
+     * @return mixed | Exception
      * 
      */
     public function getPdf()

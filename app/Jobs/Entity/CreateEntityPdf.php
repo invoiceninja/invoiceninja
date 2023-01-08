@@ -95,22 +95,6 @@ class CreateEntityPdf implements ShouldQueue
         }
 
         $file_path = $path.$this->entity->numberFormatter().'.pdf';
-
-        // $state = [
-        //     'template' => $template->elements([
-        //         'client' => $this->client,
-        //         'entity' => $this->entity,
-        //         'pdf_variables' => (array) $this->company->settings->pdf_variables,
-        //         '$product' => $design->design->product,
-        //         'variables' => $variables,
-        //     ]),
-        //     'variables' => $variables,
-        //     'options' => [
-        //         'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-        //         'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
-        //     ],
-        //     'process_markdown' => $this->entity->client->company->markdown_enabled,
-        // ];
         
         $pdf = (new PdfService($this->invitation))->getPdf();
         

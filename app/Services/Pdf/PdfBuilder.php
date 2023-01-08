@@ -81,7 +81,7 @@ class PdfBuilder
      * Final method to get compiled HTML.
      *
      * @param bool $final @deprecated // is it? i still see it being called elsewhere
-     * @return mixed
+     * @return string
      */
     public function getCompiledHTML($final = false)
     {
@@ -655,7 +655,6 @@ class PdfBuilder
     public function buildTableHeader(string $type): array
     {
         $this->processTaxColumns($type);
-        // $this->processCustomColumns($type);
 
         $elements = [];
 
