@@ -40,10 +40,6 @@ trait AppSetup
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name) || $force) {
 
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
                 if ($name == 'payment_terms') {
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {
