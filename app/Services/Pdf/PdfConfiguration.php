@@ -55,8 +55,6 @@ class PdfConfiguration
 
     public string $entity_string;
 
-    public $service;
-
     public array $pdf_variables;
 
     public Currency $currency;
@@ -67,20 +65,14 @@ class PdfConfiguration
      * @var App\Models\Client | App\Models\Vendor
      * 
      */
-    public $currency_entity;
+    public Client | Vendor $currency_entity;
 
-    public function __construct(PdfService $service)
-    {
-
-        $this->service = $service;
-        
-    }
+    public function __construct(public PdfService $service){}
 
     public function init(): self
     {
 
         $this->setEntityType()
-             ->setEntityProperties()
              ->setPdfVariables()
              ->setDesign()
              ->setCurrency()
@@ -140,88 +132,63 @@ class PdfConfiguration
     private function setEntityType()
     {
 
+        $entity_design_id = '';
+
         if ($this->service->invitation instanceof InvoiceInvitation) {
             $this->entity = $this->service->invitation->invoice;
             $this->entity_string = 'invoice';
-        } elseif ($this->service->invitation instanceof QuoteInvitation) {
-            $this->entity = $this->service->invitation->quote;
-            $this->entity_string = 'quote';
-        } elseif ($this->service->invitation instanceof CreditInvitation) {
-            $this->entity = $this->service->invitation->credit;
-            $this->entity_string = 'credit';
-        } elseif ($this->service->invitation instanceof RecurringInvoiceInvitation) {
-            $this->entity = $this->service->invitation->recurring_invoice;
-            $this->entity_string = 'recurring_invoice';
-        } elseif ($this->service->invitation instanceof PurchaseOrderInvitation) {
-            $this->entity = $this->service->invitation->purchase_order;
-            $this->entity_string = 'purchase_order';
-        } else {
-            throw new \Exception('Unable to resolve entity', 500);
-        }
-
-        return $this;
-
-    }
-
-    private function setEntityProperties()
-    {
-
-        $entity_design_id = '';
-
-        if ($this->entity instanceof Invoice) {
-
             $this->client = $this->entity->client;
             $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->invoice_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-
-        } elseif ($this->entity instanceof Quote) {
-
+        } elseif ($this->service->invitation instanceof QuoteInvitation) {
+            $this->entity = $this->service->invitation->quote;
+            $this->entity_string = 'quote';
             $this->client = $this->entity->client;
             $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->quote_filepath($this->service->invitation);
             $this->entity_design_id = 'quote_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-
-        } elseif ($this->entity instanceof Credit) {
-
+        } elseif ($this->service->invitation instanceof CreditInvitation) {
+            $this->entity = $this->service->invitation->credit;
+            $this->entity_string = 'credit';
             $this->client = $this->entity->client;
             $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->credit_filepath($this->service->invitation);
             $this->entity_design_id = 'credit_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-
-        } elseif ($this->entity instanceof RecurringInvoice) {
-
+        } elseif ($this->service->invitation instanceof RecurringInvoiceInvitation) {
+            $this->entity = $this->service->invitation->recurring_invoice;
+            $this->entity_string = 'recurring_invoice';
             $this->client = $this->entity->client;
             $this->contact = $this->service->invitation->contact;
             $this->path = $this->client->recurring_invoice_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
-
-        } elseif ($this->entity instanceof PurchaseOrder) {
-
+        } elseif ($this->service->invitation instanceof PurchaseOrderInvitation) {
+            $this->entity = $this->service->invitation->purchase_order;
+            $this->entity_string = 'purchase_order';
             $this->vendor = $this->entity->vendor;
             $this->vendor_contact = $this->service->invitation->contact;
             $this->path = $this->vendor->purchase_order_filepath($this->service->invitation);
             $this->entity_design_id = 'invoice_design_id';
             $this->entity_design_id = 'purchase_order_design_id';
-            $this->settings = $this->vendor->getMergedSettings();
-            $this->settings_object = $this->client;
-
-        } 
-        else
-            throw new \Exception('Unable to resolve entity properties type', 500);
+            $this->settings = $this->vendor->company->settings;
+            $this->settings_object = $this->vendor;
+            $this->client = null;
+        } else {
+            throw new \Exception('Unable to resolve entity', 500);
+        }
 
         $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         return $this;
-        
+
     }
 
     private function setDesign()

@@ -15,20 +15,23 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Services\Pdf\PdfConfiguration;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
 
 class PdfService
 {
 
     use PdfMaker, PageNumbering;
 
-    public InvoiceInvitation | QuoteInvitation | CreditInvitation $invitation;
+    public InvoiceInvitation | QuoteInvitation | CreditInvitation | RecurringInvoiceInvitation | PurchaseOrderInvitation $invitation;
 
     public Company $company;
 
@@ -62,7 +65,9 @@ class PdfService
 
         $this->config = (new PdfConfiguration($this))->init();
 
-        $this->html_variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        $this->html_variables = $this->config->client ? 
+                                    (new HtmlEngine($invitation))->generateLabelsAndValues() :
+                                    (new VendorHtmlEngine($invitation))->generateLabelsAndValues();
 
         $this->designer = (new PdfDesigner($this))->build();
 
