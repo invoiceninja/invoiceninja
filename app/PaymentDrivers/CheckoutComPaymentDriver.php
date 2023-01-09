@@ -497,7 +497,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $request->query('cko-session-id')
             );
 
-            if ($payment['approved']) {
+            if (isset($payment['approved']) && $payment['approved']) {
                 return $this->processSuccessfulPayment($payment);
             } else {
                 return $this->processUnsuccessfulPayment($payment);
