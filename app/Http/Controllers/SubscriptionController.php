@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
+use App\Filters\SubscriptionFilters;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
 use App\Http\Requests\Subscription\EditSubscriptionRequest;
@@ -80,9 +81,9 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function index(): \Illuminate\Http\Response
+    public function index(SubscriptionFilters $filters): \Illuminate\Http\Response
     {
-        $subscriptions = Subscription::query()->company();
+        $subscriptions = Subscription::filter($filters);
 
         return $this->listResponse($subscriptions);
     }

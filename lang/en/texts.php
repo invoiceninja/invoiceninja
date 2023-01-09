@@ -4912,6 +4912,16 @@ $LANG = array(
     'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
     'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
     'subscription_blocked_title' => 'Product not available.',
+    'purchase_order_created' => 'Purchase Order Created',
+    'purchase_order_sent' => 'Purchase Order Sent',
+    'purchase_order_viewed' => 'Purchase Order Viewed',
+    'purchase_order_accepted' => 'Purchase Order Accepted',
+    'credit_payment_error' => 'The credit amount can not be greater than the payment amount',
+    'convert_payment_currency_help' => 'Set an exchange rate when entering a manual payment',
+    'convert_expense_currency_help' => 'Set an exchange rate when creating an expense',
+    'matomo_url' => 'Matomo URL',
+    'matomo_id' => 'Matomo Id',
+    'action_add_to_invoice' => 'Add To Invoice',
 );
 
 return $LANG;

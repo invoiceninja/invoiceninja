@@ -218,6 +218,15 @@ abstract class QueryFilters
         return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
     }
 
+    public function vendor_id(string $vendor_id = '') :Builder
+    {
+        if (strlen($vendor_id) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('vendor_id', $this->decodePrimaryKey($vendor_id));
+    }
+
     public function filter_deleted_clients($value)
     {
         if ($value == 'true') {
