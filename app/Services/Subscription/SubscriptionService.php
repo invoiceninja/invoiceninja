@@ -239,6 +239,11 @@ class SubscriptionService
                                 ->where('status_id', Invoice::STATUS_PAID)
                                 ->first();
 
+if($last_invoice)
+    nlog($last_invoice->toArray());
+else
+    nlog("no invoice found");
+
         $refund = $this->calculateProRataRefundForSubscription($last_invoice);
 
         if($use_credit_setting != 'off')
@@ -709,6 +714,12 @@ class SubscriptionService
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
+        //update the invoice and attach to the recurring invoice!!!!!
+        $invoice = Invoice::find($payment_hash->fee_invoice_id);
+        $invoice->recurring_id = $recurring_invoice->id;
+        $invoice->is_proforma = false;
+        $invoice->save();
+
         $context = [
             'context' => 'change_plan',
             'recurring_invoice' => $recurring_invoice->hashed_id,
@@ -910,7 +921,7 @@ class SubscriptionService
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);
         $invoice->subscription_id = $this->subscription->id;
-        $invoice->is_proforman = true;
+        $invoice->is_proforma = true;
 
         if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
         {
