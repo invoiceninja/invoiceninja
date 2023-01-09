@@ -349,6 +349,26 @@ class Import implements ShouldQueue
         }
 
         $account = $this->company->account;
+
+        /* If the user has upgraded their account, do not wipe their payment plan*/
+        if($account->isPaid() || (isset($data['plan']) && $data['plan'] == 'white_label'))
+        {
+            if(isset($data['plan']))
+                unset($data['plan']);
+            
+            if(isset($data['plan_term']))
+                unset($data['plan_term']);
+            
+            if(isset($data['plan_paid']))
+                unset($data['plan_paid']);
+            
+            if(isset($data['plan_started']))
+                unset($data['plan_started']);
+            
+            if(isset($data['plan_expires']))
+                unset($data['plan_expires']);
+        }
+
         $account->fill($data);
         $account->save();
 
