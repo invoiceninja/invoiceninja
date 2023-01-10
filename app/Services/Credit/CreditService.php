@@ -167,7 +167,7 @@ class CreditService
     }
 
     public function adjustBalance($adjustment)
-    {
+    {nlog("adjusting by {$adjustment}");
         $this->credit->balance += $adjustment;
 
         return $this;

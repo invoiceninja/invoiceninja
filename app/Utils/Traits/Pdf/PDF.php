@@ -19,7 +19,7 @@ class PDF extends FPDI
 
     public function Footer()
     {
-        $this->SetXY(0, -5);
+        $this->SetXY(0, -6);
         $this->SetFont('Arial', 'I', 9);
 
         $this->SetTextColor(135, 135, 135);
