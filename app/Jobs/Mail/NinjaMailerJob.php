@@ -397,8 +397,8 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
 
             /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
-            if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
-                (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+            // if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
+            //     (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
 
             return false;
         }
