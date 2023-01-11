@@ -16,6 +16,7 @@ use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Invoice\CheckGatewayFee;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -197,6 +198,9 @@ class InstantPayment
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
         }
+
+        /* Schedule a job to check the gateway fees for this invoice*/
+        CheckGatewayFee::dispatch($first_invoice, $client->company->db)->delay(600);
 
         /**
          * Gateway fee is calculated
