@@ -180,9 +180,11 @@
                 let bank_account_response = document.getElementById('bank_account_response');
                 bank_account_response.value = JSON.stringify(paymentIntent);
 
-              confirmPayment(stripe, clientSecret);
+                confirmPayment(stripe, clientSecret);
             }
 
+                  resetButtons();
+                  return;
         });
     });
 

@@ -11,8 +11,10 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\Invoice\CheckGatewayFee;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -153,6 +155,104 @@ class CompanyGatewayTest extends TestCase
 
         $this->assertEquals(($balance + 1), $this->invoice->balance);
     }
+
+    public function testGatewayFeesAreClearedAppropriately()
+    {
+
+        $data = [];
+        $data[1]['min_limit'] = -1;
+        $data[1]['max_limit'] = -1;
+        $data[1]['fee_amount'] = 1.00;
+        $data[1]['fee_percent'] = 0.000;
+        $data[1]['fee_tax_name1'] = '';
+        $data[1]['fee_tax_rate1'] = 0;
+        $data[1]['fee_tax_name2'] = '';
+        $data[1]['fee_tax_rate2'] = 0;
+        $data[1]['fee_tax_name3'] = '';
+        $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['adjust_fee_percent'] = false;
+        $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
+
+        $cg = new CompanyGateway;
+        $cg->company_id = $this->company->id;
+        $cg->user_id = $this->user->id;
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->require_cvv = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
+        $cg->update_details = true;
+        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->fees_and_limits = $data;
+        $cg->save();
+
+        $balance = $this->invoice->balance;
+        $wiped_balance = $balance;
+
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->calc()->getInvoice();
+
+        $items = $this->invoice->line_items;
+
+        $this->assertEquals(($balance + 1), $this->invoice->balance);
+
+        (new CheckGatewayFee($this->invoice->id, $this->company->db))->handle();
+
+        $i = Invoice::withTrashed()->find($this->invoice->id);
+
+        $this->assertEquals($wiped_balance, $i->balance);
+    }
+
+    public function testMarkPaidAdjustsGatewayFeeAppropriately()
+    {
+
+        $data = [];
+        $data[1]['min_limit'] = -1;
+        $data[1]['max_limit'] = -1;
+        $data[1]['fee_amount'] = 1.00;
+        $data[1]['fee_percent'] = 0.000;
+        $data[1]['fee_tax_name1'] = '';
+        $data[1]['fee_tax_rate1'] = 0;
+        $data[1]['fee_tax_name2'] = '';
+        $data[1]['fee_tax_rate2'] = 0;
+        $data[1]['fee_tax_name3'] = '';
+        $data[1]['fee_tax_rate3'] = 0;
+        $data[1]['adjust_fee_percent'] = false;
+        $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
+
+        $cg = new CompanyGateway;
+        $cg->company_id = $this->company->id;
+        $cg->user_id = $this->user->id;
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->require_cvv = true;
+        $cg->require_billing_address = true;
+        $cg->require_shipping_address = true;
+        $cg->update_details = true;
+        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->fees_and_limits = $data;
+        $cg->save();
+
+        $balance = $this->invoice->balance;
+        $wiped_balance = $balance;
+
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->calc()->getInvoice();
+
+        $items = $this->invoice->line_items;
+
+        $this->assertEquals(($balance + 1), $this->invoice->balance);
+
+        $this->invoice->service()->markPaid()->save();
+
+        $i = Invoice::withTrashed()->find($this->invoice->id);
+
+        $this->assertEquals($wiped_balance, $i->amount);
+
+
+    }
+
+
 
     public function testProRataGatewayFees()
     {
