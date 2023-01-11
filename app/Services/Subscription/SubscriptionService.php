@@ -416,7 +416,7 @@ else
         foreach($invoice->line_items as $item)
         {
 
-            if($item->product_key != ctrans('texts.refund'))
+            if($item->product_key != ctrans('texts.refund') && ($item->type_id == "1" || $item->type_id == "2"))
             {
 
                 $item->cost = ($item->cost*$ratio*$multiplier);

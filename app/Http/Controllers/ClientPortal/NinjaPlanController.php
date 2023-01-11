@@ -26,6 +26,7 @@ use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Notifications\Ninja\NewAccountNotification;
+use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -177,6 +178,15 @@ class NinjaPlanController extends Controller
         LightLogs::create(new TrialStarted())
                  ->increment()
                  ->queue();
+
+
+        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))->where('client_id', $client->id)->first();
+
+        if($old_recurring) {
+            $old_recurring->service()->stop()->save();
+            $old_recurring_repo = new RecurringInvoiceRepository();
+            $old_recurring_repo->archive($old_recurring);
+        }
 
         $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
         $ninja_company->notification(new NewAccountNotification($subscription->company->account, $client))->ninja();
