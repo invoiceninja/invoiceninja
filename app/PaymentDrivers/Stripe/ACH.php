@@ -98,7 +98,7 @@ class ACH
     {
 
         $stripe_event = $event['data']['object'];
-        
+
         $token = ClientGatewayToken::where('token', $stripe_event['id'])
                                    ->where('gateway_customer_reference', $stripe_event['customer'])
                                    ->first();

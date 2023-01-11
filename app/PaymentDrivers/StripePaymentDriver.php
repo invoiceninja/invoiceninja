@@ -19,8 +19,8 @@ use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Country;
+use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -29,8 +29,8 @@ use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\ApplePay;
-use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Connect\Verify;
@@ -38,16 +38,17 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\GIROPAY;
-use App\PaymentDrivers\Stripe\Klarna;
-use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\Stripe\iDeal;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Google\Service\ServiceConsumerManagement\CustomError;
@@ -634,6 +635,12 @@ class StripePaymentDriver extends BaseDriver
         if($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
+        }
+
+        if($request->type === 'payment_intent.processing') {
+            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+
+            return response()->json([], 200);
         }
 
         if ($request->type === 'payment_intent.succeeded') {
