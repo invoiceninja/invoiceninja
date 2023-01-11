@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Bank Details', 'card_title' => 'Bank Details'])
 
 @section('gateway_head')
-    @if($gateway->getConfigField('testMode'))
+    @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
@@ -116,7 +116,7 @@
             var routing_number=document.getElementById('routing-number').value;
 
             var data = {
-               api_login_id: '{{$gateway->getConfigField("apiLoginId")}}',
+               api_login_id: '{{$gateway->company_gateway->getConfigField("apiLoginId")}}',
                account_number: account_number,
                routing_number: routing_number, 
                account_type: "checking",
