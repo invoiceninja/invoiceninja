@@ -691,7 +691,7 @@ class PdfBuilder
 
     }
 
- /**
+    /**
      * This method will help us decide either we show
      * one "tax rate" column in the table or 3 custom tax rates.
      *
@@ -858,7 +858,7 @@ class PdfBuilder
     private function buildSections() :self
     {
 
-        return  match ($this->service->document_type) {
+        return match ($this->service->document_type) {
             PdfService::PRODUCT => $this->getProductSections(),
             PdfService::DELIVERY_NOTE => $this->getDeliveryNoteSections(),
             PdfService::STATEMENT => $this->getStatementSections(),
