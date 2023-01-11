@@ -162,7 +162,7 @@ class ImportController extends Controller
     public function detectDelimiter($csvfile)
     {
         $delimiters = array(',', '.', ';');
-        $bestDelimiter = false;
+        $bestDelimiter = ' ';
         $count = 0;
         foreach ($delimiters as $delimiter)
             if (substr_count($csvfile, $delimiter) > $count) {
