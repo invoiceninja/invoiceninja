@@ -30,6 +30,7 @@ class PdfBuilder
 
     private CommonMarkConverter $commonmark;
 
+    private float $payment_amount_total = 0;
     /**
      * an array of sections to be injected into the template
      * 
@@ -266,6 +267,7 @@ class PdfBuilder
 
                 $tbody[] = $element;
                 
+                $this->payment_amount_total += $payment->pivot->amount;
             }
         }
 
@@ -295,7 +297,8 @@ class PdfBuilder
         $payment = $this->service->options['payments']->first();
 
         return [
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->service->options['payments']->sum('amount'), $this->service->config->client))],
+            // ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->service->options['payments']->sum('amount'), $this->service->config->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->client))],
         ];
     }
 
@@ -338,6 +341,7 @@ class PdfBuilder
     {
 
         $this->genericSectionBuilder()
+             ->getProductAndTaskTables()
              ->getProductTotals();
 
         $this->mergeSections([            
@@ -1100,7 +1104,7 @@ class PdfBuilder
 
     }
 
-/**
+    /**
      * Generates the product table
      *
      * @return array
