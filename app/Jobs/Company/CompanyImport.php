@@ -1164,6 +1164,7 @@ class CompanyImport implements ShouldQueue
                     {
                         nlog($e->getMessage());
                         nlog("I could not upload {$new_document->url}");
+                        $new_document->forceDelete();
                     }
                 }
 

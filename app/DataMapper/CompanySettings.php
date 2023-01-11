@@ -441,7 +441,16 @@ class CompanySettings extends BaseSettings
 
     public $send_email_on_mark_paid = false;
 
+    public $postmark_secret = '';
+    
+    public $mailgun_secret = '';
+    
+    public $mailgun_domain = '';
+
     public static $casts = [
+        'postmark_secret'                    => 'string',
+        'mailgun_secret'                     => 'string',
+        'mailgun_domain'                     => 'string',
         'send_email_on_mark_paid'            => 'bool',
         'vendor_portal_enable_uploads'       => 'bool',
         'besr_id'                            => 'string',

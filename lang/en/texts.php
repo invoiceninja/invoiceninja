@@ -202,7 +202,7 @@ $LANG = array(
     'invoice_error' => 'Please make sure to select a client and correct any errors',
     'limit_clients' => 'Sorry, this will exceed the limit of :count clients. Please upgrade to a paid plan.',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
-    'registration_required' => 'Please sign up to email an invoice',
+    'registration_required' => 'Registration Required',
     'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
     'updated_client' => 'Successfully updated client',
     'archived_client' => 'Successfully archived client',
@@ -4922,7 +4922,10 @@ $LANG = array(
     'matomo_url' => 'Matomo URL',
     'matomo_id' => 'Matomo Id',
     'action_add_to_invoice' => 'Add To Invoice',
+    'danger_zone' => 'Danger Zone',
+    
 );
+
 
 return $LANG;
 
