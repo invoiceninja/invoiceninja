@@ -205,9 +205,7 @@ class ExpenseFilters extends QueryFilters
         $query = DB::table('expenses')
             ->join('companies', 'companies.id', '=', 'expenses.company_id')
             ->where('expenses.company_id', '=', $company_id)
-            //->whereRaw('(expenses.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-               // DB::raw('COALESCE(expenses.currency_id, companies.currency_id) currency_id'),
                 DB::raw('COALESCE(expenses.country_id, companies.country_id) country_id'),
                 DB::raw("CONCAT(COALESCE(expense_contacts.first_name, ''), ' ', COALESCE(expense_contacts.last_name, '')) contact"),
                 'expenses.id',

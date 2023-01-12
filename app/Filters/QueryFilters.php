@@ -251,6 +251,7 @@ abstract class QueryFilters
     {
         return $this->builder
             ->orWhere($this->with_property, $value)
-            ->orderByRaw("{$this->with_property} = ? DESC", [$value]);
+            ->orderByRaw("{$this->with_property} = ? DESC", [$value])
+            ->company();
     }
 }

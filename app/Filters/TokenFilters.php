@@ -104,7 +104,6 @@ class TokenFilters extends QueryFilters
         $query = DB::table('company_tokens')
             ->join('companies', 'companies.id', '=', 'company_tokens.company_id')
             ->where('company_tokens.company_id', '=', $company_id)
-            //->whereRaw('(designs.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                 'company_tokens.id',
                 'company_tokens.name',
