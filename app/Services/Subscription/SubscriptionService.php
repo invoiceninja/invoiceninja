@@ -239,11 +239,6 @@ class SubscriptionService
                                 ->where('status_id', Invoice::STATUS_PAID)
                                 ->first();
 
-if($last_invoice)
-    nlog($last_invoice->toArray());
-else
-    nlog("no invoice found");
-
         $refund = $this->calculateProRataRefundForSubscription($last_invoice);
 
         if($use_credit_setting != 'off')
@@ -340,7 +335,7 @@ else
      */
     private function calculateProRataRefundForSubscription($invoice) :float
     {
-        if(!$invoice || !$invoice->date)
+        if(!$invoice || !$invoice->date || $invoice->status_id != Invoice::STATUS_PAID)
             return 0;
 
         $start_date = Carbon::parse($invoice->date);
@@ -486,7 +481,7 @@ else
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_proforma',0)
                                          ->where('is_deleted', 0)
-                                         ->where('status_id', Invoice::STATUS_PAID)
+                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
                                          ->withTrashed()
                                          ->orderBy('id', 'desc')
                                          ->first();
@@ -626,6 +621,7 @@ else
 
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
+                                         ->where('is_proforma',0)
                                          ->where('is_deleted', 0)
                                          ->withTrashed()
                                          ->orderBy('id', 'desc')
@@ -673,6 +669,7 @@ else
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
+                                         ->where('is_proforma',0)
                                          ->withTrashed()
                                          ->orderBy('id', 'desc')
                                          ->first();
