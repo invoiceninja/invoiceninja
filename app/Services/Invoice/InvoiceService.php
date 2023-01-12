@@ -531,6 +531,10 @@ class InvoiceService
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
         }
 
+        if ($settings->auto_bill_standard_invoices) {
+            $this->invoice->auto_bill_enabled = true;
+        }
+
         if ($settings->counter_number_applied == 'when_saved') {
             $this->invoice->service()->applyNumber()->save();
         }
