@@ -306,7 +306,7 @@ class CreateSingleAccount extends Command
 
         $webhook_config = [
             'post_purchase_url' => 'http://ninja.test:8000/api/admin/plan',
-            'post_purchase_rest_method' => 'POST',
+            'post_purchase_rest_method' => 'post',
             'post_purchase_headers' => [config('ninja.ninja_hosted_header') => config('ninja.ninja_hosted_secret')],
         ];
 
