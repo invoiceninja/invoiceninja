@@ -58,6 +58,8 @@ class Design extends BaseDesign
 
     public $company;
 
+    public float $payment_amount_total = 0;
+
     /** @var array */
     public $aging = [];
 
@@ -512,6 +514,7 @@ class Design extends BaseDesign
 
                 $tbody[] = $element;
                 
+                $this->payment_amount_total += $payment->pivot->amount;
             }
         }
 
@@ -534,7 +537,8 @@ class Design extends BaseDesign
         $payment = $this->payments->first();
 
         return [
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $this->client))],
+            // ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $this->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->client))],
         ];
     }
 

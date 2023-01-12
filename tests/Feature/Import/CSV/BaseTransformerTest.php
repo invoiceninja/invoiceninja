@@ -12,7 +12,6 @@
 namespace Tests\Feature\Import\CSV;
 
 use App\Import\Transformer\BaseTransformer;
-use App\Jobs\Import\CSVImport;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Expense;
@@ -285,35 +284,4 @@ class BaseTransformerTest extends TestCase
         $this->assertEquals($vendor->id, $base_transformer->getVendorId('Magic'));
         $this->assertEquals($vendor->id, $base_transformer->getVendorId('Ma gi c '));
     }
-
-    // public function testClientCsvImport()
-    // {
-    // 	$csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
-    // 	$hash = Str::random(32);
-    // 	$column_map = [
-    // 		1 => 'client.balance',
-    // 		2 => 'client.paid_to_date',
-    // 		0 => 'client.name',
-    // 		19 => 'client.currency_id',
-    // 		20 => 'client.public_notes',
-    // 		21 => 'client.private_notes',
-    // 		22 => 'contact.first_name',
-    // 		23 => 'contact.last_name',
-    // 	];
-
-    // 	$data = [
-    // 		'hash'        => $hash,
-    // 		'column_map'  => [ 'client' => [ 'mapping' => $column_map ] ],
-    // 		'skip_header' => true,
-    // 		'import_type' => 'csv',
-    // 	];
-
-    // 	$pre_import = Client::count();
-
-    // 	Cache::put( $hash . '-client', base64_encode( $csv ), 360 );
-
-    // 	CSVImport::dispatchNow( $data, $this->company );
-
-    // 	$this->assertGreaterThan( $pre_import, Client::count() );
-    // }
 }

@@ -37,7 +37,7 @@ use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
-use App\Import\Transformers\Bank\BankTransformer;
+use App\Import\Transformer\Bank\BankTransformer;
 use App\Repositories\BankTransactionRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ExpenseRepository;

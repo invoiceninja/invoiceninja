@@ -11,7 +11,6 @@
 
 namespace Tests\Feature\Import;
 
-use App\Jobs\Import\CSVImport;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Backup;
