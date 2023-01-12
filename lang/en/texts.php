@@ -4923,7 +4923,7 @@ $LANG = array(
     'matomo_id' => 'Matomo Id',
     'action_add_to_invoice' => 'Add To Invoice',
     'danger_zone' => 'Danger Zone',
-    
+    'import_completed' => 'Import completed',
 );
 
 

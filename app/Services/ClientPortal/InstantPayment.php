@@ -200,7 +200,7 @@ class InstantPayment
         }
 
         /* Schedule a job to check the gateway fees for this invoice*/
-        CheckGatewayFee::dispatch($first_invoice, $client->company->db)->delay(600);
+        CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
 
         /**
          * Gateway fee is calculated

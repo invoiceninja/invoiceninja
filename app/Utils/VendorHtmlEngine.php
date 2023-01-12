@@ -147,6 +147,7 @@ class VendorHtmlEngine
 
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format()), 'label' => ctrans('texts.date')];
 
+        $data['$po_number'] = &$data['$poNumber'];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
         $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];
         $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number_short')];
