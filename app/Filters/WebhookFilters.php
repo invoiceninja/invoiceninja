@@ -105,7 +105,6 @@ class WebhookFilters extends QueryFilters
         $query = DB::table('webhooks')
             ->join('companies', 'companies.id', '=', 'webhooks.company_id')
             ->where('webhooks.company_id', '=', $company_id)
-            //->whereRaw('(designs.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                 'webhooks.id',
                 'webhooks.target_url',
