@@ -4924,6 +4924,7 @@ $LANG = array(
     'action_add_to_invoice' => 'Add To Invoice',
     'danger_zone' => 'Danger Zone',
     'import_completed' => 'Import completed',
+    'go_to_settings' => 'Go to settings',
 );
 
 
