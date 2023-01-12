@@ -679,8 +679,9 @@ class SubscriptionService
         }
         else if($last_invoice->balance > 0)
         {
-            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
-            nlog("pro rata charge = {$pro_rata_charge_amount}");
+            $last_invoice = null;
+            // $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            // nlog("pro rata charge = {$pro_rata_charge_amount}");
         }
         else
         {
