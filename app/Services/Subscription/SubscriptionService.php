@@ -393,6 +393,8 @@ class SubscriptionService
         if(!$invoice)
             return [];
 
+        $handle_discount = false;
+
         /* depending on whether we are creating an invoice or a credit*/
         $multiplier = $is_credit ? 1 : -1;
 
@@ -408,16 +410,26 @@ class SubscriptionService
 
         $line_items = [];
 
+        //Handle when we are refunding a discounted invoice. Need to consider the
+        //total discount and also the line item discount.
+        if($invoice->discount > 0) 
+            $handle_discount = true;
+
+
         foreach($invoice->line_items as $item)
         {
 
             if($item->product_key != ctrans('texts.refund') && ($item->type_id == "1" || $item->type_id == "2"))
             {
 
-                $item->cost = ($item->cost*$ratio*$multiplier);
+                $discount_ratio = 1;
+
+                if($handle_discount)
+                    $discount_ratio = $this->calculateDiscountRatio($invoice);
+
+                $item->cost = ($item->cost*$ratio*$multiplier*$discount_ratio);
                 $item->product_key = ctrans('texts.refund');
                 $item->notes = ctrans('texts.refund') . ": ". $item->notes;
-
 
                 $line_items[] = $item;
 
@@ -425,6 +437,23 @@ class SubscriptionService
         }
 
         return $line_items;
+
+    }
+
+
+    /**
+     * We only charge for the used days
+     *
+     * @param  Invoice $invoice
+     * @return float
+     */
+    public function calculateDiscountRatio($invoice) : float
+    {
+
+        if($invoice->is_amount_discount)
+            return $invoice->discount / ($invoice->amount + $invoice->discount);
+        else
+            return $invoice->discount / 100;
 
     }
 
