@@ -6,11 +6,8 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    {{ ctrans('texts.subscription') }}
+                   {{ $subscription->name }}.
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
-                    {{ ctrans('texts.details_of_recurring_invoice') }}.
-                </p>
             </div>
             <div>
                 <dl>
@@ -77,8 +74,6 @@
         @endif
 
         @if($invoice->subscription && $invoice->subscription?->allow_cancellation)
-        {{-- INV2-591 --}}
-        {{-- @if(false) --}}
         <div class="bg-white shadow sm:rounded-lg mt-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">
@@ -86,14 +81,7 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.cancellation') }}
                         </h3>
-                        <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                            <p translate>
-                                {{ ctrans('texts.about_cancellation') }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
-                        <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
+                        <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500" x-data="{ open: false }">
                             <button class="button button-danger" translate @click="open = true">{{ ctrans('texts.request_cancellation') }}
                             </button>
                             @include('portal.ninja2020.recurring_invoices.includes.modals.cancellation')
@@ -106,7 +94,7 @@
 
         @if($invoice->subscription && $invoice->subscription->allow_plan_changes)
             <div class="bg-white shadow overflow-hidden px-4 py-5 lg:rounded-lg mt-4">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Switch Plans:</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">{{ ctrans('texts.change_plan') }}</h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">Upgrade or downgrade your current plan.</p>
 
                 <div class="flex mt-4 space-x-2">

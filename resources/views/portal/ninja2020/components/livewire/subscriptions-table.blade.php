@@ -25,19 +25,19 @@
                             {{ ctrans('texts.frequency') }}
                         </p>
                     </th>
-                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
-                        <p role="button" wire:click="sortBy('number')" class="cursor-pointer">
-                            {{ ctrans('texts.invoice') }}
-                        </p>
-                    </th>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <p role="button" wire:click="sortBy('amount')" class="cursor-pointer">
                             {{ ctrans('texts.amount') }}
                         </p>
                     </th>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
-                        <p role="button" wire:click="sortBy('date')" class="cursor-pointer">
-                            {{ ctrans('texts.date') }}
+                        <p role="button" wire:click="sortBy('auto_bill_enabled')" class="cursor-pointer">
+                            {{ ctrans('texts.auto_bill') }}
+                        </p>
+                    </th>
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
+                        <p role="button" wire:click="sortBy('next_send_date')" class="cursor-pointer">
+                            {{ ctrans('texts.next_send_date') }}
                         </p>
                     </th>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
@@ -54,13 +54,10 @@
                             {{ \App\Models\RecurringInvoice::frequencyForKey($recurring_invoice->frequency_id) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"
-                               class="button-link text-primary">
-                                {{ $recurring_invoice->number }}
-                            </a>
+                            {{ App\Utils\Number::formatMoney($recurring_invoice->amount, $recurring_invoice->client) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ App\Utils\Number::formatMoney($recurring_invoice->amount, $recurring_invoice->client) }}
+                            {{ $recurring_invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->translateDate($recurring_invoice->date, $recurring_invoice->client->date_format(), $recurring_invoice->client->locale()) }}

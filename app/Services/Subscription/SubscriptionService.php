@@ -1179,11 +1179,15 @@ class SubscriptionService
     {
         $invoice_start_date = false;
         $refund_end_date = false;
+        $gateway_refund_attempted = false;
 
         //only refund if they are in the refund window.
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
                                      ->where('client_id', $recurring_invoice->client_id)
+                                     ->where('status_id', Invoice::STATUS_PAID)
                                      ->where('is_deleted', 0)
+                                     ->where('is_proforma',0)
+                                     ->where('balance',0)
                                      ->orderBy('id', 'desc')
                                      ->first();
 
@@ -1199,7 +1203,7 @@ class SubscriptionService
         $recurring_invoice_repo->archive($recurring_invoice);
 
         /* Refund only if we are in the window - and there is nothing outstanding on the invoice */
-        if($refund_end_date && $refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
+        if($refund_end_date && $refund_end_date->greaterThan(now()))
         {
 
             if($outstanding_invoice->payments()->exists())
@@ -1208,8 +1212,9 @@ class SubscriptionService
 
                 $data = [
                     'id' => $payment->id,
-                    'gateway_refund' => true,
+                    'gateway_refund' => $outstanding_invoice->amount >= 1 ? true : false,
                     'send_email' => true,
+                    'email_receipt',
                     'invoices' => [
                         ['invoice_id' => $outstanding_invoice->id, 'amount' => $outstanding_invoice->amount],
                     ],
@@ -1217,6 +1222,7 @@ class SubscriptionService
                 ];
 
                 $payment->refund($data);
+                $gateway_refund_attempted = true;
             }
         }
 
@@ -1232,7 +1238,7 @@ class SubscriptionService
             $this->triggerWebhook($context);
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->guard('contact')->user()))->build()));
+            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->guard('contact')->user(), $gateway_refund_attempted))->build()));
             $nmo->company = $recurring_invoice->company;
             $nmo->settings = $recurring_invoice->company->settings;
             
