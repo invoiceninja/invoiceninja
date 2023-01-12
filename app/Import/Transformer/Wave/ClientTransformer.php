@@ -28,7 +28,8 @@ class ClientTransformer extends BaseTransformer
     public function transform($data)
     {
         if (isset($data['customer_name']) && $this->hasClient($data['customer_name'])) {
-            throw new ImportException('Client already exists');
+            return false;
+            // throw new ImportException('Client already exists');
         }
 
         $settings = new \stdClass;
