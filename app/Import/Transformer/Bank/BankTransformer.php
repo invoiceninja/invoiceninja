@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Import\Transformers\Bank;
+namespace App\Import\Transformer\Bank;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
