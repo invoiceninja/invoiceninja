@@ -447,7 +447,13 @@ class CompanySettings extends BaseSettings
     
     public $mailgun_domain = '';
 
+    public $auto_bill_standard_invoices = false;
+
+    public $email_alignment = 'center'; // center , left, right
+
     public static $casts = [
+        'email_alignment'                    => 'string',
+        'auto_bill_standard_invoices'        => 'bool',
         'postmark_secret'                    => 'string',
         'mailgun_secret'                     => 'string',
         'mailgun_domain'                     => 'string',
