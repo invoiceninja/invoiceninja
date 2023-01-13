@@ -18,6 +18,10 @@ class PaymentWebhookController extends Controller
 {
     public function __invoke(PaymentWebhookRequest $request)
     {
+        //return early if we cannot resolve the company gateway
+        if(!$request->getCompanyGateway())
+            return response()->json([], 200);
+
         return $request
             ->getCompanyGateway()
             ->driver()
