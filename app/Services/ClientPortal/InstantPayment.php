@@ -25,6 +25,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -195,12 +196,13 @@ class InstantPayment
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'always' ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
 
+        /* Schedule a job to check the gateway fees for this invoice*/
+        if(Ninja::isHosted())
+            CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
+
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
         }
-
-        /* Schedule a job to check the gateway fees for this invoice*/
-        CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
 
         /**
          * Gateway fee is calculated
