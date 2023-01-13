@@ -59,59 +59,9 @@ class TaskScheduler implements ShouldQueue
 
     private function doJob(Scheduler $scheduler)
     {
-        nlog("Doing job {$scheduler->action_name}");
+        nlog("Doing job {$scheduler->name}");
+        //
+        //
 
-        $company = $scheduler->company;
-
-        // $parameters = $scheduler->parameters;
-
-        // switch ($scheduler->action_name) {
-        //     case Scheduler::CREATE_CLIENT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'contacts.csv');
-        //         break;
-        //     case Scheduler::CREATE_CLIENT_CONTACT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'clients.csv');
-        //         break;
-        //     case Scheduler::CREATE_CREDIT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'credits.csv');
-        //         break;
-        //     case Scheduler::CREATE_DOCUMENT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'documents.csv');
-        //         break;
-        //     case Scheduler::CREATE_EXPENSE_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'expense.csv');
-        //         break;
-        //     case Scheduler::CREATE_INVOICE_ITEM_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoice_items.csv');
-        //         break;
-        //     case Scheduler::CREATE_INVOICE_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoices.csv');
-        //         break;
-        //     case Scheduler::CREATE_PAYMENT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'payments.csv');
-        //         break;
-        //     case Scheduler::CREATE_PRODUCT_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'products.csv');
-        //         break;
-        //     case Scheduler::CREATE_PROFIT_AND_LOSS_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'profit_and_loss.csv');
-        //         break;
-        //     case Scheduler::CREATE_QUOTE_ITEM_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quote_items.csv');
-        //         break;
-        //     case Scheduler::CREATE_QUOTE_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quotes.csv');
-        //         break;
-        //     case Scheduler::CREATE_RECURRING_INVOICE_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'recurring_invoices.csv');
-        //         break;
-        //     case Scheduler::CREATE_TASK_REPORT:
-        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'tasks.csv');
-        //         break;
-
-        // }
-
-        // $scheduler->scheduled_run = $scheduler->nextScheduledDate();
-        // $scheduler->save();
     }
 }

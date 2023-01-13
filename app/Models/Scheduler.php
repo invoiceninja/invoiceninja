@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Services\Scheduler\SchedulerService;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -58,46 +57,6 @@ class Scheduler extends BaseModel
     protected $appends = [
         'hashed_id',
     ];
-    
-    const DAILY = 'DAY';
-
-    const WEEKLY = 'WEEK';
-
-    const BIWEEKLY = 'BIWEEKLY';
-
-    const MONTHLY = 'MONTH';
-
-    const QUARTERLY = '3MONTHS';
-
-    const ANNUALLY = 'YEAR';
-
-    const CREATE_CLIENT_REPORT = 'create_client_report';
-
-    const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
-
-    const CREATE_CREDIT_REPORT = 'create_credit_report';
-
-    const CREATE_DOCUMENT_REPORT = 'create_document_report';
-
-    const CREATE_EXPENSE_REPORT = 'create_expense_report';
-
-    const CREATE_INVOICE_ITEM_REPORT = 'create_invoice_item_report';
-
-    const CREATE_INVOICE_REPORT = 'create_invoice_report';
-
-    const CREATE_PAYMENT_REPORT = 'create_payment_report';
-
-    const CREATE_PRODUCT_REPORT = 'create_product_report';
-
-    const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
-
-    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
-
-    const CREATE_QUOTE_REPORT = 'create_quote_report';
-
-    const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
-
-    const CREATE_TASK_REPORT = 'create_task_report';
 
     /**
      * Service entry points.

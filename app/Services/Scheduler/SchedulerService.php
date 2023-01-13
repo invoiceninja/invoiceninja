@@ -13,7 +13,7 @@ namespace App\Services\Scheduler;
 
 use App\Models\Scheduler;
 
-class SchedulerServicer
+class SchedulerService
 {
 
     public function __construct(public Scheduler $scheduler) {}
