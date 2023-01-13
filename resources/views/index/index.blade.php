@@ -10,11 +10,21 @@
   <script src="{{ asset('js/pdf.min.js') }}"></script>
   @if(\App\Utils\Ninja::isHosted())
   <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+
   <script type="text/javascript" 
     src="https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js"
     integrity="sha384-ggh+EF1aSqm+Y4yvv2n17KpurNcZTeYtUZUvhPziElsstmIEubyEB6AIVpKLuZgr"
     crossorigin="anonymous">
   </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-WMJ5W23');</script>
+  <!-- End Google Tag Manager -->
+
   @endif
   <script type="text/javascript">
     pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ asset('js/pdf.worker.min.js') }}";
@@ -28,6 +38,13 @@
   </script>
 </head>
 <body style="background-color:#888888;">
+
+  @if(\App\Utils\Ninja::isHosted())
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WMJ5W23"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+  @endif
 
   <style>
 
