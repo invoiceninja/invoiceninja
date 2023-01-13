@@ -12,6 +12,7 @@
 namespace Tests\Feature\Scheduler;
 
 use App\Export\CSV\ClientExport;
+use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -49,6 +50,27 @@ class SchedulerTest extends TestCase
         );
 
           $this->withoutExceptionHandling();
+    }
+
+    /**
+     *       'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
+            'is_paused' => 'bail|sometimes|boolean',
+            'frequency_id' => 'bail|required|integer|digits_between:1,12',
+            'next_run' => 'bail|required|date:Y-m-d',
+            'template' => 'bail|required|string',
+            'parameters' => 'bail|array',
+     */
+
+    public function testClientStatementGeneration()
+    {
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => '2023-01-31',
+            'template' => 'client_statement',
+            'clients' => [],
+
+        ];
     }
 
     public function testDeleteSchedule()
