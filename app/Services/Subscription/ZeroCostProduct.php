@@ -66,6 +66,9 @@ class ZeroCostProduct extends AbstractService
                               ->start()
                               ->save();
 
+            $invoice->recurring_id = $recurring_invoice->id;
+            $invoice->save();
+
             $context = [
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,

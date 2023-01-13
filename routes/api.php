@@ -66,6 +66,7 @@ use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
+use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
 use App\Http\Controllers\Reports\QuoteItemReportController;
 use App\Http\Controllers\Reports\QuoteReportController;

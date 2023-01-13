@@ -21,6 +21,7 @@ use App\Utils\TruthSource;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Mail\Mailer;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
@@ -41,14 +42,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        /* Limits the number of parallel jobs fired per minute when checking data*/
-        RateLimiter::for('checkdata', function ($job) {
-            return  Limit::perMinute(100);
-        });
-
         Relation::morphMap([
             'invoices'  => Invoice::class,
-            //  'credits'   => \App\Models\Credit::class,
             'proposals' => Proposal::class,
         ]);
 
@@ -83,7 +78,30 @@ class AppServiceProvider extends ServiceProvider
         Mail::extend('office365', function () {
             return new Office365MailTransport();
         });
+
+        Mailer::macro('postmark_config', function (string $postmark_key) {
+     
+            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
+                'transport' => 'postmark',
+                'token' => $postmark_key
+            ]));
+     
+            return $this;
+
+        });
         
+        Mailer::macro('mailgun_config', function ($secret, $domain) {
+
+            Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
+                'transport' => 'mailgun',
+                'secret' => $secret,
+                'domain' => $domain,
+                'endpoint' => config('services.mailgun.endpoint'),
+                'scheme' => config('services.mailgun.scheme'),
+            ]));
+ 
+            return $this;
+        });
     }
 
     /**

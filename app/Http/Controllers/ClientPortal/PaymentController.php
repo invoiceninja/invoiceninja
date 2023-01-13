@@ -148,7 +148,16 @@ class PaymentController extends Controller
 
         $payment = $payment->service()->applyCredits($payment_hash)->save();
 
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')));
+
         event('eloquent.created: App\Models\Payment', $payment);
+
+        if($invoices->sum('balance') > 0){
+
+            $invoice = $invoices->first();
+
+            return redirect()->route('client.invoice.show', ['invoice' => $invoice->hashed_id, 'hash' => $request->input('hash')]);
+        }
 
         if (property_exists($payment_hash->data, 'billing_context')) {
             $billing_subscription = \App\Models\Subscription::find($payment_hash->data->billing_context->subscription_id);

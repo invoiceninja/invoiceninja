@@ -12,6 +12,8 @@
 namespace App\Utils\Traits;
 
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Message;
 
 /**
  * Class SubscriptionHooker.
@@ -34,10 +36,6 @@ trait SubscriptionHooker
             'headers' => $headers,
         ]);
 
-        nlog('method name must be a string');
-        nlog($subscription->webhook_configuration['post_purchase_rest_method']);
-        nlog($subscription->webhook_configuration['post_purchase_url']);
-
         $post_purchase_rest_method = (string) $subscription->webhook_configuration['post_purchase_rest_method'];
         $post_purchase_url = (string) $subscription->webhook_configuration['post_purchase_url'];
 
@@ -47,7 +45,18 @@ trait SubscriptionHooker
             ]);
 
             return array_merge($body, json_decode($response->getBody(), true));
-        } catch (\Exception $e) {
+        } catch (ClientException $e) {
+
+            $message = $e->getMessage();
+            
+            $error = json_decode($e->getResponse()->getBody()->getContents());
+
+            if(property_exists($error, 'message'))
+                $message = $error->message;
+
+            return array_merge($body, ['message' => $message, 'status_code' => 500]);
+        }
+        catch (\Exception $e) {
             return array_merge($body, ['message' => $e->getMessage(), 'status_code' => 500]);
         }
     }

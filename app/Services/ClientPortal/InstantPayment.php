@@ -16,6 +16,7 @@ use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Invoice\CheckGatewayFee;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -198,6 +199,9 @@ class InstantPayment
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
         }
 
+        /* Schedule a job to check the gateway fees for this invoice*/
+        CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
+
         /**
          * Gateway fee is calculated
          * by adding it as a line item, and then subtract
@@ -220,6 +224,9 @@ class InstantPayment
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
+        }
+        elseif($this->request->hash){
+            $hash_data['billing_context'] = Cache::get($this->request->hash);
         }
 
         $payment_hash = new PaymentHash;

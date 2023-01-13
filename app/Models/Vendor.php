@@ -117,6 +117,11 @@ class Vendor extends BaseModel
 
     }
 
+    public function timezone()
+    {
+        return $this->company->timezone();
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

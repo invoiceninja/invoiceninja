@@ -105,7 +105,6 @@ class DesignFilters extends QueryFilters
         $query = DB::table('designs')
             ->join('companies', 'companies.id', '=', 'designs.company_id')
             ->where('designs.company_id', '=', $company_id)
-            //->whereRaw('(designs.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                 'designs.id',
                 'designs.name',

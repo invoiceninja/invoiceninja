@@ -87,7 +87,7 @@ class CreditCard
 
         //success
         $cgt = [];
-        $cgt['token'] = $response->Customer->TokenCustomerID;
+        $cgt['token'] = strval($response->Customer->TokenCustomerID);
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $payment_meta = new \stdClass;

@@ -40,7 +40,7 @@ class MarkSent
             ->service()
             ->setStatus(PurchaseOrder::STATUS_SENT)
             ->applyNumber()
-            //  ->adjustBalance($this->purchase_order->amount)
+            ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
             //  ->touchPdf()
             ->save();
 

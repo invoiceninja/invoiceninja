@@ -28,6 +28,11 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($invoice_data)
     {
+
+        if (!isset($invoice_data['DocumentNumber'])) {
+            throw new ImportException('DocumentNumber key not found in this import file.');
+        }
+
         if ($this->hasInvoice($invoice_data['DocumentNumber'])) {
             throw new ImportException('Invoice number already exists');
         }

@@ -43,6 +43,7 @@ class StoreRecurringExpenseRequest extends Request
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
         }
 
+        $rules['category_id'] = 'bail|nullable|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
@@ -59,10 +60,6 @@ class StoreRecurringExpenseRequest extends Request
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];
-        }
-
-        if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
-            $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
 
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
