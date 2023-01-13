@@ -36,12 +36,12 @@ class Scheduler extends BaseModel
     use SoftDeletes;
 
     protected $fillable = [
-        'start_from',
-        'is_paused',
-        'repeat_every',
+        'name',
+        'frequency_id',
+        'next_run',
         'scheduled_run',
-        'action_class',
-        'action_name',
+        'template',
+        'is_paused',
         'parameters',
     ];
 
@@ -50,7 +50,7 @@ class Scheduler extends BaseModel
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'paused' => 'boolean',
+        'is_paused' => 'boolean',
         'is_deleted' => 'boolean',
         'parameters' => 'array',
     ];

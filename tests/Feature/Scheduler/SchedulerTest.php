@@ -69,8 +69,21 @@ class SchedulerTest extends TestCase
             'next_run' => '2023-01-31',
             'template' => 'client_statement',
             'clients' => [],
-
+            'parameters' => [
+                'date_range' => 'last_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid'
+            ],
         ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+        
     }
 
     public function testDeleteSchedule()
