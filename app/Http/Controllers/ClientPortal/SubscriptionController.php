@@ -13,6 +13,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\RecurringInvoices\ShowRecurringInvoiceRequest;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use Illuminate\Http\Request;
@@ -38,4 +39,20 @@ class SubscriptionController extends Controller
 
         return render('subscriptions.index');
     }
+
+    /**
+     * Display the recurring invoice.
+     *
+     * @param ShowRecurringInvoiceRequest $request
+     * @param RecurringInvoice $recurring_invoice
+     * @return Factory|View
+     */
+    public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
+    {
+        return $this->render('subscriptions.show', [
+            'invoice' => $recurring_invoice->load('invoices','subscription'),
+            'subscription' => $recurring_invoice->subscription
+        ]);
+    }
+
 }
