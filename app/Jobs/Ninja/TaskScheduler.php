@@ -60,8 +60,15 @@ class TaskScheduler implements ShouldQueue
     private function doJob(Scheduler $scheduler)
     {
         nlog("Doing job {$scheduler->name}");
-        //
-        //
-
+    
+        try {
+            $scheduler->service()->runTask();
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+            
+        }
     }
+
+
 }
