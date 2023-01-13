@@ -97,6 +97,13 @@ class PurchaseOrderService
         return $this;
     }
 
+    public function adjustBalance($adjustment)
+    {
+        $this->purchase_order->balance += $adjustment;
+
+        return $this;
+    }
+
     public function touchPdf($force = false)
     {
         try {

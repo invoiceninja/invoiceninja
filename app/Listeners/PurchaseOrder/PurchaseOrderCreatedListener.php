@@ -1,31 +1,29 @@
 <?php
 /**
- * Quote Ninja (https://quoteninja.com).
+ * PurchaseOrder Ninja (https://purchase_orderninja.com).
  *
- * @link https://github.com/quoteninja/quoteninja source repository
+ * @link https://github.com/purchase_orderninja/purchase_orderninja source repository
  *
- * @copyright Copyright (c) 2022. Quote Ninja LLC (https://quoteninja.com)
+ * @copyright Copyright (c) 2022. PurchaseOrder Ninja LLC (https://purchase_orderninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Listeners\PurchaseOrder;
 
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityCreatedObject;
-use App\Mail\Admin\PurchaseOrderAcceptedObject;
 use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class PurchaseOrderAcceptedNotification implements ShouldQueue
+class PurchaseOrderCreatedListener implements ShouldQueue
 {
     use UserNotifies;
-
-    public $delay = 5;
 
     public function __construct()
     {
@@ -37,8 +35,9 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
      * @param  object  $event
      * @return void
      */
-    public function handle($event)
+    public function handle(PurchaseOrderWasCreated $event)
     {
+        
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -46,9 +45,9 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
         $purchase_order = $event->purchase_order;
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new PurchaseOrderAcceptedObject($purchase_order, $event->company))->build());
-        $nmo->company = $event->company;
-        $nmo->settings = $event->company->settings;
+        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
+        $nmo->company = $purchase_order->company;
+        $nmo->settings = $purchase_order->company->settings;
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
@@ -60,10 +59,13 @@ class PurchaseOrderAcceptedNotification implements ShouldQueue
                 continue;
             }
 
-            /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($purchase_order->invitations()->first(), $company_user, 'purchase_order', ['all_notifications', 'purchase_order_accepted', 'purchase_order_accepted_all']);
+            /* This is only here to handle the alternate message channels - ie Slack */
+            // $notification = new EntitySentNotification($event->invitation, 'purchase_order');
 
+            /* Returns an array of notification methods */
+            $methods = $this->findUserNotificationTypes($purchase_order->invitations()->first(), $company_user, 'purchase_order', ['all_notifications', 'purchase_order_created', 'purchase_order_created_all']);
             /* If one of the methods is email then we fire the EntitySentMailer */
+
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 

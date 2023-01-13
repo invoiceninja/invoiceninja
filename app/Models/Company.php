@@ -129,6 +129,7 @@ class Company extends BaseModel
         'invoice_task_lock',
         'convert_payment_currency',
         'convert_expense_currency',
+        'notify_vendor_when_paid',
     ];
 
     protected $hidden = [
@@ -138,6 +139,7 @@ class Company extends BaseModel
     ];
 
     protected $casts = [
+        'is_proforma' => 'bool',
         'country_id' => 'string',
         'custom_fields' => 'object',
         'settings' => 'object',

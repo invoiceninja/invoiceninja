@@ -202,7 +202,7 @@ $LANG = array(
     'invoice_error' => 'Please make sure to select a client and correct any errors',
     'limit_clients' => 'Sorry, this will exceed the limit of :count clients. Please upgrade to a paid plan.',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
-    'registration_required' => 'Please sign up to email an invoice',
+    'registration_required' => 'Registration Required',
     'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
     'updated_client' => 'Successfully updated client',
     'archived_client' => 'Successfully archived client',
@@ -4301,7 +4301,7 @@ $LANG = array(
     'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
     'direct_debit' => 'Direct Debit',
-    'clone_to_expense' => 'Clone to expense',
+    'clone_to_expense' => 'Clone to Expense',
     'checkout' => 'Checkout',
     'acss' => 'Pre-authorized debit payments',
     'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
@@ -4906,8 +4906,26 @@ $LANG = array(
     'backup_restore' => 'Backup | Restore',
     'export_company' => 'Create company backup',
     'backup' => 'Backup',
-    
+    'notification_purchase_order_created_body' => 'The following purchase_order :purchase_order was created for vendor :vendor for :amount.',
+    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',    
+    'notification_purchase_order_sent_subject' => 'Purchase Order :purchase_order was sent to :vendor',
+    'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
+    'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
+    'subscription_blocked_title' => 'Product not available.',
+    'purchase_order_created' => 'Purchase Order Created',
+    'purchase_order_sent' => 'Purchase Order Sent',
+    'purchase_order_viewed' => 'Purchase Order Viewed',
+    'purchase_order_accepted' => 'Purchase Order Accepted',
+    'credit_payment_error' => 'The credit amount can not be greater than the payment amount',
+    'convert_payment_currency_help' => 'Set an exchange rate when entering a manual payment',
+    'convert_expense_currency_help' => 'Set an exchange rate when creating an expense',
+    'matomo_url' => 'Matomo URL',
+    'matomo_id' => 'Matomo Id',
+    'action_add_to_invoice' => 'Add To Invoice',
+    'danger_zone' => 'Danger Zone',
+    'import_completed' => 'Import completed',
 );
+
 
 return $LANG;
 

@@ -112,6 +112,7 @@ class ActivityController extends BaseController
                     'purchase_order' => $activity->purchase_order ? $activity->purchase_order : '',
                     'subscription' => $activity->subscription ? $activity->subscription : '',
                     'vendor_contact' => $activity->vendor_contact ? $activity->vendor_contact : '',
+                    'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense : '',
                 ];
 
                 return array_merge($arr, $activity->toArray());

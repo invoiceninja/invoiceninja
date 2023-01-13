@@ -31,7 +31,7 @@
             <input type="hidden" name="company_gateway_id" id="company_gateway_id">
             <input type="hidden" name="payment_method_id" id="payment_method_id">
             <input type="hidden" name="signature">
-
+            <input type="hidden" name="hash" value="{{ $hash }}">
             <input type="hidden" name="payable_invoices[0][amount]" value="{{ $invoice->partial > 0 ?  \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
             <input type="hidden" name="payable_invoices[0][invoice_id]" value="{{ $invoice->hashed_id }}">
 

@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::post('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'bulk'])->name('invoices.bulk');
     Route::get('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'catch_bulk'])->name('invoices.catch_bulk');
     Route::post('invoices/download', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'download'])->name('invoices.download');
-    Route::get('invoices/{invoice}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show');
+    Route::get('invoices/{invoice}/{hash?}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show');
     Route::get('invoices/{invoice_invitation}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'show'])->name('invoice.show_invitation');
 
     Route::get('recurring_invoices', [App\Http\Controllers\ClientPortal\RecurringInvoiceController::class, 'index'])->name('recurring_invoices.index')->middleware('portal_enabled');
@@ -98,8 +98,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::resource('documents', App\Http\Controllers\ClientPortal\DocumentController::class)->only(['index', 'show']);
 
     Route::get('subscriptions/{recurring_invoice}/plan_switch/{target}', [App\Http\Controllers\ClientPortal\SubscriptionPlanSwitchController::class, 'index'])->name('subscription.plan_switch');
-
-    Route::resource('subscriptions', SubscriptionController::class)->middleware('portal_enabled')->only(['index']);
+    
+    Route::get('subscriptions/{recurring_invoice}', [SubscriptionController::class, 'show'])->middleware('portal_enabled')->name('subscriptions.show');
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->middleware('portal_enabled')->name('subscriptions.index');
 
     Route::resource('tasks', TaskController::class)->only(['index']);
 

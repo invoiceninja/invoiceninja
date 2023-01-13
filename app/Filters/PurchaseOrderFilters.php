@@ -42,20 +42,26 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
+        $po_status = [];
+
         if (in_array('draft', $status_parameters)) {
-            $this->builder->where('status_id', PurchaseOrder::STATUS_DRAFT);
+            $po_status[] = PurchaseOrder::STATUS_DRAFT;
         }
 
         if (in_array('sent', $status_parameters)) {
-            $this->builder->where('status_id', PurchaseOrder::STATUS_SENT);
+            $po_status[] = PurchaseOrder::STATUS_SENT;
         }
 
         if (in_array('accepted', $status_parameters)) {
-            $this->builder->where('status_id', PurchaseOrder::STATUS_ACCEPTED);
+            $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
         }
 
         if (in_array('cancelled', $status_parameters)) {
-            $this->builder->where('status_id', PurchaseOrder::STATUS_CANCELLED);
+            $po_status[] = PurchaseOrder::STATUS_CANCELLED;
+        }
+
+        if(count($status_parameters) >=1) {
+            $this->builder->whereIn('status_id', $status_parameters);
         }
 
         return $this->builder;

@@ -124,18 +124,20 @@ class CreditCard implements MethodInterface
             }
         } catch (CheckoutApiException $e) {
             // API error
-            $request_id = $e->request_id;
-            $http_status_code = $e->http_status_code;
+            $request_id = $e->request_id ?: '';
+            $http_status_code = $e->http_status_code ?: '';
             $error_details = $e->error_details;
 
             if(is_array($error_details)) {
                 $error_details = end($e->error_details['error_codes']);
             }
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            $human_exception = $error_details ? $error_details : $e->getMessage();
 
+            $human_exception = "{$human_exception} - Request ID: {$request_id}";
 
-            throw new PaymentFailed($human_exception);
+            throw new PaymentFailed($human_exception, $http_status_code);
+
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
 
@@ -145,9 +147,9 @@ class CreditCard implements MethodInterface
                 $error_details = end($e->error_details['error_codes']);
             }
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            $human_exception = $error_details ? $error_details : $e->getMessage();
 
-            throw new PaymentFailed($human_exception);
+            throw new PaymentFailed($human_exception, 422);
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
   
@@ -157,9 +159,9 @@ class CreditCard implements MethodInterface
                 $error_details = end($e->error_details['error_codes']);
             }
 
-            $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+            $human_exception = $error_details ? $error_details : $e->getMessage();
 
-            throw new PaymentFailed($human_exception);
+            throw new PaymentFailed($human_exception, 401);
         }
     }
 
@@ -228,7 +230,7 @@ class CreditCard implements MethodInterface
     private function completePayment($paymentRequest, PaymentResponseRequest $request)
     {
         $paymentRequest->amount = $this->checkout->payment_hash->data->value;
-        $paymentRequest->reference = $this->checkout->getDescription();
+        $paymentRequest->reference = substr($this->checkout->getDescription(),0 , 49);
         $paymentRequest->customer = $this->checkout->getCustomer();
         $paymentRequest->metadata = ['udf1' => 'Invoice Ninja'];
         $paymentRequest->currency = $this->checkout->client->getCurrencyCode();

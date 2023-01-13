@@ -157,15 +157,14 @@ use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Document\DeleteCompanyDocuments;
 use App\Listeners\Invoice\CreateInvoiceActivity;
-use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceCreatedNotification;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
+use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceFailedEmailNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
@@ -175,18 +174,21 @@ use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Mail\MailSentListener;
 use App\Listeners\Misc\InvitationViewedListener;
-use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentEmailFailureActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedActivity;
-use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedNotification;
+use App\Listeners\PurchaseOrder\PurchaseOrderAcceptedListener;
 use App\Listeners\PurchaseOrder\PurchaseOrderArchivedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderCreatedListener;
 use App\Listeners\PurchaseOrder\PurchaseOrderDeletedActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderEmailActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderEmailedNotification;
 use App\Listeners\PurchaseOrder\PurchaseOrderRestoredActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderViewedActivity;
+use App\Listeners\PurchaseOrder\PurchaseOrderViewedNotification;
 use App\Listeners\PurchaseOrder\UpdatePurchaseOrderActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteApprovedNotification;
@@ -219,8 +221,8 @@ use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
 use App\Listeners\User\RestoredUserActivity;
-use App\Listeners\User\UpdatedUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
+use App\Listeners\User\UpdatedUserActivity;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
@@ -398,7 +400,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         //Invoices
         InvoiceWasMarkedSent::class => [
-            CreateInvoiceHtmlBackup::class,
         ],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,
@@ -458,12 +459,14 @@ class EventServiceProvider extends ServiceProvider
         ],
         PurchaseOrderWasCreated::class => [
             CreatePurchaseOrderActivity::class,
+            PurchaseOrderCreatedListener::class,
         ],
         PurchaseOrderWasDeleted::class => [
             PurchaseOrderDeletedActivity::class,
         ],
         PurchaseOrderWasEmailed::class => [
             PurchaseOrderEmailActivity::class,
+            PurchaseOrderEmailedNotification::class,
         ],
         PurchaseOrderWasRestored::class => [
             PurchaseOrderRestoredActivity::class,
@@ -475,8 +478,8 @@ class EventServiceProvider extends ServiceProvider
             PurchaseOrderViewedActivity::class,
         ],
         PurchaseOrderWasAccepted::class => [
+            PurchaseOrderAcceptedListener::class,
             PurchaseOrderAcceptedActivity::class,
-            PurchaseOrderAcceptedNotification::class,
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,

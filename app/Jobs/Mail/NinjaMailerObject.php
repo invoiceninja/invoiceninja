@@ -31,9 +31,11 @@ class NinjaMailerObject
     /* Variable for cascading notifications */
     public $entity_string = false;
 
+    /* @var bool | App\Models\InvoiceInvitation | app\Models\QuoteInvitation | app\Models\CreditInvitation | app\Models\RecurringInvoiceInvitation | app\Models\PurchaseOrderInvitation $invitation*/
     public $invitation = false;
 
     public $template = false;
 
+    /* @var bool | App\Models\Invoice | app\Models\Quote | app\Models\Credit | app\Models\RecurringInvoice | app\Models\PurchaseOrder $invitation*/
     public $entity = false;
 }

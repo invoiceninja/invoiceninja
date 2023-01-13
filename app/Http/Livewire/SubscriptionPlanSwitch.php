@@ -142,7 +142,7 @@ class SubscriptionPlanSwitch extends Component
     {
         $this->hide_button = true;
 
-        $response =  $this->target->service()->createChangePlanCredit([
+        $response =  $this->target->service()->createChangePlanCreditV2([
             'recurring_invoice' => $this->recurring_invoice,
             'subscription' => $this->subscription,
             'target' => $this->target,
