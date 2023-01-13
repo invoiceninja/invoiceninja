@@ -46,9 +46,10 @@ class TaskScheduler implements ShouldQueue
             MultiDB::setDB($db);
 
             Scheduler::with('company')
-                ->where('paused', false)
+                ->where('is_paused', false)
                 ->where('is_deleted', false)
-                ->where('scheduled_run', '<', now())
+                ->whereNotNull('next_run')
+                ->where('next_run', '<=', now())
                 ->cursor()
                 ->each(function ($scheduler) {
                     $this->doJob($scheduler);
@@ -62,55 +63,55 @@ class TaskScheduler implements ShouldQueue
 
         $company = $scheduler->company;
 
-        $parameters = $scheduler->parameters;
+        // $parameters = $scheduler->parameters;
 
-        switch ($scheduler->action_name) {
-            case Scheduler::CREATE_CLIENT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'contacts.csv');
-                break;
-            case Scheduler::CREATE_CLIENT_CONTACT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'clients.csv');
-                break;
-            case Scheduler::CREATE_CREDIT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'credits.csv');
-                break;
-            case Scheduler::CREATE_DOCUMENT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'documents.csv');
-                break;
-            case Scheduler::CREATE_EXPENSE_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'expense.csv');
-                break;
-            case Scheduler::CREATE_INVOICE_ITEM_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoice_items.csv');
-                break;
-            case Scheduler::CREATE_INVOICE_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoices.csv');
-                break;
-            case Scheduler::CREATE_PAYMENT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'payments.csv');
-                break;
-            case Scheduler::CREATE_PRODUCT_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'products.csv');
-                break;
-            case Scheduler::CREATE_PROFIT_AND_LOSS_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'profit_and_loss.csv');
-                break;
-            case Scheduler::CREATE_QUOTE_ITEM_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quote_items.csv');
-                break;
-            case Scheduler::CREATE_QUOTE_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quotes.csv');
-                break;
-            case Scheduler::CREATE_RECURRING_INVOICE_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'recurring_invoices.csv');
-                break;
-            case Scheduler::CREATE_TASK_REPORT:
-                SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'tasks.csv');
-                break;
+        // switch ($scheduler->action_name) {
+        //     case Scheduler::CREATE_CLIENT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'contacts.csv');
+        //         break;
+        //     case Scheduler::CREATE_CLIENT_CONTACT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'clients.csv');
+        //         break;
+        //     case Scheduler::CREATE_CREDIT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'credits.csv');
+        //         break;
+        //     case Scheduler::CREATE_DOCUMENT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'documents.csv');
+        //         break;
+        //     case Scheduler::CREATE_EXPENSE_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'expense.csv');
+        //         break;
+        //     case Scheduler::CREATE_INVOICE_ITEM_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoice_items.csv');
+        //         break;
+        //     case Scheduler::CREATE_INVOICE_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'invoices.csv');
+        //         break;
+        //     case Scheduler::CREATE_PAYMENT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'payments.csv');
+        //         break;
+        //     case Scheduler::CREATE_PRODUCT_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'products.csv');
+        //         break;
+        //     case Scheduler::CREATE_PROFIT_AND_LOSS_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'profit_and_loss.csv');
+        //         break;
+        //     case Scheduler::CREATE_QUOTE_ITEM_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quote_items.csv');
+        //         break;
+        //     case Scheduler::CREATE_QUOTE_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'quotes.csv');
+        //         break;
+        //     case Scheduler::CREATE_RECURRING_INVOICE_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'recurring_invoices.csv');
+        //         break;
+        //     case Scheduler::CREATE_TASK_REPORT:
+        //         SendToAdmin::dispatch($company, $parameters, $scheduler->action_class, 'tasks.csv');
+        //         break;
 
-        }
+        // }
 
-        $scheduler->scheduled_run = $scheduler->nextScheduledDate();
-        $scheduler->save();
+        // $scheduler->scheduled_run = $scheduler->nextScheduledDate();
+        // $scheduler->save();
     }
 }

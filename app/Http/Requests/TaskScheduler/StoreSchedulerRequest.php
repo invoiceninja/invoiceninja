@@ -28,18 +28,15 @@ class StoreSchedulerRequest extends Request
 
     public function rules()
     {
-nlog($this->all());
+
         $rules = [
+            'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
             'is_paused' => 'bail|sometimes|boolean',
             'frequency_id' => 'bail|required|integer|digits_between:1,12',
             'next_run' => 'bail|required|date:Y-m-d',
             'template' => 'bail|required|string',
             'parameters' => 'bail|array',
         ];
-
-        $rules['name'] = ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)];
-
-nlog($rules);
 
         return $rules;
 
