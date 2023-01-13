@@ -35,12 +35,7 @@ class InvoiceService
 {
     use MakesHash;
 
-    public $invoice;
-
-    public function __construct($invoice)
-    {
-        $this->invoice = $invoice;
-    }
+    public function __construct(public Invoice $invoice){}
 
     /**
      * Marks as invoice as paid

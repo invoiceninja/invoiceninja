@@ -8,14 +8,12 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
-
 namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
-use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
-class UpdateScheduleRequest extends Request
+class UpdateSchedulerRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,23 +27,17 @@ class UpdateScheduleRequest extends Request
 
     public function rules(): array
     {
-        return [
-            'paused' => 'sometimes|bool',
-            'repeat_every' => 'sometimes|string|in:DAY,WEEK,BIWEEKLY,MONTH,3MONTHS,YEAR',
-            'start_from' => 'sometimes',
-            'scheduled_run'=>'sometimes',
+
+        $rules = [
+            'name' => ['bail', 'sometimes', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)->ignore($this->task_scheduler->id)],
+            'is_paused' => 'bail|sometimes|boolean',
+            'frequency_id' => 'bail|required|integer|digits_between:1,12',
+            'next_run' => 'bail|required|date:Y-m-d',
+            'template' => 'bail|required|string',
+            'parameters' => 'bail|array',
         ];
-    }
 
-    public function prepareForValidation()
-    {
-        $input = $this->all();
-
-        if (isset($input['start_from'])) {
-            $input['scheduled_run'] = Carbon::parse((int) $input['start_from']);
-            $input['start_from'] = Carbon::parse((int) $input['start_from']);
-        }
-
-        $this->replace($input);
+        return $rules;
+        
     }
 }

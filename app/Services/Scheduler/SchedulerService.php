@@ -9,9 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Schedule;
+namespace App\Services\Scheduler;
 
-class ScheduleService
+use App\Models\Scheduler;
+
+class SchedulerServicer
 {
 
     public function __construct(public Scheduler $scheduler) {}
