@@ -98,12 +98,12 @@ class SchedulerTest extends TestCase
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => '2023-01-14',
             'template' => 'client_statement',
-            'clients' => [],
             'parameters' => [
                 'date_range' => 'last_month',
                 'show_payments_table' => true,
                 'show_aging_table' => true,
-                'status' => 'paid'
+                'status' => 'paid',
+                'clients' => [],
             ],
         ];
 
