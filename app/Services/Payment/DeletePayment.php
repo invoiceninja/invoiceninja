@@ -38,22 +38,21 @@ class DeletePayment
 
         \DB::connection(config('database.default'))->transaction(function () {
 
-
-            if ($this->payment->is_deleted) {
-                return $this->payment;
-            }
-
             $this->payment = Payment::withTrashed()->where('id', $this->payment->id)->lockForUpdate()->first();
 
-            $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
-                ->updateCreditables() //return the credits first
-                ->adjustInvoices()
-                ->deletePaymentables()
-                ->cleanupPayment()
-                ->save();
+            if (!$this->payment->is_deleted) {
+            
+                $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
+                    ->updateCreditables() //return the credits first
+                    ->adjustInvoices()
+                    ->deletePaymentables()
+                    ->cleanupPayment()
+                    ->save();
+                    
+            }
 
 
-        }, 2);
+        }, 1);
 
         return $this->payment;
     
