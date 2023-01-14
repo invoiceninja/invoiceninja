@@ -42,51 +42,48 @@ class SchedulerService
         //Email only the selected clients
         if(count($this->scheduler->parameters['clients']) >= 1)
             $query->where('id', $this->transformKeys($this->scheduler->parameters['clients']));
-        
+     
+        $statement_properties = $this->calculateStatementProperties();
+
         $query->cursor()
-            ->each(function ($client){
+            ->each(function ($client) use($statement_properties){
 
            //work out the date range 
+            $pdf = $client->service()->statement($statement_properties);
 
         });
+
     }
 
-    // public function scheduleStatement()
-    // {
-        
-    //     //Is it for one client
-    //     //Is it for all clients
-    //     //Is it for all clients excluding these clients
-        
-    //     //Frequency
-        
-    //     //show aging
-    //     //show payments
-    //     //paid/unpaid
-        
-    //     //When to send? 1st of month
-    //     //End of month
-    //     //This date
-        
-    // }
+    private function calculateStatementProperties()
+    {
+        $start_end = $this->calculateStartAndEndDates();
 
-    // public function scheduleReport()
-    // {
-    //     //Report type
-    //     //same schema as ScheduleStatement
-    // }
+        return [
+            'start_date' =>$start_end[0], 
+            'end_date' =>$start_end[1], 
+            'show_payments_table' => $this->scheduler->parameters['show_payments_table'], 
+            'show_aging_table' => $this->scheduler->parameters['show_aging_table'], 
+            'status' => $this->scheduler->status
+        ];
 
-    // public function scheduleEntitySend()
-    // {
-    //     //Entity
-    //     //Entity Id
-    //     //When
-    // }
+    }
 
-    // public function projectStatus()
-    // {
-    //     //Project ID
-    //     //Tasks - task statuses
-    // }
+    private function calculateStartAndEndDates()
+    {
+        return match ($this->scheduler->parameters['date_range']) {
+            'this_month' => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
+            'this_quarter' => [now()->firstOfQuarter()->format('Y-m-d'), now()->lastOfQuarter()->format('Y-m-d')],
+            'this_year' => [now()->firstOfYear()->format('Y-m-d'), now()->format('Y-m-d')],
+            'previous_month' => [now()->subMonth()->firstOfMonth()->format('Y-m-d'), now()->subMonth()->lastOfMonth()->format('Y-m-d')],
+            'previous_quarter' => [now()->subQuarter()->firstOfQuarter()->format('Y-m-d'), now()->subQuarter()->lastOfQuarter()->format('Y-m-d')],
+            'previous_year' => [now()->subYear()->firstOfYear()->format('Y-m-d'), now()->subYear()->format('Y-m-d')],
+            'custom_range' => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']]
+        };
+    }
 
+    private function thisMonth()
+    {
+
+    }
 }

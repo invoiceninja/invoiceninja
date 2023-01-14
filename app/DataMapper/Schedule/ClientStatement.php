@@ -59,7 +59,6 @@ class ClientStatement
      */
     public string $start_date = '';
 
-
     /**
      * If a custom range is select for the date range then
      * the end_date should be supplied in Y-m-d format
@@ -92,5 +91,6 @@ class ClientStatement
      * @var string
      */
     public string $status = 'paid'; // paid | unpaid
+
 
 }

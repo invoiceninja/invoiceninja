@@ -31,7 +31,6 @@ class SchedulerTest extends TestCase
     use MakesHash;
     use MockAccountData;
     use WithoutEvents;
-    // use RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -52,6 +51,37 @@ class SchedulerTest extends TestCase
           $this->withoutExceptionHandling();
     }
 
+
+    public function testGetThisMonthRange()
+    {
+
+        $this->travelTo(Carbon::parse('2023-01-14'));
+
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-01-31'], $this->getDateRange('this_month'));
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-03-31'], $this->getDateRange('this_quarter'));
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-12-31'], $this->getDateRange('this_year'));
+
+        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $this->getDateRange('previous_month'));
+        $this->assertEqualsCanonicalizing(['2022-10-01','2022-12-31'], $this->getDateRange('previous_quarter'));
+        $this->assertEqualsCanonicalizing(['2022-01-01','2022-12-31'], $this->getDateRange('previous_year'));
+
+        $this->travelBack();
+
+    }
+
+    private function getDateRange($range)
+    {
+        return match ($range) {
+            'this_month' => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
+            'this_quarter' => [now()->firstOfQuarter()->format('Y-m-d'), now()->lastOfQuarter()->format('Y-m-d')],
+            'this_year' => [now()->firstOfYear()->format('Y-m-d'), now()->lastOfYear()->format('Y-m-d')],
+            'previous_month' => [now()->subMonth()->firstOfMonth()->format('Y-m-d'), now()->subMonth()->lastOfMonth()->format('Y-m-d')],
+            'previous_quarter' => [now()->subQuarter()->firstOfQuarter()->format('Y-m-d'), now()->subQuarter()->lastOfQuarter()->format('Y-m-d')],
+            'previous_year' => [now()->subYear()->firstOfYear()->format('Y-m-d'), now()->subYear()->lastOfYear()->format('Y-m-d')],
+            'custom_range' => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']]
+        };
+    }
+
     /**
      *       'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
             'is_paused' => 'bail|sometimes|boolean',
@@ -66,7 +96,7 @@ class SchedulerTest extends TestCase
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => '2023-01-31',
+            'next_run' => '2023-01-14',
             'template' => 'client_statement',
             'clients' => [],
             'parameters' => [
