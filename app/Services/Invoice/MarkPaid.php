@@ -57,16 +57,19 @@ class MarkPaid extends AbstractService
 
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
-            $this->payable_balance = $this->invoice->balance;
+            if($this->invoice)
+            {
+                $this->payable_balance = $this->invoice->balance;
 
-            $this->invoice
-                ->service()
-                ->setExchangeRate()
-                ->updateBalance($this->payable_balance * -1)
-                ->updatePaidToDate($this->payable_balance)
-                ->setStatus(Invoice::STATUS_PAID)
-                ->save();
-
+                $this->invoice
+                    ->service()
+                    ->setExchangeRate()
+                    ->updateBalance($this->payable_balance * -1)
+                    ->updatePaidToDate($this->payable_balance)
+                    ->setStatus(Invoice::STATUS_PAID)
+                    ->save();
+            }
+            
         }, 1);
 
         /* Create Payment */
