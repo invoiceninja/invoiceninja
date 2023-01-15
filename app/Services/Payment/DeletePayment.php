@@ -40,7 +40,7 @@ class DeletePayment
 
             $this->payment = Payment::withTrashed()->where('id', $this->payment->id)->lockForUpdate()->first();
 
-            if (!$this->payment->is_deleted) {
+            if ($this->payment && !$this->payment->is_deleted) {
             
                 $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
                     ->updateCreditables() //return the credits first
@@ -50,7 +50,6 @@ class DeletePayment
                     ->save();
                     
             }
-
 
         }, 1);
 
