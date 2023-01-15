@@ -90,7 +90,7 @@ class NinjaMailerJob implements ShouldQueue
         $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
 
         /* If any pre conditions fail, we return early here */
-        if($this->preFlightChecksFail())
+        if(!$this->company || $this->preFlightChecksFail())
             return;
 
         /* Set the email driver */
