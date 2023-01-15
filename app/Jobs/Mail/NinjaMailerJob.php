@@ -350,7 +350,10 @@ class NinjaMailerJob implements ShouldQueue
     {
         $sending_user = $this->nmo->settings->gmail_sending_user_id;
 
-        $user = User::find($this->decodePrimaryKey($sending_user));
+        if($sending_user == "0")
+            $user = $this->company->owner();
+        else
+            $user = User::find($this->decodePrimaryKey($sending_user));
 
         return $user;
     }
@@ -406,14 +409,6 @@ class NinjaMailerJob implements ShouldQueue
     private function setOfficeMailer()
     {
         $user = $this->resolveSendingUser();
-        
-        /* Always ensure the user is set on the correct account */
-        // if($user->account_id != $this->company->account_id){
-
-        //     $this->nmo->settings->email_sending_method = 'default';
-        //     return $this->setMailDriver();
-
-        // }
 
         $this->checkValidSendingUser($user);
         
