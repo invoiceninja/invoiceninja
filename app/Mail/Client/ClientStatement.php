@@ -21,18 +21,6 @@ use Illuminate\Queue\SerializesModels;
 
 class ClientStatement extends Mailable
 {
-
-    // 'to' => [],
-    // 'from_email' => '',
-    // 'from_name' => '',
-    // 'reply_to' => '',
-    // 'cc' => [],
-    // 'bcc' => [],
-    // 'subject' => ctrans('texts.your_statement'),
-    // 'body' => ctrans('texts.client_statement_body', ['start_date' => $this->client_start_date, 'end_date' => $this->client_end_date]),
-    // 'attachments' => [
-    //     ['name' => ctrans('texts.statement') . ".pdf", 'file' => base64_encode($pdf)],
-    // ]
     
     /**
      * Create a new message instance.

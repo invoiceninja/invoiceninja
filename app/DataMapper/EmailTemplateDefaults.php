@@ -235,12 +235,17 @@ class EmailTemplateDefaults
 
     public static function emailStatementSubject()
     {
-        return '';
+        return ctrans('texts.your_statement');
     }
 
     public static function emailStatementTemplate()
     {
-        return '';
+
+        $statement_message = '<p>$client<br><br>'.self::transformText('client_statement_body').'<br><br>$invoices</p>';
+
+        return $statement_message;
+
+        // return ctrans('texts.client_statement_body', ['start_date' => '$start_date', 'end_date' => '$end_date']);
     }
 
     private static function transformText($string)
