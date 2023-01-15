@@ -275,7 +275,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/tasks', TaskReportController::class);
     Route::post('reports/profitloss', ProfitAndLossController::class);
 
-    Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
+    Route::resource('task_schedulers', TaskSchedulerController::class);
+    Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
     Route::post('support/messages/send', SendingController::class);

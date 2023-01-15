@@ -56,6 +56,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
             if ($company_ledger->balance == 0) 
             {
 
+
                 $last_record = CompanyLedger::where('client_id', $company_ledger->client_id)
                                 ->where('company_id', $company_ledger->company_id)
                                 ->where('balance', '!=', 0)
@@ -69,15 +70,12 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                     ->first();
                 }
 
-                // nlog("Updating Balance NOW");
+            }
 
                 $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
                 $company_ledger->save();
-
-            }
-
+            
         });
 
-        // nlog("Updating company ledger for client ". $this->client->id);
     }
 }

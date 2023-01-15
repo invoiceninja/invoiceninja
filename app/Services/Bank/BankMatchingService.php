@@ -34,15 +34,7 @@ class BankMatchingService implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $company_id;
-
-    protected $db;
-
-    public function __construct($company_id, $db)
-    {
-        $this->company_id = $company_id;
-        $this->db = $db;
-    }
+    public function __construct(public $company_id, public $db){}
 
     public function handle() :void
     {

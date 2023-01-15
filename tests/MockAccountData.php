@@ -48,6 +48,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Scheduler;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -176,6 +177,11 @@ trait MockAccountData
      * @var
      */
     public $tax_rate;
+
+    /**
+     * @var
+     */
+    public $scheduler;
 
     public function makeTestData()
     {
@@ -804,6 +810,14 @@ trait MockAccountData
 
         $this->client = $this->client->fresh();
         $this->invoice = $this->invoice->fresh();
+
+        $this->scheduler = Scheduler::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->scheduler->save();
+        
     }
 
     /**

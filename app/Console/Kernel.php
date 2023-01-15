@@ -71,7 +71,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping()->name('recurring-invoice-job')->onOneServer();
 
         /* Stale Invoice Cleanup*/
-        $schedule->job(new CleanStaleInvoiceOrder)->hourly()->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
+        $schedule->job(new CleanStaleInvoiceOrder)->hourlyAt(30)->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping()->name('recurring-expense-job')->onOneServer();
@@ -89,7 +89,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new SchedulerCheck)->dailyAt('01:10')->withoutOverlapping();
 
         /* Checks for scheduled tasks */
-        $schedule->job(new TaskScheduler())->dailyAt('06:50')->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
+        $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
         /* Performs system maintenance such as pruning the backup table */
         $schedule->job(new SystemMaintenance)->sundays()->at('02:30')->withoutOverlapping()->name('system-maintenance-job')->onOneServer();
