@@ -56,7 +56,7 @@ class EmailMailable extends Mailable
     public function content()
     {
         return new Content(
-            view: $this->email_object->template,
+            view: $this->email_object->html_template,
             text: $this->email_object->text_template,
             with: [
                 'text_body' => strip_tags($this->email_object->body), //@todo this is a bit hacky here.
