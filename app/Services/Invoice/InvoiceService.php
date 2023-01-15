@@ -35,12 +35,7 @@ class InvoiceService
 {
     use MakesHash;
 
-    public $invoice;
-
-    public function __construct($invoice)
-    {
-        $this->invoice = $invoice;
-    }
+    public function __construct(public Invoice $invoice){}
 
     /**
      * Marks as invoice as paid
@@ -529,6 +524,10 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if (! isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id) {
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+        }
+
+        if ($settings->auto_bill_standard_invoices) {
+            $this->invoice->auto_bill_enabled = true;
         }
 
         if ($settings->counter_number_applied == 'when_saved') {

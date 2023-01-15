@@ -984,6 +984,9 @@ class BaseController extends Controller
             //pass report errors bool to front end
             $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
 
+            //pass whitelabel bool to front end
+            $data['white_label'] = Ninja::isSelfHost() ? $account->isPaid() : false;
+
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
