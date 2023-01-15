@@ -51,7 +51,6 @@ class DeletePayment
                     
             }
 
-
         }, 1);
 
         return $this->payment;
