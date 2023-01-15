@@ -202,6 +202,12 @@ class BillingPortalPurchase extends Component
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price;
         }
+
+        /* Leave this here, otherwise a logged in user will need to reauth... painfully */
+        if(Auth::guard('contact')->check()){
+            return $this->getPaymentMethods(auth()->guard('contact')->user());
+        }
+        
     }
 
     /**
