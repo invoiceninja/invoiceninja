@@ -68,81 +68,49 @@ class QuoteFilters extends QueryFilters
 
         $quote_filters = [];
 
-        if (in_array('draft', $status_parameters)) {
-            $quote_filters[] = Quote::STATUS_DRAFT;
-        }
+        $this->builder->where(function ($query) use ($status_parameters){
 
-        if (in_array('sent', $status_parameters)) {
-            $quote_filters[] = Quote::STATUS_SENT;
-        }
+            if (in_array('draft', $status_parameters)) {
+                $query->orWhere(function ($q){
+                    $q->where('status_id', Quote::STATUS_DRAFT);
+                });
 
-        if (in_array('approved', $status_parameters)) {
-            $quote_filters[] = Quote::STATUS_APPROVED;
-        }
-
-        if(count($quote_filters) >=1){
-            $this->builder->whereIn('status_id', $quote_filters);
-        }
-
-        if (in_array('expired', $status_parameters)) {
-            $this->builder->orWhere(function ($query){
-                          $query->where('status_id', Quote::STATUS_SENT)
-                          ->company()
-                          ->whereNotNull('due_date')
-                          ->where('due_date', '<=', now()->toDateString());
-                      });
-        }
-
-        if (in_array('upcoming', $status_parameters)) {
-            $this->builder->orWhere(function ($query){
-                        $query->where('status_id', Quote::STATUS_SENT)
-                          ->company()
-                          ->where('due_date', '>=', now()->toDateString())
-                          ->orderBy('due_date', 'DESC');
-                      });
-        }
-
-        return $this->builder;
-    }
-
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'quotes';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
             }
 
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q){
+                              $q->where('status_id', Quote::STATUS_SENT)
+                              ->whereNull('due_date')
+                              ->orWhere('due_date', '>=', now()->toDateString());
+                          });
+            }
 
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
+            if (in_array('approved', $status_parameters)) {
+                $query->orWhere(function ($q){
+                    $q->where('status_id', Quote::STATUS_APPROVED)->company();
                 });
             }
 
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
+
+            if (in_array('expired', $status_parameters)) {
+                $query->orWhere(function ($q){
+                              $q->where('status_id', Quote::STATUS_SENT)
+                              ->whereNotNull('due_date')
+                              ->where('due_date', '<=', now()->toDateString());
+                          });
             }
+
+            if (in_array('upcoming', $status_parameters)) {
+                $query->orWhere(function ($q){
+                            $q->where('status_id', Quote::STATUS_SENT)
+                              ->where('due_date', '>=', now()->toDateString())
+                              ->orderBy('due_date', 'DESC');
+                          });
+            }
+
         });
+
+        return $this->builder;
     }
 
     public function number($number = '')
@@ -164,18 +132,6 @@ class QuoteFilters extends QueryFilters
             $sort_col[0] = 'due_date';
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
     }
 
     /**
