@@ -29,10 +29,6 @@ class EmailService
     {
         $this->override = $override;
 
-
-nlog($this->email_object->subject);
-nlog($this->email_object->body);
-
         $this->setDefaults()
              ->updateMailable()
              ->email();
@@ -67,6 +63,11 @@ nlog($this->email_object->body);
         $this->mailable = new EmailMailable($this->email_object);
 
         return $this;
+    }
+
+    private function emailQualityCheck()
+    {
+        
     }
 
 }
