@@ -241,7 +241,7 @@ class EmailTemplateDefaults
     public static function emailStatementTemplate()
     {
 
-        $statement_message = '<p>$client<br><br>'.self::transformText('client_statement_body').'<br><br>$invoices</p>';
+        $statement_message = '<p>$client<br><br>'.self::transformText('client_statement_body').'<br></p>';
 
         return $statement_message;
 

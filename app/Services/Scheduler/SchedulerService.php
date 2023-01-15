@@ -109,7 +109,17 @@ class SchedulerService
 
         $email_object = new EmailObject;
         $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
-        $email_object->attachments = ['name' => ctrans('texts.statement') . ".pdf", 'file' => base64_encode($pdf)];
+        $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
+        $email_object->settings = $this->client->getMergedSettings();
+        $email_object->company = $this->client->company;
+        $email_object->client = $this->client;
+        $email_object->email_template_subject = 'email_subject_statement';
+        $email_object->email_template_body = 'email_template_statement';
+        $email_object->variables = [
+            '$client' => $this->client->present()->name(),
+            '$start_date' => $this->client_start_date,
+            '$end_date' => $this->client_end_date,
+        ];
 
         return $email_object;
 
