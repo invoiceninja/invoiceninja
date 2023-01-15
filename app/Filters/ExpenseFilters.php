@@ -69,14 +69,15 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->whereNested(function ($query) use($status_parameters){
+        $this->builder->where(function ($query) use($status_parameters){
 
             if (in_array('logged', $status_parameters)) {
 
                 $query->orWhere(function ($query){
                     $query->where('amount', '>', 0)
                           ->whereNull('invoice_id')
-                          ->whereNull('payment_date');
+                          ->whereNull('payment_date')
+                          ->where('should_be_invoiced',false);
                 });
                 
             }
