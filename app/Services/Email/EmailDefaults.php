@@ -24,14 +24,36 @@ use Illuminate\Mail\Attachment;
 
 class EmailDefaults
 {
+    /**
+     * The settings object for this email
+     * @var CompanySettings $settings
+     */
     protected $settings;
 
+    /**
+     * The HTML / Template to use for this email
+     * @var string $template
+     */
     private string $template;
 
+    /**
+     * The locale to use for
+     * translations for this email
+     */
     private string $locale;
 
+    /**
+     * @param EmailService $email_service The email service class
+     * @param EmailObject  $email_object  the email object class
+     */
     public function __construct(protected EmailService $email_service, public EmailObject $email_object){}
  
+    /**
+     * Entry point for generating 
+     * the defaults for the email object
+     * 
+     * @return EmailObject $email_object The email object
+     */
     public function run()
     {
         $this->settings = $this->email_object->settings;
@@ -51,6 +73,9 @@ class EmailDefaults
 
     }
 
+    /**
+     * Sets the meta data for the Email object
+     */
     private function setMetaData(): self
     {
 
@@ -66,6 +91,9 @@ class EmailDefaults
 
     }
 
+    /**
+     * Sets the locale
+     */
     private function setLocale(): self
     {
 
@@ -84,6 +112,9 @@ class EmailDefaults
         return $this;
     }
 
+    /**
+     * Sets the template
+     */
     private function setTemplate(): self
     {
         $this->template = $this->email_object->settings->email_style;
@@ -100,6 +131,9 @@ class EmailDefaults
         return $this;
     }
 
+    /**
+     * Sets the FROM address
+     */
     private function setFrom(): self
     {
         if($this->email_object->from)
@@ -111,7 +145,9 @@ class EmailDefaults
 
     }
 
-    //think about where we do the string replace for variables....
+    /** 
+     * Sets the body of the email
+     */
     private function setBody(): self
     {
 
@@ -133,7 +169,9 @@ class EmailDefaults
 
     }
 
-    //think about where we do the string replace for variables....
+    /**
+     * Sets the subject of the email
+     */
     private function setSubject(): self
     {
 
@@ -148,6 +186,25 @@ class EmailDefaults
 
     }
 
+    /**
+     * Sets the reply to of the email
+     */
+    private function setReplyTo(): self
+    {
+
+        $reply_to_email = str_contains($this->email_object->settings->reply_to_email, "@") ? $this->email_object->settings->reply_to_email : $this->email_service->company->owner()->email;
+
+        $reply_to_name = strlen($this->email_object->settings->reply_to_name) > 3 ? $this->email_object->settings->reply_to_name : $this->email_service->company->owner()->present()->name();
+
+        $this->email_object->reply_to = array_merge($this->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
+
+        return $this;
+    }
+
+    /**
+     * Replaces the template placeholders 
+     * with variable values.
+     */
     public function setVariables(): self
     {
 
@@ -161,18 +218,9 @@ class EmailDefaults
         return $this;
     }
 
-    private function setReplyTo(): self
-    {
-
-        $reply_to_email = str_contains($this->email_object->settings->reply_to_email, "@") ? $this->email_object->settings->reply_to_email : $this->email_service->company->owner()->email;
-
-        $reply_to_name = strlen($this->email_object->settings->reply_to_name) > 3 ? $this->email_object->settings->reply_to_name : $this->email_service->company->owner()->present()->name();
-
-        $this->email_object->reply_to = array_merge($this->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
-
-        return $this;
-    }
-
+    /**
+     * Sets the BCC of the email
+     */
     private function setBcc(): self
     {
         $bccs = [];
@@ -197,6 +245,10 @@ class EmailDefaults
         return $this;
     }
 
+    /**
+     * Sets the CC of the email
+     * @todo at some point....
+     */
     private function buildCc()
     {
         return [
@@ -204,6 +256,14 @@ class EmailDefaults
         ];
     }
 
+    /** 
+     * Sets the attachments for the email
+     *
+     * Note that we base64 encode these, as they 
+     * sometimes may not survive serialization.
+     *
+     * We decode these in the Mailable later
+     */
     private function setAttachments(): self
     {
         $attachments = [];
@@ -224,6 +284,9 @@ class EmailDefaults
 
     }
 
+    /**
+     * Sets the headers for the email
+     */
     private function setHeaders(): self
     {
         if($this->email_object->invitation_key)
@@ -232,7 +295,13 @@ class EmailDefaults
         return $this;
     }
 
-    public function parseMarkdownToHtml(string $markdown): ?string
+    /**
+     * Converts any markdown to HTML in the email
+     * 
+     * @param  string $markdown The body to convert
+     * @return string           The parsed markdown response
+     */
+    private function parseMarkdownToHtml(string $markdown): ?string
     {
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

@@ -71,26 +71,28 @@ class EmailMailer implements ShouldQueue
     {
     	MultiDB::setDb($this->email_service->company->db);
 
-    	//decode all attachments
+        /* Perform final checks */
+        if($this->email_service->preFlightChecksFail())
+            return;
+
+        /* Boot the required driver*/
     	$this->setMailDriver();
 
+        /* Init the mailer*/
     	$mailer = Mail::mailer($this->mailer);
 
-        if($this->client_postmark_secret){
-            nlog("inside postmark config");
-            nlog($this->client_postmark_secret);
+        /* Additional configuration if using a client third party mailer */
+        if($this->client_postmark_secret)
             $mailer->postmark_config($this->client_postmark_secret);
-        }
 
-        if($this->client_mailgun_secret){
+        if($this->client_mailgun_secret)
             $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
-        }
 
-
-        //send email
+        /* Attempt the send! */
         try {
             
 		    nlog("Using mailer => ". $this->mailer. " ". now()->toDateTimeString());
+            
 		    $mailer->send($this->email_mailable);
 
 	        Cache::increment($this->email_service->company->account->key);
@@ -131,16 +133,15 @@ class EmailMailer implements ShouldQueue
                 app('sentry')->captureException($e);
 
             $message = null;
-            // $this->email_service = null;
-            // $this->email_mailable = null;
-    
+
         }
 
     }
 
     /**
      * Entity notification when an email fails to send
-     * 
+     *
+     * @todo - rewrite this
      * @param  string $message
      * @return void
      */
@@ -171,6 +172,10 @@ class EmailMailer implements ShouldQueue
 
     }
 
+    /** 
+     * Sets the mail driver to use and applies any specific configuration 
+     * the the mailable
+     */
 	private function setMailDriver(): self
     {
 
@@ -263,9 +268,10 @@ class EmailMailer implements ShouldQueue
     private function checkValidSendingUser($user)
     {
         /* Always ensure the user is set on the correct account */
-        if($user->account_id != $this->email_service->company->account_id){
-
+        if($user->account_id != $this->email_service->company->account_id)
+        {
             $this->email_service->email_object->settings->email_sending_method = 'default';
+        
             return $this->setMailDriver();
         }
     }
@@ -281,11 +287,13 @@ class EmailMailer implements ShouldQueue
     {
         $sending_user = $this->email_service->email_object->settings->gmail_sending_user_id;
 
-        $user = User::find($this->decodePrimaryKey($sending_user));
+        if($sending_user == "0")
+            $user = $this->email_service->company->owner();
+        else
+            $user = User::find($this->decodePrimaryKey($sending_user));
 
         return $user;
     }
-
     /**
      * Configures Mailgun using client supplied secret
      * as the Mailer
@@ -300,7 +308,6 @@ class EmailMailer implements ShouldQueue
             $this->email_service->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
-
 
         $user = $this->resolveSendingUser();
 
@@ -462,9 +469,9 @@ class EmailMailer implements ShouldQueue
      * Attempts to refresh the Microsoft refreshToken
      * 
      * @param  App\Models\User
-     * @return string | bool
+     * @return mixed
      */
-    private function refreshOfficeToken($user)
+    private function refreshOfficeToken(User $user): mixed
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
 
