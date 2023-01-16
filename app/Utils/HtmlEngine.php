@@ -134,11 +134,13 @@ class HtmlEngine
         
         $data['$dueDate'] = &$data['$due_date'];
 
+
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
+        $data['$po_number'] = &$data['$invoice.po_number'];
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
@@ -596,7 +598,7 @@ class HtmlEngine
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
         }
 
-        if($this->entity_string == 'invoice' && isset($this->company?->custom_fields?->company1))
+        if(($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1))
         {
             $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity,$data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
         }

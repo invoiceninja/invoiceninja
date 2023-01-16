@@ -41,7 +41,7 @@ class StoreExpenseRequest extends Request
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id);
         }
 
-        if (! empty($this->client_id)) {
+        if ($this->client_id) {
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
         }
 

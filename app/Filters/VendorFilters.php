@@ -118,7 +118,6 @@ class VendorFilters extends QueryFilters
             ->where('vendors.company_id', '=', $company_id)
             ->where('vendor_contacts.is_primary', '=', true)
             ->where('vendor_contacts.deleted_at', '=', null)
-            //->whereRaw('(vendors.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                // DB::raw('COALESCE(vendors.currency_id, companies.currency_id) currency_id'),
                 DB::raw('COALESCE(vendors.country_id, companies.country_id) country_id'),

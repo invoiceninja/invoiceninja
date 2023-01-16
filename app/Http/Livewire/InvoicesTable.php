@@ -13,6 +13,7 @@
 namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Utils\Traits\WithSorting;
 use Carbon\Carbon;
@@ -23,15 +24,21 @@ class InvoicesTable extends Component
 {
     use WithPagination, WithSorting;
 
-    public $per_page = 10;
+    public int $per_page = 10;
 
-    public $status = [];
+    public array $status = [];
 
-    public $company;
+    public Company $company;
+
+    public int $company_id;
+
+    public string $db;
 
     public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
+
+        $this->company = Company::find($this->company_id);
 
         $this->sort_asc = false;
 

@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Models\RecurringInvoice;
 use App\Services\Subscription\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Filterable;
 
     protected $hidden = [
         'id',

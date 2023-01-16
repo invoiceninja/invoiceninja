@@ -27,7 +27,7 @@ class TranslationsExport extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:translations';
+    protected $signature = 'ninja:translations {--type=} {--path=}';
 
     /**
      * The console command description.
@@ -36,8 +36,11 @@ class TranslationsExport extends Command
      */
     protected $description = 'Transform translations to json';
 
+    protected $log = '';
+
     private array $langs = [
         'ar',
+        'bg',
         'ca',
         'cs',
         'da',
@@ -47,10 +50,12 @@ class TranslationsExport extends Command
         'en_GB',
         'es',
         'es_ES',
+        'et',
         'fa',
         'fi',
         'fr',
         'fr_CA',
+        'he',
         'hr',
         'it',
         'ja',
@@ -65,7 +70,9 @@ class TranslationsExport extends Command
         'ro',
         'ru_RU',
         'sl',
+        'sk',
         'sq',
+        'sr',
         'sv',
         'th',
         'tr_TR',
@@ -89,6 +96,49 @@ class TranslationsExport extends Command
      */
     public function handle()
     {
+        $type =$this->option('type') ?? 'export';
+
+        if($type == 'import')
+            $this->import();
+
+        if($type == 'export')
+            $this->export();
+
+    }
+
+    private function import()
+    {
+        //loop and
+
+        foreach($this->langs as $lang)
+        {
+
+            $import_file = "textsphp_{$lang}.php";
+            $dir = $this->option('path') ?? storage_path('lang_import/');
+            $path = $dir.$import_file;
+
+            if(file_exists($path)){
+                $this->logMessage($path);
+
+                $trans = file_get_contents($path);
+
+                file_put_contents(lang_path("/{$lang}/texts.php"), $trans);
+
+            }
+            else{
+
+                $this->logMessage("Could not open file");
+                $this->logMessage($path);
+            
+            }
+
+        }
+
+    }
+
+
+    private function export()
+    {
         Storage::disk('local')->makeDirectory('lang');
 
         foreach ($this->langs as $lang) {
@@ -97,6 +147,14 @@ class TranslationsExport extends Command
             $translations = Lang::getLoader()->load($lang, 'texts');
 
             Storage::disk('local')->put("lang/{$lang}/{$lang}.json", json_encode(Arr::dot($translations), JSON_UNESCAPED_UNICODE));
-        }
+        } 
     }
+
+    private function logMessage($str)
+    {
+        $str = date('Y-m-d h:i:s').' '.$str;
+        $this->info($str);
+        $this->log .= $str."\n";
+    }
+
 }

@@ -3,8 +3,25 @@
 
     <head>
         <!-- Error: {{ session('error') }} -->
-
-        @if (config('services.analytics.tracking_id'))
+        @if (isset($company) && $company->matomo_url && $company->matomo_id)
+            <script>
+                var _paq = window._paq = window._paq || [];
+                /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+                _paq.push(['trackPageView']);
+                _paq.push(['enableLinkTracking']);
+                @if (auth()->guard('vendor')->check())
+                _paq.push(['setUserId', '{{ auth()->guard('vendor')->user()->present()->name() }}']);
+                @endif
+                (function() {
+                    var u="{{ $company->matomo_url }}";
+                    _paq.push(['setTrackerUrl', u+'matomo.php']);
+                    _paq.push(['setSiteId', '{{ $company->matomo_id }}']);
+                    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+                    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+                })();
+            </script>
+            <noscript><p><img src="{{ $company->matomo_url }}/matomo.php?idsite={{ $company->matomo_id }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+        @elseif (config('services.analytics.tracking_id'))
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-122229484-1"></script>
             <script>
                 window.dataLayer = window.dataLayer || [];
@@ -42,7 +59,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="@yield('meta_description')"/>
-        
+
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -157,7 +174,7 @@
                 }
             </script>
         @endif
-        
+
     </body>
 
     <footer>

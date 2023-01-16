@@ -1,5 +1,6 @@
 @php
     $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
+    $email_alignment = isset($settings) ? $settings->email_alignment : 'center';
 @endphp
 
 
@@ -60,7 +61,8 @@
             font-size: 13px;
             padding: 15px 50px;
             font-weight: 600;
-            margin-bottom: 30px;
+            margin-bottom: 5px;
+            margin-top: 10px;
         }
         #content h1 {
             font-family: 'canada-type-gibson', 'roboto', Arial, Helvetica, sans-serif;
@@ -146,8 +148,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td cellpadding="20">
-                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content">
+                    <td cellpadding="5">
+                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: {{ $email_alignment }}" id="content">
                                 <div style="padding-top: 10px;"></div>
 
                                 {{ $slot ?? '' }}
@@ -163,8 +165,8 @@
                 </tr>  
                 
                 <tr>
-                  <td height="20">
-                   <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content"> </div>
+                  <td height="0">
+                   <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 5px; text-align: center" id="content"> </div>
                  </td>
                 </tr>
 

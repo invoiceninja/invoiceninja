@@ -66,6 +66,7 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'invoice_task_hours',
         'markdown_enabled',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
@@ -129,6 +130,7 @@ class Company extends BaseModel
         'invoice_task_lock',
         'convert_payment_currency',
         'convert_expense_currency',
+        'notify_vendor_when_paid',
     ];
 
     protected $hidden = [
@@ -138,6 +140,7 @@ class Company extends BaseModel
     ];
 
     protected $casts = [
+        'is_proforma' => 'bool',
         'country_id' => 'string',
         'custom_fields' => 'object',
         'settings' => 'object',

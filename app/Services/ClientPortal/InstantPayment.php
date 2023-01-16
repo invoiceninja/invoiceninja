@@ -16,6 +16,7 @@ use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Invoice\CheckGatewayFee;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -24,6 +25,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -194,6 +196,10 @@ class InstantPayment
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'always' ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
 
+        /* Schedule a job to check the gateway fees for this invoice*/
+        if(Ninja::isHosted())
+            CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
+
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
         }
@@ -220,6 +226,9 @@ class InstantPayment
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
+        }
+        elseif($this->request->hash){
+            $hash_data['billing_context'] = Cache::get($this->request->hash);
         }
 
         $payment_hash = new PaymentHash;

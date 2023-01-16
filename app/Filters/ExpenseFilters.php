@@ -69,25 +69,54 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (in_array('logged', $status_parameters)) {
-            $this->builder->where('amount', '>', 0);
-        }
+        $this->builder->whereNested(function ($query) use($status_parameters){
 
-        if (in_array('pending', $status_parameters)) {
-            $this->builder->whereNull('invoice_id')->whereNotNull('payment_date');
-        }
+            if (in_array('logged', $status_parameters)) {
 
-        if (in_array('invoiced', $status_parameters)) {
-            $this->builder->whereNotNull('invoice_id');
-        }
+                $query->orWhere(function ($query){
+                    $query->where('amount', '>', 0)
+                          ->whereNull('invoice_id')
+                          ->whereNull('payment_date');
+                });
+                
+            }
 
-        if (in_array('paid', $status_parameters)) {
-            $this->builder->whereNotNull('payment_date');
-        }
+            if (in_array('pending', $status_parameters)) {
 
-        if (in_array('unpaid', $status_parameters)) {
-            $this->builder->whereNull('payment_date');
-        }
+                $query->orWhere(function ($query){
+                    $query->where('should_be_invoiced',true)
+                          ->whereNull('invoice_id');
+                });
+                
+            }
+
+            if (in_array('invoiced', $status_parameters)) {
+
+                $query->orWhere(function ($query){
+                    $query->whereNotNull('invoice_id');
+                });
+                
+            }
+
+            if (in_array('paid', $status_parameters)) {
+
+                $query->orWhere(function ($query){
+                    $query->whereNotNull('payment_date');
+                });
+                
+            }
+
+            if (in_array('unpaid', $status_parameters)) {
+
+                $query->orWhere(function ($query){
+                    $query->whereNull('payment_date');
+                });
+                
+            }
+
+        });
+
+        // nlog($this->builder->toSql());
 
         return $this->builder;
     }
@@ -176,9 +205,7 @@ class ExpenseFilters extends QueryFilters
         $query = DB::table('expenses')
             ->join('companies', 'companies.id', '=', 'expenses.company_id')
             ->where('expenses.company_id', '=', $company_id)
-            //->whereRaw('(expenses.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
-               // DB::raw('COALESCE(expenses.currency_id, companies.currency_id) currency_id'),
                 DB::raw('COALESCE(expenses.country_id, companies.country_id) country_id'),
                 DB::raw("CONCAT(COALESCE(expense_contacts.first_name, ''), ' ', COALESCE(expense_contacts.last_name, '')) contact"),
                 'expenses.id',
@@ -212,8 +239,6 @@ class ExpenseFilters extends QueryFilters
      */
     public function entityFilter()
     {
-
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }

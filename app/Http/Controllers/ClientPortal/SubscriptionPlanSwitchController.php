@@ -31,9 +31,12 @@ class SubscriptionPlanSwitchController extends Controller
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
+
         $amount = $recurring_invoice->subscription
                                     ->service()
-                                    ->calculateUpgradePrice($recurring_invoice, $target);
+                                    ->calculateUpgradePriceV2($recurring_invoice, $target);
+
+        nlog("payment amount = {$amount}");
         /**
          * Null value here is a proxy for
          * denying the user a change plan option
@@ -42,11 +45,14 @@ class SubscriptionPlanSwitchController extends Controller
             render('subscriptions.denied');
         }
 
+        $amount = max(0,$amount);
+
         return render('subscriptions.switch', [
             'subscription' => $recurring_invoice->subscription,
             'recurring_invoice' => $recurring_invoice,
             'target' => $target,
             'amount' => $amount,
         ]);
+        
     }
 }

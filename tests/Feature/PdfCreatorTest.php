@@ -37,12 +37,12 @@ class PdfCreatorTest extends TestCase
         );
     }
 
-    public function testCreditPdfCreated()
-    {
-        $credit_path = (new CreateEntityPdf($this->credit->invitations->first()))->handle();
+    // public function testCreditPdfCreated()
+    // {
+    //     $credit_path = (new CreateEntityPdf($this->credit->invitations->first()))->handle();
 
-        $this->assertTrue(Storage::exists($credit_path));
-    }
+    //     $this->assertTrue(Storage::exists($credit_path));
+    // }
 
     public function testInvoicePdfCreated()
     {

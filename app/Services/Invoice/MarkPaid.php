@@ -14,16 +14,10 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Invoice\InvoiceWorkflowSettings;
-use App\Jobs\Ninja\TransactionLog;
-use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\TransactionEvent;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -57,15 +51,18 @@ class MarkPaid extends AbstractService
 
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
-            $this->payable_balance = $this->invoice->balance;
+            if($this->invoice)
+            {
+                $this->payable_balance = $this->invoice->balance;
 
-            $this->invoice
-                ->service()
-                ->setExchangeRate()
-                ->updateBalance($this->payable_balance * -1)
-                ->updatePaidToDate($this->payable_balance)
-                ->setStatus(Invoice::STATUS_PAID)
-                ->save();
+                $this->invoice
+                    ->service()
+                    ->setExchangeRate()
+                    ->updateBalance($this->payable_balance * -1)
+                    ->updatePaidToDate($this->payable_balance)
+                    ->setStatus(Invoice::STATUS_PAID)
+                    ->save();
+            }
 
         }, 1);
 
@@ -132,16 +129,6 @@ class MarkPaid extends AbstractService
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
-        $transaction = [
-            'invoice' => $this->invoice->transaction_event(),
-            'payment' => $payment->transaction_event(),
-            'client' => $this->invoice->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
 
         event('eloquent.updated: App\Models\Invoice', $this->invoice);
         

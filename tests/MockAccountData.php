@@ -32,6 +32,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -47,6 +48,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Scheduler;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -104,6 +106,11 @@ trait MockAccountData
      * @var
      */
     public $recurring_quote;
+
+    /**
+     * @var
+     */
+    public $credit;
 
     /**
      * @var
@@ -170,6 +177,11 @@ trait MockAccountData
      * @var
      */
     public $tax_rate;
+
+    /**
+     * @var
+     */
+    public $scheduler;
 
     public function makeTestData()
     {
@@ -477,6 +489,49 @@ trait MockAccountData
 
         $this->quote->save();
 
+
+        $this->credit = Credit::factory()->create([
+            'user_id' => $user_id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->credit->line_items = $this->buildLineItems();
+        $this->credit->uses_inclusive_taxes = false;
+
+        $this->credit->save();
+
+        $this->credit_calc = new InvoiceSum($this->credit);
+        $this->credit_calc->build();
+
+        $this->credit = $this->credit_calc->getCredit();
+
+        $this->credit->status_id = Quote::STATUS_SENT;
+        $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
+
+
+        CreditInvitation::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact->id,
+            'credit_id' => $this->credit->id,
+        ]);
+
+        CreditInvitation::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_contact_id' => $contact2->id,
+            'credit_id' => $this->credit->id,
+        ]);
+
+        $this->credit->setRelation('client', $this->client);
+        $this->credit->setRelation('company', $this->company);
+
+        $this->credit->save();
+
+        $this->credit->service()->createInvitations()->markSent();
+
+
         $this->purchase_order = PurchaseOrderFactory::create($this->company->id, $user_id);
         $this->purchase_order->vendor_id = $this->vendor->id;
 
@@ -755,6 +810,14 @@ trait MockAccountData
 
         $this->client = $this->client->fresh();
         $this->invoice = $this->invoice->fresh();
+
+        $this->scheduler = Scheduler::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->scheduler->save();
+        
     }
 
     /**

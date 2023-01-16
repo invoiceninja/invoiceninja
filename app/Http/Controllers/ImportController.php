@@ -13,7 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Import\ImportRequest;
 use App\Http\Requests\Import\PreImportRequest;
-use App\Jobs\Import\CSVImport;
 use App\Jobs\Import\CSVIngest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -162,7 +161,7 @@ class ImportController extends Controller
     public function detectDelimiter($csvfile)
     {
         $delimiters = array(',', '.', ';');
-        $bestDelimiter = false;
+        $bestDelimiter = ' ';
         $count = 0;
         foreach ($delimiters as $delimiter)
             if (substr_count($csvfile, $delimiter) > $count) {
