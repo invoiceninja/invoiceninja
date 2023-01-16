@@ -752,7 +752,7 @@ class StripePaymentDriver extends BaseDriver
             if ($request->data['object']['status'] === "active"){
                 // Check if payment method exists
                 $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data->payment_method)
+                    ->where('token', $request->data['object']['payment_method'])
                     ->first();
                 if ($clientgateway){
                     $clientgateway->state = "authorized";
@@ -762,7 +762,7 @@ class StripePaymentDriver extends BaseDriver
             elseif ($request->data['object']['status'] === "inactive"){
                 // Deactivate payment method
                 $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data->payment_method)
+                    ->where('token', $request->data['object']['payment_method'])
                     ->first();
                 $clientgateway->delete();
             }
