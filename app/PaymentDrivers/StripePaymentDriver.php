@@ -641,7 +641,7 @@ class StripePaymentDriver extends BaseDriver
     {
         // if($request->type === 'payment_intent.requires_action')
         //    nlog($request->all());
-        
+
         if($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
@@ -730,7 +730,6 @@ class StripePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } elseif ($request->type === "checkout.session.completed"){
             // Store payment token for Stripe BACS
-            try {
             $setup_intent = $this->stripe->stripe->setupIntents->retrieve($request->data->setup_inent, []);
             $customer = $this->stripe->findOrCreateCustomer();
             $this->stripe->attach($setup_intent->payment_method, $customer);
@@ -748,12 +747,9 @@ class StripePaymentDriver extends BaseDriver
             ];
             $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
             return response()->json([], 200);
-            } catch (\Exception $e) {
-                return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
-            }
         } elseif ($request->type === "mandate.updated"){
             // Check if payment method BACS is still valid
-            if ($request->data->status === "active"){
+            if ($request->data['status'] === "active"){
                 // Check if payment method exists
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data->payment_method)
@@ -763,14 +759,14 @@ class StripePaymentDriver extends BaseDriver
                     $clientgateway->save();
                 }
             }
-            elseif ($request->data->status === "inactive"){
+            elseif ($request->data['status'] === "inactive"){
                 // Deactivate payment method
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data->payment_method)
                     ->first();
                 $clientgateway->delete();
             }
-            elseif ($request->data->status === "pending"){
+            elseif ($request->data['status'] === "pending"){
                 // Do nothing
             }
             return response()->json([], 200);
