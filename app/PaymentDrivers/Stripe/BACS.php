@@ -125,9 +125,10 @@ class BACS
             'amount' => $this->stripe->convertFromStripeAmount($payment_id->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_id['id'],
             'gateway_type_id' => GatewayType::BACS,
+            'invoices' => collect($this->stripe->payment_hash->invoices()),
         ];
 
-        $this->stripe->payment_hash->data = array_merge((array) $payment_id, ['amount' => $data['amount'], 'invoices' => collect($this->stripe->payment_hash->invoices())]);
+        $this->stripe->payment_hash->data = array_merge((array) $payment_id, $data);
         $this->stripe->payment_hash->save();
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
