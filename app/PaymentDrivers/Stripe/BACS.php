@@ -80,7 +80,6 @@ class BACS
 
     {
         $this->stripe->init();
-        nlog($request);
         $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number')->implode(',');
         $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($request->amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
         $payment_intent_data = [
@@ -107,15 +106,13 @@ class BACS
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
-        $server_response = $this->stripe->payment_hash->data->server_response;
-
-        if ($server_response->status == 'succeeded') {
-            $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
+        if ($state['payment_intent']->status == 'succeeded') {
+            $this->stripe->logSuccessfulGatewayResponse(['response' => $state['payment_intent'], 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $this->processSuccessfulPayment();
         }
 
-        return $this->processUnsuccessfulPayment($server_response);
+        return $this->processUnsuccessfulPayment("");
     }
 
     public function processSuccessfulPayment()
