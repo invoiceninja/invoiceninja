@@ -1,6 +1,9 @@
 API Tokens
 ==========
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Invoice Ninja uses API tokens to enable access to third party providers, so you can streamline many of your invoicing and payments functions with our partners.
 
 Tokens

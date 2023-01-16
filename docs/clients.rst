@@ -1,6 +1,9 @@
 Clients
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 They come in all shapes and sizes. They’re the reason you go to work in the morning. There are new ones coming up, and old ones coming back. What you need is a well-maintained, up-to-date, comprehensive client list to keep your invoicing in order.
 
 Your clients are the core of your freelance business, and your Clients page is the core of your activity on Invoice Ninja.
