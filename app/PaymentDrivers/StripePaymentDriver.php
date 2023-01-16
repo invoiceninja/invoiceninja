@@ -749,7 +749,7 @@ class StripePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated"){
             // Check if payment method BACS is still valid
-            if ($request->data['status'] === "active"){
+            if ($request->data['object']['status'] === "active"){
                 // Check if payment method exists
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data->payment_method)
@@ -759,14 +759,14 @@ class StripePaymentDriver extends BaseDriver
                     $clientgateway->save();
                 }
             }
-            elseif ($request->data['status'] === "inactive"){
+            elseif ($request->data['object']['status'] === "inactive"){
                 // Deactivate payment method
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data->payment_method)
                     ->first();
                 $clientgateway->delete();
             }
-            elseif ($request->data['status'] === "pending"){
+            elseif ($request->data['object']['status'] === "pending"){
                 // Do nothing
             }
             return response()->json([], 200);
