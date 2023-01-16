@@ -109,7 +109,7 @@ class BaseController extends Controller
           'company.bank_integrations',
           'company.bank_transactions',
           'company.bank_transaction_rules',
-          'company.schedulers',
+          'company.task_schedulers',
         ];
 
     private $mini_load = [
@@ -129,7 +129,7 @@ class BaseController extends Controller
         'company.subscriptions',
         'company.bank_integrations',
         'company.bank_transaction_rules',
-        'company.schedulers',
+        'company.task_schedulers',
     ];
 
     public function __construct()
@@ -467,7 +467,7 @@ class BaseController extends Controller
                         $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
-                'company.schedulers'=> function ($query) use ($updated_at, $user) {
+                'company.task_schedulers'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
 
                     if (! $user->isAdmin()) {
@@ -554,7 +554,7 @@ class BaseController extends Controller
                         $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
-                'company.schedulers'=> function ($query) use ($user) {
+                'company.task_schedulers'=> function ($query) use ($user) {
 
                     if (! $user->isAdmin()) {
                         $query->where('schedulers.user_id', $user->id);
@@ -818,7 +818,7 @@ class BaseController extends Controller
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
-                'company.schedulers'=> function ($query) use ($created_at, $user) {
+                'company.task_schedulers'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
                     if (! $user->isAdmin()) {
