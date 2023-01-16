@@ -1,6 +1,9 @@
 Proposals
 =========
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 When submitting a regular quote is not enough, the advanced Proposals feature comes to the rescue.
 
 Proposals are a powerful sales and marketing tool to present your offer for a gig. Whether you're competing against other providers, or you want to make a fantastic impression, the proposal function is a great way to custom-create a personalized proposal containing all the information you need to convey.

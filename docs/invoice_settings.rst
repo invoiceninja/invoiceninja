@@ -1,6 +1,9 @@
 Invoice Settings
 ================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You can customize your invoice template by pre-defining the various numbering formats, adding new fields for client, contact, company or invoice information, and adding default text to invoice terms, invoice footer, and more. Any changes you make to the Invoice Settings will apply to all your invoices.
 
 The Invoice Settings page has four sections:

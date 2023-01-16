@@ -1,6 +1,9 @@
 Custom Modules
 ==============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Invoice Ninja support customs modules using https://github.com/nWidart/laravel-modules
 
 You can watch this `short video <https://www.youtube.com/watch?v=8jJ-PYuq85k>`_ for a quick overview of the feature.

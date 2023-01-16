@@ -1,6 +1,9 @@
 Expenses
 ========
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Running a freelance business isn't just about the money that's coming in. You also need to take care of the money going out. With Invoice Ninja, all your earnings, expenses, clients and vendors are stored and managed in one, smart system designed to keep you on top of things. What's more, the Expenses part of your Invoice Ninja account streamlines with your invoicing via a click of the mouse, across multiples currencies, so you get the complete bigger picture of your business expenses - with simplicity and ease.
 
 List Expenses

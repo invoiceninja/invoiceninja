@@ -1,6 +1,9 @@
 Reports
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 It's easy to get caught up in the job you are currently working on, sending invoices and chasing payments. But it's just as important to take a step back from time to time, and to look at the bigger picture of how your freelance business is doing.
 
 The Reports function helps you do just that. You can define your parameters and extract the exact information you need to generate a range of reports.

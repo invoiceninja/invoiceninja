@@ -1,6 +1,9 @@
 Mobile Applications
 ===================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The Invoice Ninja iPhone and Android applications allows a user to connect to their self-hosted Invoice Ninja web application.
 
 .. TIP:: If you're unable to access the Android app store you can download the APK here: https://download.invoiceninja.com/apk

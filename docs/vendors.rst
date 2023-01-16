@@ -1,6 +1,9 @@
 Vendors
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Running a business is a two way street. Sure, you serve clients and charge them for it. But you also use suppliers, companies and service providers who charge you for all the things you need to get your job done. Office supplies? Check. Coffee machine? Check. Gas for the car? Check. And a hundred-and-one other supplies and services you can name.
 
 Your expenses and vendors are managed with the same ease and one-click functionality as every other part of your business, right here in your Invoice Ninja account. With Invoice Ninja, managing your vendors and expenses is simple – and similar – to managing your clients and invoices. It's only a matter of which way the money's going...

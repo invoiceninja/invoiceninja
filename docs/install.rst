@@ -1,6 +1,9 @@
 Install
 =======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Thanks for taking the time to setup Invoice Ninja.
 
 .. Note:: The applications requires PHP 7.1 or 7.2 and MySQL.
