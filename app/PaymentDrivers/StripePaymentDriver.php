@@ -737,18 +737,23 @@ class StripePaymentDriver extends BaseDriver
             $customer = $this->findOrCreateCustomer();
             $this->attach($setup_intent->payment_method, $customer);
             $payment_method =  $this->getStripePaymentMethod($setup_intent->payment_method);
-            $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
-            $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
-            $payment_meta->state = 'unauthorized';
-            $payment_meta->type = GatewayType::BACS;
+            $clientgateway = ClientGatewayToken::query()
+                ->where('token', $payment_method)
+                ->first();
+            if (!$clientgateway){
+                $payment_meta = new \stdClass;
+                $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
+                $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
+                $payment_meta->state = 'unauthorized';
+                $payment_meta->type = GatewayType::BACS;
 
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $payment_method->id,
-                'payment_method_id' => GatewayType::BACS,
-            ];
-            $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+                $data = [
+                    'payment_meta' => $payment_meta,
+                    'token' => $payment_method->id,
+                    'payment_method_id' => GatewayType::BACS,
+                ];
+                $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            }
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated"){
             // Check if payment method BACS is still valid
