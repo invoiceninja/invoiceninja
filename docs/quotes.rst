@@ -1,6 +1,9 @@
 Quotes
 ======
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 For Pro Plan users, the Quotes function streamlines your invoicing activity, from the moment you create and send a price quote for a particular job, until the quote is accepted, you invoice the job, receive payment and provide a receipt. With the Quotes function, you can automatically convert accepted quotes into invoices in a swift one-click action. Keeping track of your projected work schedule and potential income, the Quotes feature gives you even greater control of your freelance activity.
 
 List Quotes

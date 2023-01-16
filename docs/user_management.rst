@@ -1,6 +1,9 @@
 User Management
 ===============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Need help managing your invoicing? As an Invoice Ninja account owner, you can add as many users as you like to your account. Once added, users receive the status of 'Admin'. Your Admins have access to most areas and functions of your Invoice Ninja account.
 
 The User Management page displays a table that includes all current users, with the following data columns:

@@ -1,6 +1,9 @@
 Templates & Reminders
 =====================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 There are a few different emails your customers receive from you via the Invoice Ninja system as part of your invoicing communications. These include the invoice notification email, quote notification email, payment notification email and various reminder emails. You can customize all your emails by selecting a template, text and design, and by specifying the frequency of reminder emails.
 
 Email Templates

@@ -1,6 +1,9 @@
 Introduction
 ============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Let’s get acquainted with a basic overview of the structure of the Invoice Ninja website. Once you’ve wrapped your mind around a few central concepts, it’s as easy as ABC to effectively manage your freelance business accounts.
 
 The Invoice Ninja system is based on two main pillars:

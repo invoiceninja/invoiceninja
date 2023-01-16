@@ -1,6 +1,9 @@
 Tasks
 =====
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Got lots of tasks running at the same time? Projects to invoice? Returning to work on that particular job from last month? The Tasks feature keeps all of these details in order, so you can best manage your time, your projects and your clients’ needs.
 
 List Tasks

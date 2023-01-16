@@ -1,6 +1,9 @@
 Email Settings
 ==============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Email communication with your clients is an important part of the Invoice Ninja invoicing process – sending invoices via email, notifying clients that an invoice is due, reminding clients about overdue payments, and more.
 
 With the Email Settings feature, you can specify certain settings and designs for the notification emails your clients receive from your Invoice Ninja account.

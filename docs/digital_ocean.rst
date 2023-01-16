@@ -1,6 +1,9 @@
 Digital Ocean
 ===================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Invoice Ninja has created a Digital Ocean Marketplace image with Invoice Ninja pre-installed.
 
 To use this image, when creating a Droplet, choose **Marketplace** under the **Choose an image section**, and select the **Invoice Ninja on Ubuntu 18.04** image.

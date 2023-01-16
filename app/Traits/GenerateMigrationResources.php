@@ -1773,6 +1773,9 @@ trait GenerateMigrationResources
                 'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
                 'meta' => $this->convertMeta($payment_method),
+                'created_at' => $payment_method->created_at ? Carbon::parse($payment_method->created_at)->toDateString() : null,
+                'updated_at' => $payment_method->updated_at ? Carbon::parse($payment_method->updated_at)->toDateString() : null,
+                'deleted_at' => $payment_method->deleted_at ? Carbon::parse($payment_method->deleted_at)->toDateString() : null,
             ];
 
             $is_default = false;

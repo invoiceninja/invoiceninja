@@ -1,6 +1,9 @@
 Invoices
 ========
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Well, it’s time to bill, and the Invoices function of Invoice Ninja lets you get the job done fast and with perfect accuracy.
 
 With a bustling freelance business, you’re going to be sending out a lot of invoices. Creating an invoice is simple with the New Invoice page. Once you’ve entered the client, job and rates information, you’ll see a live PDF preview of your invoice, and you’ll have a range of actions at your fingertips – from saving a draft, to sending the invoice to the client via email, to printing a PDF hard copy.

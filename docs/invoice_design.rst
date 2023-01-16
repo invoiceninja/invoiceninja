@@ -1,6 +1,9 @@
 Invoice Design
 ==============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Whether you're a design novice or programming pro, Invoice Ninja gives you the power to customize your invoice design, to give your invoices the exact look you want. The design tool is the perfect way to match your invoices to your company's graphical look and feel, including colors, fonts, logos, margin sizes, column names, headers, footers and much more.
 
 You can design you invoice using the simple selection tools, or go deeper and customize it from the foundations with our customization feature.

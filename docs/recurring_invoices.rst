@@ -1,6 +1,9 @@
 Recurring Invoices
 ==================
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 As a busy freelancer, you work for a variety of clients. Some jobs are one-off, but others are ongoing, whether on a weekly, monthly or other basis. Invoice Ninja’s Recurring Invoice feature automatically creates invoices for ongoing jobs, and sends the current invoice to the client on a regular, pre-defined basis. For each recurring job, you only need to set up the procedure once. Here’s how it works.
 
 List Recurring Invoices

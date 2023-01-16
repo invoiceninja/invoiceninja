@@ -1,6 +1,9 @@
 Client Portal
 =============
 
+For Version 5.x documentation, please go to `invoiceninja.github.io <https://invoiceninja.github.io/>`_
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 The invoicing process is a two-way street. You bill the client; the client views and pays the invoice. Why not make it as easy as possible for you – and for your clients? This is the purpose of Invoice Ninja's Client Portal. With Invoice Ninja, you can choose to provide a portal for your clients where they can open and view your invoices, and even make payments, all via the Invoice Ninja website.
 
 You can modify the Client Portal with a range of settings. To modify the client portal, go to Advanced Settings > Client Portal.
