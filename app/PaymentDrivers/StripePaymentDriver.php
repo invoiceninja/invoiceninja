@@ -730,7 +730,7 @@ class StripePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } elseif ($request->type === "checkout.session.completed"){
             // Store payment token for Stripe BACS
-            $setup_intent = $this->stripe->stripe->setupIntents->retrieve($request->data->setup_inent, []);
+            $setup_intent = $this->stripe->stripe->setupIntents->retrieve($request->data['setup_intent'], []);
             $customer = $this->stripe->findOrCreateCustomer();
             $this->stripe->attach($setup_intent->payment_method, $customer);
             $payment_method =  $this->stripe->getStripePaymentMethod($setup_intent->payment_method);
@@ -751,13 +751,15 @@ class StripePaymentDriver extends BaseDriver
             // Check if payment method BACS is still valid
             if ($request->data['object']['status'] === "active"){
                 // Check if payment method exists
+                $payment_method = (string) $request->data['object']['payment_method'];
                 $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data['object']['payment_method'])
+                    ->where('token', $payment_method)
                     ->first();
                 if ($clientgateway){
-                    $clientgateway->state = "authorized";
-                    $clientgateway->save();
-                }
+                    $clientgateway->meta->state = 'authorized';
+                    $clientgateway->update();
+                };
+                return response()->json([], 200);
             }
             elseif ($request->data['object']['status'] === "inactive"){
                 // Deactivate payment method
@@ -765,11 +767,11 @@ class StripePaymentDriver extends BaseDriver
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
                 $clientgateway->delete();
+                return response()->json([], 200);
             }
             elseif ($request->data['object']['status'] === "pending"){
-                // Do nothing
+                return response()->json([], 200);
             }
-            return response()->json([], 200);
         }
 
         return response()->json([], 200);
