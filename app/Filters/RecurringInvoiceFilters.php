@@ -65,59 +65,20 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (in_array('active', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_ACTIVE);
-        }
+        $recurring_filters = [];
 
-        if (in_array('paused', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_PAUSED);
-        }
-
-        if (in_array('completed', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_COMPLETED);
-        }
-
-        return $this->builder;
-    }
+        if (in_array('active', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
 
 
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
+        if (in_array('paused', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
 
-        $table = 'recurring_invoices';
-        $filters = explode(',', $filter);
+        if (in_array('completed', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_COMPLETED;
 
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
+        return $this->builder->whereIn('status_id', $recurring_filters);
 
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
     }
 
     /**
@@ -131,18 +92,6 @@ class RecurringInvoiceFilters extends QueryFilters
         $sort_col = explode('|', $sort);
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
     }
 
     /**
