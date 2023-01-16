@@ -106,7 +106,7 @@ class BACS
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
-        if ($state['payment_intent']->status == 'succeeded') {
+        if ($state['payment_intent']->status == 'processing') {
             $this->stripe->logSuccessfulGatewayResponse(['response' => $state['payment_intent'], 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $this->processSuccessfulPayment();
@@ -157,7 +157,7 @@ class BACS
 
     public function processUnsuccessfulPayment($server_response)
     {
-        $this->stripe->sendFailureMail($server_response->cancellation_reason);
+        $this->stripe->sendFailureMail($server_response);
 
         $message = [
             'server_response' => $server_response,
