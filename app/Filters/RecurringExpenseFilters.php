@@ -46,45 +46,6 @@ class RecurringExpenseFilters extends QueryFilters
     }
 
     /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'recurring_expenses';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
-    }
-
-    /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
@@ -95,45 +56,6 @@ class RecurringExpenseFilters extends QueryFilters
         $sort_col = explode('|', $sort);
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-        $query = DB::table('recurring_expenses')
-            ->join('companies', 'companies.id', '=', 'recurring_expenses.company_id')
-            ->where('recurring_expenses.company_id', '=', $company_id)
-            ->select(
-                DB::raw('COALESCE(recurring_expenses.country_id, companies.country_id) country_id'),
-                'recurring_expenses.id',
-                'recurring_expenses.private_notes',
-                'recurring_expenses.custom_value1',
-                'recurring_expenses.custom_value2',
-                'recurring_expenses.custom_value3',
-                'recurring_expenses.custom_value4',
-                'recurring_expenses.created_at',
-                'recurring_expenses.created_at as expense_created_at',
-                'recurring_expenses.deleted_at',
-                'recurring_expenses.is_deleted',
-                'recurring_expenses.user_id',
-            );
-
-        /*
-         * If the user does not have permissions to view all invoices
-         * limit the user to only the invoices they have created
-         */
-        if (Gate::denies('view-list', RecurringExpense::class)) {
-            $query->where('recurring_expenses.user_id', '=', $user->id);
-        }
-
-        return $query;
     }
 
     /**

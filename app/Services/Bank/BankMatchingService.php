@@ -30,7 +30,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class BankMatchingService implements ShouldQueue, ShouldBeUnique
+class BankMatchingService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

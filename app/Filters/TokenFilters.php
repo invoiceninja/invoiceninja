@@ -40,45 +40,6 @@ class TokenFilters extends QueryFilters
     }
 
     /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'company_tokens';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
-    }
-
-    /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
@@ -90,42 +51,7 @@ class TokenFilters extends QueryFilters
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-        $query = DB::table('company_tokens')
-            ->join('companies', 'companies.id', '=', 'company_tokens.company_id')
-            ->where('company_tokens.company_id', '=', $company_id)
-            ->select(
-                'company_tokens.id',
-                'company_tokens.name',
-                'company_tokens.token',
-                'company_tokens.created_at',
-                'company_tokens.created_at as token_created_at',
-                'company_tokens.deleted_at',
-                'company_tokens.is_deleted',
-                'company_tokens.user_id',
-            );
-
-        /*
-         * If the user does not have permissions to view all invoices
-         * limit the user to only the invoices they have created
-         */
-        if (Gate::denies('view-list', CompanyToken::class)) {
-            $query->where('company_tokens.user_id', '=', $user->id);
-        }
-
-        return $query;
-    }
-
+    
     /**
      * Filters the query by the users company ID.
      *
