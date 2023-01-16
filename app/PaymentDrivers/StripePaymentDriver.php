@@ -18,6 +18,7 @@ use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\Country;
 use App\Models\GatewayType;
@@ -730,10 +731,12 @@ class StripePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } elseif ($request->type === "checkout.session.completed"){
             // Store payment token for Stripe BACS
-            $setup_intent = $this->stripe->stripe->setupIntents->retrieve($request->data['setup_intent'], []);
-            $customer = $this->stripe->findOrCreateCustomer();
-            $this->stripe->attach($setup_intent->payment_method, $customer);
-            $payment_method =  $this->stripe->getStripePaymentMethod($setup_intent->payment_method);
+            $this->init();
+            $setup_intent = $this->stripe->setupIntents->retrieve($request->data['object']['setup_intent'], []);
+            $this->client = Client::where('id', ClientGatewayToken::where('gateway_customer_reference', $request->data['object']['customer'])->first()->client_id)->first();
+            $customer = $this->findOrCreateCustomer();
+            $this->attach($setup_intent->payment_method, $customer);
+            $payment_method =  $this->getStripePaymentMethod($setup_intent->payment_method);
             $payment_meta = new \stdClass;
             $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
             $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
@@ -745,7 +748,7 @@ class StripePaymentDriver extends BaseDriver
                 'token' => $payment_method->id,
                 'payment_method_id' => GatewayType::BACS,
             ];
-            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated"){
             // Check if payment method BACS is still valid
