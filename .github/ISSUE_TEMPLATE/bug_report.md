@@ -7,35 +7,35 @@ assignees: ''
 
 ---
 
-**What version of Invoice Ninja are you running? ie v4.5.25 / v5.0.30**
+<!-- Before posting please check our "Troubleshooting" category in the docs: 
+https://invoiceninja.github.io/docs/self-host-troubleshooting/ -->
 
-**What environment are you running?**
-Docker
-Shared Hosting
-ZIP
-Other
+## Setup
+- Version: <!-- i.e. v4.5.25 / v5.0.30 -->
+- Environment: <!-- Docker/Shared Hosting/ZIP/Other -->
 
-**Have you checked log files (storage/logs/) Please provide redacted output**
+## Checklist
+- Can you replicate the issue on our v5 demo site https://demo.invoiceninja.com pr https://react.invoicing.co/demo?
+- Have you searched existing issues?
+- Have you reported this to Slack/forum before posting?
 
-**Have you searched existing issues?**
+## Describe the bug
+<!-- A clear and concise description of the bug. -->
 
-**Have you reported this to Slack/forum before posting?**
+### Steps To Reproduce
+<!-- Please list the steps to reproduce the issue. -->
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Expected Behavior
+<!-- A clear and concise description of what you expected to happen. -->
 
-**Steps To Reproduce**
-Please list the steps to reproduce the issue
+## Additional context
+<!-- Add any other context about the problem here. -->
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+### Screenshots
+<!-- If applicable, add screenshots to help explain your problem. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+### Logs
+<!-- Please check the log files (storage/logs/) and provide redacted output -->
+```
 
-**Additional context**
-Add any other context about the problem here.
-
-<!-- Note: Before posting don't forget to check our "Troubleshooting" category in the [docs](https://invoiceninja.github.io/docs/self-host-troubleshooting/) (https://invoiceninja.github.io/docs/self-host-troubleshooting/) -->
-
-**(v5) Can you replicate the issue on our demo site? https://demo.invoiceninja.com** or here for our react app **(v5) Can you replicate the issue on our demo site? https://react.invoicing.co/demo**  
+```
