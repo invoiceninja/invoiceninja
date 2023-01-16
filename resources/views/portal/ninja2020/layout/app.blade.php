@@ -9,7 +9,9 @@
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
                 _paq.push(['trackPageView']);
                 _paq.push(['enableLinkTracking']);
-                _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->company->present()->name }}']);
+                @if (auth()->guard('contact')->check())
+                _paq.push(['setUserId', '{{ auth()->guard('contact')->user()->present()->name() }}']);
+                @endif
                 (function() {
                 var u="{{ $company->matomo_url }}";
                 _paq.push(['setTrackerUrl', u+'matomo.php']);
@@ -57,7 +59,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="@yield('meta_description')"/>
-        
+
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -169,7 +171,7 @@
                 }
             </script>
         @endif
-        
+
     </body>
 
     <footer>

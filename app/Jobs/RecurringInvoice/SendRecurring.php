@@ -66,13 +66,6 @@ class SendRecurring implements ShouldQueue
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
-        if ($this->recurring_invoice->auto_bill === 'always') {
-            $invoice->auto_bill_enabled = true;
-        } elseif ($this->recurring_invoice->auto_bill === 'optout' || $this->recurring_invoice->auto_bill === 'optin') {
-        } elseif ($this->recurring_invoice->auto_bill === 'off') {
-            $invoice->auto_bill_enabled = false;
-        }
-
         $invoice->date = date('Y-m-d');
 
         nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - ". now()->format('Y-m-d'));
@@ -94,12 +87,19 @@ class SendRecurring implements ShouldQueue
                                ->save();
         }
 
+        //12-01-2023 i moved this block after fillDefaults to handle if standard invoice auto bill config has been enabled, recurring invoice should override.
+        if ($this->recurring_invoice->auto_bill === 'always') {
+            $invoice->auto_bill_enabled = true;
+        } elseif ($this->recurring_invoice->auto_bill === 'optout' || $this->recurring_invoice->auto_bill === 'optin') {
+        } elseif ($this->recurring_invoice->auto_bill === 'off') {
+            $invoice->auto_bill_enabled = false;
+        }
+
         $invoice = $this->createRecurringInvitations($invoice);
 
         /* 09-01-2022 ensure we create the PDFs at this point in time! */
         $invoice->service()->touchPdf(true);
 
-        //nlog('updating recurring invoice dates');
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
         $this->recurring_invoice->next_send_date_client = $this->recurring_invoice->nextSendDateClient();
@@ -111,10 +111,6 @@ class SendRecurring implements ShouldQueue
             $this->recurring_invoice->setCompleted();
         }
 
-        //nlog('next send date = '.$this->recurring_invoice->next_send_date);
-        // nlog('remaining cycles = '.$this->recurring_invoice->remaining_cycles);
-        //nlog('last send date = '.$this->recurring_invoice->last_sent_date);
-
         $this->recurring_invoice->save();
 
         event('eloquent.created: App\Models\Invoice', $invoice);
@@ -124,8 +120,6 @@ class SendRecurring implements ShouldQueue
             if ($invoice->invitations->count() >= 1) {
                 $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
             }
-
-            nlog("Invoice {$invoice->number} created");
 
             $invoice->invitations->each(function ($invitation) use ($invoice) {
                 if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice')) {
@@ -140,15 +134,14 @@ class SendRecurring implements ShouldQueue
             });
         }
 
-        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
+        //auto bill, BUT NOT DRAFTS!!
+        if ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->client->getSetting('auto_email_invoice')) {
             nlog("attempting to autobill {$invoice->number}");
-                // $invoice->service()->autoBill();
                 AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
 
-        } elseif ($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
+        } elseif ($invoice->auto_bill_enabled && $invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->client->getSetting('auto_email_invoice')) {
             if ($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
                 nlog("attempting to autobill {$invoice->number}");
-                // $invoice->service()->autoBill();
                 AutoBill::dispatch($invoice->id, $this->db)->delay(rand(1,2));
             }
         }

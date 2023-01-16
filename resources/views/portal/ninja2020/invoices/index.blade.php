@@ -23,6 +23,6 @@
         </form>
     </div>
     <div class="flex flex-col mt-4">
-        @livewire('invoices-table', ['company' => $company])
+        @livewire('invoices-table', ['company_id' => $company->id, 'db' => $company->db])
     </div>
 @endsection

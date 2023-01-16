@@ -5,6 +5,7 @@
     <form action="{{route('client.payments.credit_response')}}" method="post" id="credit-payment">
         @csrf
         <input type="hidden" name="payment_hash" value="{{$payment_hash}}">
+        <input type="hidden" name="hash" value="{{ request()->query('hash')}}">
     </form>
 
     <div class="container mx-auto">

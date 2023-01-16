@@ -83,9 +83,8 @@ class PaymentRepository extends BaseRepository {
                     if ($data['amount'] == '') {
                         $data['amount'] = array_sum(array_column($data['invoices'], 'amount'));
                     }
-
+                    
                     $client->service()->updatePaidToDate($data['amount'])->save();
-                    // $client->paid_to_date += $data['amount'];
                     $client->save();
                 }
 
@@ -258,7 +257,8 @@ class PaymentRepository extends BaseRepository {
 
         $payment = $payment->service()->deletePayment();
 
-        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        if($payment)
+            event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $payment;
 

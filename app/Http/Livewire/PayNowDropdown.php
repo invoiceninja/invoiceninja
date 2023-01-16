@@ -23,13 +23,11 @@ class PayNowDropdown extends Component
 
     public $company;
 
-    public function mount(int $total)
+    public function mount()
     {
         MultiDB::setDb($this->company->db);
 
-        $this->total = $total;
-
-        $this->methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($total);
+        $this->methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($this->total);
     }
 
     public function render()

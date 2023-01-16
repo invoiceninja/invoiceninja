@@ -174,6 +174,8 @@ class BillingPortalPurchase extends Component
      */
     public $company;
 
+    public $db;
+
     /**
      * Campaign reference.
      *
@@ -183,7 +185,11 @@ class BillingPortalPurchase extends Component
 
     public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
+
+        $this->subscription = Subscription::with('company')->find($this->subscription);
+
+        $this->company = $this->subscription->company;
 
         $this->quantity = 1;
 
@@ -196,6 +202,12 @@ class BillingPortalPurchase extends Component
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price;
         }
+
+        /* Leave this here, otherwise a logged in user will need to reauth... painfully */
+        if(Auth::guard('contact')->check()){
+            return $this->getPaymentMethods(auth()->guard('contact')->user());
+        }
+        
     }
 
     /**
@@ -225,10 +237,10 @@ class BillingPortalPurchase extends Component
 
         $this->steps['existing_user'] = false;
 
-        $contact = $this->createBlankClient();
+        $this->contact = $this->createBlankClient();
 
-        if ($contact && $contact instanceof ClientContact) {
-            $this->getPaymentMethods($contact);
+        if ($this->contact && $this->contact instanceof ClientContact) {
+            $this->getPaymentMethods($this->contact);
         }
     }
 
@@ -264,9 +276,6 @@ class BillingPortalPurchase extends Component
                 $data['contacts'][0][$field] = $value;
             }
         }
-
-// nlog($this->subscription->group_settings->settings);
-// nlog($this->subscription->group_settings->settings->currency_id);
 
         if(array_key_exists('currency_id', $this->request_data)) {
 

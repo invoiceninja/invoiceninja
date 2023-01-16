@@ -94,12 +94,51 @@ class ACH
         return redirect()->route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
     }
 
+    public function updateBankAccount(array $event)
+    {
+
+        $stripe_event = $event['data']['object'];
+
+        $token = ClientGatewayToken::where('token', $stripe_event['id'])
+                                   ->where('gateway_customer_reference', $stripe_event['customer'])
+                                   ->first();
+
+        if($token && isset($stripe_event['object']) && $stripe_event['object'] == 'bank_account' && isset($stripe_event['status']) && $stripe_event['status'] == 'verified') {
+
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
+            $token->save();
+
+        }
+
+    }
+
     public function verificationView(ClientGatewayToken $token)
     {
         if (isset($token->meta->state) && $token->meta->state === 'authorized') {
             return redirect()
                 ->route('client.payment_methods.show', $token->hashed_id)
                 ->with('message', __('texts.payment_method_verified'));
+        }
+
+        //double check here if we need to show the verification view.
+        $this->stripe->init();
+
+        $bank_account = Customer::retrieveSource($token->gateway_customer_reference, $token->token, [], $this->stripe->stripe_connect_auth);
+
+        /* Catch externally validated bank accounts and mark them as verified */
+        if(isset($bank_account->status) && $bank_account->status == 'verified'){
+
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
+            $token->save();
+
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+
         }
 
         $data = [
@@ -126,19 +165,19 @@ class ACH
 
         $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
-        /* Catch externally validated bank accounts and mark them as verified */
-        if(property_exists($bank_account, 'status') && $bank_account->status == 'verified'){
+        // /* Catch externally validated bank accounts and mark them as verified */
+        // if(isset($bank_account->status) && $bank_account->status == 'verified'){
 
-            $meta = $token->meta;
-            $meta->state = 'authorized';
-            $token->meta = $meta;
-            $token->save();
+        //     $meta = $token->meta;
+        //     $meta->state = 'authorized';
+        //     $token->meta = $meta;
+        //     $token->save();
 
-            return redirect()
-                ->route('client.payment_methods.show', $token->hashed_id)
-                ->with('message', __('texts.payment_method_verified'));
+        //     return redirect()
+        //         ->route('client.payment_methods.show', $token->hashed_id)
+        //         ->with('message', __('texts.payment_method_verified'));
 
-        }
+        // }
 
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
@@ -173,9 +212,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         }
 
 
@@ -211,9 +250,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         }
 
         if (substr($cgt->token, 0, 2) === 'pm') {
@@ -455,9 +494,9 @@ class ACH
                           ->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         }
 
         if (substr($source->token, 0, 2) === 'pm') {

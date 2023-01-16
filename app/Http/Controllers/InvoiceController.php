@@ -781,7 +781,8 @@ class InvoiceController extends BaseController
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
-                if (request()->has('email_type') && in_array(request()->input('email_type'), ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'custom1', 'custom2', 'custom3'])) {
+                // if (request()->has('email_type') && in_array(request()->input('email_type'), ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'custom1', 'custom2', 'custom3'])) {
+                if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
                     $this->reminder_template = $invoice->calculateTemplate('invoice');

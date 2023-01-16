@@ -66,7 +66,8 @@ trait GeneratesCounter
                 $counter = 1;
             }
 
-            $counter_entity = $client->group_settings;
+//            $counter_entity = $client->group_settings;
+            $counter_entity = $client->group_settings ?: $client->company;
         } else {
             $counter = $client->company->settings->{$counter_string};
             $counter_entity = $client->company;
@@ -518,6 +519,16 @@ trait GeneratesCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
 
         if ($reset_counter_frequency == 0) {
+
+                if($client->getSetting('reset_counter_date')){
+
+                    $settings = $client->company->settings;
+                    $settings->reset_counter_date = "";
+                    $client->company->settings = $settings;
+                    $client->company->save();
+                    
+                }
+
             return;
         }
 

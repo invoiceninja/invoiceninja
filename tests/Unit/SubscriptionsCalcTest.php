@@ -11,6 +11,7 @@
 
 namespace Tests\Unit;
 
+use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\ProRata;
 use App\Helpers\Subscription\SubscriptionCalculator;
 use App\Models\Invoice;
@@ -101,4 +102,121 @@ class SubscriptionsCalcTest extends TestCase
 
         // $this->assertEquals(3.23, $upgrade);
     }
+
+    public function testProrataDiscountRatioPercentage()
+    {
+
+        $subscription = Subscription::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'price' => 100,
+        ]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+
+        $item->cost = 100;
+        $item->product_key = 'xyz';
+        $item->notes = 'test';
+        $item->custom_value1 = 'x';
+        $item->custom_value2 = 'x';
+        $item->custom_value3 = 'x';
+        $item->custom_value4 = 'x';
+
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'line_items' => $line_items,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'discount' => 0,
+            'subscription_id' => $subscription->id,
+            'date' => '2021-01-01',
+            'discount' => 10,
+            'is_amount_discount' => false,
+            'status_id' => 1,
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $this->assertEquals(90, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals(90, $invoice->amount);
+        $this->assertEquals(90, $invoice->balance);
+
+
+        $ratio = $subscription->service()->calculateDiscountRatio($invoice);
+
+        $this->assertEquals(.1, $ratio);
+
+    }
+
+    public function testProrataDiscountRatioAmount()
+    {
+
+        $subscription = Subscription::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'price' => 100,
+        ]);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+
+        $item->cost = 100;
+        $item->product_key = 'xyz';
+        $item->notes = 'test';
+        $item->custom_value1 = 'x';
+        $item->custom_value2 = 'x';
+        $item->custom_value3 = 'x';
+        $item->custom_value4 = 'x';
+
+        $line_items[] = $item;
+
+        $invoice = Invoice::factory()->create([
+            'line_items' => $line_items,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_name2' => '',
+            'tax_rate3' => 0,
+            'tax_name3' => '',
+            'discount' => 0,
+            'subscription_id' => $subscription->id,
+            'date' => '2021-01-01',
+            'discount' => 20,
+            'is_amount_discount' => true,
+            'status_id' => 1,
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $this->assertEquals(80, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals(80, $invoice->amount);
+        $this->assertEquals(80, $invoice->balance);
+
+
+        $ratio = $subscription->service()->calculateDiscountRatio($invoice);
+
+        $this->assertEquals(.2, $ratio);
+
+    }
+
+
+
 }

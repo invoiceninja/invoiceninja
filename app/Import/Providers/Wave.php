@@ -66,7 +66,6 @@ class Wave extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
-
             return;
         }
 
@@ -170,11 +169,16 @@ class Wave extends BaseImport implements ImportInterface
         $entity_type = 'expense';
 
         $data = $this->getCsvData($entity_type);
+
+        if(!$data){
+            $this->entity_count['expense'] = 0;
+            return;
+        }
+
         $data = $this->preTransform($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['expense'] = 0;
-
             return;
         }
 
@@ -212,6 +216,8 @@ class Wave extends BaseImport implements ImportInterface
 
     public function ingestExpenses($data)
     {
+        $count = 0;
+
         $key = 'Transaction ID';
 
         $expense_transformer = $this->transformer;
@@ -255,6 +261,7 @@ class Wave extends BaseImport implements ImportInterface
                     );
 
                     $expense_repository->save($expense_data, $expense);
+                    $count++;
                 }
             } catch (\Exception $ex) {
                 if ($ex instanceof ImportException) {
@@ -270,5 +277,8 @@ class Wave extends BaseImport implements ImportInterface
                 ];
             }
         }
+
+        return $count;
+
     }
 }

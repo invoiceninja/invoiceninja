@@ -181,6 +181,11 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         return $this->hasMany(InvoiceInvitation::class);
     }
 
+    public function recurring_invoice_invitations()
+    {
+        return $this->hasMany(RecurringInvoiceInvitation::class);
+    }
+
     public function quote_invitations()
     {
         return $this->hasMany(QuoteInvitation::class);

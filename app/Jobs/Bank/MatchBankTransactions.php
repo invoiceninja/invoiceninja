@@ -111,13 +111,15 @@ class MatchBankTransactions implements ShouldQueue
 
         foreach($this->input as $input)
         {
-            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) > 1)
+            nlog($input);
+
+            if(array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1)
                 $this->matchInvoicePayment($input);
-            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) > 1)
+            elseif(array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1)
                 $this->linkPayment($input);
-            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) > 1)
+            elseif(array_key_exists('expense_id', $input) && strlen($input['expense_id']) >= 1)
                 $this->linkExpense($input);
-            else
+            elseif((array_key_exists('vendor_id', $input) && strlen($input['vendor_id']) >= 1) || (array_key_exists('ninja_category_id', $input) && strlen($input['ninja_category_id']) >= 1))
                 $this->matchExpense($input);
         }
 
@@ -245,7 +247,6 @@ class MatchBankTransactions implements ShouldQueue
 
             if(!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED)
                 return $this;
-
 
         $expense = ExpenseFactory::create($this->bt->company_id, $this->bt->user_id);
         $expense->category_id = $this->resolveCategory($input);

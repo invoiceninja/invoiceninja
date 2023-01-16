@@ -9,7 +9,7 @@
     <script src="{{ asset('js/clients/payments/forte-card-js.min.js') }}"></script>
 
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
-    @if($gateway->getConfigField('testMode'))
+    @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
@@ -106,7 +106,7 @@
             document.getElementById('expire_month').value=month;
             
             var data = {
-               api_login_id: '{{$gateway->getConfigField("apiLoginId")}}',
+               api_login_id: '{{$gateway->company_gateway->getConfigField("apiLoginId")}}',
                card_number: cc,
                expire_year: year, 
                expire_month: month,

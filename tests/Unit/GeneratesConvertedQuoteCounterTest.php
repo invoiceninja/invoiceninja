@@ -115,8 +115,8 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
 
         $this->assertNotNull($invoice);
 
-        $this->assertEquals('2022-Q0001', $quote->number);
-        $this->assertEquals('2022-I0001', $invoice->number);
+        $this->assertEquals(now()->format('Y'). '-Q0001', $quote->number);
+        $this->assertEquals(now()->format('Y'). '-I0001', $invoice->number);
 
         $settings = $this->client->getMergedSettings();
         $settings->invoice_number_counter = 100;

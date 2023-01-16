@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
 use App\Mail\Subscription\OtpCode;
@@ -120,7 +121,7 @@ class BillingPortalPurchasev2 extends Component
      *
      * @var array
      */
-    public $request_data;
+    public $request_data = [];
 
     /**
      * Instance of company.
@@ -128,6 +129,14 @@ class BillingPortalPurchasev2 extends Component
      * @var Company
      */
     public $company;
+
+
+    /**
+     * Instance of company.
+     *
+     * @var string
+     */
+    public string $db;
 
     /**
      * Campaign reference.
@@ -151,10 +160,23 @@ class BillingPortalPurchasev2 extends Component
     public $valid_coupon = false;
     public $payable_invoices = [];
     public $payment_confirmed = false;
-
+    public $is_eligible = true;
+    public $not_eligible_message = '';
+    
     public function mount()
     {
-        MultiDB::setDb($this->company->db);
+        MultiDB::setDb($this->db);
+
+        $this->subscription = Subscription::with('company')->find($this->subscription);
+
+        $this->company = $this->subscription->company;
+
+        if(auth()->guard('contact')->check()){
+            $this->email = auth()->guard('contact')->user()->email;
+            $this->contact = auth()->guard('contact')->user();
+            $this->authenticated = true;
+            $this->payment_started = true;
+        }
 
         $this->discount = 0;
         $this->sub_total = 0;
@@ -177,7 +199,7 @@ class BillingPortalPurchasev2 extends Component
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
         }
-        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+        elseif(isset($this->subscription->promo_code) && strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price; 
         }
         
@@ -224,6 +246,8 @@ class BillingPortalPurchasev2 extends Component
 
     public function resetEmail()
     {
+        $this->resetErrorBag('login');
+        $this->resetValidation('login');  
         $this->email = null;
     }
 
@@ -402,7 +426,6 @@ class BillingPortalPurchasev2 extends Component
 
         }
 
-
         return $this;
     }
 
@@ -488,8 +511,19 @@ class BillingPortalPurchasev2 extends Component
      *
      * @return void
      */
-    public function handleBeforePaymentEvents() :void
+    public function handleBeforePaymentEvents() :self
     {
+
+        $eligibility_check = $this->subscription->service()->isEligible($this->contact);
+
+        if(is_array($eligibility_check) && $eligibility_check['message'] != 'Success'){
+            
+            $this->is_eligible = false;
+            $this->not_eligible_message = $eligibility_check['message'];
+
+            return $this;
+
+        }
 
         $data = [
             'client_id' => $this->contact->client->id,
@@ -500,18 +534,8 @@ class BillingPortalPurchasev2 extends Component
             ]],
             'user_input_promo_code' => $this->coupon,
             'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
-            // 'quantity' => $this->quantity,
+
         ];
-
-        $is_eligible = $this->subscription->service()->isEligible($this->contact);
-
-        // if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
-        //     $this->steps['not_eligible'] = true;
-        //     $this->steps['not_eligible_message'] = $is_eligible['message'];
-        //     $this->steps['show_loading_bar'] = false;
-
-        //     return;
-        // }
 
         $this->invoice = $this->subscription
             ->service()
@@ -533,9 +557,21 @@ class BillingPortalPurchasev2 extends Component
         ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
+
+        return $this;
+
     }
 
-
+    public function handleTrial()
+    {
+        return $this->subscription->service()->startTrial([
+            'email' => $this->email ?? $this->contact->email,
+            'quantity' => $this->quantity,
+            'contact_id' => $this->contact->id,
+            'client_id' => $this->contact->client->id,
+            'bundle' => $this->bundle,
+        ]);
+    }
 
 
 

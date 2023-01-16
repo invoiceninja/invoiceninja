@@ -15,6 +15,7 @@ namespace App\Filters;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * Class QueryFilters.
@@ -173,22 +174,30 @@ abstract class QueryFilters
         }
     }
 
-    public function created_at($value)
+    public function created_at($value = '')
     {
-        $created_at = $value ? (int) $value : 0;
+        
+        if($value == '')
+            return $this->builder;
 
-        $created_at = date('Y-m-d H:i:s', $value);
+        try{
 
-        if(is_string($created_at)){
+            if(is_numeric($value)){
+                $created_at = Carbon::createFromTimestamp((int)$value);
+            }
+            else{
+                $created_at = Carbon::parse($value);
+            }
 
-            $created_at = strtotime(str_replace("/","-",$created_at));
-
-            if(!$created_at)
-                return $this->builder;
+            return $this->builder->where('created_at', '>=', $created_at);
 
         }
+        catch(\Exception $e) {
 
-        return $this->builder->where('created_at', '>=', $created_at);
+            return $this->builder;
+
+        }
+        
     }
 
     public function is_deleted($value)
@@ -209,6 +218,15 @@ abstract class QueryFilters
         return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
     }
 
+    public function vendor_id(string $vendor_id = '') :Builder
+    {
+        if (strlen($vendor_id) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('vendor_id', $this->decodePrimaryKey($vendor_id));
+    }
+
     public function filter_deleted_clients($value)
     {
         if ($value == 'true') {
@@ -226,12 +244,6 @@ abstract class QueryFilters
             return $this->builder->where('is_deleted', 0);
         }
 
-        // if($value == 'true'){
-
-        //     $this->builder->withTrashed();
-
-        // }
-
         return $this->builder;
     }
 
@@ -239,6 +251,7 @@ abstract class QueryFilters
     {
         return $this->builder
             ->orWhere($this->with_property, $value)
-            ->orderByRaw("{$this->with_property} = ? DESC", [$value]);
+            ->orderByRaw("{$this->with_property} = ? DESC", [$value])
+            ->company();
     }
 }

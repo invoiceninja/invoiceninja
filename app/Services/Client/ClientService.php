@@ -37,7 +37,7 @@ class ClientService
                 $this->client->balance += $amount;
                 $this->client->save();
 
-            }, 2);
+            }, 1);
         }
         catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
@@ -58,7 +58,7 @@ class ClientService
                 $this->client->paid_to_date += $paid_to_date;
                 $this->client->save();
 
-            }, 2);
+            }, 1);
         }
         catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
@@ -79,7 +79,7 @@ class ClientService
             $this->client->paid_to_date += $amount;
             $this->client->save();
 
-        }, 2);
+        }, 1);
 
         return $this;
     }
@@ -95,7 +95,6 @@ class ClientService
     {
         $credits = Credit::withTrashed()->where('client_id', $this->client->id)
                       ->where('is_deleted', false)
-                      ->where('balance', '>', 0)
                       ->where(function ($query) {
                           $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
                                   ->orWhereNull('due_date');

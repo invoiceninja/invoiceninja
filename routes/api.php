@@ -70,6 +70,7 @@ use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
+use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
 use App\Http\Controllers\Reports\QuoteItemReportController;
 use App\Http\Controllers\Reports\QuoteReportController;
@@ -270,10 +271,12 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class);
     Route::post('reports/payments', PaymentReportController::class);
     Route::post('reports/products', ProductReportController::class);
+    Route::post('reports/product_sales', ProductSalesReportController::class);
     Route::post('reports/tasks', TaskReportController::class);
     Route::post('reports/profitloss', ProfitAndLossController::class);
 
-    Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
+    Route::resource('task_schedulers', TaskSchedulerController::class);
+    Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
     Route::post('support/messages/send', SendingController::class);

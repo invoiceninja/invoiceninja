@@ -12,12 +12,14 @@
 namespace App\Http\Controllers;
 
 use App\Factory\ExpenseCategoryFactory;
+use App\Filters\ExpenseCategoryFilters;
 use App\Http\Requests\ExpenseCategory\CreateExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\DestroyExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\EditExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\ShowExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\StoreExpenseCategoryRequest;
 use App\Http\Requests\ExpenseCategory\UpdateExpenseCategoryRequest;
+use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Repositories\BaseRepository;
 use App\Transformers\ExpenseCategoryTransformer;
@@ -79,12 +81,14 @@ class ExpenseCategoryController extends BaseController
      *
      * @return Response
      */
-    public function index()
+    public function index(ExpenseCategoryFilters $filters)
     {
-        $expense_categories = ExpenseCategory::scope();
+        $expense_categories = ExpenseCategory::filter($filters);
 
         return $this->listResponse($expense_categories);
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -131,11 +135,45 @@ class ExpenseCategoryController extends BaseController
         return $this->itemResponse($expense_category);
     }
 
+
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreExpenseCategoryRequest $request
+     * @param StoreInvoiceRequest $request  The request
+     *
      * @return Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/expense_categories",
+     *      operationId="storeExpenseCategory",
+     *      tags={"expense_categories"},
+     *      summary="Adds a expense category",
+     *      description="Adds an expense category to the system",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the saved invoice object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/ExpenseCategory"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
      */
     public function store(StoreExpenseCategoryRequest $request)
     {
