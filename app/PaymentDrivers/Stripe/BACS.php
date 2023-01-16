@@ -128,31 +128,18 @@ class BACS
     {
         UpdateCustomer::dispatch($this->stripe->company_gateway->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
 
-        $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
-
         $data = [
             'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
-            'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)) ?: PaymentType::CREDIT_CARD_OTHER,
+            'payment_type' => PaymentType::BACS,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => isset($this->stripe->payment_hash->data->payment_intent->latest_charge) ? $this->stripe->payment_hash->data->payment_intent->latest_charge : optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'gateway_type_id' => GatewayType::BACS,
         ];
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
         $this->stripe->payment_hash->save();
 
-        if ($this->stripe->payment_hash->data->store_card) {
-            $customer = new \stdClass;
-            $customer->id = $this->stripe->payment_hash->data->customer;
-
-            $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);
-
-            $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
-
-            $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
-        }
-
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],
