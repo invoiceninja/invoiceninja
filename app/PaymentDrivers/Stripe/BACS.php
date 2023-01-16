@@ -122,7 +122,7 @@ class BACS
         $data = [
             'payment_method' => $payment_id['id'],
             'payment_type' => PaymentType::BACS,
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'amount' => $this->stripe->convertFromStripeAmount($payment_id->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_id['id'],
             'gateway_type_id' => GatewayType::BACS,
         ];
