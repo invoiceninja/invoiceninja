@@ -96,18 +96,13 @@ class BACS
             'payment_method' => $request->token,
             'confirm' => true,
         ];
-        $this->stripe->createPaymentIntent($payment_intent_data);
+        $state['payment_intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $state = [
             'payment_hash' => $request->payment_hash,
         ];
 
         $state = array_merge($state, $request->all());
 
-        if ($request->has('token') && ! is_null($request->token)) {
-            $state['store_card'] = false;
-        }
-
-        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
         $state['customer'] = $state['payment_intent']->customer;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
