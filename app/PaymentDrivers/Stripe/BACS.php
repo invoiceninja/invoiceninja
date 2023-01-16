@@ -96,7 +96,7 @@ class BACS
             'confirm' => true,
         ];
         $state = [
-            'payment_hash' => $request->payment_hash,
+            'payment_hash' => $this->stripe->payment_hash->hash,
             'payment_intent' => $this->stripe->createPaymentIntent($payment_intent_data),
         ];
         $state = array_merge($state, $request->all());
