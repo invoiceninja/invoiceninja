@@ -172,6 +172,11 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function schedulers()
+    {
+        return $this->hasMany(Scheduler::class);
+    }
+
     public function all_documents()
     {
         return $this->hasMany(Document::class);

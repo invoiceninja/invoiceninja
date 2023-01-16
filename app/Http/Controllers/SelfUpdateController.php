@@ -108,6 +108,8 @@ class SelfUpdateController extends BaseController
 
         $zipFile->openFile($file);
 
+        $zipFile->deleteFromName(".htaccess");
+
         $zipFile->extractTo(base_path());
 
         $zipFile->close();
