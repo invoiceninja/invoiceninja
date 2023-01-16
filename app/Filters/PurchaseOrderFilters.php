@@ -42,27 +42,35 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
-        $po_status = [];
+        $this->builder->where(function ($query) use ($status_parameters){
 
-        if (in_array('draft', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_DRAFT;
-        }
+            $po_status = [];
 
-        if (in_array('sent', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_SENT;
-        }
+            if (in_array('draft', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_DRAFT;
+            }
 
-        if (in_array('accepted', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
-        }
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q){
+                              $q->where('status_id', PurchaseOrder::STATUS_SENT)
+                              ->whereNull('due_date')
+                              ->orWhere('due_date', '>=', now()->toDateString());
+                          });
+            
+            }
 
-        if (in_array('cancelled', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_CANCELLED;
-        }
+            if (in_array('accepted', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
+            }
 
-        if(count($status_parameters) >=1) {
-            $this->builder->whereIn('status_id', $status_parameters);
-        }
+            if (in_array('cancelled', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_CANCELLED;
+            }
+
+            if(count($status_parameters) >=1) {
+                $query->whereIn('status_id', $status_parameters);
+            }
+        })
 
         return $this->builder;
     }

@@ -65,19 +65,20 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (in_array('active', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_ACTIVE);
-        }
+        $recurring_filters = [];
 
-        if (in_array('paused', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_PAUSED);
-        }
+        if (in_array('active', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
 
-        if (in_array('completed', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_COMPLETED);
-        }
 
-        return $this->builder;
+        if (in_array('paused', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
+
+        if (in_array('completed', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_COMPLETED;
+
+        return $this->builder->whereIn('status_id', $recurring_filters);
+
     }
 
     /**
