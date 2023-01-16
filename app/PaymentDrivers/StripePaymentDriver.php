@@ -715,11 +715,53 @@ class StripePaymentDriver extends BaseDriver
                 }
             }
         } elseif ($request->type === "payment_method.automatically_updated"){
+            // Will notify customer on updated information
             return response()->json([], 200);
         } elseif ($request->type === "checkout.session.completed"){
-            return response()->json([], 200);
-        } elseif ($request->type === "mandate.updated"){
+            // Store payment token for Stripe BACS
+            try {
+            $setup_intent = $this->stripe->stripe->setupIntents->retrieve($request->data->setup_inent, []);
+            $customer = $this->stripe->findOrCreateCustomer();
+            $this->stripe->attach($setup_intent->payment_method, $customer);
+            $payment_method =  $this->stripe->getStripePaymentMethod($setup_intent->payment_method);
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
+            $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
+            $payment_meta->state = 'unauthorized';
+            $payment_meta->type = GatewayType::BACS;
 
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $payment_method->id,
+                'payment_method_id' => GatewayType::BACS,
+            ];
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            return response()->json([], 200);
+            } catch (\Exception $e) {
+                return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+            }
+        } elseif ($request->type === "mandate.updated"){
+            // Check if payment method BACS is still valid
+            if ($request->data->status === "active"){
+                // Check if payment method exists
+                $clientgateway = ClientGatewayToken::query()
+                    ->where('token', $request->data->payment_method)
+                    ->first();
+                if ($clientgateway){
+                    $clientgateway->state = "authorized";
+                    $clientgateway->save();
+                }
+            }
+            elseif ($request->data->status === "inactive"){
+                // Deactivate payment method
+                $clientgateway = ClientGatewayToken::query()
+                    ->where('token', $request->data->payment_method)
+                    ->first();
+                $clientgateway->delete();
+            }
+            elseif ($request->data->status === "pending"){
+                // Do nothing
+            }
             return response()->json([], 200);
         }
 

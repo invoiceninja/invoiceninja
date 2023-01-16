@@ -97,7 +97,7 @@ class PaymentIntentWebhook implements ShouldQueue
 
         if(isset($this->stripe_request['object']['charges']) && optional($this->stripe_request['object']['charges']['data'][0])['id'])
             $charge_id = $this->stripe_request['object']['charges']['data'][0]['id']; // API VERSION 2018
-        elseif (isset($this->stripe_request['object']['latest_charge']))               
+        elseif (isset($this->stripe_request['object']['latest_charge']))
             $charge_id = $this->stripe_request['object']['latest_charge']; // API VERSION 2022-11-15
 
 
@@ -126,7 +126,7 @@ class PaymentIntentWebhook implements ShouldQueue
 
          //return early
         if($payment && $payment->status_id == Payment::STATUS_COMPLETED){
-            nlog(" payment found and status correct - returning "); 
+            nlog(" payment found and status correct - returning ");
             return;
         }
         elseif($payment){
@@ -196,6 +196,9 @@ class PaymentIntentWebhook implements ShouldQueue
 
             $this->updateAchPayment($payment_hash, $client, $meta);
         }
+        elseif(isset($pi['payment_method_types']) && in_array('bacs_debit', $pi['payment_method_types'])){
+            return;
+        }
 
     }
 
@@ -216,7 +219,7 @@ class PaymentIntentWebhook implements ShouldQueue
             'transaction_reference' => $meta['transaction_reference'],
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
-        
+
         $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
@@ -265,7 +268,7 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $driver->storeGatewayToken($data, $additional_data);
-            
+
         }
         catch(\Exception $e){
             nlog("failed to import payment methods");
@@ -291,7 +294,7 @@ class PaymentIntentWebhook implements ShouldQueue
     //         'transaction_reference' => $meta['transaction_reference'],
     //         'gateway_type_id' => GatewayType::CREDIT_CARD,
     //     ];
-        
+
     //     $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
 
     //     SystemLogger::dispatch(
@@ -324,7 +327,7 @@ class PaymentIntentWebhook implements ShouldQueue
             'transaction_reference' => $meta['transaction_reference'],
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
-        
+
         $payment = $driver->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(

@@ -169,7 +169,7 @@ class BACS
             $payment_meta = new \stdClass;
             $payment_meta->brand = (string) $method->bacs_debit->sort_code;
             $payment_meta->last4 = (string) $method->bacs_debit->last4;
-            $payment_meta->state = 'authorized';
+            $payment_meta->state = 'unauthorized';
             $payment_meta->type = GatewayType::BACS;
 
             $data = [
