@@ -451,7 +451,11 @@ class CompanySettings extends BaseSettings
 
     public $email_alignment = 'center'; // center , left, right
 
+    public $show_email_footer = true;
+
+
     public static $casts = [
+        'show_email_footer'                  => 'bool',
         'email_alignment'                    => 'string',
         'auto_bill_standard_invoices'        => 'bool',
         'postmark_secret'                    => 'string',

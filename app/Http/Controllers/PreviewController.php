@@ -214,6 +214,12 @@ class PreviewController extends BaseController
                                     ->first();
             }
 
+            if($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['footer' => $company->settings->invoice_footer]);
+
+            if($request->has('terms') && !$request->filled('terms') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['terms' => $company->settings->invoice_terms]);
+
             $entity_obj = $repo->save($request->all(), $entity_obj);
 
             if (! $request->has('entity_id')) {
@@ -404,8 +410,8 @@ class PreviewController extends BaseController
             'user_id' => auth()->user()->id,
             'company_id' => auth()->user()->company()->id,
             'client_id' => $client->id,
-            'terms' => 'Sample Terms',
-            'footer' => 'Sample Footer',
+            'terms' => auth()->user()->company()->settings->invoice_terms,
+            'footer' => auth()->user()->company()->settings->invoice_footer,
             'public_notes' => 'Sample Public Notes',
         ]);
 
