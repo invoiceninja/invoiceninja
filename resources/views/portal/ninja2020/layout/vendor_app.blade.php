@@ -9,7 +9,9 @@
                 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
                 _paq.push(['trackPageView']);
                 _paq.push(['enableLinkTracking']);
-                _paq.push(['setUserId', '{{ auth()->guard('vendor')->check()->user()->present()->name() }}']);
+                @if (auth()->guard('vendor')->check())
+                _paq.push(['setUserId', '{{ auth()->guard('vendor')->user()->present()->name() }}']);
+                @endif
                 (function() {
                     var u="{{ $company->matomo_url }}";
                     _paq.push(['setTrackerUrl', u+'matomo.php']);
