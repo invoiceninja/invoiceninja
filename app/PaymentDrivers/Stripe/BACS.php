@@ -96,11 +96,10 @@ class BACS
             'payment_method' => $request->token,
             'confirm' => true,
         ];
-        $state['payment_intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $state = [
             'payment_hash' => $request->payment_hash,
+            'payment_intent' => $this->stripe->createPaymentIntent($payment_intent_data),
         ];
-
         $state = array_merge($state, $request->all());
 
         $state['customer'] = $state['payment_intent']->customer;
