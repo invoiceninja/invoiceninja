@@ -109,31 +109,31 @@ class BACS
         if ($state['payment_intent']->status == 'processing') {
             $this->stripe->logSuccessfulGatewayResponse(['response' => $state['payment_intent'], 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
-            return $this->processSuccessfulPayment();
+            return $this->processSuccessfulPayment($state['payment_intent']);
         }
 
         return $this->processUnsuccessfulPayment("");
     }
 
-    public function processSuccessfulPayment()
+    public function processSuccessfulPayment($payment_id)
     {
         UpdateCustomer::dispatch($this->stripe->company_gateway->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
 
         $data = [
-            'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
+            'payment_method' => $payment_id['id'],
             'payment_type' => PaymentType::BACS,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => isset($this->stripe->payment_hash->data->payment_intent->latest_charge) ? $this->stripe->payment_hash->data->payment_intent->latest_charge : optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
+            'transaction_reference' => $payment_id['id'],
             'gateway_type_id' => GatewayType::BACS,
         ];
 
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
+        $this->stripe->payment_hash->data = array_merge((array) $payment_id, ['amount' => $data['amount']]);
         $this->stripe->payment_hash->save();
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
-            ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],
+            ['response' => $payment_id, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
