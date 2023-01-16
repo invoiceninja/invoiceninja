@@ -127,7 +127,7 @@ class BACS
             'gateway_type_id' => GatewayType::BACS,
         ];
 
-        $this->stripe->payment_hash->data = array_merge((array) $payment_id, ['amount' => $data['amount']]);
+        $this->stripe->payment_hash->data = array_merge((array) $payment_id, ['amount' => $data['amount'], 'invoices' => collect($this->stripe->payment_hash->invoices())]);
         $this->stripe->payment_hash->save();
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
@@ -141,16 +141,6 @@ class BACS
             $this->stripe->client->company,
         );
 
-        //If the user has come from a subscription double check here if we need to redirect.
-        //08-08-2022
-        if($payment->invoices()->whereHas('subscription')->exists()){
-            $subscription = $payment->invoices()->first()->subscription;
-
-            if($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1)
-            return redirect($subscription->webhook_configuration['return_url']);
-
-        }
-        //08-08-2022
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
