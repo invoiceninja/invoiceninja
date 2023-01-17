@@ -11,8 +11,8 @@
 
 namespace Tests\Feature\Scheduler;
 
-use App\Export\CSV\ClientExport;
 use App\Factory\SchedulerFactory;
+use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Services\Scheduler\SchedulerService;
@@ -22,12 +22,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
+/**
+ * @test
+ * @covers  App\Services\Scheduler\SchedulerService
+ */
 class SchedulerTest extends TestCase
 {
     use MakesHash;
@@ -50,7 +55,141 @@ class SchedulerTest extends TestCase
             ThrottleRequests::class
         );
 
-          $this->withoutExceptionHandling();
+    }
+
+    public function testClientsValidationInScheduledTask()
+    {
+
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => rand(1000,100000),
+            'name' => 'A fancy client'
+        ]);
+
+        $c2 = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => rand(1000,100000),
+            'name' => 'A fancy client'
+        ]);
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [
+                    $c2->hashed_id, 
+                    $c->hashed_id
+                ],
+            ],
+        ];
+
+        $response = false;
+
+        try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+
+        $data = [
+            'name' => 'A single Client',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [
+                    $c2->hashed_id, 
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+        
+
+        $data = [
+            'name' => 'An invalid Client',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [
+                    'xx33434', 
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
+        
+        
+    }
+
+
+    public function testCalculateNextRun()
+    {
+
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => "2023-01-01",
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+            ],
+        ];
+
+        $scheduler->fill($data);
+        $scheduler->save();
+
+        $service_object = new SchedulerService($scheduler);
+
+        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
+        $reflectionMethod->setAccessible(true);
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); 
+
+        $scheduler->fresh();
+
+        $this->assertEquals("2023-02-01", $scheduler->next_run->format('Y-m-d'));
+
     }
 
     public function testCalculateStartAndEndDates()
@@ -77,23 +216,15 @@ class SchedulerTest extends TestCase
 
         $service_object = new SchedulerService($scheduler);
 
-        // $reflection = new \ReflectionClass(get_class($service_object));
-        // $method = $reflection->getMethod('calculateStatementProperties');
-        // $method->setAccessible(true);
-        // $method->invokeArgs($service_object, []);
-
         $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStartAndEndDates');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); // 'baz'
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); 
 
         $this->assertIsArray($method);
 
         $this->assertEquals('previous_month', $scheduler->parameters['date_range']);
-        
+
         $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $method);
-
-
-        // $this->assertEquals('paid', $method['status']);
 
     }
 

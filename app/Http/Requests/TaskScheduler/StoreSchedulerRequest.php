@@ -12,10 +12,14 @@
 namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Scheduler\ValidClientIds;
+use App\Models\Client;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class StoreSchedulerRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -37,12 +41,12 @@ class StoreSchedulerRequest extends Request
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
             'parameters' => 'bail|array',
+            'parameters.clients' => ['bail','sometimes', 'array', new ValidClientIds()],
         ];
 
         return $rules;
 
     }
-
 
     public function prepareForValidation()
     {

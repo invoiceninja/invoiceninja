@@ -57,7 +57,7 @@ class SchedulerService
            //work out the date range 
             $statement_properties = $this->calculateStatementProperties();
 
-            $pdf = $_client->service()->statement($statement_properties,true);
+            $_client->service()->statement($statement_properties,true);
 
         });
 

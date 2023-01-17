@@ -67,7 +67,7 @@ class Scheduler extends BaseModel
         return new SchedulerService($this);
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
