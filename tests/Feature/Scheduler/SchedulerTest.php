@@ -190,7 +190,7 @@ class SchedulerTest extends TestCase
             'name' => 'A different Name',
             'frequency_id' => 5,
             'next_run' => now()->addDays(2)->format('Y-m-d'),
-            'template' =>'statement',
+            'template' =>'client_statement',
             'parameters' => [],
         ];
 
@@ -209,7 +209,7 @@ class SchedulerTest extends TestCase
             'name' => 'A different Name',
             'frequency_id' => 5,
             'next_run' => now()->addDays(2)->format('Y-m-d'),
-            'template' =>'statement',
+            'template' =>'client_statement',
             'parameters' => [],
         ];
 
