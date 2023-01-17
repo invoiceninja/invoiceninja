@@ -666,4 +666,23 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
     }
+
+    public function timezone_offset()
+    {
+        $offset = 0;
+
+        $entity_send_time = $this->getSetting('entity_send_time');
+
+        if ($entity_send_time == 0) {
+            return 0;
+        }
+
+        $timezone = $this->timezone();
+
+        $offset -= $timezone->utc_offset;
+        $offset += ($entity_send_time * 3600);
+
+        return $offset;
+    }
+
 }

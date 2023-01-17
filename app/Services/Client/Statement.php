@@ -27,6 +27,7 @@ use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Statement
 {
@@ -117,7 +118,7 @@ class Statement
         }
 
         if (\is_null($this->entity)) {
-            \DB::connection(config('database.default'))->beginTransaction();
+            DB::connection(config('database.default'))->beginTransaction();
 
             $this->rollback = true;
 

@@ -27,6 +27,8 @@ class SchedulerRepository extends BaseRepository
     public function save(array $data, Scheduler $scheduler): Scheduler
     {
 
+nlog($data);
+
         $scheduler->fill($data);
 
         $scheduler->save();
