@@ -35,6 +35,7 @@ use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\Scheduler;
 use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Models\Task;
@@ -106,6 +107,8 @@ class CompanyTransformer extends EntityTransformer
         'bank_integrations',
         'bank_transactions',
         'bank_transaction_rules',
+        'task_schedulers',
+        'schedulers',
     ];
 
     /**
@@ -233,6 +236,7 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->tokens, $transformer, CompanyToken::class);
     }
 
+
     public function includeBankTransactions(Company $company)
     {
         $transformer = new BankTransactionTransformer($this->serializer);
@@ -240,6 +244,20 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->bank_transactions, $transformer, BankTransaction::class);
     }
 
+
+    public function includeTaskSchedulers(Company $company)
+    {
+        $transformer = new SchedulerTransformer($this->serializer);
+
+        return $this->includeCollection($company->schedulers, $transformer, Scheduler::class);
+    }
+
+    public function includeSchedulers(Company $company)
+    {
+        $transformer = new SchedulerTransformer($this->serializer);
+
+        return $this->includeCollection($company->schedulers, $transformer, Scheduler::class);
+    }
 
     public function includeBankTransactionRules(Company $company)
     {

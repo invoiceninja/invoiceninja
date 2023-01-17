@@ -180,7 +180,7 @@
                                 </p>
                             @endisset
 
-                            @if(isset($company) && $company instanceof \App\Models\Company)
+                            @if(isset($company) && $company instanceof \App\Models\Company && $company->getSetting('show_email_footer'))
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 500; margin-bottom:0;">
                                     {{ $company->present()->name() }}</p>
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-top: 5px;">

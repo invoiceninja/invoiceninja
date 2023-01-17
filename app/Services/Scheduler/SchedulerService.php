@@ -11,18 +11,10 @@
 
 namespace App\Services\Scheduler;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Mail\Client\ClientStatement;
 use App\Models\Client;
 use App\Models\Scheduler;
-use App\Services\Email\EmailMailable;
-use App\Services\Email\EmailObject;
-use App\Services\Email\EmailService;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Support\Str;
 
 class SchedulerService
 {
@@ -54,7 +46,6 @@ class SchedulerService
         if(count($this->scheduler->parameters['clients']) >= 1)
             $query->where('id', $this->transformKeys($this->scheduler->parameters['clients']));
      
-
         $query->cursor()
             ->each(function ($_client){
 
@@ -62,10 +53,7 @@ class SchedulerService
             $statement_properties = $this->calculateStatementProperties();
 
            //work out the date range 
-            $pdf = $_client->service()->statement($statement_properties);
-
-            $email_service = new EmailService($this->buildMailableData($pdf), $_client->company);
-            $email_service->send();
+            $pdf = $_client->service()->statement($statement_properties,true);
 
             //calculate next run dates;
 
@@ -76,9 +64,6 @@ class SchedulerService
     private function calculateStatementProperties()
     {
         $start_end = $this->calculateStartAndEndDates();
-
-        $this->client_start_date = $this->translateDate($start_end[0], $this->client->date_format(), $this->client->locale());
-        $this->client_end_date = $this->translateDate($start_end[1], $this->client->date_format(), $this->client->locale());
 
         return [
             'start_date' =>$start_end[0], 
@@ -104,26 +89,7 @@ class SchedulerService
         };
     }
 
-    private function buildMailableData($pdf)
-    {
 
-        $email_object = new EmailObject;
-        $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
-        $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
-        $email_object->settings = $this->client->getMergedSettings();
-        $email_object->company = $this->client->company;
-        $email_object->client = $this->client;
-        $email_object->email_template_subject = 'email_subject_statement';
-        $email_object->email_template_body = 'email_template_statement';
-        $email_object->variables = [
-            '$client' => $this->client->present()->name(),
-            '$start_date' => $this->client_start_date,
-            '$end_date' => $this->client_end_date,
-        ];
-
-        return $email_object;
-
-    }
 
 
 }

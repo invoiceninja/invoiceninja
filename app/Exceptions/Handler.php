@@ -16,12 +16,10 @@ use App\Exceptions\InternalPDFFailure;
 use App\Exceptions\PhantomPDFFailure;
 use App\Exceptions\StripeConnectFailure;
 use App\Utils\Ninja;
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -34,7 +32,6 @@ use Illuminate\Validation\ValidationException;
 use PDOException;
 use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
-use Swift_TransportException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -50,7 +47,6 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         PDOException::class,
-        //Swift_TransportException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,
@@ -80,11 +76,10 @@ class Handler extends ExceptionHandler
     {
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
-
             return;
         }
 
-        if (Ninja::isHosted() && ! ($exception instanceof ValidationException)) {
+        if (Ninja::isHosted()) {
             Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
@@ -105,7 +100,10 @@ class Handler extends ExceptionHandler
                 ]);
             });
 
-            Integration::captureUnhandledException($exception);
+            if ($this->validException($exception)) {
+                Integration::captureUnhandledException($exception);
+            }
+
         } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
             Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
@@ -180,8 +178,8 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 500);
         } elseif ($exception instanceof ThrottleRequestsException && $request->expectsJson()) {
             return response()->json(['message'=>'Too many requests'], 429);
-        } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
-            return response()->json(['message'=>'Fatal error'], 500);
+        // } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
+        //     return response()->json(['message'=>'Fatal error'], 500); //@deprecated
         } elseif ($exception instanceof AuthorizationException) {
             return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
@@ -207,13 +205,6 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } 
-
-
-        // elseif ($exception instanceof QueryException) {
-        //     return response()->json(['message' => 'We had a problem executing this query. Please retry.'], 500);
-        // } 
-
-
 
         return parent::render($request, $exception);
     }
