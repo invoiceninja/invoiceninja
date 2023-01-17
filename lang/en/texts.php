@@ -4924,7 +4924,8 @@ $LANG = array(
     'action_add_to_invoice' => 'Add To Invoice',
     'danger_zone' => 'Danger Zone',
     'import_completed' => 'Import completed',
-    'client_statement_body' => 'Your statement from :start_date to :end_date is attached.'
+    'client_statement_body' => 'Your statement from :start_date to :end_date is attached.',
+    'email_queued' => 'Email queued',
 );
 
 

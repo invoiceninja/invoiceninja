@@ -734,8 +734,9 @@ class CompanySettings extends BaseSettings
      * and always ensure an up to date class is returned.
      *
      * @param $obj
+     * @deprecated
      */
-    public function __construct($obj)
+    public function __construct()
     {
         //	parent::__construct($obj);
     }

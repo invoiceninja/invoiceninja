@@ -16,7 +16,6 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Libraries\MultiDB;
@@ -44,7 +43,6 @@ use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -108,8 +106,6 @@ class PreviewController extends BaseController
             $entity = ucfirst(request()->input('entity'));
 
             $class = "App\Models\\$entity";
-
-            $pdf_class = "App\Jobs\\$entity\\Create{$entity}Pdf";
 
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
