@@ -106,7 +106,7 @@ class SchedulerTest extends TestCase
         $data = [
             'name' => 'A single Client',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => now()->format('Y-m-d'),
+            'next_run' => now()->addDay()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
                 'date_range' => 'previous_month',
