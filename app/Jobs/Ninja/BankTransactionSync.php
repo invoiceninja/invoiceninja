@@ -44,6 +44,7 @@ class BankTransactionSync implements ShouldQueue
      */
     public function handle()
     {
+
         //multiDB environment, need to
         foreach (MultiDB::$dbs as $db) 
         {
