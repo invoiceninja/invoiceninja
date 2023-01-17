@@ -53,9 +53,10 @@ class SchedulerService
             ->each(function ($_client){
 
             $this->client = $_client;
-            $statement_properties = $this->calculateStatementProperties();
 
            //work out the date range 
+            $statement_properties = $this->calculateStatementProperties();
+
             $pdf = $_client->service()->statement($statement_properties,true);
 
         });
@@ -65,7 +66,12 @@ class SchedulerService
     
     }
 
-    private function calculateStatementProperties()
+    /**
+     * Hydrates the array needed to generate the statement
+     * 
+     * @return array The statement options array
+     */
+    private function calculateStatementProperties(): array
     {
         $start_end = $this->calculateStartAndEndDates();
 
@@ -79,7 +85,12 @@ class SchedulerService
 
     }
 
-    private function calculateStartAndEndDates()
+    /**
+     * Start and end date of the statement
+     * 
+     * @return array [$start_date, $end_date];
+     */
+    private function calculateStartAndEndDates(): array
     {
         return match ($this->scheduler->parameters['date_range']) {
             'this_month' => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
@@ -94,7 +105,11 @@ class SchedulerService
     }
 
 
-    public function calculateNextRun() :?Carbon
+    /**
+     * Sets the next run date of the scheduled task
+     * 
+     */
+    private function calculateNextRun()
     {
         if (! $this->scheduler->next_run) {
             return null;

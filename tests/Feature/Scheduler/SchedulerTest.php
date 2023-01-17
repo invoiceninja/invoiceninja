@@ -12,8 +12,10 @@
 namespace Tests\Feature\Scheduler;
 
 use App\Export\CSV\ClientExport;
+use App\Factory\SchedulerFactory;
 use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
+use App\Services\Scheduler\SchedulerService;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +53,88 @@ class SchedulerTest extends TestCase
           $this->withoutExceptionHandling();
     }
 
+    public function testCalculateStartAndEndDates()
+    {
+
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => "2023-01-01",
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+            ],
+        ];
+
+        $scheduler->fill($data);
+        $scheduler->save();
+
+        $service_object = new SchedulerService($scheduler);
+
+        // $reflection = new \ReflectionClass(get_class($service_object));
+        // $method = $reflection->getMethod('calculateStatementProperties');
+        // $method->setAccessible(true);
+        // $method->invokeArgs($service_object, []);
+
+        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStartAndEndDates');
+        $reflectionMethod->setAccessible(true);
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); // 'baz'
+
+        $this->assertIsArray($method);
+
+        $this->assertEquals('previous_month', $scheduler->parameters['date_range']);
+        
+        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $method);
+
+
+        // $this->assertEquals('paid', $method['status']);
+
+    }
+
+    public function testCalculateStatementProperties()
+    {
+
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+            ],
+        ];
+
+        $scheduler->fill($data);
+        $scheduler->save();
+
+        $service_object = new SchedulerService($scheduler);
+
+        // $reflection = new \ReflectionClass(get_class($service_object));
+        // $method = $reflection->getMethod('calculateStatementProperties');
+        // $method->setAccessible(true);
+        // $method->invokeArgs($service_object, []);
+
+        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStatementProperties');
+        $reflectionMethod->setAccessible(true);
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); // 'baz'
+
+        $this->assertIsArray($method);
+
+        $this->assertEquals('paid', $method['status']);
+
+    }
 
     public function testGetThisMonthRange()
     {
@@ -82,24 +166,15 @@ class SchedulerTest extends TestCase
         };
     }
 
-    /**
-     *       'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
-            'is_paused' => 'bail|sometimes|boolean',
-            'frequency_id' => 'bail|required|integer|digits_between:1,12',
-            'next_run' => 'bail|required|date:Y-m-d',
-            'template' => 'bail|required|string',
-            'parameters' => 'bail|array',
-     */
-
     public function testClientStatementGeneration()
     {
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => '2023-01-14',
+            'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => 'last_month',
+                'date_range' => 'previous_month',
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
