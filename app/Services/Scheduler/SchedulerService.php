@@ -119,40 +119,40 @@ class SchedulerService
 
         switch ($this->scheduler->frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addDay();
+                $next_run = now()->startOfDay()->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeek();
+                $next_run = now()->startOfDay()->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeeks(2);
+                $next_run = now()->startOfDay()->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeeks(4);
+                $next_run = now()->startOfDay()->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthNoOverflow();
+                $next_run = now()->startOfDay()->addMonthNoOverflow();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(2);
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(3);
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(4);
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(6);
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYear();
+                $next_run = now()->startOfDay()->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYears(2);
+                $next_run = now()->startOfDay()->addYears(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
-                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYears(3);
+                $next_run = now()->startOfDay()->addYears(3);
                 break;
             default:
                 $next_run =  null;

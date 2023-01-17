@@ -32,7 +32,7 @@ class SchedulerFactory extends Factory
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->addSeconds(rand(86400,8640000)),
             'next_run_client' => now()->addSeconds(rand(86400,8640000)),
-            'template' => 'statement_task',
+            'template' => 'client_statement',
         ];
     }
 }

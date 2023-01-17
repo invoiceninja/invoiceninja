@@ -229,7 +229,7 @@ class SchedulerTest extends TestCase
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => "2023-01-01",
+            'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
                 'date_range' => 'previous_month',
@@ -251,7 +251,7 @@ class SchedulerTest extends TestCase
 
         $scheduler->fresh();
 
-        $this->assertEquals("2023-02-01", $scheduler->next_run->format('Y-m-d'));
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 
