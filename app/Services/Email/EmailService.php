@@ -89,24 +89,27 @@ class EmailService
         if($this->company->is_disabled && !$this->override) 
             return true;
 
+        if(Ninja::isSelfHost())
+            return false;
+
         /* To handle spam users we drop all emails from flagged accounts */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
+        if($this->company->account && $this->company->account->is_flagged) 
             return true;
 
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
-        if(Ninja::isHosted() && $this->hasValidEmails())
+        if($this->hasInValidEmails())
             return true;
 
         /* GMail users are uncapped */
-        if(Ninja::isHosted() && in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) 
+        if(in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) 
             return false;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
+        if($this->company->account && $this->company->account->emailQuotaExceeded())
             return true;
 
         /* If the account is verified, we allow emails to flow */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
+        if($this->company->account && $this->company->account->is_verified_account) {
 
             //11-01-2022
 
@@ -118,7 +121,7 @@ class EmailService
         }
 
         /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
-        if(Ninja::isHosted() && $this->company->account && !$this->company->account->account_sms_verified){
+        if($this->company->account && !$this->company->account->account_sms_verified){
             
             if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
                 return (new \Modules\Admin\Jobs\Account\EmailFilter($this->email_object, $this->company))->run();
@@ -133,7 +136,7 @@ class EmailService
         return false;
     }
 
-    private function hasValidEmails(): bool
+    private function hasInValidEmails(): bool
     {
 
         foreach($this->email_object->to as $address_object)
@@ -145,6 +148,8 @@ class EmailService
             if(!str_contains($address_object->address, "@"))
                 return true;
 
+            if($address_object->address == " ")
+                return true;
         }
 
 
