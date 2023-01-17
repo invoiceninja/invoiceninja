@@ -257,7 +257,8 @@ class PaymentRepository extends BaseRepository {
 
         $payment = $payment->service()->deletePayment();
 
-        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        if($payment)
+            event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $payment;
 

@@ -447,7 +447,17 @@ class CompanySettings extends BaseSettings
     
     public $mailgun_domain = '';
 
+    public $auto_bill_standard_invoices = false;
+
+    public $email_alignment = 'center'; // center , left, right
+
+    public $show_email_footer = true;
+
+
     public static $casts = [
+        'show_email_footer'                  => 'bool',
+        'email_alignment'                    => 'string',
+        'auto_bill_standard_invoices'        => 'bool',
         'postmark_secret'                    => 'string',
         'mailgun_secret'                     => 'string',
         'mailgun_domain'                     => 'string',
@@ -724,8 +734,9 @@ class CompanySettings extends BaseSettings
      * and always ensure an up to date class is returned.
      *
      * @param $obj
+     * @deprecated
      */
-    public function __construct($obj)
+    public function __construct()
     {
         //	parent::__construct($obj);
     }

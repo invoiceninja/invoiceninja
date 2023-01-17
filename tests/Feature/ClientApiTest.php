@@ -53,6 +53,71 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testClientStatement()
+    {
+
+        $response = null;
+
+        $data  = [
+            'client_id' => $this->client->hashed_id,
+            'start_date' => '2000-01-01',
+            'end_date' => '2023-01-01',
+            'show_aging_table' => true,
+            'show_payments_table' => true,
+            'status' => 'paid',
+        ];
+
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/client_statement', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testClientStatementEmail()
+    {
+
+        $response = null;
+        
+        $data  = [
+            'client_id' => $this->client->hashed_id,
+            'start_date' => '2000-01-01',
+            'end_date' => '2023-01-01',
+            'show_aging_table' => true,
+            'show_payments_table' => true,
+            'status' => 'paid',
+        ];
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/client_statement?send_email=true', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertJson([
+            'message' => ctrans('texts.email_queued'),
+        ]);
+
+
+        $response->assertStatus(200);
+
+    }
+
+
     public function testCsvImportRepositoryPersistance()
     {
         Client::unguard();

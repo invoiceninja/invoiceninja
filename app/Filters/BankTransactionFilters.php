@@ -134,14 +134,12 @@ class BankTransactionFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'bank_transactions';
         $filters = explode(',', $filter);
 
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
+        return $this->builder->where(function ($query) use ($filters) {
 
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
+                $query->orWhereNull('deleted_at');
             }
 
             if (in_array(parent::STATUS_ARCHIVED, $filters)) {
