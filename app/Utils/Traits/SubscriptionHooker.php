@@ -51,7 +51,12 @@ trait SubscriptionHooker
             
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
-            if(property_exists($error, 'message'))
+            if(is_null($error)){
+                nlog("empty response");        
+                nlog($e->getMessage());
+            }
+
+            if($error && property_exists($error, 'message'))
                 $message = $error->message;
 
             return array_merge($body, ['message' => $message, 'status_code' => 500]);
