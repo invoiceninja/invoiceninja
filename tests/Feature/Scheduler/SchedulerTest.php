@@ -14,19 +14,15 @@ namespace Tests\Feature\Scheduler;
 use App\Factory\SchedulerFactory;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
-use App\Models\Scheduler;
 use App\Services\Scheduler\SchedulerService;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
-use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
