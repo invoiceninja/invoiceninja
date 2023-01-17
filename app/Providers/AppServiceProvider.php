@@ -24,8 +24,10 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
@@ -102,6 +104,11 @@ class AppServiceProvider extends ServiceProvider
  
             return $this;
         });
+
+        ParallelTesting::setUpTestDatabase(function ($database, $token) {
+            Artisan::call('db:seed');
+        });
+
     }
 
     /**

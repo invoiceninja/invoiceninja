@@ -12,9 +12,11 @@
 namespace App\Services\Scheduler;
 
 use App\Models\Client;
+use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 
 class SchedulerService
 {
@@ -51,18 +53,25 @@ class SchedulerService
             ->each(function ($_client){
 
             $this->client = $_client;
-            $statement_properties = $this->calculateStatementProperties();
 
            //work out the date range 
-            $pdf = $_client->service()->statement($statement_properties,true);
+            $statement_properties = $this->calculateStatementProperties();
 
-            //calculate next run dates;
+            $_client->service()->statement($statement_properties,true);
 
         });
 
+        //calculate next run dates;
+        $this->calculateNextRun();
+    
     }
 
-    private function calculateStatementProperties()
+    /**
+     * Hydrates the array needed to generate the statement
+     * 
+     * @return array The statement options array
+     */
+    private function calculateStatementProperties(): array
     {
         $start_end = $this->calculateStartAndEndDates();
 
@@ -76,7 +85,12 @@ class SchedulerService
 
     }
 
-    private function calculateStartAndEndDates()
+    /**
+     * Start and end date of the statement
+     * 
+     * @return array [$start_date, $end_date];
+     */
+    private function calculateStartAndEndDates(): array
     {
         return match ($this->scheduler->parameters['date_range']) {
             'this_month' => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
@@ -91,6 +105,67 @@ class SchedulerService
     }
 
 
+    /**
+     * Sets the next run date of the scheduled task
+     * 
+     */
+    private function calculateNextRun()
+    {
+        if (! $this->scheduler->next_run) {
+            return null;
+        }
+
+        $offset = $this->scheduler->company->timezone_offset();
+
+        switch ($this->scheduler->frequency_id) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addDay();
+                break;
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeek();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeeks(2);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addWeeks(4);
+                break;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthNoOverflow();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(3);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(4);
+                break;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addMonthsNoOverflow(6);
+                break;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYear();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYears(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                $next_run = Carbon::parse($this->scheduler->next_run)->startOfDay()->addYears(3);
+                break;
+            default:
+                $next_run =  null;
+        }
+
+
+        $this->scheduler->next_run_client = $next_run ?: null; 
+        $this->scheduler->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
+        $this->scheduler->save();
+
+    }
+
+    //handle when the scheduler has been paused.
 
 
 }
