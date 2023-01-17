@@ -36,6 +36,7 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use League\Flysystem\UnableToCreateDirectory;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -46,6 +47,30 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
+        PDOException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
+    ];
+
+    protected $selfHostDontReport = [
+        FilePermissionsFailure::class,
+        PDOException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
+        UnableToCreateDirectory::class,
+        GuzzleHttp\Exception\ConnectException::class,
+        Symfony\Component\Process\Exception\RuntimeException::class,
+        InvalidArgumentException::class,
+        RuntimeException::class,
+    ];
+
+    protected $hostedDontReport = [
         PDOException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
@@ -100,11 +125,11 @@ class Handler extends ExceptionHandler
                 ]);
             });
 
-            if ($this->validException($exception)) {
+            if ($this->validException($exception) && $this->sentryShouldReport($exception)) {
                 Integration::captureUnhandledException($exception);
             }
 
-        } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
+        } elseif (app()->bound('sentry')) {
             Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
@@ -121,7 +146,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
-            if ($this->validException($exception)) {
+            if ($this->validException($exception) && $this->sentryShouldReport($exception)) {
                 Integration::captureUnhandledException($exception);
             }
         }
@@ -156,6 +181,23 @@ class Handler extends ExceptionHandler
         }
 
         return true;
+    }
+
+
+    /**
+     * Determine if the exception is in the "do not report" list.
+     *
+     * @param  \Throwable  $e
+     * @return bool
+     */
+    protected function sentryShouldReport(Throwable $e)
+    {
+        if(Ninja::isHosted())
+            $dontReport = array_merge($this->hostedDontReport, $this->internalDontReport);
+        else
+            $dontReport = array_merge($this->selfHostDontReport, $this->internalDontReport);
+
+        return is_null(Arr::first($dontReport, fn ($type) => $e instanceof $type));
     }
 
     /**
@@ -194,7 +236,6 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Method not supported for this route'], 404);
         } elseif ($exception instanceof ValidationException && $request->expectsJson()) {
-            // nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
             return response()->json(['message' => "Relation `{$exception->relation}` is not a valid include."], 400);

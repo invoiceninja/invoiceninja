@@ -40,7 +40,8 @@ class SchedulerService
     private function client_statement()
     {   
         $query = Client::query()
-                        ->where('company_id', $this->scheduler->company_id);
+                        ->where('company_id', $this->scheduler->company_id)
+                        ->where('is_deleted',0);
 
         //Email only the selected clients
         if(count($this->scheduler->parameters['clients']) >= 1)
