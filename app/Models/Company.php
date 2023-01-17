@@ -66,6 +66,7 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'invoice_task_hours',
         'markdown_enabled',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
@@ -169,6 +170,16 @@ class Company extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function schedulers()
+    {
+        return $this->hasMany(Scheduler::class);
+    }
+
+    public function task_schedulers() //alias for schedulers
+    {
+        return $this->hasMany(Scheduler::class);
     }
 
     public function all_documents()

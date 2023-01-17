@@ -30,19 +30,11 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class BankMatchingService implements ShouldQueue, ShouldBeUnique
+class BankMatchingService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $company_id;
-
-    protected $db;
-
-    public function __construct($company_id, $db)
-    {
-        $this->company_id = $company_id;
-        $this->db = $db;
-    }
+    public function __construct(public $company_id, public $db){}
 
     public function handle() :void
     {

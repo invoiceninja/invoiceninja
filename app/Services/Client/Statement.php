@@ -32,25 +32,16 @@ class Statement
 {
     use PdfMakerTrait;
 
-    protected Client $client;
-
     /**
      * @var Invoice|Payment|null
      */
     protected $entity;
 
-    protected array $options;
-
     protected bool $rollback = false;
 
-    public function __construct(Client $client, array $options)
-    {
-        $this->client = $client;
+    public function __construct(protected Client $client, public array $options){}
 
-        $this->options = $options;
-    }
-
-    public function run(): ?string
+    public function run() :?string
     {
         $this
             ->setupOptions()
@@ -110,7 +101,7 @@ class Statement
 
         $maker = null;
         $state = null;
-        
+
         return $pdf;
     }
 

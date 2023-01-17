@@ -42,4 +42,5 @@ class RecurringDateTest extends TestCase
 
         $this->assertequals($trial_ends->format('Y-m-d'), '2021-12-03');
     }
+
 }

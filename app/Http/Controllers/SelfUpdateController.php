@@ -16,7 +16,6 @@ use App\Models\Client;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
-use Beganovich\Snappdf\Snappdf;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -107,6 +106,8 @@ class SelfUpdateController extends BaseController
         $zipFile = new \PhpZip\ZipFile();
 
         $zipFile->openFile($file);
+
+        $zipFile->deleteFromName(".htaccess");
 
         $zipFile->extractTo(base_path());
 
