@@ -72,7 +72,7 @@ class ClientApiTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/client_statement', $data);
+            ])->postJson('/api/v1/client_statement', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -100,11 +100,16 @@ class ClientApiTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/client_statement?send_email=true', $data);
+            ])->postJson('/api/v1/client_statement?send_email=true', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
         }
+
+        $response->assertJson([
+            'message' => ctrans('texts.email_queued'),
+        ]);
+
 
         $response->assertStatus(200);
 
