@@ -78,6 +78,8 @@ class ClientApiTest extends TestCase
             nlog($message);
         }
 
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+
         $response->assertStatus(200);
 
     }
