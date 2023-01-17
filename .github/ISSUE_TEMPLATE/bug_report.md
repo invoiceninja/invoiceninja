@@ -37,5 +37,3 @@ https://invoiceninja.github.io/docs/self-host-troubleshooting/ -->
 ### Logs
 <!-- Please check the log files (storage/logs/) and provide redacted output -->
 ```
-
-```
