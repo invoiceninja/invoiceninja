@@ -47,7 +47,7 @@ class SchedulerService
 
         //Email only the selected clients
         if(count($this->scheduler->parameters['clients']) >= 1)
-            $query->where('id', $this->transformKeys($this->scheduler->parameters['clients']));
+            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
      
         $query->cursor()
             ->each(function ($_client){
