@@ -587,7 +587,6 @@ class BillingPortalPurchasev2 extends Component
             
             $this->is_eligible = false;
             $this->not_eligible_message = $eligibility_check['message'];
-
             return $this;
 
         }
@@ -601,40 +600,9 @@ class BillingPortalPurchasev2 extends Component
             ->markPaid()
             ->save();
 
-        if (strlen($this->subscription->recurring_product_ids) >= 1) {
-
-            $recurring_invoice = $this->subscription->service()->convertInvoiceToRecurringBundle($this->contact->client_id, $this->bundle);
-
-            /* Start the recurring service */
-            $recurring_invoice->service()
-                              ->start()
-                              ->save();
-
-            $invoice->recurring_id = $recurring_invoice->id;
-            $invoice->save();
-
-            $context = [
-                'context' => 'recurring_purchase',
-                'recurring_invoice' => $recurring_invoice->hashed_id,
-                'invoice' => $invoice->hashed_id,
-                'client' => $recurring_invoice->client->hashed_id,
-                'subscription' => $this->subscription->hashed_id,
-                'contact' => auth()->guard('contact')->user()->hashed_id,
-                'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
-            ];
-
-            return $context;
-        }
-
-
-
-
-
-
-        $redirect_url = "/client/invoices/{$invoice->hashed_id}";
-
-        return $this->handleRedirect($redirect_url);
-
+            return $this->subscription
+                        ->service()
+                        ->handleNoPaymentFlow($invoice, $this->bundle, $this->contact);
 
     }
 
@@ -671,43 +639,6 @@ class BillingPortalPurchasev2 extends Component
     {
     
     }
-
-    // /**
-    //  * Handle user authentication
-    //  *
-    //  * @return $this|bool|void
-    //  */
-    // public function authenticate()
-    // {
-    //     $this->validate();
-
-    //     $contact = ClientContact::where('email', $this->email)
-    //         ->where('company_id', $this->subscription->company_id)
-    //         ->first();
-
-    //     if ($contact && $this->steps['existing_user'] === false) {
-    //         return $this->steps['existing_user'] = true;
-    //     }
-
-    //     if ($contact && $this->steps['existing_user']) {
-    //         $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
-
-    //         return $attempt
-    //             ? $this->getPaymentMethods($contact)
-    //             : session()->flash('message', 'These credentials do not match our records.');
-    //     }
-
-    //     $this->steps['existing_user'] = false;
-
-    //     $contact = $this->createBlankClient();
-
-    //     if ($contact && $contact instanceof ClientContact) {
-    //         $this->getPaymentMethods($contact);
-    //     }
-    // }
-
-   
-
 
     /**
      * Create a blank client. Used for new customers purchasing.

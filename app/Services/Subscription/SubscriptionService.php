@@ -1359,6 +1359,50 @@ class SubscriptionService
 
 
     /**
+     * Handle case where no payment is required
+     * @param  Invoice       $invoice The Invoice
+     * @param  array         $bundle  The bundle array
+     * @param  ClientContact $contact The Client Contact
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
+    public function handleNoPaymentFlow(Invoice $invoice, $bundle, ClientContact $contact)
+    {
+
+        if (strlen($this->subscription->recurring_product_ids) >= 1) {
+
+            $recurring_invoice = $this->convertInvoiceToRecurringBundle($contact->client_id, collect($bundle)->map(function ($bund){ return (object) $bund;}));
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+            $invoice->recurring_id = $recurring_invoice->id;
+            $invoice->save();
+
+            $context = [
+                'context' => 'recurring_purchase',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'invoice' => $invoice->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
+                'contact' => $contact->hashed_id,
+                'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
+            ];
+
+            $this->triggerWebhook($context);
+
+            return $this->handleRedirect($context['redirect_url']);
+
+        }
+
+        $redirect_url = "/client/invoices/{$invoice->hashed_id}";
+
+        return $this->handleRedirect($redirect_url);
+
+    }
+
+    /**
     * 'email' => $this->email ?? $this->contact->email,
     * 'quantity' => $this->quantity,
     * 'contact_id' => $this->contact->id,
