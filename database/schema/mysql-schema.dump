@@ -48,6 +48,7 @@ CREATE TABLE `accounts` (
   `account_sms_verification_number` text DEFAULT NULL,
   `account_sms_verified` tinyint(1) NOT NULL DEFAULT 0,
   `bank_integration_account_id` text DEFAULT NULL,
+  `is_trial` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `accounts_payment_id_index` (`payment_id`),
   KEY `accounts_key_index` (`key`)
@@ -255,6 +256,7 @@ CREATE TABLE `bank_transactions` (
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
   `bank_transaction_rule_id` bigint(20) DEFAULT NULL,
+  `payment_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bank_transactions_bank_integration_id_foreign` (`bank_integration_id`),
   KEY `bank_transactions_user_id_foreign` (`user_id`),
@@ -519,7 +521,12 @@ CREATE TABLE `companies` (
   `invoice_task_project` tinyint(1) NOT NULL DEFAULT 0,
   `report_include_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `invoice_task_lock` tinyint(1) NOT NULL DEFAULT 0,
-  `use_vendor_currency` tinyint(1) NOT NULL DEFAULT 0,
+  `matomo_url` varchar(191) DEFAULT NULL,
+  `matomo_id` bigint(20) DEFAULT NULL,
+  `convert_payment_currency` tinyint(1) NOT NULL DEFAULT 0,
+  `convert_expense_currency` tinyint(1) NOT NULL DEFAULT 0,
+  `notify_vendor_when_paid` tinyint(1) NOT NULL DEFAULT 0,
+  `invoice_task_hours` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `companies_company_key_unique` (`company_key`),
   KEY `companies_industry_id_foreign` (`industry_id`),
@@ -1139,6 +1146,7 @@ CREATE TABLE `invoices` (
   `paid_to_date` decimal(20,6) NOT NULL DEFAULT 0.000000,
   `subscription_id` int(10) unsigned DEFAULT NULL,
   `auto_bill_tries` smallint(6) NOT NULL DEFAULT 0,
+  `is_proforma` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invoices_company_id_number_unique` (`company_id`,`number`),
   KEY `invoices_user_id_foreign` (`user_id`),
@@ -1948,20 +1956,23 @@ DROP TABLE IF EXISTS `schedulers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `schedulers` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `paused` tinyint(1) NOT NULL DEFAULT 0,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
-  `repeat_every` varchar(191) NOT NULL,
-  `start_from` timestamp NULL DEFAULT NULL,
-  `scheduled_run` timestamp NULL DEFAULT NULL,
-  `company_id` bigint(20) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `action_name` varchar(191) NOT NULL,
-  `action_class` varchar(191) NOT NULL,
   `parameters` mediumtext DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `is_paused` tinyint(1) NOT NULL DEFAULT 0,
+  `frequency_id` int(10) unsigned DEFAULT NULL,
+  `next_run` datetime DEFAULT NULL,
+  `next_run_client` datetime DEFAULT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `template` varchar(191) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `schedulers_action_name_index` (`action_name`)
+  UNIQUE KEY `schedulers_company_id_name_unique` (`company_id`,`name`),
+  KEY `schedulers_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  CONSTRAINT `schedulers_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sizes`;
@@ -2522,3 +2533,10 @@ INSERT INTO `migrations` VALUES (171,'2022_11_06_215526_drop_html_backups_column
 INSERT INTO `migrations` VALUES (172,'2022_11_13_034143_bank_transaction_rules_table',1);
 INSERT INTO `migrations` VALUES (173,'2022_11_16_093535_calmness_design',1);
 INSERT INTO `migrations` VALUES (174,'2022_11_22_215618_lock_tasks_when_invoiced',1);
+INSERT INTO `migrations` VALUES (175,'2022_05_12_56879_add_stripe_klarna',2);
+INSERT INTO `migrations` VALUES (176,'2022_07_12_45766_add_matomo',2);
+INSERT INTO `migrations` VALUES (177,'2022_11_30_063229_add_payment_id_to_bank_transaction_table',2);
+INSERT INTO `migrations` VALUES (178,'2022_12_07_024625_add_properties_to_companies_table',2);
+INSERT INTO `migrations` VALUES (179,'2022_12_14_004639_vendor_currency_update',2);
+INSERT INTO `migrations` VALUES (180,'2022_12_20_063038_set_proforma_invoice_type',2);
+INSERT INTO `migrations` VALUES (181,'2023_01_12_125540_set_auto_bill_on_regular_invoice_setting',2);
