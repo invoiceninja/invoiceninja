@@ -29,7 +29,6 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
-      REDIS_HOST: redis
       REDIS_PORT: 6379
       BROADCAST_DRIVER: log
       CACHE_DRIVER: redis
