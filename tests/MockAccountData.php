@@ -57,6 +57,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -71,6 +72,7 @@ trait MockAccountData
 {
     use MakesHash;
     use GeneratesCounter;
+    use WithoutEvents;
 
     /**
      * @var

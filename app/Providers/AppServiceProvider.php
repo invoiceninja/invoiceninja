@@ -107,11 +107,6 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('db:seed');
         });
 
-        ParallelTesting::tearDownProcess(function ($token, $testCase) {
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                     DB::connection(config('database.default'))->rollBack();
-            }
-        });
     }
 
 }

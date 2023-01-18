@@ -35,7 +35,7 @@ $tests = \Illuminate\Support\Str::of($process->getOutput())
  * Run phpunit with a filter:
  * phpunit --filter 'TestClass|AnotherTestClass|...'
  */
-$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--filter', $tests->join('|')], timeout: null);
+$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--testdox --filter', $tests->join('|')], timeout: null);
 $process->start();
 
 // Make sure we have live data output

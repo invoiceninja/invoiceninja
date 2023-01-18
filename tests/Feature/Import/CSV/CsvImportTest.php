@@ -22,6 +22,7 @@ use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
+use App\Utils\TruthSource;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -50,6 +51,9 @@ class CsvImportTest extends TestCase
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
+
+        auth()->login($this->user);
+
     }
 
     public function testExpenseCsvImport()
@@ -273,6 +277,11 @@ class CsvImportTest extends TestCase
         ];
 
         Cache::put($hash.'-invoice', base64_encode($csv), 360);
+
+        $truth = app()->make(TruthSource::class);
+        $truth->setCompanyUser($this->cu);
+        $truth->setUser($this->user);
+        $truth->setCompany($this->company);
 
         $csv_importer = new Csv($data, $this->company);
 
