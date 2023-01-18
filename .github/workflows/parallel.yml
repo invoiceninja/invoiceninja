@@ -13,10 +13,12 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
-        php-versions: ['8.1']
+        php-versions: ['8.1','8.2']
         phpunit-versions: ['latest']
         ci_node_total: [ 4 ]
         ci_node_index: [ 0, 1, 2, 3 ]
+        laravel: [9.*]
+        dependency-version: [prefer-stable]
 
     env:
       DB_DATABASE1: ninja
@@ -28,7 +30,7 @@ jobs:
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
-      CACHE_DRIVER: database
+      CACHE_DRIVER: array
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: file
       NINJA_ENVIRONMENT: hosted
@@ -81,6 +83,13 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
+
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
