@@ -27,6 +27,9 @@ trait SubscriptionHooker
             'X-Requested-With' => 'XMLHttpRequest',
         ];
 
+        if(!isset($subscription->webhook_configuration['post_purchase_url']) && !isset($subscription->webhook_configuration['post_purchase_rest_method']))   
+            return;
+
         if (count($subscription->webhook_configuration['post_purchase_headers']) >= 1) {
             $headers = array_merge($headers, $subscription->webhook_configuration['post_purchase_headers']);
         }
