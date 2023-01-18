@@ -90,22 +90,22 @@ jobs:
       run: |
         cp .env.ci .env
 
-    - name: Get Composer Cache Directory
-      id: composer-cache
-      run: |
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - uses: actions/cache@v2
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.php }}-composer-
-
-    # - name: Cache dependencies actions/cache@v3
-    #   uses: actions/cache@v3
+    # - name: Get Composer Cache Directory
+    #   id: composer-cache
+    #   run: |
+    #     echo "::set-output name=dir::$(composer config cache-files-dir)"
+    # - uses: actions/cache@v2
     #   with:
-    #     path: ~/.composer/cache/files
-    #     key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
+    #     path: ${{ steps.composer-cache.outputs.dir }}
+    #     key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-${{ matrix.php }}-composer-
+
+    - name: Cache dependencies actions/cache@v3
+      uses: actions/cache@v3
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Install composer dependencies
       run: |
