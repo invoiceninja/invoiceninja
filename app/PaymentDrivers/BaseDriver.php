@@ -289,7 +289,7 @@ class BaseDriver extends AbstractPaymentDriver
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         if (property_exists($this->payment_hash->data, 'billing_context') && $status == Payment::STATUS_COMPLETED) {
-            $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->subscription_id);
+            $billing_subscription = \App\Models\Subscription::find($this->decodePrimaryKey($this->payment_hash->data->billing_context->subscription_id));
 
             // To access campaign hash => $this->payment_hash->data->billing_context->campaign;
             // To access campaign data => Cache::get(CAMPAIGN_HASH)

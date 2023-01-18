@@ -42,7 +42,7 @@ class ClientService
                 $this->client->balance += $amount;
                 $this->client->save();
 
-            }, 1);
+            }, 2);
         }
         catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
@@ -63,7 +63,7 @@ class ClientService
                 $this->client->paid_to_date += $paid_to_date;
                 $this->client->save();
 
-            }, 1);
+            }, 2);
         }
         catch (\Throwable $throwable) {
             nlog("DB ERROR " . $throwable->getMessage());
@@ -82,7 +82,7 @@ class ClientService
             $this->client->paid_to_date += $amount;
             $this->client->save();
 
-        }, 1);
+        }, 2);
 
         return $this;
 

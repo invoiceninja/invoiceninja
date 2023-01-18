@@ -526,7 +526,7 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $data = [
-            'client_id' => $this->contact->client->id,
+            'client_id' => $this->contact->client->hashed_id,
             'date' => now()->format('Y-m-d'),
             'invitations' => [[
                 'key' => '',
@@ -547,10 +547,10 @@ class BillingPortalPurchasev2 extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
+            'client_id' => $this->contact->client->hashed_id,
+            'invoice_id' => $this->invoice->hashed_id,
             'context' => 'purchase',
             'campaign' => $this->campaign,
             'bundle' => $this->bundle,
@@ -567,8 +567,8 @@ class BillingPortalPurchasev2 extends Component
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
+            'contact_id' => $this->contact->hashed_id,
+            'client_id' => $this->contact->client->hashed_id,
             'bundle' => $this->bundle,
         ]);
     }

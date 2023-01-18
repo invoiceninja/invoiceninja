@@ -167,7 +167,7 @@ class SubscriptionService
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
-        $client_contact = ClientContact::find($data['contact_id']);
+        $client_contact = ClientContact::find($this->decodePrimaryKey($data['contact_id']));
 
         if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
@@ -734,7 +734,7 @@ class SubscriptionService
     {
         nlog("handle plan change");
 
-        $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
+        $old_recurring_invoice = RecurringInvoice::find($this->decodePrimaryKey($payment_hash->data->billing_context->recurring_invoice));
 
         if(!$old_recurring_invoice)        
             return $this->handleRedirect('/client/recurring_invoices/');

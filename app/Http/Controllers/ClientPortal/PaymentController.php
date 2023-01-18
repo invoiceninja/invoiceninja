@@ -160,7 +160,7 @@ class PaymentController extends Controller
         }
 
         if (property_exists($payment_hash->data, 'billing_context')) {
-            $billing_subscription = \App\Models\Subscription::find($payment_hash->data->billing_context->subscription_id);
+            $billing_subscription = \App\Models\Subscription::find($this->decodePrimaryKey($payment_hash->data->billing_context->subscription_id));
 
             return (new SubscriptionService($billing_subscription))->completePurchase($payment_hash);
         }

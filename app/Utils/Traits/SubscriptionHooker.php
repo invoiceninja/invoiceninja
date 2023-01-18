@@ -28,7 +28,7 @@ trait SubscriptionHooker
         ];
 
         if(!isset($subscription->webhook_configuration['post_purchase_url']) && !isset($subscription->webhook_configuration['post_purchase_rest_method']))   
-            return;
+            return [];
 
         if (count($subscription->webhook_configuration['post_purchase_headers']) >= 1) {
             $headers = array_merge($headers, $subscription->webhook_configuration['post_purchase_headers']);
