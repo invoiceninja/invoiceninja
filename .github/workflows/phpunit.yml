@@ -31,7 +31,7 @@ jobs:
       SESSION_DRIVER: file
       NINJA_ENVIRONMENT: hosted
       MULTI_DB_ENABLED: false
-      NINJA_LICENSE: 123456
+      NINJA_LICENSE: ${{ secrets.ninja_license }}
       TRAVIS: true
       MAIL_MAILER: log
 
