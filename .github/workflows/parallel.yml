@@ -106,7 +106,7 @@ jobs:
       run: |
         cat .env
         vendor/bin/snappdf download
-        run: ./tests/ci
+        run: tests/ci
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
