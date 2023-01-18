@@ -70,7 +70,7 @@ class PurchaseOrderFilters extends QueryFilters
             if(count($status_parameters) >=1) {
                 $query->whereIn('status_id', $status_parameters);
             }
-        })
+        });
 
         return $this->builder;
     }

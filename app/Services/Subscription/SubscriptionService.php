@@ -1291,7 +1291,12 @@ class SubscriptionService
 
     }
 
-    private function getDaysInFrequency()
+    /**
+     * Get the number of days in the currency frequency
+     * 
+     * @return int Number of days
+     */
+    private function getDaysInFrequency() :int
     {
 
         switch ($this->subscription->frequency_id) {
@@ -1325,7 +1330,15 @@ class SubscriptionService
 
     }
 
-    public function getNextDateForFrequency($date, $frequency)
+    /**
+     * Get the next date by frequency_id
+     * 
+     * @param  Carbon $date      The current carbon date
+     * @param  int               $frequency The frequncy_id of the subscription
+     * 
+     * @return ?Carbon           The next date carbon object
+     */
+    public function getNextDateForFrequency($date, $frequency) :?Carbon
     {
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
@@ -1353,7 +1366,7 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
                 return $date->addYears(3);
             default:
-                return 0;
+                return null;
         }        
     }
 
@@ -1363,6 +1376,7 @@ class SubscriptionService
      * @param  Invoice       $invoice The Invoice
      * @param  array         $bundle  The bundle array
      * @param  ClientContact $contact The Client Contact
+     * 
      * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
      */
     public function handleNoPaymentFlow(Invoice $invoice, $bundle, ClientContact $contact)

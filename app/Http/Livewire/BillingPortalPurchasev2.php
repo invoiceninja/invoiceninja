@@ -567,6 +567,12 @@ class BillingPortalPurchasev2 extends Component
 
     }
 
+
+    /**
+     * Starts the trial
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function handleTrial()
     {
         return $this->subscription->service()->startTrial([
@@ -578,6 +584,12 @@ class BillingPortalPurchasev2 extends Component
         ]);
     }
 
+    /**
+     * When the subscription total comes to $0 we 
+     * pass back a $0 Invoice.
+     *
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function handlePaymentNotRequired()
     {
 
@@ -600,7 +612,7 @@ class BillingPortalPurchasev2 extends Component
             ->save();
 
             $invoice->number = null;
-            
+
             $invoice->service()
                     ->markPaid()
                     ->save();
