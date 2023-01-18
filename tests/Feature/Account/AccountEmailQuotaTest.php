@@ -31,7 +31,6 @@ use Tests\TestCase;
 
 class AccountEmailQuotaTest extends TestCase
 {
-    use DatabaseTransactions;
     use AppSetup;
     use MockAccountData;
 
@@ -39,8 +38,6 @@ class AccountEmailQuotaTest extends TestCase
     {
         parent::setUp();
 
-        $this->faker = Factory::create();
-        $this->buildCache(true);
         $this->makeTestData();
     }
 
