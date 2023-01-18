@@ -29,10 +29,11 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
+      REDIS_PORT: 6379
       BROADCAST_DRIVER: log
-      CACHE_DRIVER: array
-      QUEUE_CONNECTION: sync
-      SESSION_DRIVER: file
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
       NINJA_ENVIRONMENT: hosted
       MULTI_DB_ENABLED: false
       NINJA_LICENSE: 123456
@@ -51,6 +52,11 @@ jobs:
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - name: Add hosts to /etc/hosts
@@ -73,7 +79,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis
 
     - uses: actions/checkout@v1
       with:
