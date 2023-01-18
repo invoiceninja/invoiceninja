@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\Email;
 
 use App\Services\Email\EmailObject;
 use App\Services\Email\EmailService;

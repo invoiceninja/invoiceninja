@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Task;
+namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 
