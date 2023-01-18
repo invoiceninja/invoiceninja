@@ -13,7 +13,7 @@ require_once 'vendor/autoload.php';
  *  - Tests\Support\UuidTest::it_can_not_create_a_uuid_from_null
  *  - ...
  */
-$process = new \Symfony\Component\Process\Process([__DIR__ . '/vendor/bin/phpunit', '--list-tests']);
+$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--list-tests']);
 $process->mustRun();
 
 $tests = \Illuminate\Support\Str::of($process->getOutput())
