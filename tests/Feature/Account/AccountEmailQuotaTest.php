@@ -47,6 +47,15 @@ class AccountEmailQuotaTest extends TestCase
         $this->assertFalse($this->account->emailQuotaExceeded());
     }
 
+    public function testEmailSentCount()
+    {
+        Cache::put($this->account->key, 3000);
+
+        $count = $this->account->emailsSent();
+
+        $this->assertEquals(3000, $count);
+    }
+
     public function testQuotaInValidRule()
     {
         Cache::put($this->account->key, 3000);
