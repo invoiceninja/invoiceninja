@@ -91,7 +91,7 @@ jobs:
         cp .env.ci .env
 
     - name: Cache dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.composer/cache/files
         key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
