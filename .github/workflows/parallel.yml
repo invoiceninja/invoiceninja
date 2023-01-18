@@ -28,7 +28,7 @@ jobs:
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
-      CACHE_DRIVER: file
+      CACHE_DRIVER: database
       QUEUE_CONNECTION: sync
       SESSION_DRIVER: file
       NINJA_ENVIRONMENT: hosted
