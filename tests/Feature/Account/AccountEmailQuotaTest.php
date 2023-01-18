@@ -30,55 +30,8 @@ class AccountEmailQuotaTest extends TestCase
         parent::setUp();
     }
 
-    public function testQuotaValidRule()
-    {
 
-        $account = Account::factory()->create([
-            'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000,
-            'is_flagged' => false,
-            'key' => '123ifyouknowwhatimean',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $account->num_users = 3;
-        $account->save();
-
-        Cache::increment($account->key);
-
-        $this->assertFalse($account->emailQuotaExceeded());
-
-        Cache::forget('123ifyouknowwhatimean');
-
-    }
-
-    public function testEmailSentCount()
-    {
-        $account = Account::factory()->create([
-            'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000,
-            'is_flagged' => false,
-            'key' => '123ifyouknowwhatimean',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $account->num_users = 3;
-        $account->save();
-
-
-        Cache::put($account->key, 3000);
-
-        $count = $account->emailsSent();
-
-        $this->assertEquals(3000, $count);
-
-        Cache::forget('123ifyouknowwhatimean');
-
-    }
-
-    public function testQuotaInValidRule()
+    public function testIfQuotaBreached()
     {
 
         config([
@@ -141,4 +94,53 @@ class AccountEmailQuotaTest extends TestCase
         Cache::forget('123ifyouknowwhatimean');
 
     }
+
+    public function testQuotaValidRule()
+    {
+
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+            'is_flagged' => false,
+            'key' => '123ifyouknowwhatimean',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+        Cache::increment($account->key);
+
+        $this->assertFalse($account->emailQuotaExceeded());
+
+        Cache::forget('123ifyouknowwhatimean');
+
+    }
+
+    public function testEmailSentCount()
+    {
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+            'is_flagged' => false,
+            'key' => '123ifyouknowwhatimean',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+
+        Cache::put($account->key, 3000);
+
+        $count = $account->emailsSent();
+
+        $this->assertEquals(3000, $count);
+
+        Cache::forget('123ifyouknowwhatimean');
+
+    }
+
 }
