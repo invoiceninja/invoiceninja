@@ -31,7 +31,6 @@ use Tests\TestCase;
 
 class AccountEmailQuotaTest extends TestCase
 {
-    use AppSetup;
     use MockAccountData;
 
     protected function setUp(): void
@@ -50,7 +49,7 @@ class AccountEmailQuotaTest extends TestCase
 
     public function testQuotaInValidRule()
     {
-        Cache::increment($this->account->key, 3000);
+        Cache::put($this->account->key, 3000);
 
         $this->assertTrue($this->account->emailQuotaExceeded());
     }
