@@ -15,8 +15,8 @@ jobs:
         operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
         php-versions: ['8.1','8.2']
         phpunit-versions: ['latest']
-        ci_node_total: [ 16 ]
-        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        ci_node_total: [ 12 ]
+        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
         laravel: [9.*]
         dependency-version: [prefer-stable]
 
@@ -90,11 +90,19 @@ jobs:
       run: |
         cp .env.ci .env
 
-    - name: Cache dependencies actions/cache@v3
-      uses: actions/cache@v3
+    - name: Cache composer 📦
+      uses: actions/cache@v2
+      id: php-cache # use this to check for `cache-hit` (`steps.php-cache.outputs.cache-hit != 'true'`)
       with:
-        path: ~/.composer/cache/files
-        key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
+        path: ${{ steps.composercache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-${{ matrix.php }}-composer-
+
+    # - name: Cache dependencies actions/cache@v3
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ~/.composer/cache/files
+    #     key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Install composer dependencies
       run: |
