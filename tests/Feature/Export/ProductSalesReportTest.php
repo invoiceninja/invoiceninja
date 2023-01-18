@@ -108,6 +108,9 @@ class ProductSalesReportTest extends TestCase
             'settings' => $settings,
         ]);
 
+        $this->company->settings = $settings;
+        $this->company->save();
+
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
@@ -125,13 +128,12 @@ class ProductSalesReportTest extends TestCase
 
         $this->assertInstanceOf(ProductSalesExport::class, $pl);
 
-        $this->account->delete();
+        // $this->account->delete();
     }
 
     public function testSimpleReport()  
     {
         $this->buildData();
-
 
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
@@ -174,7 +176,6 @@ class ProductSalesReportTest extends TestCase
         $response = $pl->run();
 
         $this->assertIsString($response);
-// nlog($response);
 
         $this->account->delete();
     }
