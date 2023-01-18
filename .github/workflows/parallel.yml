@@ -30,7 +30,7 @@ jobs:
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
       REDIS_HOST: redis
-      REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
+      REDIS_PORT: 6379
       BROADCAST_DRIVER: log
       CACHE_DRIVER: redis
       QUEUE_CONNECTION: redis
@@ -102,6 +102,8 @@ jobs:
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
         composer install
     - name: Prepare Laravel Application
+      env:
+        REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
       run: |
         php artisan key:generate
         php artisan optimize
