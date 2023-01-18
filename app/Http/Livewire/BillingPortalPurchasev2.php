@@ -483,7 +483,12 @@ class BillingPortalPurchasev2 extends Component
      */
     protected function getPaymentMethods() :self
     {
-        if($this->contact)
+        nlog("total amount = {$this->float_amount_total}");
+
+        if($this->float_amount_total == 0)
+            $this->methods = [];
+
+        if($this->contact && $this->float_amount_total >= 1)
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
 
         return $this;
@@ -571,6 +576,66 @@ class BillingPortalPurchasev2 extends Component
             'client_id' => $this->contact->client->hashed_id,
             'bundle' => $this->bundle,
         ]);
+    }
+
+    public function handlePaymentNotRequired()
+    {
+
+        $eligibility_check = $this->subscription->service()->isEligible($this->contact);
+
+        if(is_array($eligibility_check) && $eligibility_check['message'] != 'Success'){
+            
+            $this->is_eligible = false;
+            $this->not_eligible_message = $eligibility_check['message'];
+
+            return $this;
+
+        }
+
+        $invoice = $this->subscription
+            ->service()
+            ->createInvoiceV2($this->bundle, $this->contact->client_id, $this->valid_coupon)
+            ->service()
+            ->fillDefaults()
+            ->adjustInventory()
+            ->markPaid()
+            ->save();
+
+        if (strlen($this->subscription->recurring_product_ids) >= 1) {
+
+            $recurring_invoice = $this->subscription->service()->convertInvoiceToRecurringBundle($this->contact->client_id, $this->bundle);
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+            $invoice->recurring_id = $recurring_invoice->id;
+            $invoice->save();
+
+            $context = [
+                'context' => 'recurring_purchase',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'invoice' => $invoice->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
+                'contact' => auth()->guard('contact')->user()->hashed_id,
+                'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
+            ];
+
+            return $context;
+        }
+
+
+
+
+
+
+        $redirect_url = "/client/invoices/{$invoice->hashed_id}";
+
+        return $this->handleRedirect($redirect_url);
+
+
     }
 
 
