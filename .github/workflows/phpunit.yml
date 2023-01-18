@@ -13,8 +13,12 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
-        php-versions: ['8.1']
+        php-versions: ['8.1','8.2']
         phpunit-versions: ['latest']
+        ci_node_total: [ 8 ]
+        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
+        laravel: [9.*]
+        dependency-version: [prefer-stable]
 
     env:
       DB_DATABASE1: ninja
@@ -25,10 +29,11 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
+      REDIS_PORT: 6379
       BROADCAST_DRIVER: log
-      CACHE_DRIVER: file
-      QUEUE_CONNECTION: sync
-      SESSION_DRIVER: file
+      CACHE_DRIVER: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
       NINJA_ENVIRONMENT: hosted
       MULTI_DB_ENABLED: false
       NINJA_LICENSE: ${{ secrets.ninja_license }}
@@ -47,13 +52,18 @@ jobs:
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+      redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - name: Add hosts to /etc/hosts
       run: |
         sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
 
-    - name: Start mysql service
+    - name: Start MariaDB service
       run: |
         sudo systemctl start mysql.service
     - name: Verify MariaDB connection
@@ -65,11 +75,11 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
-    - name: Setup PHP
+    - name: Setup PHP shivammathur/setup-php@v2
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml, redis
 
     - uses: actions/checkout@v1
       with:
@@ -79,32 +89,56 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
+
+    # - name: Get Composer Cache Directory
+    #   id: composer-cache
+    #   run: |
+    #     echo "::set-output name=dir::$(composer config cache-files-dir)"
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: ${{ steps.composer-cache.outputs.dir }}
+    #     key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-${{ matrix.php }}-composer-
+
+    - name: Cache dependencies actions/cache@v3
+      uses: actions/cache@v3
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
+
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
         composer install
+
     - name: Prepare Laravel Application
+      env:
+        REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
       run: |
         php artisan key:generate
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-    - name: Create DB and schemas
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
+        php artisan ninja:post-update
+
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
-    - name: Prepare JS/CSS assets
-      run: |
-        npm i
-        npm run production
+
+    # - name: Prepare JS/CSS assets
+    #   run: |
+    #     npm i
+    #     npm run production
+        
     - name: Run Testsuite
       run: |
         cat .env
         vendor/bin/snappdf download
-        vendor/bin/phpunit --testdox
+        tests/ci
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
+        CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
+        # Use the index from matrix as an environment variable
+        CI_NODE_INDEX: ${{ matrix.ci_node_index }}
