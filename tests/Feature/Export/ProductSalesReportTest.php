@@ -66,6 +66,8 @@ class ProductSalesReportTest extends TestCase
 
     public $account;
 
+    public $client;
+
     /**
      *      start_date - Y-m-d
             end_date - Y-m-d
