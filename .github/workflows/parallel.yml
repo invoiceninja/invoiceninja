@@ -55,7 +55,7 @@ jobs:
       redis:
         image: redis
         ports:
-          - 6379/6379
+          - 6379/tcp
         options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
@@ -89,7 +89,6 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
-        sed -i 's/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g' .env
 
     - name: Cache dependencies
       uses: actions/cache@v1
