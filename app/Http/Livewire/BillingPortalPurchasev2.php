@@ -597,8 +597,13 @@ class BillingPortalPurchasev2 extends Component
             ->service()
             ->fillDefaults()
             ->adjustInventory()
-            ->markPaid()
             ->save();
+
+            $invoice->number = null;
+            
+            $invoice->service()
+                    ->markPaid()
+                    ->save();
 
             return $this->subscription
                         ->service()
