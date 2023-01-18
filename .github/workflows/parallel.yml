@@ -75,7 +75,7 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
-    - name: Setup PHP
+    - name: Setup PHP shivammathur/setup-php@v2
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
@@ -90,7 +90,7 @@ jobs:
       run: |
         cp .env.ci .env
 
-    - name: Cache dependencies
+    - name: Cache dependencies actions/cache@v3
       uses: actions/cache@v3
       with:
         path: ~/.composer/cache/files
