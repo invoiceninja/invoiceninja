@@ -41,6 +41,16 @@ class TaskStatusApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testTaskStatusGetFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/task_statuses?filter=xx');
+
+        $response->assertStatus(200);
+    }
+
     public function testTaskStatusPost()
     {
         $data = [

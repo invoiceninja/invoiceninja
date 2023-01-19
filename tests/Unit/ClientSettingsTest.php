@@ -11,7 +11,6 @@
 
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;

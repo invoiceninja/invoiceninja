@@ -48,6 +48,17 @@ class PaymentTermsApiTest extends TestCase
         );
     }
 
+    public function testPaymentTermsGetWithFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payment_terms?filter=hey');
+
+        $response->assertStatus(200);
+    }
+
+
     public function testPaymentTermsGet()
     {
         $response = $this->withHeaders([

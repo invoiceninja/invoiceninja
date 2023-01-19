@@ -167,7 +167,7 @@ class SubscriptionService
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
-        $client_contact = ClientContact::find($data['contact_id']);
+        $client_contact = ClientContact::find($this->decodePrimaryKey($data['contact_id']));
 
         if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
@@ -331,12 +331,27 @@ class SubscriptionService
      * We refund unused days left.
      *
      * @param  Invoice $invoice
+     * 
      * @return float
      */
     private function calculateProRataRefundForSubscription($invoice) :float
     {
         if(!$invoice || !$invoice->date || $invoice->status_id != Invoice::STATUS_PAID)
             return 0;
+
+        /*Remove previous refunds from the calculation of the amount*/
+        $invoice->line_items = collect($invoice->line_items)->filter(function($item){
+
+            if($item->product_key == ctrans("texts.refund"))
+            {
+                return false;
+            }
+
+            return true;
+
+        })->toArray();
+
+        $amount = $invoice->calc()->getTotal();
 
         $start_date = Carbon::parse($invoice->date);
 
@@ -346,7 +361,7 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
+        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $amount ,2);
 
         return max(0, $pro_rata_refund);
 
@@ -670,6 +685,8 @@ class SubscriptionService
             nlog("pro rata refund = {$pro_rata_refund_amount}");
         }
 
+        nlog("{$pro_rata_refund_amount} + {$pro_rata_charge_amount} + {$this->subscription->price}");
+        
         $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
 
         if($total_payable > 0)
@@ -734,7 +751,7 @@ class SubscriptionService
     {
         nlog("handle plan change");
 
-        $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
+        $old_recurring_invoice = RecurringInvoice::find($this->decodePrimaryKey($payment_hash->data->billing_context->recurring_invoice));
 
         if(!$old_recurring_invoice)        
             return $this->handleRedirect('/client/recurring_invoices/');
@@ -1291,7 +1308,12 @@ class SubscriptionService
 
     }
 
-    private function getDaysInFrequency()
+    /**
+     * Get the number of days in the currency frequency
+     * 
+     * @return int Number of days
+     */
+    private function getDaysInFrequency() :int
     {
 
         switch ($this->subscription->frequency_id) {
@@ -1325,7 +1347,15 @@ class SubscriptionService
 
     }
 
-    public function getNextDateForFrequency($date, $frequency)
+    /**
+     * Get the next date by frequency_id
+     * 
+     * @param  Carbon $date      The current carbon date
+     * @param  int               $frequency The frequncy_id of the subscription
+     * 
+     * @return ?Carbon           The next date carbon object
+     */
+    public function getNextDateForFrequency($date, $frequency) :?Carbon
     {
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
@@ -1353,10 +1383,55 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
                 return $date->addYears(3);
             default:
-                return 0;
+                return null;
         }        
     }
 
+
+    /**
+     * Handle case where no payment is required
+     * @param  Invoice       $invoice The Invoice
+     * @param  array         $bundle  The bundle array
+     * @param  ClientContact $contact The Client Contact
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
+    public function handleNoPaymentFlow(Invoice $invoice, $bundle, ClientContact $contact)
+    {
+
+        if (strlen($this->subscription->recurring_product_ids) >= 1) {
+
+            $recurring_invoice = $this->convertInvoiceToRecurringBundle($contact->client_id, collect($bundle)->map(function ($bund){ return (object) $bund;}));
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+            $invoice->recurring_id = $recurring_invoice->id;
+            $invoice->save();
+
+            $context = [
+                'context' => 'recurring_purchase',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'invoice' => $invoice->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
+                'contact' => $contact->hashed_id,
+                'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
+            ];
+
+            $this->triggerWebhook($context);
+
+            return $this->handleRedirect($context['redirect_url']);
+
+        }
+
+        $redirect_url = "/client/invoices/{$invoice->hashed_id}";
+
+        return $this->handleRedirect($redirect_url);
+
+    }
 
     /**
     * 'email' => $this->email ?? $this->contact->email,

@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Project;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * ProjectFilters.
@@ -52,7 +48,8 @@ class ProjectFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if(is_array($sort_col))
+            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**

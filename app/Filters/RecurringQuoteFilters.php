@@ -11,7 +11,6 @@
 
 namespace App\Filters;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -26,7 +25,7 @@ class RecurringQuoteFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -46,7 +45,7 @@ class RecurringQuoteFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -56,9 +55,9 @@ class RecurringQuoteFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

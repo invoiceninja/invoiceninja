@@ -230,6 +230,14 @@ class InstantPayment
         elseif($this->request->hash){
             $hash_data['billing_context'] = Cache::get($this->request->hash);
         }
+        elseif($old_hash = PaymentHash::where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->first()) {
+
+            if(isset($old_hash->data->billing_context))
+            {
+                $hash_data['billing_context'] = $old_hash->data->billing_context;
+            }
+
+        }
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(32);
