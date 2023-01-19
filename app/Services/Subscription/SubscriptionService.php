@@ -670,6 +670,8 @@ class SubscriptionService
             nlog("pro rata refund = {$pro_rata_refund_amount}");
         }
 
+        nlog("{$pro_rata_refund_amount} + {$pro_rata_charge_amount} + {$this->subscription->price}");
+        
         $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
 
         if($total_payable > 0)
