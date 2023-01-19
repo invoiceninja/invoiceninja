@@ -29,6 +29,8 @@ class UpdateOrCreateProduct implements ShouldQueue
 
     public $company;
 
+    public $deleteWhenMissingModels = true;
+
     /**
      * Create a new job instance.
      *

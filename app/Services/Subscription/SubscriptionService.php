@@ -331,12 +331,27 @@ class SubscriptionService
      * We refund unused days left.
      *
      * @param  Invoice $invoice
+     * 
      * @return float
      */
     private function calculateProRataRefundForSubscription($invoice) :float
     {
         if(!$invoice || !$invoice->date || $invoice->status_id != Invoice::STATUS_PAID)
             return 0;
+
+        /*Remove previous refunds from the calculation of the amount*/
+        $invoice->line_items = collect($invoice->line_items)->filter(function($item){
+
+            if($item->product_key == ctrans("texts.refund"))
+            {
+                return false;
+            }
+
+            return true;
+
+        })->toArray();
+
+        $amount = $invoice->calc()->getTotal();
 
         $start_date = Carbon::parse($invoice->date);
 
@@ -346,7 +361,7 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
+        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $amount ,2);
 
         return max(0, $pro_rata_refund);
 
