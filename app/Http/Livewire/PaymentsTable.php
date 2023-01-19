@@ -42,7 +42,7 @@ class PaymentsTable extends Component
     public function render()
     {
         $query = Payment::query()
-            ->with('type', 'client')
+            ->with('type', 'client', 'invoices')
             ->where('company_id', $this->company->id)
             ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->whereIn('status_id', [Payment::STATUS_FAILED, Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED])

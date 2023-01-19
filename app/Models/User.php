@@ -370,11 +370,6 @@ class User extends Authenticatable implements MustVerifyEmail
                 (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
                 (is_int(stripos($this->token()->cu->permissions, $permission)));
 
-        //23-03-2021 - stripos return an int if true and bool false, but 0 is also interpreted as false, so we simply use is_int() to verify state
-        // return  $this->isOwner() ||
-        //         $this->isAdmin() ||
-        //         (stripos($this->company_user->permissions, $all_permission) !== false) ||
-        //         (stripos($this->company_user->permissions, $permission) !== false);
     }
 
     public function documents()

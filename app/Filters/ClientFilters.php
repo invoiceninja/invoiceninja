@@ -108,17 +108,17 @@ class ClientFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('clients.name', 'like', '%'.$filter.'%')
-                          ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
+            $query->where('name', 'like', '%'.$filter.'%')
+                          ->orWhere('id_number', 'like', '%'.$filter.'%')
                           ->orWhereHas('contacts', function ($query) use ($filter) {
                               $query->where('first_name', 'like', '%'.$filter.'%');
                               $query->orWhere('last_name', 'like', '%'.$filter.'%');
                               $query->orWhere('email', 'like', '%'.$filter.'%');
                           })
-                          ->orWhere('clients.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('clients.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('clients.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('clients.custom_value4', 'like', '%'.$filter.'%');
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -146,5 +146,15 @@ class ClientFilters extends QueryFilters
     public function entityFilter()
     {
         return $this->builder->company();
+    }
+
+    public function filter_details(string $filter = '')
+    {
+        
+        if($filter == 'true')
+            return $this->builder->select('id', 'name', 'number', 'id_number');
+
+        return $this->builder;
+
     }
 }
