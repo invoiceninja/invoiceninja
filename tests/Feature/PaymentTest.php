@@ -62,6 +62,17 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testGetPaymentMatchList()
+    {
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?match_transactions=true');
+
+        
+    }
+
     public function testStorePaymentIdempotencyKeyIllegalLength()
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
