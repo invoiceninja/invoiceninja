@@ -13,11 +13,14 @@ namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
 class PostUpdate extends Command
 {
+    use AppSetup;
+
     /**
      * The name and signature of the console command.
      *
@@ -82,6 +85,8 @@ class PostUpdate extends Command
         }
 
         info('queue restarted');
+
+        $this->buildCache(true);
 
         VersionCheck::dispatch();
 

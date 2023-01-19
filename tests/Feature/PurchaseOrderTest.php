@@ -40,6 +40,16 @@ class PurchaseOrderTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testPurchaseOrderGetWithClientStatus()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/purchase_orders?client_status=sent'.$this->encodePrimaryKey($this->purchase_order->id));
+
+        $response->assertStatus(200);
+    }
+
     public function testPostNewPurchaseOrderPdf()
     {
         $purchase_order = [

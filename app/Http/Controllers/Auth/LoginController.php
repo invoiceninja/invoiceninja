@@ -56,7 +56,7 @@ class LoginController extends BaseController
      *     description="Authentication",
      *     @OA\ExternalDocumentation(
      *         description="Find out more",
-     *         url="http://docs.invoiceninja.com"
+     *         url="https://invoiceninja.github.io"
      *     )
      * )
      */

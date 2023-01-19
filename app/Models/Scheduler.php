@@ -38,7 +38,7 @@ class Scheduler extends BaseModel
         'name',
         'frequency_id',
         'next_run',
-        'scheduled_run',
+        'next_run_client',
         'template',
         'is_paused',
         'parameters',
@@ -46,6 +46,7 @@ class Scheduler extends BaseModel
 
     protected $casts = [
         'next_run' => 'datetime',
+        'next_run_client' => 'datetime',
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -66,7 +67,7 @@ class Scheduler extends BaseModel
         return new SchedulerService($this);
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }

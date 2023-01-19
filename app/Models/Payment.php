@@ -212,6 +212,11 @@ class Payment extends BaseModel
         return Number::formatMoney($this->amount, $this->client);
     }
 
+    public function formatAmount(float $amount): string
+    {
+        return Number::formatMoney($amount, $this->client);
+    }
+
     public function clientPaymentDate()
     {
         if (! $this->date) {

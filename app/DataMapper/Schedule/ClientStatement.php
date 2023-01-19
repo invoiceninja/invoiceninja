@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\DataMapper;
+namespace App\DataMapper\Schedule;
 
 use App\Models\Client;
 use stdClass;

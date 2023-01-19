@@ -50,6 +50,17 @@ class SubscriptionApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testSubscriptionFilter()
+    {
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/subscriptions?filter=xx')
+          ->assertStatus(200);
+
+    }
+
     public function testSubscriptionsGet()
     {
         $product = Product::factory()->create([

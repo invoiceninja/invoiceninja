@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\Invoice;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -80,6 +79,9 @@ class InvoiceFilters extends QueryFilters
 
     public function number(string $number = '') :Builder
     {
+        if(strlen($number) == 0)
+            return $this->builder;
+        
         return $this->builder->where('number', $number);
     }
 

@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Design;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * PaymentTermFilters.
@@ -29,7 +25,7 @@ class PaymentTermFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -46,7 +42,7 @@ class PaymentTermFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -56,12 +52,10 @@ class PaymentTermFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
-        // return $this->builder->whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
     }
 }

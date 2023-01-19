@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Expense;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * ExpenseCategoryFilters.
@@ -49,9 +45,9 @@ class ExpenseCategoryFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name'])) {
+        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name']))
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-        }
+        
 
         return $this->builder;
     }
@@ -63,8 +59,6 @@ class ExpenseCategoryFilters extends QueryFilters
      */
     public function entityFilter()
     {
-
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }

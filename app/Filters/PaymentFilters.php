@@ -11,7 +11,6 @@
 
 namespace App\Filters;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -49,6 +48,7 @@ class PaymentFilters extends QueryFilters
     {
 
         if($value == 'true'){
+
             return $this->builder
                         ->where('is_deleted',0)
                         ->where(function ($query){
@@ -72,7 +72,10 @@ class PaymentFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if(is_array($sort_col))
+            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+
+        return true;
     }
 
     public function number(string $number) : Builder
