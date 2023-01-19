@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\User;
-use App\Models\Webhook;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * TokenFilters.
@@ -29,14 +25,14 @@ class WebhookFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('webhooks.target_url', 'like', '%'.$filter.'%');
+            $query->where('target_url', 'like', '%'.$filter.'%');
         });
     }
 
@@ -46,7 +42,7 @@ class WebhookFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -56,9 +52,9 @@ class WebhookFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

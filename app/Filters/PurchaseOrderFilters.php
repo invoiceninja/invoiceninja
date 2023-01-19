@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\PurchaseOrder;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrderFilters extends QueryFilters
