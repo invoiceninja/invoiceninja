@@ -323,7 +323,7 @@ class TaskSchedulerController extends BaseController
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/TaskScheduleSchema"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskSchedulerSchema"),
      *       ),
      *       @OA\Response(
      *          response=422,

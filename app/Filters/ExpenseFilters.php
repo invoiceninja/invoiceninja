@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Expense;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * ExpenseFilters.
@@ -36,11 +32,11 @@ class ExpenseFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('public_notes', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 

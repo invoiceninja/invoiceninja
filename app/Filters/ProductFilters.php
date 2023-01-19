@@ -11,7 +11,6 @@
 
 namespace App\Filters;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**

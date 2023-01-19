@@ -14,6 +14,7 @@ namespace Tests\Feature\Scheduler;
 use App\Factory\SchedulerFactory;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
+use App\Models\Scheduler;
 use App\Services\Scheduler\SchedulerService;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -50,6 +51,72 @@ class SchedulerTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+    }
+
+    public function testClientCountResolution()
+    {
+
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => rand(1000,100000),
+            'name' => 'A fancy client'
+        ]);
+
+        $c2 = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'number' => rand(1000,100000),
+            'name' => 'A fancy client'
+        ]);
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => 'previous_month',
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [
+                    $c2->hashed_id, 
+                    $c->hashed_id
+                ],
+            ],
+        ];
+
+        $response = false;
+
+        try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($data['data']['id']));
+
+        $this->assertInstanceOf(Scheduler::class, $scheduler);
+
+        $this->assertCount(2, $scheduler->parameters['clients']);
+
+        $q = Client::query()
+              ->where('company_id', $scheduler->company_id)
+              ->whereIn('id', $this->transformKeys($scheduler->parameters['clients']))
+              ->cursor();
+
+        $this->assertCount(2, $q);
 
     }
 
@@ -162,7 +229,7 @@ class SchedulerTest extends TestCase
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => "2023-01-01",
+            'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
                 'date_range' => 'previous_month',
@@ -184,7 +251,7 @@ class SchedulerTest extends TestCase
 
         $scheduler->fresh();
 
-        $this->assertEquals("2023-02-01", $scheduler->next_run->format('Y-m-d'));
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 

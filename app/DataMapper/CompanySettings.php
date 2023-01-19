@@ -453,8 +453,10 @@ class CompanySettings extends BaseSettings
 
     public $show_email_footer = true;
 
+    public $company_logo_size = '65%';
 
     public static $casts = [
+        'company_logo_size'                  => 'string',
         'show_email_footer'                  => 'bool',
         'email_alignment'                    => 'string',
         'auto_bill_standard_invoices'        => 'bool',

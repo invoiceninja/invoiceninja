@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\RecurringExpense;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * RecurringExpenseFilters.
@@ -29,19 +25,18 @@ class RecurringExpenseFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('recurring_expenses.name', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_expenses.id_number', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_expenses.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_expenses.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_expenses.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_expenses.custom_value4', 'like', '%'.$filter.'%');
+        return $this->builder->where(function ($query) use ($filter) {
+            $query->where('public_notes', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -51,7 +46,7 @@ class RecurringExpenseFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 

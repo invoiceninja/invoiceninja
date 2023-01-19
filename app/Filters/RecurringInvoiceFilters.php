@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\RecurringInvoice;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -77,7 +76,10 @@ class RecurringInvoiceFilters extends QueryFilters
         if (in_array('completed', $status_parameters)) 
             $recurring_filters[] = RecurringInvoice::STATUS_COMPLETED;
 
-        return $this->builder->whereIn('status_id', $recurring_filters);
+        if(count($recurring_filters) >= 1)
+            return $this->builder->whereIn('status_id', $recurring_filters);
+
+        return $this->builder;
 
     }
 

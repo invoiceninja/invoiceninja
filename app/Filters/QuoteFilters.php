@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\Quote;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**

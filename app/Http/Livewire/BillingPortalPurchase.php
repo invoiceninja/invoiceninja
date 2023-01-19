@@ -403,10 +403,10 @@ class BillingPortalPurchase extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
+            'client_id' => $this->contact->client->hashed_id,
+            'invoice_id' => $this->invoice->hashed_id,
             'context' => 'purchase',
             'campaign' => $this->campaign,
         ], now()->addMinutes(60));

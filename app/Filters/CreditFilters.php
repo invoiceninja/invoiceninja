@@ -13,9 +13,7 @@
 namespace App\Filters;
 
 use App\Models\Credit;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 
 class CreditFilters extends QueryFilters
 {
@@ -44,20 +42,20 @@ class CreditFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (in_array('draft', $status_parameters)) {
-            $this->builder->where('status_id', Credit::STATUS_DRAFT);
-        }
 
-        if (in_array('partial', $status_parameters)) {
-            $this->builder->where('status_id', Credit::STATUS_PARTIAL);
-        }
+        $credit_filters = [];
 
-        if (in_array('applied', $status_parameters)) {
-            $this->builder->where('status_id', Credit::STATUS_APPLIED);
-        }
+        if (in_array('draft', $status_parameters)) 
+            $credit_filters[] = Credit::STATUS_DRAFT;
+        
+        if (in_array('partial', $status_parameters)) 
+            $credit_filters[] = Credit::STATUS_PARTIAL;
 
-        //->where('due_date', '>', Carbon::now())
-        //->orWhere('partial_due_date', '>', Carbon::now());
+        if (in_array('applied', $status_parameters)) 
+            $credit_filters[] = Credit::STATUS_APPLIED;
+
+        if(count($credit_filters) >=1)
+            $this->builder->whereIn('status_id', $credit_filters);
 
         return $this->builder;
     }

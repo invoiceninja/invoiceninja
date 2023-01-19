@@ -80,10 +80,7 @@ class CreateSingleAccount extends Command
     public function handle()
     {
 
-        if(config('ninja.is_docker'))
-            return;
-        
-        if (!$this->confirm('Are you sure you want to inject dummy data?'))
+        if (Ninja::isHosted() || config('ninja.is_docker') || !$this->confirm('Are you sure you want to inject dummy data?'))
             return;
 
         $this->invoice_repo = new InvoiceRepository();
@@ -104,6 +101,11 @@ class CreateSingleAccount extends Command
     private function createSmallAccount()
     {
         $this->info('Creating Small Account and Company');
+
+        if($user = User::where('email','small@example.com')->first())
+        {
+            $user->account->delete();
+        }
 
         $account = Account::factory()->create();
         $company = Company::factory()->create([

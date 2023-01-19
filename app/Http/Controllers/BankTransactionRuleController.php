@@ -335,7 +335,7 @@ class BankTransactionRuleController extends BaseController
      *
      * @OA\Post(
      *      path="/api/v1/bank_transaction_rules",
-     *      operationId="storeBankTransaction",
+     *      operationId="storeBankTransactionRule",
      *      tags={"bank_transaction_rules"},
      *      summary="Adds a bank_transaction rule",
      *      description="Adds an bank_transaction to a company",
