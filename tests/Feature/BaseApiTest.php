@@ -401,6 +401,9 @@ class BaseApiTest extends TestCase
 
     // }
     
+    /**
+     * Tests admin/owner facing routes respond with the correct status and/or data set
+     */
     public function testOwnerRoutes()
     {
 
@@ -435,6 +438,51 @@ class BaseApiTest extends TestCase
 
     }
 
+    public function testAdminRoutes()
+    {
+        $this->owner_cu = CompanyUser::where('user_id', $this->owner_cu->user_id)->where('company_id', $this->owner_cu->company_id)->first();
+        $this->owner_cu->is_owner = false;
+        $this->owner_cu->is_admin = true;
+        $this->owner_cu->is_locked = false;
+        $this->owner_cu->permissions = '[]';
+        $this->owner_cu->save();        
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->owner_token,
+        ])->get('/api/v1/users/');
+
+          $response->assertStatus(200)
+          ->assertJson(fn (AssertableJson $json) => $json->has('data',2)->etc());
+
+        /*does not test the number of records however*/
+        collect($this->list_routes)->filter(function ($route){
+            return !in_array($route, ['users','designs','payment_terms']);
+        })->each(function($route){
+            nlog($route);
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->owner_token,
+            ])->get("/api/v1/{$route}/")
+              ->assertJson(fn (AssertableJson $json) =>
+                $json->has('meta')
+                 ->has('data',1)
+                );
+        });
+
+       $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->low_token,
+            ])->get('/api/v1/companies/'.$this->company->hashed_id)
+              ->assertStatus(401);
+
+    }
+
+
+    /**
+     * Tests user facing routes respond with the correct status and/or data set
+     */
     public function testRestrictedUserRoute()
     {
         // $permissions = ["view_invoice","view_client","edit_client","edit_invoice","create_invoice","create_client"];
@@ -474,15 +522,12 @@ class BaseApiTest extends TestCase
             'X-API-TOKEN' => $this->low_token,
         ])->get('/api/v1/users/');
 
-
           $response->assertStatus(200)
           ->assertJson(fn (AssertableJson $json) => $json->has('data',1)->etc());
-
 
         collect($this->list_routes)->filter(function ($route){
             return !in_array($route, ['tasks', 'users', 'group_settings','designs','client_gateway_tokens']);
         })->each(function($route){
-            // nlog($route);
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->low_token,
@@ -506,6 +551,6 @@ class BaseApiTest extends TestCase
         ])->get('/api/v1/client_gateway_tokens/')
           ->assertStatus(401);
   
-
     }
+
 }
