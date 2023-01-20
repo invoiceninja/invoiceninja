@@ -12,9 +12,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\Design;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\PaymentTerm;
+use App\Models\Scheduler;
+use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
@@ -858,12 +869,13 @@ class BaseController extends Controller
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
-            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
+            if(in_array($this->entity_type, [User::class])){
                 $query->where('id', auth()->user()->id);
-            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
+            }
+            elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
                 $query->where('user_id', '=', auth()->user()->id);
             }
-            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+            elseif(in_array($this->entity_type,[ ClientGatewayToken::class,Design::class,GroupSetting::class,PaymentTerm::class])){
                 //need to pass these back regardless 
                 nlog($this->entity_type);
             }
