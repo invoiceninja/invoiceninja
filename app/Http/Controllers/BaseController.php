@@ -865,6 +865,29 @@ class BaseController extends Controller
 
         $query->with($includes);
 
+        
+
+        /*Restore here if refactor produces unexpected edge cases*/
+/*
+        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
+            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
+            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
+                $query->where('id', auth()->user()->id);
+            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
+                $query->where('user_id', '=', auth()->user()->id);
+            }
+            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
+                //need to pass these back regardless 
+                nlog($this->entity_type);
+            }
+            else
+                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
+        }
+*/
+
+
+/**/
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
@@ -875,7 +898,7 @@ class BaseController extends Controller
             elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
                 $query->where('user_id', '=', auth()->user()->id);
             }
-            elseif(in_array($this->entity_type,[ ClientGatewayToken::class,Design::class,GroupSetting::class,PaymentTerm::class])){
+            elseif(in_array($this->entity_type,[ClientGatewayToken::class,Design::class,GroupSetting::class,PaymentTerm::class])){
                 //need to pass these back regardless 
                 nlog($this->entity_type);
             }
@@ -883,6 +906,10 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
 
         }
+/**/
+
+
+
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
