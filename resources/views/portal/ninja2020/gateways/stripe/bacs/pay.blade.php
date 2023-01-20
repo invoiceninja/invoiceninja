@@ -37,6 +37,8 @@
                     <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
                 </label>
             @endforeach
+        @else
+            <label class="alert alert-failure mb-4">Please add a payment method first.</label>
         @endisset
 
     @endcomponent
