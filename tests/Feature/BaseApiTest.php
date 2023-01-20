@@ -14,6 +14,7 @@ namespace Tests\Feature;
 use App\Factory\CompanyUserFactory;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Str;
@@ -106,8 +107,40 @@ class BaseApiTest extends TestCase
 
 
     // }
+    
+    public function testOwnerRoutes()
+    {
 
-    public function testRestrictedRoute()
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/users/');
+
+          $response->assertStatus(200)
+          ->assertJson(fn (AssertableJson $json) => $json->has('data',2)->etc());
+
+        /*does not test the number of records however*/
+        collect($this->list_routes)->each(function($route){
+            nlog($route);
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->low_token,
+            ])->get("/api/v1/{$route}/")
+              ->assertJson(fn (AssertableJson $json) =>
+                $json->has('meta')
+                 ->has('data')
+                );
+        });
+
+       $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->low_token,
+            ])->get('/api/v1/companies/'.$this->company->hashed_id)
+              ->assertStatus(401);
+
+    }
+
+    public function testRestrictedUserRoute()
     {
         // $permissions = ["view_invoice","view_client","edit_client","edit_invoice","create_invoice","create_client"];
        
