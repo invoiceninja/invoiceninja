@@ -898,8 +898,7 @@ class BaseController extends Controller
             elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
                 $query->where('user_id', '=', auth()->user()->id);
             }
-            elseif(in_array($this->entity_type,[ClientGatewayToken::class,Design::class,GroupSetting::class,PaymentTerm::class])){
-                //need to pass these back regardless 
+            elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
                 nlog($this->entity_type);
             }
             else
