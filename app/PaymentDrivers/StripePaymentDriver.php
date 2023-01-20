@@ -51,6 +51,7 @@ use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\iDeal;
+use App\Repositories\ClientGatewayTokenRepository;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Google\Service\ServiceConsumerManagement\CustomError;
@@ -769,12 +770,14 @@ class StripePaymentDriver extends BaseDriver
                 };
                 return response()->json([], 200);
             }
-            elseif ($request->data['object']['status'] === "inactive"){
-                // Deactivate payment method
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $request->data['object']['payment_method'])
-                    ->first();
-                $clientgateway->delete();
+            elseif ($request->data['object']['status'] === "inactive" && $request->data['object']['payment_method']){
+                // Delete payment method
+                // $clientgateway = ClientGatewayToken::query()
+                //    ->where('token', $request->data['object']['payment_method'])
+                //    ->first();
+                // $clientgateway->delete();
+
+                (new ClientGatewayTokenRepository)->archive($request->data['object']['payment_method']);
                 return response()->json([], 200);
             }
             elseif ($request->data['object']['status'] === "pending"){
