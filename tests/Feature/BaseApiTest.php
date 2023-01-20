@@ -465,6 +465,7 @@ class BaseApiTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->owner_token,
             ])->get("/api/v1/{$route}/")
+              ->assertStatus(200)
               ->assertJson(fn (AssertableJson $json) =>
                 $json->has('meta')
                  ->has('data',1)
@@ -473,11 +474,48 @@ class BaseApiTest extends TestCase
 
        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->low_token,
+                'X-API-TOKEN' => $this->owner_token,
             ])->get('/api/v1/companies/'.$this->company->hashed_id)
-              ->assertStatus(401);
+              ->assertStatus(200);
 
     }
+
+    public function testAdminLockedRoutes()
+    {
+        $this->owner_cu = CompanyUser::where('user_id', $this->owner_cu->user_id)->where('company_id', $this->owner_cu->company_id)->first();
+        $this->owner_cu->is_owner = false;
+        $this->owner_cu->is_admin = true;
+        $this->owner_cu->is_locked = true;
+        $this->owner_cu->permissions = '[]';
+        $this->owner_cu->save();        
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->owner_token,
+        ])->get('/api/v1/users/');
+
+          $response->assertStatus(403);
+
+        /*does not test the number of records however*/
+        collect($this->list_routes)->filter(function ($route){
+            return !in_array($route, ['users','designs','payment_terms']);
+        })->each(function($route){
+            nlog($route);
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->owner_token,
+            ])->get("/api/v1/{$route}/")
+              ->assertStatus(403);
+        });
+
+       $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->owner_token,
+            ])->get('/api/v1/companies/'.$this->company->hashed_id)
+              ->assertStatus(403);
+
+    }
+
 
 
     /**
