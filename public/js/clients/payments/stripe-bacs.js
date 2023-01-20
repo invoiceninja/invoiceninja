@@ -45,9 +45,8 @@ class ProcessBACS {
                 location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
             });}
         else{
+            this.payNowButton = document.getElementById('pay-now');
             document.getElementById('pay-now').addEventListener('click', (e) => {
-                let payNowButton = document.getElementById('pay-now');
-                this.payNowButton = payNowButton;
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('svg').classList.remove('hidden');
                 this.payNowButton.querySelector('span').classList.add('hidden');
@@ -55,7 +54,7 @@ class ProcessBACS {
             });
 
             this.payment_data = Array.from(document.getElementsByClassName('toggle-payment-with-token'));
-            if (this.payment_data.length() > 0){
+            if (this.payment_data.length > 0){
                 this.payment_data.forEach((element) =>
                     element.addEventListener('click', (element) => {
                         document.querySelector('input[name=token]').value =
@@ -64,6 +63,7 @@ class ProcessBACS {
                 );}
             else{
                 this.errors.textContent = "Please add a payment method first, before trying to pay the invoice.";
+                this.errors.hidden = false;
                 this.payNowButton.disabled = false;
                 this.payNowButton.querySelector('span').classList.remove('hidden');
                 this.payNowButton.querySelector('svg').classList.add('hidden');
