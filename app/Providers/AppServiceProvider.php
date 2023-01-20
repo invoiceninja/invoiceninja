@@ -42,6 +42,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
+        // DB::listen(function($query) {
+        //     nlog(
+        //         $query->sql,
+        //         [
+        //             'bindings' => $query->bindings,
+        //             'time' => $query->time
+        //         ]
+        //     );
+        // });
+
+
         Relation::morphMap([
             'invoices'  => Invoice::class,
             'proposals' => Proposal::class,
