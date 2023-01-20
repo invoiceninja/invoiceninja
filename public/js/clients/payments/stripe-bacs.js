@@ -62,9 +62,11 @@ class ProcessBACS {
                     })
                 );}
             else{
-                this.errors.textContent = "Please add a payment method first, before trying to pay the invoice.";
+                this.errors.textContent = document.querySelector(
+                    'meta[name=translation-payment-method-required]'
+                ).content;
                 this.errors.hidden = false;
-                this.payNowButton.disabled = false;
+                this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('span').classList.remove('hidden');
                 this.payNowButton.querySelector('svg').classList.add('hidden');
             }}
