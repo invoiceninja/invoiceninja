@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\Stripe;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -177,8 +178,12 @@ class BACS
                 'token' => $method->id,
                 'payment_method_id' => GatewayType::BACS,
             ];
-
-            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            $clientgateway = ClientGatewayToken::query()
+                ->where('token', $method->id)
+                ->first();
+            if (!$clientgateway){
+                $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            }
         } catch (\Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
