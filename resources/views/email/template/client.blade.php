@@ -1,6 +1,6 @@
 @php
     $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
-    $email_alignment = isset($settings) ? $settings->email_alignment : 'center';
+    $email_alignment = isset($settings->email_alignment) ? $settings->email_alignment : 'center';
 @endphp
 
 

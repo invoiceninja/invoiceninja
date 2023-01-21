@@ -18,6 +18,7 @@ use App\Filters\ClientGatewayTokenFilters;
 use App\Http\Requests\ClientGatewayToken\CreateClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\DestroyClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\EditClientGatewayTokenRequest;
+use App\Http\Requests\ClientGatewayToken\ListClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\ShowClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\StoreClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\UpdateClientGatewayTokenRequest;
@@ -103,7 +104,7 @@ class ClientGatewayTokenController extends BaseController
      * @param ClientGatewayTokenFilters $filters
      * @return Response|mixed
      */
-    public function index(Request $request)
+    public function index(ListClientGatewayTokenRequest $request)
     {
         $client_gateway_token_gateway_tokens = ClientGatewayToken::scope();
 

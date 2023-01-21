@@ -101,6 +101,11 @@ class Document extends BaseModel
         return $this->morphTo();
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
+    }
+
     public function generateUrl($absolute = false)
     {
         $url = Storage::disk($this->disk)->url($this->url);

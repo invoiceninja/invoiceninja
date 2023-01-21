@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 
@@ -41,7 +42,7 @@ trait UserNotifies
         }
 
         //if a user owns this record or is assigned to it, they are attached the permission for notification.
-        if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
+        if ($invitation->{$entity_name}->user_id == $company_user->user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
             $required_permissions = $this->addSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         } else {
             $required_permissions = $this->removeSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
@@ -67,7 +68,7 @@ trait UserNotifies
             return [];
         }
 
-        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
+        if ($entity->user_id == $company_user->user_id || $entity->assigned_user_id == $company_user->user_id) {
             $required_permissions = $this->addSpecialUserPermissionForEntity($entity, $required_permissions);
         } else {
             $required_permissions = $this->removeSpecialUserPermissionForEntity($entity, $required_permissions);
@@ -87,22 +88,18 @@ trait UserNotifies
         switch ($entity) {
             case $entity instanceof Payment || $entity instanceof Client: //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
                 return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'payment_failure_user', 'payment_success_user']);
-                break;
             case $entity instanceof Invoice:
                 return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user']);
-                break;
             case $entity instanceof Quote:
                 return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'quote_created_user', 'quote_sent_user', 'quote_viewed_user', 'quote_approved_user', 'quote_expired_user']);
-                break;
             case $entity instanceof Credit:
                 return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'credit_created_user', 'credit_sent_user', 'credit_viewed_user']);
-                break;
             case $entity instanceof PurchaseOrder:
                 return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'purchase_order_created_user', 'purchase_order_sent_user', 'purchase_order_viewed_user']);
-                break;
+            case $entity instanceof Product:
+                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'inventory_user', 'inventory_all']);
             default:
                 return [];
-                break;
         }
     }
 
@@ -113,19 +110,16 @@ trait UserNotifies
         switch ($entity) {
             case $entity instanceof Payment || $entity instanceof Client: //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
                 return array_diff($required_permissions, ['all_user_notifications', 'payment_failure_user', 'payment_success_user']);
-                break;
             case $entity instanceof Invoice:
                 return array_diff($required_permissions, ['all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user']);
-                break;
             case $entity instanceof Quote:
                 return array_diff($required_permissions, ['all_user_notifications', 'quote_created_user', 'quote_sent_user', 'quote_viewed_user', 'quote_approved_user', 'quote_expired_user']);
-                break;
             case $entity instanceof Credit:
                 return array_diff($required_permissions, ['all_user_notifications', 'credit_created_user', 'credit_sent_user', 'credit_viewed_user']);
-                break;
             case $entity instanceof PurchaseOrder:
                 return array_diff($required_permissions, ['all_user_notifications', 'purchase_order_created_user', 'purchase_order_sent_user', 'purchase_order_viewed_user']);
-                break;
+            case $entity instanceof Product:
+                return array_diff($required_permissions, ['all_user_notifications', 'inventory_user']);
             default:
                 // code...
                 break;
@@ -165,13 +159,23 @@ trait UserNotifies
         });
     }
 
-    private function checkNotificationExists($company_user, $entity, $required_notification)
+    /**
+     * Underrated method right here, last ones
+     * are always the best
+     * 
+     * @param  CompanyUser $company_user          
+     * @param  Invoice | Quote | Credit | PurchaseOrder | Product $entity
+     * @param  array $required_notification 
+     * 
+     * @return bool                        
+     */
+    private function checkNotificationExists($company_user, $entity, $required_notification): bool
     {
         /* Always make sure we push the `all_notificaitons` into the mix */
         array_push($required_notification, 'all_notifications');
 
         /* Selectively add the all_user if the user is associated with the entity */
-        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
+        if ($entity->user_id == $company_user->user_id || $entity->assigned_user_id == $company_user->user_id) {
             array_push($required_notification, 'all_user_notifications');
         }
 
