@@ -12,6 +12,9 @@
 namespace App\Observers;
 
 use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 
 class ClientContactObserver
 {
@@ -45,10 +48,38 @@ class ClientContactObserver
      */
     public function deleted(ClientContact $clientContact)
     {
+        $client_contact_id = $clientContact->id;
+
         $clientContact->invoice_invitations()->delete();
         $clientContact->quote_invitations()->delete();
         $clientContact->credit_invitations()->delete();
         $clientContact->recurring_invoice_invitations()->delete();
+
+        //ensure entity state is preserved
+        
+        InvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+
+          if($invite->invoice()->doesnthave('invitations'))
+            $invite->invoice->service()->createInvitations();
+
+        });
+
+
+        QuoteInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+
+          if($invite->invoice()->doesnthave('invitations'))
+            $invite->quote->service()->createInvitations();
+
+        });
+
+        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+
+          if($invite->recurring_invoice()->doesnthave('invitations'))
+            $invite->quote->service()->createInvitations();
+
+        });
+
+        
     }
 
     /**

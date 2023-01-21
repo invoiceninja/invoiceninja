@@ -19,6 +19,7 @@ use App\Mail\Admin\InventoryNotificationObject;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Utils\Traits\Notifications\UserNotifies;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +30,7 @@ use Illuminate\Queue\SerializesModels;
 
 class AdjustProductInventory implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
     public Company $company;
 
@@ -146,8 +147,22 @@ class AdjustProductInventory implements ShouldQueue
         $nmo->mailable = new NinjaMailer((new InventoryNotificationObject($product, $notification_level))->build());
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
+
+        // $product->company_users->each(function ($cu) use($product, $nmo){
+
+        //     if($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user']))
+        //     {
+            
+        //         $nmo->to_user = $cu->user;
+        //         (new NinjaMailerJob($nmo))->handle();
+
+        //     }
+
+        // });
+
         $nmo->to_user = $this->company->owner();
 
-        NinjaMailerJob::dispatch($nmo);
+        (new NinjaMailerJob($nmo))->handle();
+
     }
 }
