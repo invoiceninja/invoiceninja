@@ -1901,6 +1901,7 @@ $LANG = array(
     'task' => 'Task',
     'contact_name' => 'Contact Name',
     'city_state_postal' => 'City/State/Postal',
+    'postal_city' => 'Postal/City',
     'custom_field' => 'Custom Field',
     'account_fields' => 'Company Fields',
     'facebook_and_twitter' => 'Facebook and Twitter',
