@@ -365,6 +365,8 @@ class User extends Authenticatable implements MustVerifyEmail
             $all_permission = $parts[0].'_all';
         }
 
+//empty $all_permissions leads to stripos returning true;
+
         return  $this->isOwner() ||
                 $this->isAdmin() ||
                 (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
