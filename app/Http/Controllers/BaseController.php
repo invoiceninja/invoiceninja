@@ -870,7 +870,7 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id);
             }
             elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
-                nlog($this->entity_type);
+                // nlog($this->entity_type);
             }
             else
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
