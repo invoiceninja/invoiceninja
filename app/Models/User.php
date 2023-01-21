@@ -365,9 +365,36 @@ class User extends Authenticatable implements MustVerifyEmail
             $all_permission = $parts[0].'_all';
         }
 
+//empty $all_permissions leads to stripos returning true;
+
         return  $this->isOwner() ||
                 $this->isAdmin() ||
                 (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
+                (is_int(stripos($this->token()->cu->permissions, $permission)));
+
+    }
+
+    /**
+     * Used when we need to match exactly what permission
+     * the user has, and not aggregate owner and admins.
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  string  $permission '["view_all"]'
+     * @return boolean             
+     */
+    public function hasExactPermission(string $permission = ''): bool
+    {
+
+        $parts = explode('_', $permission);
+        $all_permission = '';
+
+        if (count($parts) > 1) {
+            $all_permission = $parts[0].'_all';
+        }
+
+        return  (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
                 (is_int(stripos($this->token()->cu->permissions, $permission)));
 
     }

@@ -52,7 +52,6 @@ class AppServiceProvider extends ServiceProvider
         //     );
         // });
 
-
         Relation::morphMap([
             'invoices'  => Invoice::class,
             'proposals' => Proposal::class,
