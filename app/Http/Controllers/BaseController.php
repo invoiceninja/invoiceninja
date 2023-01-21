@@ -886,7 +886,7 @@ class BaseController extends Controller
         }
 */
 
-
+        /*21-01-2023*/
 /**/
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
@@ -906,8 +906,6 @@ class BaseController extends Controller
 
         }
 /**/
-
-
 
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {

@@ -15,6 +15,7 @@ use App;
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -124,7 +125,8 @@ class CheckData extends Command
         $this->checkOauthSanity();
         $this->checkVendorSettings();
         $this->checkClientSettings();
-        
+        $this->checkCompanyTokens();
+
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -155,6 +157,25 @@ class CheckData extends Command
         $str = date('Y-m-d h:i:s').' '.$str;
         $this->info($str);
         $this->log .= $str."\n";
+    }
+
+    private function checkCompanyTokens()
+    {
+
+        CompanyUser::doesnthave('token')->cursor()->each(function ($cu){
+
+            if($cu->user){
+                $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
+                (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+            }
+            else {
+                $this->logMessage("Dangling User ID # {$cu->id}");
+            }
+
+        });
+
+
+
     }
 
     private function checkOauthSanity()
@@ -422,17 +443,26 @@ class CheckData extends Command
                         $contact_class = VendorContact::class;
                     }
 
-                        $invitation = new $entity_obj();
-                        $invitation->company_id = $entity->company_id;
-                        $invitation->user_id = $entity->user_id;
-                        $invitation->{$entity_key} = $entity->id;
-                        $invitation->{$contact_id} = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first()->id;
-                        $invitation->key = Str::random(config('ninja.key_length'));
+                        $invitation = false;
 
-                        $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+                        //check contact exists!
+                        if($contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->exists())
+                        {
+                            $invitation = new $entity_obj();
+                            $invitation->company_id = $entity->company_id;
+                            $invitation->user_id = $entity->user_id;
+                            $invitation->{$entity_key} = $entity->id;
+                            $invitation->{$contact_id} = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first()->id;
+                            $invitation->key = Str::random(config('ninja.key_length'));
+                            $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+                        }
+                        else
+                            $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
 
                     try{
-                        $invitation->save();
+
+                        if($invitation)
+                            $invitation->save();
                     }
                     catch(\Exception $e){
                         $this->logMessage($e->getMessage());
