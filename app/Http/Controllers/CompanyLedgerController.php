@@ -39,7 +39,6 @@ class CompanyLedgerController extends BaseController
      *      tags={"company_ledger"},
      *      summary="Gets a list of company_ledger",
      *      description="Lists the company_ledger.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

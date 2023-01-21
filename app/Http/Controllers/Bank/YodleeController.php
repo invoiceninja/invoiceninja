@@ -127,7 +127,6 @@ class YodleeController extends BaseController
      *      tags={"yodlee"},
      *      summary="Processing webhooks from Yodlee",
      *      description="Notifies the system when a data point can be refreshed",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

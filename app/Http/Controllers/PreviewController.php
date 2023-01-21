@@ -68,7 +68,6 @@ class PreviewController extends BaseController
      *      tags={"preview"},
      *      summary="Returns a pdf preview",
      *      description="Returns a pdf preview.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

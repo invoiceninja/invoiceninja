@@ -37,7 +37,6 @@ class ClientReportController extends BaseController
      *      tags={"reports"},
      *      summary="Client reports",
      *      description="Export client reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

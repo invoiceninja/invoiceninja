@@ -46,7 +46,6 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a list of actvities",
      *      description="Lists all activities",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -131,7 +130,6 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a PDF for the given activity",
      *      description="Gets a PDF for the given activity",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(

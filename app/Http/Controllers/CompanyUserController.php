@@ -83,7 +83,6 @@ class CompanyUserController extends BaseController
      *      tags={"company_user"},
      *      summary="Update a company user record",
      *      description="Attempts to update a company user record. A company user can modify only their settings fields. Full access for Admin users",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

@@ -57,7 +57,6 @@ class EmailController extends BaseController
      *      tags={"emails"},
      *      summary="Sends an email for an entity",
      *      description="Sends an email for an entity",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *         description="The template subject and body",

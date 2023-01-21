@@ -39,7 +39,6 @@ class ImportJsonController extends BaseController
      *      tags={"import"},
      *      summary="Import data from the system",
      *      description="Import data from the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

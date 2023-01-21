@@ -67,7 +67,6 @@ class AccountController extends BaseController
      *      tags={"signup"},
      *      summary="Attempts a new account signup",
      *      description="Attempts a new account signup and returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="token_name",

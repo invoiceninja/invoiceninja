@@ -47,7 +47,6 @@ class ClientStatementController extends BaseController
      *      tags={"clients"},
      *      summary="Return a PDF of the client statement",
      *      description="Return a PDF of the client statement",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
