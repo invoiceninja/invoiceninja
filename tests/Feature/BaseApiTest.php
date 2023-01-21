@@ -376,7 +376,7 @@ class BaseApiTest extends TestCase
         $cg->require_billing_address = true;
         $cg->require_shipping_address = true;
         $cg->update_details = true;
-        $cg->config = encrypt(config('ninja.testvars.stripe'));
+        $cg->config = encrypt('{"publishableKey":"pk_test_P1riKDKD0p","apiKey":"sk_test_Yorqvz45"}');
         $cg->fees_and_limits = [];
         $cg->save();
 
