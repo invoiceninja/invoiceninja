@@ -88,9 +88,39 @@ class PermissionsTest extends TestCase
         $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(Client::class)));
         $this->assertEquals('view_client', $class);
 
-
         $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(RecurringInvoice::class)));
         $this->assertEquals('view_recurring_invoice', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Product::class)));
+        $this->assertEquals('view_product', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Payment::class)));
+        $this->assertEquals('view_payment', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Quote::class)));
+        $this->assertEquals('view_quote', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Credit::class)));
+        $this->assertEquals('view_credit', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Project::class)));
+        $this->assertEquals('view_project', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Task::class)));
+        $this->assertEquals('view_task', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Vendor::class)));
+        $this->assertEquals('view_vendor', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\PurchaseOrder::class)));
+        $this->assertEquals('view_purchase_order', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\Expense::class)));
+        $this->assertEquals('view_expense', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\BankTransaction::class)));
+        $this->assertEquals('view_bank_transaction', $class);
+
 
     }
 
