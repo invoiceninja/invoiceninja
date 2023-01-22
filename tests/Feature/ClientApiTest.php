@@ -15,7 +15,6 @@ use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Models\Client;
-use App\Models\Country;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Utils\Number;
@@ -51,6 +50,48 @@ class ClientApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+
+    }
+
+    public function testClientBulkActionValidation()
+    {
+        $data = [
+            'action' => 'muppet',
+            'ids' => [
+                $this->client->hashed_id
+            ]
+        ];
+
+        $rules = [
+            'ids' => 'required|bail|array',
+            'action' => 'in:archive,restore,delete'
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+        $this->assertFalse($v->passes());
+
+        $data = [
+            'action' => 'archive',
+            'ids' => [
+                $this->client->hashed_id
+            ]
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+        $this->assertTrue($v->passes());
+
+
+        $data = [
+            'action' => 'archive',
+            'ids' => 
+                $this->client->hashed_id
+            
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+        $this->assertFalse($v->passes());
+
+
     }
 
     public function testClientStatement()

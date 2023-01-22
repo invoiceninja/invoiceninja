@@ -16,6 +16,7 @@ use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
 use App\Http\Requests\Client\AdjustClientLedgerRequest;
+use App\Http\Requests\Client\BulkClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -494,16 +495,12 @@ class ClientController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkClientRequest $request)
     {
-        $action = request()->input('action');
 
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
-
-        if (! in_array($action, ['restore', 'archive', 'delete'])) {
-            return response()->json(['message' => 'That action is not available.'], 400);
-        }
+        $action = $request->action;
 
         $clients->each(function ($client, $key) use ($action) {
             if (auth()->user()->can('edit', $client)) {
