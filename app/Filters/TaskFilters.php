@@ -35,14 +35,13 @@ class TaskFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('tasks.description', 'like', '%'.$filter.'%')
-                          ->orWhere('tasks.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('tasks.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('tasks.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('tasks.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('description', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
-
 
     /**
      * Filter based on client status.
@@ -73,7 +72,7 @@ class TaskFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function project_tasks($project)
+    public function project_tasks($project): Builder
     {
 
         if (strlen($project) == 0) {

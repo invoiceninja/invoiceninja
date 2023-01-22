@@ -42,7 +42,6 @@ class CreditFilters extends QueryFilters
             return $this->builder;
         }
 
-
         $credit_filters = [];
 
         if (in_array('draft', $status_parameters)) 
