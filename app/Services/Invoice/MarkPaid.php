@@ -91,15 +91,15 @@ class MarkPaid extends AbstractService
 
         $payment->service()->applyNumber()->save();
         
-        if($payment->company->getSetting('send_email_on_mark_paid'))
-            $payment->service()->sendEmail();
-
-        $this->setExchangeRate($payment);
-
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $this->payable_balance,
         ]);
+
+        if($payment->company->getSetting('send_email_on_mark_paid'))
+            $payment->service()->sendEmail();
+
+        $this->setExchangeRate($payment);
 
         event('eloquent.created: App\Models\Payment', $payment);
 
