@@ -450,7 +450,7 @@ class BaseController extends Controller
                 'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
@@ -796,7 +796,7 @@ class BaseController extends Controller
                 'company.bank_transactions'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('bank_transactions')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },

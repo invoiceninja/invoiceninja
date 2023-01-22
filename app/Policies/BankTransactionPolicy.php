@@ -26,6 +26,6 @@ class BankTransactionPolicy extends EntityPolicy
      */
     public function create(User $user) : bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->hasPermission('create_invoice') || $user->hasPermission('create_all');
     }
 }

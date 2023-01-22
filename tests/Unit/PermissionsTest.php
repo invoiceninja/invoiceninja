@@ -13,10 +13,12 @@ namespace Tests\Unit;
 
 use App\Factory\CompanyUserFactory;
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
@@ -74,6 +76,21 @@ class PermissionsTest extends TestCase
         $company_token->token = $this->token;
         $company_token->is_system = true;
         $company_token->save();
+
+    }
+
+    public function testPermissionResolution()
+    {
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(Invoice::class)));
+
+        $this->assertEquals('view_invoice', $class);
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(Client::class)));
+        $this->assertEquals('view_client', $class);
+
+
+        $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(RecurringInvoice::class)));
+        $this->assertEquals('view_recurring_invoice', $class);
 
     }
 
