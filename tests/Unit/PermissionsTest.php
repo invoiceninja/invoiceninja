@@ -121,6 +121,9 @@ class PermissionsTest extends TestCase
         $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(App\Models\BankTransaction::class)));
         $this->assertEquals('view_bank_transaction', $class);
 
+        $this->assertEquals('invoice', \Illuminate\Support\Str::snake(class_basename(Invoice::class)));
+
+        $this->assertEquals('recurring_invoice', \Illuminate\Support\Str::snake(class_basename(RecurringInvoice::class)));
 
     }
 
