@@ -26,18 +26,18 @@ class QuoteFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('quotes.number', 'like', '%'.$filter.'%')
-                  ->orwhere('quotes.custom_value1', 'like', '%'.$filter.'%')
-                  ->orWhere('quotes.custom_value2', 'like', '%'.$filter.'%')
-                  ->orWhere('quotes.custom_value3', 'like', '%'.$filter.'%')
-                  ->orWhere('quotes.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('number', 'like', '%'.$filter.'%')
+                  ->orwhere('custom_value1', 'like', '%'.$filter.'%')
+                  ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                  ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                  ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -53,7 +53,7 @@ class QuoteFilters extends QueryFilters
      * @param string client_status The invoice status as seen by the client
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -111,7 +111,7 @@ class QuoteFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function number($number = '')
+    public function number($number = ''): Builder
     {
         return $this->builder->where('number', 'like', '%'.$number.'%');
     }
@@ -122,7 +122,7 @@ class QuoteFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -135,9 +135,9 @@ class QuoteFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Eloquent\Query\Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

@@ -38,7 +38,7 @@ class InvoiceFilters extends QueryFilters
      * @param string client_status The invoice status as seen by the client
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -77,7 +77,7 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function number(string $number = '') :Builder
+    public function number(string $number = ''): Builder
     {
         if(strlen($number) == 0)
             return $this->builder;
@@ -92,22 +92,22 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('invoices.number', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.po_number', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.date', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.amount', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.balance', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('invoices.custom_value4', 'like', '%'.$filter.'%');
+        return $this->builder->where(function ($query) use ($filter) {
+            $query->where('number', 'like', '%'.$filter.'%')
+                          ->orWhere('po_number', 'like', '%'.$filter.'%')
+                          ->orWhere('date', 'like', '%'.$filter.'%')
+                          ->orWhere('amount', 'like', '%'.$filter.'%')
+                          ->orWhere('balance', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -115,7 +115,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder 
      * @throws RuntimeException 
      */
-    public function without_deleted_clients()
+    public function without_deleted_clients(): Builder
     {
 
         return $this->builder->whereHas('client', function ($query) {
@@ -127,7 +127,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder 
      * @throws InvalidArgumentException 
      */
-    public function upcoming()
+    public function upcoming(): Builder
     {
         return $this->builder
                     ->where(function ($query) {
@@ -141,15 +141,15 @@ class InvoiceFilters extends QueryFilters
      * @return void 
      * @throws InvalidArgumentException 
      */
-    public function overdue()
+    public function overdue(): Builder
     {
-        $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('is_deleted', 0)
-                ->where(function ($query) {
-                    $query->where('due_date', '<', now())
-                        ->orWhere('partial_due_date', '<', now());
-                })
-                ->orderBy('due_date', 'ASC');
+        return $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_deleted', 0)
+                    ->where(function ($query) {
+                        $query->where('due_date', '<', now())
+                            ->orWhere('partial_due_date', '<', now());
+                    })
+                    ->orderBy('due_date', 'ASC');
     }
 
     /**
@@ -157,7 +157,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder 
      * @throws InvalidArgumentException 
      */
-    public function payable(string $client_id = '')
+    public function payable(string $client_id = ''): Builder
     {
         if (strlen($client_id) == 0) {
             return $this->builder;
@@ -175,7 +175,7 @@ class InvoiceFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort = '') : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 

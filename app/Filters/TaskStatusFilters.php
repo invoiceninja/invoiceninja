@@ -32,7 +32,7 @@ class TaskStatusFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('task_statuses.name', 'like', '%'.$filter.'%');
+            $query->where('name', 'like', '%'.$filter.'%');
         });
     }
 
@@ -42,7 +42,7 @@ class TaskStatusFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 

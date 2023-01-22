@@ -67,7 +67,7 @@ class ClientContactObserver
 
         QuoteInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
-          if($invite->invoice()->doesnthave('invitations'))
+          if($invite->quote()->doesnthave('invitations'))
             $invite->quote->service()->createInvitations();
 
         });
@@ -75,7 +75,7 @@ class ClientContactObserver
         RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->recurring_invoice()->doesnthave('invitations'))
-            $invite->quote->service()->createInvitations();
+            $invite->recurring_invoice->service()->createInvitations();
 
         });
 
