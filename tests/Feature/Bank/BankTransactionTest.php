@@ -39,6 +39,46 @@ class BankTransactionTest extends TestCase
         );
     }
 
+
+    public function testBankTransactionBulkActions()
+    {
+        $data = [
+            'ids' => [$this->bank_integration->hashed_id],
+            'action' => 'archive'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/bank_transactions/bulk', $data)
+          ->assertStatus(200);
+
+        $data = [
+            'ids' => [$this->bank_integration->hashed_id],
+            'action' => 'restore'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/bank_transactions/bulk', $data)
+          ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$this->bank_integration->hashed_id],
+            'action' => 'delete'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/bank_transactions/bulk', $data)
+          ->assertStatus(200);
+
+
+    }
+
     public function testLinkExpenseToTransaction()
     {
 

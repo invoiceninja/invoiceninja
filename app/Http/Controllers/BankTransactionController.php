@@ -15,6 +15,7 @@ use App\Factory\BankTransactionFactory;
 use App\Filters\BankTransactionFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
+use App\Http\Requests\BankTransaction\BulkBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
 use App\Http\Requests\BankTransaction\DestroyBankTransactionRequest;
 use App\Http\Requests\BankTransaction\EditBankTransactionRequest;
@@ -469,12 +470,9 @@ class BankTransactionController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkBankTransactionRequest $request)
     {
-        $action = request()->input('action');
-
-        if(!in_array($action, ['archive', 'restore', 'delete', 'convert_matched']))
-            return response()->json(['message' => 'Unsupported action.'], 400);
+        $action = $request->input('action');
 
         $ids = request()->input('ids');
             
@@ -482,19 +480,14 @@ class BankTransactionController extends BaseController
 
         if($action == 'convert_matched') //catch this action
         {
-            if(auth()->user()->isAdmin())
-            {
-                $this->bank_transaction_repo->convert_matched($bank_transactions);
-            }
-            else 
-                return;
+
+            $this->bank_transaction_repo->convert_matched($bank_transactions);
+
         }
         else {
 
             $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
-                if (auth()->user()->can('edit', $bank_transaction)) {
                     $this->bank_transaction_repo->{$action}($bank_transaction);
-                }
             });
 
         }

@@ -15,6 +15,7 @@ use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\BulkBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
 use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
@@ -465,21 +466,16 @@ class BankIntegrationController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkBankIntegrationRequest $request)
     {
         $action = request()->input('action');
-
-        if(!in_array($action, ['archive', 'restore', 'delete']))
-            return response()->json(['message' => 'Unsupported action.'], 400);
 
         $ids = request()->input('ids');
             
         $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         $bank_integrations->each(function ($bank_integration, $key) use ($action) {
-            if (auth()->user()->can('edit', $bank_integration)) {
-                $this->bank_integration_repo->{$action}($bank_integration);
-            }
+            $this->bank_integration_repo->{$action}($bank_integration);
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
