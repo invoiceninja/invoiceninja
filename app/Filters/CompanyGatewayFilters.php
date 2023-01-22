@@ -33,7 +33,7 @@ class CompanyGatewayFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('company_gateways.label', 'like', '%'.$filter.'%');
+            $query->where('label', 'like', '%'.$filter.'%');
         });
     }
 

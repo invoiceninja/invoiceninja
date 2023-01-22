@@ -22,19 +22,19 @@ class ProjectFilters extends QueryFilters
      * Filter based on search text.
      *
      * @param string query filter
-     * @return Builder
+     * @return Illuminate\Eloquent\Query\Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = '') :Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('projects.name', 'like', '%'.$filter.'%')
-                  ->orWhere('projects.public_notes', 'like', '%'.$filter.'%')
-                  ->orWhere('projects.private_notes', 'like', '%'.$filter.'%');
+            $query->where('name', 'like', '%'.$filter.'%')
+                  ->orWhere('public_notes', 'like', '%'.$filter.'%')
+                  ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
 
@@ -42,9 +42,9 @@ class ProjectFilters extends QueryFilters
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
-     * @return Builder
+     * @return Illuminate\Eloquent\Query\Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort) :Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -55,9 +55,9 @@ class ProjectFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Eloquent\Query\Builder
      */
-    public function entityFilter()
+    public function entityFilter() :Builder
     {
         return $this->builder->company();
     }

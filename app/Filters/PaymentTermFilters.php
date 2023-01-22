@@ -32,7 +32,7 @@ class PaymentTermFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('payment_terms.name', 'like', '%'.$filter.'%');
+            $query->where('name', 'like', '%'.$filter.'%');
         });
     }
 

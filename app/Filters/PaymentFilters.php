@@ -25,26 +25,26 @@ class PaymentFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('payments.amount', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.date', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('payments.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('amount', 'like', '%'.$filter.'%')
+                          ->orWhere('date', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
     /**
      * Returns a list of payments that can be matched to bank transactions
      */
-    public function match_transactions($value = 'true') :Builder
+    public function match_transactions($value = 'true'): Builder
     {
 
         if($value == 'true'){
@@ -68,7 +68,7 @@ class PaymentFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -78,7 +78,7 @@ class PaymentFilters extends QueryFilters
         return true;
     }
 
-    public function number(string $number) : Builder
+    public function number(string $number = ''): Builder
     {
         return $this->builder->where('number', $number);
     }
@@ -88,7 +88,7 @@ class PaymentFilters extends QueryFilters
      *
      * @return Illuminate\Database\Query\Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
@@ -103,7 +103,7 @@ class PaymentFilters extends QueryFilters
      *
      * @return Builder
      */
-    private function contactViewFilter() : Builder
+    private function contactViewFilter(): Builder
     {
         return $this->builder
                     ->whereCompanyId(auth()->guard('contact')->user()->company->id)
