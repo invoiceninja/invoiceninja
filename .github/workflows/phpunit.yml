@@ -125,12 +125,7 @@ jobs:
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
-
-    # - name: Prepare JS/CSS assets
-    #   run: |
-    #     npm i
-    #     npm run production
-        
+  
     - name: Run Testsuite
       run: |
         cat .env
@@ -140,5 +135,4 @@ jobs:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
         CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
-        # Use the index from matrix as an environment variable
         CI_NODE_INDEX: ${{ matrix.ci_node_index }}
