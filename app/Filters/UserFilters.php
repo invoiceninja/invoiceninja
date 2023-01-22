@@ -25,17 +25,17 @@ class UserFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('users.first_name', 'like', '%'.$filter.'%')
-                          ->orWhere('users.last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('users.email', 'like', '%'.$filter.'%')
-                          ->orWhere('users.signature', 'like', '%'.$filter.'%');
+            $query->where('first_name', 'like', '%'.$filter.'%')
+                          ->orWhere('last_name', 'like', '%'.$filter.'%')
+                          ->orWhere('email', 'like', '%'.$filter.'%')
+                          ->orWhere('signature', 'like', '%'.$filter.'%');
         });
     }
 
@@ -46,7 +46,7 @@ class UserFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 

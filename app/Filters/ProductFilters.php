@@ -27,23 +27,23 @@ class ProductFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('products.product_key', 'like', '%'.$filter.'%')
-                          ->orWhere('products.notes', 'like', '%'.$filter.'%')
-                          ->orWhere('products.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('products.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('products.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('products.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('product_key', 'like', '%'.$filter.'%')
+                          ->orWhere('notes', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
-    public function product_key(string $filter = '') : Builder
+    public function product_key(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -58,7 +58,7 @@ class ProductFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
