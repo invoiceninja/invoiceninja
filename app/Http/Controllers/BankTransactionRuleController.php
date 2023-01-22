@@ -16,6 +16,7 @@ use App\Factory\BankTransactionRuleFactory;
 use App\Filters\BankTransactionFilters;
 use App\Filters\BankTransactionRuleFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
+use App\Http\Requests\BankTransactionRule\BulkBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\CreateBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\DestroyBankTransactionRuleRequest;
 use App\Http\Requests\BankTransactionRule\EditBankTransactionRuleRequest;
@@ -472,25 +473,21 @@ class BankTransactionRuleController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkBankTransactionRuleRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        if(!in_array($action, ['archive', 'restore', 'delete']))
-            return response()->json(['message' => 'Unsupported action.'], 400);
-
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
             
-        $bank_transaction_rules = BankTransactionRule::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
-
-        $bank_transaction_rules->each(function ($bank_transaction_rule, $key) use ($action) {
-            if (auth()->user()->can('edit', $bank_transaction_rule)) {
-                $this->bank_transaction_repo->{$action}($bank_transaction_rule);
-            }
-        });
+        $bank_transaction_rules = BankTransactionRule::withTrashed()
+                                                     ->whereIn('id', $this->transformKeys($ids))
+                                                     ->company()
+                                                     ->cursor()
+                                                     ->each(function ($bank_transaction_rule, $key) use ($action) {
+                                                            $this->bank_transaction_repo->{$action}($bank_transaction_rule);
+                                                    });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
-
         return $this->listResponse(BankTransactionRule::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 

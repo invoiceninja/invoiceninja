@@ -64,7 +64,6 @@ class BankTransactionTest extends TestCase
         ])->post('/api/v1/bank_transactions/bulk', $data)
           ->assertStatus(200);
 
-
         $data = [
             'ids' => [$this->bank_integration->hashed_id],
             'action' => 'delete'

@@ -91,6 +91,10 @@ class ActivityController extends BaseController
                                 ->take($default_activities);
 
         if ($request->has('react')) {
+
+            if(!auth()->user()->isAdmin())
+                return response()->json(['data' => []], 200);
+
             $system = ctrans('texts.system');
 
             $data = $activities->cursor()->map(function ($activity) use ($system) {
