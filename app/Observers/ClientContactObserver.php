@@ -57,7 +57,7 @@ class ClientContactObserver
 
         //ensure entity state is preserved
         
-        InvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        InvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->invoice()->doesnthave('invitations'))
             $invite->invoice->service()->createInvitations();
@@ -65,14 +65,14 @@ class ClientContactObserver
         });
 
 
-        QuoteInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        QuoteInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->invoice()->doesnthave('invitations'))
             $invite->quote->service()->createInvitations();
 
         });
 
-        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->recurring_invoice()->doesnthave('invitations'))
             $invite->quote->service()->createInvitations();

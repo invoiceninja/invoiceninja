@@ -20,6 +20,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
@@ -27,8 +28,6 @@ use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -70,6 +69,7 @@ class EntityTranslationTest extends TestCase
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
+            'number' => 'xxx',
         ]);
 
         $expense = Expense::factory()->create([
@@ -82,6 +82,7 @@ class EntityTranslationTest extends TestCase
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
+            'number' => 'xxx',
         ]);
 
         $payment = Payment::factory()->create([
@@ -105,6 +106,7 @@ class EntityTranslationTest extends TestCase
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
+            'number' => 'xxx',
         ]);
 
         $recurring_expense = RecurringExpense::factory()->create([
@@ -117,6 +119,7 @@ class EntityTranslationTest extends TestCase
             'company_id' => $company->id,
             'user_id' => $u->id,
             'client_id' => $client->id,
+            'number' => 'xxx',
         ]);
 
         $recurring_quote = RecurringQuote::factory()->create([
@@ -131,9 +134,17 @@ class EntityTranslationTest extends TestCase
             'client_id' => $client->id,
         ]);
 
+
         $vendor = Vendor::factory()->create([
             'company_id' => $company->id,
             'user_id' => $u->id,
+        ]);
+
+        $po = PurchaseOrder::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $u->id,
+            'vendor_id' => $vendor->id,
+            'number' => 'xxx',
         ]);
 
         $this->assertEquals(ctrans('texts.user'), $u->translate_entity());
@@ -151,5 +162,20 @@ class EntityTranslationTest extends TestCase
         $this->assertEquals(ctrans('texts.recurring_quote'), $recurring_quote->translate_entity());
         $this->assertEquals(ctrans('texts.task'), $task->translate_entity());
         $this->assertEquals(ctrans('texts.vendor'), $vendor->translate_entity());
+        $this->assertEquals(ctrans('texts.purchase_order'), $po->translate_entity());
+
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.purchase_order')) . "_xxx.pdf", $po->getFileName());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.credit')) . "_xxx.pdf", $credit->getFileName());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.invoice')) . "_xxx.pdf", $invoice->getFileName());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.quote')) . "_xxx.pdf", $quote->getFileName());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.recurring_invoice')) . "_xxx.pdf", $recurring_invoice->getFileName());
+
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.recurring_invoice')) . "_xxx", $recurring_invoice->numberFormatter());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.credit')) . "_xxx", $credit->numberFormatter());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.invoice')) . "_xxx", $invoice->numberFormatter());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.quote')) . "_xxx", $quote->numberFormatter());
+        $this->assertEquals(str_replace(" ", "_", ctrans('texts.purchase_order')) . "_xxx", $po->numberFormatter());
+
+
     }
 }

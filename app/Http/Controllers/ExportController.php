@@ -32,7 +32,6 @@ class ExportController extends BaseController
      *      tags={"export"},
      *      summary="Export data from the system",
      *      description="Export data from the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

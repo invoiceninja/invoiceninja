@@ -36,7 +36,6 @@ class QuoteReportController extends BaseController
      *      tags={"reports"},
      *      summary="Quote reports",
      *      description="Export quote reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

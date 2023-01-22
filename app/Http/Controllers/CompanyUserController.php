@@ -11,11 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ModelNotFoundException;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
 
 class CompanyUserController extends BaseController
@@ -83,7 +83,6 @@ class CompanyUserController extends BaseController
      *      tags={"company_user"},
      *      summary="Update a company user record",
      *      description="Attempts to update a company user record. A company user can modify only their settings fields. Full access for Admin users",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

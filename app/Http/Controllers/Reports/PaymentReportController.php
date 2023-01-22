@@ -37,7 +37,6 @@ class PaymentReportController extends BaseController
      *      tags={"reports"},
      *      summary="Payment reports",
      *      description="Export payment reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

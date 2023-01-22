@@ -31,7 +31,6 @@ class LogoutController extends BaseController
      *      tags={"logout"},
      *      summary="Gets a list of logout",
      *      description="Lists all logout",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

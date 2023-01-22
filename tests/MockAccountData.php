@@ -57,6 +57,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Utils\TruthSource;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -276,6 +277,7 @@ trait MockAccountData
         $this->user = $user;
 
         // auth()->login($user);
+        // auth()->user()->setCompany($this->company);
 
         CreateCompanyTaskStatuses::dispatchSync($this->company, $this->user);
 
@@ -297,6 +299,11 @@ trait MockAccountData
 
         $company_token->save();
 
+        $truth = app()->make(TruthSource::class);
+        $truth->setCompanyUser($company_token->first());
+        $truth->setUser($this->user);
+        $truth->setCompany($this->company);
+        
         //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([

@@ -193,7 +193,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return $truth->getCompany();
         } elseif (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
-
             return $company_token->company;
         }
 
@@ -441,7 +440,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this
             ->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     /**

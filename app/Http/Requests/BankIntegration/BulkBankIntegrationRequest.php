@@ -9,12 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Activity;
+namespace App\Http\Requests\BankIntegration;
 
 use App\Http\Requests\Request;
-use App\Models\Activity;
 
-class ShowActivityRequest extends Request
+class BulkBankIntegrationRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,6 +23,15 @@ class ShowActivityRequest extends Request
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
-        // return auth()->user()->can('view', Activity::class);
+    }
+
+    public function rules()
+    {
+
+        return [
+            'ids' => 'required|bail|array',
+            'action' => 'in:archive,restore,delete'
+        ];
+
     }
 }
