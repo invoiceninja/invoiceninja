@@ -12,6 +12,7 @@
 namespace Tests\Feature;
 
 use App\DataMapper\FeesAndLimits;
+use App\Factory\CompanyGatewayFactory;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
@@ -45,6 +46,49 @@ class CompanyGatewayApiTest extends TestCase
 
         Model::reguard();
     }
+
+    public function testBulkActions()
+    {
+        $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+        $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
+        $cg->save();
+
+        $data = [
+            'action' => 'archive',
+            'ids' => [$cg->hashed_id]
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways/bulk', $data)
+          ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$cg->hashed_id],
+            'action' => 'restore'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways/bulk', $data)
+          ->assertStatus(200);
+
+        $data = [
+            'ids' => [$cg->hashed_id],
+            'action' => 'delete'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways/bulk', $data)
+          ->assertStatus(200);
+
+    }
+
+
 
     public function testCompanyGatewayEndPointsWithIncorrectFields()
     {

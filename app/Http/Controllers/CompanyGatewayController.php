@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Filters\CompanyGatewayFilters;
+use App\Http\Requests\CompanyGateway\BulkCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
@@ -496,19 +497,18 @@ class CompanyGatewayController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkCompanyGatewayRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $company_gateways = CompanyGateway::withTrashed()->find($this->transformKeys($ids));
-
-        $company_gateways->each(function ($company_gateway, $key) use ($action) {
-            if (auth()->user()->can('edit', $company_gateway)) {
-                $this->company_repo->{$action}($company_gateway);
-            }
-        });
+        $company_gateways = CompanyGateway::withTrashed()
+                                          ->whereIn('id',$this->transformKeys($ids))
+                                          ->cursor()
+                                          ->each(function ($company_gateway, $key) use ($action) {
+                                                    $this->company_repo->{$action}($company_gateway);
+                                            });
 
         return $this->listResponse(CompanyGateway::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }

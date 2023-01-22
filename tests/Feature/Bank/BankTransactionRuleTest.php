@@ -76,7 +76,6 @@ class BankTransactionRuleTest extends TestCase
         ])->post('/api/v1/bank_transaction_rules/bulk', $data)
           ->assertStatus(200);
 
-
     }
 
     public function testValidationContainsRule()
