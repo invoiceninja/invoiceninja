@@ -18,16 +18,16 @@ use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Utils\Ninja;
 use App\Utils\TruthSource;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -41,6 +41,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        // DB::listen(function($query) {
+        //     nlog(
+        //         $query->sql,
+        //         [
+        //             'bindings' => $query->bindings,
+        //             'time' => $query->time
+        //         ]
+        //     );
+        // });
 
         Relation::morphMap([
             'invoices'  => Invoice::class,
@@ -102,15 +112,11 @@ class AppServiceProvider extends ServiceProvider
  
             return $this;
         });
-    }
 
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
+        ParallelTesting::setUpTestDatabase(function ($database, $token) {
+            Artisan::call('db:seed');
+        });
+
     }
 
 }

@@ -9,43 +9,46 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\TaskScheduler;
+namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
-use Carbon\Carbon;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
-class UpdateScheduleRequest extends Request
+class BulkCompanyGatewayRequest extends Request
 {
+    use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize(): bool
+    public function authorize() : bool
     {
         return auth()->user()->isAdmin();
     }
 
-    public function rules(): array
+    public function rules()
     {
+
         return [
-            'paused' => 'sometimes|bool',
-            'repeat_every' => 'sometimes|string|in:DAY,WEEK,BIWEEKLY,MONTH,3MONTHS,YEAR',
-            'start_from' => 'sometimes',
-            'scheduled_run'=>'sometimes',
+            'ids' => ['required','bail','array',Rule::exists('company_gateways','id')->where('company_id', auth()->user()->company()->id)],
+            'action' => 'required|bail|in:archive,restore,delete'
         ];
+
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        if (isset($input['start_from'])) {
-            $input['scheduled_run'] = Carbon::parse((int) $input['start_from']);
-            $input['start_from'] = Carbon::parse((int) $input['start_from']);
-        }
+        if(isset($input['ids']))
+            $input['ids'] = $this->transformKeys($input['ids']);
 
         $this->replace($input);
     }
+
+
+
 }

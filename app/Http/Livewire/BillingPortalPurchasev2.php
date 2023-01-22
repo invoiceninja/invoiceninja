@@ -483,7 +483,12 @@ class BillingPortalPurchasev2 extends Component
      */
     protected function getPaymentMethods() :self
     {
-        if($this->contact)
+        nlog("total amount = {$this->float_amount_total}");
+
+        if($this->float_amount_total == 0)
+            $this->methods = [];
+
+        if($this->contact && $this->float_amount_total >= 1)
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
 
         return $this;
@@ -526,7 +531,7 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $data = [
-            'client_id' => $this->contact->client->id,
+            'client_id' => $this->contact->client->hashed_id,
             'date' => now()->format('Y-m-d'),
             'invitations' => [[
                 'key' => '',
@@ -547,10 +552,10 @@ class BillingPortalPurchasev2 extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
+            'client_id' => $this->contact->client->hashed_id,
+            'invoice_id' => $this->invoice->hashed_id,
             'context' => 'purchase',
             'campaign' => $this->campaign,
             'bundle' => $this->bundle,
@@ -562,15 +567,60 @@ class BillingPortalPurchasev2 extends Component
 
     }
 
+
+    /**
+     * Starts the trial
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function handleTrial()
     {
         return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
-            'contact_id' => $this->contact->id,
-            'client_id' => $this->contact->client->id,
+            'contact_id' => $this->contact->hashed_id,
+            'client_id' => $this->contact->client->hashed_id,
             'bundle' => $this->bundle,
         ]);
+    }
+
+    /**
+     * When the subscription total comes to $0 we 
+     * pass back a $0 Invoice.
+     *
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
+    public function handlePaymentNotRequired()
+    {
+
+        $eligibility_check = $this->subscription->service()->isEligible($this->contact);
+
+        if(is_array($eligibility_check) && $eligibility_check['message'] != 'Success'){
+            
+            $this->is_eligible = false;
+            $this->not_eligible_message = $eligibility_check['message'];
+            return $this;
+
+        }
+
+        $invoice = $this->subscription
+            ->service()
+            ->createInvoiceV2($this->bundle, $this->contact->client_id, $this->valid_coupon)
+            ->service()
+            ->fillDefaults()
+            ->adjustInventory()
+            ->save();
+
+            $invoice->number = null;
+
+            $invoice->service()
+                    ->markPaid()
+                    ->save();
+
+            return $this->subscription
+                        ->service()
+                        ->handleNoPaymentFlow($invoice, $this->bundle, $this->contact);
+
     }
 
 
@@ -606,43 +656,6 @@ class BillingPortalPurchasev2 extends Component
     {
     
     }
-
-    // /**
-    //  * Handle user authentication
-    //  *
-    //  * @return $this|bool|void
-    //  */
-    // public function authenticate()
-    // {
-    //     $this->validate();
-
-    //     $contact = ClientContact::where('email', $this->email)
-    //         ->where('company_id', $this->subscription->company_id)
-    //         ->first();
-
-    //     if ($contact && $this->steps['existing_user'] === false) {
-    //         return $this->steps['existing_user'] = true;
-    //     }
-
-    //     if ($contact && $this->steps['existing_user']) {
-    //         $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
-
-    //         return $attempt
-    //             ? $this->getPaymentMethods($contact)
-    //             : session()->flash('message', 'These credentials do not match our records.');
-    //     }
-
-    //     $this->steps['existing_user'] = false;
-
-    //     $contact = $this->createBlankClient();
-
-    //     if ($contact && $contact instanceof ClientContact) {
-    //         $this->getPaymentMethods($contact);
-    //     }
-    // }
-
-   
-
 
     /**
      * Create a blank client. Used for new customers purchasing.

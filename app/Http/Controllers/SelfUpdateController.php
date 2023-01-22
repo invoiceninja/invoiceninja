@@ -16,7 +16,6 @@ use App\Models\Client;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
-use Beganovich\Snappdf\Snappdf;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +46,6 @@ class SelfUpdateController extends BaseController
      *      tags={"update"},
      *      summary="Performs a system update",
      *      description="Performs a system update",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -107,6 +105,10 @@ class SelfUpdateController extends BaseController
         $zipFile = new \PhpZip\ZipFile();
 
         $zipFile->openFile($file);
+
+        $zipFile->deleteFromName(".htaccess");
+        
+        $zipFile->rewrite();
 
         $zipFile->extractTo(base_path());
 

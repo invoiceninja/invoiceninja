@@ -46,7 +46,6 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a list of actvities",
      *      description="Lists all activities",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -92,6 +91,10 @@ class ActivityController extends BaseController
                                 ->take($default_activities);
 
         if ($request->has('react')) {
+
+            if(!auth()->user()->isAdmin())
+                return response()->json(['data' => []], 200);
+
             $system = ctrans('texts.system');
 
             $data = $activities->cursor()->map(function ($activity) use ($system) {
@@ -131,7 +134,6 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a PDF for the given activity",
      *      description="Gets a PDF for the given activity",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(

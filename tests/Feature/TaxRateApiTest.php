@@ -42,6 +42,16 @@ class TaxRateApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testTaxRatesGetFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tax_rates?filter=gst');
+
+        $response->assertStatus(200);
+    }
+
     public function testTaxRatePost()
     {
         $rate_name = $this->faker->firstName();

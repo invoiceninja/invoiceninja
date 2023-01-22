@@ -516,6 +516,12 @@ class Import implements ShouldQueue
 
             }
 
+                if(Ninja::isHosted())   
+                {
+                    $data['portal_mode'] = 'subdomain';
+                    $data['portal_domain'] = '';
+                }
+           
             $data['settings'] = $company_settings;
         }
 
@@ -563,6 +569,11 @@ class Import implements ShouldQueue
         }
 
         TaxRate::reguard();
+
+        if(TaxRate::count() > 0){
+            $this->company->enabled_tax_rates = 2;
+            $this->company->save();
+        }
 
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;

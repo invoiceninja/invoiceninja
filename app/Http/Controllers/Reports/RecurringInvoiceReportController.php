@@ -36,7 +36,6 @@ class RecurringInvoiceReportController extends BaseController
      *      tags={"reports"},
      *      summary="Recurring Invoice reports",
      *      description="Export recurring invoice reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

@@ -11,8 +11,7 @@
 
 namespace App\Models;
 
-use App\Services\TaskScheduler\TaskSchedulerService;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Services\Scheduler\SchedulerService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -20,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property bool paused
  * @property bool is_deleted
  * @property \Carbon\Carbon|mixed start_from
- * @property string repeat_every
- * @property \Carbon\Carbon|mixed scheduled_run
+ * @property int frequency_id
+ * @property \Carbon\Carbon|mixed next_run
  * @property int company_id
  * @property int updated_at
  * @property int created_at
@@ -33,120 +32,83 @@ use Illuminate\Support\Carbon;
  */
 class Scheduler extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     protected $fillable = [
-        'start_from',
-        'paused',
-        'repeat_every',
-        'scheduled_run',
-        'action_class',
-        'action_name',
+        'name',
+        'frequency_id',
+        'next_run',
+        'next_run_client',
+        'template',
+        'is_paused',
         'parameters',
-        'company_id',
     ];
 
     protected $casts = [
-        'start_from' => 'timestamp',
-        'scheduled_run' => 'timestamp',
+        'next_run' => 'datetime',
+        'next_run_client' => 'datetime',
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'paused' => 'boolean',
+        'is_paused' => 'boolean',
         'is_deleted' => 'boolean',
         'parameters' => 'array',
     ];
 
-    const DAILY = 'DAY';
-
-    const WEEKLY = 'WEEK';
-
-    const BIWEEKLY = 'BIWEEKLY';
-
-    const MONTHLY = 'MONTH';
-
-    const QUARTERLY = '3MONTHS';
-
-    const ANNUALLY = 'YEAR';
-
-    const CREATE_CLIENT_REPORT = 'create_client_report';
-
-    const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
-
-    const CREATE_CREDIT_REPORT = 'create_credit_report';
-
-    const CREATE_DOCUMENT_REPORT = 'create_document_report';
-
-    const CREATE_EXPENSE_REPORT = 'create_expense_report';
-
-    const CREATE_INVOICE_ITEM_REPORT = 'create_invoice_item_report';
-
-    const CREATE_INVOICE_REPORT = 'create_invoice_report';
-
-    const CREATE_PAYMENT_REPORT = 'create_payment_report';
-
-    const CREATE_PRODUCT_REPORT = 'create_product_report';
-
-    const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
-
-    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
-
-    const CREATE_QUOTE_REPORT = 'create_quote_report';
-
-    const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
-
-    const CREATE_TASK_REPORT = 'create_task_report';
+    protected $appends = [
+        'hashed_id',
+    ];
 
     /**
      * Service entry points.
      */
-    public function service(): TaskSchedulerService
+    public function service(): SchedulerService
     {
-        return new TaskSchedulerService($this);
+        return new SchedulerService($this);
     }
 
-    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function nextScheduledDate(): ?Carbon
-    {
-        $offset = 0;
+    // public function nextScheduledDate(): ?Carbon
+    // {
+    //     $offset = 0;
 
-        $entity_send_time = $this->company->settings->entity_send_time;
+    //     $entity_send_time = $this->company->settings->entity_send_time;
 
-        if ($entity_send_time != 0) {
-            $timezone = $this->company->timezone();
+    //     if ($entity_send_time != 0) {
+    //         $timezone = $this->company->timezone();
 
-            $offset -= $timezone->utc_offset;
-            $offset += ($entity_send_time * 3600);
-        }
+    //         $offset -= $timezone->utc_offset;
+    //         $offset += ($entity_send_time * 3600);
+    //     }
 
-        /*
-        As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
-        to add ON a day - a day = 86400 seconds
-        */
+    //     /*
+    //     As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
+    //     to add ON a day - a day = 86400 seconds
+    //     */
 
-        if ($offset < 0) {
-            $offset += 86400;
-        }
+    //     if ($offset < 0) {
+    //         $offset += 86400;
+    //     }
 
-        switch ($this->repeat_every) {
-            case self::DAILY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addDay()->addSeconds($offset);
-            case self::WEEKLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addWeek()->addSeconds($offset);
-            case self::BIWEEKLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addWeeks(2)->addSeconds($offset);
-            case self::MONTHLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
-            case self::QUARTERLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
-            case self::ANNUALLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addYearNoOverflow()->addSeconds($offset);
-            default:
-                return null;
-        }
-    }
+    //     switch ($this->repeat_every) {
+    //         case self::DAILY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addDay()->addSeconds($offset);
+    //         case self::WEEKLY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addWeek()->addSeconds($offset);
+    //         case self::BIWEEKLY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addWeeks(2)->addSeconds($offset);
+    //         case self::MONTHLY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
+    //         case self::QUARTERLY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
+    //         case self::ANNUALLY:
+    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addYearNoOverflow()->addSeconds($offset);
+    //         default:
+    //             return null;
+    //     }
+    // }
 }

@@ -148,7 +148,9 @@ class SystemLog extends Model
         }
 
         return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))
+            ->company()
+            ->firstOrFail();
     }
 
     /*

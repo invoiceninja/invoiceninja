@@ -12,15 +12,16 @@
 namespace App\DataMapper;
 
 /**
- * ClientSettings.
+ * BaseSettings.
  */
 class BaseSettings
 {
+    //@deprecated
     public function __construct($obj)
     {
-        foreach ($obj as $key => $value) {
-            $obj->{$key} = $value;
-        }
+        // foreach ($obj as $key => $value) {
+        //     $obj->{$key} = $value;
+        // }
     }
 
     public static function setCasts($obj, $casts)
@@ -57,7 +58,4 @@ class BaseSettings
         }
     }
 
-    public static function castSingleAttribute($key, $data)
-    {
-    }
 }

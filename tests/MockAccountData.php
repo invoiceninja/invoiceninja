@@ -48,6 +48,7 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Scheduler;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -56,6 +57,8 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Utils\TruthSource;
+use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -70,6 +73,7 @@ trait MockAccountData
 {
     use MakesHash;
     use GeneratesCounter;
+    use WithoutEvents;
 
     /**
      * @var
@@ -177,6 +181,11 @@ trait MockAccountData
      */
     public $tax_rate;
 
+    /**
+     * @var
+     */
+    public $scheduler;
+
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
@@ -207,6 +216,9 @@ trait MockAccountData
             }
         }
 
+        $this->faker = \Faker\Factory::create();
+        $fake_email = $this->faker->email();
+
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
@@ -227,7 +239,6 @@ trait MockAccountData
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
-        // $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
         $settings->address2 = 'Address 2';
@@ -235,7 +246,7 @@ trait MockAccountData
         $settings->state = 'State';
         $settings->postal_code = 'Postal Code';
         $settings->phone = '555-343-2323';
-        $settings->email = 'user@example.com';
+        $settings->email = $fake_email;
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
@@ -250,13 +261,13 @@ trait MockAccountData
         $this->account->default_company_id = $this->company->id;
         $this->account->save();
 
-        $user = User::whereEmail('user@example.com')->first();
+        $user = User::whereEmail($fake_email)->first();
 
         if (! $user) {
             $user = User::factory()->create([
                 'account_id' => $this->account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
-                'email' => 'user@example.com',
+                'email' =>  $fake_email,
             ]);
         }
 
@@ -266,6 +277,7 @@ trait MockAccountData
         $this->user = $user;
 
         // auth()->login($user);
+        // auth()->user()->setCompany($this->company);
 
         CreateCompanyTaskStatuses::dispatchSync($this->company, $this->user);
 
@@ -287,6 +299,11 @@ trait MockAccountData
 
         $company_token->save();
 
+        $truth = app()->make(TruthSource::class);
+        $truth->setCompanyUser($company_token->first());
+        $truth->setUser($this->user);
+        $truth->setCompany($this->company);
+        
         //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
@@ -804,6 +821,14 @@ trait MockAccountData
 
         $this->client = $this->client->fresh();
         $this->invoice = $this->invoice->fresh();
+
+        $this->scheduler = Scheduler::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->scheduler->save();
+        
     }
 
     /**

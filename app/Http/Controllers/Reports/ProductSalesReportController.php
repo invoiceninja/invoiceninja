@@ -39,7 +39,6 @@ class ProductSalesReportController extends BaseController
      *      tags={"reports"},
      *      summary="Product Salesreports",
      *      description="Export product sales reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

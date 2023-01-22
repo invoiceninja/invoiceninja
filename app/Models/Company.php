@@ -66,6 +66,7 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'invoice_task_hours',
         'markdown_enabled',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
@@ -169,6 +170,16 @@ class Company extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function schedulers()
+    {
+        return $this->hasMany(Scheduler::class);
+    }
+
+    public function task_schedulers() //alias for schedulers
+    {
+        return $this->hasMany(Scheduler::class);
     }
 
     public function all_documents()
@@ -573,7 +584,9 @@ class Company extends BaseModel
 
     public function resolveRouteBinding($value, $field = null)
     {
-        return $this->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        return $this->where('id', $this->decodePrimaryKey($value))
+                    ->where('account_id', auth()->user()->account_id)
+                    ->firstOrFail();
     }
 
     public function domain()
@@ -638,6 +651,24 @@ class Company extends BaseModel
         return $data;
     }
 
+    public function timezone_offset()
+    {
+        $offset = 0;
+
+        $entity_send_time = $this->getSetting('entity_send_time');
+
+        if ($entity_send_time == 0) {
+            return 0;
+        }
+
+        $timezone = $this->timezone();
+
+        $offset -= $timezone->utc_offset;
+        $offset += ($entity_send_time * 3600);
+
+        return $offset;
+    }
+
     public function translate_entity()
     {
         return ctrans('texts.company');
@@ -655,4 +686,5 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
     }
+
 }

@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\Company;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -27,7 +26,7 @@ class DocumentFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -36,8 +35,15 @@ class DocumentFilters extends QueryFilters
         return $this->builder;
     }
 
-    /* If client ID passed to this entity, simply return */
-    public function client_id(string $client_id = '') :Builder
+    /**
+     * Overriding method as client_id does
+     * not exist on this model, just pass
+     * back the builder
+     * @param  string $client_id The client hashed id.
+     * 
+     * @return Builder           
+     */
+    public function client_id(string $client_id = ''): Builder
     {
         return $this->builder;
     }
@@ -48,11 +54,14 @@ class DocumentFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = '') : Builder
     {
         $sort_col = explode('|', $sort);
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if(is_array($sort_col))
+            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+
+        return $this->builder;
     }
 
 
@@ -61,19 +70,6 @@ class DocumentFilters extends QueryFilters
         if($value == 'true')
             return $this->builder->where('documentable_type', Company::class);
     
-        return $this->builder;
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
         return $this->builder;
     }
 

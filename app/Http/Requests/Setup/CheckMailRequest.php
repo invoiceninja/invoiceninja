@@ -32,8 +32,6 @@ class CheckMailRequest extends Request
      */
     public function rules()
     {
-        nlog($this->driver);
-
         return [
             'mail_driver' => 'required',
             'encryption' => 'required_unless:mail_driver,log',

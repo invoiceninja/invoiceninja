@@ -42,6 +42,21 @@ class BankIntegrationApiTest extends TestCase
         Model::reguard();
     }
 
+
+    public function testBankIntegrationPost()
+    {
+        $data = [
+            'bank_account_name' => 'Nuevo Banko',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/bank_integrations/', $data);
+
+        $response->assertStatus(200);
+    }
+
+
     public function testBankIntegrationGet()
     {
         $response = $this->withHeaders([

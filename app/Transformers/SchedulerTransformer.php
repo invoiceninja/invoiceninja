@@ -14,7 +14,7 @@ namespace App\Transformers;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 
-class TaskSchedulerTransformer extends EntityTransformer
+class SchedulerTransformer extends EntityTransformer
 {
     use MakesHash;
 
@@ -22,17 +22,17 @@ class TaskSchedulerTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($scheduler->id),
+            'name' => (string) $scheduler->name,
+            'frequency_id' => (string) $scheduler->frequency_id,
+            'next_run' => $scheduler->next_run_client->format('Y-m-d'),
+            'template' => (string) $scheduler->template,
+            'is_paused' => (bool) $scheduler->is_paused,
             'is_deleted' => (bool) $scheduler->is_deleted,
-            'paused' => (bool) $scheduler->paused,
-            'repeat_every' => (string) $scheduler->repeat_every,
-            'start_from' => (int) $scheduler->start_from,
-            'scheduled_run' => (int) $scheduler->scheduled_run,
+            'parameters'=> (array) $scheduler->parameters,
+            'is_deleted' => (bool) $scheduler->is_deleted,
             'updated_at' => (int) $scheduler->updated_at,
             'created_at' => (int) $scheduler->created_at,
             'archived_at' => (int) $scheduler->deleted_at,
-            'action_name' => (string) $scheduler->action_name,
-            'action_class' => (string) $scheduler->action_class,
-            'parameters'=> (array) $scheduler->parameters,
         ];
     }
 }

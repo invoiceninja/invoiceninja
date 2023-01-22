@@ -12,9 +12,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\BankIntegration;
 use App\Models\BankTransaction;
+use App\Models\BankTransactionRule;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\Design;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\PaymentTerm;
+use App\Models\Scheduler;
+use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
@@ -109,6 +120,7 @@ class BaseController extends Controller
           'company.bank_integrations',
           'company.bank_transactions',
           'company.bank_transaction_rules',
+          'company.task_schedulers',
         ];
 
     private $mini_load = [
@@ -128,6 +140,7 @@ class BaseController extends Controller
         'company.subscriptions',
         'company.bank_integrations',
         'company.bank_transaction_rules',
+        'company.task_schedulers',
     ];
 
     public function __construct()
@@ -221,6 +234,7 @@ class BaseController extends Controller
         }
 
         $transformer = new $this->entity_transformer($this->serializer);
+
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
         if ($user->getCompany()->is_large && $updated_at == 0) {
@@ -238,7 +252,6 @@ class BaseController extends Controller
                     $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents');
 
                     if (! $user->hasPermission('view_client')) {
-                        // $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
@@ -257,7 +270,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_credit')) {
-                        // $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
@@ -278,7 +290,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_expense')) {
-                        // $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
@@ -288,14 +299,11 @@ class BaseController extends Controller
                 'company.groups' => function ($query) use ($updated_at, $user) {
                     $query->whereNotNull('updated_at')->with('documents');
 
-                // if(!$user->isAdmin())
-                    //   $query->where('group_settings.user_id', $user->id);
                 },
                 'company.invoices'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_invoice')) {
-                        // $query->where('invoices.user_id', $user->id)->orWhere('invoices.assigned_user_id', $user->id);
 
 
                         $query->whereNested(function($query) use ($user) {
@@ -308,7 +316,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('paymentables', 'documents');
 
                     if (! $user->hasPermission('view_payment')) {
-                        // $query->where('payments.user_id', $user->id)->orWhere('payments.assigned_user_id', $user->id);
                         
                         $query->whereNested(function($query) use ($user) {
                             $query->where('payments.user_id', $user->id)->orWhere('payments.assigned_user_id', $user->id);
@@ -327,13 +334,11 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_product')) {
-                        // $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
 
                         });
-
                     }
                     
                 },
@@ -341,7 +346,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_project')) {
-                        // $query->where('projects.user_id', $user->id)->orWhere('projects.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('projects.user_id', $user->id)->orWhere('projects.assigned_user_id', $user->id);
@@ -353,8 +357,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_purchase_order')) {
-                        // $query->where('purchase_orders.user_id', $user->id)->orWhere('purchase_orders.assigned_user_id', $user->id);
-
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('purchase_orders.user_id', $user->id)->orWhere('purchase_orders.assigned_user_id', $user->id);
@@ -366,8 +368,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_quote')) {
-                        // $query->where('quotes.user_id', $user->id)->orWhere('quotes.assigned_user_id', $user->id);
-
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('quotes.user_id', $user->id)->orWhere('quotes.assigned_user_id', $user->id);
@@ -379,7 +379,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'client.company');
 
                     if (! $user->hasPermission('view_recurring_invoice')) {
-                        // $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
@@ -391,7 +390,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_recurring_expense')) {
-                        // $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
@@ -403,7 +401,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                     if (! $user->hasPermission('view_task')) {
-                        // $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
@@ -418,7 +415,6 @@ class BaseController extends Controller
                     $query->where('updated_at', '>=', $updated_at)->with('contacts', 'documents');
 
                     if (! $user->hasPermission('view_vendor')) {
-                        // $query->where('vendors.user_id', $user->id)->orWhere('vendors.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('vendors.user_id', $user->id)->orWhere('vendors.assigned_user_id', $user->id);
@@ -463,6 +459,13 @@ class BaseController extends Controller
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_transaction_rules.user_id', $user->id);
+                    }
+                },
+                'company.task_schedulers'=> function ($query) use ($updated_at, $user) {
+                    $query->where('updated_at', '>=', $updated_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('schedulers.user_id', $user->id);
                     }
                 },
             ]
@@ -545,6 +548,12 @@ class BaseController extends Controller
                         $query->where('bank_transaction_rules.user_id', $user->id);
                     }
                 },
+                'company.task_schedulers'=> function ($query) use ($user) {
+
+                    if (! $user->isAdmin()) {
+                        $query->where('schedulers.user_id', $user->id);
+                    }
+                },
             ]
         );
 
@@ -596,7 +605,6 @@ class BaseController extends Controller
                     $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents');
 
                     if (! $user->hasPermission('view_client')) {
-                        // $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
      
                         $query->whereNested(function($query) use ($user) {
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
@@ -615,7 +623,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_credit')) {
-                        // $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
@@ -629,13 +636,10 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_expense')) {
-                        // $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
                         
                         $query->whereNested(function($query) use ($user) {
                             $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
                         });
-
-
                     }
                 },
                 'company.groups' => function ($query) use ($created_at, $user) {
@@ -645,7 +649,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_invoice')) {
-                        // $query->where('invoices.user_id', $user->id)->orWhere('invoices.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('invoices.user_id', $user->id)->orWhere('invoices.assigned_user_id', $user->id);
@@ -657,7 +660,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('paymentables', 'documents');
 
                     if (! $user->hasPermission('view_payment')) {
-                        // $query->where('payments.user_id', $user->id)->orWhere('payments.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('payments.user_id', $user->id)->orWhere('payments.assigned_user_id', $user->id);
@@ -672,7 +674,7 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_product')) {
-                        // $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
+
                         $query->whereNested(function($query) use ($user) {
                             $query->where('products.user_id', $user->id)->orWhere('products.assigned_user_id', $user->id);
                         });
@@ -682,7 +684,7 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_project')) {
-                        // $query->where('projects.user_id', $user->id)->orWhere('projects.assigned_user_id', $user->id);
+
                         $query->whereNested(function($query) use ($user) {
                             $query->where('projects.user_id', $user->id)->orWhere('projects.assigned_user_id', $user->id);
                         });
@@ -692,7 +694,7 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_purchase_order')) {
-                        // $query->where('purchase_orders.user_id', $user->id)->orWhere('purchase_orders.assigned_user_id', $user->id);
+
                         $query->whereNested(function($query) use ($user) {
                             $query->where('purchase_orders.user_id', $user->id)->orWhere('purchase_orders.assigned_user_id', $user->id);
                         });
@@ -703,7 +705,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('invitations', 'documents');
 
                     if (! $user->hasPermission('view_quote')) {
-                        // $query->where('quotes.user_id', $user->id)->orWhere('quotes.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('quotes.user_id', $user->id)->orWhere('quotes.assigned_user_id', $user->id);
@@ -715,7 +716,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'client.company');
 
                     if (! $user->hasPermission('view_recurring_invoice')) {
-                        // $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
@@ -727,7 +727,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_task')) {
-//                        $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
@@ -742,7 +741,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('contacts', 'documents');
 
                     if (! $user->hasPermission('view_vendor')) {
-                        // $query->where('vendors.user_id', $user->id)->orWhere('vendors.assigned_user_id', $user->id);
 
                         $query->whereNested(function($query) use ($user) {
                             $query->where('vendors.user_id', $user->id)->orWhere('vendors.assigned_user_id', $user->id);
@@ -781,7 +779,6 @@ class BaseController extends Controller
                     $query->where('created_at', '>=', $created_at)->with('documents');
 
                     if (! $user->hasPermission('view_recurring_expense')) {
-                        // $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
     
                         $query->whereNested(function($query) use ($user) {
                             $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
@@ -801,6 +798,13 @@ class BaseController extends Controller
 
                     if (! $user->isAdmin()) {
                         $query->where('bank_transactions.user_id', $user->id);
+                    }
+                },
+                'company.task_schedulers'=> function ($query) use ($created_at, $user) {
+                    $query->where('created_at', '>=', $created_at);
+
+                    if (! $user->isAdmin()) {
+                        $query->where('schedulers.user_id', $user->id);
                     }
                 },
             ]
@@ -832,8 +836,10 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
-        // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
+        
+
+        /*Restore here if refactor produces unexpected edge cases*/
+/*
         if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
@@ -849,6 +855,30 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
 
         }
+*/
+
+        /*21-01-2023*/
+/**/
+        // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
+        // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
+        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
+            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
+            if(in_array($this->entity_type, [User::class])){
+                $query->where('id', auth()->user()->id);
+            }
+            elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
+                $query->where('user_id', '=', auth()->user()->id);
+            }
+            elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
+                // nlog($this->entity_type);
+            }
+            else
+                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
+        }
+/**/
+
+        // $query->exclude(['balance','credit_balance','paid_to_date']);
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
@@ -983,6 +1013,9 @@ class BaseController extends Controller
 
             //pass report errors bool to front end
             $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
+
+            //pass whitelabel bool to front end
+            $data['white_label'] = Ninja::isSelfHost() ? $account->isPaid() : false;
 
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
