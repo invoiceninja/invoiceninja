@@ -42,7 +42,6 @@ class TemplateController extends BaseController
      *      tags={"templates"},
      *      summary="Returns a entity template with the template variables replaced with the Entities",
      *      description="Returns a entity template with the template variables replaced with the Entities",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *         description="The template subject and body",

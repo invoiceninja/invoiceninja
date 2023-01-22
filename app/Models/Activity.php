@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class Activity extends StaticModel
 {
@@ -374,17 +375,18 @@ class Activity extends StaticModel
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * @return mixed
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        if (is_numeric($value)) {
-            throw new ModelNotFoundException("Record with value {$value} not found");
-        }
+//     /**
+//      * @return mixed
+//      */
+//     public function resolveRouteBinding($value, $field = null)
+//     {
+//         if (is_numeric($value)) {
+//             throw new ModelNotFoundException("Record with value {$value} not found");
+//         }
 
-        return $this
-            //->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
+//         return $this
+//             //->withTrashed()
+//             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+//     }
+
 }

@@ -51,7 +51,7 @@ class VendorContactObserver
 
         $vendorContact->purchase_order_invitations()->delete();
        
-        PurchaseOrderInvitation::withTrashed()->where('vendor_contact_id', 1)->cursor()->each(function ($invite){
+        PurchaseOrderInvitation::withTrashed()->where('vendor_contact_id', $vendor_contact_id)->cursor()->each(function ($invite){
 
           if($invite->purchase_order()->doesnthave('invitations'))
             $invite->purchase_order->service()->createInvitations();

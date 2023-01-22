@@ -13,7 +13,7 @@ namespace App\Providers;
 
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +30,6 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-
         Route::bind('task_scheduler', function ($value) {
 
             if (is_numeric($value)) {
@@ -39,6 +38,7 @@ class RouteServiceProvider extends ServiceProvider
 
             return Scheduler::query()
                 ->withTrashed()
+                ->company()
                 ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
 
         });

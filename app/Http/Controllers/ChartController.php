@@ -30,7 +30,6 @@ class ChartController extends BaseController
      *      tags={"charts"},
      *      summary="Get chart data",
      *      description="Get chart data",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
