@@ -22,7 +22,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use DateTime;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
@@ -500,7 +500,8 @@ class Account extends BaseModel
         }
 
         return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))
+            ->firstOrFail();
     }
 
     public function getTrialDays()

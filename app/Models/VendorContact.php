@@ -145,7 +145,9 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->company()
+            ->where('id', $this->decodePrimaryKey($value))
+            ->firstOrFail();
     }
 
     public function purchase_order_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany

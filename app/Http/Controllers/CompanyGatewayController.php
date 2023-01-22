@@ -505,11 +505,12 @@ class CompanyGatewayController extends BaseController
 
         $company_gateways = CompanyGateway::withTrashed()
                                           ->whereIn('id',$this->transformKeys($ids))
+                                          ->company()
                                           ->cursor()
                                           ->each(function ($company_gateway, $key) use ($action) {
                                                     $this->company_repo->{$action}($company_gateway);
                                             });
 
-        return $this->listResponse(CompanyGateway::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 }

@@ -174,6 +174,7 @@ class BaseModel extends Model
 
         return $this
             ->withTrashed()
+            ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 

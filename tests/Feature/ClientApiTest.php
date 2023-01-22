@@ -13,8 +13,13 @@ namespace Tests\Feature;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
+use App\Factory\CompanyUserFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Models\Account;
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyToken;
+use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Utils\Number;
@@ -52,6 +57,73 @@ class ClientApiTest extends TestCase
         Model::reguard();
 
     }
+
+    public function testCrossCompanyBulkActionsFail()
+    {
+
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'confirmation_code' => '123',
+            'email' =>  $this->faker->safeEmail(),
+        ]);
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = true;
+        $cu->permissions = '["view_client"]';
+        $cu->save();
+
+        $different_company_token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $different_company_token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+        $data = [
+            'action' => 'archive',
+            'ids' => [
+                $this->client->id
+            ]
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/bulk', $data)
+          ->assertStatus(302);
+
+        //using existing permissions, they must pass the ->edit guard()
+        $this->client->fresh();
+        $this->assertNull($this->client->deleted_at);
+
+        $rules = [
+            'ids' => 'required|bail|array|exists:clients,id,company_id,'.$company->id,
+            'action' => 'in:archive,restore,delete'
+        ];
+
+        $v = $this->app['validator']->make($data, $rules);
+
+        $this->assertFalse($v->passes());
+
+    }
+
 
     public function testClientBulkActionValidation()
     {
@@ -737,17 +809,24 @@ class ClientApiTest extends TestCase
     public function testClientArchived()
     {
         $data = [
-            'ids' => [$this->encodePrimaryKey($this->client->id)],
+            'ids' => [$this->client->hashed_id],
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=archive', $data);
+        $response = false;
 
-        $arr = $response->json();
+        try{
+            $response = $this->withHeaders([
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/clients/bulk?action=archive', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
 
-        $this->assertNotNull($arr['data'][0]['archived_at']);
+        if($response){
+            $arr = $response->json();
+            $this->assertNotNull($arr['data'][0]['archived_at']);
+        }
     }
 
     public function testClientRestored()

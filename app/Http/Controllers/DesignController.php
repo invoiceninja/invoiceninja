@@ -520,7 +520,7 @@ class DesignController extends BaseController
 
         $ids = request()->input('ids');
 
-        $designs = Design::withTrashed()->find($this->transformKeys($ids));
+        $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
 
         $designs->each(function ($design, $key) use ($action) {
             if (auth()->user()->can('edit', $design)) {
@@ -528,7 +528,7 @@ class DesignController extends BaseController
             }
         });
 
-        return $this->listResponse(Design::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     public function default(DefaultDesignRequest $request)

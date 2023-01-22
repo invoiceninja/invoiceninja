@@ -619,7 +619,7 @@ class BankIntegrationController extends BaseController
         if(!$bank_account_id)
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
 
-        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->where('company_id', auth()->user()->company()->id)->firstOrFail();
+        $bi = BankIntegration::withTrashed()->where('bank_account_id', $acc_id)->company()->firstOrFail();
 
         $yodlee = new Yodlee($bank_account_id);
         $res = $yodlee->deleteAccount($acc_id);

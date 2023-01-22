@@ -498,7 +498,6 @@ class CreditController extends BaseController
     public function bulk(BulkCreditRequest $request)
     {
         $action = $request->input('action');
-
         $ids = $request->input('ids');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
@@ -548,7 +547,7 @@ class CreditController extends BaseController
             }
         });
 
-        return $this->listResponse(Credit::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
     }
 
     public function action(ActionCreditRequest $request, Credit $credit, $action)

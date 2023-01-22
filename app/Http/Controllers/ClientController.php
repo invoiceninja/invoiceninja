@@ -498,17 +498,19 @@ class ClientController extends BaseController
     public function bulk(BulkClientRequest $request)
     {
 
-        $ids = request()->input('ids');
-        $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
         $action = $request->action;
 
-        $clients->each(function ($client, $key) use ($action) {
-            if (auth()->user()->can('edit', $client)) {
-                $this->client_repo->{$action}($client);
-            }
-        });
+        $clients = Client::withTrashed()
+                         ->company()
+                         ->whereIn('id', $request->ids)
+                         ->cursor()
+                         ->each(function ($client) use ($action) {
+                                if (auth()->user()->can('edit', $client)) {
+                                    $this->client_repo->{$action}($client);
+                                }
+                    });
 
-        return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Client::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     /**
