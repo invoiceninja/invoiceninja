@@ -503,7 +503,10 @@ class CreditController extends BaseController
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);
 
-        $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $credits = Credit::withTrashed()
+                         ->whereIn('id', $request->ids)
+                         ->company()
+                         ->get();
 
         if (! $credits) {
             return response()->json(['message' => ctrans('texts.no_credits_found')]);
@@ -547,7 +550,7 @@ class CreditController extends BaseController
             }
         });
 
-        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     public function action(ActionCreditRequest $request, Credit $credit, $action)

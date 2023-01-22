@@ -11,10 +11,13 @@
 
 namespace App\Http\Requests\Credit;
 
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BulkCreditRequest extends FormRequest
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -33,8 +36,19 @@ class BulkCreditRequest extends FormRequest
     public function rules()
     {
         return [
-                'ids' => 'required|bail|array',
-                'action' => 'required|bail|in:archive,restore,delete,email,bulk_download,bulk_print,mark_paid,clone_to_credit,history,mark_sent,download,send_email'
-            ];
+            'ids' => ['required','bail','array',Rule::exists('credits','id')->where('company_id', auth()->user()->company()->id)],
+            'action' => 'required|bail|in:archive,restore,delete,email,bulk_download,bulk_print,mark_paid,clone_to_credit,history,mark_sent,download,send_email'
+        ];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['ids']))
+            $input['ids'] = $this->transformKeys($input['ids']);
+
+        $this->replace($input);
+    }
+
 }

@@ -12,14 +12,12 @@
 namespace App\Http\Requests\CompanyGateway;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
-use App\Models\Gateway;
-use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
 class BulkCompanyGatewayRequest extends Request
-
 {
+    use MakesHash;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -35,11 +33,22 @@ class BulkCompanyGatewayRequest extends Request
     {
 
         return [
-            'ids' => 'required|bail|array',
+            'ids' => ['required','bail','array',Rule::exists('company_gateways','id')->where('company_id', auth()->user()->company()->id)],
             'action' => 'required|bail|in:archive,restore,delete'
         ];
 
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['ids']))
+            $input['ids'] = $this->transformKeys($input['ids']);
+
+        $this->replace($input);
+    }
+
 
 
 }

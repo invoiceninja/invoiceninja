@@ -501,16 +501,14 @@ class CompanyGatewayController extends BaseController
     {
         $action = $request->input('action');
 
-        $ids = $request->input('ids');
-
         $company_gateways = CompanyGateway::withTrashed()
-                                          ->whereIn('id',$this->transformKeys($ids))
+                                          ->whereIn('id', $request->ids)
                                           ->company()
                                           ->cursor()
                                           ->each(function ($company_gateway, $key) use ($action) {
                                                     $this->company_repo->{$action}($company_gateway);
                                             });
 
-        return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }
 }
