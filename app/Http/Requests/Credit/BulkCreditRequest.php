@@ -9,18 +9,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\CompanyGateway;
+namespace App\Http\Requests\Credit;
 
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
-use App\Models\Gateway;
-use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
-use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
-class BulkCompanyGatewayRequest extends Request
-
+class BulkCreditRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,18 +22,19 @@ class BulkCompanyGatewayRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return true;
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
     public function rules()
     {
-
         return [
-            'ids' => 'required|bail|array',
-            'action' => 'required|bail|in:archive,restore,delete'
-        ];
-
+                'ids' => 'required|bail|array',
+                'action' => 'required|bail|in:archive,restore,delete,email,bulk_download,bulk_print,mark_paid,clone_to_credit,history,mark_sent,download,send_email'
+            ];
     }
-
-
 }

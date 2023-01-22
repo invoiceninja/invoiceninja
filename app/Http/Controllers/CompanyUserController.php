@@ -11,11 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ModelNotFoundException;
 use App\Http\Requests\CompanyUser\UpdateCompanyUserRequest;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response;
 
 class CompanyUserController extends BaseController

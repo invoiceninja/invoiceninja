@@ -17,6 +17,7 @@ use App\Factory\CloneCreditFactory;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
 use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Http\Requests\Credit\BulkCreditRequest;
 use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
@@ -494,11 +495,11 @@ class CreditController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkCreditRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);

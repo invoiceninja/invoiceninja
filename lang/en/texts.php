@@ -4926,6 +4926,8 @@ $LANG = array(
     'import_completed' => 'Import completed',
     'client_statement_body' => 'Your statement from :start_date to :end_date is attached.',
     'email_queued' => 'Email queued',
+    'clone_to_recurring_invoice' => 'Clone to Recurring Invoice',
+
 );
 
 
