@@ -866,7 +866,7 @@ class InvoiceController extends BaseController
 
         $file = $invoice->service()->getInvoicePdf($contact);
 
-        $headers = ['Content-Type' => 'application/pdf', 'filename' => basename($file)];
+        $headers = ['Content-Type' => 'application/pdf'];
 
         if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
