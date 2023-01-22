@@ -43,7 +43,6 @@ class OneTimeTokenController extends BaseController
      *      tags={"one_time_token"},
      *      summary="Attempts to create a one time token",
      *      description="Attempts to create a one time token",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

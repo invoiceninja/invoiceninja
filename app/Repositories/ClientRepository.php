@@ -52,7 +52,6 @@ class ClientRepository extends BaseRepository
      * @return     Client|Client|null  Client Object
      *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     * @todo       Write tests to make sure that custom client numbers work as expected.
      */
     public function save(array $data, Client $client) : ?Client
     {

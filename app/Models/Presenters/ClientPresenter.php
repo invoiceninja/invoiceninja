@@ -27,7 +27,6 @@ class ClientPresenter extends EntityPresenter
             return $this->entity->name;
         }
 
-        //$contact = $this->entity->primary_contact->first();
         $contact = $this->entity->contacts->whereNotNull('email')->first();
 
         $contact_name = 'No Contact Set';

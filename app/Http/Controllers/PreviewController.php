@@ -16,7 +16,6 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Libraries\MultiDB;
@@ -44,7 +43,6 @@ use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -70,7 +68,6 @@ class PreviewController extends BaseController
      *      tags={"preview"},
      *      summary="Returns a pdf preview",
      *      description="Returns a pdf preview.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -108,8 +105,6 @@ class PreviewController extends BaseController
             $entity = ucfirst(request()->input('entity'));
 
             $class = "App\Models\\$entity";
-
-            $pdf_class = "App\Jobs\\$entity\\Create{$entity}Pdf";
 
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
@@ -213,6 +208,12 @@ class PreviewController extends BaseController
                                     ->withTrashed()
                                     ->first();
             }
+
+            if($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['footer' => $company->settings->invoice_footer]);
+
+            if($request->has('terms') && !$request->filled('terms') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['terms' => $company->settings->invoice_terms]);
 
             $entity_obj = $repo->save($request->all(), $entity_obj);
 
@@ -404,8 +405,8 @@ class PreviewController extends BaseController
             'user_id' => auth()->user()->id,
             'company_id' => auth()->user()->company()->id,
             'client_id' => $client->id,
-            'terms' => 'Sample Terms',
-            'footer' => 'Sample Footer',
+            'terms' => auth()->user()->company()->settings->invoice_terms,
+            'footer' => auth()->user()->company()->settings->invoice_footer,
             'public_notes' => 'Sample Public Notes',
         ]);
 

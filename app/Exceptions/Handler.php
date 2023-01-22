@@ -16,12 +16,10 @@ use App\Exceptions\InternalPDFFailure;
 use App\Exceptions\PhantomPDFFailure;
 use App\Exceptions\StripeConnectFailure;
 use App\Utils\Ninja;
-use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -34,11 +32,11 @@ use Illuminate\Validation\ValidationException;
 use PDOException;
 use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
-use Swift_TransportException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use League\Flysystem\UnableToCreateDirectory;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -50,7 +48,30 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         PDOException::class,
-        //Swift_TransportException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
+    ];
+
+    protected $selfHostDontReport = [
+        FilePermissionsFailure::class,
+        PDOException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
+        UnableToCreateDirectory::class,
+        GuzzleHttp\Exception\ConnectException::class,
+        Symfony\Component\Process\Exception\RuntimeException::class,
+        InvalidArgumentException::class,
+        RuntimeException::class,
+    ];
+
+    protected $hostedDontReport = [
+        PDOException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,
@@ -80,11 +101,10 @@ class Handler extends ExceptionHandler
     {
         if (! Schema::hasTable('accounts')) {
             info('account table not found');
-
             return;
         }
 
-        if (Ninja::isHosted() && ! ($exception instanceof ValidationException)) {
+        if (Ninja::isHosted()) {
             Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
@@ -105,8 +125,11 @@ class Handler extends ExceptionHandler
                 ]);
             });
 
-            Integration::captureUnhandledException($exception);
-        } elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
+            if ($this->validException($exception) && $this->sentryShouldReport($exception)) {
+                Integration::captureUnhandledException($exception);
+            }
+
+        } elseif (app()->bound('sentry')) {
             Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([
@@ -123,7 +146,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
-            if ($this->validException($exception)) {
+            if ($this->validException($exception) && $this->sentryShouldReport($exception)) {
                 Integration::captureUnhandledException($exception);
             }
         }
@@ -160,6 +183,23 @@ class Handler extends ExceptionHandler
         return true;
     }
 
+
+    /**
+     * Determine if the exception is in the "do not report" list.
+     *
+     * @param  \Throwable  $e
+     * @return bool
+     */
+    protected function sentryShouldReport(Throwable $e)
+    {
+        if(Ninja::isHosted())
+            $dontReport = array_merge($this->hostedDontReport, $this->internalDontReport);
+        else
+            $dontReport = array_merge($this->selfHostDontReport, $this->internalDontReport);
+
+        return is_null(Arr::first($dontReport, fn ($type) => $e instanceof $type));
+    }
+
     /**
      * Render an exception into an HTTP response.
      *
@@ -180,8 +220,8 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 500);
         } elseif ($exception instanceof ThrottleRequestsException && $request->expectsJson()) {
             return response()->json(['message'=>'Too many requests'], 429);
-        } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
-            return response()->json(['message'=>'Fatal error'], 500);
+        // } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
+        //     return response()->json(['message'=>'Fatal error'], 500); //@deprecated
         } elseif ($exception instanceof AuthorizationException) {
             return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
@@ -196,7 +236,6 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Method not supported for this route'], 404);
         } elseif ($exception instanceof ValidationException && $request->expectsJson()) {
-            // nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
             return response()->json(['message' => "Relation `{$exception->relation}` is not a valid include."], 400);
@@ -207,13 +246,6 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } 
-
-
-        // elseif ($exception instanceof QueryException) {
-        //     return response()->json(['message' => 'We had a problem executing this query. Please retry.'], 500);
-        // } 
-
-
 
         return parent::render($request, $exception);
     }

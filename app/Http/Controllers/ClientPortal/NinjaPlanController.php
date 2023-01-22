@@ -148,6 +148,7 @@ class NinjaPlanController extends Controller
             $account->plan_term = 'month';
             $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
+            $account->is_trial=true;
             $account->save();
         }
 
@@ -216,7 +217,7 @@ class NinjaPlanController extends Controller
 
             if ($account) {
                 //offer the option to have a free trial
-                if (! $account->trial_started && ! $account->plan) {
+                if (!$account->is_trial) {
                     return $this->trial();
                 }
 

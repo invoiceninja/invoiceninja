@@ -36,7 +36,6 @@ class CreditReportController extends BaseController
      *      tags={"reports"},
      *      summary="Credit reports",
      *      description="Export credit reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

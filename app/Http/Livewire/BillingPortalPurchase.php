@@ -202,6 +202,12 @@ class BillingPortalPurchase extends Component
         elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
             $this->price = $this->subscription->promo_price;
         }
+
+        /* Leave this here, otherwise a logged in user will need to reauth... painfully */
+        if(Auth::guard('contact')->check()){
+            return $this->getPaymentMethods(auth()->guard('contact')->user());
+        }
+        
     }
 
     /**
@@ -397,10 +403,10 @@ class BillingPortalPurchase extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
+            'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
+            'client_id' => $this->contact->client->hashed_id,
+            'invoice_id' => $this->invoice->hashed_id,
             'context' => 'purchase',
             'campaign' => $this->campaign,
         ], now()->addMinutes(60));

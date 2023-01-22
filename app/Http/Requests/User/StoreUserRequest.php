@@ -63,8 +63,6 @@ class StoreUserRequest extends Request
     {
         $input = $this->all();
 
-        //unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
-
         if (array_key_exists('email', $input)) {
             $input['email'] = trim($input['email']);
         }
@@ -79,12 +77,10 @@ class StoreUserRequest extends Request
             }
 
             if (! isset($input['company_user']['settings'])) {
-                //$input['company_user']['settings'] = DefaultSettings::userSettings();
                 $input['company_user']['settings'] = null;
             }
         } else {
             $input['company_user'] = [
-                //'settings' => DefaultSettings::userSettings(),
                 'settings' => null,
                 'permissions' => '',
             ];

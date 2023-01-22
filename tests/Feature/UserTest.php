@@ -58,6 +58,19 @@ class UserTest extends TestCase
 
     }
 
+    public function testUserFiltersWith()
+    {
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->get('/api/v1/users?with='.$this->user->hashed_id);
+
+        $response->assertStatus(200);
+
+    }
+
     public function testUserList()
     {
         $response = $this->withHeaders([

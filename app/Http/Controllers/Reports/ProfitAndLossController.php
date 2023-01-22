@@ -38,7 +38,6 @@ class ProfitAndLossController extends BaseController
      *      tags={"reports"},
      *      summary="Profit loss reports",
      *      description="Profit loss report",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

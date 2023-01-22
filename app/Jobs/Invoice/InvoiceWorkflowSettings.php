@@ -56,12 +56,5 @@ class InvoiceWorkflowSettings implements ShouldQueue
             /* Throws: Payment amount xxx does not match invoice totals. */
             $this->base_repository->archive($this->invoice);
         }
-
-        //@TODO this setting should only fire for recurring invoices
-        // if ($this->client->getSetting('auto_email_invoice')) {
-        //    $this->invoice->invitations->each(function ($invitation, $key) {
-        //         $this->invoice->service()->sendEmail($invitation->contact);
-        //    });
-        // }
     }
 }

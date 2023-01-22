@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\BankIntegration;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * BankIntegrationFilters.
@@ -68,28 +64,22 @@ class BankIntegrationFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'bank_integrations';
         $filters = explode(',', $filter);
 
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
+        return $this->builder->where(function ($query) use ($filters) {
+         
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
+                $query->orWhereNull('deleted_at');
             }
 
             if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
+                $query->orWhere(function ($query) {
+                    $query->whereNotNull('deleted_at');
                 });
             }
 
             if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
+                $query->orWhere('is_deleted', 1);
             }
         });
     }
@@ -105,19 +95,6 @@ class BankIntegrationFilters extends QueryFilters
         $sort_col = explode('|', $sort);
         
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-
     }
 
     /**

@@ -36,7 +36,6 @@ class LicenseController extends BaseController
      *      tags={"claim_license"},
      *      summary="Attempts to claim a white label license",
      *      description="Attempts to claim a white label license",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="license_key",

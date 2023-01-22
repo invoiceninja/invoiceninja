@@ -36,7 +36,6 @@ class DocumentReportController extends BaseController
      *      tags={"reports"},
      *      summary="Document reports",
      *      description="Export document reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,
