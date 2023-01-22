@@ -15,6 +15,7 @@ use App\Factory\BankTransactionFactory;
 use App\Filters\BankTransactionFilters;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
+use App\Http\Requests\BankTransaction\BulkBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
 use App\Http\Requests\BankTransaction\DestroyBankTransactionRequest;
 use App\Http\Requests\BankTransaction\EditBankTransactionRequest;
@@ -58,7 +59,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a list of bank_transactions",
      *      description="Lists all bank integrations",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -119,7 +119,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -175,7 +174,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction for editing",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -231,7 +229,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Updates a bank_transaction",
      *      description="Handles the updating of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -290,7 +287,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a new blank bank_transaction object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -336,7 +332,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Adds a bank_transaction",
      *      description="Adds an bank_transaction to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -384,7 +379,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Deletes a bank_transaction",
      *      description="Handles the deletion of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -438,7 +432,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs bulk actions on an array of bank_transations",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -477,12 +470,9 @@ class BankTransactionController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkBankTransactionRequest $request)
     {
-        $action = request()->input('action');
-
-        if(!in_array($action, ['archive', 'restore', 'delete', 'convert_matched']))
-            return response()->json(['message' => 'Unsupported action.'], 400);
+        $action = $request->input('action');
 
         $ids = request()->input('ids');
             
@@ -490,19 +480,14 @@ class BankTransactionController extends BaseController
 
         if($action == 'convert_matched') //catch this action
         {
-            if(auth()->user()->isAdmin())
-            {
-                $this->bank_transaction_repo->convert_matched($bank_transactions);
-            }
-            else 
-                return;
+
+            $this->bank_transaction_repo->convert_matched($bank_transactions);
+
         }
         else {
 
             $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
-                if (auth()->user()->can('edit', $bank_transaction)) {
                     $this->bank_transaction_repo->{$action}($bank_transaction);
-                }
             });
 
         }
@@ -523,7 +508,6 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs match actions on an array of bank_transactions",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),

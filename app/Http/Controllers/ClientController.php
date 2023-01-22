@@ -16,6 +16,7 @@ use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
 use App\Http\Requests\Client\AdjustClientLedgerRequest;
+use App\Http\Requests\Client\BulkClientRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -79,7 +80,6 @@ class ClientController extends BaseController
      *      description="Lists clients, search and filters allow fine grained lists to be generated.
 
     Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -129,7 +129,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Shows a client",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -184,7 +183,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Shows a client for editting",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -240,7 +238,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Updates a client",
      *      description="Handles the updating of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -305,7 +302,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -351,7 +347,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Adds a client",
      *      description="Adds an client to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -409,7 +404,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Deletes a client",
      *      description="Handles the deletion of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -463,7 +457,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Performs bulk actions on an array of clients",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -502,24 +495,22 @@ class ClientController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkClientRequest $request)
     {
-        $action = request()->input('action');
 
-        $ids = request()->input('ids');
-        $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
+        $action = $request->action;
 
-        if (! in_array($action, ['restore', 'archive', 'delete'])) {
-            return response()->json(['message' => 'That action is not available.'], 400);
-        }
+        $clients = Client::withTrashed()
+                         ->company()
+                         ->whereIn('id', $request->ids)
+                         ->cursor()
+                         ->each(function ($client) use ($action) {
+                                if (auth()->user()->can('edit', $client)) {
+                                    $this->client_repo->{$action}($client);
+                                }
+                    });
 
-        $clients->each(function ($client, $key) use ($action) {
-            if (auth()->user()->can('edit', $client)) {
-                $this->client_repo->{$action}($client);
-            }
-        });
-
-        return $this->listResponse(Client::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Client::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     /**
@@ -537,7 +528,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Uploads a document to a client",
      *      description="Handles the uploading of a document to a client",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -601,7 +591,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Purges a client from the system",
      *      description="Handles purging a client",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -674,7 +663,6 @@ class ClientController extends BaseController
      *      tags={"clients"},
      *      summary="Merges two clients",
      *      description="Handles merging 2 clients",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

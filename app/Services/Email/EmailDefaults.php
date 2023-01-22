@@ -135,7 +135,13 @@ class EmailDefaults
      * Sets the FROM address
      */
     private function setFrom(): self
-    {
+    { 
+
+        if(Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default'){
+            $this->email_object->from = new Address(config('mail.from.address'), $this->email_service->company->owner()->name());
+            return $this;
+        }
+
         if($this->email_object->from)
             return $this;
 

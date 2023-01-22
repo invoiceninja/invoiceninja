@@ -31,7 +31,6 @@ class WebCronController extends Controller
      *      tags={"webcron"},
      *      summary="Executes the task scheduler via a webcron service",
      *      description="Executes the task scheduler via a webcron service",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

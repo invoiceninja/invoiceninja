@@ -90,22 +90,22 @@ jobs:
       run: |
         cp .env.ci .env
 
-    # - name: Get Composer Cache Directory
-    #   id: composer-cache
-    #   run: |
-    #     echo "::set-output name=dir::$(composer config cache-files-dir)"
-    # - uses: actions/cache@v2
-    #   with:
-    #     path: ${{ steps.composer-cache.outputs.dir }}
-    #     key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-${{ matrix.php }}-composer-
-
-    - name: Cache dependencies actions/cache@v3
-      uses: actions/cache@v3
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
       with:
-        path: ~/.composer/cache/files
-        key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.php }}-composer-
+
+    # - name: Cache dependencies actions/cache@v3
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ~/.composer/cache/files
+    #     key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Install composer dependencies
       run: |
@@ -125,12 +125,7 @@ jobs:
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
-
-    # - name: Prepare JS/CSS assets
-    #   run: |
-    #     npm i
-    #     npm run production
-        
+  
     - name: Run Testsuite
       run: |
         cat .env
@@ -140,5 +135,4 @@ jobs:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
         PHP_CS_FIXER_IGNORE_ENV: true
         CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
-        # Use the index from matrix as an environment variable
         CI_NODE_INDEX: ${{ matrix.ci_node_index }}

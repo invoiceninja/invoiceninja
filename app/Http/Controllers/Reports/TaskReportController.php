@@ -36,7 +36,6 @@ class TaskReportController extends BaseController
      *      tags={"reports"},
      *      summary="Task reports",
      *      description="Export task reports",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,

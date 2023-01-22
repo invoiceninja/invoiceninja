@@ -28,7 +28,6 @@ class PingController extends BaseController
      *      tags={"ping"},
      *      summary="Attempts to ping the API",
      *      description="Attempts to ping the API",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -60,7 +59,6 @@ class PingController extends BaseController
      *      tags={"health_check"},
      *      summary="Attempts to get a health check from the API",
      *      description="Attempts to get a health check from the API",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
