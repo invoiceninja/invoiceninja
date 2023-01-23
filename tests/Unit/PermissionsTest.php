@@ -159,6 +159,40 @@ class PermissionsTest extends TestCase
         
     }
 
+    public function testReturnTypesOfStripos()
+    {
+
+
+        $this->assertEquals(0, stripos("view_client", ''));
+
+        $all_permission = '[]';
+        $this->assertFalse(stripos($all_permission, "view_client") !== false);
+        $this->assertTrue(stripos($all_permission, "view_client") == 0);
+        $this->assertFalse(is_int(stripos($all_permission, "view_client")));
+
+        $all_permission = ' ';
+        $this->assertFalse(stripos($all_permission, "view_client") !== false);
+        $this->assertFalse(is_int(stripos($all_permission, "view_client")));
+        
+        $all_permission = "";//problems are empty strings
+        $this->assertTrue(empty($all_permission));
+
+        $this->assertFalse( stripos($all_permission, "view_client") !== false);
+        $this->assertFalse( is_int(stripos($all_permission, "view_client")));
+        
+        $all_permission = 'view';//will always pass currently
+        $this->assertFalse( stripos($all_permission, "view_client") !== false);
+        $this->assertFalse(is_int(stripos($all_permission, "view_client")));
+
+        $all_permission = "view_client";
+        $this->assertTrue(stripos($all_permission, "view_client") !== false);
+        $this->assertTrue(is_int(stripos($all_permission, "view_client")) !== false);
+
+        $this->assertTrue(is_int(stripos($all_permission, "view_client")));
+
+
+    }
+
     public function testViewClientPermission()
     {
 
@@ -166,8 +200,8 @@ class PermissionsTest extends TestCase
         $low_cu->permissions = '["view_client"]';
         $low_cu->save();
 
-        //this is aberrant
-        $this->assertTrue($this->user->hasPermission("viewclient"));
+        // this is aberrant
+        $this->assertFalse($this->user->hasPermission("view____client"));
 
     }
 
