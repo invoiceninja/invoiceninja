@@ -358,18 +358,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermission($permission) : bool
     {
         $parts = explode('_', $permission);
-        $all_permission = '';
+        $all_permission = false;
 
         if (count($parts) > 1) {
             $all_permission = $parts[0].'_all';
         }
 
-//empty $all_permissions leads to stripos returning true;
-
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
-                (is_int(stripos($this->token()->cu->permissions, $permission)));
+                (stripos($all_permission, $this->token()->cu->permissions) !== false) ||
+                (stripos($permission,  $this->token()->cu->permissions) !== false);
+
+        // return  $this->isOwner() ||
+        //         $this->isAdmin() ||
+        //         (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
+        //         (is_int(stripos($this->token()->cu->permissions, $permission)));
 
     }
 

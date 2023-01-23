@@ -42,6 +42,23 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
+
+        if (! config('ninja.db.multi_db_enabled')) {
+        
+            Scheduler::with('company')
+                ->where('is_paused', false)
+                ->where('is_deleted', false)
+                ->whereNotNull('next_run')
+                ->where('next_run', '<=', now())
+                ->cursor()
+                ->each(function ($scheduler) {
+                    $this->doJob($scheduler);
+                });
+
+
+            return;
+        }
+
         foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
