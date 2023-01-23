@@ -455,6 +455,7 @@ class CheckData extends Command
                             if($contact && $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->count() != 0) {
                                 $i = $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->first();
                                 $i->restore();
+                                $this->logMessage("Found a valid contact and invitation restoring for {$entity_key} - {$entity->id}");
                             }
                             else {
                                 $invitation = new $entity_obj();
