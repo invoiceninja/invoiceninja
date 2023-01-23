@@ -98,7 +98,7 @@ class SubscriptionService
                               ->save();
 
             //update the invoice and attach to the recurring invoice!!!!!
-            $invoice = Invoice::find($payment_hash->fee_invoice_id);
+            $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
             $invoice->recurring_id = $recurring_invoice->id;
             $invoice->is_proforma = false;
             $invoice->save();
