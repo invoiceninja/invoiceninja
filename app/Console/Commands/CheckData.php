@@ -448,13 +448,24 @@ class CheckData extends Command
                         //check contact exists!
                         if($contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->exists())
                         {
-                            $invitation = new $entity_obj();
-                            $invitation->company_id = $entity->company_id;
-                            $invitation->user_id = $entity->user_id;
-                            $invitation->{$entity_key} = $entity->id;
-                            $invitation->{$contact_id} = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first()->id;
-                            $invitation->key = Str::random(config('ninja.key_length'));
-                            $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+
+                            $contact = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first();
+
+                            //double check if an archived invite exists
+                            if($contact && $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->count() != 0) {
+                                $i = $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->first();
+                                $i->restore();
+                                $this->logMessage("Found a valid contact and invitation restoring for {$entity_key} - {$entity->id}");
+                            }
+                            else {
+                                $invitation = new $entity_obj();
+                                $invitation->company_id = $entity->company_id;
+                                $invitation->user_id = $entity->user_id;
+                                $invitation->{$entity_key} = $entity->id;
+                                $invitation->{$contact_id} = $contact->id;
+                                $invitation->key = Str::random(config('ninja.key_length'));
+                                $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+                            }
                         }
                         else
                             $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");

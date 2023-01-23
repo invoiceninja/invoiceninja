@@ -450,7 +450,7 @@ class BaseController extends Controller
                 'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
@@ -796,7 +796,7 @@ class BaseController extends Controller
                 'company.bank_transactions'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('bank_transactions')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
@@ -861,7 +861,7 @@ class BaseController extends Controller
 /**/
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
-        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(in_array($this->entity_type, [User::class])){
                 $query->where('id', auth()->user()->id);
