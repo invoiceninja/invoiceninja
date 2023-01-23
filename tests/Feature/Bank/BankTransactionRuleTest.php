@@ -18,6 +18,7 @@ use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
 use App\Models\Invoice;
+use App\Services\Bank\ProcessBankRules;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
@@ -39,6 +40,19 @@ class BankTransactionRuleTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+    }
+
+    public function testMatchingWithStripos()
+    {
+
+
+        $bt_value = strtolower(str_replace(" ", "", 'hello soldier'));
+        $rule_value = strtolower(str_replace(" ", "", 'solider'));
+        $rule_length = iconv_strlen($rule_value);
+
+        $this->assertFalse(stripos($rule_value, $bt_value) !== false);    
+        $this->assertFalse(stripos($bt_value, $rule_value) !== false);
+
     }
 
     public function testBankRuleBulkActions()

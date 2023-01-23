@@ -31,7 +31,7 @@ class ExampleIntegrationTest extends TestCase
 
     public function testExample()
     {
-        $this->markTestIncomplete();
+        // $this->markTestIncomplete();
 
         $invoice = $this->invoice;
         $invitation = $invoice->invitations()->first();
@@ -61,6 +61,6 @@ class ExampleIntegrationTest extends TestCase
 
 //        nlog($maker->getCompiledHTML(true));
 
-        $this->assertTrue(true);
+        $this->assertNotNull($maker->getCompiledHTML(true));
     }
 }
