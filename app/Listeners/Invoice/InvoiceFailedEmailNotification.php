@@ -56,7 +56,7 @@ class InvoiceFailedEmailNotification
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all', 'invoice_sent_user']);
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);

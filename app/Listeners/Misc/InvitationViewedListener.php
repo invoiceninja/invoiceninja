@@ -68,8 +68,9 @@ class InvitationViewedListener implements ShouldQueue
         foreach ($invitation->company->company_users as $company_user) {
             $entity_viewed = "{$entity_name}_viewed";
             $entity_viewed_all = "{$entity_name}_viewed_all";
+            $entity_viewed_user = "{$entity_name}_viewed_user";
 
-            $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed, $entity_viewed_all]);
+            $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed, $entity_viewed_all, $entity_viewed_user]);
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);

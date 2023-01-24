@@ -15,6 +15,8 @@ namespace Tests\Feature\Notify;
 use App\DataMapper\CompanySettings;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Product;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
@@ -41,6 +43,65 @@ class NotificationTest extends TestCase
     
         $this->makeTestData();
     }
+
+
+    public function testEntityViewedNotificationWithEntityLate()
+    {
+        // ['all_notifications', 'all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user'];
+        $u = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => $this->faker->safeEmail(),
+            'confirmation_code' => uniqid("st",true),
+        ]);
+
+        $company_token = new CompanyToken;
+        $company_token->user_id = $u->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = Str::random(64);
+        $company_token->is_system = true;
+        $company_token->save();
+
+        $u->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'settings' => null,
+        ]);
+
+        $company_user = CompanyUser::where('user_id', $u->id)->where('company_id', $this->company->id)->first();
+
+        $notifications = new \stdClass;
+        $notifications->email = ["invoice_late_user","quote_approved_user"];
+        $company_user->update(['notifications' => (array)$notifications]);
+
+        $i = Invoice::factory()->create([
+            'user_id' => $u->id,
+            'company_id' => $this->company->id,
+            'number' => uniqid("st",true),
+            'client_id' => $this->client->id,
+        ]);
+
+        $invitation = InvoiceInvitation::factory()->create([
+            'user_id' => $u->id,
+            'company_id' => $this->company->id,
+            'invoice_id' => $i->id,
+            'client_contact_id' => $this->client->contacts->first()->id,
+        ]);
+
+        $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_late_user']);
+
+        $this->assertCount(1, $methods);
+
+        $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_viewed', 'invoice_viewed_all']);
+
+        $this->assertCount(0, $methods);
+
+    }
+
 
     public function testNotificationFound()
     {
@@ -100,7 +161,6 @@ class NotificationTest extends TestCase
         $this->assertCount(1, $notification_users->toArray());
 
     }
-
 
     public function testAllNotificationsDoesNotFiresForUser()
     {
@@ -170,12 +230,13 @@ class NotificationTest extends TestCase
             'company_id' => $this->company->id
         ]);
 
-        $methods = $this->findUserEntityNotificationType($p, $cu, []);
+        $methods = $this->findUserEntityNotificationType($p, $cu, ['inventory_user']);
 
         nlog($methods);
 
         $this->assertCount(1, $methods);
 
+        $this->assertTrue($this->checkNotificationExists($cu, $p, ['inventory_all', 'inventory_user']));
 
     }
 

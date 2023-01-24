@@ -148,21 +148,21 @@ class AdjustProductInventory implements ShouldQueue
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
 
-        // $product->company_users->each(function ($cu) use($product, $nmo){
+        $this->company->company_users->each(function ($cu) use($product, $nmo){
 
-        //     if($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user']))
-        //     {
+            if($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user']))
+            {
             
-        //         $nmo->to_user = $cu->user;
-        //         NinjaMailerJob::dispatch($nmo);
+                $nmo->to_user = $cu->user;
+                NinjaMailerJob::dispatch($nmo);
 
-        //     }
+            }
 
-        // });
+        });
 
-        $nmo->to_user = $this->company->owner();
+        // $nmo->to_user = $this->company->owner();
 
-        NinjaMailerJob::dispatch($nmo);
+        // NinjaMailerJob::dispatch($nmo);
 
     }
 }
