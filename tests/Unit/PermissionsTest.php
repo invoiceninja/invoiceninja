@@ -79,6 +79,20 @@ class PermissionsTest extends TestCase
 
     }
 
+    public function testViewClientPermission()
+    {
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_client"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasPermission("viewclient"));
+
+        // this is aberrant
+        $this->assertFalse($this->user->hasPermission("view____client"));
+
+    }
+
     public function testPermissionResolution()
     {
         $class = 'view'.lcfirst(class_basename(\Illuminate\Support\Str::snake(Invoice::class)));
@@ -162,7 +176,6 @@ class PermissionsTest extends TestCase
     public function testReturnTypesOfStripos()
     {
 
-
         $this->assertEquals(0, stripos("view_client", ''));
 
         $all_permission = '[]';
@@ -193,17 +206,7 @@ class PermissionsTest extends TestCase
 
     }
 
-    public function testViewClientPermission()
-    {
 
-        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
-        $low_cu->permissions = '["view_client"]';
-        $low_cu->save();
-
-        // this is aberrant
-        $this->assertFalse($this->user->hasPermission("view____client"));
-
-    }
 
 }
 
