@@ -111,6 +111,7 @@ class CreditCard
                     'value' => $amount,
                 ],
                 'description' => $description,
+                'idempotencyKey' => uniqid("st",true),
                 'redirectUrl' => route('mollie.3ds_redirect', [
                     'company_key' => $this->mollie->client->company->company_key,
                     'company_gateway_id' => $this->mollie->company_gateway->hashed_id,

@@ -1902,6 +1902,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'task' => 'Aufgabe',
     'contact_name' => 'Name des Kontakts',
     'city_state_postal' => 'Stadt/Bundesland/PLZ',
+    'postal_city' => 'PLZ/Stadt',
     'custom_field' => 'Benutzerdefinierte Felder',
     'account_fields' => 'Unternehmensfelder',
     'facebook_and_twitter' => 'Facebook und Twitter',

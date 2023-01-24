@@ -149,6 +149,7 @@ class NinjaPlanController extends Controller
             $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
             $account->is_trial=true;
+            $account->hosted_company_count = 10;
             $account->save();
         }
 

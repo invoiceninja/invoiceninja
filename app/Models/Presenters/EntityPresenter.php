@@ -84,14 +84,14 @@ class EntityPresenter extends Presenter
         }
     }
 
-    public function getShippingCityState()
+    public function getShippingCityState($printCity = true, $printState = true, $printPostalCode = true)
     {
         $client = $this->entity;
         $swap = $client->shipping_country && $client->shipping_country->swap_postal_code;
 
-        $city = e($client->shipping_city);
-        $state = e($client->shipping_state);
-        $postalCode = e($client->shipping_postal_code);
+        $city = ($printCity) ? e($client->shipping_city) : null;
+        $state = ($printState) ? e($client->shipping_state) : null;
+        $postalCode = ($printPostalCode) ? e($client->shipping_postal_code) : null;
 
         if ($city || $state || $postalCode) {
             return $this->cityStateZip($city, $state, $postalCode, $swap);
