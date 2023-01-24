@@ -57,7 +57,7 @@ class CreditCreatedNotification implements ShouldQueue
             // $notification = new EntitySentNotification($event->invitation, 'credit');
 
             /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($credit->invitations()->first(), $company_user, 'credit', ['all_notifications', 'credit_created', 'credit_created_all']);
+            $methods = $this->findUserNotificationTypes($credit->invitations()->first(), $company_user, 'credit', ['all_notifications', 'credit_created', 'credit_created_all', 'credit_created_user']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {

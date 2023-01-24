@@ -59,7 +59,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
             }
 
             /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($purchase_order->invitations()->first(), $company_user, 'purchase_order', ['all_notifications', 'purchase_order_accepted', 'purchase_order_accepted_all']);
+            $methods = $this->findUserNotificationTypes($purchase_order->invitations()->first(), $company_user, 'purchase_order', ['all_notifications', 'purchase_order_accepted', 'purchase_order_accepted_all', 'purchase_order_accepted_user']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {

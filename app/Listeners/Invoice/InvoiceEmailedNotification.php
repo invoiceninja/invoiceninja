@@ -61,7 +61,7 @@ class InvoiceEmailedNotification implements ShouldQueue
             // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
             /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all', 'invoice_sent_user']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {

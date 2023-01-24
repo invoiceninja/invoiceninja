@@ -27,7 +27,6 @@ class BankIntegration extends BaseModel
         'bank_account_type',
         'balance',
         'currency',
-        'nickname',
         'from_date',
         'auto_sync',
     ];

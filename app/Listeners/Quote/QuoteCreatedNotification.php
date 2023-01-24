@@ -63,7 +63,7 @@ class QuoteCreatedNotification implements ShouldQueue
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 
             /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($quote->invitations()->first(), $company_user, 'quote', ['all_notifications', 'quote_created', 'quote_created_all']);
+            $methods = $this->findUserNotificationTypes($quote->invitations()->first(), $company_user, 'quote', ['all_notifications', 'quote_created', 'quote_created_all', 'quote_created_user']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {

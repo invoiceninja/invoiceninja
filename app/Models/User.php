@@ -358,7 +358,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermission($permission) : bool
     {
         $parts = explode('_', $permission);
-        $all_permission = false;
+        $all_permission = '____';
 
         if (count($parts) > 1) {
             $all_permission = $parts[0].'_all';
@@ -366,8 +366,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (stripos($all_permission, $this->token()->cu->permissions) !== false) ||
-                (stripos($permission,  $this->token()->cu->permissions) !== false);
+                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
 
         // return  $this->isOwner() ||
         //         $this->isAdmin() ||
