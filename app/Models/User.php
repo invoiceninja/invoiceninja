@@ -386,18 +386,18 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  string  $permission '["view_all"]'
      * @return boolean             
      */
-    public function hasExactPermission(string $permission = ''): bool
+    public function hasExactPermission(string $permission = '___'): bool
     {
 
         $parts = explode('_', $permission);
-        $all_permission = '';
+        $all_permission = '__';
 
         if (count($parts) > 1) {
             $all_permission = $parts[0].'_all';
         }
 
-        return  (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
-                (is_int(stripos($this->token()->cu->permissions, $permission)));
+        return  (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
 
     }
 

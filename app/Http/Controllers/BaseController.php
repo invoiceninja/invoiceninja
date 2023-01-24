@@ -219,6 +219,12 @@ class BaseController extends Controller
         return response()->make($error, $httpErrorCode, $headers);
     }
 
+    /**
+     * Refresh API response with latest cahnges
+     * @param  Builer $query
+     * @property App\Models\User auth()->user() 
+     * @return Builer
+     */
     protected function refreshResponse($query)
     {
         $user = auth()->user();
@@ -443,9 +449,14 @@ class BaseController extends Controller
                 'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
                     $query->whereNotNull('updated_at');
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
@@ -538,9 +549,14 @@ class BaseController extends Controller
                 },
                 'company.bank_integrations'=> function ($query) use ($created_at, $user) {
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transaction_rules'=> function ($query) use ($user) {
 
@@ -789,9 +805,14 @@ class BaseController extends Controller
                 'company.bank_integrations'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transactions'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
@@ -867,7 +888,10 @@ class BaseController extends Controller
                 $query->where('id', auth()->user()->id);
             }
             elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
-                $query->where('user_id', '=', auth()->user()->id);
+                if($this->entity_type == BankIntegration::class && !auth()->user()->isAdmin() && !auth()->user()->isOwner() && auth()->user()->can('create', BankTransaction::class))
+                    $query->exclude(["balance"]);
+                else
+                    $query->where('user_id', '=', auth()->user()->id);
             }
             elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
                 // nlog($this->entity_type);
