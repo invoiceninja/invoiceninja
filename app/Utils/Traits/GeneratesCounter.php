@@ -125,7 +125,7 @@ trait GeneratesCounter
         switch ($entity) {
             case Invoice::class:
                 return 'invoice_number_counter';
-                
+
             case Quote::class:
 
                 if ($this->hasSharedCounter($client, 'quote')) {
@@ -133,29 +133,29 @@ trait GeneratesCounter
                 }
 
                 return 'quote_number_counter';
-                
+
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
-                
+
             case RecurringQuote::class:
                 return 'recurring_quote_number_counter';
-                
+
             case RecurringExpense::class:
                 return 'recurring_expense_number_counter';
-                
+
             case Payment::class:
                 return 'payment_number_counter';
-                
+
             case Credit::class:
                 if ($this->hasSharedCounter($client, 'credit')) {
                     return 'invoice_number_counter';
                 }
 
                 return 'credit_number_counter';
-                
+
             case Project::class:
                 return 'project_number_counter';
-                
+
             case PurchaseOrder::class:
                 return 'purchase_order_number_counter';
 
@@ -400,7 +400,7 @@ trait GeneratesCounter
         }
 
         //credit
-        return (bool) $client->getSetting('shared_invoice_credit_counter');    
+        return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -421,7 +421,7 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            
+
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
@@ -434,7 +434,7 @@ trait GeneratesCounter
             $check_counter++;
 
             if ($check_counter > 100) {
-                
+
                 $this->update_counter = $counter--;
 
                 return $number.'_'.Str::random(5);
@@ -525,7 +525,7 @@ trait GeneratesCounter
                     $settings->reset_counter_date = "";
                     $client->company->settings = $settings;
                     $client->company->save();
-                    
+
                 }
 
             return;
@@ -588,6 +588,10 @@ trait GeneratesCounter
 
         $client->company->settings = $settings;
         $client->company->save();
+
+        if ($new_reset_date->lte(now())) {
+            return $this->resetCounters($client);
+        }
     }
 
     private function resetCompanyCounters($company)
@@ -652,6 +656,10 @@ trait GeneratesCounter
 
         $company->settings = $settings;
         $company->save();
+
+        if ($reset_date->lte(now())) {
+            return $this->resetCompanyCounters($company);
+        }
     }
 
     /**
