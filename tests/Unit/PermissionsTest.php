@@ -79,6 +79,41 @@ class PermissionsTest extends TestCase
 
     }
 
+    public function testIntersectPermissions()
+    {
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_client"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasIntersectPermissions(["viewclient"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(["view_client"]));
+
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_all"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasIntersectPermissions(["viewclient"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(["view_client"]));
+
+        $this->assertFalse($this->user->hasIntersectPermissions(["viewbank_transaction"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(["view_bank_transaction"]));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["create_all"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasIntersectPermissions(["createclient"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(["create_client"]));
+
+        $this->assertFalse($this->user->hasIntersectPermissions(["createbank_transaction"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(["create_bank_transaction"]));
+        $this->assertTrue($this->user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction']));
+
+
+    }
+
     public function testViewClientPermission()
     {
 

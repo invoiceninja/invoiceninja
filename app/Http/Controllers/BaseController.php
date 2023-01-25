@@ -449,11 +449,13 @@ class BaseController extends Controller
                 'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
                     $query->whereNotNull('updated_at');
 
+                    //scopes down permissions for users with no permissions
                     if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
 
-                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                    //allows us to return integrations for users who can create bank transactions
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                         $query->exclude(["balance"]);
                     }
 
@@ -553,7 +555,7 @@ class BaseController extends Controller
                         $query->where('bank_integrations.user_id', $user->id);
                     }
 
-                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                         $query->exclude(["balance"]);
                     }
 
@@ -809,7 +811,7 @@ class BaseController extends Controller
                         $query->where('bank_integrations.user_id', $user->id);
                     }
 
-                    if(!$user->isAdmin() && !$user->isOwner() && $user->can('create', BankTransaction::class)) {
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                         $query->exclude(["balance"]);
                     }
 
@@ -857,39 +859,15 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        
-
-        /*Restore here if refactor produces unexpected edge cases*/
-/*
-        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
-            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
-                $query->where('id', auth()->user()->id);
-            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
-                $query->where('user_id', '=', auth()->user()->id);
-            }
-            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
-                //need to pass these back regardless 
-                nlog($this->entity_type);
-            }
-            else
-                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
-
-        }
-*/
-
-        /*21-01-2023*/
-/**/
-        // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
-        // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
         if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(in_array($this->entity_type, [User::class])){
                 $query->where('id', auth()->user()->id);
             }
             elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
-                if($this->entity_type == BankIntegration::class && !auth()->user()->isAdmin() && !auth()->user()->isOwner() && auth()->user()->can('create', BankTransaction::class))
-                    $query->exclude(["balance"]);
+                
+                if($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction']))
+                    $query->exclude(["balance"]); //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 else
                     $query->where('user_id', '=', auth()->user()->id);
             }
@@ -900,8 +878,6 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
 
         }
-/**/
-
         // $query->exclude(['balance','credit_balance','paid_to_date']);
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {

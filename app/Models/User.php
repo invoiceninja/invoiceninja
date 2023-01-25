@@ -318,6 +318,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Returns true is user is an admin _or_ owner
+     * 
+     * @return boolean
+     */
+    public function isSuperUser() :bool
+    {
+        return $this->token()->cu->is_owner || $this->token()->cu->is_admin;
+    }
+
+    /**
      * Returns all user created contacts.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -400,6 +410,33 @@ class User extends Authenticatable implements MustVerifyEmail
                 (stripos($this->token()->cu->permissions, $permission) !== false);
 
     }
+
+    /**
+     * Used when we need to match a range of permissions
+     * the user
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  array  $permissions 
+     * @return boolean             
+     */
+    public function hasIntersectPermissions(array $permissions = []): bool
+    {
+
+        foreach($permissions as $permission)
+        {
+
+            if($this->hasExactPermission($permission))
+                return true;
+
+        }
+
+        return false;
+        
+    }
+
+
 
     public function documents()
     {
