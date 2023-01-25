@@ -540,6 +540,7 @@ class HtmlEngine
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$task.tax_amount'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.gross_line_total'] = ['value' => '', 'label' => ctrans('texts.gross_line_total')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.task1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task1')];
