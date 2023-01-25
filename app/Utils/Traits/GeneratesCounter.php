@@ -606,42 +606,42 @@ trait GeneratesCounter
 
         switch ($company->reset_counter_frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                $reset_date->addDay();
+                $new_reset_date = $reset_date->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                $reset_date->addWeek();
+                $new_reset_date = $reset_date->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                $reset_date->addWeeks(2);
+                $new_reset_date = $reset_date->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                $reset_date->addWeeks(4);
+                $new_reset_date = $reset_date->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                $reset_date->addMonth();
+                $new_reset_date = $reset_date->addMonth();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                $reset_date->addMonths(2);
+                $new_reset_date = $reset_date->addMonths(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                $reset_date->addMonths(3);
+                $new_reset_date = $reset_date->addMonths(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                $reset_date->addMonths(4);
+                $new_reset_date = $reset_date->addMonths(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                $reset_date->addMonths(6);
+                $new_reset_date = $reset_date->addMonths(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                $reset_date->addYear();
+                $new_reset_date = $reset_date->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                $reset_date->addYears(2);
+                $new_reset_date = $reset_date->addYears(2);
                 break;
         }
 
         $settings = $company->settings;
-        $settings->reset_counter_date = $reset_date->format('Y-m-d');
+        $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
@@ -657,7 +657,7 @@ trait GeneratesCounter
         $company->settings = $settings;
         $company->save();
 
-        if ($reset_date->lte(now())) {
+        if ($new_reset_date->lte(now())) {
             return $this->resetCompanyCounters($company);
         }
     }
