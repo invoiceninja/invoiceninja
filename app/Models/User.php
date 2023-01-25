@@ -436,6 +436,33 @@ class User extends Authenticatable implements MustVerifyEmail
         
     }
 
+    /**
+     * Used when we need to match a range of permissions
+     * the user
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  array  $permissions 
+     * @return boolean             
+     */
+    public function hasIntersectPermissionsOrAdmin(array $permissions = []): bool
+    {
+        
+        if($this->isSuperUser())
+            return true;
+
+        foreach($permissions as $permission)
+        {
+
+            if($this->hasExactPermission($permission))
+                return true;
+
+        }
+
+        return false;
+        
+    }
 
 
     public function documents()

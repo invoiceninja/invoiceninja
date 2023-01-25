@@ -111,7 +111,6 @@ class PermissionsTest extends TestCase
         $this->assertTrue($this->user->hasIntersectPermissions(["create_bank_transaction"]));
         $this->assertTrue($this->user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction']));
 
-
     }
 
     public function testViewClientPermission()
