@@ -112,8 +112,8 @@ class UpdateRecurringInvoiceRequest extends Request
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
 
-        if (array_key_exists('auto_bill', $input) && isset($input['auto_bill']) && $this->setAutoBillFlag($input['auto_bill'])) {
-            $input['auto_bill_enabled'] = true;
+        if (array_key_exists('auto_bill', $input) && isset($input['auto_bill'])) {
+            $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         }
 
         if (array_key_exists('documents', $input)) {
@@ -132,9 +132,9 @@ class UpdateRecurringInvoiceRequest extends Request
      *
      * @return bool
      */
-    private function setAutoBillFlag($auto_bill) :bool
+    private function setAutoBillFlag($auto_bill)
     {
-        if ($auto_bill == 'always') {
+        if ($auto_bill == 'always' || $auto_bill == 'optout') {
             return true;
         }
 

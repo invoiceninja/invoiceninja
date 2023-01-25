@@ -68,12 +68,13 @@ class GmailTransport extends AbstractTransport
         try{
             $service->users_messages->send('me', $body, []);
         }
-        catch(Google\Service\Exception $e) {
+        catch(\Google\Service\Exception $e) {
 
             /* Need to slow down */
             if($e->getCode() == '429') {
 
-                sleep(5);
+                sleep(rand(5,10));
+                nlog("429 google - retrying ");
                 $service->users_messages->send('me', $body, []);
 
             }
