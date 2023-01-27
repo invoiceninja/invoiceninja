@@ -103,7 +103,7 @@ class HtmlEngine
     private function resolveCompanyLogoSize()
     {
         $design_map = [
-            "VolejRejNm" => "5%", // "Plain",
+            "VolejRejNm" => "65%", // "Plain",
             "Wpmbk5ezJn" => "65%", //"Clean",
             "Opnel5aKBz" => "65%", //"Bold",
             "wMvbmOeYAl" => "55%", //Modern",
@@ -119,7 +119,7 @@ class HtmlEngine
         ];
 
         $design_int_map = [
-            "1" => "5%", // "Plain",
+            "1" => "65%", // "Plain",
             "2" => "65%", //"Clean",
             "3" => "65%", //"Bold",
             "4" => "55%", //Modern",
@@ -138,7 +138,7 @@ class HtmlEngine
             return $this->settings->company_logo_size;
 
         if($this->entity->design_id && array_key_exists($this->entity->design_id, $design_int_map))
-            return $design_map[$this->encodePrimaryKey($this->entity->design_id)];
+            return $design_int_map[$this->entity->design_id];
 
         $default_design_id = $this->entity_string."_design_id";
         $design_id = $this->settings->{$default_design_id};
