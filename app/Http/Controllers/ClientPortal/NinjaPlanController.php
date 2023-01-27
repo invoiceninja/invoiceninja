@@ -218,7 +218,7 @@ class NinjaPlanController extends Controller
 
             if ($account) {
                 //offer the option to have a free trial
-                if (!$account->is_trial) {
+                if (!$account->plan && !$account->is_trial) {
                     return $this->trial();
                 }
 
