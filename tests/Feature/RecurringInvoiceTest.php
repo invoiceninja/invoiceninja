@@ -308,13 +308,15 @@ class RecurringInvoiceTest extends TestCase
     public function testRecurringDatePassesToInvoice()
     {
         $noteText = "Hello this is for :MONTH_AFTER";
-        $recurringDate = \Carbon\Carbon::now()->subDays(10);
+        $recurringDate = \Carbon\Carbon::now()->timezone($this->client->timezone()->name)->subDays(10);
 
         $item = InvoiceItemFactory::create();
         $item->cost = 10;
         $item->notes = $noteText;
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+
+
         $recurring_invoice->user_id = $this->user->id;
         $recurring_invoice->next_send_date = $recurringDate;
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
