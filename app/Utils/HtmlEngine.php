@@ -98,6 +98,43 @@ class HtmlEngine
         }
     }
 
+    private function resolveCompanyLogoSize()
+    {
+        $design_map = [
+            "VolejRejNm" => "65%", // "Plain",
+            "Wpmbk5ezJn" => "65%", //"Clean",
+            "Opnel5aKBz" => "100%", //"Bold",
+            "wMvbmOeYAl" => "55%", //Modern",
+            "4openRe7Az" => "65%", //"Business",
+            "WJxbojagwO" => "65%", //"Creative",
+            "k8mep2bMyJ" => "55%", //"Elegant",
+            "l4zbq2dprO" => "65%", //"Hipster",
+            "yMYerEdOBQ" => "65%", //"Playful",
+            "gl9avmeG1v" => "65%", //"Tech",
+            "7LDdwRb1YK" => "65%", //"Calm",
+        ];
+
+        if(strlen($this->settings->company_logo_size) > 1)
+        {
+            return $this->settings->company_logo_size;
+        }
+
+        if($this->entity->design_id && array_key_exists($this->entity->design_id, $design_map))
+        {    
+            return $design_map[$this->entity->design_id];
+        }
+
+        $default_design_id = $this->entity_string."_design_id";
+
+        $design_id = $this->settings->{$default_design_id};
+
+        if(array_key_exists($design_id, $design_map))
+            return $design_map[$this->entity->design_id];
+
+        return '65%';
+
+    }
+
     public function buildEntityDataArray() :array
     {
         if (! $this->client->currency()) {
@@ -111,8 +148,9 @@ class HtmlEngine
         $t->replace(Ninja::transformTranslations($this->settings));
 
         $data = [];
-        //$data['<html>'] = ['value' => '<html dir="rtl">', 'label' => ''];
+
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
+        $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
