@@ -4951,6 +4951,7 @@ $LANG = array(
     'notify_vendor_when_paid_help' => 'Send an email to the vendor when the expense is marked as paid',
     'update_payment' => 'Update Payment',
     'markup' => 'Markup',
+    'unlock_pro' => 'Unlock Pro',
 );
 
 
