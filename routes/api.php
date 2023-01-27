@@ -228,6 +228,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('preview', [PreviewController::class, 'show'])->name('preview.show');
     Route::post('live_preview', [PreviewController::class, 'live'])->name('preview.live');
+    Route::post('live_design', [PreviewController::class, 'design'])->name('preview.design');
 
     Route::post('preview/purchase_order', [PreviewPurchaseOrderController::class, 'show'])->name('preview_purchase_order.show');
     Route::post('live_preview/purchase_order', [PreviewPurchaseOrderController::class, 'live'])->name('preview_purchase_order.live');
