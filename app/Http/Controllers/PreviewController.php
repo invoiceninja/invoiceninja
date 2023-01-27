@@ -177,6 +177,9 @@ class PreviewController extends BaseController
 
     public function design(DesignPreviewRequest $request)
     {
+        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);
@@ -294,7 +297,7 @@ class PreviewController extends BaseController
                 ->build();
 
             DB::connection(config('database.default'))->rollBack();
-nlog($maker->getCompiledHTML());
+
             if (request()->query('html') == 'true') {
                 nlog($maker->getCompiledHTML());
                 return $maker->getCompiledHTML();
@@ -341,6 +344,9 @@ nlog($maker->getCompiledHTML());
 
     public function live(PreviewInvoiceRequest $request)
     {
+        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);
