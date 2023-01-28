@@ -23,7 +23,7 @@
     @page {
         margin-left: $global_margin;
         margin-right: $global_margin;
-        margin-top: 0;
+        margin-top: 5;
         margin-bottom: 0;
         size: $page_size $page_layout;
     }
@@ -53,6 +53,7 @@
 
     .company-logo {
         max-width: 65%;
+        /*        max-width: $company_logo_size;*/
     }
 
     #company-details {
@@ -164,7 +165,7 @@
         padding-top: .5rem;
         padding-right: 1rem;
         gap: 80px;
-        page-break-inside:auto;
+        page-break-inside:avoid;
         overflow: visible !important;
     }
 

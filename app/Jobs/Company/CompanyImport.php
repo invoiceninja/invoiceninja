@@ -508,7 +508,7 @@ class CompanyImport implements ShouldQueue
         
         if(Ninja::isHosted())
         {
-            $this->company->portal_mode = 'sub_domain';
+            $this->company->portal_mode = 'subdomain';
             $this->company->portal_domain = '';            
         }
 

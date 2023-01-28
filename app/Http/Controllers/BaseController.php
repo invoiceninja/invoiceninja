@@ -267,7 +267,7 @@ class BaseController extends Controller
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if ($user->getCompany()->is_large && $updated_at == 0) {
+        if ($user->getCompany()->is_large && $updated_at == 0 && $this->complexPermissionsUser()) {
             $updated_at = time();
         }
 
@@ -613,11 +613,27 @@ class BaseController extends Controller
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
+    /**
+     * In case a user is not an admin and is 
+     * able to access multiple companies, then we 
+     * need to pass back the mini load only
+     *     
+     * @return bool
+     */
+    private function complexPermissionsUser(): bool
+    {
+        //if the user is attached to more than one company AND they are not an admin across all companies
+        if(auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin',1)->count() != auth()->user()->company_users()->count()))
+            return true;
+
+        return false;
+    }
+
     protected function timeConstrainedResponse($query)
     {
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large) {
+        if ($user->getCompany()->is_large || $this->complexPermissionsUser()) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);
