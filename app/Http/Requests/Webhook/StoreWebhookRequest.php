@@ -28,14 +28,19 @@ class StoreWebhookRequest extends Request
     public function rules()
     {
         return [
-            'target_url' => 'required|url',
-            'event_id' => 'required',
+            'target_url' => 'bail|required|url',
+            'event_id' => 'bail|required',
+            'headers' => 'bail|sometimes|json',
+            'rest_method' => 'required|in:post,put'
         ];
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
+
+            if(isset($input['headers']) && count($input['headers']) == 0)
+                $input['headers'] = null;
 
         $this->replace($input);
     }

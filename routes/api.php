@@ -103,7 +103,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:50,1','api_secret_check','email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -228,6 +228,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('preview', [PreviewController::class, 'show'])->name('preview.show');
     Route::post('live_preview', [PreviewController::class, 'live'])->name('preview.live');
+    Route::post('live_design', [PreviewController::class, 'design'])->name('preview.design');
 
     Route::post('preview/purchase_order', [PreviewPurchaseOrderController::class, 'show'])->name('preview_purchase_order.show');
     Route::post('live_preview/purchase_order', [PreviewPurchaseOrderController::class, 'live'])->name('preview_purchase_order.live');

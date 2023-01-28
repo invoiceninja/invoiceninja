@@ -126,7 +126,8 @@ class CheckData extends Command
         $this->checkVendorSettings();
         $this->checkClientSettings();
         $this->checkCompanyTokens();
-
+        $this->checkUserState();
+        
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -412,6 +413,16 @@ class CheckData extends Command
                 $invitation->save();
             }
         }
+    }
+
+    private function checkUserState()
+    {
+        User::withTrashed()
+            ->where('deleted_at', '0000-00-00 00:00:00.000000')
+            ->cursor()
+            ->each(function ($user){
+                $user->restore();
+            });
     }
 
     private function checkEntityInvitations()

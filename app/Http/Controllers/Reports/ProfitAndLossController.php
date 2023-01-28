@@ -72,9 +72,7 @@ class ProfitAndLossController extends BaseController
         // expect a list of visible fields, or use the default
 
         $pnl = new ProfitLoss(auth()->user()->company(), $request->all());
-        $pnl->build();
-
-        $csv = $pnl->getCsv();
+        $csv = $pnl->run();
 
         $headers = [
             'Content-Disposition' => 'attachment',
