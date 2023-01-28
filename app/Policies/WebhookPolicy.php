@@ -11,9 +11,22 @@
 
 namespace App\Policies;
 
+use App\Models\User;
+
 /**
  * Class WebhookPolicy.
  */
 class WebhookPolicy extends EntityPolicy
 {
+    /**
+     *  Checks if the user has create permissions.
+     *
+     * @param  User $user
+     * @return bool
+     */
+    public function create(User $user) : bool
+    {
+        return $user->isAdmin();
+    }
+
 }
