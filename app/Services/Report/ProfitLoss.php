@@ -94,6 +94,11 @@ class ProfitLoss
         $this->setBillingReportType();
     }
 
+    public function run()
+    {
+        return $this->build()->getCsv();
+    }
+
     public function build()
     {
         MultiDB::setDb($this->company->db);
