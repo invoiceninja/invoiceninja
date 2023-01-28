@@ -663,7 +663,6 @@ trait GeneratesCounter
                 break;
         }
 
-        $settings = $company->settings;
         $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
