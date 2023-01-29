@@ -138,9 +138,9 @@ class QuoteFilters extends QueryFilters
         });
     }
 
-    public function number($number = '')
+    public function number(string $number = ''):Builder
     {
-        return $this->builder->where('number', 'like', '%'.$number.'%');
+        return $this->builder->where('number', $number);
     }
 
     /**

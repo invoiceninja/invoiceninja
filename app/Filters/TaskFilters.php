@@ -123,6 +123,11 @@ class TaskFilters extends QueryFilters
 
         return $this->builder->where('project_id', $this->decodePrimaryKey($project));
     }
+    
+    public function number(string $number = ''):Builder
+    {
+        return $this->builder->where('number', $number);
+    }
 
     /**
      * Sorts the list based on $sort.
