@@ -23,6 +23,7 @@ use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\DesignCalculator;
 use App\Utils\Traits\MakesDates;
 use App\Utils\transformTranslations;
 use Exception;
@@ -38,7 +39,8 @@ class VendorHtmlEngine
 {
     use MakesDates;
     use AppSetup;
-
+    use DesignCalculator;
+    
     public $entity;
 
     public $invitation;
@@ -127,6 +129,7 @@ class VendorHtmlEngine
         $data = [];
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
+        $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
