@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -584,6 +584,12 @@ trait GeneratesCounter
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
         $client->company->settings = $settings;
@@ -600,48 +606,67 @@ trait GeneratesCounter
             return false;
         }
 
-        switch ($company->reset_counter_frequency_id) {
+        $settings = $company->settings;
+
+        $reset_counter_frequency = (int) $settings->reset_counter_frequency_id;
+
+        if ($reset_counter_frequency == 0) {
+
+                if($settings->reset_counter_date){
+
+                    $settings->reset_counter_date = "";
+                    $company->settings = $settings;
+                    $company->save();
+                    
+                }
+
+            return;
+        }
+
+        switch ($reset_counter_frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                $reset_date->addDay();
+                $new_reset_date = $reset_date->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                $reset_date->addWeek();
+                $new_reset_date = $reset_date->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                $reset_date->addWeeks(2);
+                $new_reset_date = $reset_date->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                $reset_date->addWeeks(4);
+                $new_reset_date = $reset_date->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                $reset_date->addMonth();
+                $new_reset_date = $reset_date->addMonth();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                $reset_date->addMonths(2);
+                $new_reset_date = $reset_date->addMonths(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                $reset_date->addMonths(3);
+                $new_reset_date = $reset_date->addMonths(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                $reset_date->addMonths(4);
+                $new_reset_date = $reset_date->addMonths(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                $reset_date->addMonths(6);
+                $new_reset_date = $reset_date->addMonths(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                $reset_date->addYear();
+                $new_reset_date = $reset_date->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                $reset_date->addYears(2);
+                $new_reset_date = $reset_date->addYears(2);
+                break;
+
+                default:
+                $new_reset_date = $reset_date->addYear();
                 break;
         }
 
-        $settings = $company->settings;
-        $settings->reset_counter_date = $reset_date->format('Y-m-d');
+        $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
-        $settings->vendor_number_counter = 1;
         $settings->ticket_number_counter = 1;
         $settings->payment_number_counter = 1;
         $settings->project_number_counter = 1;

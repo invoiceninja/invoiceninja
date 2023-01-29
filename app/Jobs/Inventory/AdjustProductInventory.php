@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -148,21 +148,21 @@ class AdjustProductInventory implements ShouldQueue
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
 
-        // $product->company_users->each(function ($cu) use($product, $nmo){
+        $this->company->company_users->each(function ($cu) use($product, $nmo){
 
-        //     if($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user']))
-        //     {
+            if($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user']))
+            {
             
-        //         $nmo->to_user = $cu->user;
-        //         (new NinjaMailerJob($nmo))->handle();
+                $nmo->to_user = $cu->user;
+                NinjaMailerJob::dispatch($nmo);
 
-        //     }
+            }
 
-        // });
+        });
 
-        $nmo->to_user = $this->company->owner();
+        // $nmo->to_user = $this->company->owner();
 
-        (new NinjaMailerJob($nmo))->handle();
+        // NinjaMailerJob::dispatch($nmo);
 
     }
 }

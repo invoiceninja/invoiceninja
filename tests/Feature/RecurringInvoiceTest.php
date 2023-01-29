@@ -17,6 +17,7 @@ use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
+use App\Utils\Helpers;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -302,6 +303,37 @@ class RecurringInvoiceTest extends TestCase
         $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->client);
 
         $this->assertEquals(10, $invoice->subscription_id);
+    }
+
+    public function testRecurringDatePassesToInvoice()
+    {
+        $noteText = "Hello this is for :MONTH_AFTER";
+        $recurringDate = \Carbon\Carbon::now()->timezone($this->client->timezone()->name)->subDays(10);
+
+        $item = InvoiceItemFactory::create();
+        $item->cost = 10;
+        $item->notes = $noteText;
+
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+
+
+        $recurring_invoice->user_id = $this->user->id;
+        $recurring_invoice->next_send_date = $recurringDate;
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->next_send_date = $recurringDate;
+        $recurring_invoice->line_items = [$item];
+        $recurring_invoice->save();
+
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->subscription_id = 10;
+        $recurring_invoice->save();
+
+        $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->invoice->client);
+
+        $expectedNote = Helpers::processReservedKeywords($noteText, $this->invoice->client, $recurringDate);
+
+        $this->assertEquals($expectedNote, $invoice->line_items[0]->notes);
     }
 
     public function testSubscriptionIdPassesToInvoiceIfNull()

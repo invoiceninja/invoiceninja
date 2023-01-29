@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,12 +16,14 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Factory\RecurringInvoiceFactory;
+use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
+use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
@@ -30,9 +32,9 @@ use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
-use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
@@ -173,8 +175,178 @@ class PreviewController extends BaseController
         return $this->blankEntity();
     }
 
+    public function design(DesignPreviewRequest $request)
+    {
+        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+
+        $company = auth()->user()->company();
+
+        MultiDB::setDb($company->db);
+
+        if ($request->input('entity') == 'quote') {
+            $repo = new QuoteRepository();
+            $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
+            $class = Quote::class;
+        } elseif ($request->input('entity') == 'credit') {
+            $repo = new CreditRepository();
+            $entity_obj = CreditFactory::create($company->id, auth()->user()->id);
+            $class = Credit::class;
+        } elseif ($request->input('entity') == 'recurring_invoice') {
+            $repo = new RecurringInvoiceRepository();
+            $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
+            $class = RecurringInvoice::class;
+        } else { //assume it is either an invoice or a null object
+            $repo = new InvoiceRepository();
+            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
+            $class = Invoice::class;
+        }
+
+        try {
+            DB::connection(config('database.default'))->beginTransaction();
+
+            if ($request->has('entity_id')) {
+                $entity_obj = $class::on(config('database.default'))
+                                    ->with('client.company')
+                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
+                                    ->where('company_id', $company->id)
+                                    ->withTrashed()
+                                    ->first();
+            }
+
+            if($request->has('client_id')) {
+                $client = Client::withTrashed()->find($this->decodePrimaryKey($request->client_id));
+                    if($request->settings_type == 'client'){
+                        $client->settings = $request->settings;
+                        $client->save();
+                    }
+
+            }
+
+            if($request->has('group_id')) {
+                $group = GroupSetting::withTrashed()->find($this->decodePrimaryKey($request->group_id));
+                    if($request->settings_type == 'group'){
+                        $group->settings = $request->settings;
+                        $group->save();
+                    }
+
+            }
+
+            if($request->settings_type == 'company'){
+                $company->settings = $request->settings;
+                $company->save();
+            }
+
+            if($request->has('footer') && !$request->filled('footer') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['footer' => $company->settings->invoice_footer]);
+
+            if($request->has('terms') && !$request->filled('terms') && $request->input('entity') == 'recurring_invoice')
+                $request->merge(['terms' => $company->settings->invoice_terms]);
+
+            $entity_obj = $repo->save($request->all(), $entity_obj);
+
+            if (! $request->has('entity_id')) {
+                $entity_obj->service()->fillDefaults()->save();
+            }
+
+            App::forgetInstance('translator');
+            $t = app('translator');
+            App::setLocale($entity_obj->client->locale());
+            $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
+
+            $html = new HtmlEngine($entity_obj->invitations()->first());
+
+            $design = \App\Models\Design::find($entity_obj->design_id);
+
+            /* Catch all in case migration doesn't pass back a valid design */
+            if (! $design) {
+                $design = \App\Models\Design::find(2);
+            }
+
+            if ($design->is_custom) {
+                $options = [
+                    'custom_partials' => json_decode(json_encode($design->design), true),
+                ];
+                $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            } else {
+                $template = new PdfMakerDesign(strtolower($design->name));
+            }
+
+            $variables = $html->generateLabelsAndValues();
+
+            $state = [
+                'template' => $template->elements([
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                    '$product' => $design->design->product,
+                    'variables' => $variables,
+                ]),
+                'variables' => $variables,
+                'options' => [
+                    'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
+                    'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                ],
+                'process_markdown' => $entity_obj->client->company->markdown_enabled,
+            ];
+
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($template)
+                ->build();
+
+            DB::connection(config('database.default'))->rollBack();
+
+            if (request()->query('html') == 'true') {
+                nlog($maker->getCompiledHTML());
+                return $maker->getCompiledHTML();
+            }
+
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+            DB::connection(config('database.default'))->rollBack();
+
+            return;
+        }
+
+            //if phantom js...... inject here..
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+
+            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+            if ($numbered_pdf) {
+                $pdf = $numbered_pdf;
+            }
+
+            return $pdf;
+        }
+
+        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
+
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
+
+
+    }
+
     public function live(PreviewInvoiceRequest $request)
     {
+        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);

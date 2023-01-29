@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,7 +56,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all', 'quote_sent_user']);
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);

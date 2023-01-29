@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,27 +19,21 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
-use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Mailer;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
 use Illuminate\Support\Facades\Cache;
@@ -50,9 +44,7 @@ class NinjaMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 30; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -60,6 +52,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
+    /* @var Company $company*/
     public $company;
 
     private $mailer;
@@ -80,9 +73,13 @@ class NinjaMailerJob implements ShouldQueue
 
     }
 
+    public function backoff()
+    {
+        return [30, 60, 180, 240];
+    }
+
     public function handle()
     {
-
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
@@ -128,15 +125,12 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
-            
-            nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
+            nlog("Trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
             $mailer = Mail::mailer($this->mailer);
 
             if($this->client_postmark_secret){
-                nlog("inside postmark config");
-                nlog($this->client_postmark_secret);
                 $mailer->postmark_config($this->client_postmark_secret);
             }
 
@@ -144,9 +138,9 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
             }
 
-                $mailer
-                    ->to($this->nmo->to_user->email)
-                    ->send($this->nmo->mailable);
+            $mailer
+                ->to($this->nmo->to_user->email)
+                ->send($this->nmo->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
@@ -157,53 +151,68 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo = null;
             $this->company = null;
     
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        }
+        catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch(\Symfony\Component\Mime\Exception\LogicException $e){
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch (\Exception | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
-            
-            $this->cleanUpMailers();
-
+            nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
-
-            if($e instanceof \Google\Service\Exception){
-
-                if(($e->getCode() == 429) && ($this->nmo->to_user instanceof ClientContact))
-                    $this->logMailError("Google rate limiter hit, we will retry in 30 seconds.", $this->nmo->to_user->client);
-
-            }
 
             /**
              * Post mark buries the proper message in a a guzzle response
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if($e instanceof ClientException) { //postmark specific failure
+            if($e instanceof ClientException) 
+            { 
 
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
                 
                 if($message_body && property_exists($message_body, 'Message')){
                     $message = $message_body->Message;
-                    nlog($message);
                 }
                 
+                /*Do not retry if this is a postmark specific issue such as invalid recipient. */
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            if($this->nmo->entity)
-                $this->entityEmailFailed($message);
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+                /* If the is an entity attached to the message send a failure mailer */
+                if($this->nmo->entity)
+                    $this->entityEmailFailed($message);
 
-            $message = null;
-            $this->nmo = null;
-            $this->company = null;
-    
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
+
+            }
+        
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
+
         }
 
-        //always dump the drivers to prevent reuse 
+        /*Clean up mailers*/ 
         $this->cleanUpMailers();
 
     }
@@ -463,7 +472,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(2,4));
+            sleep(rand(1,6));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
@@ -640,15 +649,8 @@ class NinjaMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-        
+        if($exception)
+            nlog($exception->getMessage());
     }
-
-    /**
-     * Is this the cleanest way to requeue a job?
-     * 
-     * $this->delete();
-     *
-     * $job = NinjaMailerJob::dispatch($this->nmo, $this->override)->delay(3600);
-    */
 
 }

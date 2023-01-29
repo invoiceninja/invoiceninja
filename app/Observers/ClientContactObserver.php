@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,7 +57,7 @@ class ClientContactObserver
 
         //ensure entity state is preserved
         
-        InvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        InvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->invoice()->doesnthave('invitations'))
             $invite->invoice->service()->createInvitations();
@@ -65,17 +65,17 @@ class ClientContactObserver
         });
 
 
-        QuoteInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        QuoteInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
-          if($invite->invoice()->doesnthave('invitations'))
+          if($invite->quote()->doesnthave('invitations'))
             $invite->quote->service()->createInvitations();
 
         });
 
-        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', 1)->cursor()->each(function ($invite){
+        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
           if($invite->recurring_invoice()->doesnthave('invitations'))
-            $invite->quote->service()->createInvitations();
+            $invite->recurring_invoice->service()->createInvitations();
 
         });
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,7 @@ class PurchaseOrderFilters extends QueryFilters
      *
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -81,22 +81,22 @@ class PurchaseOrderFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('purchase_orders.number', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.number', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.date', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.amount', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.balance', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value1', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value2', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('number', 'like', '%'.$filter.'%')
+                ->orWhere('number', 'like', '%'.$filter.'%')
+                ->orWhere('date', 'like', '%'.$filter.'%')
+                ->orWhere('amount', 'like', '%'.$filter.'%')
+                ->orWhere('balance', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -106,7 +106,7 @@ class PurchaseOrderFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -119,7 +119,7 @@ class PurchaseOrderFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();

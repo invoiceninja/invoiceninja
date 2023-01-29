@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,7 +43,7 @@ trait UserNotifies
 
         //if a user owns this record or is assigned to it, they are attached the permission for notification.
         if ($invitation->{$entity_name}->user_id == $company_user->user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
-            $required_permissions = $this->addSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
+            // $required_permissions = $this->addSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         } else {
             $required_permissions = $this->removeSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         }
@@ -83,24 +83,24 @@ trait UserNotifies
 
     private function addSpecialUserPermissionForEntity($entity, array $required_permissions) :array
     {
-        array_merge($required_permissions, ['all_notifications']);
+        return array_merge($required_permissions, ['all_notifications', 'all_user_notifications']);
 
-        switch ($entity) {
-            case $entity instanceof Payment || $entity instanceof Client: //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'payment_failure_user', 'payment_success_user']);
-            case $entity instanceof Invoice:
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user']);
-            case $entity instanceof Quote:
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'quote_created_user', 'quote_sent_user', 'quote_viewed_user', 'quote_approved_user', 'quote_expired_user']);
-            case $entity instanceof Credit:
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'credit_created_user', 'credit_sent_user', 'credit_viewed_user']);
-            case $entity instanceof PurchaseOrder:
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'purchase_order_created_user', 'purchase_order_sent_user', 'purchase_order_viewed_user']);
-            case $entity instanceof Product:
-                return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'inventory_user', 'inventory_all']);
-            default:
-                return [];
-        }
+        // switch ($entity) {
+        //     case $entity instanceof Payment || $entity instanceof Client: //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'payment_failure_user', 'payment_success_user']);
+        //     case $entity instanceof Invoice:
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'invoice_created_user', 'invoice_sent_user', 'invoice_viewed_user', 'invoice_late_user']);
+        //     case $entity instanceof Quote:
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'quote_created_user', 'quote_sent_user', 'quote_viewed_user', 'quote_approved_user', 'quote_expired_user']);
+        //     case $entity instanceof Credit:
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'credit_created_user', 'credit_sent_user', 'credit_viewed_user']);
+        //     case $entity instanceof PurchaseOrder:
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'purchase_order_created_user', 'purchase_order_sent_user', 'purchase_order_viewed_user']);
+        //     case $entity instanceof Product:
+        //         return array_merge($required_permissions, ['all_notifications', 'all_user_notifications', 'inventory_user', 'inventory_all']);
+        //     default:
+        //         return [];
+        // }
     }
 
     private function removeSpecialUserPermissionForEntity($entity, $required_permissions)

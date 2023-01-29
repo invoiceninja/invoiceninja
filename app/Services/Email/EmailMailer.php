@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,45 +13,35 @@ namespace App\Services\Email;
 
 use App\DataMapper\Analytics\EmailFailure;
 use App\DataMapper\Analytics\EmailSuccess;
-use App\DataMapper\EmailTemplateDefaults;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
-use App\Services\Email\EmailObject;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Mail\Mailer;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
-use League\CommonMark\CommonMarkConverter;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class EmailMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 30; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -67,8 +57,14 @@ class EmailMailer implements ShouldQueue
 
     public function __construct(public EmailService $email_service, public Mailable $email_mailable){}
 
+    public function backoff()
+    {
+        return [30, 60, 180, 240];
+    }
+
     public function handle(): void
     {
+
     	MultiDB::setDb($this->email_service->company->db);
 
         /* Perform final checks */
@@ -102,10 +98,8 @@ class EmailMailer implements ShouldQueue
 
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
+            nlog("Mailer failed with {$e->getMessage()}");
             
-            $this->cleanUpMailers();
-
             $message = $e->getMessage();
 
             /**
@@ -122,19 +116,36 @@ class EmailMailer implements ShouldQueue
                     $message = $message_body->Message;
                     nlog($message);
                 }
+       
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
+            }
+
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
+            
+                /* If the is an entity attached to the message send a failure mailer */
+                $this->entityEmailFailed($message);
+
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
                 
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            $this->entityEmailFailed($message);
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
 
             $message = null;
+            
 
         }
+
+        $this->cleanUpMailers();
 
     }
 
@@ -311,7 +322,7 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-            $this->mailable
+            $this->email_mailable
              ->from($user->email, $user->name());
     }
 
@@ -331,7 +342,7 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-            $this->mailable
+            $this->email_mailable
              ->from($user->email, $user->name());
     }
 
@@ -362,7 +373,7 @@ class EmailMailer implements ShouldQueue
         
         }
 
-        $this->mailable
+        $this->email_mailable
              ->from($user->email, $user->name())
              ->withSymfonyMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('gmailtoken', $token);     
@@ -427,7 +438,7 @@ class EmailMailer implements ShouldQueue
             return $this->setMailDriver();
         }
 
-        $this->mailable
+        $this->email_mailable
              ->from($user->email, $user->name())
              ->withSymfonyMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('gmailtoken', $token);     
