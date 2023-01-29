@@ -74,12 +74,16 @@ class WebhookSingle implements ShouldQueue
      */
     public function handle()
     {
-nlog($this->attempts());
 
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::with('company')->find($this->subscription_id);
         
+        if(!$subscription){
+            $this->fail();
+            return;
+        }
+
         $this->company = $subscription->company;
 
         $this->entity->refresh();
