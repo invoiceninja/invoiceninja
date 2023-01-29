@@ -64,6 +64,7 @@ class EmailMailer implements ShouldQueue
 
     public function handle(): void
     {
+
     	MultiDB::setDb($this->email_service->company->db);
 
         /* Perform final checks */
@@ -97,10 +98,8 @@ class EmailMailer implements ShouldQueue
 
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
+            nlog("Mailer failed with {$e->getMessage()}");
             
-            $this->cleanUpMailers();
-
             $message = $e->getMessage();
 
             /**
@@ -117,17 +116,32 @@ class EmailMailer implements ShouldQueue
                     $message = $message_body->Message;
                     nlog($message);
                 }
+       
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
+            }
+
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
+            
+                /* If the is an entity attached to the message send a failure mailer */
+                $this->entityEmailFailed($message);
+
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
                 
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            $this->entityEmailFailed($message);
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
 
             $message = null;
+            $this->cleanUpMailers();
 
         }
 
