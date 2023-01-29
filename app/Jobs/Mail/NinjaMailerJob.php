@@ -206,11 +206,11 @@ class NinjaMailerJob implements ShouldQueue
                     app('sentry')->captureException($e);
 
             }
-    
-        }
+        
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
 
-        /* Releasing immediately does not add in the backoff */
-        $this->release($this->backoff()[$this->attempts()-1]);
+        }
 
         /*Clean up mailers*/ 
         $this->cleanUpMailers();
@@ -649,7 +649,8 @@ class NinjaMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-        
+        if($exception)
+            nlog($exception->getMessage());
     }
 
 }
