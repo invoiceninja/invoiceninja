@@ -107,6 +107,12 @@
         line-height: var(--line-height);
     }
 
+    #shipping-details {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
     #client-details > :first-child {
         font-weight: bold;
     }
@@ -358,6 +364,7 @@
                      <table id="entity-details" cellspacing="0" dir="$dir"></table>
                   </div>
                   <div id="client-details"></div>
+                  <div id="shipping-details"></div>
                   <div id="vendor-details"></div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>

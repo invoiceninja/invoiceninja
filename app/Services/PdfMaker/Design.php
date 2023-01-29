@@ -124,6 +124,10 @@ class Design extends BaseDesign
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
             ],
+            'shipping-details' => [
+                'id' => 'shipping-details',
+                'elements' => $this->shippingDetails(),
+            ],
             'vendor-details' => [
                 'id' => 'vendor-details',
                 'elements' => $this->vendorDetails(),
@@ -235,6 +239,34 @@ class Design extends BaseDesign
         }
 
         return $elements;
+    }
+
+    public function shippingDetails(): array
+    {
+        $elements = [];
+
+        if(!$this->client)
+            return $elements;
+
+            $elements = [
+                ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
+                ['element' => 'p', 'content' => $this->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']],
+                ['element' => 'p', 'content' => $this->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
+                ['element' => 'p', 'content' => $this->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
+                ['element' => 'p', 'show_empty' => false, 'elements' => [
+                    ['element' => 'span', 'content' => "{$this->client->shipping_city} ", 'properties' => ['ref' => 'shipping_address-client.shipping_city']],
+                    ['element' => 'span', 'content' => "{$this->client->shipping_state} ", 'properties' => ['ref' => 'shipping_address-client.shipping_state']],
+                    ['element' => 'span', 'content' => "{$this->client->shipping_postal_code} ", 'properties' => ['ref' => 'shipping_address-client.shipping_postal_code']],
+                ]],
+                ['element' => 'p', 'content' => optional($this->client->shipping_country)->name, 'show_empty' => false],
+            ];
+
+            // if (!is_null($this->context['contact'])) {
+            //     $elements[] = ['element' => 'p', 'content' => $this->context['contact']->email, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-contact.email']];
+            // }
+
+            return $elements;
+       
     }
 
     public function clientDetails(): array
