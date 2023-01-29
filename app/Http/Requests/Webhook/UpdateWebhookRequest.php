@@ -36,7 +36,7 @@ class UpdateWebhookRequest extends Request
             'target_url' => 'bail|required|url',
             'event_id' => 'bail|required',
             'rest_method' => 'required|in:post,put',
-            'headers' => 'bail|sometimes|json',
+            // 'headers' => 'bail|sometimes|json',
         ];
     }
 
@@ -44,8 +44,8 @@ class UpdateWebhookRequest extends Request
     {
         $input = $this->all();
 
-            if(isset($input['headers']) && count($input['headers']) == 0)
-                $input['headers'] = null;
+            // if(isset($input['headers']) && count($input['headers']) == 0)
+            //     $input['headers'] = null;
 
         $this->replace($input);
     }

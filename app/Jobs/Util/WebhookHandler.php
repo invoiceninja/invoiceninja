@@ -12,6 +12,7 @@
 namespace App\Jobs\Util;
 
 use App\Jobs\Util\SystemLogger;
+use App\Jobs\Util\WebhookSingle;
 use App\Libraries\MultiDB;
 use App\Models\Client as ClientModel;
 use App\Models\SystemLog;
@@ -38,7 +39,7 @@ class WebhookHandler implements ShouldQueue
 
     private $company;
 
-    public $tries = 4; //number of retries
+    public $tries = 1; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -56,11 +57,6 @@ class WebhookHandler implements ShouldQueue
         $this->entity = $entity;
         $this->company = $company;
         $this->includes = $includes;
-    }
-
-    public function backoff()
-    {
-        return [10, 30, 60, 180];
     }
 
     /**
@@ -83,104 +79,17 @@ class WebhookHandler implements ShouldQueue
                                     ->cursor()
                                     ->each(function ($subscription) {
 
-            $this->process($subscription);
+            // $this->process($subscription);
+
+            WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
 
         });
 
     }
 
-    private function process($subscription)
-    {
-        $this->entity->refresh();
-
-        // generate JSON data
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $manager->parseIncludes($this->includes);
-
-        $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->entity));
-
-        $transformer = new $class();
-
-        $resource = new Item($this->entity, $transformer, $this->entity->getEntityType());
-        $data = $manager->createData($resource)->toArray();
-
-        $this->postData($subscription, $data, []);
-    }
-
-    private function postData($subscription, $data, $headers = [])
-    {
-        $base_headers = [
-            'Content-Length' => strlen(json_encode($data)),
-            'Accept'         => 'application/json',
-        ];
-
-        $client = new Client(['headers' => array_merge($base_headers, $headers)]);
-
-        try {
-            $response = $client->post($subscription->target_url, [
-                RequestOptions::JSON => $data, // or 'json' => [...]
-            ]);
-
-            SystemLogger::dispatch(
-                array_merge((array) $response, $data),
-                SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_SUCCESS,
-                SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->resolveClient(),
-                $this->company
-            );
-
-            if ($response->getStatusCode() == 429){
-                nlog("429 retry after 10 seconds internally");
-                sleep(10);
-
-                $response = $client->post($subscription->target_url, [
-                    RequestOptions::JSON => $data, // or 'json' => [...]
-                ]);
-
-                SystemLogger::dispatch(
-                    array_merge((array) $response, $data),
-                    SystemLog::CATEGORY_WEBHOOK,
-                    SystemLog::EVENT_WEBHOOK_SUCCESS,
-                    SystemLog::TYPE_WEBHOOK_RESPONSE,
-                    $this->resolveClient(),
-                    $this->company
-                );
-
-            }
-
-        } catch (\Exception $e) {
-            
-            nlog("429 occurred in the exception handler");
-            nlog($e->getMessage());
-
-            SystemLogger::dispatch(
-                $e->getMessage(),
-                SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_FAILURE,
-                SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->resolveClient(),
-                $this->company,
-            );
-        }
-    }
-
-    private function resolveClient()
-    {
-        //make sure it isn't an instance of the Client Model
-        if ((! $this->entity instanceof ClientModel) && $this->entity->client()->exists()) {
-            return $this->entity->client;
-        }
-
-        return $this->company->clients()->first();
-    }
-
     public function failed($exception)
     {
         
-        sleep(2);
-
         nlog(print_r($exception->getMessage(), 1));
 
     }

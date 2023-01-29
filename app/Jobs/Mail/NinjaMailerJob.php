@@ -58,6 +58,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
+    /* @var Company $company*/
     public $company;
 
     private $mailer;
@@ -130,7 +131,7 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
-            nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
+            nlog("Trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
             $mailer = Mail::mailer($this->mailer);
@@ -156,7 +157,22 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo = null;
             $this->company = null;
     
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        }
+        catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch(\Symfony\Component\Mime\Exception\LogicException $e){
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch (\Exception | \Google\Service\Exception $e) {
             
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();

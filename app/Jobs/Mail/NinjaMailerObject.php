@@ -18,6 +18,7 @@ class NinjaMailerObject
 {
     public $mailable;
 
+    /* @var Company $company */
     public $company;
 
     public $from_user; //not yet used
