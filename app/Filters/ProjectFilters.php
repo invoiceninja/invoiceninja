@@ -37,6 +37,11 @@ class ProjectFilters extends QueryFilters
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
+    
+    public function number(string $number = ''):Builder
+    {
+        return $this->builder->where('number', $number);
+    }
 
     /**
      * Sorts the list based on $sort.
