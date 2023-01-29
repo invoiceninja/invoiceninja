@@ -50,9 +50,7 @@ class NinjaMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 30; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -78,6 +76,11 @@ class NinjaMailerJob implements ShouldQueue
 
         $this->override = $override;
 
+    }
+
+    public function backoff()
+    {
+        return [30, 60, 180, 240];
     }
 
     public function handle()

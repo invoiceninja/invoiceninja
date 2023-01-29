@@ -38,9 +38,7 @@ class WebhookHandler implements ShouldQueue
 
     private $company;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 10; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -58,6 +56,11 @@ class WebhookHandler implements ShouldQueue
         $this->entity = $entity;
         $this->company = $company;
         $this->includes = $includes;
+    }
+
+    public function backoff()
+    {
+        return [10, 30, 60, 180];
     }
 
     /**
@@ -79,7 +82,7 @@ class WebhookHandler implements ShouldQueue
                                     ->where('event_id', $this->event_id)
                                     ->cursor()
                                     ->each(function ($subscription) {
-            
+
             $this->process($subscription);
 
         });
@@ -148,13 +151,14 @@ class WebhookHandler implements ShouldQueue
             }
 
         } catch (\Exception $e) {
-            nlog("429 occurred in the expcetion handler");
+            
+            nlog("429 occurred in the exception handler");
             nlog($e->getMessage());
 
             SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::EVENT_WEBHOOK_FAILURE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->resolveClient(),
                 $this->company,
