@@ -46,8 +46,7 @@ class VendorFilters extends QueryFilters
         });
     }
 
-    
-    public function number(string $number = ''):Builder
+    public function number(string $number = '') : Builder
     {
         return $this->builder->where('number', $number);
     }

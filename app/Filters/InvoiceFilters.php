@@ -77,7 +77,7 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function number(string $number = ''): Builder
+    public function number(string $number = '') : Builder
     {
         if(strlen($number) == 0)
             return $this->builder;
