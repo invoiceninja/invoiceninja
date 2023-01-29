@@ -463,8 +463,8 @@ class CheckData extends Command
                             $contact = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first();
 
                             //double check if an archived invite exists
-                            if($contact && $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->count() != 0) {
-                                $i = $entity->invitations()->withTrashed()->where($contact_id, $contact->id)->first();
+                            if($contact && $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->count() != 0) {
+                                $i = $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->first();
                                 $i->restore();
                                 $this->logMessage("Found a valid contact and invitation restoring for {$entity_key} - {$entity->id}");
                             }
