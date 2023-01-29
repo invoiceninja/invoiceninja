@@ -85,7 +85,6 @@ class NinjaMailerJob implements ShouldQueue
 
     public function handle()
     {
-
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
@@ -131,15 +130,12 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
-            
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
             $mailer = Mail::mailer($this->mailer);
 
             if($this->client_postmark_secret){
-                nlog("inside postmark config");
-                nlog($this->client_postmark_secret);
                 $mailer->postmark_config($this->client_postmark_secret);
             }
 
@@ -147,9 +143,9 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
             }
 
-                $mailer
-                    ->to($this->nmo->to_user->email)
-                    ->send($this->nmo->mailable);
+            $mailer
+                ->to($this->nmo->to_user->email)
+                ->send($this->nmo->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
@@ -162,51 +158,51 @@ class NinjaMailerJob implements ShouldQueue
     
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
-            
-            $this->cleanUpMailers();
-
+            nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
-
-            if($e instanceof \Google\Service\Exception){
-
-                if(($e->getCode() == 429) && ($this->nmo->to_user instanceof ClientContact))
-                    $this->logMailError("Google rate limiter hit, we will retry in 30 seconds.", $this->nmo->to_user->client);
-
-            }
 
             /**
              * Post mark buries the proper message in a a guzzle response
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if($e instanceof ClientException) { //postmark specific failure
+            if($e instanceof ClientException) 
+            { 
 
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
                 
                 if($message_body && property_exists($message_body, 'Message')){
                     $message = $message_body->Message;
-                    nlog($message);
                 }
                 
+                /*Do not retry if this is a postmark specific issue such as invalid recipient. */
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            if($this->nmo->entity)
-                $this->entityEmailFailed($message);
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+                /* If the is an entity attached to the message send a failure mailer */
+                if($this->nmo->entity)
+                    $this->entityEmailFailed($message);
 
-            $message = null;
-            $this->nmo = null;
-            $this->company = null;
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
+
+            }
     
         }
 
-        //always dump the drivers to prevent reuse 
+        /* Releasing immediately does not add in the backoff */
+        $this->release($this->backoff()[$this->attempts()-1]);
+
+        /*Clean up mailers*/ 
         $this->cleanUpMailers();
 
     }
@@ -645,13 +641,5 @@ class NinjaMailerJob implements ShouldQueue
     {
         
     }
-
-    /**
-     * Is this the cleanest way to requeue a job?
-     * 
-     * $this->delete();
-     *
-     * $job = NinjaMailerJob::dispatch($this->nmo, $this->override)->delay(3600);
-    */
 
 }

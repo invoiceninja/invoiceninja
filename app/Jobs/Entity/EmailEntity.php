@@ -128,7 +128,7 @@ class EmailEntity implements ShouldQueue
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity;
 
-        (new NinjaMailerJob($nmo))->handle();
+        NinjaMailerJob::dispatch($nmo);
 
         $nmo = null;
         $this->invitation = null;
