@@ -26,6 +26,8 @@ class TaskScheduler implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $deleteWhenMissingModels = true;
+
     /**
      * Create a new job instance.
      *
