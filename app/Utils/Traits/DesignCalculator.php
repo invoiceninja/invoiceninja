@@ -55,6 +55,10 @@ trait DesignCalculator
             return $design_int_map[$this->entity->design_id];
 
         $default_design_id = $this->entity_string."_design_id";
+
+        if($default_design_id == 'recurring_invoice_design_id')
+            $default_design_id = 'invoice_design_id';
+        
         $design_id = $this->settings->{$default_design_id};
 
         if(array_key_exists($design_id, $design_map))
