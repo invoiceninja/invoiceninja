@@ -91,4 +91,20 @@ class CreditObserver
     {
         //
     }
+    /**
+     * Handle the client "archive" event.
+     *
+     * @param Credit $credit
+     * @return void
+     */
+    public function archived(Credit $credit)
+    {
+        $subscriptions = Webhook::where('company_id', $credit->company->id)
+            ->where('event_id', Webhook::EVENT_ARCHIVE_CREDIT)
+            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+        }
+    }
 }

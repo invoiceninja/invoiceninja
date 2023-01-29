@@ -89,4 +89,14 @@ class PaymentObserver
     {
         //
     }
+    public function archived(Payment $payment)
+    {
+        $subscriptions = Webhook::where('company_id', $payment->company->id)
+            ->where('event_id', Webhook::EVENT_ARCHIVE_PAYMENT)
+            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(now()->addSeconds(20));
+        }
+    }
 }

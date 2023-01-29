@@ -89,4 +89,20 @@ class ExpenseObserver
     {
         //
     }
+    /**
+     * Handle the expense "archive" event.
+     *
+     * @param Expense $expense
+     * @return void
+     */
+    public function archived(Expense $expense)
+    {
+        $subscriptions = Webhook::where('company_id', $expense->company->id)
+            ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
+            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $expense, $expense->company)->delay(now()->addSeconds(2));
+        }
+    }
 }

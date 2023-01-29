@@ -89,4 +89,14 @@ class TaskObserver
     {
         //
     }
+    public function archived(Task $task)
+    {
+        $subscriptions = Webhook::where('company_id', $task->company->id)
+            ->where('event_id', Webhook::EVENT_ARCHIVE_TASK)
+            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $task, $task->company)->delay(now()->addSeconds(2));
+        }
+    }
 }

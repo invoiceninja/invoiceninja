@@ -79,25 +79,25 @@ class Webhook extends BaseModel
     const EVENT_PROJECT_DELETE = 30;
 
     const EVENT_UPDATE_PAYMENT = 31;
-    
+
     const EVENT_ARCHIVE_PAYMENT = 32;
-    
+
     const EVENT_ARCHIVE_INVOICE = 33;
-    
+
     const EVENT_ARCHIVE_QUOTE = 34;
-    
+
     const EVENT_ARCHIVE_CREDIT = 35;
-    
+
     const EVENT_ARCHIVE_TASK = 36;
-    
+
     const EVENT_ARCHIVE_CLIENT = 37;
-    
+
     const EVENT_ARCHIVE_PROJECT = 38;
-    
+
     const EVENT_ARCHIVE_EXPENSE = 39;
-    
-    
-    
+
+
+
 
 
     public static $valid_events = [
@@ -138,9 +138,9 @@ class Webhook extends BaseModel
         self::EVENT_ARCHIVE_TASK,
         self::EVENT_ARCHIVE_CREDIT,
         self::EVENT_ARCHIVE_QUOTE,
-        self::VENT_ARCHIVE_INVOICE,
+        self::EVENT_ARCHIVE_INVOICE,
         self::EVENT_ARCHIVE_PAYMENT
-        
+
     ];
 
     protected $fillable = [
