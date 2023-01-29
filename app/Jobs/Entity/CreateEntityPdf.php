@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://entityninja.com).
  *
@@ -64,6 +63,8 @@ class CreateEntityPdf implements ShouldQueue
     public $entity_string = '';
 
     public $client;
+
+    public $deleteWhenMissingModels = true;
 
     /**
      * Create a new job instance.
