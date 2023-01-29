@@ -112,14 +112,10 @@ class WebhookSingle implements ShouldQueue
 
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
-nlog("attempting ". $subscription->target_url);
-
         try {
             $response = $client->post($subscription->target_url, [
                 RequestOptions::JSON => $data, // or 'json' => [...]
             ]);
-
-nlog($response->getStatusCode());
 
             SystemLogger::dispatch(
                 array_merge((array) $response, $data),
