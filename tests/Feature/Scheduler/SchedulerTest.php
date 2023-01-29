@@ -250,8 +250,9 @@ class SchedulerTest extends TestCase
         $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); 
 
         $scheduler->fresh();
+        $offset = $this->company->timezone_offset();
 
-        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+        $this->assertEquals(now()->startOfDay()->addMonthNoOverflow()->addSeconds($offset)->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
 

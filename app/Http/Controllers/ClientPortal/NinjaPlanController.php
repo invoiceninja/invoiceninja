@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -149,6 +149,7 @@ class NinjaPlanController extends Controller
             $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
             $account->is_trial=true;
+            $account->hosted_company_count = 10;
             $account->save();
         }
 
@@ -217,7 +218,7 @@ class NinjaPlanController extends Controller
 
             if ($account) {
                 //offer the option to have a free trial
-                if (!$account->is_trial) {
+                if (!$account->plan && !$account->is_trial) {
                     return $this->trial();
                 }
 

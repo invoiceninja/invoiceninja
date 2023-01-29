@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -126,7 +126,8 @@ class CheckData extends Command
         $this->checkVendorSettings();
         $this->checkClientSettings();
         $this->checkCompanyTokens();
-
+        $this->checkUserState();
+        
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
             $this->checkNinjaPortalUrls();
@@ -414,6 +415,16 @@ class CheckData extends Command
         }
     }
 
+    private function checkUserState()
+    {
+        User::withTrashed()
+            ->where('deleted_at', '0000-00-00 00:00:00.000000')
+            ->cursor()
+            ->each(function ($user){
+                $user->restore();
+            });
+    }
+
     private function checkEntityInvitations()
     {
     
@@ -448,13 +459,24 @@ class CheckData extends Command
                         //check contact exists!
                         if($contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->exists())
                         {
-                            $invitation = new $entity_obj();
-                            $invitation->company_id = $entity->company_id;
-                            $invitation->user_id = $entity->user_id;
-                            $invitation->{$entity_key} = $entity->id;
-                            $invitation->{$contact_id} = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first()->id;
-                            $invitation->key = Str::random(config('ninja.key_length'));
-                            $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+
+                            $contact = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first();
+
+                            //double check if an archived invite exists
+                            if($contact && $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->count() != 0) {
+                                $i = $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->first();
+                                $i->restore();
+                                $this->logMessage("Found a valid contact and invitation restoring for {$entity_key} - {$entity->id}");
+                            }
+                            else {
+                                $invitation = new $entity_obj();
+                                $invitation->company_id = $entity->company_id;
+                                $invitation->user_id = $entity->user_id;
+                                $invitation->{$entity_key} = $entity->id;
+                                $invitation->{$contact_id} = $contact->id;
+                                $invitation->key = Str::random(config('ninja.key_length'));
+                                $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+                            }
                         }
                         else
                             $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");

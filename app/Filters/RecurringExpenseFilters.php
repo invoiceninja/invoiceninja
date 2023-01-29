@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,9 +56,9 @@ class RecurringExpenseFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Eloquent\Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,8 +15,6 @@ use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
-use App\Models\ClientGatewayToken;
-use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\Design;
 use App\Models\ExpenseCategory;
@@ -31,10 +29,8 @@ use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
 use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
-use App\Utils\TruthSource;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -56,20 +52,20 @@ class BaseController extends Controller
      *
      * @var array
      */
-    public $forced_includes;
+    public $forced_includes = [];
 
     /**
      * Passed from the parent when we need to force
      * the key of the response object.
      * @var string
      */
-    public $forced_index;
+    public $forced_index = 'data';
 
     /**
      * Fractal manager.
      * @var object
      */
-    protected $manager;
+    protected Manager $manager;
 
     private $first_load = [
           'account',
@@ -146,10 +142,6 @@ class BaseController extends Controller
     public function __construct()
     {
         $this->manager = new Manager();
-
-        $this->forced_includes = [];
-
-        $this->forced_index = 'data';
     }
 
     private function buildManager()
@@ -164,6 +156,8 @@ class BaseController extends Controller
         } elseif (count($this->forced_includes) >= 1) {
             $include = implode(',', $this->forced_includes);
         }
+
+        // $include = $this->filterIncludes($include);
 
         $this->manager->parseIncludes($include);
 
@@ -185,6 +179,36 @@ class BaseController extends Controller
         return response()->json(['message' => ctrans('texts.api_404')], 404)
                          ->header('X-API-VERSION', config('ninja.minimum_client_version'))
                          ->header('X-APP-VERSION', config('ninja.app_version'));
+    }
+
+    /**
+     * Filters the includes to ensure the
+     * end user has the correct permissions to 
+     * view the includes
+     *    
+     * @param  array  $includes The includes for the object
+     * @return string            The filtered array of includes
+     */
+    private function filterIncludes(string $includes): string
+    {
+        $permissions_array = [
+            'payments' => 'view_payment',
+            'client' => 'view_client',
+            'clients' => 'view_client',
+            'vendor' => 'view_vendor',
+            'vendors' => 'view_vendors',
+            'expense' => 'view_expense',
+            'expenses' => 'view_expense',
+        ];
+
+        $collection = collect(explode(",", $includes));
+
+        $filtered_includes = $collection->filter(function ($include) use ($permissions_array){
+            return auth()->user()->hasPermission($permissions_array[$include]);
+        });
+
+        return $filtered_includes->implode(",");
+
     }
 
     /**
@@ -219,6 +243,12 @@ class BaseController extends Controller
         return response()->make($error, $httpErrorCode, $headers);
     }
 
+    /**
+     * Refresh API response with latest cahnges
+     * @param  Builer $query
+     * @property App\Models\User auth()->user() 
+     * @return Builer
+     */
     protected function refreshResponse($query)
     {
         $user = auth()->user();
@@ -237,7 +267,7 @@ class BaseController extends Controller
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if ($user->getCompany()->is_large && $updated_at == 0) {
+        if ($user->getCompany()->is_large && $updated_at == 0 && $this->complexPermissionsUser()) {
             $updated_at = time();
         }
 
@@ -245,7 +275,7 @@ class BaseController extends Controller
 
         $query->with(
             [
-                'company' => function ($query) use ($updated_at, $user) {
+                'company' => function ($query) {
                     $query->whereNotNull('updated_at')->with('documents', 'users');
                 },
                 'company.clients' => function ($query) use ($updated_at, $user) {
@@ -283,7 +313,7 @@ class BaseController extends Controller
                         $query->where('designs.user_id', $user->id);
                     }
                 },
-                'company.documents'=> function ($query) use ($updated_at, $user) {
+                'company.documents'=> function ($query) {
                     $query->where('updated_at', '>=', $updated_at);
                 },
                 'company.expenses'=> function ($query) use ($updated_at, $user) {
@@ -296,7 +326,7 @@ class BaseController extends Controller
                         });  
                     }
                 },
-                'company.groups' => function ($query) use ($updated_at, $user) {
+                'company.groups' => function ($query) {
                     $query->whereNotNull('updated_at')->with('documents');
 
                 },
@@ -323,7 +353,7 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.payment_terms'=> function ($query) use ($updated_at, $user) {
+                'company.payment_terms'=> function ($query) use ($user) {
                     $query->whereNotNull('updated_at');
 
                     if (! $user->isAdmin()) {
@@ -408,7 +438,7 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.tax_rates'=> function ($query) use ($updated_at, $user) {
+                'company.tax_rates'=> function ($query) {
                     $query->whereNotNull('updated_at');
                 },
                 'company.vendors'=> function ($query) use ($updated_at, $user) {
@@ -422,10 +452,10 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.expense_categories'=> function ($query) use ($updated_at, $user) {
+                'company.expense_categories'=> function ($query) {
                     $query->whereNotNull('updated_at');
                 },
-                'company.task_statuses'=> function ($query) use ($updated_at, $user) {
+                'company.task_statuses'=> function ($query) {
                     $query->whereNotNull('updated_at');
                 },
                 'company.activities'=> function ($query) use ($user) {
@@ -433,24 +463,31 @@ class BaseController extends Controller
                         $query->where('activities.user_id', $user->id);
                     }
                 },
-                'company.subscriptions'=> function ($query) use ($updated_at, $user) {
+                'company.subscriptions'=> function ($query) use ($user) {
                     $query->whereNotNull('updated_at');
 
                     if (! $user->isAdmin()) {
                         $query->where('subscriptions.user_id', $user->id);
                     }
                 },
-                'company.bank_integrations'=> function ($query) use ($updated_at, $user) {
+                'company.bank_integrations'=> function ($query) use ($user) {
                     $query->whereNotNull('updated_at');
 
-                    if (! $user->isAdmin()) {
+                    //scopes down permissions for users with no permissions
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    //allows us to return integrations for users who can create bank transactions
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transactions'=> function ($query) use ($updated_at, $user) {
                     $query->where('updated_at', '>=', $updated_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
@@ -513,22 +550,22 @@ class BaseController extends Controller
 
         $query->with(
             [
-                'company' => function ($query) use ($created_at, $user) {
+                'company' => function ($query) {
                     $query->whereNotNull('created_at')->with('documents', 'users');
                 },
-                'company.designs'=> function ($query) use ($created_at, $user) {
+                'company.designs'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at)->with('company');
                 },
-                'company.documents'=> function ($query) use ($created_at, $user) {
+                'company.documents'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
-                'company.groups'=> function ($query) use ($created_at, $user) {
+                'company.groups'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at)->with('documents');
                 },
-                'company.payment_terms'=> function ($query) use ($created_at, $user) {
+                'company.payment_terms'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
-                'company.tax_rates'=> function ($query) use ($created_at, $user) {
+                'company.tax_rates'=> function ($query) {
                     $query->whereNotNull('created_at');
                 },
                 'company.activities'=> function ($query) use ($user) {
@@ -536,11 +573,16 @@ class BaseController extends Controller
                         $query->where('activities.user_id', $user->id);
                     }
                 },
-                'company.bank_integrations'=> function ($query) use ($created_at, $user) {
+                'company.bank_integrations'=> function ($query) use ($user) {
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transaction_rules'=> function ($query) use ($user) {
 
@@ -571,11 +613,27 @@ class BaseController extends Controller
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
+    /**
+     * In case a user is not an admin and is 
+     * able to access multiple companies, then we 
+     * need to pass back the mini load only
+     *     
+     * @return bool
+     */
+    private function complexPermissionsUser(): bool
+    {
+        //if the user is attached to more than one company AND they are not an admin across all companies
+        if(auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin',1)->count() != auth()->user()->company_users()->count()))
+            return true;
+
+        return false;
+    }
+
     protected function timeConstrainedResponse($query)
     {
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large) {
+        if ($user->getCompany()->is_large || $this->complexPermissionsUser()) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);
@@ -598,7 +656,7 @@ class BaseController extends Controller
 
         $query->with(
             [
-                'company' => function ($query) use ($created_at, $user) {
+                'company' => function ($query) {
                     $query->whereNotNull('created_at')->with('documents', 'users');
                 },
                 'company.clients' => function ($query) use ($created_at, $user) {
@@ -629,7 +687,7 @@ class BaseController extends Controller
                         });
                     }
                 },
-                'company.documents'=> function ($query) use ($created_at, $user) {
+                'company.documents'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
                 'company.expenses'=> function ($query) use ($created_at, $user) {
@@ -642,7 +700,7 @@ class BaseController extends Controller
                         });
                     }
                 },
-                'company.groups' => function ($query) use ($created_at, $user) {
+                'company.groups' => function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at)->with('documents');
                 },
                 'company.invoices'=> function ($query) use ($created_at, $user) {
@@ -667,7 +725,7 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.payment_terms'=> function ($query) use ($created_at, $user) {
+                'company.payment_terms'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
                 'company.products' => function ($query) use ($created_at, $user) {
@@ -734,7 +792,7 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.tax_rates' => function ($query) use ($created_at, $user) {
+                'company.tax_rates' => function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
                 'company.vendors'=> function ($query) use ($created_at, $user) {
@@ -748,10 +806,10 @@ class BaseController extends Controller
 
                     }
                 },
-                'company.expense_categories'=> function ($query) use ($created_at, $user) {
+                'company.expense_categories'=> function ($query) {
                     $query->whereNotNull('created_at');
                 },
-                'company.task_statuses'=> function ($query) use ($created_at, $user) {
+                'company.task_statuses'=> function ($query) use ($created_at) {
                     $query->where('created_at', '>=', $created_at);
                 },
                 'company.activities'=> function ($query) use ($user) {
@@ -789,14 +847,19 @@ class BaseController extends Controller
                 'company.bank_integrations'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('view_bank_transaction')) {
                         $query->where('bank_integrations.user_id', $user->id);
                     }
+
+                    if(!$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                        $query->exclude(["balance"]);
+                    }
+
                 },
                 'company.bank_transactions'=> function ($query) use ($created_at, $user) {
                     $query->where('created_at', '>=', $created_at);
 
-                    if (! $user->isAdmin()) {
+                    if (! $user->hasPermission('bank_transactions')) {
                         $query->where('bank_transactions.user_id', $user->id);
                     }
                 },
@@ -836,38 +899,17 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        
-
-        /*Restore here if refactor produces unexpected edge cases*/
-/*
-        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
-            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
-            if(lcfirst(class_basename(Str::snake($this->entity_type))) == 'user')
-                $query->where('id', auth()->user()->id);
-            elseif($this->entity_type == BankTransaction::class){ //table without assigned_user_id
-                $query->where('user_id', '=', auth()->user()->id);
-            }
-            elseif(in_array(lcfirst(class_basename(Str::snake($this->entity_type))),['design','group_setting','payment_term'])){
-                //need to pass these back regardless 
-                nlog($this->entity_type);
-            }
-            else
-                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
-
-        }
-*/
-
-        /*21-01-2023*/
-/**/
-        // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
-        // 28-03-2022 this is definitely correct here, do not append _ to the view, it resolved correctly when snake cased
-        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
             //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if(in_array($this->entity_type, [User::class])){
                 $query->where('id', auth()->user()->id);
             }
             elseif(in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])){ //table without assigned_user_id
-                $query->where('user_id', '=', auth()->user()->id);
+                
+                if($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction']))
+                    $query->exclude(["balance"]); //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
+                else
+                    $query->where('user_id', '=', auth()->user()->id);
             }
             elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
                 // nlog($this->entity_type);
@@ -876,8 +918,6 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
 
         }
-/**/
-
         // $query->exclude(['balance','credit_balance','paid_to_date']);
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
@@ -951,7 +991,7 @@ class BaseController extends Controller
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
-    public static function getApiHeaders($count = 0)
+    public static function getApiHeaders()
     {
         return [
             'Content-Type' => 'application/json',

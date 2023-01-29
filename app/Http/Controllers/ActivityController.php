@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -87,13 +87,15 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 50;
 
-        $activities = Activity::orderBy('created_at', 'DESC')->company()
+        $activities = Activity::orderBy('created_at', 'DESC')
+                                ->company()
                                 ->take($default_activities);
 
         if ($request->has('react')) {
 
             if(!auth()->user()->isAdmin())
-                return response()->json(['data' => []], 200);
+                $activities->where('user_id', auth()->user()->id);
+                // return response()->json(['data' => []], 200);
 
             $system = ctrans('texts.system');
 

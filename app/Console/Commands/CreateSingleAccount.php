@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,6 +54,7 @@ use Database\Factories\BankTransactionRuleFactory;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use stdClass;
@@ -202,6 +203,22 @@ class CreateSingleAccount extends Command
             'company_id' => $company->id,
             'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
         ]);
+
+        $client = Client::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'name' => 'cypress'
+            ]);
+
+        ClientContact::factory()->create([
+                    'user_id' => $user->id,
+                    'client_id' => $client->id,
+                    'company_id' => $company->id,
+                    'is_primary' => 1,
+                    'email' => 'cypress@example.com',
+                    'password' => Hash::make('password'),
+                ]);
+
 
         $this->info('Creating '.$this->count.' clients');
 
@@ -356,7 +373,7 @@ class CreateSingleAccount extends Command
                     'client_id' => $client->id,
                     'company_id' => $company->id,
                     'is_primary' => 1,
-                    'email' => 'user@example.com'
+                    'email' => 'user@example.com',
                 ]);
 
         ClientContact::factory()->count(rand(1, 2))->create([

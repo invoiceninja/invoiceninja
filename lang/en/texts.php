@@ -1901,6 +1901,7 @@ $LANG = array(
     'task' => 'Task',
     'contact_name' => 'Contact Name',
     'city_state_postal' => 'City/State/Postal',
+    'postal_city' => 'Postal/City',
     'custom_field' => 'Custom Field',
     'account_fields' => 'Company Fields',
     'facebook_and_twitter' => 'Facebook and Twitter',
@@ -4950,6 +4951,7 @@ $LANG = array(
     'notify_vendor_when_paid_help' => 'Send an email to the vendor when the expense is marked as paid',
     'update_payment' => 'Update Payment',
     'markup' => 'Markup',
+    'unlock_pro' => 'Unlock Pro',
 );
 
 

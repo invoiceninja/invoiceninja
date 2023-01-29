@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -91,15 +91,15 @@ class MarkPaid extends AbstractService
 
         $payment->service()->applyNumber()->save();
         
-        if($payment->company->getSetting('send_email_on_mark_paid'))
-            $payment->service()->sendEmail();
-
-        $this->setExchangeRate($payment);
-
         /* Create a payment relationship to the invoice entity */
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $this->payable_balance,
         ]);
+
+        if($payment->company->getSetting('send_email_on_mark_paid'))
+            $payment->service()->sendEmail();
+
+        $this->setExchangeRate($payment);
 
         event('eloquent.created: App\Models\Payment', $payment);
 

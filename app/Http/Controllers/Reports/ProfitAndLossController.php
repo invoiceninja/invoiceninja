@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,9 +72,7 @@ class ProfitAndLossController extends BaseController
         // expect a list of visible fields, or use the default
 
         $pnl = new ProfitLoss(auth()->user()->company(), $request->all());
-        $pnl->build();
-
-        $csv = $pnl->getCsv();
+        $csv = $pnl->run();
 
         $headers = [
             'Content-Disposition' => 'attachment',
