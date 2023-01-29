@@ -141,9 +141,11 @@ class EmailMailer implements ShouldQueue
             $this->release($this->backoff()[$this->attempts()-1]);
 
             $message = null;
-            $this->cleanUpMailers();
+            
 
         }
+
+        $this->cleanUpMailers();
 
     }
 

@@ -74,12 +74,16 @@ class WebhookSingle implements ShouldQueue
      */
     public function handle()
     {
-nlog($this->attempts());
 
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::with('company')->find($this->subscription_id);
         
+        if(!$subscription){
+            $this->fail();
+            return;
+        }
+
         $this->company = $subscription->company;
 
         $this->entity->refresh();
@@ -108,14 +112,10 @@ nlog($this->attempts());
 
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
-nlog("attempting ". $subscription->target_url);
-
         try {
             $response = $client->post($subscription->target_url, [
                 RequestOptions::JSON => $data, // or 'json' => [...]
             ]);
-
-nlog($response->getStatusCode());
 
             SystemLogger::dispatch(
                 array_merge((array) $response, $data),
