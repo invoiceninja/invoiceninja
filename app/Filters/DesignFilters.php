@@ -32,7 +32,7 @@ class DesignFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
+        return $this->builder->where(function ($query) use ($filter) {
             $query->where('designs.name', 'like', '%'.$filter.'%');
         });
     }
