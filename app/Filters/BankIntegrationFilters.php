@@ -26,7 +26,7 @@ class BankIntegrationFilters extends QueryFilters
      */
     public function name(string $name = ''): Builder
     {
-        if (strlen($filter) == 0) {
+        if (strlen($name) == 0) {
             return $this->builder;
         }
 

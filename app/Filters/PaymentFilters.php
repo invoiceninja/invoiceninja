@@ -62,6 +62,15 @@ class PaymentFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function number(string $number = ''): Builder
+    {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
+    }
+
     /**
      * Sorts the list based on $sort.
      *
@@ -77,15 +86,6 @@ class PaymentFilters extends QueryFilters
         }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    public function number(string $number = ''): Builder
-    {
-        if (strlen($number) == 0) {
-            return $this->builder;
-        }
-
-        return $this->builder->where('number', $number);
     }
 
     /**
