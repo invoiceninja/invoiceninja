@@ -54,7 +54,7 @@ class RecurringQuoteFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Illuminate\Database\Eloquent\Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
