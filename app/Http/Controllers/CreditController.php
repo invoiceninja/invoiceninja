@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use App\Factory\CloneCreditFactory;
 use App\Factory\CreditFactory;
 use App\Filters\CreditFilters;
 use App\Http\Requests\Credit\ActionCreditRequest;
+use App\Http\Requests\Credit\BulkCreditRequest;
 use App\Http\Requests\Credit\CreateCreditRequest;
 use App\Http\Requests\Credit\DestroyCreditRequest;
 use App\Http\Requests\Credit\EditCreditRequest;
@@ -78,7 +79,6 @@ class CreditController extends BaseController
      *      description="Lists credits, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the credits, these are handled by the CreditFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -124,7 +124,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Gets a new blank credit object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -170,7 +169,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Adds a credit",
      *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -231,7 +229,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -286,7 +283,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit for editting",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -342,7 +338,6 @@ class CreditController extends BaseController
      *      tags={"Credits"},
      *      summary="Updates an Credit",
      *      description="Handles the updating of an Credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -410,7 +405,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Deletes a credit",
      *      description="Handles the deletion of an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -463,7 +457,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Performs bulk actions on an array of credits",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -502,16 +495,17 @@ class CreditController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkCreditRequest $request)
     {
-        $action = request()->input('action');
-
-        $ids = request()->input('ids');
+        $action = $request->input('action');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);
 
-        $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $credits = Credit::withTrashed()
+                         ->whereIn('id', $request->ids)
+                         ->company()
+                         ->get();
 
         if (! $credits) {
             return response()->json(['message' => ctrans('texts.no_credits_found')]);
@@ -555,7 +549,7 @@ class CreditController extends BaseController
             }
         });
 
-        return $this->listResponse(Credit::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     public function action(ActionCreditRequest $request, Credit $credit, $action)
@@ -682,7 +676,6 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Uploads a document to a credit",
      *      description="Handles the uploading of a document to a credit",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

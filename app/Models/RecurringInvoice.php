@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -256,13 +256,6 @@ class RecurringInvoice extends BaseModel
                 $this->next_send_date_client = now()->format('Y-m-d');
             }
         }
-
-        /*
-        As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
-        to add ON a day - a day = 86400 seconds
-        */
-        // if($offset < 0)
-        //     $offset += 86400;
 
         switch ($this->frequency_id) {
             case self::FREQUENCY_DAILY:

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,7 @@ use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Import\ImportCompleted;
+use App\Mail\Import\CsvImportCompleted;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -187,6 +187,10 @@ class BaseImport
 
             try {
                 $entity = $this->transformer->transform($record);
+
+                if(!$entity)
+                    continue;
+
                 $validator = $this->runValidation($entity);
 
                 if ($validator->fails()) {
@@ -282,6 +286,8 @@ class BaseImport
 
     public function ingestInvoices($invoices, $invoice_number_key)
     {
+        $count = 0;
+
         $invoice_transformer = $this->transformer;
 
         /** @var PaymentRepository $payment_repository */
@@ -343,6 +349,7 @@ class BaseImport
                     }
                     $invoice_repository->save($invoice_data, $invoice);
 
+                    $count++;
                     // If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
                     // If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
                     if (
@@ -404,6 +411,9 @@ class BaseImport
                 ];
             }
         }
+
+        return $count;
+
     }
 
     private function actionInvoiceStatus(
@@ -475,6 +485,8 @@ class BaseImport
 
     public function ingestQuotes($quotes, $quote_number_key)
     {
+        $count = 0;
+
         $quote_transformer = $this->transformer;
 
         /** @var ClientRepository $client_repository */
@@ -532,6 +544,8 @@ class BaseImport
                         $quote->status_id = $quote_data['status_id'];
                     }
                     $quote_repository->save($quote_data, $quote);
+                    
+                    $count++;
 
                     $this->actionQuoteStatus(
                         $quote,
@@ -552,7 +566,11 @@ class BaseImport
                     'error' => $message,
                 ];
             }
+
         }
+
+        return $count;
+
     }
 
     protected function getUserIDForRecord($record)
@@ -586,10 +604,11 @@ class BaseImport
         $data = [
             'errors'  => $this->error_array,
             'company' => $this->company,
+            'entity_count' => $this->entity_count
         ];
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new ImportCompleted($this->company, $data);
+        $nmo->mailable = new CsvImportCompleted($this->company, $data);
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
         $nmo->to_user = $this->company->owner();

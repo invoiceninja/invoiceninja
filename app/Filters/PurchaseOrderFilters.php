@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\PurchaseOrder;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class PurchaseOrderFilters extends QueryFilters
@@ -30,7 +29,7 @@ class PurchaseOrderFilters extends QueryFilters
      *
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -42,27 +41,35 @@ class PurchaseOrderFilters extends QueryFilters
             return $this->builder;
         }
 
-        $po_status = [];
+        $this->builder->where(function ($query) use ($status_parameters){
 
-        if (in_array('draft', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_DRAFT;
-        }
+            $po_status = [];
 
-        if (in_array('sent', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_SENT;
-        }
+            if (in_array('draft', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_DRAFT;
+            }
 
-        if (in_array('accepted', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
-        }
+            if (in_array('sent', $status_parameters)) {
+                $query->orWhere(function ($q){
+                              $q->where('status_id', PurchaseOrder::STATUS_SENT)
+                              ->whereNull('due_date')
+                              ->orWhere('due_date', '>=', now()->toDateString());
+                          });
+            
+            }
 
-        if (in_array('cancelled', $status_parameters)) {
-            $po_status[] = PurchaseOrder::STATUS_CANCELLED;
-        }
+            if (in_array('accepted', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_ACCEPTED;
+            }
 
-        if(count($status_parameters) >=1) {
-            $this->builder->whereIn('status_id', $status_parameters);
-        }
+            if (in_array('cancelled', $status_parameters)) {
+                $po_status[] = PurchaseOrder::STATUS_CANCELLED;
+            }
+
+            if(count($status_parameters) >=1) {
+                $query->whereIn('status_id', $status_parameters);
+            }
+        });
 
         return $this->builder;
     }
@@ -74,61 +81,22 @@ class PurchaseOrderFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('purchase_orders.number', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.number', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.date', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.amount', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.balance', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value1', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value2', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('purchase_orders.custom_value4', 'like', '%'.$filter.'%');
-        });
-    }
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted - legacy from V1.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'purchase_orders';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
+            $query->where('number', 'like', '%'.$filter.'%')
+                ->orWhere('number', 'like', '%'.$filter.'%')
+                ->orWhere('date', 'like', '%'.$filter.'%')
+                ->orWhere('amount', 'like', '%'.$filter.'%')
+                ->orWhere('balance', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value1', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -143,24 +111,11 @@ class PurchaseOrderFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-        // ..
     }
 
     /**
@@ -169,7 +124,7 @@ class PurchaseOrderFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();

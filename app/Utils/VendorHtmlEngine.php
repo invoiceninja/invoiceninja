@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -147,6 +147,7 @@ class VendorHtmlEngine
 
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format()), 'label' => ctrans('texts.date')];
 
+        $data['$po_number'] = &$data['$poNumber'];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.purchase_order')];
         $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number')];
         $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.purchase_order_number_short')];
@@ -227,6 +228,11 @@ class VendorHtmlEngine
         $data['$purchase_order.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
         $data['$purchase_order.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
 
+        $data['$custom1'] = &$data['$purchase_order.custom1'];
+        $data['$custom2'] = &$data['$purchase_order.custom2'];
+        $data['$custom3'] = &$data['$purchase_order.custom3'];
+        $data['$custom4'] = &$data['$purchase_order.custom4'];
+
         $data['$vendor1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor1', $this->vendor->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor1')];
         $data['$vendor2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor2', $this->vendor->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor2')];
         $data['$vendor3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor3', $this->vendor->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor3')];
@@ -269,6 +275,8 @@ class VendorHtmlEngine
         $data['$vendor.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->vendor->present()->cityStateZip($this->vendor->city, $this->vendor->state, $this->vendor->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
         $data['$vendor.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$postal_city'] = ['value' => $this->vendor->present()->cityStateZip($this->vendor->city, null, $this->vendor->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
+        $data['$vendor.postal_city'] = &$data['$postal_city'];
         $data['$vendor.country'] = &$data['$country'];
         $data['$vendor.email'] = &$data['$email'];
         
@@ -303,6 +311,7 @@ class VendorHtmlEngine
 
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+        $data['$company.postal_city'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, null, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
         $data['$company.name'] = ['value' => $this->settings->name ?: ctrans('texts.untitled_account'), 'label' => ctrans('texts.company_name')];
         $data['$account'] = &$data['$company.name'];
 
@@ -447,6 +456,8 @@ class VendorHtmlEngine
             $data['$client.city_state_postal'] = &$data['$city_state_postal'];
             $data['$postal_city_state'] = ['value' => $this->entity->client->present()->cityStateZip($this->entity->client->city, $this->entity->client->state, $this->entity->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
             $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+            $data['$postal_city'] = ['value' => $this->entity->client->present()->cityStateZip($this->entity->client->city, null, $this->entity->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
+            $data['$client.postal_city'] = &$data['$postal_city'];
             $data['$client.country'] = &$data['$country'];
             $data['$client.email'] = &$data['$email'];
             

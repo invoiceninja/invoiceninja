@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,17 +19,14 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
-use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
-use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,8 +34,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
 use Illuminate\Support\Facades\Cache;
@@ -49,9 +44,7 @@ class NinjaMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 30; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -59,33 +52,48 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
+    /* @var Company $company*/
     public $company;
 
     private $mailer;
+
+    protected $client_postmark_secret = false;
+
+    protected $client_mailgun_secret = false;
+
+    protected $client_mailgun_domain = false;
+
 
     public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
 
         $this->nmo = $nmo;
+
         $this->override = $override;
 
     }
 
+    public function backoff()
+    {
+        return [30, 60, 180, 240];
+    }
+
     public function handle()
     {
-
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
 
-        if($this->preFlightChecksFail())
+        /* If any pre conditions fail, we return early here */
+        if(!$this->company || $this->preFlightChecksFail())
             return;
 
         /* Set the email driver */
         $this->setMailDriver();
 
+        /* Run time we set Reply To Email*/
         if (strlen($this->nmo->settings->reply_to_email) > 1) {
             
             if(property_exists($this->nmo->settings, 'reply_to_name'))
@@ -100,8 +108,10 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
+        /* Run time we set the email tag */
         $this->nmo->mailable->tag($this->company->company_key);
 
+        /* If we have an invitation present, we pass the invitation key into the email headers*/
         if($this->nmo->invitation)
         {
 
@@ -115,11 +125,20 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
-
-            nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
+            nlog("Trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             nlog("Using mailer => ". $this->mailer);
 
-            Mail::mailer($this->mailer)
+            $mailer = Mail::mailer($this->mailer);
+
+            if($this->client_postmark_secret){
+                $mailer->postmark_config($this->client_postmark_secret);
+            }
+
+            if($this->client_mailgun_secret){
+                $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+            }
+
+            $mailer
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
 
@@ -132,56 +151,79 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo = null;
             $this->company = null;
     
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        }
+        catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch(\Symfony\Component\Mime\Exception\LogicException $e){
+                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+                $this->fail();
+                $this->cleanUpMailers();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                return;
+        }
+        catch (\Exception | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
-
+            nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
-
-            if($e instanceof \Google\Service\Exception){
-
-                if(($e->getCode() == 429) && ($this->nmo->to_user instanceof ClientContact))
-                    $this->logMailError("Google rate limiter hit, we will retry in 30 seconds.", $this->nmo->to_user->client);
-
-            }
 
             /**
              * Post mark buries the proper message in a a guzzle response
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if($e instanceof ClientException) { //postmark specific failure
+            if($e instanceof ClientException) 
+            { 
 
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
                 
                 if($message_body && property_exists($message_body, 'Message')){
                     $message = $message_body->Message;
-                    nlog($message);
                 }
                 
+                /*Do not retry if this is a postmark specific issue such as invalid recipient. */
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            if($this->nmo->entity)
-                $this->entityEmailFailed($message);
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+                /* If the is an entity attached to the message send a failure mailer */
+                if($this->nmo->entity)
+                    $this->entityEmailFailed($message);
 
-            $message = null;
-            $this->nmo = null;
-            $this->company = null;
-    
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
+
+            }
+        
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
+
         }
 
-        
-        
+        /*Clean up mailers*/ 
+        $this->cleanUpMailers();
+
     }
 
-    /* Switch statement to handle failure notifications */
-    private function entityEmailFailed($message)
+    /**
+     * Entity notification when an email fails to send
+     * 
+     * @param  string $message
+     * @return void
+     */
+    private function entityEmailFailed($message): void
     {
         $class = get_class($this->nmo->entity);
 
@@ -202,6 +244,9 @@ class NinjaMailerJob implements ShouldQueue
 
     }
 
+    /**
+     * Initializes the configured Mailer
+     */
     private function setMailDriver()
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
@@ -216,23 +261,34 @@ class NinjaMailerJob implements ShouldQueue
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
-                break;
+                return;
             case 'office365':
                 $this->mailer = 'office365';
                 $this->setOfficeMailer();
-                break;
+                return;
+            case 'client_postmark':
+                $this->mailer = 'postmark';
+                $this->setPostmarkMailer();
+                return;
+            case 'client_mailgun':
+                $this->mailer = 'mailgun';
+                $this->setMailgunMailer();
+                return;
+
             default:
                 break;
         }
 
-
         if(Ninja::isSelfHost())
             $this->setSelfHostMultiMailer();
 
-
     }
 
-    private function setSelfHostMultiMailer()
+    /**
+     * Allows configuration of multiple mailers
+     * per company for use by self hosted users
+     */
+    private function setSelfHostMultiMailer(): void
     {
 
         if (env($this->company->id . '_MAIL_HOST')) 
@@ -259,21 +315,112 @@ class NinjaMailerJob implements ShouldQueue
 
     }
 
-
-    private function setOfficeMailer()
+    /**
+     * Ensure we discard any data that is not required
+     * 
+     * @return void
+     */
+    private function cleanUpMailers(): void
     {
-        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+        $this->client_postmark_secret = false;
 
-        $user = User::find($this->decodePrimaryKey($sending_user));
-        
+        $this->client_mailgun_secret = false;
+
+        $this->client_mailgun_domain = false;
+
+        //always dump the drivers to prevent reuse 
+        app('mail.manager')->forgetMailers();
+    }
+
+    /** 
+     * Check to ensure no cross account
+     * emails can be sent.
+     * 
+     * @param User $user
+     */
+    private function checkValidSendingUser($user)
+    {
         /* Always ensure the user is set on the correct account */
         if($user->account_id != $this->company->account_id){
 
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
+        }
+    }
 
+    /**
+     * Resolves the sending user
+     * when configuring the Mailer
+     * on behalf of the client
+     * 
+     * @return User $user
+     */
+    private function resolveSendingUser(): ?User
+    {
+        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+
+        if($sending_user == "0")
+            $user = $this->company->owner();
+        else
+            $user = User::find($this->decodePrimaryKey($sending_user));
+
+        return $user;
+    }
+
+    /**
+     * Configures Mailgun using client supplied secret
+     * as the Mailer
+     */
+    private function setMailgunMailer()
+    {
+        if(strlen($this->nmo->settings->mailgun_secret) > 2 && strlen($this->nmo->settings->mailgun_domain) > 2){
+            $this->client_mailgun_secret = $this->nmo->settings->mailgun_secret;
+            $this->client_mailgun_domain = $this->nmo->settings->mailgun_domain;
+        }
+        else{
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
         }
 
+
+        $user = $this->resolveSendingUser();
+
+            $this->nmo
+             ->mailable
+             ->from($user->email, $user->name());
+    }
+
+    /**
+     * Configures Postmark using client supplied secret
+     * as the Mailer
+     */
+    private function setPostmarkMailer()
+    {
+        if(strlen($this->nmo->settings->postmark_secret) > 2){
+            $this->client_postmark_secret = $this->nmo->settings->postmark_secret;
+        }
+        else{
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
+
+        $user = $this->resolveSendingUser();
+
+            $this->nmo
+             ->mailable
+             ->from($user->email, $user->name());
+    }
+
+    /**
+     * Configures Microsoft via Oauth
+     * as the Mailer
+     */
+    private function setOfficeMailer()
+    {
+        $user = $this->resolveSendingUser();
+
+        $this->checkValidSendingUser($user);
+        
         nlog("Sending via {$user->name()}");
 
         $token = $this->refreshOfficeToken($user);
@@ -301,21 +448,17 @@ class NinjaMailerJob implements ShouldQueue
         sleep(rand(1,3));
     }
 
+    /**
+     * Configures GMail via Oauth
+     * as the Mailer
+     */
     private function setGmailMailer()
     {
 
-        $sending_user = $this->nmo->settings->gmail_sending_user_id;
+        $user = $this->resolveSendingUser();
 
-        $user = User::find($this->decodePrimaryKey($sending_user));
+        $this->checkValidSendingUser($user);
 
-        /* Always ensure the user is set on the correct account */
-        if($user->account_id != $this->company->account_id){
-
-            $this->nmo->settings->email_sending_method = 'default';
-            return $this->setMailDriver();
-
-        }
-        
         nlog("Sending via {$user->name()}");
 
         $google = (new Google())->init();
@@ -329,7 +472,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(2,4));
+            sleep(rand(1,6));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
@@ -370,7 +513,14 @@ class NinjaMailerJob implements ShouldQueue
 
     }
 
-    private function preFlightChecksFail()
+    /**
+     * On the hosted platform we scan all outbound email for 
+     * spam. This sequence processes the filters we use on all
+     * emails.
+     * 
+     * @return bool
+     */
+    private function preFlightChecksFail(): bool
     {
 
         /* If we are migrating data we don't want to fire any emails */
@@ -396,9 +546,11 @@ class NinjaMailerJob implements ShouldQueue
         /* If the account is verified, we allow emails to flow */
         if(Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
 
+            //11-01-2022
+
             /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
-            if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
-                (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+            // if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
+            //     (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
 
             return false;
         }
@@ -423,7 +575,14 @@ class NinjaMailerJob implements ShouldQueue
         return false;
     }
 
-    private function logMailError($errors, $recipient_object)
+    /**
+     * Logs any errors to the SystemLog
+     * 
+     * @param  string $errors
+     * @param  App\Models\User | App\Models\Client $recipient_object
+     * @return void
+     */
+    private function logMailError($errors, $recipient_object) :void
     {
 
         (new SystemLogger(
@@ -446,11 +605,12 @@ class NinjaMailerJob implements ShouldQueue
 
     }
 
-    public function failed($exception = null)
-    {
-        
-    }
-
+    /**
+     * Attempts to refresh the Microsoft refreshToken
+     * 
+     * @param  App\Models\User
+     * @return string | boool
+     */
     private function refreshOfficeToken($user)
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
@@ -469,8 +629,6 @@ class NinjaMailerJob implements ShouldQueue
                     'refresh_token' => $user->oauth_user_refresh_token
                 ],
             ])->getBody()->getContents());
-
-            nlog($token);
             
             if($token){
                 
@@ -489,12 +647,10 @@ class NinjaMailerJob implements ShouldQueue
         
     }
 
-    /**
-     * Is this the cleanest way to requeue a job?
-     * 
-     * $this->delete();
-     *
-     * $job = NinjaMailerJob::dispatch($this->nmo, $this->override)->delay(3600);
-    */
+    public function failed($exception = null)
+    {
+        if($exception)
+            nlog($exception->getMessage());
+    }
 
 }

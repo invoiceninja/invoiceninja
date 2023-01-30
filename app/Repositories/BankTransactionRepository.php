@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,7 +40,7 @@ class BankTransactionRepository extends BaseRepository
     {
 
         $data['transactions'] = $bank_transactions->map(function ($bt){
-            return ['id' => $bt->id, 'invoice_ids' => $bt->invoice_ids];
+            return ['id' => $bt->id, 'invoice_ids' => $bt->invoice_ids, 'ninja_category_id' => $bt->ninja_category_id];
 
         })->toArray();
 

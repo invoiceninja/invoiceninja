@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -90,9 +90,7 @@ trait Utilities
         nlog("checkout failure");
         nlog($_payment);
         
-        if (is_array($_payment) && array_key_exists('actions', $_payment) && array_key_exists('response_summary', end($_payment['actions']))) {
-            $error_message = end($_payment['actions'])['response_summary'];
-        } elseif (is_array($_payment) && array_key_exists('status', $_payment)) {
+        if (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
         }
         else {

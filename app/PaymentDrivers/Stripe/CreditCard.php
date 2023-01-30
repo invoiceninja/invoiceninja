@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -61,9 +61,8 @@ class CreditCard
     public function paymentView(array $data)
     {
 
-        // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
-        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
 
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),

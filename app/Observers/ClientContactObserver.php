@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,6 +12,9 @@
 namespace App\Observers;
 
 use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 
 class ClientContactObserver
 {
@@ -45,9 +48,38 @@ class ClientContactObserver
      */
     public function deleted(ClientContact $clientContact)
     {
+        $client_contact_id = $clientContact->id;
+
         $clientContact->invoice_invitations()->delete();
         $clientContact->quote_invitations()->delete();
         $clientContact->credit_invitations()->delete();
+        $clientContact->recurring_invoice_invitations()->delete();
+
+        //ensure entity state is preserved
+        
+        InvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
+
+          if($invite->invoice()->doesnthave('invitations'))
+            $invite->invoice->service()->createInvitations();
+
+        });
+
+
+        QuoteInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
+
+          if($invite->quote()->doesnthave('invitations'))
+            $invite->quote->service()->createInvitations();
+
+        });
+
+        RecurringInvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
+
+          if($invite->recurring_invoice()->doesnthave('invitations'))
+            $invite->recurring_invoice->service()->createInvitations();
+
+        });
+
+        
     }
 
     /**
@@ -58,9 +90,9 @@ class ClientContactObserver
      */
     public function restored(ClientContact $clientContact)
     {
-        $clientContact->invoice_invitations()->restore();
-        $clientContact->quote_invitations()->restore();
-        $clientContact->credit_invitations()->restore();
+        // $clientContact->invoice_invitations()->restore();
+        // $clientContact->quote_invitations()->restore();
+        // $clientContact->credit_invitations()->restore();
     }
 
     /**

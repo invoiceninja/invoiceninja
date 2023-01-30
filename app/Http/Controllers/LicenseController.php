@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,7 +36,6 @@ class LicenseController extends BaseController
      *      tags={"claim_license"},
      *      summary="Attempts to claim a white label license",
      *      description="Attempts to claim a white label license",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="license_key",

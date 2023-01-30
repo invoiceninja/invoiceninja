@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,6 +36,7 @@ use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Scheduler;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -67,6 +68,7 @@ use App\Policies\QuotePolicy;
 use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
+use App\Policies\SchedulerPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TaskStatusPolicy;
@@ -109,6 +111,7 @@ class AuthServiceProvider extends ServiceProvider
         RecurringExpense::class => RecurringExpensePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
+        Scheduler::class => SchedulerPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
         Task::class => TaskPolicy::class,
         TaskStatus::class => TaskStatusPolicy::class,

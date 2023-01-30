@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,20 +38,18 @@ class DeletePayment
 
         \DB::connection(config('database.default'))->transaction(function () {
 
-
-            if ($this->payment->is_deleted) {
-                return $this->payment;
-            }
-
             $this->payment = Payment::withTrashed()->where('id', $this->payment->id)->lockForUpdate()->first();
 
-            $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
-                ->updateCreditables() //return the credits first
-                ->adjustInvoices()
-                ->deletePaymentables()
-                ->cleanupPayment()
-                ->save();
-
+            if ($this->payment && !$this->payment->is_deleted) {
+            
+                $this->setStatus(Payment::STATUS_CANCELLED) //sets status of payment
+                    ->updateCreditables() //return the credits first
+                    ->adjustInvoices()
+                    ->deletePaymentables()
+                    ->cleanupPayment()
+                    ->save();
+                    
+            }
 
         }, 2);
 

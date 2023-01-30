@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -225,6 +225,7 @@ use App\Listeners\User\UpdateUserLastLogin;
 use App\Listeners\User\UpdatedUserActivity;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -240,7 +241,9 @@ use App\Models\Quote;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\VendorContact;
 use App\Observers\AccountObserver;
+use App\Observers\ClientContactObserver;
 use App\Observers\ClientObserver;
 use App\Observers\CompanyGatewayObserver;
 use App\Observers\CompanyObserver;
@@ -255,6 +258,7 @@ use App\Observers\ProposalObserver;
 use App\Observers\PurchaseOrderObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\SubscriptionObserver;
+use App\Observers\VendorContactObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -633,6 +637,7 @@ class EventServiceProvider extends ServiceProvider
         Account::observe(AccountObserver::class);
         Subscription::observe(SubscriptionObserver::class);
         Client::observe(ClientObserver::class);
+        ClientContact::observe(ClientContactObserver::class);
         Company::observe(CompanyObserver::class);
         CompanyGateway::observe(CompanyGatewayObserver::class);
         CompanyToken::observe(CompanyTokenObserver::class);
@@ -646,6 +651,7 @@ class EventServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+        VendorContact::observe(VendorContactObserver::class);
         PurchaseOrder::observe(PurchaseOrderObserver::class);
     }
 

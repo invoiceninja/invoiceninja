@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -412,12 +412,12 @@ class CompanyGateway extends BaseModel
         return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
     }
 
-    public function resolveRouteBinding($value, $field = null)
-    {
+    // public function resolveRouteBinding($value, $field = null)
+    // {
 
-        return $this
-            ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
-    }
+    //     return $this
+    //         ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
+    // }
 
 
 }

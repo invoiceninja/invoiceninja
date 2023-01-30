@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -86,7 +86,7 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if(in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru'])){
+            if(in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])){
                 $sp794f3f->account_sms_verified = false;
             }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,6 +57,8 @@ class Design extends BaseDesign
     public $settings_object;
 
     public $company;
+
+    public float $payment_amount_total = 0;
 
     /** @var array */
     public $aging = [];
@@ -278,8 +280,10 @@ class Design extends BaseDesign
 
         if ($this->type === 'statement') {
 
-            $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
+            // $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
             
+            $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+
             return [
                 ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => ""],
@@ -512,6 +516,7 @@ class Design extends BaseDesign
 
                 $tbody[] = $element;
                 
+                $this->payment_amount_total += $payment->pivot->amount;
             }
         }
 
@@ -534,7 +539,8 @@ class Design extends BaseDesign
         $payment = $this->payments->first();
 
         return [
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $this->client))],
+            // ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $this->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->client))],
         ];
     }
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,7 +28,6 @@ class PingController extends BaseController
      *      tags={"ping"},
      *      summary="Attempts to ping the API",
      *      description="Attempts to ping the API",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -60,7 +59,6 @@ class PingController extends BaseController
      *      tags={"health_check"},
      *      summary="Attempts to get a health check from the API",
      *      description="Attempts to get a health check from the API",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,

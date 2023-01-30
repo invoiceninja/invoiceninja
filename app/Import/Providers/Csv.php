@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,7 +37,7 @@ use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
-use App\Import\Transformers\Bank\BankTransformer;
+use App\Import\Transformer\Bank\BankTransformer;
 use App\Repositories\BankTransactionRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ExpenseRepository;

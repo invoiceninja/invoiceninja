@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,8 +78,6 @@ class StoreShopClientRequest extends Request
 
         $input = $this->all();
 
-        //@todo implement feature permissions for > 100 clients
-        //
         $settings = ClientSettings::defaults();
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {

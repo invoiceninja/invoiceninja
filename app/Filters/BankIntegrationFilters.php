@@ -4,18 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Filters;
 
-use App\Models\BankIntegration;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * BankIntegrationFilters.
@@ -43,14 +39,14 @@ class BankIntegrationFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('bank_integrations.bank_account_name', 'like', '%'.$filter.'%');
+            $query->where('bank_account_name', 'like', '%'.$filter.'%');
         });
 
     }
@@ -62,34 +58,28 @@ class BankIntegrationFilters extends QueryFilters
      * @param string filter
      * @return Builder
      */
-    public function status(string $filter = '') : Builder
+    public function status(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
-        $table = 'bank_integrations';
         $filters = explode(',', $filter);
 
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
+        return $this->builder->where(function ($query) use ($filters) {
+         
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
+                $query->orWhereNull('deleted_at');
             }
 
             if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
+                $query->orWhere(function ($query) {
+                    $query->whereNotNull('deleted_at');
                 });
             }
 
             if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
+                $query->orWhere('is_deleted', 1);
             }
         });
     }
@@ -100,7 +90,7 @@ class BankIntegrationFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
         
@@ -108,26 +98,12 @@ class BankIntegrationFilters extends QueryFilters
     }
 
     /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-
-    }
-
-    /**
      * Filters the query by the users company ID.
      *
      * @return Illuminate\Database\Query\Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }

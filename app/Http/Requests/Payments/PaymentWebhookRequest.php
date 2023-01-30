@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,7 +47,8 @@ class PaymentWebhookRequest extends Request
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
-        return CompanyGateway::withTrashed()->findOrFail($this->decodePrimaryKey($this->company_gateway_id));
+        return CompanyGateway::withTrashed()->find($this->decodePrimaryKey($this->company_gateway_id));
+
     }
 
     /**

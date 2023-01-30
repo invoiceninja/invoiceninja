@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,15 +12,12 @@
 namespace App\Models;
 
 use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 
@@ -115,17 +112,17 @@ class BaseModel extends Model
      * reference to the parent class.
      *
      * @param $key The key of property
-     * @return
+     * @deprecated
      */
-    public function getSettingsByKey($key)
-    {
-        /* Does Setting Exist @ client level */
-        if (isset($this->getSettings()->{$key})) {
-            return $this->getSettings()->{$key};
-        } else {
-            return (new CompanySettings($this->company->settings))->{$key};
-        }
-    }
+    // public function getSettingsByKey($key)
+    // {
+    //     /* Does Setting Exist @ client level */
+    //     if (isset($this->getSettings()->{$key})) {
+    //         return $this->getSettings()->{$key};
+    //     } else {
+    //         return (new CompanySettings($this->company->settings))->{$key};
+    //     }
+    // }
 
     public function setSettingsByEntity($entity, $settings)
     {
@@ -170,12 +167,14 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
+            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
 
         return $this
             ->withTrashed()
+            // ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
@@ -190,7 +189,7 @@ class BaseModel extends Model
 
     public function numberFormatter()
     {
-        $number = strlen($this->number) >= 1 ? $this->number : class_basename($this) . "_" . Str::random(5); 
+        $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5); 
 
         $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
         

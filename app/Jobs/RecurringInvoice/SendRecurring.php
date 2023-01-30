@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,13 +66,6 @@ class SendRecurring implements ShouldQueue
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
-        if ($this->recurring_invoice->auto_bill === 'always') {
-            $invoice->auto_bill_enabled = true;
-        } elseif ($this->recurring_invoice->auto_bill === 'optout' || $this->recurring_invoice->auto_bill === 'optin') {
-        } elseif ($this->recurring_invoice->auto_bill === 'off') {
-            $invoice->auto_bill_enabled = false;
-        }
-
         $invoice->date = date('Y-m-d');
 
         nlog("Recurring Invoice Date Set on Invoice = {$invoice->date} - ". now()->format('Y-m-d'));
@@ -92,6 +85,14 @@ class SendRecurring implements ShouldQueue
             $invoice = $invoice->service()
                                ->fillDefaults()
                                ->save();
+        }
+
+        //12-01-2023 i moved this block after fillDefaults to handle if standard invoice auto bill config has been enabled, recurring invoice should override.
+        if ($this->recurring_invoice->auto_bill === 'always') {
+            $invoice->auto_bill_enabled = true;
+        } elseif ($this->recurring_invoice->auto_bill === 'optout' || $this->recurring_invoice->auto_bill === 'optin') {
+        } elseif ($this->recurring_invoice->auto_bill === 'off') {
+            $invoice->auto_bill_enabled = false;
         }
 
         $invoice = $this->createRecurringInvitations($invoice);

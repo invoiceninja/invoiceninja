@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,6 +31,7 @@ class SubscriptionPlanSwitchController extends Controller
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
+
         $amount = $recurring_invoice->subscription
                                     ->service()
                                     ->calculateUpgradePriceV2($recurring_invoice, $target);
@@ -44,7 +45,6 @@ class SubscriptionPlanSwitchController extends Controller
             render('subscriptions.denied');
         }
 
-
         $amount = max(0,$amount);
 
         return render('subscriptions.switch', [
@@ -53,5 +53,6 @@ class SubscriptionPlanSwitchController extends Controller
             'target' => $target,
             'amount' => $amount,
         ]);
+        
     }
 }

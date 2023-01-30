@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -212,6 +212,11 @@ class Payment extends BaseModel
         return Number::formatMoney($this->amount, $this->client);
     }
 
+    public function formatAmount(float $amount): string
+    {
+        return Number::formatMoney($amount, $this->client);
+    }
+
     public function clientPaymentDate()
     {
         if (! $this->date) {
@@ -287,12 +292,13 @@ class Payment extends BaseModel
         return new PaymentService($this);
     }
 
-    public function resolveRouteBinding($value, $field = null)
-    {
-        return $this
-            ->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
+
+    // public function resolveRouteBinding($value, $field = null)
+    // {
+    //     return $this
+    //         ->withTrashed()
+    //         ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    // }
 
     public function refund(array $data) :self
     {

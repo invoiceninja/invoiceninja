@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,6 +18,10 @@ class PaymentWebhookController extends Controller
 {
     public function __invoke(PaymentWebhookRequest $request)
     {
+        //return early if we cannot resolve the company gateway
+        if(!$request->getCompanyGateway())
+            return response()->json([], 200);
+
         return $request
             ->getCompanyGateway()
             ->driver()

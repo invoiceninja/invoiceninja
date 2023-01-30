@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -98,7 +98,6 @@ class InvoiceController extends BaseController
      *      description="Lists invoices, search and filters allow fine grained lists to be generated.
      *
      *		Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -145,7 +144,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Gets a new blank invoice object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -191,7 +189,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Adds a invoice",
      *      description="Adds an invoice to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -260,7 +257,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Shows an invoice",
      *      description="Displays an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -315,7 +311,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Shows an invoice for editting",
      *      description="Displays an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -371,7 +366,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Updates an invoice",
      *      description="Handles the updating of an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -456,7 +450,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Deletes a invoice",
      *      description="Handles the deletion of an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -509,7 +502,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Performs bulk actions on an array of invoices",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -637,7 +629,6 @@ class InvoiceController extends BaseController
      *        - archive
      *        - delete
      *        - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -826,7 +817,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Download a specific invoice by invitation key",
      *      description="Downloads a specific invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -894,7 +884,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Download a specific invoice delivery notes",
      *      description="Downloads a specific invoice delivery notes",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -955,7 +944,6 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Uploads a document to a invoice",
      *      description="Handles the uploading of a document to a invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

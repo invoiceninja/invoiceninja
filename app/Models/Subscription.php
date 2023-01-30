@@ -4,13 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Models\RecurringInvoice;
 use App\Services\Subscription\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends BaseModel
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Filterable;
 
     protected $hidden = [
         'id',

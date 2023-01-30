@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,12 +35,7 @@ class InvoiceService
 {
     use MakesHash;
 
-    public $invoice;
-
-    public function __construct($invoice)
-    {
-        $this->invoice = $invoice;
-    }
+    public function __construct(public Invoice $invoice){}
 
     /**
      * Marks as invoice as paid
@@ -529,6 +524,10 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if (! isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id) {
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+        }
+
+        if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {
+            $this->invoice->auto_bill_enabled = true;
         }
 
         if ($settings->counter_number_applied == 'when_saved') {

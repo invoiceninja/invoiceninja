@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,7 +67,6 @@ class AccountController extends BaseController
      *      tags={"signup"},
      *      summary="Attempts a new account signup",
      *      description="Attempts a new account signup and returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="token_name",

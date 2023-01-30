@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -479,8 +479,19 @@ trait GeneratesConvertedQuoteCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
 
         if ($reset_counter_frequency == 0) {
+
+                if($client->getSetting('reset_counter_date')){
+
+                    $settings = $client->company->settings;
+                    $settings->reset_counter_date = "";
+                    $client->company->settings = $settings;
+                    $client->company->save();
+                    
+                }
+
             return;
         }
+
 
         $timezone = Timezone::find($client->getSetting('timezone_id'));
 

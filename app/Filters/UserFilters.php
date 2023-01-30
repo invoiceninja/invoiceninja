@@ -4,14 +4,13 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Filters;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -26,58 +25,20 @@ class UserFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('users.first_name', 'like', '%'.$filter.'%')
-                          ->orWhere('users.last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('users.email', 'like', '%'.$filter.'%')
-                          ->orWhere('users.signature', 'like', '%'.$filter.'%');
+            $query->where('first_name', 'like', '%'.$filter.'%')
+                          ->orWhere('last_name', 'like', '%'.$filter.'%')
+                          ->orWhere('email', 'like', '%'.$filter.'%')
+                          ->orWhere('signature', 'like', '%'.$filter.'%');
         });
     }
 
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'users';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
-    }
 
     /**
      * Sorts the list based on $sort.
@@ -85,23 +46,11 @@ class UserFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
     }
 
     /**
@@ -111,10 +60,29 @@ class UserFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        //return $this->builder->user_companies()->whereCompanyId(auth()->user()->company()->id);
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->whereHas('company_users', function ($q) {
             $q->where('company_id', '=', auth()->user()->company()->id);
         });
     }
+
+    /**
+     * Overrides the base with() function as no company ID 
+     * exists on the user table
+     * 
+     * @param  string $value Hashed ID of the user to return back in the dataset
+     * 
+     * @return Builder
+     */
+    public function with(string $value = ''): Builder
+    {
+
+        if(strlen($value) == 0)
+            return $this->builder;
+
+        return $this->builder
+            ->orWhere($this->with_property, $value)
+            ->orderByRaw("{$this->with_property} = ? DESC", [$value])
+            ->where('account_id', auth()->user()->account_id);
+    }
+
 }

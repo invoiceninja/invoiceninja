@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +15,7 @@ use App;
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -28,10 +29,14 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Console\Command;
@@ -120,6 +125,8 @@ class CheckData extends Command
         $this->checkOauthSanity();
         $this->checkVendorSettings();
         $this->checkClientSettings();
+        $this->checkCompanyTokens();
+        $this->checkUserState();
         
         if(Ninja::isHosted()){
             $this->checkAccountStatuses();
@@ -151,6 +158,25 @@ class CheckData extends Command
         $str = date('Y-m-d h:i:s').' '.$str;
         $this->info($str);
         $this->log .= $str."\n";
+    }
+
+    private function checkCompanyTokens()
+    {
+
+        CompanyUser::doesnthave('token')->cursor()->each(function ($cu){
+
+            if($cu->user){
+                $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
+                (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+            }
+            else {
+                $this->logMessage("Dangling User ID # {$cu->id}");
+            }
+
+        });
+
+
+
     }
 
     private function checkOauthSanity()
@@ -389,6 +415,16 @@ class CheckData extends Command
         }
     }
 
+    private function checkUserState()
+    {
+        User::withTrashed()
+            ->where('deleted_at', '0000-00-00 00:00:00.000000')
+            ->cursor()
+            ->each(function ($user){
+                $user->restore();
+            });
+    }
+
     private function checkEntityInvitations()
     {
     
@@ -397,29 +433,69 @@ class CheckData extends Command
     QuoteInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
     CreditInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
 
-        $entities = ['invoice', 'quote', 'credit', 'recurring_invoice'];
 
-        foreach($entities as $entity)
-        {
-            $table = "{$entity}s";
-            $invitation_table = "{$entity}_invitations";
+        collect([Invoice::class, Quote::class, Credit::class, PurchaseOrder::class])->each(function ($entity){
 
-        $entities = DB::table($table)
-                    ->leftJoin($invitation_table, function ($join) use($invitation_table, $table, $entity){
-                        $join->on("{$invitation_table}.{$entity}_id", '=', "{$table}.id");
-                             // ->whereNull("{$invitation_table}.deleted_at");
-                    })
-                    ->groupBy("{$table}.id", "{$table}.user_id", "{$table}.company_id", "{$table}.client_id")
-                    ->havingRaw("count({$invitation_table}.id) = 0")
-                    ->get(["{$table}.id", "{$table}.user_id", "{$table}.company_id", "{$table}.client_id"]);
+            if($entity::doesntHave('invitations')->count() > 0)
+            {
 
+                $entity::doesntHave('invitations')->cursor()->each(function ($entity) {
 
-        $this->logMessage($entities->count()." {$table} without any invitations");
+                    $client_vendor_key = 'client_id';
+                    $contact_id = 'client_contact_id';
+                    $contact_class = ClientContact::class;
 
-        if ($this->option('fix') == 'true') 
-            $this->fixInvitations($entities, $entity);
+                    $entity_key = \Illuminate\Support\Str::of(class_basename($entity))->snake()->append('_id')->value;
+                    $entity_obj = get_class($entity).'Invitation';
 
-        }
+                    if($entity instanceof PurchaseOrder){
+                        $client_vendor_key = 'vendor_id';
+                        $contact_id = 'vendor_contact_id';
+                        $contact_class = VendorContact::class;
+                    }
+
+                        $invitation = false;
+
+                        //check contact exists!
+                        if($contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->exists())
+                        {
+
+                            $contact = $contact_class::where('company_id', $entity->company_id)->where($client_vendor_key,$entity->{$client_vendor_key})->first();
+
+                            //double check if an archived invite exists
+                            if($contact && $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->count() != 0) {
+                                $i = $entity_obj::withTrashed()->where($entity_key, $entity->id)->where($contact_id, $contact->id)->first();
+                                $i->restore();
+                                $this->logMessage("Found a valid contact and invitation restoring for {$entity_key} - {$entity->id}");
+                            }
+                            else {
+                                $invitation = new $entity_obj();
+                                $invitation->company_id = $entity->company_id;
+                                $invitation->user_id = $entity->user_id;
+                                $invitation->{$entity_key} = $entity->id;
+                                $invitation->{$contact_id} = $contact->id;
+                                $invitation->key = Str::random(config('ninja.key_length'));
+                                $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
+                            }
+                        }
+                        else
+                            $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
+
+                    try{
+
+                        if($invitation)
+                            $invitation->save();
+                    }
+                    catch(\Exception $e){
+                        $this->logMessage($e->getMessage());
+                        $invitation = null;
+                    }
+
+                });
+
+            }
+
+        });
 
     }
 

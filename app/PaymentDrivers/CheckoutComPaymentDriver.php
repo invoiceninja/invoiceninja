@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -497,7 +497,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $request->query('cko-session-id')
             );
 
-            if ($payment['approved']) {
+            if (isset($payment['approved']) && $payment['approved']) {
                 return $this->processSuccessfulPayment($payment);
             } else {
                 return $this->processUnsuccessfulPayment($payment);

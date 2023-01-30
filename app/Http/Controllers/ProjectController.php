@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,7 +63,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Gets a list of projects",
      *      description="Lists projects",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -111,7 +110,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Shows a project",
      *      description="Displays a project by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -166,7 +164,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Shows a project for editting",
      *      description="Displays a project by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -222,7 +219,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Updates a project",
      *      description="Handles the updating of a project by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -289,7 +285,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Gets a new blank project object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -335,7 +330,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Adds a project",
      *      description="Adds an project to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -393,7 +387,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Deletes a project",
      *      description="Handles the deletion of a project by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -450,7 +443,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Performs bulk actions on an array of projects",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -521,7 +513,6 @@ class ProjectController extends BaseController
      *      tags={"projects"},
      *      summary="Uploads a document to a project",
      *      description="Handles the uploading of a document to a project",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

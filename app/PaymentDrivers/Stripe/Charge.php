@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,9 +63,9 @@ class Charge
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         }
 
         $this->stripe->init();

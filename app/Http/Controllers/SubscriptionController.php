@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +15,7 @@ namespace App\Http\Controllers;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
+use App\Filters\SubscriptionFilters;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
 use App\Http\Requests\Subscription\EditSubscriptionRequest;
@@ -56,7 +57,6 @@ class SubscriptionController extends BaseController
      *      summary="Gets a list of subscriptions",
      *      description="Lists subscriptions.",
      *
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -80,9 +80,9 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function index(): \Illuminate\Http\Response
+    public function index(SubscriptionFilters $filters): \Illuminate\Http\Response
     {
-        $subscriptions = Subscription::query()->company();
+        $subscriptions = Subscription::filter($filters);
 
         return $this->listResponse($subscriptions);
     }
@@ -101,7 +101,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Gets a new blank subscriptions object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -147,7 +146,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Adds a subscriptions",
      *      description="Adds an subscriptions to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -196,7 +194,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Shows an subscriptions",
      *      description="Displays an subscriptions by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -251,7 +248,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Shows an subscriptions for editting",
      *      description="Displays an subscriptions by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -307,7 +303,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Updates an subscriptions",
      *      description="Handles the updating of an subscriptions by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -371,7 +366,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Deletes a subscriptions",
      *      description="Handles the deletion of an subscriptions by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -425,7 +419,6 @@ class SubscriptionController extends BaseController
      *      tags={"subscriptions"},
      *      summary="Performs bulk actions on an array of subscriptions",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),

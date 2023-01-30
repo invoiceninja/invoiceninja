@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,7 +47,6 @@ class ClientStatementController extends BaseController
      *      tags={"clients"},
      *      summary="Return a PDF of the client statement",
      *      description="Return a PDF of the client statement",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -109,9 +108,17 @@ class ClientStatementController extends BaseController
      */
     public function statement(CreateStatementRequest $request)
     {
+        $send_email = false;
+
+        if($request->has('send_email') && $request->send_email == 'true')
+            $send_email = true;
+
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status']), $send_email
         );
+
+        if($send_email)
+            return response()->json(['message' => ctrans('texts.email_queued')], 200);
 
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {
@@ -119,6 +126,6 @@ class ClientStatementController extends BaseController
             }, ctrans('texts.statement').'.pdf', ['Content-Type' => 'application/pdf']);
         }
 
-        return response()->json(['message' => 'Something went wrong. Please check logs.']);
+        return response()->json(['message' => ctrans('texts.error_title')], 500);
     }
 }

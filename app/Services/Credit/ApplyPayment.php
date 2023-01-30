@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,8 +105,8 @@ class ApplyPayment
 
     private function addPaymentToLedger()
     {
-        $this->payment->amount += $this->amount_applied;
-        $this->payment->applied += $this->amount_applied;
+        // $this->payment->amount += $this->amount_applied;
+        // $this->payment->applied += $this->amount_applied;
         $this->payment->status_id = Payment::STATUS_COMPLETED;
         $this->payment->currency_id = $this->credit->client->getSetting('currency_id');
         $this->payment->save();

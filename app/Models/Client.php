@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,12 +21,12 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\Task;
 use App\Services\Client\ClientService;
+use App\Models\Traits\Excludable;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Exception;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
@@ -42,6 +42,7 @@ class Client extends BaseModel implements HasLocalePreference
     use GeneratesCounter;
     use AppSetup;
     use ClientGroupSettingsSaver;
+    use Excludable;
 
     protected $presenter = ClientPresenter::class;
 
@@ -131,6 +132,13 @@ class Client extends BaseModel implements HasLocalePreference
         'public_notes',
         'phone',
     ];
+
+    // public function scopeExclude($query)
+    // {
+    //     $query->makeHidden(['balance','paid_to_date']);
+
+    //     return $query;
+    // }
 
     public function getEntityType()
     {
@@ -417,7 +425,7 @@ class Client extends BaseModel implements HasLocalePreference
             return $this->company;
         }
 
-        throw new Exception('Could not find a settings object', 1);
+        throw new \Exception('Could not find a settings object', 1);
     }
 
     public function documents()

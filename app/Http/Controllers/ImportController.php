@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +13,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Import\ImportRequest;
 use App\Http\Requests\Import\PreImportRequest;
-use App\Jobs\Import\CSVImport;
 use App\Jobs\Import\CSVIngest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -36,7 +35,6 @@ class ImportController extends Controller
      *      tags={"imports"},
      *      summary="Pre Import checks - returns a reference to the job and the headers of the CSV",
      *      description="Pre Import checks - returns a reference to the job and the headers of the CSV",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -162,7 +160,7 @@ class ImportController extends Controller
     public function detectDelimiter($csvfile)
     {
         $delimiters = array(',', '.', ';');
-        $bestDelimiter = false;
+        $bestDelimiter = ' ';
         $count = 0;
         foreach ($delimiters as $delimiter)
             if (substr_count($csvfile, $delimiter) > $count) {

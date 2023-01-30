@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -193,7 +193,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return $truth->getCompany();
         } elseif (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
-
             return $company_token->company;
         }
 
@@ -319,6 +318,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Returns true is user is an admin _or_ owner
+     * 
+     * @return boolean
+     */
+    public function isSuperUser() :bool
+    {
+        return $this->token()->cu->is_owner || $this->token()->cu->is_admin;
+    }
+
+    /**
      * Returns all user created contacts.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -359,7 +368,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermission($permission) : bool
     {
         $parts = explode('_', $permission);
-        $all_permission = '';
+        $all_permission = '____';
 
         if (count($parts) > 1) {
             $all_permission = $parts[0].'_all';
@@ -367,15 +376,94 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
-                (is_int(stripos($this->token()->cu->permissions, $permission)));
+                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
 
-        //23-03-2021 - stripos return an int if true and bool false, but 0 is also interpreted as false, so we simply use is_int() to verify state
         // return  $this->isOwner() ||
         //         $this->isAdmin() ||
-        //         (stripos($this->company_user->permissions, $all_permission) !== false) ||
-        //         (stripos($this->company_user->permissions, $permission) !== false);
+        //         (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
+        //         (is_int(stripos($this->token()->cu->permissions, $permission)));
+
     }
+
+    /**
+     * Used when we need to match exactly what permission
+     * the user has, and not aggregate owner and admins.
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  string  $permission '["view_all"]'
+     * @return boolean             
+     */
+    public function hasExactPermission(string $permission = '___'): bool
+    {
+
+        $parts = explode('_', $permission);
+        $all_permission = '__';
+
+        if (count($parts) > 1) {
+            $all_permission = $parts[0].'_all';
+        }
+
+        return  (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
+
+    }
+
+    /**
+     * Used when we need to match a range of permissions
+     * the user
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  array  $permissions 
+     * @return boolean             
+     */
+    public function hasIntersectPermissions(array $permissions = []): bool
+    {
+
+        foreach($permissions as $permission)
+        {
+
+            if($this->hasExactPermission($permission))
+                return true;
+
+        }
+
+        return false;
+        
+    }
+
+    /**
+     * Used when we need to match a range of permissions
+     * the user
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     * 
+     * @param  array  $permissions 
+     * @return boolean             
+     */
+    public function hasIntersectPermissionsOrAdmin(array $permissions = []): bool
+    {
+        
+        if($this->isSuperUser())
+            return true;
+
+        foreach($permissions as $permission)
+        {
+
+            if($this->hasExactPermission($permission))
+                return true;
+
+        }
+
+        return false;
+        
+    }
+
 
     public function documents()
     {
@@ -419,7 +507,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this
             ->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+            ->where('id', $this->decodePrimaryKey($value))
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     /**

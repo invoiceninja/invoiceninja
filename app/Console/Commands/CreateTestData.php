@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -437,7 +437,7 @@ class CreateTestData extends Command
             'company_id' => $client->company->id,
         ]);
 
-        Document::factory()->count(5)->create([
+        Document::factory()->count(1)->create([
             'user_id' => $client->user->id,
             'company_id' => $client->company_id,
             'documentable_type' => Vendor::class,

@@ -4,18 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Filters;
 
-use App\Models\Expense;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * ExpenseCategoryFilters.
@@ -35,47 +31,8 @@ class ExpenseCategoryFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where('expense_categories.name', 'like', '%'.$filter.'%');
+        return  $this->builder->where('name', 'like', '%'.$filter.'%');
 
-    }
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'expense_categories';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
     }
 
     /**
@@ -88,26 +45,11 @@ class ExpenseCategoryFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name'])) {
+        if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['name']))
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-        }
+        
 
         return $this->builder;
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-
-        return $this->builder;
-
     }
 
     /**
@@ -117,8 +59,6 @@ class ExpenseCategoryFilters extends QueryFilters
      */
     public function entityFilter()
     {
-
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }

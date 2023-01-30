@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,7 +12,6 @@
 namespace App\Filters;
 
 use App\Models\RecurringInvoice;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -27,7 +26,7 @@ class RecurringInvoiceFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -53,7 +52,7 @@ class RecurringInvoiceFilters extends QueryFilters
      * @param string client_status The invoice status as seen by the client
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -65,59 +64,23 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        if (in_array('active', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_ACTIVE);
-        }
+        $recurring_filters = [];
 
-        if (in_array('paused', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_PAUSED);
-        }
+        if (in_array('active', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
 
-        if (in_array('completed', $status_parameters)) {
-            $this->builder->where('status_id', RecurringInvoice::STATUS_COMPLETED);
-        }
+
+        if (in_array('paused', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
+
+        if (in_array('completed', $status_parameters)) 
+            $recurring_filters[] = RecurringInvoice::STATUS_COMPLETED;
+
+        if(count($recurring_filters) >= 1)
+            return $this->builder->whereIn('status_id', $recurring_filters);
 
         return $this->builder;
-    }
 
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'recurring_invoices';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
     }
 
     public function number(string $number = '') : Builder
@@ -131,7 +94,7 @@ class RecurringInvoiceFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -139,21 +102,9 @@ class RecurringInvoiceFilters extends QueryFilters
     }
 
     /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-    }
-
-    /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Eloquent\Builder
      */
     public function entityFilter()
     {

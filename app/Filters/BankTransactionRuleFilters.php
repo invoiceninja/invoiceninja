@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,45 +53,6 @@ class BankTransactionRuleFilters extends QueryFilters
             $query->where('bank_transaction_rules.name', 'like', '%'.$filter.'%');
         });
 
-    }
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $table = 'bank_transaction_rules';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
     }
 
     /**

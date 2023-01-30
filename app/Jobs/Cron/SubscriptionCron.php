@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,6 +45,7 @@ class SubscriptionCron
             $invoices = Invoice::where('is_deleted', 0)
                               ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                               ->where('balance', '>', 0)
+                              ->where('is_proforma',0)
                               ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                               ->whereNull('deleted_at')
                               ->whereNotNull('subscription_id')
@@ -74,6 +75,7 @@ class SubscriptionCron
                 $invoices = Invoice::where('is_deleted', 0)
                                   ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                   ->where('balance', '>', 0)
+                                  ->where('is_proforma',0)
                                   ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                                   ->whereNull('deleted_at')
                                   ->whereNotNull('subscription_id')

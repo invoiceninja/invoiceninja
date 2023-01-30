@@ -98,8 +98,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::resource('documents', App\Http\Controllers\ClientPortal\DocumentController::class)->only(['index', 'show']);
 
     Route::get('subscriptions/{recurring_invoice}/plan_switch/{target}', [App\Http\Controllers\ClientPortal\SubscriptionPlanSwitchController::class, 'index'])->name('subscription.plan_switch');
-
-    Route::resource('subscriptions', SubscriptionController::class)->middleware('portal_enabled')->only(['index']);
+    
+    Route::get('subscriptions/{recurring_invoice}', [SubscriptionController::class, 'show'])->middleware('portal_enabled')->name('subscriptions.show');
+    Route::get('subscriptions', [SubscriptionController::class, 'index'])->middleware('portal_enabled')->name('subscriptions.index');
 
     Route::resource('tasks', TaskController::class)->only(['index']);
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,12 +20,11 @@ use App\Models\GatewayType;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesDates;
-use App\Utils\transformTranslations;
+use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
@@ -34,7 +33,8 @@ class HtmlEngine
 {
     use MakesDates;
     use AppSetup;
-    
+    use MakesHash;
+
     public $entity;
 
     public $invitation;
@@ -100,6 +100,56 @@ class HtmlEngine
         }
     }
 
+    private function resolveCompanyLogoSize()
+    {
+        $design_map = [
+            "VolejRejNm" => "65%", // "Plain",
+            "Wpmbk5ezJn" => "65%", //"Clean",
+            "Opnel5aKBz" => "65%", //"Bold",
+            "wMvbmOeYAl" => "55%", //Modern",
+            "4openRe7Az" => "65%", //"Business",
+            "WJxbojagwO" => "65%", //"Creative",
+            "k8mep2bMyJ" => "55%", //"Elegant",
+            "l4zbq2dprO" => "65%", //"Hipster",
+            "yMYerEdOBQ" => "65%", //"Playful",
+            "gl9avmeG1v" => "65%", //"Tech",
+            "7LDdwRb1YK" => "65%", //"Calm",
+            "APdRoy0eGy" => "65%", //"Calm-DB2",
+            "y1aK83rbQG" => "65%", //"Calm-DB1",
+        ];
+
+        $design_int_map = [
+            "1" => "65%", // "Plain",
+            "2" => "65%", //"Clean",
+            "3" => "65%", //"Bold",
+            "4" => "55%", //Modern",
+            "5" => "65%", //"Business",
+            "6" => "65%", //"Creative",
+            "7" => "55%", //"Elegant",
+            "8" => "65%", //"Hipster",
+            "9" => "65%", //"Playful",
+            "10" => "65%", //"Tech",
+            "11" => "65%", //"Calm",
+            "6972" => "65%", //"C-DB2"
+            "11221" => "65%", //"C-DB1"
+        ];
+
+        if(isset($this->settings->company_logo_size) && strlen($this->settings->company_logo_size) > 1)
+            return $this->settings->company_logo_size;
+
+        if($this->entity->design_id && array_key_exists($this->entity->design_id, $design_int_map))
+            return $design_int_map[$this->entity->design_id];
+
+        $default_design_id = $this->entity_string."_design_id";
+        $design_id = $this->settings->{$default_design_id};
+
+        if(array_key_exists($design_id, $design_map))
+            return $design_map[$design_id];
+
+        return '65%';
+
+    }
+
     public function buildEntityDataArray() :array
     {
         if (! $this->client->currency()) {
@@ -113,8 +163,9 @@ class HtmlEngine
         $t->replace(Ninja::transformTranslations($this->settings));
 
         $data = [];
-        //$data['<html>'] = ['value' => '<html dir="rtl">', 'label' => ''];
+
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
+        $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -139,6 +190,7 @@ class HtmlEngine
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
+        $data['$po_number'] = &$data['$invoice.po_number'];
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
@@ -162,6 +214,16 @@ class HtmlEngine
             $data['$paymentButton'] = &$data['$payment_button'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+
+            $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
+            $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
+            $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
+            $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
+
+            $data['$custom1'] = &$data['$invoice.custom1'];
+            $data['$custom2'] = &$data['$invoice.custom2'];
+            $data['$custom3'] = &$data['$invoice.custom3'];
+            $data['$custom4'] = &$data['$invoice.custom4'];
 
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
@@ -202,6 +264,16 @@ class HtmlEngine
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
 
+            $data['$quote.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
+            $data['$quote.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
+            $data['$quote.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
+            $data['$quote.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
+
+            $data['$custom1'] = &$data['$quote.custom1'];
+            $data['$custom2'] = &$data['$quote.custom2'];
+            $data['$custom3'] = &$data['$quote.custom3'];
+            $data['$custom4'] = &$data['$quote.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -232,6 +304,11 @@ class HtmlEngine
             $data['$credit.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'credit3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
             $data['$credit.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'credit4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
 
+            $data['$custom1'] = &$data['$credit.custom1'];
+            $data['$custom2'] = &$data['$credit.custom2'];
+            $data['$custom3'] = &$data['$credit.custom3'];
+            $data['$custom4'] = &$data['$credit.custom4'];
+
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
@@ -249,6 +326,7 @@ class HtmlEngine
 
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
+        /* Do not change the order of these */
         if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
@@ -285,10 +363,8 @@ class HtmlEngine
             $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
         }
 
-        // $data['$amount_in_words'] = ['value' => (new \NumberFormatter($this->client->locale(), \NumberFormatter::SPELLOUT))->format($this->entity->amount), 'label' => ''];
-        // $data['$balance_in_words'] = ['value' => (new \NumberFormatter($this->client->locale(), \NumberFormatter::SPELLOUT))->format($this->entity->balance), 'label' => ''];
+        /* Do not change the order of these */
 
-        // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = &$data['$balance_due'];
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$partial'] = &$data['$partial_due'];
@@ -321,10 +397,7 @@ class HtmlEngine
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
-        $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
-        $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
-        $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
-        $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
+
         $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes ?: ''), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
@@ -343,10 +416,7 @@ class HtmlEngine
         $data['$valid_until'] = &$data['$quote.valid_until'];
         $data['$credit_amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
-        $data['$quote.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
-        $data['$quote.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
-        $data['$quote.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
-        $data['$quote.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
+
 
         $data['$credit_number'] = &$data['$number'];
         $data['$credit_no'] = &$data['$number'];
@@ -396,6 +466,8 @@ class HtmlEngine
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => $this->entity->present()->cityStateZip($this->client->city, $this->client->state, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$postal_city'] = ['value' => $this->entity->present()->cityStateZip($this->client->city, null, $this->client->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
+        $data['$client.postal_city'] = &$data['$postal_city'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
         
@@ -446,6 +518,7 @@ class HtmlEngine
 
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
+        $data['$company.postal_city'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, null, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city')];
         $data['$company.name'] = ['value' => $this->settings->name ?: ctrans('texts.untitled_account'), 'label' => ctrans('texts.company_name')];
         $data['$account'] = &$data['$company.name'];
 
@@ -520,6 +593,7 @@ class HtmlEngine
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$task.tax_amount'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.gross_line_total'] = ['value' => '', 'label' => ctrans('texts.gross_line_total')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.task1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task1')];

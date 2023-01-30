@@ -4,14 +4,16 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Providers;
 
+use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +29,21 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        Route::bind('task_scheduler', function ($value) {
+
+            if (is_numeric($value)) {
+                throw new ModelNotFoundException("Record with value {$value} not found");
+            }
+
+            return Scheduler::query()
+                ->withTrashed()
+                ->company()
+                ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+
+        });
+
+
     }
 
     /**

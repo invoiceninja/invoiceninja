@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,7 +39,6 @@ class CompanyLedgerController extends BaseController
      *      tags={"company_ledger"},
      *      summary="Gets a list of company_ledger",
      *      description="Lists the company_ledger.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -65,7 +64,7 @@ class CompanyLedgerController extends BaseController
      */
     public function index(ShowCompanyLedgerRequest $request)
     {
-        $company_ledger = CompanyLedger::whereCompanyId(auth()->user()->company()->id)->orderBy('id', 'ASC');
+        $company_ledger = CompanyLedger::where('company_id', auth()->user()->company()->id)->orderBy('id', 'ASC');
 
         return $this->listResponse($company_ledger);
     }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,12 +56,5 @@ class InvoiceWorkflowSettings implements ShouldQueue
             /* Throws: Payment amount xxx does not match invoice totals. */
             $this->base_repository->archive($this->invoice);
         }
-
-        //@TODO this setting should only fire for recurring invoices
-        // if ($this->client->getSetting('auto_email_invoice')) {
-        //    $this->invoice->invitations->each(function ($invitation, $key) {
-        //         $this->invoice->service()->sendEmail($invitation->contact);
-        //    });
-        // }
     }
 }

@@ -1,11 +1,10 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,10 +39,6 @@ trait AppSetup
         foreach ($cached_tables as $name => $class) {
             if (! Cache::has($name) || $force) {
 
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
                 if ($name == 'payment_terms') {
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {

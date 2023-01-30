@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,9 +53,9 @@ class Klarna
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
 
         if ($invoice_numbers->count() > 0) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
         }
 
         $intent = \Stripe\PaymentIntent::create([

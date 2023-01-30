@@ -70,6 +70,7 @@ use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
+use App\Http\Controllers\Reports\ProductSalesReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
 use App\Http\Controllers\Reports\QuoteItemReportController;
 use App\Http\Controllers\Reports\QuoteReportController;
@@ -102,7 +103,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:50,1','api_secret_check','email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -227,6 +228,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('preview', [PreviewController::class, 'show'])->name('preview.show');
     Route::post('live_preview', [PreviewController::class, 'live'])->name('preview.live');
+    Route::post('live_design', [PreviewController::class, 'design'])->name('preview.design');
 
     Route::post('preview/purchase_order', [PreviewPurchaseOrderController::class, 'show'])->name('preview_purchase_order.show');
     Route::post('live_preview/purchase_order', [PreviewPurchaseOrderController::class, 'live'])->name('preview_purchase_order.live');
@@ -270,10 +272,12 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class);
     Route::post('reports/payments', PaymentReportController::class);
     Route::post('reports/products', ProductReportController::class);
+    Route::post('reports/product_sales', ProductSalesReportController::class);
     Route::post('reports/tasks', TaskReportController::class);
     Route::post('reports/profitloss', ProfitAndLossController::class);
 
-    Route::resource('task_scheduler', TaskSchedulerController::class)->except('edit')->parameters(['task_scheduler' => 'scheduler']);
+    Route::resource('task_schedulers', TaskSchedulerController::class);
+    Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 
     Route::get('scheduler', [SchedulerController::class, 'index']);
     Route::post('support/messages/send', SendingController::class);
@@ -370,6 +374,5 @@ Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook']
 Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
-
 
 Route::fallback([BaseController::class, 'notFound']);

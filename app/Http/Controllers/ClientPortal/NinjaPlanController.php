@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,6 +26,7 @@ use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Notifications\Ninja\NewAccountNotification;
+use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -147,6 +148,8 @@ class NinjaPlanController extends Controller
             $account->plan_term = 'month';
             $account->plan_started = now();
             $account->plan_expires = now()->addDays(14);
+            $account->is_trial=true;
+            $account->hosted_company_count = 10;
             $account->save();
         }
 
@@ -178,6 +181,15 @@ class NinjaPlanController extends Controller
                  ->increment()
                  ->queue();
 
+
+        $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))->where('client_id', $client->id)->first();
+
+        if($old_recurring) {
+            $old_recurring->service()->stop()->save();
+            $old_recurring_repo = new RecurringInvoiceRepository();
+            $old_recurring_repo->archive($old_recurring);
+        }
+
         $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
         $ninja_company->notification(new NewAccountNotification($subscription->company->account, $client))->ninja();
 
@@ -206,7 +218,7 @@ class NinjaPlanController extends Controller
 
             if ($account) {
                 //offer the option to have a free trial
-                if (! $account->trial_started && ! $account->plan) {
+                if (!$account->plan && !$account->is_trial) {
                     return $this->trial();
                 }
 

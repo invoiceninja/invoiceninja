@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -349,6 +349,26 @@ class Import implements ShouldQueue
         }
 
         $account = $this->company->account;
+
+        /* If the user has upgraded their account, do not wipe their payment plan*/
+        if($account->isPaid() || (isset($data['plan']) && $data['plan'] == 'white_label'))
+        {
+            if(isset($data['plan']))
+                unset($data['plan']);
+            
+            if(isset($data['plan_term']))
+                unset($data['plan_term']);
+            
+            if(isset($data['plan_paid']))
+                unset($data['plan_paid']);
+            
+            if(isset($data['plan_started']))
+                unset($data['plan_started']);
+            
+            if(isset($data['plan_expires']))
+                unset($data['plan_expires']);
+        }
+
         $account->fill($data);
         $account->save();
 
@@ -496,6 +516,12 @@ class Import implements ShouldQueue
 
             }
 
+                if(Ninja::isHosted())   
+                {
+                    $data['portal_mode'] = 'subdomain';
+                    $data['portal_domain'] = '';
+                }
+           
             $data['settings'] = $company_settings;
         }
 
@@ -543,6 +569,11 @@ class Import implements ShouldQueue
         }
 
         TaxRate::reguard();
+
+        if(TaxRate::count() > 0){
+            $this->company->enabled_tax_rates = 2;
+            $this->company->save();
+        }
 
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;

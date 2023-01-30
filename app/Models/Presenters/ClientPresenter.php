@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,7 +27,6 @@ class ClientPresenter extends EntityPresenter
             return $this->entity->name;
         }
 
-        //$contact = $this->entity->primary_contact->first();
         $contact = $this->entity->contacts->whereNotNull('email')->first();
 
         $contact_name = 'No Contact Set';

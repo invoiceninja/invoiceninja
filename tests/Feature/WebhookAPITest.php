@@ -45,6 +45,16 @@ class WebhookAPITest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+    public function testWebhookGetFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/webhooks?filter=xx');
+
+        $response->assertStatus(200);
+    }
+
     public function testWebhookGetRoute()
     {
         $response = $this->withHeaders([
@@ -60,6 +70,7 @@ class WebhookAPITest extends TestCase
         $data = [
             'target_url' => 'http://hook.com',
             'event_id' => 1,
+            'rest_method' => 'post',
             'format' => 'JSON',
         ];
 
@@ -75,7 +86,10 @@ class WebhookAPITest extends TestCase
         $this->assertEquals(1, $arr['data']['event_id']);
 
         $data = [
+            'target_url' => 'http://hook.com',
             'event_id' => 2,
+            'rest_method' => 'post',
+            'format' => 'JSON',
         ];
 
         $response = $this->withHeaders([
