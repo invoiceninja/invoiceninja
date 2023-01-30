@@ -43,8 +43,12 @@ class ClientFilters extends QueryFilters
      * @param string $balance
      * @return Builder
      */
-    public function balance(string $balance): Builder
+    public function balance(string $balance = ''): Builder
     {
+        if (strlen($balance) == 0) {
+            return $this->builder;
+        }
+
         $parts = $this->split($balance);
 
         return $this->builder->where('balance', $parts->operator, $parts->value);
@@ -56,7 +60,7 @@ class ClientFilters extends QueryFilters
      * @param string balance
      * @return Builder
      */
-    public function between_balance(string $balance): Builder
+    public function between_balance(string $balance = ''): Builder
     {
         $parts = explode(':', $balance);
 
