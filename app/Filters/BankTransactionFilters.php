@@ -128,8 +128,9 @@ class BankTransactionFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if(!is_array($sort_col))
+        if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
         
         if($sort_col[0] == 'deposit')
             return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $sort_col[1]);
