@@ -60,7 +60,7 @@ class ClientFilters extends QueryFilters
     {
         $parts = explode(':', $balance);
 
-        if (! is_array($parts)) {
+        if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
 
@@ -139,7 +139,7 @@ class ClientFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 

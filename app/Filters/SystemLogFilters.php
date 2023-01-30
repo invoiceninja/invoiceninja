@@ -20,7 +20,7 @@ class SystemLogFilters extends QueryFilters
 {
     public function type_id(string $type_id = ''): Builder
     {
-        if (strlen($type_id)) {
+        if (strlen($type_id) == 0) {
             return $this->builder;
         }
         
@@ -29,7 +29,7 @@ class SystemLogFilters extends QueryFilters
 
     public function category_id(string $category_id = ''): Builder
     {
-        if (strlen($category_id)) {
+        if (strlen($category_id) == 0) {
             return $this->builder;
         }
 
@@ -38,7 +38,7 @@ class SystemLogFilters extends QueryFilters
 
     public function event_id(string $event_id = ''): Builder
     {
-        if (strlen($event_id)) {
+        if (strlen($event_id) == 0) {
             return $this->builder;
         }
 
@@ -54,7 +54,7 @@ class SystemLogFilters extends QueryFilters
      */
     public function filter(string $filter = ''): Builder
     {
-        if (strlen($filter)) {
+        if (strlen($filter) == 0) {
             return $this->builder;
         }
 
@@ -67,7 +67,7 @@ class SystemLogFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 

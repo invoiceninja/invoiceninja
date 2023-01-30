@@ -46,7 +46,7 @@ class UserFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -80,8 +80,9 @@ class UserFilters extends QueryFilters
     public function with(string $value = ''): Builder
     {
 
-        if(strlen($value) == 0)
+        if(strlen($value) == 0) {
             return $this->builder;
+        }
 
         return $this->builder
             ->orWhere($this->with_property, $value)
