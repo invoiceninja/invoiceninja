@@ -113,25 +113,25 @@ class BACS
             return $this->processSuccessfulPayment($state['payment_intent']);
         }
 
-        return $this->processUnsuccessfulPayment("");
+        return $this->processUnsuccessfulPayment("An unknown error occured.");
     }
 
-    public function processSuccessfulPayment($payment_id)
+    public function processSuccessfulPayment($payment_intent)
     {
         UpdateCustomer::dispatch($this->stripe->company_gateway->company->company_key, $this->stripe->company_gateway->id, $this->stripe->client->id);
 
         $data = [
-            'payment_method' => $payment_id['id'],
+            'payment_method' => $payment_intent['id'],
             'payment_type' => PaymentType::BACS,
-            'amount' => $this->stripe->convertFromStripeAmount($payment_id->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => $payment_id['id'],
+            'amount' => $this->stripe->convertFromStripeAmount($payment_intent->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'transaction_reference' => $payment_intent['id'],
             'gateway_type_id' => GatewayType::BACS,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
-            ['response' => $payment_id, 'data' => $data],
+            ['response' => $payment_intent, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
