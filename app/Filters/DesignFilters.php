@@ -62,7 +62,6 @@ class DesignFilters extends QueryFilters
      */
     public function entityFilter(): Builder
     {
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id','asc');
     }
 }

@@ -39,6 +39,7 @@ class DocumentFilters extends QueryFilters
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder
+     * 
      * @param  string $client_id The client hashed id.
      * 
      * @return Builder           
