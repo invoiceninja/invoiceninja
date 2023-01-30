@@ -79,18 +79,16 @@ class WebhookHandler implements ShouldQueue
                                     ->cursor()
                                     ->each(function ($subscription) {
 
-            // $this->process($subscription);
-
             WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
 
         });
 
     }
 
-    public function failed($exception)
+    public function failed($exception = null)
     {
-        
-        nlog(print_r($exception->getMessage(), 1));
+        if($exception)
+            nlog(print_r($exception->getMessage(), 1));
 
     }
 }

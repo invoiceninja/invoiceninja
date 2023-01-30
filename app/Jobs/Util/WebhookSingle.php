@@ -244,10 +244,10 @@ class WebhookSingle implements ShouldQueue
         return $this->company->clients()->first();
     }
 
-    public function failed($exception)
+    public function failed($exception = null)
     {
-        
-        nlog(print_r($exception->getMessage(), 1));
+        if($exception)
+            nlog($exception->getMessage());
 
     }
 }

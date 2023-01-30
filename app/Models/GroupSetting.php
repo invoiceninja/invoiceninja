@@ -14,13 +14,12 @@ namespace App\Models;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-
-    //public $timestamps = false;
 
     protected $casts = [
         'settings' => 'object',
@@ -65,4 +64,25 @@ class GroupSetting extends StaticModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * Retrieve the model for a bound value.
+     *
+     * @param mixed $value
+     * @param null $field
+     * @return Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+            
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
+        return $this
+            ->withTrashed()
+            ->company()
+            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+
+    }
 }
+
