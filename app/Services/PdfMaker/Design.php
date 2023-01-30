@@ -364,12 +364,12 @@ class Design extends BaseDesign
 
             if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
                 $elements[] = ['element' => 'div', 'properties' => ['style' => "display: table-row; visibility: {$this->entityVariableCheck($_variable)};"],'elements' => [
-                    ['element' => 'div', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell;', 'data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'div', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell; border-right:10px solid transparent; ', 'data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
                     ['element' => 'div', 'content' => $variable, 'properties' => ['style' => 'display: table-cell;', 'data-ref' => 'entity_details-' . substr($variable, 1)]],
                 ]];
             } else {
                 $elements[] = ['element' => 'div', 'properties' => ['style' => "display: table-row; visibility: {$this->entityVariableCheck($variable)};"], 'elements' => [
-                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell;','data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell; border-right:10px solid transparent;','data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
                     ['element' => 'span', 'content' => $variable, 'properties' => ['style' => 'display: table-cell;','data-ref' => 'entity_details-' . substr($variable, 1)]],
                 ]];
             }
