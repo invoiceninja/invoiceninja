@@ -246,14 +246,14 @@ trait DesignHelpers
         ]];
     }
 
-    public function entityVariableCheck(string $variable): bool
+    public function entityVariableCheck(string $variable): string
     {
         // Extract $invoice.date => date
         // so we can append date as $entity->date and not $entity->$invoice.date;
 
         // When it comes to invoice balance, we'll always show it.
         if ($variable == '$invoice.total') {
-            return false;
+            return 'visible';
         }
 
         // Some variables don't map 1:1 to table columns. This gives us support for such cases.
@@ -272,14 +272,14 @@ trait DesignHelpers
         }
 
         if (is_null($this->entity->{$_variable})) {
-            return true;
+            return 'collapse';
         }
 
         if (empty($this->entity->{$_variable})) {
-            return true;
+            return 'collapse';
         }
 
-        return false;
+        return 'visible';
     }
 
     public function composeFromPartials(array $partials)

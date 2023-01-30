@@ -34,6 +34,11 @@
         padding: 0;
     }
     
+    span {
+        margin-left:2px;
+        margin-right:2px;
+    }
+
     #qr-bill {
         width:100% !important;
         box-sizing: border-box;
@@ -83,14 +88,18 @@
 
     .client-and-entity-wrapper {
         display: flex;
-        padding: 1rem;
+        padding: 0.2rem;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
     }
 
     #entity-details {
-        text-align: left;
-        margin-right: 20px;
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+        padding-right: 5px;
+        white-space: nowrap;
+        margin-right: auto;
     }
 
     #entity-details > tr,
@@ -105,12 +114,15 @@
         display: flex;
         flex-direction: column;
         line-height: var(--line-height);
+        margin-right: auto;
     }
 
     #shipping-details {
         display: flex;
+        float:right;
         flex-direction: column;
         line-height: var(--line-height);
+        margin-right: auto;
     }
 
     #client-details > :first-child {
@@ -360,8 +372,7 @@
                </div>
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
-                  <div>
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                  <div id="entity-details" style="display: table;">
                   </div>
                   <div id="client-details"></div>
                   <div id="shipping-details"></div>

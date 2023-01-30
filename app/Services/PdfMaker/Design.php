@@ -311,6 +311,79 @@ class Design extends BaseDesign
 
 
         if ($this->type === 'statement') {
+            
+            $s_date = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale()) . " - " . $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+
+            return [ 
+                ['element' => 'p', 'content' => "<h2>".ctrans('texts.statement')."</h2>", 'properties' => ['data-ref' => 'statement-label']],
+                ['element' => 'p', 'content' => ctrans('texts.statement_date'), 'properties' => ['data-ref' => 'statement-label'],'elements' => 
+                     ['element' => 'span', 'content' => "{$s_date} "]
+                ],
+                ['element' => 'p', 'content' => '$balance_due_label', 'properties' => ['data-ref' => 'statement-label'],'elements' => 
+                     ['element' => 'span', 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->client)]
+                ],            
+            ];
+
+        }
+
+        $variables = $this->context['pdf_variables']['invoice_details'];
+
+        if ($this->entity instanceof Quote) {
+            $variables = $this->context['pdf_variables']['quote_details'];
+            
+            if ($this->entity->partial > 0) {
+                $variables[] = '$quote.balance_due';
+            }
+        }
+
+        if ($this->entity instanceof Credit) {
+            $variables = $this->context['pdf_variables']['credit_details'];
+        }
+
+        if($this->vendor){
+
+            $variables = $this->context['pdf_variables']['purchase_order_details'];
+
+        }
+
+        $elements = [];
+
+        // We don't want to show account balance or invoice total on PDF.. or any amount with currency.
+        if ($this->type == self::DELIVERY_NOTE) {
+            $variables = array_filter($variables, function ($m) {
+                return !in_array($m, ['$invoice.balance_due', '$invoice.total']);
+            });
+        }
+
+        foreach ($variables as $variable) {
+            $_variable = explode('.', $variable)[1];
+            $_customs = ['custom1', 'custom2', 'custom3', 'custom4'];
+
+            /* 2/7/2022 don't show custom values if they are empty */
+            $var = str_replace("custom", "custom_value", $_variable);
+
+            if (in_array($_variable, $_customs) && !empty($this->entity->{$var})) {
+                $elements[] = ['element' => 'div', 'properties' => ['style' => "display: table-row; visibility: {$this->entityVariableCheck($_variable)};"],'elements' => [
+                    ['element' => 'div', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell;', 'data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'div', 'content' => $variable, 'properties' => ['style' => 'display: table-cell;', 'data-ref' => 'entity_details-' . substr($variable, 1)]],
+                ]];
+            } else {
+                $elements[] = ['element' => 'div', 'properties' => ['style' => "display: table-row; visibility: {$this->entityVariableCheck($variable)};"], 'elements' => [
+                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['style' => 'display: table-cell;','data-ref' => 'entity_details-' . substr($variable, 1) . '_label']],
+                    ['element' => 'span', 'content' => $variable, 'properties' => ['style' => 'display: table-cell;','data-ref' => 'entity_details-' . substr($variable, 1)]],
+                ]];
+            }
+        }
+
+        return $elements;     
+
+    }
+
+    public function entityDetailsx(): array
+    {
+
+
+        if ($this->type === 'statement') {
 
             // $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
             
