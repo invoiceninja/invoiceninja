@@ -60,7 +60,7 @@ class ClientFilters extends QueryFilters
     {
         $parts = explode(':', $balance);
 
-        if (!is_array($sort_col) || count($sort_col) != 2) {
+        if (!is_array($parts) || count($parts) != 2) {
             return $this->builder;
         }
 
