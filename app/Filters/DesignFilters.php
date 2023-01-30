@@ -44,7 +44,7 @@ class DesignFilters extends QueryFilters
      * 
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
