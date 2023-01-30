@@ -96,6 +96,22 @@ class Webhook extends BaseModel
 
     const EVENT_ARCHIVE_EXPENSE = 39;
 
+    const EVENT_RESTORE_PAYMENT = 40;
+
+    const EVENT_RESTORE_INVOICE = 41;
+
+    const EVENT_RESTORE_QUOTE = 42;
+
+    const EVENT_RESTORE_CREDIT = 43;
+
+    const EVENT_RESTORE_TASK = 44;
+
+    const EVENT_RESTORE_CLIENT = 45;
+
+    const EVENT_RESTORE_PROJECT = 46;
+
+    const EVENT_RESTORE_EXPENSE = 47;
+
 
 
 
@@ -139,7 +155,15 @@ class Webhook extends BaseModel
         self::EVENT_ARCHIVE_CREDIT,
         self::EVENT_ARCHIVE_QUOTE,
         self::EVENT_ARCHIVE_INVOICE,
-        self::EVENT_ARCHIVE_PAYMENT
+        self::EVENT_ARCHIVE_PAYMENT,
+        self::EVENT_RESTORE_EXPENSE,
+        self::EVENT_RESTORE_PROJECT,
+        self::EVENT_RESTORE_CLIENT,
+        self::EVENT_RESTORE_TASK,
+        self::EVENT_RESTORE_CREDIT,
+        self::EVENT_RESTORE_QUOTE,
+        self::EVENT_RESTORE_INVOICE,
+        self::EVENT_RESTORE_PAYMENT
 
     ];
 
