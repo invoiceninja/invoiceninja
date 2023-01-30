@@ -57,8 +57,8 @@
     }
 
     .company-logo {
-        max-width: 65%;
-        /*        max-width: $company_logo_size;*/
+/*        max-width: 65%;*/
+        max-width: $company_logo_size;
     }
 
     #company-details {
@@ -94,19 +94,29 @@
     }
 
     #entity-details {
-        display: flex;
+        display: table;
         padding-right: 30px;
+
         flex-direction: column;
-        line-height: var(--line-height);
+
+        overflow: hidden;
+        height: 12px;
         white-space: nowrap;
+        line-height: var(--line-height);
+
     }
 
+    .entity-details-cell {
+        display: table-cell; 
+        border-right: 10px solid transparent;
+    }
 
     #client-details {
         display: flex;
         flex-direction: column;
-        line-height: var(--line-height);
         padding-right: 30px;
+        line-height: var(--line-height);
+
     }
 
     #shipping-details {
@@ -362,7 +372,7 @@
                </div>
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
-                  <div id="entity-details" style="display: table;">
+                  <div id="entity-details">
                   </div>
                   <div id="client-details"></div>
                   <div id="shipping-details"></div>

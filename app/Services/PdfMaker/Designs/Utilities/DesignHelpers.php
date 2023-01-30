@@ -264,7 +264,8 @@ trait DesignHelpers
         try {
             $_variable = explode('.', $variable)[1];
         } catch (Exception $e) {
-            throw new Exception('Company settings seems to be broken. Missing $entity.variable type.');
+            nlog("Company settings seems to be broken. Could not resolve {$variable} type.");
+            return 'collapse';
         }
 
         if (\in_array($variable, \array_keys($aliases))) {
