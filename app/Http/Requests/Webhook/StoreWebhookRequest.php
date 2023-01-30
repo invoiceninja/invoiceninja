@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,7 +30,7 @@ class StoreWebhookRequest extends Request
         return [
             'target_url' => 'bail|required|url',
             'event_id' => 'bail|required',
-            'headers' => 'bail|sometimes|json',
+            // 'headers' => 'bail|sometimes|json',
             'rest_method' => 'required|in:post,put'
         ];
     }
@@ -39,8 +39,8 @@ class StoreWebhookRequest extends Request
     {
         $input = $this->all();
 
-            if(isset($input['headers']) && count($input['headers']) == 0)
-                $input['headers'] = null;
+            // if(isset($input['headers']) && count($input['headers']) == 0)
+                // $input['headers'] = null;
 
         $this->replace($input);
     }
