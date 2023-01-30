@@ -65,6 +65,10 @@ class BankTransactionRuleFilters extends QueryFilters
     public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
         
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

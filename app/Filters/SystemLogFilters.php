@@ -18,27 +18,27 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class SystemLogFilters extends QueryFilters
 {
-    public function type_id(int $type_id): Builder
+    public function type_id(string $type_id = ''): Builder
     {
-        if (isset($event_id)) {
+        if (strlen($type_id)) {
             return $this->builder;
         }
         
         return $this->builder->where('type_id', $type_id);
     }
 
-    public function category_id(int $category_id): Builder
+    public function category_id(string $category_id = ''): Builder
     {
-        if (isset($event_id)) {
+        if (strlen($category_id)) {
             return $this->builder;
         }
 
         return $this->builder->where('category_id', $category_id);
     }
 
-    public function event_id(int $event_id): Builder
+    public function event_id(string $event_id = ''): Builder
     {
-        if (isset($event_id)) {
+        if (strlen($event_id)) {
             return $this->builder;
         }
 
@@ -70,6 +70,10 @@ class SystemLogFilters extends QueryFilters
     public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

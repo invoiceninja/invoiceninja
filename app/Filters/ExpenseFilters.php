@@ -151,6 +151,10 @@ class ExpenseFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
+
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
         }
