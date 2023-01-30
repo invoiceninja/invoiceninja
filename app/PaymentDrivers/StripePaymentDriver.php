@@ -735,26 +735,29 @@ class StripePaymentDriver extends BaseDriver
             // Store payment token for Stripe BACS
             $this->init();
             $setup_intent = $this->stripe->setupIntents->retrieve($request->data['object']['setup_intent'], []);
-            $this->client = Client::where('id', ClientGatewayToken::where('gateway_customer_reference', $request->data['object']['customer'])->first()->client_id)->first();
-            $customer = $this->findOrCreateCustomer();
-            $this->attach($setup_intent->payment_method, $customer);
-            $payment_method =  $this->getStripePaymentMethod($setup_intent->payment_method);
-            $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
-            $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
-            $payment_meta->state = 'unauthorized';
-            $payment_meta->type = GatewayType::BACS;
+            $clientpayment_token = ClientGatewayToken::where('gateway_customer_reference', $request->data['object']['customer'])->first();
+            if ($clientpayment_token){
+                $this->client = Client::where('id', $clientpayment_token->client_id)->first();
+                $customer = $this->findOrCreateCustomer();
+                $this->attach($setup_intent->payment_method, $customer);
+                $payment_method =  $this->getStripePaymentMethod($setup_intent->payment_method);
+                $payment_meta = new \stdClass;
+                $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
+                $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
+                $payment_meta->state = 'unauthorized';
+                $payment_meta->type = GatewayType::BACS;
 
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $payment_method->id,
-                'payment_method_id' => GatewayType::BACS,
-            ];
-            $clientgateway = ClientGatewayToken::query()
-                ->where('token', $payment_method)
-                ->first();
-            if (!$clientgateway){
-                $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+                $data = [
+                    'payment_meta' => $payment_meta,
+                    'token' => $payment_method->id,
+                    'payment_method_id' => GatewayType::BACS,
+                ];
+                $clientgateway = ClientGatewayToken::query()
+                    ->where('token', $payment_method)
+                    ->first();
+                if (!$clientgateway){
+                    $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+                }
             }
             return response()->json([], 200);
         } elseif ($request->type === "mandate.updated"){

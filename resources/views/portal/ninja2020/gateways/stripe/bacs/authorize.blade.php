@@ -26,6 +26,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
         {{ ctrans('texts.bacs') }}
     @endcomponent
+
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-bacs'])
         {{ ctrans('texts.add_payment_method') }}
     @endcomponent
