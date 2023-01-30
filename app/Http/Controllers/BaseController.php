@@ -267,7 +267,7 @@ class BaseController extends Controller
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if ($user->getCompany()->is_large && $updated_at == 0 && $this->complexPermissionsUser()) {
+        if ($user->getCompany()->is_large && $updated_at == 0) {
             $updated_at = time();
         }
 
