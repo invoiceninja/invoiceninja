@@ -38,6 +38,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         line-height: var(--line-height);
+        margin-bottom: 10px;
     }
 
     .company-logo {
@@ -65,6 +66,11 @@
         padding-bottom: 0.3rem;
     }
 
+    .entity-details-cell {
+        display: table-cell; 
+        border-right: 10px solid transparent;
+    }
+
     .header-wrapper
     #entity-details
     [data-element='entity-balance-due-label'],
@@ -74,9 +80,22 @@
         background-color: #e6e6e6;
     }
 
+    .client-or-vendor-wrapper {
+        display: flex;
+        padding: 0.2rem;
+    }
+
     #client-details {
         display: flex;
         flex-direction: column;
+        padding-right: 30px;
+        line-height: var(--line-height);
+    }
+
+    #shipping-details {
+        display: flex;
+        flex-direction: column;
+        padding-right: 30px;
         line-height: var(--line-height);
     }
 
@@ -85,7 +104,7 @@
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-bottom: 50px; 
+        margin-bottom: 20px; 
     }
 
     .task-time-details {
@@ -266,6 +285,7 @@
     .pqrcode {
         
     }
+
     /** Useful snippets, uncomment to enable. **/
 
     /** Hide company logo **/
@@ -317,11 +337,14 @@
                         src="$company.logo"
                         alt="$company.name logo"
                         />
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                     <div id="entity-details"></div>
                   </div>
                </div>
-               <div id="client-details"></div>
-               <div id="vendor-details"></div>
+               <div class="header-wrapper">
+                   <div id="client-details"></div>
+                   <div id="vendor-details"></div>
+                   <div id="shipping-details"></div>
+               </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
                <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>

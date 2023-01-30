@@ -57,7 +57,6 @@
     }
 
     .company-logo {
-/*        max-width: 65%;*/
         max-width: $company_logo_size;
     }
 
@@ -96,14 +95,11 @@
     #entity-details {
         display: table;
         padding-right: 30px;
-
         flex-direction: column;
-
         overflow: hidden;
         height: 12px;
         white-space: nowrap;
         line-height: var(--line-height);
-
     }
 
     .entity-details-cell {
@@ -116,7 +112,6 @@
         flex-direction: column;
         padding-right: 30px;
         line-height: var(--line-height);
-
     }
 
     #shipping-details {
@@ -372,11 +367,10 @@
                </div>
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
-                  <div id="entity-details">
-                  </div>
+                  <div id="entity-details"></div>
                   <div id="client-details"></div>
-                  <div id="shipping-details"></div>
                   <div id="vendor-details"></div>
+                  <div id="shipping-details"></div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
