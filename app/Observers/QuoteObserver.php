@@ -93,15 +93,4 @@ class QuoteObserver
     {
         //
     }
-    public function archived(Quote $quote)
-    {
-        $subscriptions = Webhook::where('company_id', $quote->company->id)
-            ->where('event_id', Webhook::EVENT_ARCHIVE_QUOTE)
-            ->exists();
-
-        if ($subscriptions) {
-            $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
-        }
-    }
 }
