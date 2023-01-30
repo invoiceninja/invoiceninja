@@ -412,12 +412,4 @@ class CompanyGateway extends BaseModel
         return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
     }
 
-    // public function resolveRouteBinding($value, $field = null)
-    // {
-
-    //     return $this
-    //         ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
-    // }
-
-
 }

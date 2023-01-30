@@ -175,8 +175,6 @@ class CheckData extends Command
 
         });
 
-
-
     }
 
     private function checkOauthSanity()
