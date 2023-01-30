@@ -66,7 +66,7 @@ class ClientFilters extends QueryFilters
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
-    public function email(string $email = ''):Builder
+    public function email(string $email = ''): Builder
     {
         return
 
@@ -75,7 +75,7 @@ class ClientFilters extends QueryFilters
         });
     }
 
-    public function client_id(string $client_id = '') :Builder
+    public function client_id(string $client_id = ''): Builder
     {
         if (strlen($client_id) == 0) {
             return $this->builder;
@@ -84,12 +84,12 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('id', $this->decodePrimaryKey($client_id));
     }
 
-    public function id_number(string $id_number = ''):Builder
+    public function id_number(string $id_number = ''): Builder
     {
         return $this->builder->where('id_number', $id_number);
     }
 
-    public function number(string $number = ''):Builder
+    public function number(string $number = ''): Builder
     {
         return $this->builder->where('number', $number);
     }
@@ -101,7 +101,7 @@ class ClientFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -128,7 +128,7 @@ class ClientFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 

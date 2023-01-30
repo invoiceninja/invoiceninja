@@ -224,7 +224,7 @@ class InvoiceFilters extends QueryFilters
      *
      * @return Builder
      */
-    private function contactViewFilter() : Builder
+    private function contactViewFilter(): Builder
     {
         return $this->builder
                     ->whereCompanyId(auth()->guard('contact')->user()->company->id)
