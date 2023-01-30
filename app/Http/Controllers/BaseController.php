@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -267,7 +267,7 @@ class BaseController extends Controller
 
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if ($user->getCompany()->is_large && $updated_at == 0 && $this->complexPermissionsUser()) {
+        if ($user->getCompany()->is_large && $updated_at == 0) {
             $updated_at = time();
         }
 
@@ -633,7 +633,7 @@ class BaseController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large || $this->complexPermissionsUser()) {
+        if ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);

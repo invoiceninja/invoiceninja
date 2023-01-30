@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,9 +41,7 @@ class EmailMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 3; //number of retries
-
-    public $backoff = 30; //seconds to wait until retry
+    public $tries = 4; //number of retries
 
     public $deleteWhenMissingModels = true;
 
@@ -59,8 +57,14 @@ class EmailMailer implements ShouldQueue
 
     public function __construct(public EmailService $email_service, public Mailable $email_mailable){}
 
+    public function backoff()
+    {
+        return [30, 60, 180, 240];
+    }
+
     public function handle(): void
     {
+
     	MultiDB::setDb($this->email_service->company->db);
 
         /* Perform final checks */
@@ -94,10 +98,8 @@ class EmailMailer implements ShouldQueue
 
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             
-            nlog("error failed with {$e->getMessage()}");
+            nlog("Mailer failed with {$e->getMessage()}");
             
-            $this->cleanUpMailers();
-
             $message = $e->getMessage();
 
             /**
@@ -114,19 +116,36 @@ class EmailMailer implements ShouldQueue
                     $message = $message_body->Message;
                     nlog($message);
                 }
+       
+                $this->fail();
+                $this->cleanUpMailers();
+                return;
+
+            }
+
+            //only report once, not on all tries
+            if($this->attempts() == $this->tries)
+            {
+            
+                /* If the is an entity attached to the message send a failure mailer */
+                $this->entityEmailFailed($message);
+
+                /* Don't send postmark failures to Sentry */
+                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
+                    app('sentry')->captureException($e);
                 
             }
 
-            /* If the is an entity attached to the message send a failure mailer */
-            $this->entityEmailFailed($message);
 
-            /* Don't send postmark failures to Sentry */
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                app('sentry')->captureException($e);
+            /* Releasing immediately does not add in the backoff */
+            $this->release($this->backoff()[$this->attempts()-1]);
 
             $message = null;
+            
 
         }
+
+        $this->cleanUpMailers();
 
     }
 

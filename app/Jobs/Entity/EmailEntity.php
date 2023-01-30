@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -128,7 +128,7 @@ class EmailEntity implements ShouldQueue
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity;
 
-        (new NinjaMailerJob($nmo))->handle();
+        NinjaMailerJob::dispatch($nmo);
 
         $nmo = null;
         $this->invitation = null;
