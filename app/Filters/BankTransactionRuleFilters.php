@@ -30,10 +30,11 @@ class BankTransactionRuleFilters extends QueryFilters
      */
     public function name(string $name = ''): Builder
     {
-        if(strlen($name) >=1)
-            return $this->builder->where('name', 'like', '%'.$name.'%');
-
-        return $this->builder;
+        if (strlen($filter) == 0) {
+            return $this->builder;
+        }
+        
+        return $this->builder->where('name', 'like', '%'.$name.'%');
     }
 
     /**
