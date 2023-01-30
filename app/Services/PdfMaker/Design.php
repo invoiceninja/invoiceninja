@@ -306,7 +306,7 @@ class Design extends BaseDesign
         return $elements;
     }
 
-    public function entityDetails(): array
+    public function entityDetailsx(): array
     {
 
 
@@ -379,7 +379,7 @@ class Design extends BaseDesign
 
     }
 
-    public function entityDetailsx(): array
+    public function entityDetails(): array
     {
 
 
@@ -456,6 +456,7 @@ class Design extends BaseDesign
 
         return $elements;
     }
+
 
     public function deliveryNoteTable(): array
     {

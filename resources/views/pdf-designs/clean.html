@@ -34,11 +34,6 @@
         padding: 0;
     }
     
-    span {
-
-        border-right:10px;
-    }
-
     #qr-bill {
         width:100% !important;
         box-sizing: border-box;
@@ -57,7 +52,8 @@
     }
 
     .company-logo {
-        max-width: $company_logo_size;
+        max-width: 65%;
+        /*        max-width: $company_logo_size;*/
     }
 
     #company-details {
@@ -86,35 +82,43 @@
     }
 
     .client-and-entity-wrapper {
-        display: flex;
-        padding: 0.2rem;
+/*        display: flex;*/
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
     }
 
     #entity-details {
-        display: table;
-        padding-right: 30px;
-        flex-direction: column;
-        overflow: hidden;
-        height: 12px;
-        white-space: nowrap;
-        line-height: var(--line-height);
+        display:flex;
+        text-align: left;
+        margin-right: 20px;
+
     }
 
-    .entity-details-cell {
-        display: table-cell; 
-        border-right: 10px solid transparent;
+    #entity-details > tr,
+    #entity-details th {
+        font-weight: normal;
+        padding-right: 15px;
+        padding-top: 2.5px;
+        padding-bottom: 2.5px;
     }
 
     #client-details {
         display: flex;
         flex-direction: column;
-        padding-right: 30px;
         line-height: var(--line-height);
+        padding-right:30px;
     }
 
     #shipping-details {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
+    #client-details {
         display: flex;
         flex-direction: column;
         line-height: var(--line-height);
@@ -367,7 +371,9 @@
                </div>
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
-                  <div id="entity-details"></div>
+                  <div>
+                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                  </div>
                   <div id="client-details"></div>
                   <div id="vendor-details"></div>
                   <div id="shipping-details"></div>
