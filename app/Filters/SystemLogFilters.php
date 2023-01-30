@@ -20,7 +20,7 @@ class SystemLogFilters extends QueryFilters
 {
     public function type_id(int $type_id): Builder
     {
-        if (isset($event_id) == 0) {
+        if (isset($event_id)) {
             return $this->builder;
         }
         
@@ -29,7 +29,7 @@ class SystemLogFilters extends QueryFilters
 
     public function category_id(int $category_id): Builder
     {
-        if (isset($event_id) == 0) {
+        if (isset($event_id)) {
             return $this->builder;
         }
 
@@ -38,7 +38,7 @@ class SystemLogFilters extends QueryFilters
 
     public function event_id(int $event_id): Builder
     {
-        if (isset($event_id) == 0) {
+        if (isset($event_id)) {
             return $this->builder;
         }
 
@@ -54,7 +54,7 @@ class SystemLogFilters extends QueryFilters
      */
     public function filter(string $filter = ''): Builder
     {
-        if (strlen($filter) == 0) {
+        if (strlen($filter)) {
             return $this->builder;
         }
 
