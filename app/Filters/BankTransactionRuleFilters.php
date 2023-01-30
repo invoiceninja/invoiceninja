@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\BankTransactionRule;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * BankTransactionRuleilters.
@@ -71,19 +67,6 @@ class BankTransactionRuleFilters extends QueryFilters
         }
         
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user): Builder
-    {
-
     }
 
     /**
