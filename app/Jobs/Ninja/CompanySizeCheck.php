@@ -12,6 +12,7 @@
 namespace App\Jobs\Ninja;
 
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
@@ -62,6 +63,22 @@ class CompanySizeCheck implements ShouldQueue
 
                   });
 
+            /* Ensures lower permissioned users return the correct dataset and refresh responses */
+            Account::whereHas('companies', function ($query){
+                    $query->where('is_large',0);
+                  })
+                  ->whereHas('company_users', function ($query){
+
+                    $query->where('is_admin', 0);
+
+                  })            
+                  ->cursor()->each(function ($account){
+
+                    $account->companies()->update(['is_large' => true]);
+
+                  });
+
+
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
@@ -85,6 +102,22 @@ class CompanySizeCheck implements ShouldQueue
 
                         $client->credit_balance = $client->service()->getCreditBalance();
                         $client->save();
+
+                      });
+
+                Account::where('plan', 'enterprise')
+                      ->whereDate('plan_expires', '>', now())
+                      ->whereHas('companies', function ($query){
+                        $query->where('is_large',0);
+                      })
+                      ->whereHas('company_users', function ($query){
+
+                        $query->where('is_admin', 0);
+
+                      })            
+                      ->cursor()->each(function ($account){
+
+                        $account->companies()->update(['is_large' => true]);
 
                       });
 
