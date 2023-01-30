@@ -633,7 +633,7 @@ class BaseController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large || $this->complexPermissionsUser()) {
+        if ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);

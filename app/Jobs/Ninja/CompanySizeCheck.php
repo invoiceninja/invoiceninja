@@ -43,7 +43,7 @@ class CompanySizeCheck implements ShouldQueue
     {
         if (! config('ninja.db.multi_db_enabled')) {
             
-            Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
+            Company::where('is_large', false)->withCount(['invoices', 'clients', 'products', 'quotes'])->cursor()->each(function ($company) {
                 if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
                     nlog("Marking company {$company->id} as large");
 
@@ -69,8 +69,8 @@ class CompanySizeCheck implements ShouldQueue
 
                 nlog("Company size check db {$db}");
 
-                Company::where('is_large', false)->withCount(['invoices', 'clients', 'products'])->cursor()->each(function ($company) {
-                    if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500) {
+                Company::where('is_large', false)->withCount(['invoices', 'clients', 'products', 'quotes'])->cursor()->each(function ($company) {
+                    if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500 || $company->quotes_count > 500) {
                         nlog("Marking company {$company->id} as large");
 
                         $company->account->companies()->update(['is_large' => true]);

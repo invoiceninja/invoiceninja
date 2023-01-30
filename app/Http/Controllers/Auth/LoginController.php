@@ -291,11 +291,11 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
-            }
-        });
+        // $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
+        //     if ($company->tokens()->where('is_system', true)->count() == 0) {
+        //         (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+        //     }
+        // });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
             $cu->where('company_id', $company_token->company_id);
@@ -480,13 +480,13 @@ class LoginController extends BaseController
             return $cu;
         }
 
-        if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
-            auth()->user()->companies->each(function ($company) {
-                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
-                    (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
-                }
-            });
-        }
+        // if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
+        //     auth()->user()->companies->each(function ($company) {
+        //         if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+        //             (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
+        //         }
+        //     });
+        // }
 
         $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
 
