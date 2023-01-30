@@ -177,7 +177,7 @@ class PreviewController extends BaseController
 
     public function design(DesignPreviewRequest $request)
     {
-        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+        if(Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co']))
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
 
         $company = auth()->user()->company();
@@ -344,7 +344,7 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
-        if(Ninja::isHosted() && $request->getHost() != 'preview.invoicing.co')
+        if(Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co']))
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         
         $company = auth()->user()->company();
