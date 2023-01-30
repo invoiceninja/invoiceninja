@@ -90,14 +90,4 @@ class ClientObserver
         //
     }
 
-    public function archived(Client $client)
-    {
-        $subscriptions = Webhook::where('company_id', $client->company->id)
-            ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
-            ->exists();
-
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(now()->addSeconds(2));
-        }
-    }
 }

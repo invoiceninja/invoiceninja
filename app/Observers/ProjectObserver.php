@@ -98,15 +98,4 @@ class ProjectObserver
      * @param Project $project
      * @return void
      */
-    public function archived(Project $project)
-    {
-        $subscriptions = Webhook::where('company_id', $project->company_id)
-            ->where('event_id', Webhook::EVENT_ARCHIVE_PROJECT)
-            ->exists();
-
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PROJECT, $project, $project->company, 'client')->delay(now()->addSeconds(2));
-
-        }
-    }
 }
