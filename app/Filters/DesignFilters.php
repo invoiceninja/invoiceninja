@@ -32,7 +32,7 @@ class DesignFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
+        return $this->builder->where(function ($query) use ($filter) {
             $query->where('designs.name', 'like', '%'.$filter.'%');
         });
     }
@@ -44,14 +44,15 @@ class DesignFilters extends QueryFilters
      * 
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
-        if(is_array($sort_col))
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
-        return $this->builder;
+        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**

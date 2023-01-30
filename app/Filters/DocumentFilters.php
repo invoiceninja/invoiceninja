@@ -54,14 +54,15 @@ class DocumentFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort = '') : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
-        if(is_array($sort_col))
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
-        return $this->builder;
+        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
 

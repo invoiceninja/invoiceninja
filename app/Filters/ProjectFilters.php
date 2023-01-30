@@ -25,7 +25,7 @@ class ProjectFilters extends QueryFilters
      * @return Illuminate\Eloquent\Query\Builder
      * @deprecated
      */
-    public function filter(string $filter = '') :Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -37,6 +37,15 @@ class ProjectFilters extends QueryFilters
                   ->orWhere('private_notes', 'like', '%'.$filter.'%');
         });
     }
+    
+    public function number(string $number = ''): Builder
+    {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
+    }
 
     /**
      * Sorts the list based on $sort.
@@ -44,9 +53,13 @@ class ProjectFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Illuminate\Eloquent\Query\Builder
      */
-    public function sort(string $sort) :Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         if(is_array($sort_col))
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
@@ -57,7 +70,7 @@ class ProjectFilters extends QueryFilters
      *
      * @return Illuminate\Eloquent\Query\Builder
      */
-    public function entityFilter() :Builder
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }
