@@ -25,7 +25,7 @@ class ProjectFilters extends QueryFilters
      * @return Illuminate\Eloquent\Query\Builder
      * @deprecated
      */
-    public function filter(string $filter = '') :Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -38,7 +38,7 @@ class ProjectFilters extends QueryFilters
         });
     }
     
-    public function number(string $number = '') : Builder
+    public function number(string $number = ''): Builder
     {
         return $this->builder->where('number', $number);
     }
@@ -49,7 +49,7 @@ class ProjectFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Illuminate\Eloquent\Query\Builder
      */
-    public function sort(string $sort) :Builder
+    public function sort(string $sort): Builder
     {
         $sort_col = explode('|', $sort);
 
@@ -62,7 +62,7 @@ class ProjectFilters extends QueryFilters
      *
      * @return Illuminate\Eloquent\Query\Builder
      */
-    public function entityFilter() :Builder
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

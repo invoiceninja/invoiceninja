@@ -77,7 +77,7 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function number(string $number = '') : Builder
+    public function number(string $number = ''): Builder
     {
         if(strlen($number) == 0)
             return $this->builder;
@@ -224,7 +224,7 @@ class InvoiceFilters extends QueryFilters
      *
      * @return Builder
      */
-    private function contactViewFilter() : Builder
+    private function contactViewFilter(): Builder
     {
         return $this->builder
                     ->whereCompanyId(auth()->guard('contact')->user()->company->id)
