@@ -93,18 +93,4 @@ class InvoiceObserver
     {
         //
     }
-
-    /**
-     * @param Invoice $invoice
-     * @return void
-     */
-    public function archived(Invoice $invoice){
-        $subscriptions = Webhook::where('company_id', $invoice->company_id)
-            ->where('event_id', Webhook::EVENT_ARCHIVE_INVOICE)
-            ->exists();
-
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_INVOICE, $invoice, $invoice->company, 'client')->delay(now()->addSeconds(2));
-        }
-    }
 }
