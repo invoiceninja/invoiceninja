@@ -84,6 +84,10 @@ class TaskFilters extends QueryFilters
     
     public function number(string $number = ''): Builder
     {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
         return $this->builder->where('number', $number);
     }
 

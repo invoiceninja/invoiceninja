@@ -68,9 +68,11 @@ class ClientFilters extends QueryFilters
 
     public function email(string $email = ''): Builder
     {
-        return
+        if (strlen($email) == 0) {
+            return $this->builder;
+        }
 
-        $this->builder->whereHas('contacts', function ($query) use ($email) {
+        return $this->builder->whereHas('contacts', function ($query) use ($email) {
             $query->where('email', $email);
         });
     }
@@ -86,11 +88,19 @@ class ClientFilters extends QueryFilters
 
     public function id_number(string $id_number = ''): Builder
     {
+        if (strlen($id_number) == 0) {
+            return $this->builder;
+        }
+
         return $this->builder->where('id_number', $id_number);
     }
 
     public function number(string $number = ''): Builder
     {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
         return $this->builder->where('number', $number);
     }
 
