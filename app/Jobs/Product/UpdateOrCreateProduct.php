@@ -131,7 +131,7 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;
             $product->vendor_id = $this->invoice->vendor_id;
-            $product->save();
+            $product->saveQuietly();
         }
     }
 

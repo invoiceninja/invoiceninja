@@ -11,6 +11,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\Util\WebhookHandler;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
@@ -47,6 +48,33 @@ class WebhookAPITest extends TestCase
 
         $this->withoutExceptionHandling();
     }
+
+    // public function testClientWebhooks()
+    // {
+    //     // client archived = 37
+    //     $data = [
+    //         'target_url' => 'http://hook.com',
+    //         'event_id' => 37,
+    //         'rest_method' => 'post',
+    //         'format' => 'JSON',
+    //     ];
+
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->post('/api/v1/webhooks', $data);
+
+    //     $repo = new ClientRepository(new ClientContactRepository());
+
+    //     $repo->archive($this->client);
+        
+    //     \Illuminate\Support\Facades\Queue::after(function (WebhookHandler $event) {
+    //         $this->assertTrue($event->job->isReleased());
+    //     });
+
+    //     \Illuminate\Support\Facades\Queue::assertPushed(WebhookHandler::class);
+
+    // }
 
     public function testWebhookGetFilter()
     {

@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class VendorObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the vendor "created" event.
      *

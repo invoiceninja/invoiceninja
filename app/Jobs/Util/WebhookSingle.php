@@ -15,11 +15,14 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Client as ClientModel;
 use App\Models\Company;
+use App\Models\Product;
 use App\Models\SystemLog;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,8 +31,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 
 class WebhookSingle implements ShouldQueue
 {
@@ -78,9 +79,15 @@ class WebhookSingle implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::with('company')->find($this->subscription_id);
+
+        if($subscription)
+            nlog("firing event ID {$subscription->event_id}");
         
         if(!$subscription){
             $this->fail();
+            
+            nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
+
             return;
         }
 
@@ -237,17 +244,19 @@ class WebhookSingle implements ShouldQueue
     private function resolveClient()
     {
         //make sure it isn't an instance of the Client Model
-        if ((! $this->entity instanceof ClientModel) && $this->entity->client()->exists()) {
+        if (! $this->entity instanceof ClientModel && ! $this->entity instanceof Product && $this->entity->client()->exists()) {
             return $this->entity->client;
         }
 
-        return $this->company->clients()->first();
+        return false;
     }
 
     public function failed($exception = null)
     {
-        if($exception)
+        if($exception){
+            nlog("failed in webhooksingle");
             nlog($exception->getMessage());
+        }
 
     }
 }

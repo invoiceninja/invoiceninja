@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class ProductObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the product "created" event.
      *

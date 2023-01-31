@@ -17,6 +17,7 @@ use App\Models\Webhook;
 
 class ClientObserver
 {
+    public $afterCommit = true;
 
     /**
      * Handle the client "created" event.

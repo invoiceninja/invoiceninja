@@ -17,6 +17,8 @@ use App\Models\Webhook;
 
 class ExpenseObserver
 {
+    public $afterCommit = true;
+
     /**
      * Handle the expense "created" event.
      *

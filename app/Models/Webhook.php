@@ -18,11 +18,11 @@ class Webhook extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    const EVENT_CREATE_CLIENT = 1;
+    const EVENT_CREATE_CLIENT = 1; //tested
 
-    const EVENT_CREATE_INVOICE = 2;
+    const EVENT_CREATE_INVOICE = 2; //tested
 
-    const EVENT_CREATE_QUOTE = 3;
+    const EVENT_CREATE_QUOTE = 3; //tested
 
     const EVENT_CREATE_PAYMENT = 4;
 
@@ -32,9 +32,9 @@ class Webhook extends BaseModel
 
     const EVENT_DELETE_QUOTE = 7;
 
-    const EVENT_UPDATE_INVOICE = 8;
+    const EVENT_UPDATE_INVOICE = 8; //tested
 
-    const EVENT_DELETE_INVOICE = 9;
+    const EVENT_DELETE_INVOICE = 9; //tested
 
     const EVENT_UPDATE_CLIENT = 10;
 
@@ -82,7 +82,7 @@ class Webhook extends BaseModel
 
     const EVENT_ARCHIVE_PAYMENT = 32;
 
-    const EVENT_ARCHIVE_INVOICE = 33;
+    const EVENT_ARCHIVE_INVOICE = 33; //tested
 
     const EVENT_ARCHIVE_QUOTE = 34;
 
