@@ -116,11 +116,36 @@ class Webhook extends BaseModel
 
     const EVENT_RESTORE_VENDOR = 49;
 
+    const EVENT_CREATE_PRODUCT = 50;
 
+    const EVENT_UPDATE_PRODUCT = 51;
 
+    const EVENT_DELETE_PRODUCT = 52;
 
+    const EVENT_RESTORE_PRODUCT = 53;
+
+    const EVENT_ARCHIVE_PRODUCT = 54;
+
+    const EVENT_CREATE_PURCHASE_ORDER = 55;
+
+    const EVENT_UPDATE_PURCHASE_ORDER = 56;
+
+    const EVENT_DELETE_PURCHASE_ORDER = 57;
+
+    const EVENT_RESTORE_PURCHASE_ORDER = 58;
+
+    const EVENT_ARCHIVE_PURCHASE_ORDER = 59;
 
     public static $valid_events = [
+        self::EVENT_CREATE_PURCHASE_ORDER,
+        self::EVENT_UPDATE_PURCHASE_ORDER,
+        self::EVENT_DELETE_PURCHASE_ORDER,
+        self::EVENT_RESTORE_PURCHASE_ORDER,
+        self::EVENT_ARCHIVE_PURCHASE_ORDER,
+        self::EVENT_UPDATE_PRODUCT,
+        self::EVENT_DELETE_PRODUCT,
+        self::EVENT_RESTORE_PRODUCT,
+        self::EVENT_ARCHIVE_PRODUCT,
         self::EVENT_CREATE_CLIENT,
         self::EVENT_CREATE_INVOICE,
         self::EVENT_CREATE_QUOTE,

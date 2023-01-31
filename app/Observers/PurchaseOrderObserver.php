@@ -11,7 +11,9 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\WebhookHandler;
 use App\Models\PurchaseOrder;
+use App\Models\Webhook;
 
 class PurchaseOrderObserver
 {
@@ -23,6 +25,14 @@ class PurchaseOrderObserver
      */
     public function created(PurchaseOrder $purchase_order)
     {
+
+        $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('event_id', Webhook::EVENT_CREATE_PURCHASE_ORDER)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+
     }
 
     /**
@@ -33,6 +43,23 @@ class PurchaseOrderObserver
      */
     public function updated(PurchaseOrder $purchase_order)
     {
+
+        $event = Webhook::EVENT_UPDATE_PURCHASE_ORDER;
+
+        if($purchase_order->getOriginal('deleted_at') && !$purchase_order->deleted_at)
+            $event = Webhook::EVENT_RESTORE_PURCHASE_ORDER;
+        
+        if($purchase_order->is_deleted)
+            $event = Webhook::EVENT_DELETE_PURCHASE_ORDER; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('event_id', $event)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+
     }
 
     /**
@@ -43,6 +70,16 @@ class PurchaseOrderObserver
      */
     public function deleted(PurchaseOrder $purchase_order)
     {
+        if($purchase_order->is_deleted)
+            return;
+        
+        $subscriptions = Webhook::where('company_id', $purchase_order->company_id)
+                                    ->where('event_id', Webhook::EVENT_ARCHIVE_PURCHASE_ORDER)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+
     }
 
     /**

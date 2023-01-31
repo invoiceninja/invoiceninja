@@ -30,7 +30,7 @@ class ExpenseObserver
                             ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(rand(1,5));
         }
     }
 
@@ -42,13 +42,22 @@ class ExpenseObserver
      */
     public function updated(Expense $expense)
     {
-        $subscriptions = Webhook::where('company_id', $expense->company->id)
-                            ->where('event_id', Webhook::EVENT_UPDATE_EXPENSE)
-                            ->exists();
+        $event = Webhook::EVENT_UPDATE_EXPENSE;
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_EXPENSE, $expense, $expense->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if($expense->getOriginal('deleted_at') && !$expense->deleted_at)
+            $event = Webhook::EVENT_RESTORE_EXPENSE;
+        
+        if($expense->is_deleted)
+            $event = Webhook::EVENT_DELETE_EXPENSE; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $expense->company->id)
+                                    ->where('event_id', $event)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $expense, $expense->company)->delay(rand(1,5));
+        
     }
 
     /**
@@ -59,13 +68,16 @@ class ExpenseObserver
      */
     public function deleted(Expense $expense)
     {
+        if($expense->is_deleted)
+            return;
+
         $subscriptions = Webhook::where('company_id', $expense->company->id)
-                            ->where('event_id', Webhook::EVENT_DELETE_EXPENSE)
+                            ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
                             ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_EXPENSE, $expense, $expense->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $expense, $expense->company)->delay(rand(1,5));
+        
     }
 
     /**
