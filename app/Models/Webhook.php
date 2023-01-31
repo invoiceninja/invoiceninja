@@ -116,6 +116,16 @@ class Webhook extends BaseModel
 
     const EVENT_RESTORE_VENDOR = 49;
 
+    const EVENT_CREATE_PRODUCT = 50;
+
+    const EVENT_UPDATE_PRODUCT = 51;
+
+    const EVENT_ARCHIVE_PRODUCT = 52;
+
+    const EVENT_RESTORE_PRODUCT = 53;
+
+    const EVENT_DELETE_PRODUCT = 54;
+
 
 
 
@@ -169,7 +179,12 @@ class Webhook extends BaseModel
         self::EVENT_RESTORE_QUOTE,
         self::EVENT_RESTORE_INVOICE,
         self::EVENT_RESTORE_PAYMENT,
-        self::EVENT_RESTORE_VENDOR
+        self::EVENT_RESTORE_VENDOR,
+        self::EVENT_CREATE_PRODUCT,
+        self::EVENT_UPDATE_PRODUCT,
+        self::EVENT_ARCHIVE_PRODUCT,
+        self::EVENT_RESTORE_PRODUCT,
+        self::EVENT_DELETE_PRODUCT
 
     ];
 
