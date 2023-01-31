@@ -147,8 +147,7 @@ class BaseRepository
      * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
-    {   //$start = microtime(true);
-        //forces the client_id if it doesn't exist
+    {   
         if(array_key_exists('client_id', $data) && !empty($data['client_id'])) 
             $model->client_id = $data['client_id'];
 
@@ -176,7 +175,7 @@ class BaseRepository
         
         if (isset($tmp_data['client_contacts'])) 
             unset($tmp_data['client_contacts']);
-        nlog($tmp_data);
+
         $model->fill($tmp_data);
 
         $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
