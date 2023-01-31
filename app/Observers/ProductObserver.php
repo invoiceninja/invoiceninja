@@ -23,7 +23,13 @@ class ProductObserver
      */
     public function created(Product $product)
     {
-        //
+        $subscriptions = Webhook::where('company_id', $product->company->id)
+                        ->where('event_id', Webhook::EVENT_CREATE_PRODUCT)
+                        ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**
@@ -34,7 +40,13 @@ class ProductObserver
      */
     public function updated(Product $product)
     {
-        //
+        $subscriptions = Webhook::where('company_id', $product->company->id)
+                        ->where('event_id', Webhook::EVENT_UPDATE_PRODUCT)
+                        ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**
@@ -45,7 +57,13 @@ class ProductObserver
      */
     public function deleted(Product $product)
     {
-        //
+        $subscriptions = Webhook::where('company_id', $product->company->id)
+                        ->where('event_id', Webhook::EVENT_DELETE_PRODUCT)
+                        ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PRODUCT, $product, $product->company)->delay(now()->addSeconds(2));
+        }
     }
 
     /**

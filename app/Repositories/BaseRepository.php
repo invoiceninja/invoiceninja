@@ -20,6 +20,7 @@ use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
@@ -143,6 +144,13 @@ class BaseRepository
                 else {
                     $webhookEvent = Webhook::EVENT_ARCHIVE_PROJECT;}
                 break;
+            case $entity instanceof Product:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_PRODUCT;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_PRODUCT;}
+                break;
             case $entity instanceof Client:
                 if ($restore){
                     $webhookEvent = Webhook::EVENT_RESTORE_CLIENT;
@@ -185,6 +193,8 @@ class BaseRepository
                     case $webhookEvent == Webhook::EVENT_RESTORE_CREDIT:
                     case $webhookEvent == Webhook::EVENT_RESTORE_CLIENT:
                     case $webhookEvent == Webhook::EVENT_ARCHIVE_CLIENT:
+                    case $webhookEvent == Webhook::EVENT_RESTORE_PRODUCT:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_PRODUCT:
                         WebhookHandler::dispatch($webhookEvent, $entity, $entity->company)->delay(now()->addSeconds(2));
                         break;
                     default:
