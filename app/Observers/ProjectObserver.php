@@ -92,4 +92,10 @@ class ProjectObserver
     {
         //
     }
+    /**
+     * Handle the product "archived" event.
+     *
+     * @param Project $project
+     * @return void
+     */
 }

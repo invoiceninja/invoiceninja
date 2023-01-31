@@ -80,6 +80,45 @@ class Webhook extends BaseModel
 
     const EVENT_UPDATE_PAYMENT = 31;
 
+    const EVENT_ARCHIVE_PAYMENT = 32;
+
+    const EVENT_ARCHIVE_INVOICE = 33;
+
+    const EVENT_ARCHIVE_QUOTE = 34;
+
+    const EVENT_ARCHIVE_CREDIT = 35;
+
+    const EVENT_ARCHIVE_TASK = 36;
+
+    const EVENT_ARCHIVE_CLIENT = 37;
+
+    const EVENT_ARCHIVE_PROJECT = 38;
+
+    const EVENT_ARCHIVE_EXPENSE = 39;
+
+    const EVENT_RESTORE_PAYMENT = 40;
+
+    const EVENT_RESTORE_INVOICE = 41;
+
+    const EVENT_RESTORE_QUOTE = 42;
+
+    const EVENT_RESTORE_CREDIT = 43;
+
+    const EVENT_RESTORE_TASK = 44;
+
+    const EVENT_RESTORE_CLIENT = 45;
+
+    const EVENT_RESTORE_PROJECT = 46;
+
+    const EVENT_RESTORE_EXPENSE = 47;
+
+    const EVENT_ARCHIVE_VENDOR = 48;
+
+    const EVENT_RESTORE_VENDOR = 49;
+
+
+
+
 
     public static $valid_events = [
         self::EVENT_CREATE_CLIENT,
@@ -112,7 +151,26 @@ class Webhook extends BaseModel
         self::EVENT_UPDATE_CREDIT,
         self::EVENT_DELETE_CREDIT,
         self::EVENT_PROJECT_DELETE,
-        self::EVENT_UPDATE_PAYMENT
+        self::EVENT_UPDATE_PAYMENT,
+        self::EVENT_ARCHIVE_EXPENSE,
+        self::EVENT_ARCHIVE_PROJECT,
+        self::EVENT_ARCHIVE_CLIENT,
+        self::EVENT_ARCHIVE_TASK,
+        self::EVENT_ARCHIVE_CREDIT,
+        self::EVENT_ARCHIVE_QUOTE,
+        self::EVENT_ARCHIVE_INVOICE,
+        self::EVENT_ARCHIVE_PAYMENT,
+        self::EVENT_ARCHIVE_VENDOR,
+        self::EVENT_RESTORE_EXPENSE,
+        self::EVENT_RESTORE_PROJECT,
+        self::EVENT_RESTORE_CLIENT,
+        self::EVENT_RESTORE_TASK,
+        self::EVENT_RESTORE_CREDIT,
+        self::EVENT_RESTORE_QUOTE,
+        self::EVENT_RESTORE_INVOICE,
+        self::EVENT_RESTORE_PAYMENT,
+        self::EVENT_RESTORE_VENDOR
+
     ];
 
     protected $fillable = [

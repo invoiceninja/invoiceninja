@@ -12,13 +12,20 @@
 namespace App\Repositories;
 
 use App\Jobs\Product\UpdateOrCreateProduct;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
+use App\Models\Vendor;
+use App\Models\Webhook;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -48,7 +55,7 @@ class BaseRepository
     /**
      * @param $entity
      */
-    public function archive($entity)
+    public function archive($entity): void
     {
         if ($entity->trashed()) {
             return;
@@ -60,6 +67,7 @@ class BaseRepository
 
         if (class_exists($className)) {
             event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            $this->handleWebhook($entity, false);
         }
     }
 
@@ -86,6 +94,104 @@ class BaseRepository
 
         if (class_exists($className)) {
             event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            $this->handleWebhook($entity, true);
+        }
+    }
+    private function handleWebhook($entity, $restore)
+    {
+        switch(true) {
+            case $entity instanceof Invoice:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_INVOICE;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_INVOICE;}
+                break;
+            case $entity instanceof Quote:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_QUOTE;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_QUOTE;
+                }
+                break;
+            case $entity instanceof Credit:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_CREDIT;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_CREDIT;}
+                break;
+            case $entity instanceof Payment:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_PAYMENT;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_PAYMENT;}
+                break;
+            case $entity instanceof Task:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_TASK;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_TASK;}
+                break;
+            case $entity instanceof Project:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_PROJECT;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_PROJECT;}
+                break;
+            case $entity instanceof Client:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_CLIENT;
+                }
+                else{
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_CLIENT;
+                }
+                break;
+            case $entity instanceof Expense:
+                if ($restore){
+                    $webhookEvent= Webhook::EVENT_RESTORE_EXPENSE;
+                }
+                else{
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_EXPENSE;
+                }
+                break;
+            case $entity instanceof Vendor:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_VENDOR;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_VENDOR;
+                }
+                break;
+        }
+        if (isset($webhookEvent)){
+            $subscriptions = Webhook::where('company_id', $entity->company_id)
+                ->where('event_id', $webhookEvent)
+                ->exists();
+
+            if ($subscriptions) {
+                switch(true){
+                    case $webhookEvent == Webhook::EVENT_RESTORE_PAYMENT:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_PAYMENT:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'invoices,client')->delay(now()->addSeconds(2));
+                        break;
+                    case $webhookEvent == Webhook::EVENT_RESTORE_EXPENSE:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_EXPENSE:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_CREDIT:
+                    case $webhookEvent == Webhook::EVENT_RESTORE_CREDIT:
+                    case $webhookEvent == Webhook::EVENT_RESTORE_CLIENT:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_CLIENT:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company)->delay(now()->addSeconds(2));
+                        break;
+                    default:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                }
+
+            }
         }
     }
 
@@ -115,7 +221,7 @@ class BaseRepository
     {
         if (is_array($invitation) && ! array_key_exists('key', $invitation))
             return false;
-        
+
         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
         $invitation = $invitation_class::with('company')->where('key', $invitation['key'])->first();
@@ -132,15 +238,15 @@ class BaseRepository
             case ($model instanceof Invoice):
                 return 'invoice_id';
             case ($model instanceof Quote):
-                return 'quote_id';            
+                return 'quote_id';
             case ($model instanceof Credit):
-                return 'credit_id';        
+                return 'credit_id';
         }
     }
 
     /**
      * Alternative save used for Invoices, Recurring Invoices, Quotes & Credits.
-     * 
+     *
      * @param $data
      * @param $model
      * @return mixed
@@ -149,10 +255,10 @@ class BaseRepository
     protected function alternativeSave($data, $model)
     {   //$start = microtime(true);
         //forces the client_id if it doesn't exist
-        if(array_key_exists('client_id', $data)) 
+        if(array_key_exists('client_id', $data))
             $model->client_id = $data['client_id'];
 
-        $client = Client::with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();    
+        $client = Client::with('group_settings')->where('id', $model->client_id)->withTrashed()->firstOrFail();
 
         $state = [];
 
@@ -171,12 +277,12 @@ class BaseRepository
         $tmp_data = $data; //preserves the $data array
 
         /* We need to unset some variable as we sometimes unguard the model */
-        if (isset($tmp_data['invitations'])) 
+        if (isset($tmp_data['invitations']))
             unset($tmp_data['invitations']);
-        
-        if (isset($tmp_data['client_contacts'])) 
+
+        if (isset($tmp_data['client_contacts']))
             unset($tmp_data['client_contacts']);
-        
+
         $model->fill($tmp_data);
 
         $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
@@ -188,7 +294,7 @@ class BaseRepository
             $this->new_model = true;
 
             if(is_array($model->line_items) && !($model instanceof RecurringInvoice))
-            {                
+            {
                 $model->line_items = (collect($model->line_items))->map(function ($item) use($model,$client) {
 
                     $item->notes = Helpers::processReservedKeywords($item->notes, $client);
@@ -207,10 +313,10 @@ class BaseRepository
             $model->service()->setReminder()->save();
 
         /* Save any documents */
-        if (array_key_exists('documents', $data)) 
+        if (array_key_exists('documents', $data))
             $this->saveDocuments($data['documents'], $model);
 
-        if (array_key_exists('file', $data)) 
+        if (array_key_exists('file', $data))
             $this->saveDocuments($data['file'], $model);
 
         /* If invitations are present we need to filter existing invitations with the new ones */
@@ -222,9 +328,9 @@ class BaseRepository
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
                 $invitation = $invitation_class::where('key', $invitation)->first();
 
-                if ($invitation) 
+                if ($invitation)
                     $invitation->delete();
-                
+
             });
 
             foreach ($data['invitations'] as $invitation) {
@@ -232,7 +338,7 @@ class BaseRepository
                 //if no invitations are present - create one.
                 if (! $this->getInvitation($invitation, $resource)) {
 
-                    if (isset($invitation['id'])) 
+                    if (isset($invitation['id']))
                         unset($invitation['id']);
 
                     //make sure we are creating an invite for a contact who belongs to the client only!
@@ -267,7 +373,7 @@ class BaseRepository
         }
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($model->invitations()->count() == 0) 
+        if ($model->invitations()->count() == 0)
             $model->service()->createInvitations();
 
         /* Recalculate invoice amounts */
@@ -284,7 +390,7 @@ class BaseRepository
             $model->partial = min($model->amount, $model->balance);
 
         /* Update product details if necessary - if we are inside a transaction - do nothing */
-        if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0) 
+        if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0)
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
 
         /* Perform model specific tasks */
@@ -298,11 +404,11 @@ class BaseRepository
 
             }
 
-            if (! $model->design_id) 
+            if (! $model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
 
             //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
-            if (\DB::transactionLevel() == 0) 
+            if (\DB::transactionLevel() == 0)
                 $model->service()->linkEntities()->save();
 
             if($this->new_model)
@@ -316,14 +422,14 @@ class BaseRepository
 
             $model = $model->calc()->getCredit();
 
-            if (! $model->design_id) 
+            if (! $model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
 
             if(array_key_exists('invoice_id', $data) && $data['invoice_id'])
                 $model->invoice_id = $data['invoice_id'];
 
             if($this->new_model)
-                event('eloquent.created: App\Models\Credit', $model);            
+                event('eloquent.created: App\Models\Credit', $model);
             else
                 event('eloquent.updated: App\Models\Credit', $model);
 
@@ -336,7 +442,7 @@ class BaseRepository
 
         if ($model instanceof Quote) {
 
-            if (! $model->design_id) 
+            if (! $model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
 
             $model = $model->calc()->getQuote();
@@ -350,9 +456,9 @@ class BaseRepository
 
         if ($model instanceof RecurringInvoice) {
 
-            if (! $model->design_id) 
+            if (! $model->design_id)
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
-            
+
             $model = $model->calc()->getRecurringInvoice();
 
 

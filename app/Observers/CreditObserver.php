@@ -91,4 +91,10 @@ class CreditObserver
     {
         //
     }
+    /**
+     * Handle the client "archive" event.
+     *
+     * @param Credit $credit
+     * @return void
+     */
 }

@@ -89,4 +89,10 @@ class ExpenseObserver
     {
         //
     }
+    /**
+     * Handle the expense "archive" event.
+     *
+     * @param Expense $expense
+     * @return void
+     */
 }
