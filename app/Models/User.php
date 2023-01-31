@@ -367,22 +367,41 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasPermission($permission) : bool
     {
-        $parts = explode('_', $permission);
-        $all_permission = '____';
 
+       /**
+        * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
+        *
+        * For example view_recurring_invoice without the limit would split to view bank recurring invoice
+        *
+        * Using only part 0 and 1 would search for permission view_recurring / edit_recurring so this would
+        * leak permissions for other recurring_* entities
+        *
+        * The solution here will split the word - consistently - into view _ {entity} and edit _ {entity}
+        * 
+        */
+        $parts = explode('_', $permission, 2);
+        $all_permission = '____';
+        $edit_all = '____';
+        $edit_entity = '____';
+
+        /* If we have multiple parts, then make sure we search for the _all permission */
         if (count($parts) > 1) {
             $all_permission = $parts[0].'_all';
+
+            /*If this is a view search, make sure we add in the edit_{entity} AND edit_all permission into the checks*/
+            if($parts[0] == 'view') {
+                $edit_all = 'edit_all';
+                $edit_entity = "edit_{$parts[1]}";
+            }
+
         }
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
+                (stripos($this->token()->cu->permissions, $permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
-                (stripos($this->token()->cu->permissions, $permission) !== false);
-
-        // return  $this->isOwner() ||
-        //         $this->isAdmin() ||
-        //         (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
-        //         (is_int(stripos($this->token()->cu->permissions, $permission)));
+                (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
+                (stripos($this->token()->cu->permissions, $edit_entity) !== false);
 
     }
 

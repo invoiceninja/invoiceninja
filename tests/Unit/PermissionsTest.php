@@ -125,6 +125,50 @@ class PermissionsTest extends TestCase
         // this is aberrant
         $this->assertFalse($this->user->hasPermission("view____client"));
 
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["edit_client"]';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasPermission("view_client"));
+
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["edit_all"]';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasPermission("view_client"));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_all"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasPermission("edit_client"));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["edit_all"]';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasPermission('view_invoice'));
+        $this->assertTrue($this->user->hasPermission('view_client'));
+        $this->assertTrue($this->user->hasPermission('view_recurring_invoice'));
+        $this->assertTrue($this->user->hasPermission('view_product'));
+        $this->assertTrue($this->user->hasPermission('view_payment'));
+        $this->assertTrue($this->user->hasPermission('view_quote'));
+        $this->assertTrue($this->user->hasPermission('view_credit'));
+        $this->assertTrue($this->user->hasPermission('view_project'));
+        $this->assertTrue($this->user->hasPermission('view_task'));
+        $this->assertTrue($this->user->hasPermission('view_vendor'));
+        $this->assertTrue($this->user->hasPermission('view_purchase_order'));
+        $this->assertTrue($this->user->hasPermission('view_expense'));
+        $this->assertTrue($this->user->hasPermission('view_bank_transaction'));
+
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["edit_recurring_invoice"]';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasPermission('view_recurring_invoice'));
+
     }
 
     public function testPermissionResolution()

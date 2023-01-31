@@ -52,6 +52,5 @@ class RestoreClientActivity implements ShouldQueue
 
         $this->activity_repo->save($fields, $event->client, $event->event_vars);
 
-        return false;
     }
 }
