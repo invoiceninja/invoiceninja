@@ -24,6 +24,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
+use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Utils\Helpers;
 use App\Utils\Ninja;
@@ -66,76 +67,7 @@ class BaseRepository
 
         if (class_exists($className)) {
             event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            if ($entity instanceof Invoice){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_INVOICE)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_INVOICE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }}
-            elseif ($entity instanceof Quote){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_QUOTE)
-                    ->exists();
-
-            if ($subscriptions) {
-                WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-            }}
-            elseif ($entity instanceof Credit){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_CREDIT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CREDIT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
-            elseif ($entity instanceof Client){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
-            elseif ($entity instanceof Expense){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
-            elseif ($entity instanceof Project){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_PROJECT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PROJECT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
-            elseif ($entity instanceof Task){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_TASK)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
-            elseif ($entity instanceof Payment){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_ARCHIVE_PAYMENT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PAYMENT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }
-            }
+            $this->handleWebhook($entity, false);
         }
     }
 
@@ -162,75 +94,87 @@ class BaseRepository
 
         if (class_exists($className)) {
             event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            if ($entity instanceof Invoice){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_INVOICE)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_INVOICE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }}
-            elseif ($entity instanceof Quote){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_QUOTE)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_QUOTE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
-                }}
-            elseif ($entity instanceof Credit){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_CREDIT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_CREDIT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+            $this->handleWebhook($entity, true);
+        }
+    }
+    private function handleWebhook($entity, $restore)
+    {
+        switch(true) {
+            case $entity instanceof Invoice:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_INVOICE;
                 }
-            }
-            elseif ($entity instanceof Client){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_CLIENT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_CLIENT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_INVOICE;}
+                break;
+            case $entity instanceof Quote:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_QUOTE;
                 }
-            }
-            elseif ($entity instanceof Expense){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_EXPENSE)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_EXPENSE, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_QUOTE;
                 }
-            }
-            elseif ($entity instanceof Project){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_PROJECT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_PROJECT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                break;
+            case $entity instanceof Credit:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_CREDIT;
                 }
-            }
-            elseif ($entity instanceof Task){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_TASK)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_TASK, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_CREDIT;}
+                break;
+            case $entity instanceof Payment:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_PAYMENT;
                 }
-            }
-            elseif ($entity instanceof Payment){
-                $subscriptions = Webhook::where('company_id', $entity->company_id)
-                    ->where('event_id', Webhook::EVENT_RESTORE_PAYMENT)
-                    ->exists();
-
-                if ($subscriptions) {
-                    WebhookHandler::dispatch(Webhook::EVENT_RESTORE_PAYMENT, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_PAYMENT;}
+                break;
+            case $entity instanceof Task:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_TASK;
                 }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_TASK;}
+                break;
+            case $entity instanceof Project:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_PROJECT;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_PROJECT;}
+                break;
+            case $entity instanceof Client:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_CLIENT;
+                }
+                else{
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_CLIENT;
+                }
+                break;
+            case $entity instanceof Expense:
+                if ($restore){
+                    $webhookEvent= Webhook::EVENT_RESTORE_EXPENSE;
+                }
+                else{
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_EXPENSE;
+                }
+                break;
+            case $entity instanceof Vendor:
+                if ($restore){
+                    $webhookEvent = Webhook::EVENT_RESTORE_VENDOR;
+                }
+                else {
+                    $webhookEvent = Webhook::EVENT_ARCHIVE_VENDOR;
+                }
+                break;
+        }
+        if (isset($webhookEvent)){
+            $subscriptions = Webhook::where('company_id', $entity->company_id)
+                ->where('event_id', $webhookEvent)
+                ->exists();
+
+            if ($subscriptions) {
+                WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
             }
         }
     }
