@@ -83,13 +83,13 @@ class BaseRepository
 
         $fromDeleted = false;
 
-        $entity->restore();
-
         if ($entity->is_deleted) {
             $fromDeleted = true;
             $entity->is_deleted = false;
             $entity->saveQuietly();
         }
+
+        $entity->restore();
 
         $className = $this->getEventClass($entity, 'Restored');
 
