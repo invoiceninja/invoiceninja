@@ -25,13 +25,13 @@ class TaskObserver
      */
     public function created(Task $task)
     {
-        $subscriptions = Webhook::where('company_id', $task->company->id)
+        $subscriptions = Webhook::where('company_id', $task->company_id)
                         ->where('event_id', Webhook::EVENT_CREATE_TASK)
                         ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company)->delay(rand(1,5));
+        
     }
 
     /**
@@ -42,13 +42,21 @@ class TaskObserver
      */
     public function updated(Task $task)
     {
-        $subscriptions = Webhook::where('company_id', $task->company->id)
-                        ->where('event_id', Webhook::EVENT_UPDATE_TASK)
-                        ->exists();
+        $event = Webhook::EVENT_UPDATE_TASK;
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if($task->getOriginal('deleted_at') && !$task->deleted_at)
+            $event = Webhook::EVENT_RESTORE_TASK;
+        
+        if($task->is_deleted)
+            $event = Webhook::EVENT_DELETE_TASK; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $task->company_id)
+                                    ->where('event_id', $event)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $task, $task->company)->delay(rand(1,5));
     }
 
     /**
@@ -59,13 +67,16 @@ class TaskObserver
      */
     public function deleted(Task $task)
     {
-        $subscriptions = Webhook::where('company_id', $task->company->id)
-                        ->where('event_id', Webhook::EVENT_DELETE_TASK)
+        if($task->is_deleted)
+            return;
+        
+        $subscriptions = Webhook::where('company_id', $task->company_id)
+                        ->where('event_id', Webhook::EVENT_ARCHIVE_TASK)
                         ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $task, $task->company)->delay(rand(1,5));
+        
     }
 
     /**

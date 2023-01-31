@@ -26,12 +26,12 @@ class ClientObserver
      */
     public function created(Client $client)
     {
-        $subscriptions = Webhook::where('company_id', $client->company->id)
+        $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(rand(1,5));
         
     }
 
@@ -53,12 +53,12 @@ class ClientObserver
             $event = Webhook::EVENT_DELETE_CLIENT; 
         
         
-        $subscriptions = Webhook::where('company_id', $client->company->id)
+        $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch($event, $client, $client->company)->delay(rand(1,5));
         
 
     }
@@ -74,12 +74,12 @@ class ClientObserver
         if($client->is_deleted)
             return;
         
-        $subscriptions = Webhook::where('company_id', $client->company->id)
+        $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(rand(1,5));
         
     }
 
