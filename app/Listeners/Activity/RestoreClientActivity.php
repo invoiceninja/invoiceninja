@@ -51,5 +51,7 @@ class RestoreClientActivity implements ShouldQueue
         $fields->activity_type_id = Activity::RESTORE_CLIENT;
 
         $this->activity_repo->save($fields, $event->client, $event->event_vars);
+
+        return false;
     }
 }
