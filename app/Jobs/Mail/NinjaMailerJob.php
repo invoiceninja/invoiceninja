@@ -75,7 +75,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public function backoff()
     {
-        return [30, 60, 180, 240];
+        return [5, 10, 30, 240];
     }
 
     public function handle()
@@ -445,7 +445,6 @@ class NinjaMailerJob implements ShouldQueue
                 $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
-        sleep(rand(1,3));
     }
 
     /**
@@ -472,7 +471,6 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(1,6));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
