@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class QuoteObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the quote "created" event.
      *
@@ -42,7 +45,7 @@ class QuoteObserver
      * @return void
      */
     public function updated(Quote $quote)
-    {
+    {nlog("updated");
 
         $event = Webhook::EVENT_UPDATE_QUOTE;
 

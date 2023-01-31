@@ -19,6 +19,9 @@ use App\Models\Webhook;
 
 class CreditObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the client "created" event.
      *

@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class TaskObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the task "created" event.
      *

@@ -231,8 +231,9 @@ class BaseRepository
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
                 $invitation = $invitation_class::where('key', $invitation)->first();
 
-                if ($invitation)
+                if ($invitation){
                     $invitation->delete();
+                }
 
             });
 
@@ -257,7 +258,6 @@ class BaseRepository
                                             ->first();
 
                         if ($new_invitation && $new_invitation->trashed()) {
-
                             $new_invitation->restore();
 
                         } else {
@@ -267,7 +267,7 @@ class BaseRepository
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($model->company->db);
-                            $new_invitation->save();
+                            $new_invitation->saveQuietly();
 
                         }
                     }
@@ -350,7 +350,6 @@ class BaseRepository
 
             $model = $model->calc()->getQuote();
 
-
             if($this->new_model)
                 event('eloquent.created: App\Models\Quote', $model);
             else
@@ -371,9 +370,7 @@ class BaseRepository
                 event('eloquent.updated: App\Models\RecurringInvoice', $model);
         }
 
-        $model->save();
-
-//        nlog("save time = ". microtime(true) - $start);
+        $model->saveQuietly();
 
         return $model->fresh();
     }

@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class PurchaseOrderObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the client "created" event.
      *

@@ -160,9 +160,5 @@ class AdjustProductInventory implements ShouldQueue
 
         });
 
-        // $nmo->to_user = $this->company->owner();
-
-        // NinjaMailerJob::dispatch($nmo);
-
     }
 }

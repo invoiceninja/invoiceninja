@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class PaymentObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the payment "created" event.
      *
