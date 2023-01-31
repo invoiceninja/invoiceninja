@@ -11,10 +11,13 @@
 
 namespace Tests\Feature;
 
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Queue;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

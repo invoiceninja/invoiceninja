@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class ClientObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the client "created" event.
      *
@@ -30,7 +33,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
         }
     }
 
@@ -42,29 +45,43 @@ class ClientObserver
      */
     public function updated(Client $client)
     {
+
+        nlog("updated event {$client->id}");
+
+        $event = Webhook::EVENT_UPDATE_CLIENT;
+
+        if($client->is_deleted)
+            $event = Webhook::EVENT_DELETE_CLIENT; //this event works correctly.
+        
         $subscriptions = Webhook::where('company_id', $client->company->id)
-                                    ->where('event_id', Webhook::EVENT_UPDATE_CLIENT)
+                                    ->where('event_id', $event)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CLIENT, $client, $client->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch($event, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
         }
+
     }
 
     /**
-     * Handle the client "deleted" event.
+     * Handle the client "archived" event.
      *
      * @param Client $client
      * @return void
      */
     public function deleted(Client $client)
     {
+        if($client->is_deleted)
+            return;
+
+        nlog("deleted event {$client->id}");
+        
         $subscriptions = Webhook::where('company_id', $client->company->id)
-                                    ->where('event_id', Webhook::EVENT_DELETE_CLIENT)
+                                    ->where('event_id', Webhook::EVENT_ARCHIVE_CLIENT)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CLIENT, $client, $client->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
         }
     }
 
@@ -76,7 +93,18 @@ class ClientObserver
      */
     public function restored(Client $client)
     {
-        //
+        nlog("Restored {$client->id}");
+
+        $subscriptions = Webhook::where('company_id', $client->company->id)
+                                    ->where('event_id', Webhook::EVENT_RESTORE_CLIENT)
+                                    ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_RESTORE_CLIENT, $client, $client->company)->delay(now()->addSeconds(rand(1,5)));
+        }
+
+
+        return false;
     }
 
     /**
