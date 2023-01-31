@@ -222,7 +222,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message'=>'Too many requests'], 429);
         // } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
         //     return response()->json(['message'=>'Fatal error'], 500); //@deprecated
-        } elseif ($exception instanceof AuthorizationException) {
+        } elseif ($exception instanceof AuthorizationException && $request->expectsJson()) {
             return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
             return redirect()

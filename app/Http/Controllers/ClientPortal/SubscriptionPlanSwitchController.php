@@ -55,4 +55,9 @@ class SubscriptionPlanSwitchController extends Controller
         ]);
         
     }
+
+    public function not_availabe()
+    {
+        abort(404, 'ewwo');
+    }
 }
