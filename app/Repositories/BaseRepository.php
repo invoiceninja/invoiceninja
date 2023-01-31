@@ -174,7 +174,23 @@ class BaseRepository
                 ->exists();
 
             if ($subscriptions) {
-                WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                switch(true){
+                    case $webhookEvent == Webhook::EVENT_RESTORE_PAYMENT:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_PAYMENT:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'invoices,client')->delay(now()->addSeconds(2));
+                        break;
+                    case $webhookEvent == Webhook::EVENT_RESTORE_EXPENSE:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_EXPENSE:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_CREDIT:
+                    case $webhookEvent == Webhook::EVENT_RESTORE_CREDIT:
+                    case $webhookEvent == Webhook::EVENT_RESTORE_CLIENT:
+                    case $webhookEvent == Webhook::EVENT_ARCHIVE_CLIENT:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company)->delay(now()->addSeconds(2));
+                        break;
+                    default:
+                        WebhookHandler::dispatch($webhookEvent, $entity, $entity->company, 'client')->delay(now()->addSeconds(2));
+                }
+
             }
         }
     }
