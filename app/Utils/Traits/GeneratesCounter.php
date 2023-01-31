@@ -420,13 +420,16 @@ trait GeneratesCounter
         $check = false;
         $check_counter = 1;
 
+        $number_placeholder = '{number}';
         $latest = $class::where('company_id', $entity->company_id)->where('number', '<>', '', 'and')->orderBy('created_at', 'desc')->first();
-        $generic_number = $this->applyNumberPattern($entity, '', $pattern);
+        $generic_number = $this->applyNumberPattern($entity, $number_placeholder, $pattern);
+        $regex = sprintf('/^%s$/', preg_quote($generic_number));
+        $regex = str_replace(preg_quote($number_placeholder), '([0-9]+)', $regex);
 
-        if ($latest && str_contains($latest->number, $generic_number)){
-            $latest_counter = str_replace($generic_number, '', $latest->number);
+        if ($latest && preg_match($regex, $latest->number, $matches)) {
+            $latest_counter = $matches[1] ?? null;
 
-            if (ctype_digit($latest_counter) && intval($latest_counter) > $counter) {
+            if (is_string($latest_counter) && ctype_digit($latest_counter) && intval($latest_counter) > $counter) {
                 $counter = intval($latest_counter) + 1;
             }
         }
