@@ -248,7 +248,7 @@ class WebhookSingle implements ShouldQueue
             return $this->entity->client;
         }
 
-        return false;
+        return null;
     }
 
     public function failed($exception = null)
