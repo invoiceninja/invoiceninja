@@ -69,7 +69,6 @@ class BaseRepository
             event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
 
-        // $this->handleWebhook($entity, 'ARCHIVE');
     }
 
     /**
@@ -97,64 +96,6 @@ class BaseRepository
             event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
 
-        // $this->handleWebhook($entity, 'RESTORE');
-
-    }
-    private function handleWebhook($entity, $action): void
-    {
-        $includes = '';
-        $event = null;
-
-        switch($entity) {
-            case $entity instanceof Invoice:
-                $event = "EVENT_{$action}_INVOICE";
-                $includes = 'client';
-                break;
-            case $entity instanceof Quote:
-                $event = "EVENT_{$action}_QUOTE";
-                $includes = 'client';
-            case $entity instanceof Credit:
-                $event = "EVENT_{$action}_CREDIT";
-                $includes = 'client';
-                break;
-            case $entity instanceof Payment:
-                $event = "EVENT_{$action}_PAYMENT";
-                $includes = 'invoices,client';
-                break;
-            case $entity instanceof Task:
-                $event = "EVENT_{$action}_TASK";
-                $includes = '';
-                break;
-            case $entity instanceof Project:
-                $event = "EVENT_{$action}PROJECT";
-                $includes = 'client';
-                break;
-            case $entity instanceof Client:
-                $event = "EVENT_{$action}_CLIENT";
-                $includes = '';
-                break;
-            case $entity instanceof Expense:
-                $event = "EVENT_{$action}_EXPENSE";
-                $includes = '';
-                break;
-            case $entity instanceof Vendor:
-                $event = "EVENT_{$action}_VENDOR";
-                $includes = '';
-                break;
-        }
-
-        if (isset($event)){
-
-            $subscriptions = Webhook::where('company_id', $entity->company_id)
-                ->where('event_id', $event)
-                ->exists();
-
-            if ($subscriptions) {
-
-                WebhookHandler::dispatch($event, $entity, $entity->company, $includes)->delay(now()->addSeconds(rand(1,5)));
-
-            }
-        }
     }
 
     /**
