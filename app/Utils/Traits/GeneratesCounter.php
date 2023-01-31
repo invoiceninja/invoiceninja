@@ -254,7 +254,7 @@ trait GeneratesCounter
 
         $client_number = $this->checkEntityNumber(Client::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_pattern'));
 
-        $this->incrementCounter($client, 'client_number_counter');
+        $this->incrementCounter($setting_entity, 'client_number_counter');
 
         $entity_number = $client_number;
 
@@ -419,6 +419,17 @@ trait GeneratesCounter
     {
         $check = false;
         $check_counter = 1;
+
+        $latest = $class::where('company_id', $entity->company_id)->where('number', '<>', '', 'and')->orderBy('created_at', 'desc')->first();
+        $generic_number = $this->applyNumberPattern($entity, '', $pattern);
+
+        if ($latest && str_contains($latest->number, $generic_number)){
+            $latest_counter = str_replace($generic_number, '', $latest->number);
+
+            if (ctype_digit($latest_counter) && intval($latest_counter) > $counter) {
+                $counter = intval($latest_counter) + 1;
+            }
+        }
 
         do {
 

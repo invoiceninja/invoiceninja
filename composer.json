@@ -35,6 +35,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "ext-ctype": "*",
         "afosto/yaac": "^1.4",
         "asm/php-ansible": "^4.0",
         "authorizenet/authorizenet": "^2.0",
