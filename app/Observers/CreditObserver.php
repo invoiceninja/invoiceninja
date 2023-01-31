@@ -32,7 +32,7 @@ class CreditObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
         }
     }
 
@@ -49,7 +49,7 @@ class CreditObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
         }
     }
 
@@ -66,7 +66,7 @@ class CreditObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(2));
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
         }
     }
 
