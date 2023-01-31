@@ -214,9 +214,9 @@ class PreviewController extends BaseController
                                     ->first();
             }
 
-            if($request->has('client_id')) {
+            if($request->has('client_id') && strlen($request->client_id) > 4) {
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($request->client_id));
-                    if($request->settings_type == 'client'){
+                    if($request->settings_type == 'client' && $client ){
                         $client->settings = $request->settings;
                         $client->save();
                     }
@@ -243,7 +243,7 @@ class PreviewController extends BaseController
             if($request->has('terms') && !$request->filled('terms') && $request->input('entity') == 'recurring_invoice')
                 $request->merge(['terms' => $company->settings->invoice_terms]);
 
-            $entity_obj = $repo->save($request->all(), $entity_obj);
+            // $entity_obj = $repo->save($request->all(), $entity_obj);
 
             if (! $request->has('entity_id')) {
                 $entity_obj->service()->fillDefaults()->save();
@@ -311,28 +311,36 @@ class PreviewController extends BaseController
             return;
         }
 
-            //if phantom js...... inject here..
+            //if phantom js...... inject here..et
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+                $pdf = (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+
+                $headers = ['Content-Type' => 'application/pdf'];
+
+                if(request()->input('inline') == 'true')
+                    $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
+                return response()->streamDownload(function () use($pdf) {
+                        echo $pdf;
+                },  "preview.pdf", $headers);
+                
             }
             
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
 
-                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+                $headers = ['Content-Type' => 'application/pdf'];
 
+                if(request()->input('inline') == 'true')
+                    $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
 
-            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+                return response()->streamDownload(function () use($pdf) {
+                        echo $pdf;
+                },  "preview.pdf", $headers);
 
-            if ($numbered_pdf) {
-                $pdf = $numbered_pdf;
             }
 
-            return $pdf;
-        }
-
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
-
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
 
