@@ -442,6 +442,8 @@ class CompanySettings extends BaseSettings
     public $send_email_on_mark_paid = false;
 
     public $postmark_secret = '';
+
+    public $custom_sending_email = '';
     
     public $mailgun_secret = '';
     
@@ -460,6 +462,7 @@ class CompanySettings extends BaseSettings
     public $show_shipping_address = false;
 
     public static $casts = [
+        'custom_sending_email'             => 'string',
         'show_paid_stamp'                    => 'bool',
         'show_shipping_address'              => 'bool',
         'company_logo_size'                  => 'string',
