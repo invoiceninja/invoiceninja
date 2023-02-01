@@ -59,7 +59,7 @@ class PaymentObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $payment, $payment->company, 'invoices,client')->delay(20);
+            WebhookHandler::dispatch($event, $payment, $payment->company, 'invoices,client')->delay(25);
     }
 
     /**

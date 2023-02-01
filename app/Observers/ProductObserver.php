@@ -33,7 +33,7 @@ class ProductObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PRODUCT, $product, $product->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PRODUCT, $product, $product->company)->delay(0);
     }
 
     /**
@@ -59,7 +59,7 @@ class ProductObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $product, $product->company)->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $product, $product->company)->delay(0);
 
     }
 
@@ -79,7 +79,7 @@ class ProductObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PRODUCT, $product, $product->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PRODUCT, $product, $product->company)->delay(0);
     }
 
     /**

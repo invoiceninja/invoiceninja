@@ -32,7 +32,7 @@ class ExpenseObserver
                             ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(0);
         
     }
 
@@ -58,7 +58,7 @@ class ExpenseObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $expense, $expense->company)->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $expense, $expense->company)->delay(0);
         
     }
 
@@ -78,7 +78,7 @@ class ExpenseObserver
                             ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $expense, $expense->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $expense, $expense->company)->delay(0);
         
     }
 

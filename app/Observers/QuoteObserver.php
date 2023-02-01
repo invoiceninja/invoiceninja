@@ -34,7 +34,7 @@ class QuoteObserver
                         ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(0);
         
     }
 
@@ -61,7 +61,7 @@ class QuoteObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $quote, $quote->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $quote, $quote->company, 'client')->delay(0);
 
     }
 
@@ -81,7 +81,7 @@ class QuoteObserver
                         ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $quote, $quote->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $quote, $quote->company, 'client')->delay(0);
         
     }
 

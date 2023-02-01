@@ -32,7 +32,7 @@ class InvoiceObserver
                             ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         }
     }
 
@@ -58,7 +58,7 @@ class InvoiceObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $invoice, $invoice->company)->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $invoice, $invoice->company)->delay(0);
     }
 
     /**
@@ -77,7 +77,7 @@ class InvoiceObserver
                             ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_INVOICE, $invoice, $invoice->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         
     }
 

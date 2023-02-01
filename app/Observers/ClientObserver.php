@@ -32,7 +32,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(0);
         
     }
 
@@ -59,7 +59,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $client, $client->company)->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $client, $client->company)->delay(0);
         
 
     }
@@ -80,7 +80,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(0);
         
     }
 

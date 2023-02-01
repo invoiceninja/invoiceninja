@@ -207,7 +207,7 @@ class ClientService
      */
     public function save() :Client
     {
-        $this->client->save();
+        $this->client->saveQuietly();
 
         return $this->client->fresh();
     }
