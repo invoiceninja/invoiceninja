@@ -118,6 +118,7 @@ class HtmlEngine
 
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
+        $data['show_shipping_address'] = ['value' => $this->settings?->show_shipping_address ? 'flex' : 'none', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -182,7 +183,7 @@ class HtmlEngine
                 $data['$invoice.project'] = &$data['$project.name'];
             }
 
-            if($this->entity->status_id == 4) {
+            if($this->entity->status_id == 4 && $this->settings->show_paid_stamp) {
                 $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
             }
 
@@ -568,7 +569,7 @@ class HtmlEngine
         $data['_rate2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['_rate3'] = ['value' => '', 'label' => ctrans('texts.tax')];
 
-        $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
+        $data['$font_size'] = ['value' => $this->settings->font_size . 'px !important;', 'label' => ''];
         $data['$font_name'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['name'], 'label' => ''];
         $data['$font_url'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['url'], 'label' => ''];
 

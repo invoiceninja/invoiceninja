@@ -11,10 +11,14 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size 
         zoom: 80%;
     }
-
+/*
+    body, table{
+        font-size: $font_size
+    }
+*/
     body, html {
         margin: 0;
         padding: 0;
@@ -57,9 +61,9 @@
         margin-bottom: 1rem;
     }
     .company-logo {
-        height: 100%;
-        max-width: 100%;
-        /*        max-width: $company_logo_size;*/
+/*        height: 100%;*/
+/*        max-width: 100%;*/
+        max-width: $company_logo_size;
         object-fit: contain;
         object-position: left center;
     }
@@ -77,8 +81,15 @@
     }
 
     #client-details {
-        margin: 2rem;
+        padding-right:1rem;
         display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+        padding-left: 2rem;
+    }
+
+    #shipping-details {
+        display: $show_shipping_address;
         flex-direction: column;
         line-height: var(--line-height);
     }
@@ -89,8 +100,12 @@
 
     .client-entity-wrapper {
         display: grid;
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 2fr 1fr;
         padding-left: 1rem;
+    }
+    
+    .client-wrapper-left-side {
+        display: flex;
     }
 
     .entity-details-wrapper {
@@ -114,7 +129,7 @@
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-top: 3rem;
+        margin-top: 1rem;
         margin-bottom: 0px;
     }
 
@@ -388,9 +403,15 @@
             <td>
                 <div class="client-entity-wrapper">
                     <div class="client-wrapper-left-side">
-                        <h4 class="entity-label">$entity_label</h4>
-                        <div id="client-details" cellspacing="0"></div>
-                        <div id="vendor-details" cellspacing="0"></div>
+                        <div>                    
+                            <h4 class="entity-label" style="margin-top:0px; margin-bottom:10px;">$entity_label</h4>
+                            <div id="client-details" cellspacing="0"></div>
+                            <div id="vendor-details" cellspacing="0"></div>
+                        </div>
+                        <div>
+                            <h4 class="entity-label" style="opacity: 0; margin-top:0px; margin-bottom:10px;">&</h4>
+                            <div id="shipping-details" cellspacing="0"></div>
+                        </div>
                     </div>
 
                     <div class="entity-details-wrapper-right-side">
@@ -414,7 +435,7 @@
 
                 <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                 <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                <div id="table-totals" cellspacing="0"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
             </td>
         </tr>
         </tbody>
