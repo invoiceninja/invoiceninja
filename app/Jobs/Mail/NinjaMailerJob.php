@@ -386,12 +386,14 @@ class NinjaMailerJob implements ShouldQueue
             return $this->setMailDriver();
         }
 
-
         $user = $this->resolveSendingUser();
+
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
             $this->nmo
              ->mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
@@ -410,9 +412,12 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+
             $this->nmo
              ->mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
