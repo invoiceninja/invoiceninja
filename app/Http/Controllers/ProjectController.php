@@ -262,11 +262,13 @@ class ProjectController extends BaseController
 
         $project->fill($request->all());
         $project->number = empty($project->number) ? $this->getNextProjectNumber($project) : $project->number;
-        $project->save();
+        $project->saveQuietly();
 
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $project);
         }
+
+        event('eloquent.updated: App\Models\Project', $project);
 
         return $this->itemResponse($project->fresh());
     }
@@ -358,16 +360,18 @@ class ProjectController extends BaseController
     {
         $project = ProjectFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $project->fill($request->all());
-        $project->save();
+        $project->saveQuietly();
 
         if (empty($project->number)) {
             $project->number = $this->getNextProjectNumber($project);
-            $project->save();
+            $project->saveQuietly();
         }
 
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $project);
         }
+
+        event('eloquent.created: App\Models\Project', $project);
 
         return $this->itemResponse($project->fresh());
     }

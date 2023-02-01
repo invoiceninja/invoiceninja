@@ -27,13 +27,13 @@ class ExpenseObserver
      */
     public function created(Expense $expense)
     {
-        $subscriptions = Webhook::where('company_id', $expense->company->id)
+        $subscriptions = Webhook::where('company_id', $expense->company_id)
                             ->where('event_id', Webhook::EVENT_CREATE_EXPENSE)
                             ->exists();
 
-        if ($subscriptions) {
+        if ($subscriptions) 
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(rand(1,5));
-        }
+        
     }
 
     /**
@@ -53,7 +53,7 @@ class ExpenseObserver
             $event = Webhook::EVENT_DELETE_EXPENSE; 
         
         
-        $subscriptions = Webhook::where('company_id', $expense->company->id)
+        $subscriptions = Webhook::where('company_id', $expense->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
@@ -73,7 +73,7 @@ class ExpenseObserver
         if($expense->is_deleted)
             return;
 
-        $subscriptions = Webhook::where('company_id', $expense->company->id)
+        $subscriptions = Webhook::where('company_id', $expense->company_id)
                             ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
                             ->exists();
 

@@ -68,8 +68,6 @@ class WebhookHandler implements ShouldQueue
 
     public function failed($exception = null)
     {
-        if($exception)
-            nlog(print_r($exception->getMessage(), 1));
 
     }
 }
