@@ -40,7 +40,7 @@ class ClientService
 
                 $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
                 $this->client->balance += $amount;
-                $this->client->save();
+                $this->client->saveQuietly();
 
             }, 2);
         }
@@ -61,7 +61,7 @@ class ClientService
                 $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
                 $this->client->balance += $balance;
                 $this->client->paid_to_date += $paid_to_date;
-                $this->client->save();
+                $this->client->saveQuietly();
 
             }, 2);
         }
@@ -80,7 +80,7 @@ class ClientService
 
             $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $this->client->paid_to_date += $amount;
-            $this->client->save();
+            $this->client->saveQuietly();
 
         }, 2);
 

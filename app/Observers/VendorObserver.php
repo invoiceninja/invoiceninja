@@ -32,9 +32,9 @@ class VendorObserver
                                     ->where('event_id', Webhook::EVENT_CREATE_VENDOR)
                                     ->exists();
 
-        if ($subscriptions) {
+        if ($subscriptions) 
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(rand(1,5));
-        }
+        
     }
 
     /**

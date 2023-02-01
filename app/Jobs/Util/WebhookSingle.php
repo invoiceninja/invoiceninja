@@ -17,6 +17,7 @@ use App\Models\Client as ClientModel;
 use App\Models\Company;
 use App\Models\Product;
 use App\Models\SystemLog;
+use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
@@ -244,7 +245,7 @@ class WebhookSingle implements ShouldQueue
     private function resolveClient()
     {
         //make sure it isn't an instance of the Client Model
-        if (! $this->entity instanceof ClientModel && ! $this->entity instanceof Product && $this->entity->client()->exists()) {
+        if (! $this->entity instanceof ClientModel && ! $this->entity instanceof Product  && ! $this->entity instanceof Vendor && $this->entity->client()->exists()) {
             return $this->entity->client;
         }
 
@@ -253,10 +254,8 @@ class WebhookSingle implements ShouldQueue
 
     public function failed($exception = null)
     {
-        if($exception){
-            nlog("failed in webhooksingle");
-            nlog($exception->getMessage());
-        }
+        
+        config(['queue.failed.driver' => null]);
 
     }
 }

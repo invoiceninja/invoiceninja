@@ -45,13 +45,13 @@ class VendorRepository extends BaseRepository
     {
         $vendor->fill($data);
 
-        $vendor->save();
+        $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {
             $vendor->number = $this->getNextVendorNumber($vendor);
         } //todo write tests for this and make sure that custom vendor numbers also works as expected from here
 
-        $vendor->save();
+        $vendor->saveQuietly();
 
         if (isset($data['contacts'])) {
             $this->contact_repo->save($data, $vendor);
