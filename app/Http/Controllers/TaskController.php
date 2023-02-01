@@ -283,6 +283,8 @@ class TaskController extends BaseController
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Task', $task);
+
         return $this->itemResponse($task->fresh());
     }
 
@@ -375,6 +377,9 @@ class TaskController extends BaseController
         $task = $this->task_repo->triggeredActions($request, $task);
 
         event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        event('eloquent.created: App\Models\Task', $task);
+
 
         return $this->itemResponse($task);
     }

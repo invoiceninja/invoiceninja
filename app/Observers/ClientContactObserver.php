@@ -12,6 +12,7 @@
 namespace App\Observers;
 
 use App\Models\ClientContact;
+use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
@@ -79,7 +80,12 @@ class ClientContactObserver
 
         });
 
+        CreditInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
+
+          if($invite->credits()->doesnthave('invitations'))
+            $invite->credit->service()->createInvitations();
         
+        });
     }
 
     /**
@@ -90,9 +96,6 @@ class ClientContactObserver
      */
     public function restored(ClientContact $clientContact)
     {
-        // $clientContact->invoice_invitations()->restore();
-        // $clientContact->quote_invitations()->restore();
-        // $clientContact->credit_invitations()->restore();
     }
 
     /**

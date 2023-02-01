@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class VendorObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the vendor "created" event.
      *
@@ -25,13 +28,13 @@ class VendorObserver
      */
     public function created(Vendor $vendor)
     {
-        $subscriptions = Webhook::where('company_id', $vendor->company->id)
+        $subscriptions = Webhook::where('company_id', $vendor->company_id)
                                     ->where('event_id', Webhook::EVENT_CREATE_VENDOR)
                                     ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(0);
+        
     }
 
     /**
@@ -42,13 +45,21 @@ class VendorObserver
      */
     public function updated(Vendor $vendor)
     {
-        $subscriptions = Webhook::where('company_id', $vendor->company->id)
-                                    ->where('event_id', Webhook::EVENT_UPDATE_VENDOR)
+        $event = Webhook::EVENT_UPDATE_VENDOR;
+
+        if($vendor->getOriginal('deleted_at') && !$vendor->deleted_at)
+            $event = Webhook::EVENT_RESTORE_VENDOR;
+        
+        if($vendor->is_deleted)
+            $event = Webhook::EVENT_DELETE_VENDOR; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $vendor->company_id)
+                                    ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_VENDOR, $vendor, $vendor->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $vendor, $vendor->company)->delay(0);
     }
 
     /**
@@ -59,12 +70,15 @@ class VendorObserver
      */
     public function deleted(Vendor $vendor)
     {
-        $subscriptions = Webhook::where('company_id', $vendor->company->id)
-                                    ->where('event_id', Webhook::EVENT_DELETE_VENDOR)
+        if($vendor->is_deleted)
+            return;
+        
+        $subscriptions = Webhook::where('company_id', $vendor->company_id)
+                                    ->where('event_id', Webhook::EVENT_ARCHIVE_VENDOR)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_VENDOR, $vendor, $vendor->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_VENDOR, $vendor, $vendor->company)->delay(0);
         }
     }
 

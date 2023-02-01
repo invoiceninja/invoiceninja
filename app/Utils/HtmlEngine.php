@@ -177,6 +177,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$invoice.custom3'];
             $data['$custom4'] = &$data['$invoice.custom4'];
 
+            $data['$quote.custom1'] = &$data['$invoice.custom1'];
+            $data['$quote.custom2'] = &$data['$invoice.custom2'];
+            $data['$quote.custom3'] = &$data['$invoice.custom3'];
+            $data['$quote.custom4'] = &$data['$invoice.custom4'];
+
+            $data['$credit.custom1'] = &$data['$invoice.custom1'];
+            $data['$credit.custom2'] = &$data['$invoice.custom2'];
+            $data['$credit.custom3'] = &$data['$invoice.custom3'];
+            $data['$credit.custom4'] = &$data['$invoice.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -226,6 +236,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$quote.custom3'];
             $data['$custom4'] = &$data['$quote.custom4'];
 
+            $data['$invoice.custom1'] = &$data['$quote.custom1'];
+            $data['$invoice.custom2'] = &$data['$quote.custom2'];
+            $data['$invoice.custom3'] = &$data['$quote.custom3'];
+            $data['$invoice.custom4'] = &$data['$quote.custom4'];
+
+            $data['$credit.custom1'] = &$data['$quote.custom1'];
+            $data['$credit.custom2'] = &$data['$quote.custom2'];
+            $data['$credit.custom3'] = &$data['$quote.custom3'];
+            $data['$credit.custom4'] = &$data['$quote.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -260,6 +280,16 @@ class HtmlEngine
             $data['$custom2'] = &$data['$credit.custom2'];
             $data['$custom3'] = &$data['$credit.custom3'];
             $data['$custom4'] = &$data['$credit.custom4'];
+
+            $data['$quote.custom1'] = &$data['$credit.custom1'];
+            $data['$quote.custom2'] = &$data['$credit.custom2'];
+            $data['$quote.custom3'] = &$data['$credit.custom3'];
+            $data['$quote.custom4'] = &$data['$credit.custom4'];
+
+            $data['$invoice.custom1'] = &$data['$credit.custom1'];
+            $data['$invoice.custom2'] = &$data['$credit.custom2'];
+            $data['$invoice.custom3'] = &$data['$credit.custom3'];
+            $data['$invoice.custom4'] = &$data['$credit.custom4'];
 
         }
 

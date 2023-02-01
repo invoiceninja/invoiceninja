@@ -59,7 +59,7 @@ class EmailMailer implements ShouldQueue
 
     public function backoff()
     {
-        return [30, 60, 180, 240];
+        return [10, 30, 60, 240];
     }
 
     public function handle(): void
@@ -379,7 +379,6 @@ class EmailMailer implements ShouldQueue
                 $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
-        sleep(rand(1,3));
     }
 
     /**
@@ -406,7 +405,6 @@ class EmailMailer implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(2,4));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->email_service->company->clients()->first());

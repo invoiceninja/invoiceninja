@@ -19,6 +19,9 @@ use App\Models\Webhook;
 
 class CreditObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the client "created" event.
      *
@@ -27,12 +30,12 @@ class CreditObserver
      */
     public function created(Credit $credit)
     {
-        $subscriptions = Webhook::where('company_id', $credit->company->id)
+        $subscriptions = Webhook::where('company_id', $credit->company_id)
                                     ->where('event_id', Webhook::EVENT_CREATE_CREDIT)
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CREDIT, $credit, $credit->company)->delay(0);
         }
     }
 
@@ -44,13 +47,21 @@ class CreditObserver
      */
     public function updated(Credit $credit)
     {
-        $subscriptions = Webhook::where('company_id', $credit->company->id)
-                                    ->where('event_id', Webhook::EVENT_UPDATE_CREDIT)
+        $event = Webhook::EVENT_UPDATE_CREDIT;
+
+        if($credit->getOriginal('deleted_at') && !$credit->deleted_at)
+            $event = Webhook::EVENT_RESTORE_CREDIT;
+        
+        if($credit->is_deleted)
+            $event = Webhook::EVENT_DELETE_CREDIT; 
+
+        $subscriptions = Webhook::where('company_id', $credit->company_id)
+                                    ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $credit, $credit->company)->delay(0);
+        
     }
 
     /**
@@ -61,13 +72,16 @@ class CreditObserver
      */
     public function deleted(Credit $credit)
     {
-        $subscriptions = Webhook::where('company_id', $credit->company->id)
-                                    ->where('event_id', Webhook::EVENT_DELETE_CREDIT)
+        if($credit->is_deleted)
+            return;
+        
+        $subscriptions = Webhook::where('company_id', $credit->company_id)
+                                    ->where('event_id', Webhook::EVENT_ARCHIVE_CREDIT)
                                     ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_CREDIT, $credit, $credit->company)->delay(now()->addSeconds(rand(1,5)));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CREDIT, $credit, $credit->company)->delay(0);
+        
     }
 
     /**
