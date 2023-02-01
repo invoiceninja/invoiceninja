@@ -646,6 +646,10 @@ class CreditController extends BaseController
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
 
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+        
         $credit = $invitation->credit;
 
         $file = $credit->service()->getCreditPdf($invitation);

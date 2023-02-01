@@ -172,6 +172,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::put('credits/{credit}/upload', [CreditController::class, 'upload'])->name('credits.upload');
     Route::get('credits/{credit}/{action}', [CreditController::class, 'action'])->name('credits.action');
     Route::post('credits/bulk', [CreditController::class, 'bulk'])->name('credits.bulk');
+    Route::get('credit/{invitation_key}/download', [CreditController::class, 'downloadPdf'])->name('credits.downloadPdf');
 
     Route::resource('designs', DesignController::class); // name = (payments. index / create / show / update / destroy / edit
     Route::post('designs/bulk', [DesignController::class, 'bulk'])->name('designs.bulk');
