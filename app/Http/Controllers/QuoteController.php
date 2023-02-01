@@ -782,6 +782,11 @@ class QuoteController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->quote_repo->getInvitationByKey($invitation_key);
+        
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+
         $contact = $invitation->contact;
         $quote = $invitation->quote;
 
