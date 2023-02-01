@@ -33,7 +33,6 @@ use PDOException;
 use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use League\Flysystem\UnableToCreateDirectory;
@@ -47,27 +46,27 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        // PDOException::class,
-        // MaxAttemptsExceededException::class,
-        // CommandNotFoundException::class,
-        // ValidationException::class,
-        // ModelNotFoundException::class,
-        // NotFoundHttpException::class,
+        PDOException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
     ];
 
     protected $selfHostDontReport = [
-        // FilePermissionsFailure::class,
-        // PDOException::class,
-        // MaxAttemptsExceededException::class,
-        // CommandNotFoundException::class,
-        // ValidationException::class,
-        // ModelNotFoundException::class,
-        // NotFoundHttpException::class,
-        // UnableToCreateDirectory::class,
-        // GuzzleHttp\Exception\ConnectException::class,
-        // Symfony\Component\Process\Exception\RuntimeException::class,
-        // InvalidArgumentException::class,
-        // RuntimeException::class,
+        FilePermissionsFailure::class,
+        PDOException::class,
+        MaxAttemptsExceededException::class,
+        CommandNotFoundException::class,
+        ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
+        UnableToCreateDirectory::class,
+        GuzzleHttp\Exception\ConnectException::class,
+        Symfony\Component\Process\Exception\RuntimeException::class,
+        InvalidArgumentException::class,
+        RuntimeException::class,
     ];
 
     protected $hostedDontReport = [

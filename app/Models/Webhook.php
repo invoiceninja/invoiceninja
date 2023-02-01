@@ -24,27 +24,27 @@ class Webhook extends BaseModel
 
     const EVENT_CREATE_QUOTE = 3; //tested
 
-    const EVENT_CREATE_PAYMENT = 4;
+    const EVENT_CREATE_PAYMENT = 4; //tested
 
-    const EVENT_CREATE_VENDOR = 5;
+    const EVENT_CREATE_VENDOR = 5; //tested
 
-    const EVENT_UPDATE_QUOTE = 6;
+    const EVENT_UPDATE_QUOTE = 6; //tested
 
-    const EVENT_DELETE_QUOTE = 7;
+    const EVENT_DELETE_QUOTE = 7; //tested
 
     const EVENT_UPDATE_INVOICE = 8; //tested
 
     const EVENT_DELETE_INVOICE = 9; //tested
 
-    const EVENT_UPDATE_CLIENT = 10;
+    const EVENT_UPDATE_CLIENT = 10; //tested
 
-    const EVENT_DELETE_CLIENT = 11;
+    const EVENT_DELETE_CLIENT = 11; //tested
 
-    const EVENT_DELETE_PAYMENT = 12;
+    const EVENT_DELETE_PAYMENT = 12; //tested
 
-    const EVENT_UPDATE_VENDOR = 13;
+    const EVENT_UPDATE_VENDOR = 13; //tested
 
-    const EVENT_DELETE_VENDOR = 14;
+    const EVENT_DELETE_VENDOR = 14; //
 
     const EVENT_CREATE_EXPENSE = 15;
 
