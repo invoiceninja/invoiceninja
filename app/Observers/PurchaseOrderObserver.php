@@ -34,7 +34,7 @@ class PurchaseOrderObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(0);
 
     }
 
@@ -61,7 +61,7 @@ class PurchaseOrderObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $purchase_order, $purchase_order->company, 'vendor')->delay(0);
 
     }
 
@@ -81,7 +81,7 @@ class PurchaseOrderObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(0);
 
     }
 

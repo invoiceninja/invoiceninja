@@ -243,11 +243,19 @@ class WebhookSingle implements ShouldQueue
     }
 
     private function resolveClient()
-    {
+    {   nlog(get_class($this->entity));
+        
         //make sure it isn't an instance of the Client Model
-        if ($this->entity->client()->exists()) {
+        if (!$this->entity instanceof \App\Models\Client && 
+            !$this->entity instanceof \App\Models\Vendor && 
+            !$this->entity instanceof \App\Models\Product && 
+            !$this->entity instanceof \App\Models\PurchaseOrder &&
+            $this->entity->client()->exists()) {
+
             return $this->entity->client;
+
         }
+        
 
         return null;
     }

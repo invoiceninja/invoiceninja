@@ -141,6 +141,10 @@ class PurchaseOrder extends BaseModel
         }
     }
 
+    public function getEntityType()
+    {
+        return self::class;
+    }
 
     public function assigned_user()
     {
@@ -186,7 +190,7 @@ class PurchaseOrder extends BaseModel
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         });
     }

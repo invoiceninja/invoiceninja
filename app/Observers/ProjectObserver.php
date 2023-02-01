@@ -32,7 +32,7 @@ class ProjectObserver
                             ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(0);
         
     }
 
@@ -59,7 +59,7 @@ class ProjectObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $project, $project->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $project, $project->company, 'client')->delay(0);
 
     }
 
@@ -79,7 +79,7 @@ class ProjectObserver
                             ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PROJECT, $project, $project->company, 'client')->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PROJECT, $project, $project->company, 'client')->delay(0);
         
     }
 

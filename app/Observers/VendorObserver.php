@@ -33,7 +33,7 @@ class VendorObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(0);
         
     }
 
@@ -59,7 +59,7 @@ class VendorObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $vendor, $vendor->company)->delay(rand(1,5));
+            WebhookHandler::dispatch($event, $vendor, $vendor->company)->delay(0);
     }
 
     /**
@@ -78,7 +78,7 @@ class VendorObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_VENDOR, $vendor, $vendor->company)->delay(rand(1,5));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_VENDOR, $vendor, $vendor->company)->delay(0);
         }
     }
 
