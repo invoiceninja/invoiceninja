@@ -64,6 +64,7 @@ class EmailMailer implements ShouldQueue
 
     public function handle(): void
     {
+throw new \Exception("poopies");
 
     	MultiDB::setDb($this->email_service->company->db);
 
