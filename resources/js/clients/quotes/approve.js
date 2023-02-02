@@ -9,9 +9,10 @@
  */
 
 class Approve {
-    constructor(displaySignature, displayTerms) {
+    constructor(displaySignature, displayTerms, userInput) {
         this.shouldDisplaySignature = displaySignature;
         this.shouldDisplayTerms = displayTerms;
+        this.shouldDisplayUserInput = userInput;
         this.termsAccepted = false;
     }
 
@@ -59,7 +60,7 @@ class Approve {
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {
-                if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+                if (this.shouldDisplaySignature && this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
                     this.displaySignature();
 
                     document
@@ -76,10 +77,11 @@ class Approve {
                                     this.termsAccepted = true;
                                     this.submitForm();
                                 });
+                                
                         });
                 }
 
-                if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+                if (this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
                     this.displaySignature();
 
                     document
@@ -92,7 +94,7 @@ class Approve {
                         });
                 }
 
-                if (!this.shouldDisplaySignature && this.shouldDisplayTerms) {
+                if (!this.shouldDisplaySignature && this.shouldDisplayTerms && !this->this.shouldDisplayUserInput) {
                     this.displayTerms();
 
                     document
@@ -103,7 +105,7 @@ class Approve {
                         });
                 }
 
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
                     this.submitForm();
                 }
             });
@@ -115,4 +117,6 @@ const signature = document.querySelector('meta[name="require-quote-signature"]')
 
 const terms = document.querySelector('meta[name="show-quote-terms"]').content;
 
-new Approve(Boolean(+signature), Boolean(+terms)).handle();
+const user_input = document.querySelector('meta[name="accept-user-input"]').content;
+
+new Approve(Boolean(+signature), Boolean(+terms), Boolean(+user_input)).handle();
