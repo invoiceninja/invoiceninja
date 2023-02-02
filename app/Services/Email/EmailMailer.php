@@ -322,8 +322,11 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
+        $sending_email = (isset($this->email_service->email_object->settings->custom_sending_email) && stripos($this->email_service->email_object->settings->custom_sending_email, "@")) ? $this->email_service->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_service->email_object->settings->email_from_name) && strlen($this->email_service->email_object->settings->email_from_name) > 2) ? $this->email_service->email_object->settings->email_from_name : $user->name();
+
             $this->email_mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
@@ -342,8 +345,11 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
+        $sending_email = (isset($this->email_service->email_object->settings->custom_sending_email) && stripos($this->email_service->email_object->settings->custom_sending_email, "@")) ? $this->email_service->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_service->email_object->settings->email_from_name) && strlen($this->email_service->email_object->settings->email_from_name) > 2) ? $this->email_service->email_object->settings->email_from_name : $user->name();
+            
             $this->email_mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
