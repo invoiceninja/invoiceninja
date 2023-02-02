@@ -1,2 +1,174 @@
-/*! For license information please see paytrace-credit-card.js.LICENSE.txt */
-(()=>{function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}(new(function(){function t(){var e;!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,t),this.clientKey=null===(e=document.querySelector("meta[name=paytrace-client-key]"))||void 0===e?void 0:e.content}var n,o,r;return n=t,(o=[{key:"creditCardStyles",get:function(){return{font_color:"#111827",border_color:"rgba(210,214,220,1)",label_color:"#111827",label_size:"12pt",background_color:"white",border_style:"solid",font_size:"15pt",height:"30px",width:"100%"}}},{key:"codeStyles",get:function(){return{font_color:"#111827",border_color:"rgba(210,214,220,1)",label_color:"#111827",label_size:"12pt",background_color:"white",border_style:"solid",font_size:"15pt",height:"30px",width:"300px"}}},{key:"expStyles",get:function(){return{font_color:"#111827",border_color:"rgba(210,214,220,1)",label_color:"#111827",label_size:"12pt",background_color:"white",border_style:"solid",font_size:"15pt",height:"30px",width:"85px",type:"dropdown"}}},{key:"updatePayTraceLabels",value:function(){window.PTPayment.getControl("securityCode").label.text(document.querySelector("meta[name=ctrans-cvv]").content),window.PTPayment.getControl("creditCard").label.text(document.querySelector("meta[name=ctrans-card_number]").content),window.PTPayment.getControl("expiration").label.text(document.querySelector("meta[name=ctrans-expires]").content)}},{key:"setupPayTrace",value:function(){return window.PTPayment.setup({styles:{code:this.codeStyles,cc:this.creditCardStyles,exp:this.expStyles},authorization:{clientKey:this.clientKey}})}},{key:"handlePaymentWithCreditCard",value:function(e){var t=this;e.target.parentElement.disabled=!0,document.getElementById("errors").hidden=!0,window.PTPayment.validate((function(n){if(n.length>=1){var o=document.getElementById("errors");return o.textContent=n[0].description,o.hidden=!1,e.target.parentElement.disabled=!1}t.ptInstance.process().then((function(e){document.getElementById("HPF_Token").value=e.message.hpf_token,document.getElementById("enc_key").value=e.message.enc_key;var t=document.querySelector('input[name="token-billing-checkbox"]:checked');t&&(document.querySelector('input[name="store_card"]').value=t.value),document.getElementById("server_response").submit()})).catch((function(e){document.getElementById("errors").textContent=JSON.stringify(e),document.getElementById("errors").hidden=!1,console.log(e)}))}))}},{key:"handlePaymentWithToken",value:function(e){e.target.parentElement.disabled=!0,document.getElementById("server_response").submit()}},{key:"handle",value:function(){var e,t=this;Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(e){return e.addEventListener("click",(function(e){document.getElementById("paytrace--credit-card-container").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=e.target.dataset.token}))})),null===(e=document.getElementById("toggle-payment-with-credit-card"))||void 0===e||e.addEventListener("click",(function(e){document.getElementById("paytrace--credit-card-container").classList.remove("hidden"),document.getElementById("save-card--container").style.display="grid",document.querySelector("input[name=token]").value="",t.setupPayTrace().then((function(e){t.ptInstance=e,t.updatePayTraceLabels()}))})),document.getElementById("pay-now").addEventListener("click",(function(e){return""===document.querySelector("input[name=token]").value?t.handlePaymentWithCreditCard(e):t.handlePaymentWithToken(e)}))}}])&&e(n.prototype,o),r&&e(n,r),Object.defineProperty(n,"prototype",{writable:!1}),t}())).handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!***************************************************************!*\
+  !*** ./resources/js/clients/payments/paytrace-credit-card.js ***!
+  \***************************************************************/
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+var PayTraceCreditCard = /*#__PURE__*/function () {
+  function PayTraceCreditCard() {
+    var _document$querySelect;
+
+    _classCallCheck(this, PayTraceCreditCard);
+
+    this.clientKey = (_document$querySelect = document.querySelector('meta[name=paytrace-client-key]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content;
+  }
+
+  _createClass(PayTraceCreditCard, [{
+    key: "creditCardStyles",
+    get: function get() {
+      return {
+        font_color: '#111827',
+        border_color: 'rgba(210,214,220,1)',
+        label_color: '#111827',
+        label_size: '12pt',
+        background_color: 'white',
+        border_style: 'solid',
+        font_size: '15pt',
+        height: '30px',
+        width: '100%'
+      };
+    }
+  }, {
+    key: "codeStyles",
+    get: function get() {
+      return {
+        font_color: '#111827',
+        border_color: 'rgba(210,214,220,1)',
+        label_color: '#111827',
+        label_size: '12pt',
+        background_color: 'white',
+        border_style: 'solid',
+        font_size: '15pt',
+        height: '30px',
+        width: '300px'
+      };
+    }
+  }, {
+    key: "expStyles",
+    get: function get() {
+      return {
+        font_color: '#111827',
+        border_color: 'rgba(210,214,220,1)',
+        label_color: '#111827',
+        label_size: '12pt',
+        background_color: 'white',
+        border_style: 'solid',
+        font_size: '15pt',
+        height: '30px',
+        width: '85px',
+        type: 'dropdown'
+      };
+    }
+  }, {
+    key: "updatePayTraceLabels",
+    value: function updatePayTraceLabels() {
+      window.PTPayment.getControl('securityCode').label.text(document.querySelector('meta[name=ctrans-cvv]').content);
+      window.PTPayment.getControl('creditCard').label.text(document.querySelector('meta[name=ctrans-card_number]').content);
+      window.PTPayment.getControl('expiration').label.text(document.querySelector('meta[name=ctrans-expires]').content);
+    }
+  }, {
+    key: "setupPayTrace",
+    value: function setupPayTrace() {
+      return window.PTPayment.setup({
+        styles: {
+          code: this.codeStyles,
+          cc: this.creditCardStyles,
+          exp: this.expStyles
+        },
+        authorization: {
+          clientKey: this.clientKey
+        }
+      });
+    }
+  }, {
+    key: "handlePaymentWithCreditCard",
+    value: function handlePaymentWithCreditCard(event) {
+      var _this = this;
+
+      event.target.parentElement.disabled = true;
+      document.getElementById('errors').hidden = true;
+      window.PTPayment.validate(function (errors) {
+        if (errors.length >= 1) {
+          var errorsContainer = document.getElementById('errors');
+          errorsContainer.textContent = errors[0].description;
+          errorsContainer.hidden = false;
+          return event.target.parentElement.disabled = false;
+        }
+
+        _this.ptInstance.process().then(function (response) {
+          document.getElementById('HPF_Token').value = response.message.hpf_token;
+          document.getElementById('enc_key').value = response.message.enc_key;
+          var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+
+          if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+          }
+
+          document.getElementById('server_response').submit();
+        })["catch"](function (error) {
+          document.getElementById('errors').textContent = JSON.stringify(error);
+          document.getElementById('errors').hidden = false;
+          console.log(error);
+        });
+      });
+    }
+  }, {
+    key: "handlePaymentWithToken",
+    value: function handlePaymentWithToken(event) {
+      event.target.parentElement.disabled = true;
+      document.getElementById('server_response').submit();
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      var _document$getElementB,
+          _this2 = this;
+
+      Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+        return element.addEventListener('click', function (element) {
+          document.getElementById('paytrace--credit-card-container').classList.add('hidden');
+          document.getElementById('save-card--container').style.display = 'none';
+          document.querySelector('input[name=token]').value = element.target.dataset.token;
+        });
+      });
+      (_document$getElementB = document.getElementById('toggle-payment-with-credit-card')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.addEventListener('click', function (element) {
+        document.getElementById('paytrace--credit-card-container').classList.remove('hidden');
+        document.getElementById('save-card--container').style.display = 'grid';
+        document.querySelector('input[name=token]').value = '';
+
+        _this2.setupPayTrace().then(function (instance) {
+          _this2.ptInstance = instance;
+
+          _this2.updatePayTraceLabels();
+        });
+      });
+      document.getElementById('pay-now').addEventListener('click', function (e) {
+        if (document.querySelector('input[name=token]').value === '') {
+          return _this2.handlePaymentWithCreditCard(e);
+        }
+
+        return _this2.handlePaymentWithToken(e);
+      });
+    }
+  }]);
+
+  return PayTraceCreditCard;
+}();
+
+new PayTraceCreditCard().handle();
+/******/ })()
+;
