@@ -15,12 +15,31 @@ namespace App\Http\Livewire;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
 class RequiredClientInfo extends Component
 {
+    use MakesHash;
+
+    /**
+     * @var bool
+     */
+    public $show_terms = false;
+
+    /**
+     * @var array
+     */
+    public $invoice;
+
+
+    /**
+     * @var array
+     */
     public $fields = [];
 
     /**
@@ -28,6 +47,9 @@ class RequiredClientInfo extends Component
      */
     public $contact;
 
+    /**
+     * @var Client
+     */
     public $client;
 
     /**
@@ -117,6 +139,18 @@ class RequiredClientInfo extends Component
         count($this->fields) > 0
             ? $this->checkFields()
             : $this->show_form = false;
+
+        if($this->company->settings->show_accept_invoice_terms && request()->has('hash'))
+        {
+            $this->show_terms = true;
+
+            $hash = Cache::get(request()->input('hash'));
+
+            $this->invoice = Invoice::find($this->decodePrimaryKey($hash['invoice_id']));
+
+        }
+
+
     }
 
     public function handleSubmit(array $data): bool
@@ -215,6 +249,10 @@ class RequiredClientInfo extends Component
                 }
             }
         }
+
+        if($this->show_terms)
+            $this->show_form = true;
+        
     }
 
     public function showCopyBillingCheckbox(): bool
