@@ -33,7 +33,7 @@
                     {{ ctrans('texts.i_agree') }}
                 </button>
             </div>
-            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
+            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto" id="hide_close">
                 <button @click="document.getElementById('displayTermsModal').style.display = 'none';" type="button" class="button button-secondary">
                     {{ ctrans('texts.close') }}
                 </button>

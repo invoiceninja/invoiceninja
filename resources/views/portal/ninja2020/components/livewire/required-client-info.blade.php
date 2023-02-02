@@ -45,6 +45,20 @@
                 @endcomponent
             @endif
 
+            @if($show_terms)
+
+                @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.terms_of_service') ])
+
+                <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                @endcomponent
+
+            @endif
+
             @component('portal.ninja2020.components.general.card-element-single')
                 <div class="flex flex-col items-end">
                     <button class="button button-primary bg-primary">
