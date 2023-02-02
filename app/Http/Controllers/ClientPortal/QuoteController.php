@@ -81,6 +81,7 @@ class QuoteController extends Controller
     public function bulk(ProcessQuotesInBulkRequest $request)
     {
         $transformed_ids = $this->transformKeys($request->quotes);
+nlog(request()->all());
 
         if ($request->action == 'download') {
             return $this->downloadQuotes((array) $transformed_ids);
@@ -180,6 +181,14 @@ class QuoteController extends Controller
 
         if ($process) {
             foreach ($quotes as $quote) {
+
+
+                if(request()->has('user_input') && strlen(request()->input('user_input')) > 2) {
+
+                    $quote->public_notes .= $quote->public_notes . "\n" . request()->input('user_input');
+                    $quote->saveQuietly();    
+                }
+
                 $quote->service()->approve(auth()->user())->save();
                 
                 if (request()->has('signature') && ! is_null(request()->signature) && ! empty(request()->signature)) {

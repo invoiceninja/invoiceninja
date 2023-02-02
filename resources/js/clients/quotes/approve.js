@@ -46,6 +46,11 @@ class Approve {
         displayTermsModal.removeAttribute("style");
     }
 
+    displayInput() {
+        let displayInputModal = document.getElementById("displayInputModal");
+        displayInputModal.removeAttribute("style");
+    }
+
     handle() {
 
         document.getElementById("signature-next-step").disabled = true;
@@ -60,7 +65,27 @@ class Approve {
         document
             .getElementById('approve-button')
             .addEventListener('click', () => {
-                if (this.shouldDisplaySignature && this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
+
+                 if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput){
+                    this.displayInput();
+
+                        document
+                            .getElementById('input-next-step')
+                            .addEventListener('click', () => {
+                                document.querySelector(
+                                    'input[name="user_input"'
+                                ).value = document.getElementById('user_input').value;
+                                this.termsAccepted = true;
+                                this.submitForm();
+                            });
+                            
+                }
+
+                if(this.shouldDisplayUserInput)
+                    this.displayInput();
+
+
+                if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
                     this.displaySignature();
 
                     document
@@ -74,6 +99,9 @@ class Approve {
                                     document.querySelector(
                                         'input[name="signature"'
                                     ).value = this.signaturePad.toDataURL();
+                                    document.querySelector(
+                                        'input[name="user_input"'
+                                    ).value = document.getElementById('user_input').value;
                                     this.termsAccepted = true;
                                     this.submitForm();
                                 });
@@ -81,7 +109,8 @@ class Approve {
                         });
                 }
 
-                if (this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
+                if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+
                     this.displaySignature();
 
                     document
@@ -90,11 +119,14 @@ class Approve {
                             document.querySelector(
                                 'input[name="signature"'
                             ).value = this.signaturePad.toDataURL();
+                            document.querySelector(
+                                'input[name="user_input"'
+                            ).value = document.getElementById('user_input').value;
                             this.submitForm();
                         });
                 }
 
-                if (!this.shouldDisplaySignature && this.shouldDisplayTerms && !this->this.shouldDisplayUserInput) {
+                if (!this.shouldDisplaySignature && this.shouldDisplayTerms) {
                     this.displayTerms();
 
                     document
@@ -105,7 +137,7 @@ class Approve {
                         });
                 }
 
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput) {
                     this.submitForm();
                 }
             });
