@@ -3,6 +3,7 @@
 
 <input type="hidden" name="action" value="approve">
 <input type="hidden" name="process" value="true">
+<input type="hidden" name="user_input" value="">
 <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
 <input type="hidden" name="signature">
 
