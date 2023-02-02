@@ -109,6 +109,7 @@ class VendorTemplateEmail extends Mailable
                 'company' => $this->company,
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
+                'links' => $this->build_email->getAttachmentLinks(),
             ]);
 
 
