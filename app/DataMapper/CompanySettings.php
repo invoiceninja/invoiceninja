@@ -461,8 +461,11 @@ class CompanySettings extends BaseSettings
 
     public $show_shipping_address = false;
 
+    public $accept_client_input_quote_approval = false;
+
     public static $casts = [
-        'custom_sending_email'             => 'string',
+        'accept_client_input_quote_approval' => 'bool',
+        'custom_sending_email'               => 'string',
         'show_paid_stamp'                    => 'bool',
         'show_shipping_address'              => 'bool',
         'company_logo_size'                  => 'string',
