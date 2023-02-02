@@ -176,24 +176,16 @@ class NinjaMailerJob implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if(stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300')) 
+            if(stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) 
             { 
 
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
                 $this->cleanUpMailers();
 
                 return;
-
-                // $response = $e->getResponse();
-                // $message_body = json_decode($response->getBody()->getContents());
-                
-                // if($message_body && property_exists($message_body, 'Message')){
-                //     $message = $message_body->Message;
-                // }
-                
-                /*Do not retry if this is a postmark specific issue such as invalid recipient. */
 
             }
 
