@@ -39,7 +39,7 @@ class StorePaymentRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-nlog($input);
+
         $invoices_total = 0;
         $credits_total = 0;
 
