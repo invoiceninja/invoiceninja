@@ -99,7 +99,7 @@ class SquarePaymentDriver extends BaseDriver
 
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount($this->convertAmount($amount));
-        $amount_money->setCurrency($this->square_driver->client->currency()->code);
+        $amount_money->setCurrency($this->client->currency()->code);
 
         $body = new \Square\Models\RefundPaymentRequest(\Illuminate\Support\Str::random(32), $amount_money, $payment->transaction_reference);
 
