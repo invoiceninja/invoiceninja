@@ -179,8 +179,7 @@ class InvoiceFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        //catch invalid explode array count
-        if (count($sort_col) == 1) {
+        if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
         }
 
@@ -224,7 +223,7 @@ class InvoiceFilters extends QueryFilters
      *
      * @return Builder
      */
-    private function contactViewFilter() : Builder
+    private function contactViewFilter(): Builder
     {
         return $this->builder
                     ->whereCompanyId(auth()->guard('contact')->user()->company->id)

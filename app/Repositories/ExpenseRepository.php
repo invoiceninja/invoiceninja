@@ -48,7 +48,7 @@ class ExpenseRepository extends BaseRepository
         if (empty($expense->number))
             $expense = $this->findAndSaveNumber($expense);
 
-        $expense->save();
+        $expense->saveQuietly();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);

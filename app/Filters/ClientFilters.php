@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\Client;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * ClientFilters.
@@ -30,10 +26,11 @@ class ClientFilters extends QueryFilters
      */
     public function name(string $name = ''): Builder
     {
-        if(strlen($name) >=1)
-            return $this->builder->where('name', 'like', '%'.$name.'%');
+        if (strlen($name) == 0) {
+            return $this->builder;
+        }
 
-        return $this->builder;
+        return $this->builder->where('name', 'like', '%'.$name.'%');
     }
 
     /**
@@ -42,8 +39,12 @@ class ClientFilters extends QueryFilters
      * @param string $balance
      * @return Builder
      */
-    public function balance(string $balance): Builder
+    public function balance(string $balance = ''): Builder
     {
+        if (strlen($balance) == 0) {
+            return $this->builder;
+        }
+
         $parts = $this->split($balance);
 
         return $this->builder->where('balance', $parts->operator, $parts->value);
@@ -55,27 +56,29 @@ class ClientFilters extends QueryFilters
      * @param string balance
      * @return Builder
      */
-    public function between_balance(string $balance): Builder
+    public function between_balance(string $balance = ''): Builder
     {
         $parts = explode(':', $balance);
 
-        if (! is_array($parts)) {
+        if (!is_array($parts) || count($parts) != 2) {
             return $this->builder;
         }
 
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
-    public function email(string $email = ''):Builder
+    public function email(string $email = ''): Builder
     {
-        return
+        if (strlen($email) == 0) {
+            return $this->builder;
+        }
 
-        $this->builder->whereHas('contacts', function ($query) use ($email) {
+        return $this->builder->whereHas('contacts', function ($query) use ($email) {
             $query->where('email', $email);
         });
     }
 
-    public function client_id(string $client_id = '') :Builder
+    public function client_id(string $client_id = ''): Builder
     {
         if (strlen($client_id) == 0) {
             return $this->builder;
@@ -84,13 +87,21 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('id', $this->decodePrimaryKey($client_id));
     }
 
-    public function id_number(string $id_number = ''):Builder
+    public function id_number(string $id_number = ''): Builder
     {
+        if (strlen($id_number) == 0) {
+            return $this->builder;
+        }
+
         return $this->builder->where('id_number', $id_number);
     }
 
-    public function number(string $number = ''):Builder
+    public function number(string $number = ''): Builder
     {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
         return $this->builder->where('number', $number);
     }
 
@@ -101,7 +112,7 @@ class ClientFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -128,9 +139,13 @@ class ClientFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         if($sort_col[0] == 'display_name')
             $sort_col[0] = 'name';

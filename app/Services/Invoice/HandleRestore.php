@@ -139,7 +139,7 @@ class HandleRestore extends AbstractService
                 $payment->applied += $payment_adjustment;
                 $payment->is_deleted = false;
                 $payment->restore();
-                $payment->save();
+                $payment->saveQuietly();
             });
         
         return $this;
