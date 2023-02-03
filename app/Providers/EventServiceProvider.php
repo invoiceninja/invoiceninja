@@ -241,6 +241,7 @@ use App\Models\Quote;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Observers\AccountObserver;
 use App\Observers\ClientContactObserver;
@@ -258,9 +259,10 @@ use App\Observers\ProposalObserver;
 use App\Observers\PurchaseOrderObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\SubscriptionObserver;
-use App\Observers\VendorContactObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use App\Observers\VendorContactObserver;
+use App\Observers\VendorObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
@@ -651,6 +653,7 @@ class EventServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+        Vendor::observe(VendorObserver::class);
         VendorContact::observe(VendorContactObserver::class);
         PurchaseOrder::observe(PurchaseOrderObserver::class);
     }

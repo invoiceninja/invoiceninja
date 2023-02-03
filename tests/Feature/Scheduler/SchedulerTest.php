@@ -258,6 +258,7 @@ class SchedulerTest extends TestCase
 
     public function testCalculateStartAndEndDates()
     {
+        $this->travelTo(Carbon::parse('2023-01-01'));
 
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
         

@@ -177,6 +177,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$invoice.custom3'];
             $data['$custom4'] = &$data['$invoice.custom4'];
 
+            $data['$quote.custom1'] = &$data['$invoice.custom1'];
+            $data['$quote.custom2'] = &$data['$invoice.custom2'];
+            $data['$quote.custom3'] = &$data['$invoice.custom3'];
+            $data['$quote.custom4'] = &$data['$invoice.custom4'];
+
+            $data['$credit.custom1'] = &$data['$invoice.custom1'];
+            $data['$credit.custom2'] = &$data['$invoice.custom2'];
+            $data['$credit.custom3'] = &$data['$invoice.custom3'];
+            $data['$credit.custom4'] = &$data['$invoice.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -226,6 +236,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$quote.custom3'];
             $data['$custom4'] = &$data['$quote.custom4'];
 
+            $data['$invoice.custom1'] = &$data['$quote.custom1'];
+            $data['$invoice.custom2'] = &$data['$quote.custom2'];
+            $data['$invoice.custom3'] = &$data['$quote.custom3'];
+            $data['$invoice.custom4'] = &$data['$quote.custom4'];
+
+            $data['$credit.custom1'] = &$data['$quote.custom1'];
+            $data['$credit.custom2'] = &$data['$quote.custom2'];
+            $data['$credit.custom3'] = &$data['$quote.custom3'];
+            $data['$credit.custom4'] = &$data['$quote.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -261,12 +281,22 @@ class HtmlEngine
             $data['$custom3'] = &$data['$credit.custom3'];
             $data['$custom4'] = &$data['$credit.custom4'];
 
+            $data['$quote.custom1'] = &$data['$credit.custom1'];
+            $data['$quote.custom2'] = &$data['$credit.custom2'];
+            $data['$quote.custom3'] = &$data['$credit.custom3'];
+            $data['$quote.custom4'] = &$data['$credit.custom4'];
+
+            $data['$invoice.custom1'] = &$data['$credit.custom1'];
+            $data['$invoice.custom2'] = &$data['$credit.custom2'];
+            $data['$invoice.custom3'] = &$data['$credit.custom3'];
+            $data['$invoice.custom4'] = &$data['$credit.custom4'];
+
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
         $data['$entity_number'] = &$data['$number'];
-        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
+        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').'&nbsp'.$this->entity->discount.'&percnt;'];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];

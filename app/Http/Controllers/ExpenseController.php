@@ -277,6 +277,8 @@ class ExpenseController extends BaseController
 
         event(new ExpenseWasUpdated($expense, $expense->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Expense', $expense);
+
         return $this->itemResponse($expense->fresh());
     }
 
@@ -368,6 +370,8 @@ class ExpenseController extends BaseController
         $expense = $this->expense_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        event('eloquent.created: App\Models\Expense', $expense);
 
         return $this->itemResponse($expense);
     }

@@ -59,7 +59,7 @@ class EmailMailer implements ShouldQueue
 
     public function backoff()
     {
-        return [30, 60, 180, 240];
+        return [10, 30, 60, 240];
     }
 
     public function handle(): void
@@ -322,8 +322,11 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
+        $sending_email = (isset($this->email_service->email_object->settings->custom_sending_email) && stripos($this->email_service->email_object->settings->custom_sending_email, "@")) ? $this->email_service->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_service->email_object->settings->email_from_name) && strlen($this->email_service->email_object->settings->email_from_name) > 2) ? $this->email_service->email_object->settings->email_from_name : $user->name();
+
             $this->email_mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
@@ -342,8 +345,11 @@ class EmailMailer implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
+        $sending_email = (isset($this->email_service->email_object->settings->custom_sending_email) && stripos($this->email_service->email_object->settings->custom_sending_email, "@")) ? $this->email_service->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_service->email_object->settings->email_from_name) && strlen($this->email_service->email_object->settings->email_from_name) > 2) ? $this->email_service->email_object->settings->email_from_name : $user->name();
+            
             $this->email_mailable
-             ->from($user->email, $user->name());
+             ->from($sending_email, $sending_user);
     }
 
     /**
@@ -379,7 +385,6 @@ class EmailMailer implements ShouldQueue
                 $message->getHeaders()->addTextHeader('gmailtoken', $token);     
              });
 
-        sleep(rand(1,3));
     }
 
     /**
@@ -406,7 +411,6 @@ class EmailMailer implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
-            sleep(rand(2,4));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->email_service->company->clients()->first());

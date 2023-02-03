@@ -85,14 +85,14 @@ class PaymentRepository extends BaseRepository {
                     }
                     
                     $client->service()->updatePaidToDate($data['amount'])->save();
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
                 else{
                     //this fixes an edge case with unapplied payments
                     $client->service()->updatePaidToDate($data['amount'])->save();
                     // $client->paid_to_date += $data['amount'];
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
                 if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
@@ -100,7 +100,7 @@ class PaymentRepository extends BaseRepository {
 
                     $client->service()->updatePaidToDate($_credit_totals)->save();
                     // $client->paid_to_date += $_credit_totals;
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
              }, 1);
@@ -121,7 +121,7 @@ class PaymentRepository extends BaseRepository {
             
         }
 
-        $payment->save();
+        $payment->saveQuietly();
 
         /*Save documents*/
         if (array_key_exists('documents', $data)) {
@@ -198,17 +198,7 @@ class PaymentRepository extends BaseRepository {
 
         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
 
-        $payment->save();
-
-        $transaction = [
-            'invoice' => [],
-            'payment' => $payment->transaction_event(),
-            'client' => $payment->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
+        $payment->saveQuietly();
 
         return $payment->refresh();
     }
