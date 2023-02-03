@@ -70,6 +70,10 @@ var Approve = /*#__PURE__*/function () {
         var approveButton = document.getElementById("approve-button");
         if (approveButton) approveButton.disabled = false;
       });
+      document.getElementById("hide_close").addEventListener('click', function () {
+        var approveButton = document.getElementById("approve-button");
+        if (approveButton) approveButton.disabled = false;
+      });
       document.getElementById('approve-button').addEventListener('click', function () {
         if (!_this.shouldDisplaySignature && !_this.shouldDisplayTerms && _this.shouldDisplayUserInput) {
           _this.displayInput();
