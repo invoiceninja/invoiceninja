@@ -1,2 +1,194 @@
-/*! For license information please see stripe-sepa.js.LICENSE.txt */
-(()=>{var e,t,n,a;function o(e,t){for(var n=0;n<t.length;n++){var a=t[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(e,a.key,a)}}function r(e,t,n){return t in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var c=function(){function e(t,n){var a=this;!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),r(this,"setupStripe",(function(){a.stripeConnect?a.stripe=Stripe(a.key,{stripeAccount:a.stripeConnect}):a.stripe=Stripe(a.key);var e=a.stripe.elements(),t={style:{base:{color:"#32325d",fontFamily:'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',fontSmoothing:"antialiased",fontSize:"16px","::placeholder":{color:"#aab7c4"},":-webkit-autofill":{color:"#32325d"}},invalid:{color:"#fa755a",iconColor:"#fa755a",":-webkit-autofill":{color:"#fa755a"}}},supportedCountries:["SEPA"],placeholderCountry:document.querySelector('meta[name="country"]').content};return a.iban=e.create("iban",t),a.iban.mount("#sepa-iban"),document.getElementById("sepa-name").value=document.querySelector("meta[name=client_name]").content,document.getElementById("sepa-email-address").value=document.querySelector("meta[name=client_email]").content,a})),r(this,"handle",(function(){var e=document.getElementById("errors");Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(e){return e.addEventListener("click",(function(e){document.getElementById("stripe--payment-container").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=e.target.dataset.token}))})),document.getElementById("toggle-payment-with-new-bank-account").addEventListener("click",(function(e){document.getElementById("stripe--payment-container").classList.remove("hidden"),document.getElementById("save-card--container").style.display="grid",document.querySelector("input[name=token]").value=""})),document.getElementById("pay-now").addEventListener("click",(function(t){if(0!==document.querySelector("input[name=token]").value.length)document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),a.stripe.confirmSepaDebitPayment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:document.querySelector("input[name=token]").value}).then((function(e){return e.error?a.handleFailure(e.error.message):a.handleSuccess(e)}));else{if(""===document.getElementById("sepa-name").value)return document.getElementById("sepa-name").focus(),e.textContent=document.querySelector("meta[name=translation-name-required]").content,void(e.hidden=!1);if(""===document.getElementById("sepa-email-address").value)return document.getElementById("sepa-email-address").focus(),e.textContent=document.querySelector("meta[name=translation-email-required]").content,void(e.hidden=!1);if(!document.getElementById("sepa-mandate-acceptance").checked)return e.textContent=document.querySelector("meta[name=translation-terms-required]").content,void(e.hidden=!1);document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),a.stripe.confirmSepaDebitPayment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:{sepa_debit:a.iban,billing_details:{name:document.getElementById("sepa-name").value,email:document.getElementById("sepa-email-address").value}}}).then((function(e){return e.error?a.handleFailure(e.error.message):a.handleSuccess(e)}))}}))})),this.key=t,this.errors=document.getElementById("errors"),this.stripeConnect=n}var t,n,a;return t=e,(n=[{key:"handleSuccess",value:function(e){document.querySelector('input[name="gateway_response"]').value=JSON.stringify(e.paymentIntent);var t=document.querySelector('input[name="token-billing-checkbox"]:checked');t&&(document.querySelector('input[name="store_card"]').value=t.value),document.querySelector("input[name=token]").value.length>2&&(document.querySelector('input[name="store_card"]').value=!1),document.getElementById("server-response").submit()}},{key:"handleFailure",value:function(e){var t=document.getElementById("errors");t.textContent="",t.textContent=e,t.hidden=!1,document.getElementById("pay-now").disabled=!1,document.querySelector("#pay-now > svg").classList.add("hidden"),document.querySelector("#pay-now > span").classList.remove("hidden")}}])&&o(t.prototype,n),a&&o(t,a),Object.defineProperty(t,"prototype",{writable:!1}),e}();new c(null!==(e=null===(t=document.querySelector('meta[name="stripe-publishable-key"]'))||void 0===t?void 0:t.content)&&void 0!==e?e:"",null!==(n=null===(a=document.querySelector('meta[name="stripe-account-id"]'))||void 0===a?void 0:a.content)&&void 0!==n?n:"").setupStripe().handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!******************************************************!*\
+  !*** ./resources/js/clients/payments/stripe-sepa.js ***!
+  \******************************************************/
+var _document$querySelect, _document$querySelect2, _document$querySelect3, _document$querySelect4;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */
+var ProcessSEPA = /*#__PURE__*/function () {
+  function ProcessSEPA(key, stripeConnect) {
+    var _this = this;
+
+    _classCallCheck(this, ProcessSEPA);
+
+    _defineProperty(this, "setupStripe", function () {
+      if (_this.stripeConnect) {
+        _this.stripe = Stripe(_this.key, {
+          stripeAccount: _this.stripeConnect
+        });
+      } else {
+        _this.stripe = Stripe(_this.key);
+      }
+
+      var elements = _this.stripe.elements();
+
+      var style = {
+        base: {
+          color: '#32325d',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+          fontSmoothing: 'antialiased',
+          fontSize: '16px',
+          '::placeholder': {
+            color: '#aab7c4'
+          },
+          ':-webkit-autofill': {
+            color: '#32325d'
+          }
+        },
+        invalid: {
+          color: '#fa755a',
+          iconColor: '#fa755a',
+          ':-webkit-autofill': {
+            color: '#fa755a'
+          }
+        }
+      };
+      var options = {
+        style: style,
+        supportedCountries: ['SEPA'],
+        // If you know the country of the customer, you can optionally pass it to
+        // the Element as placeholderCountry. The example IBAN that is being used
+        // as placeholder reflects the IBAN format of that country.
+        placeholderCountry: document.querySelector('meta[name="country"]').content
+      };
+      _this.iban = elements.create('iban', options);
+
+      _this.iban.mount('#sepa-iban');
+
+      document.getElementById('sepa-name').value = document.querySelector('meta[name=client_name]').content;
+      document.getElementById('sepa-email-address').value = document.querySelector('meta[name=client_email]').content;
+      return _this;
+    });
+
+    _defineProperty(this, "handle", function () {
+      var errors = document.getElementById('errors');
+      Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+        return element.addEventListener('click', function (element) {
+          document.getElementById('stripe--payment-container').classList.add('hidden');
+          document.getElementById('save-card--container').style.display = 'none';
+          document.querySelector('input[name=token]').value = element.target.dataset.token;
+        });
+      });
+      document.getElementById('toggle-payment-with-new-bank-account').addEventListener('click', function (element) {
+        document.getElementById('stripe--payment-container').classList.remove('hidden');
+        document.getElementById('save-card--container').style.display = 'grid';
+        document.querySelector('input[name=token]').value = '';
+      });
+      document.getElementById('pay-now').addEventListener('click', function (e) {
+        if (document.querySelector('input[name=token]').value.length !== 0) {
+          document.getElementById('pay-now').disabled = true;
+          document.querySelector('#pay-now > svg').classList.remove('hidden');
+          document.querySelector('#pay-now > span').classList.add('hidden');
+
+          _this.stripe.confirmSepaDebitPayment(document.querySelector('meta[name=pi-client-secret').content, {
+            payment_method: document.querySelector('input[name=token]').value
+          }).then(function (result) {
+            if (result.error) {
+              return _this.handleFailure(result.error.message);
+            }
+
+            return _this.handleSuccess(result);
+          });
+        } else {
+          if (document.getElementById('sepa-name').value === '') {
+            document.getElementById('sepa-name').focus();
+            errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
+            errors.hidden = false;
+            return;
+          }
+
+          if (document.getElementById('sepa-email-address').value === '') {
+            document.getElementById('sepa-email-address').focus();
+            errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
+            errors.hidden = false;
+            return;
+          }
+
+          if (!document.getElementById('sepa-mandate-acceptance').checked) {
+            errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
+            errors.hidden = false;
+            return;
+          }
+
+          document.getElementById('pay-now').disabled = true;
+          document.querySelector('#pay-now > svg').classList.remove('hidden');
+          document.querySelector('#pay-now > span').classList.add('hidden');
+
+          _this.stripe.confirmSepaDebitPayment(document.querySelector('meta[name=pi-client-secret').content, {
+            payment_method: {
+              sepa_debit: _this.iban,
+              billing_details: {
+                name: document.getElementById('sepa-name').value,
+                email: document.getElementById('sepa-email-address').value
+              }
+            }
+          }).then(function (result) {
+            if (result.error) {
+              return _this.handleFailure(result.error.message);
+            }
+
+            return _this.handleSuccess(result);
+          });
+        }
+      });
+    });
+
+    this.key = key;
+    this.errors = document.getElementById('errors');
+    this.stripeConnect = stripeConnect;
+  }
+
+  _createClass(ProcessSEPA, [{
+    key: "handleSuccess",
+    value: function handleSuccess(result) {
+      document.querySelector('input[name="gateway_response"]').value = JSON.stringify(result.paymentIntent);
+      var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+
+      if (tokenBillingCheckbox) {
+        document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+      }
+
+      if (document.querySelector('input[name=token]').value.length > 2) {
+        document.querySelector('input[name="store_card"]').value = false;
+      }
+
+      document.getElementById('server-response').submit();
+    }
+  }, {
+    key: "handleFailure",
+    value: function handleFailure(message) {
+      var errors = document.getElementById('errors');
+      errors.textContent = '';
+      errors.textContent = message;
+      errors.hidden = false;
+      document.getElementById('pay-now').disabled = false;
+      document.querySelector('#pay-now > svg').classList.add('hidden');
+      document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
+  }]);
+
+  return ProcessSEPA;
+}();
+
+var publishableKey = (_document$querySelect = (_document$querySelect2 = document.querySelector('meta[name="stripe-publishable-key"]')) === null || _document$querySelect2 === void 0 ? void 0 : _document$querySelect2.content) !== null && _document$querySelect !== void 0 ? _document$querySelect : '';
+var stripeConnect = (_document$querySelect3 = (_document$querySelect4 = document.querySelector('meta[name="stripe-account-id"]')) === null || _document$querySelect4 === void 0 ? void 0 : _document$querySelect4.content) !== null && _document$querySelect3 !== void 0 ? _document$querySelect3 : '';
+new ProcessSEPA(publishableKey, stripeConnect).setupStripe().handle();
+/******/ })()
+;

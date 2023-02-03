@@ -50,6 +50,20 @@ class QuoteTest extends TestCase
         );
     }
 
+    public function testQuoteDownloadPDF()
+    {
+        $i = $this->quote->invitations->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/quote/{$i->key}/download");
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+
+    }
+
     public function testQuoteListApproved()
     {
         $response = $this->withHeaders([

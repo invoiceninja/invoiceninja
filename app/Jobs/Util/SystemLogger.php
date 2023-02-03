@@ -99,6 +99,6 @@ class SystemLogger implements ShouldQueue
 
     public function failed($e)
     {
-        nlog($e->getMessage());
+        config(['queue.failed.driver' => null]);
     }
 }
