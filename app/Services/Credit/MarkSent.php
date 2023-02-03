@@ -12,7 +12,9 @@
 namespace App\Services\Credit;
 
 use App\Events\Credit\CreditWasMarkedSent;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Credit;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 
 class MarkSent
@@ -49,8 +51,16 @@ class MarkSent
              ->service()
              ->adjustCreditBalance($this->credit->amount)
              ->save();
-             
+
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $subscriptions = Webhook::where('company_id', $this->credit->company_id)
+            ->where('event_id', Webhook::EVENT_SENT_CREDIT)
+            ->exists();
+
+        if ($subscriptions) {
+            WebhookHandler::dispatch(Webhook::EVENT_SENT_CREDIT, $this->credit, $this->credit->company)->delay(0);
+        }
 
         return $this->credit;
     }

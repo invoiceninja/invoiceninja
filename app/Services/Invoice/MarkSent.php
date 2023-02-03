@@ -12,8 +12,10 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Webhook;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 
@@ -70,8 +72,8 @@ class MarkSent extends AbstractService
 
         if($fire_webhook)
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
-        
-        $subscriptions = Webhook::where('company_id', $invoice->company_id)
+
+        $subscriptions = Webhook::where('company_id', $this->invoice->company_id)
                             ->where('event_id', Webhook::EVENT_SENT_INVOICE)
                             ->exists();
 

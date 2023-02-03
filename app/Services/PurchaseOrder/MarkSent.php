@@ -11,7 +11,9 @@
 
 namespace App\Services\PurchaseOrder;
 
+use App\Jobs\Util\WebhookHandler;
 use App\Models\PurchaseOrder;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 
 class MarkSent
@@ -42,6 +44,13 @@ class MarkSent
             ->applyNumber()
             ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
             ->save();
+
+        $subscriptions = Webhook::where('company_id', $this->purchase_order->company_id)
+            ->where('event_id', Webhook::EVENT_SENT_PURCHASE_ORDER)
+            ->exists();
+
+        if ($subscriptions)
+            WebhookHandler::dispatch(Webhook::EVENT_SENT_PURCHASE_ORDER, $this->purchase_order, $this->purchase_order->company, 'vendor')->delay(0);
 
         return $this->purchase_order;
     }
