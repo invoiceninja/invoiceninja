@@ -138,7 +138,7 @@ class DeletePayment
     private function updateCreditables()
     {
         if ($this->payment->credits()->exists()) {
-            $this->payment->credits()->each(function ($paymentable_credit) {
+            $this->payment->credits()->where('is_deleted',0)->each(function ($paymentable_credit) {
                 $multiplier = 1;
 
                 if ($paymentable_credit->pivot->amount < 0) {

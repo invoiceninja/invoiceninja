@@ -540,7 +540,12 @@ class SubscriptionService
 
             $last_invoice->payments->each(function ($payment){
 
-                $this->credit_payments += $payment->credits->sum('amount');
+                $payment->credits()->where('is_deleted', 0)->each(function ($credit){
+
+                        $this->credit_payments += $credit->pivot->sum('amount');
+
+                });
+                
 
             });
 
@@ -556,7 +561,7 @@ class SubscriptionService
 
         }
 
-        
+        //if there are existing credit payments, then we refund directly to the credit.
         if($this->calculateProRataRefundForSubscription($last_invoice) > 0 && $this->credit_payments == 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, false);
 
