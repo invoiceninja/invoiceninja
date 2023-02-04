@@ -193,7 +193,7 @@ class InstantPayment
         $payment_method_id = $this->request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
-        $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'always' ? $first_invoice->client->service()->getCreditBalance() : 0;
+        $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
 
         /* Schedule a job to check the gateway fees for this invoice*/
@@ -297,7 +297,7 @@ class InstantPayment
     }
 
     public function processCreditPayment(Request $request, array $data)
-    {
+    {  
         return render('gateways.credit.index', $data);
     }
 }
