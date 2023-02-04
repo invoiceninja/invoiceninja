@@ -227,6 +227,8 @@ class BaseImport
                 ];
              
              nlog("Ingest {$ex->getMessage()}");   
+             nlog($record);
+             
             }
         }
 
