@@ -41,6 +41,9 @@ class UserObserver
 
         if (Ninja::isHosted() && $user->isDirty('email')) {
             //ensure they are owner user and update email on file.
+            if(class_exists(\Modules\Admin\Jobs\Account\UpdateOwnerUser::class))
+                \Modules\Admin\Jobs\Account\UpdateOwnerUser::dispatch($user->account->account_key, $user, $user->getOriginal('email'));
+            
         }
 
     }
