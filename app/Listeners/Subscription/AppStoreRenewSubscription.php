@@ -38,6 +38,8 @@ class AppStoreRenewSubscription implements ShouldQueue
         
         $inapp_transaction_id = $event->getSubscriptionId(); //$subscription_id
  
+        nlog("inapp upgrade processing for = {$inapp_transaction_id}");
+
         MultiDB::findAndSetDbByInappTransactionId($inapp_transaction_id);
 
         $account = Account::where('inapp_transaction_id', $inapp_transaction_id)->first();
