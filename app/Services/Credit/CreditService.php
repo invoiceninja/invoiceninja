@@ -271,6 +271,12 @@ class CreditService
 
     public function restoreCredit()
     {
+        // $this->credit->payments()->each(function ($payment){
+
+        //     $payment->pivot->update(['deleted_at' => null]);
+            
+        // });
+
         $this->credit
              ->client
              ->service()
