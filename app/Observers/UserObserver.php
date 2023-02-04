@@ -38,9 +38,11 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        // if (Ninja::isHosted() && $user->isDirty('phone')) {
-        //     VerifyPhone::dispatch($user);
-        // }
+
+        if (Ninja::isHosted() && $user->isDirty('email')) {
+            //ensure they are owner user and update email on file.
+        }
+
     }
 
     /**
