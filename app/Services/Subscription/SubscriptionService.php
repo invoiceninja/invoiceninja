@@ -59,6 +59,8 @@ class SubscriptionService
     /** @var subscription */
     private $subscription;
 
+    private float $credit_payments = 0;
+
     public function __construct(Subscription $subscription)
     {
         $this->subscription = $subscription;
@@ -531,10 +533,17 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if($this->calculateProRataRefundForSubscription($last_invoice) > 0)
-            $credit = $this->createCredit($last_invoice, $target_subscription, false);
-
+        //if last payment was created from a credit, do not generate a new credit, refund the old one.
+         
         if($last_invoice) {
+
+
+            $last_invoice->payments->each(function ($payment){
+
+                $this->credit_payments += $payment->credits->sum('amount');
+
+            });
+
             $invoice_repo = new InvoiceRepository();
 
             $invoice_repo->delete($last_invoice);
@@ -546,6 +555,10 @@ class SubscriptionService
                 });
 
         }
+
+        
+        if($this->calculateProRataRefundForSubscription($last_invoice) > 0 && $this->credit_payments == 0)
+            $credit = $this->createCredit($last_invoice, $target_subscription, false);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
@@ -560,7 +573,7 @@ class SubscriptionService
         $payment->is_manual = true;
         $payment->save();
 
-        $payment->service()->applyCreditsToInvoice($invoice);
+        $payment->service()->applyNumber()->applyCreditsToInvoice($invoice);
 
             $context = [
                 'context' => 'change_plan',
