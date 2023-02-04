@@ -36,6 +36,7 @@ use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Services\Subscription\ZeroCostProduct;
@@ -533,10 +534,24 @@ class SubscriptionService
         if($this->calculateProRataRefundForSubscription($last_invoice) > 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, false);
 
+        if($last_invoice) {
+            $invoice_repo = new InvoiceRepository();
+
+            $invoice_repo->delete($last_invoice);
+
+            $payment_repo = new PaymentRepository(new CreditRepository());
+
+                $last_invoice->payments->each(function ($payment) use ($payment_repo){
+                    $payment_repo->delete($payment);
+                });
+
+        }
+
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
         $invoice = $this->changePlanInvoice($target_subscription, $recurring_invoice->client_id);
         $invoice->recurring_id = $new_recurring_invoice->id;
+        $invoice->is_proforma = false;
         $invoice->save();
 
         $payment = PaymentFactory::create($invoice->company_id, $invoice->user_id, $invoice->client_id);
