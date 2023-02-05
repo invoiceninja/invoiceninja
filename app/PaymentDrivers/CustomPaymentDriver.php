@@ -106,4 +106,9 @@ class CustomPaymentDriver extends BaseDriver
     {
         // Driver doesn't support this feature.
     }
+
+    public function getClientRequiredFields(): array
+    {
+        return [];
+    }
 }
