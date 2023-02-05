@@ -10,7 +10,7 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-Join us on [Slack](http://slack.invoiceninja.com), [Discourse](https://forum.invoiceninja.com) -
+Join us on [Slack](http://slack.invoiceninja.com), [Discord](https://discord.com/channels/1071654583870435439/1071654584390537279) [Discourse](https://forum.invoiceninja.com) -
 or [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/) if you like,
 just make sure to add the `invoice-ninja` tag to your question.
 
