@@ -80,7 +80,11 @@ class ZipQuotes implements ShouldQueue
         $path = $this->quotes->first()->client->quote_filepath($invitation);
 
         $this->quotes->each(function ($quote) {
+            
+            $quote->service()->createInvitations();
+
             (new CreateEntityPdf($quote->invitations()->first()))->handle();
+            
         });
 
         try {

@@ -145,7 +145,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            ->company()
+            // ->company()
             ->where('id', $this->decodePrimaryKey($value))
             ->firstOrFail();
     }
