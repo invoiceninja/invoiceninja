@@ -110,19 +110,13 @@
             position: relative;
         } 
 
-        .doc_links {
-
+        a.doc_links {
+            text-decoration: none;
             padding-bottom: 10px;
             display: inline-block;
-            
-        }
-
-        a {
-
-            text-decoration: none;
             color: inherit !important;
-
         }
+
 
     </style>
 
