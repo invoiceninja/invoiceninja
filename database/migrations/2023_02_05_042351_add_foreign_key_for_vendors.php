@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('purchase_orders', function (Blueprint $table){
+        // Schema::table('purchase_orders', function (Blueprint $table){
 
-            $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade')->onUpdate('cascade');
+        //     $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade')->onUpdate('cascade');
 
-        });
+        // });
     }
 
     /**
