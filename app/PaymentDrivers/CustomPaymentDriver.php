@@ -43,6 +43,11 @@ class CustomPaymentDriver extends BaseDriver
         return $types;
     }
 
+    public function init()
+    {
+        return $this;
+    }
+
     public function setPaymentMethod($payment_method_id)
     {
         $this->payment_method = $payment_method_id;
