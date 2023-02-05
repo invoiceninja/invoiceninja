@@ -205,6 +205,8 @@ class PaymentController extends BaseController
     {
         $payment = $this->payment_repo->save($request->all(), PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         return $this->itemResponse($payment);
     }
 
@@ -377,6 +379,8 @@ class PaymentController extends BaseController
         $payment = $this->payment_repo->save($request->all(), $payment);
 
         event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        event('eloquent.updated: App\Models\Payment', $payment);
 
         return $this->itemResponse($payment);
     }

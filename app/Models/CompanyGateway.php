@@ -43,6 +43,10 @@ class CompanyGateway extends BaseModel
         'require_client_phone',
         'require_contact_name',
         'require_contact_email',
+        'require_custom_value1',
+        'require_custom_value2',
+        'require_custom_value3',
+        'require_custom_value4',
         'update_details',
         'config',
         'fees_and_limits',
@@ -411,13 +415,5 @@ class CompanyGateway extends BaseModel
     {
         return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
     }
-
-    // public function resolveRouteBinding($value, $field = null)
-    // {
-
-    //     return $this
-    //         ->where('id', $this->decodePrimaryKey($value))->withTrashed()->firstOrFail();
-    // }
-
 
 }

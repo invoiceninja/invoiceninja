@@ -116,6 +116,7 @@ class TemplateEmail extends Mailable
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
+                'links' => $this->build_email->getAttachmentLinks(),
             ]);
 
         foreach ($this->build_email->getAttachments() as $file) {

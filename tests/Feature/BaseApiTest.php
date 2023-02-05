@@ -433,7 +433,7 @@ class BaseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->low_token,
         ])->get('/api/v1/companies/'.$this->company->hashed_id)
-          ->assertStatus(401);
+          ->assertStatus(403);
 
     }
 
@@ -529,21 +529,11 @@ class BaseApiTest extends TestCase
 
     }
 
-
     /**
      * Tests user facing routes respond with the correct status and/or data set
      */
     public function testRestrictedUserRoute()
     {
-        // $permissions = ["view_invoice","view_client","edit_client","edit_invoice","create_invoice","create_client"];
-       
-        // $response = $this->withHeaders([
-        //     'X-API-SECRET' => config('ninja.api_secret'),
-        //     'X-API-TOKEN' => $this->token,
-        // ])->get('/api/v1/clients/')
-        //   ->assertStatus(200)
-        //   ->assertJson(fn (AssertableJson $json) => $json->has('data',1)->etc());
-
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -593,13 +583,13 @@ class BaseApiTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->low_token,
             ])->get('/api/v1/companies/'.$this->company->hashed_id)
-              ->assertStatus(401);
+              ->assertStatus(403);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->low_token,
         ])->get('/api/v1/client_gateway_tokens/')
-          ->assertStatus(401);
+          ->assertStatus(403);
   
     }
 

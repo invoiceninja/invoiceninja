@@ -68,6 +68,11 @@ class BaseTransformer
 
     }
 
+    public function getInvoiceTypeId($data, $field)
+    {
+        return isset($data[$field]) && $data[$field] ? (string)$data[$field] : '1';
+    }
+
     public function getNumber($data, $field)
     {
         return (isset($data->$field) && $data->$field) ? (int)$data->$field : 0;

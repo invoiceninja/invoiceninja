@@ -19,6 +19,7 @@ use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 
 class PaymentEmailEngine extends BaseEmailEngine
 {
@@ -100,7 +101,11 @@ class PaymentEmailEngine extends BaseEmailEngine
                 if ($this->client->getSetting('document_email_attachment') !== false)
                 {
                     foreach ($invoice->documents as $document) {
-                        $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+
+                        if($document->size > $this->max_attachment_size)
+                            $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                        else
+                            $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
                     }
                 }
 

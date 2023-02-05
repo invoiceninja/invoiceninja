@@ -52,6 +52,7 @@ class InvoicesTable extends Component
         $query = Invoice::query()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false)
+            ->where('is_proforma', false)
             ->with('client.gateway_tokens', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 

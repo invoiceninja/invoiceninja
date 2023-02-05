@@ -24,7 +24,7 @@
             supported-color-schemes: light dark;
         }
         @if(isset($settings) && $settings->email_style === 'dark')
-            body {
+        body {
             background-color: #1a1a1a !important;
             color: #ffffff !important;
         }
@@ -109,6 +109,21 @@
             z-index:200 !important;
             position: relative;
         } 
+
+        .doc_links {
+
+            padding-bottom: 10px;
+            display: inline-block;
+            
+        }
+
+        a {
+
+            text-decoration: none;
+            color: inherit !important;
+
+        }
+
     </style>
 
     <!--[if gte mso 9]>
@@ -160,7 +175,15 @@
                                         style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
                                     </a>
                                 </div>
-                           </div>
+
+                                <div>
+                                    @isset($links)
+                                        @foreach($links as $link)
+                                            {!! $link ?? '' !!}<br>
+                                        @endforeach
+                                    @endisset
+                                </div>
+                        </div>
                     </td>
                 </tr>  
                 

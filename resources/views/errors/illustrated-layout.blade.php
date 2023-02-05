@@ -481,11 +481,10 @@
                         @yield('message')
                     </p>
 
-                    <a href="{{ app('router')->has('home') ? route('home') : url('/') }}">
-                        <button class="bg-transparent text-grey-darkest font-bold uppercase tracking-wide py-3 px-6 border-2 border-grey-light hover:border-grey rounded-lg">
-                            {{ __('Go Home') }}
-                        </button>
+                    <a class="button-link text-sm mt-2" href="{{ url(request()->getSchemeAndHttpHost() . '/client') }}">
+                        {{ ctrans('texts.back_to', ['url' => parse_url(request()->getHttpHost())['host'] ?? request()->getHttpHost()]) }}
                     </a>
+
                 </div>
             </div>
 

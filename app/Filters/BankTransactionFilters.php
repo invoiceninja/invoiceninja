@@ -27,10 +27,11 @@ class BankTransactionFilters extends QueryFilters
      */
     public function name(string $name = ''): Builder
     {
-        if(strlen($name) >=1)
-            return $this->builder->where('bank_account_name', 'like', '%'.$name.'%');
-
-        return $this->builder;
+        if (strlen($name) == 0) {
+            return $this->builder;
+        }
+        
+        return $this->builder->where('bank_account_name', 'like', '%'.$name.'%');
     }
 
     /**
@@ -40,7 +41,7 @@ class BankTransactionFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -66,7 +67,7 @@ class BankTransactionFilters extends QueryFilters
      *
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -123,12 +124,13 @@ class BankTransactionFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
-        if(!is_array($sort_col))
+        if (!is_array($sort_col) || count($sort_col) != 2) {
             return $this->builder;
+        }
         
         if($sort_col[0] == 'deposit')
             return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $sort_col[1]);

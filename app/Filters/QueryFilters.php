@@ -136,7 +136,7 @@ abstract class QueryFilters
      * @param string filter
      * @return Builder
      */
-    public function status(string $filter = '') : Builder
+    public function status(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -241,7 +241,7 @@ abstract class QueryFilters
         return $this->builder->where('is_deleted', $value);
     }
 
-    public function client_id(string $client_id = '') :Builder
+    public function client_id(string $client_id = ''): Builder
     {
         if (strlen($client_id) == 0) {
             return $this->builder;
@@ -250,7 +250,7 @@ abstract class QueryFilters
         return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
     }
 
-    public function vendor_id(string $vendor_id = '') :Builder
+    public function vendor_id(string $vendor_id = ''): Builder
     {
         if (strlen($vendor_id) == 0) {
             return $this->builder;
