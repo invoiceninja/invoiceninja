@@ -36,6 +36,7 @@ use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Services\Subscription\ZeroCostProduct;
@@ -57,6 +58,8 @@ class SubscriptionService
 
     /** @var subscription */
     private $subscription;
+
+    private float $credit_payments = 0;
 
     public function __construct(Subscription $subscription)
     {
@@ -530,13 +533,43 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if($this->calculateProRataRefundForSubscription($last_invoice) > 0)
+        //if last payment was created from a credit, do not generate a new credit, refund the old one.
+         
+        if($last_invoice) {
+
+
+            $last_invoice->payments->each(function ($payment){
+
+                $payment->credits()->where('is_deleted', 0)->each(function ($credit){
+
+                        $this->credit_payments += $credit->pivot->sum('amount');
+
+                });
+                
+
+            });
+
+            $invoice_repo = new InvoiceRepository();
+
+            $invoice_repo->delete($last_invoice);
+
+            $payment_repo = new PaymentRepository(new CreditRepository());
+
+                $last_invoice->payments->each(function ($payment) use ($payment_repo){
+                    $payment_repo->delete($payment);
+                });
+
+        }
+
+        //if there are existing credit payments, then we refund directly to the credit.
+        if($this->calculateProRataRefundForSubscription($last_invoice) > 0 && $this->credit_payments == 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, false);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
         $invoice = $this->changePlanInvoice($target_subscription, $recurring_invoice->client_id);
         $invoice->recurring_id = $new_recurring_invoice->id;
+        $invoice->is_proforma = false;
         $invoice->save();
 
         $payment = PaymentFactory::create($invoice->company_id, $invoice->user_id, $invoice->client_id);
@@ -545,7 +578,7 @@ class SubscriptionService
         $payment->is_manual = true;
         $payment->save();
 
-        $payment->service()->applyCreditsToInvoice($invoice);
+        $payment->service()->applyNumber()->applyCreditsToInvoice($invoice);
 
             $context = [
                 'context' => 'change_plan',
