@@ -39,15 +39,28 @@ class RecurringQuoteFilters extends QueryFilters
         });
     }
 
+    public function number(string $number = ''): Builder
+    {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
+    }
+
     /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
      * @return Illuminate\Database\Eloquent\Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

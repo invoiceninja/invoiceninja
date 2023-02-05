@@ -227,6 +227,8 @@ class BaseImport
                 ];
              
              nlog("Ingest {$ex->getMessage()}");   
+             nlog($record);
+             
             }
         }
 
@@ -368,7 +370,7 @@ class BaseImport
                                 $payment_data['invoices'] = [
                                     [
                                         'invoice_id' => $invoice->id,
-                                        'amount' => $payment_data['amount'] ?? null,
+                                        'amount' => min($invoice->amount, $payment_data['amount']) ?? null,
                                     ],
                                 ];
 

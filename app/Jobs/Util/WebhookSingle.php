@@ -15,11 +15,15 @@ use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Client as ClientModel;
 use App\Models\Company;
+use App\Models\Product;
 use App\Models\SystemLog;
+use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,8 +32,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 
 class WebhookSingle implements ShouldQueue
 {
@@ -78,9 +80,15 @@ class WebhookSingle implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::with('company')->find($this->subscription_id);
+
+        if($subscription)
+            nlog("firing event ID {$subscription->event_id}");
         
         if(!$subscription){
             $this->fail();
+            
+            nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
+
             return;
         }
 
@@ -235,19 +243,27 @@ class WebhookSingle implements ShouldQueue
     }
 
     private function resolveClient()
-    {
+    {   nlog(get_class($this->entity));
+        
         //make sure it isn't an instance of the Client Model
-        if ((! $this->entity instanceof ClientModel) && $this->entity->client()->exists()) {
-            return $this->entity->client;
-        }
+        if (!$this->entity instanceof \App\Models\Client && 
+            !$this->entity instanceof \App\Models\Vendor && 
+            !$this->entity instanceof \App\Models\Product && 
+            !$this->entity instanceof \App\Models\PurchaseOrder &&
+            $this->entity->client()->exists()) {
 
-        return $this->company->clients()->first();
+            return $this->entity->client;
+
+        }
+        
+
+        return null;
     }
 
-    public function failed($exception)
+    public function failed($exception = null)
     {
         
-        nlog(print_r($exception->getMessage(), 1));
+        config(['queue.failed.driver' => null]);
 
     }
 }

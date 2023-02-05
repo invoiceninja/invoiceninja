@@ -67,7 +67,7 @@ class VendorContactRepository extends BaseRepository
                 $update_contact->password = Hash::make($contact['password']);
             }
 
-            $update_contact->save();
+            $update_contact->saveQuietly();
         });
 
         $vendor->load('contacts');
@@ -80,7 +80,7 @@ class VendorContactRepository extends BaseRepository
             $new_contact->user_id = $vendor->user_id;
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
-            $new_contact->save();
+            $new_contact->saveQuietly();
         }
     }
 }

@@ -27,6 +27,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\URL;
 
 class PurchaseOrderEmailEngine extends BaseEmailEngine
 {
@@ -126,11 +127,6 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            // if (Ninja::isHosted()) {
-            //     $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation, 'url', true)]);
-            // } else {
-            //     $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation)]);
-            // }
 
             $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
 
@@ -143,13 +139,19 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach ($this->purchase_order->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
-                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+                
+                if($document->size > $this->max_attachment_size)
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                else
+                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
 
             foreach ($this->purchase_order->company->documents as $document) {
-                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
-                // $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, 'file' => base64_encode($document->getFile())]]);
+
+                if($document->size > $this->max_attachment_size)
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                else
+                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
             }
 
         }

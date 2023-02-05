@@ -113,7 +113,11 @@ class QuoteFilters extends QueryFilters
 
     public function number($number = ''): Builder
     {
-        return $this->builder->where('number', 'like', '%'.$number.'%');
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
     }
 
     /**
@@ -122,9 +126,13 @@ class QuoteFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         if($sort_col[0] == 'valid_until')
             $sort_col[0] = 'due_date';

@@ -58,6 +58,7 @@ class ClientApiTest extends TestCase
 
     }
 
+
     public function testCrossCompanyBulkActionsFail()
     {
 

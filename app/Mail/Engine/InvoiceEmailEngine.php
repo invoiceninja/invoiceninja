@@ -23,6 +23,7 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\URL;
 
 class InvoiceEmailEngine extends BaseEmailEngine
 {
@@ -136,13 +137,22 @@ class InvoiceEmailEngine extends BaseEmailEngine
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
+
             // Storage::url
             foreach ($this->invoice->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+    
+                if($document->size > $this->max_attachment_size)
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                else
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             foreach ($this->invoice->company->documents as $document) {
-                $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                
+                if($document->size > $this->max_attachment_size)
+                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                else
+                    $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
             }
 
             $line_items = $this->invoice->line_items;
@@ -160,7 +170,12 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($expense) {
                                            foreach ($expense->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+
+                                                if($document->size > $this->max_attachment_size)
+                                                    $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                                                else
+                                                    $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+
                                            }
                                        });
                 }
@@ -176,7 +191,12 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        ->cursor()
                                        ->each(function ($task) {
                                            foreach ($task->documents as $document) {
-                                               $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+
+                                            if($document->size > $this->max_attachment_size)
+                                                $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                                            else
+                                                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+
                                            }
                                        });
                 }

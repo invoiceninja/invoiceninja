@@ -35,6 +35,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Models\TransactionEvent;
 use App\Services\Subscription\SubscriptionService;
+use App\Utils\Helpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -76,6 +77,8 @@ class BaseDriver extends AbstractPaymentDriver
     /* PaymentHash */
     public $payment_hash;
 
+    public $helpers;
+    
     /* Array of payment methods */
     public static $methods = [];
 
@@ -87,6 +90,7 @@ class BaseDriver extends AbstractPaymentDriver
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
         $this->client = $client;
+        $this->helpers = new Helpers();
     }
 
     /**
@@ -94,9 +98,75 @@ class BaseDriver extends AbstractPaymentDriver
      *
      * @return array[]
      */
+
     public function getClientRequiredFields(): array
     {
-        return [];
+        $fields = [];
+
+        if ($this->company_gateway->require_client_name) {
+            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_billing_address) {
+            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_postal_code) {
+            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_custom_value1) {
+
+            $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
+
+        }
+        
+        if ($this->company_gateway->require_custom_value2) {
+
+            $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
+
+        }
+
+
+        if ($this->company_gateway->require_custom_value3) {
+
+            $fields[] = ['name' => 'client_custom_value3', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client3'), 'type' => 'text', 'validation' => 'required'];
+
+        }
+
+
+        if ($this->company_gateway->require_custom_value4) {
+
+            $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
+
+        }
+
+        return $fields;
+
     }
 
     /**
@@ -592,22 +662,7 @@ class BaseDriver extends AbstractPaymentDriver
                 $this->required_fields[] = 'phone';
             }
         }
-
-        // if ($this->company_gateway->require_contact_email) {
-        //     if ($this->checkRequiredResource($this->email)) {
-        //         $this->required_fields[] = 'contact_email';
-        //     }
-        // }
-
-        // if ($this->company_gateway->require_contact_name) {
-        //     if ($this->checkRequiredResource($this->first_name)) {
-        //         $this->required_fields[] = 'contact_first_name';
-        //     }
-
-        //     if ($this->checkRequiredResource($this->last_name)) {
-        //         $this->required_fields[] = 'contact_last_name';
-        //     }
-        // }
+        
 
         if ($this->company_gateway->require_postal_code) {
             // In case "require_postal_code" is true, we don't need billing address.

@@ -30,13 +30,7 @@ class ClientAccountNotFound extends Notification
      * @return void
      */
 
-
-    protected string $account_key;
-
-    public function __construct(string $account_key)
-    {
-        $this->account_key = $account_key;
-    }
+    public function __construct(protected string $account_key, protected string $email){}
 
     /**
      * Get the notification's delivery channels.
@@ -77,6 +71,7 @@ class ClientAccountNotFound extends Notification
 
         $content = "Client not found, unable to remove account\n";
         $content .= "Account: {$this->account_key }\n";
+        $content .= "Email: {$this->email}\n";
 
         return (new SlackMessage)
                 ->success()

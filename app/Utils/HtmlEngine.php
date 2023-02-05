@@ -23,6 +23,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\DesignCalculator;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use Exception;
@@ -34,7 +35,8 @@ class HtmlEngine
     use MakesDates;
     use AppSetup;
     use MakesHash;
-
+    use DesignCalculator;
+    
     public $entity;
 
     public $invitation;
@@ -98,56 +100,6 @@ class HtmlEngine
                 # code...
                 break;
         }
-    }
-
-    private function resolveCompanyLogoSize()
-    {
-        $design_map = [
-            "VolejRejNm" => "65%", // "Plain",
-            "Wpmbk5ezJn" => "65%", //"Clean",
-            "Opnel5aKBz" => "65%", //"Bold",
-            "wMvbmOeYAl" => "55%", //Modern",
-            "4openRe7Az" => "65%", //"Business",
-            "WJxbojagwO" => "65%", //"Creative",
-            "k8mep2bMyJ" => "55%", //"Elegant",
-            "l4zbq2dprO" => "65%", //"Hipster",
-            "yMYerEdOBQ" => "65%", //"Playful",
-            "gl9avmeG1v" => "65%", //"Tech",
-            "7LDdwRb1YK" => "65%", //"Calm",
-            "APdRoy0eGy" => "65%", //"Calm-DB2",
-            "y1aK83rbQG" => "65%", //"Calm-DB1",
-        ];
-
-        $design_int_map = [
-            "1" => "65%", // "Plain",
-            "2" => "65%", //"Clean",
-            "3" => "65%", //"Bold",
-            "4" => "55%", //Modern",
-            "5" => "65%", //"Business",
-            "6" => "65%", //"Creative",
-            "7" => "55%", //"Elegant",
-            "8" => "65%", //"Hipster",
-            "9" => "65%", //"Playful",
-            "10" => "65%", //"Tech",
-            "11" => "65%", //"Calm",
-            "6972" => "65%", //"C-DB2"
-            "11221" => "65%", //"C-DB1"
-        ];
-
-        if(isset($this->settings->company_logo_size) && strlen($this->settings->company_logo_size) > 1)
-            return $this->settings->company_logo_size;
-
-        if($this->entity->design_id && array_key_exists($this->entity->design_id, $design_int_map))
-            return $design_int_map[$this->entity->design_id];
-
-        $default_design_id = $this->entity_string."_design_id";
-        $design_id = $this->settings->{$default_design_id};
-
-        if(array_key_exists($design_id, $design_map))
-            return $design_map[$design_id];
-
-        return '65%';
-
     }
 
     public function buildEntityDataArray() :array
@@ -225,6 +177,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$invoice.custom3'];
             $data['$custom4'] = &$data['$invoice.custom4'];
 
+            $data['$quote.custom1'] = &$data['$invoice.custom1'];
+            $data['$quote.custom2'] = &$data['$invoice.custom2'];
+            $data['$quote.custom3'] = &$data['$invoice.custom3'];
+            $data['$quote.custom4'] = &$data['$invoice.custom4'];
+
+            $data['$credit.custom1'] = &$data['$invoice.custom1'];
+            $data['$credit.custom2'] = &$data['$invoice.custom2'];
+            $data['$credit.custom3'] = &$data['$invoice.custom3'];
+            $data['$credit.custom4'] = &$data['$invoice.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -274,6 +236,16 @@ class HtmlEngine
             $data['$custom3'] = &$data['$quote.custom3'];
             $data['$custom4'] = &$data['$quote.custom4'];
 
+            $data['$invoice.custom1'] = &$data['$quote.custom1'];
+            $data['$invoice.custom2'] = &$data['$quote.custom2'];
+            $data['$invoice.custom3'] = &$data['$quote.custom3'];
+            $data['$invoice.custom4'] = &$data['$quote.custom4'];
+
+            $data['$credit.custom1'] = &$data['$quote.custom1'];
+            $data['$credit.custom2'] = &$data['$quote.custom2'];
+            $data['$credit.custom3'] = &$data['$quote.custom3'];
+            $data['$credit.custom4'] = &$data['$quote.custom4'];
+
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
@@ -309,12 +281,22 @@ class HtmlEngine
             $data['$custom3'] = &$data['$credit.custom3'];
             $data['$custom4'] = &$data['$credit.custom4'];
 
+            $data['$quote.custom1'] = &$data['$credit.custom1'];
+            $data['$quote.custom2'] = &$data['$credit.custom2'];
+            $data['$quote.custom3'] = &$data['$credit.custom3'];
+            $data['$quote.custom4'] = &$data['$credit.custom4'];
+
+            $data['$invoice.custom1'] = &$data['$credit.custom1'];
+            $data['$invoice.custom2'] = &$data['$credit.custom2'];
+            $data['$invoice.custom3'] = &$data['$credit.custom3'];
+            $data['$invoice.custom4'] = &$data['$credit.custom4'];
+
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
         $data['$entity_number'] = &$data['$number'];
-        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
+        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.$this->entity->discount.'%'];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];

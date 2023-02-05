@@ -276,6 +276,8 @@ class VendorController extends BaseController
 
         event(new VendorWasUpdated($vendor, $vendor->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Vendor', $vendor);
+
         return $this->itemResponse($vendor->fresh());
     }
 
@@ -371,6 +373,8 @@ class VendorController extends BaseController
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
 
         event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        event('eloquent.created: App\Models\Vendor', $vendor);
 
         return $this->itemResponse($vendor);
     }

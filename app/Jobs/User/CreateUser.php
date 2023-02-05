@@ -79,7 +79,6 @@ class CreateUser
             'is_locked' => 0,
             'permissions' => '',
             'notifications' => CompanySettings::notificationDefaults(),
-            //'settings' => DefaultSettings::userSettings(),
             'settings' => null,
         ]);
 

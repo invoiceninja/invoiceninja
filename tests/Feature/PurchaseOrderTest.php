@@ -40,6 +40,21 @@ class PurchaseOrderTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testPurchaseOrderDownloadPDF()
+    {
+        $i = $this->purchase_order->invitations->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/purchase_order/{$i->key}/download");
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+
+    }
+
+
     public function testPurchaseOrderGetWithClientStatus()
     {
         $response = $this->withHeaders([
