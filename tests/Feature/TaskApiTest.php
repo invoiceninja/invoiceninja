@@ -58,7 +58,7 @@ class TaskApiTest extends TestCase
     public function testTaskLockingGate()
     {
         $data = [
-            'timelog' => [[1,2],[3,4]],
+            'timelog' => [[1,2,'a'],[3,4,'d']],
         ];
 
         $response = $this->withHeaders([
@@ -194,7 +194,7 @@ class TaskApiTest extends TestCase
     public function testTimeLogValidation3()
     {
         $data = [
-            'timelog' => [["a","b"],["c","d"]],
+            'timelog' => [["a","b",'d'],["c","d",'d']],
         ];
 
         try {
@@ -213,7 +213,7 @@ class TaskApiTest extends TestCase
     public function testTimeLogValidation4()
     {
         $data = [
-            'timelog' => [[1,2],[3,0]],
+            'timelog' => [[1,2,'d'],[3,0,'d']],
         ];
 
         $response = $this->withHeaders([
@@ -232,8 +232,8 @@ class TaskApiTest extends TestCase
     public function testStartTask()
     {
         $log = [
-            [2, 1],
-            [10, 20],
+            [2, 1,'d'],
+            [10, 20,'d'],
         ];
 
         $last = end($log);
