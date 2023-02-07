@@ -163,7 +163,7 @@ class BankTransactionRule extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function expense_cateogry()
+    public function expense_category()
     {
         return $this->belongsTo(ExpenseCategory::class)->withTrashed();
     }
