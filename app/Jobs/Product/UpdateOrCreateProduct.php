@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,6 +28,8 @@ class UpdateOrCreateProduct implements ShouldQueue
     public $invoice;
 
     public $company;
+
+    public $deleteWhenMissingModels = true;
 
     /**
      * Create a new job instance.
@@ -129,7 +131,7 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->company_id = $this->invoice->company_id;
             $product->project_id = $this->invoice->project_id;
             $product->vendor_id = $this->invoice->vendor_id;
-            $product->save();
+            $product->saveQuietly();
         }
     }
 

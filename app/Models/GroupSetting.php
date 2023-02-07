@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,13 +14,12 @@ namespace App\Models;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-
-    //public $timestamps = false;
 
     protected $casts = [
         'settings' => 'object',
@@ -74,7 +73,16 @@ class GroupSetting extends StaticModel
      */
     public function resolveRouteBinding($value, $field = null)
     {
+            
+        if (is_numeric($value)) {
+            throw new ModelNotFoundException("Record with value {$value} not found");
+        }
+
         return $this
+            ->withTrashed()
+            ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+
     }
 }
+

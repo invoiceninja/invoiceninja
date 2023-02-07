@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Events\Invoice\InvoiceWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
@@ -25,7 +24,6 @@ use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;

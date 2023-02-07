@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -109,6 +109,7 @@ class VendorTemplateEmail extends Mailable
                 'company' => $this->company,
                 'whitelabel' => $this->vendor->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
+                'links' => $this->build_email->getAttachmentLinks(),
             ]);
 
 

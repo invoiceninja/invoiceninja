@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,7 +67,7 @@ class PurchaseOrderRepository extends BaseRepository
                             $new_invitation->purchase_order_id = $purchase_order->id;
                             $new_invitation->vendor_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($purchase_order->company->db);
-                            $new_invitation->save();
+                            $new_invitation->saveQuietly();
                         }
                     }
                 }

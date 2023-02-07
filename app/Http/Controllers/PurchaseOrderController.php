@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -71,7 +71,6 @@ class PurchaseOrderController extends BaseController
      *      description="Lists purchase orders, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the purchase orders, these are handled by the PurchaseOrderFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -116,7 +115,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Gets a new blank purchase order object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -161,7 +159,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purhcase_orders"},
      *      summary="Adds a purchase order",
      *      description="Adds an purchase order to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -215,7 +212,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purcase orders",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -269,7 +265,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purchase order for editting",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -324,7 +319,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Updates an purchase order",
      *      description="Handles the updating of an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -391,7 +385,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Deletes a purchase order",
      *      description="Handles the deletion of an purchase orders by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -444,7 +437,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Performs bulk actions on an array of purchase_orders",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -557,7 +549,6 @@ class PurchaseOrderController extends BaseController
      *        - archive
      *        - delete
      *        - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -723,7 +714,6 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Uploads a document to a purchase_orders",
      *      description="Handles the uploading of a document to a purchase_order",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -771,5 +761,75 @@ class PurchaseOrderController extends BaseController
         return $this->itemResponse($purchase_order->fresh());
 
     } 
+
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/purchase_order/{invitation_key}/download",
+     *      operationId="downloadPurchaseOrder",
+     *      tags={"purchase_orders"},
+     *      summary="Download a specific purchase order by invitation key",
+     *      description="Downloads a specific purchase order",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="invitation_key",
+     *          in="path",
+     *          description="The Purchase Order Invitation Key",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Purchase Order pdf",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param $invitation_key
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadPdf($invitation_key)
+    {
+        $invitation = $this->purchase_order_repository->getInvitationByKey($invitation_key);
+
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+
+        $purchase_order = $invitation->purchase_order;
+
+        $file = $purchase_order->service()->getPurchaseOrderPdf();
+
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if (request()->input('inline') == 'true') {
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
+
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), $headers);
+    }
+
+
+
 
 }

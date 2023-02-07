@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -135,7 +135,13 @@ class EmailDefaults
      * Sets the FROM address
      */
     private function setFrom(): self
-    {
+    { 
+
+        if(Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default'){
+            $this->email_object->from = new Address(config('mail.from.address'), $this->email_service->company->owner()->name());
+            return $this;
+        }
+
         if($this->email_object->from)
             return $this;
 

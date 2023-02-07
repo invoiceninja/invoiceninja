@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class CompanyPolicy extends EntityPolicy
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
             || ($user->hasPermission('view_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
-            || ($user->hasPermission('view_all') && $entity->id == $user->companyId())
+            // || ($user->hasPermission('view_all') && $entity->id == $user->companyId())
             || $user->owns($entity);
     }
 
@@ -59,7 +59,7 @@ class CompanyPolicy extends EntityPolicy
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
             || ($user->hasPermission('edit_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
-            || ($user->hasPermission('edit_all') && $entity->id == $user->companyId())
+            // || ($user->hasPermission('edit_all') && $entity->id == $user->companyId())
             || $user->owns($entity);
     }
 }

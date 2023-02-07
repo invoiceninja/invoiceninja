@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -193,7 +193,7 @@ class InstantPayment
         $payment_method_id = $this->request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
-        $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'always' ? $first_invoice->client->service()->getCreditBalance() : 0;
+        $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
 
         /* Schedule a job to check the gateway fees for this invoice*/
@@ -229,6 +229,14 @@ class InstantPayment
         }
         elseif($this->request->hash){
             $hash_data['billing_context'] = Cache::get($this->request->hash);
+        }
+        elseif($old_hash = PaymentHash::where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->first()) {
+
+            if(isset($old_hash->data->billing_context))
+            {
+                $hash_data['billing_context'] = $old_hash->data->billing_context;
+            }
+
         }
 
         $payment_hash = new PaymentHash;
@@ -289,7 +297,7 @@ class InstantPayment
     }
 
     public function processCreditPayment(Request $request, array $data)
-    {
+    {  
         return render('gateways.credit.index', $data);
     }
 }

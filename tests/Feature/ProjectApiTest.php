@@ -42,6 +42,16 @@ class ProjectApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testProjectGetFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/projects?filter=xx');
+
+        $response->assertStatus(200);
+    }
+
     public function testProjectGet()
     {
         $response = $this->withHeaders([

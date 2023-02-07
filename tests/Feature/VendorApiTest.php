@@ -42,6 +42,16 @@ class VendorApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testVendorGetFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/vendors?filter=xx');
+
+        $response->assertStatus(200);
+    }
+
     public function testAddVendorToInvoice()
     {
         $data = [

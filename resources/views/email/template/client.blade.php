@@ -1,6 +1,6 @@
 @php
     $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
-    $email_alignment = isset($settings) ? $settings->email_alignment : 'center';
+    $email_alignment = isset($settings->email_alignment) ? $settings->email_alignment : 'center';
 @endphp
 
 
@@ -24,7 +24,7 @@
             supported-color-schemes: light dark;
         }
         @if(isset($settings) && $settings->email_style === 'dark')
-            body {
+        body {
             background-color: #1a1a1a !important;
             color: #ffffff !important;
         }
@@ -109,6 +109,15 @@
             z-index:200 !important;
             position: relative;
         } 
+
+        a.doc_links {
+            text-decoration: none;
+            padding-bottom: 10px;
+            display: inline-block;
+            color: inherit !important;
+        }
+
+
     </style>
 
     <!--[if gte mso 9]>
@@ -160,7 +169,15 @@
                                         style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
                                     </a>
                                 </div>
-                           </div>
+
+                                <div>
+                                    @isset($links)
+                                        @foreach($links as $link)
+                                            {!! $link ?? '' !!}<br>
+                                        @endforeach
+                                    @endisset
+                                </div>
+                        </div>
                     </td>
                 </tr>  
                 
@@ -180,7 +197,7 @@
                                 </p>
                             @endisset
 
-                            @if(isset($company) && $company instanceof \App\Models\Company)
+                            @if(isset($company) && $company instanceof \App\Models\Company && $company->getSetting('show_email_footer'))
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 500; margin-bottom:0;">
                                     {{ $company->present()->name() }}</p>
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-top: 5px;">

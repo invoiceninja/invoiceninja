@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,7 +51,7 @@ class DeletePayment
                     
             }
 
-        }, 1);
+        }, 2);
 
         return $this->payment;
     
@@ -138,7 +138,7 @@ class DeletePayment
     private function updateCreditables()
     {
         if ($this->payment->credits()->exists()) {
-            $this->payment->credits()->each(function ($paymentable_credit) {
+            $this->payment->credits()->where('is_deleted',0)->each(function ($paymentable_credit) {
                 $multiplier = 1;
 
                 if ($paymentable_credit->pivot->amount < 0) {

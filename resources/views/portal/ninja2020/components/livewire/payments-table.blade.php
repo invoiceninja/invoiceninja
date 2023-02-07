@@ -60,7 +60,7 @@
                             {{ $payment->translatedType() }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {!! \App\Utils\Number::formatMoney($payment->amount, $payment->client) !!}
+                            {!! \App\Utils\Number::formatMoney($payment->amount > 0 ? $payment->amount : $payment->credits->sum('pivot.amount'), $payment->client) !!}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ \Illuminate\Support\Str::limit($payment->transaction_reference, 35) }}

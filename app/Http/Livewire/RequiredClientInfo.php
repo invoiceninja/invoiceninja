@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,12 +15,35 @@ namespace App\Http\Livewire;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\CompanyGateway;
+use App\Models\Invoice;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
 class RequiredClientInfo extends Component
 {
+    use MakesHash;
+
+    /**
+     * @var bool
+     */
+    public $show_terms = false;
+
+    /**
+     * @var array
+     */
+    public $invoice;
+
+    /**
+     * @var bool
+     */
+    public $terms_accepted = true;
+
+    /**
+     * @var array
+     */
     public $fields = [];
 
     /**
@@ -28,6 +51,9 @@ class RequiredClientInfo extends Component
      */
     public $contact;
 
+    /**
+     * @var Client
+     */
     public $client;
 
     /**
@@ -59,6 +85,11 @@ class RequiredClientInfo extends Component
         'client_shipping_state' => 'shipping_state',
         'client_shipping_postal_code' => 'shipping_postal_code',
         'client_shipping_country_id' => 'shipping_country_id',
+
+        'client_custom_value1' => 'custom_value1',
+        'client_custom_value2' => 'custom_value2',
+        'client_custom_value3' => 'custom_value3',
+        'client_custom_value4' => 'custom_value4',
 
         'contact_first_name' => 'first_name',
         'contact_last_name' => 'last_name',
@@ -100,6 +131,10 @@ class RequiredClientInfo extends Component
         'client.name' => '',
         'client.website' => '',
         'client.phone' => '',
+        'client.custom_value1' => '',
+        'client.custom_value2' => '',
+        'client.custom_value3' => '',
+        'client.custom_value4' => '',
     ];
 
     public $show_form = false;
@@ -114,9 +149,28 @@ class RequiredClientInfo extends Component
 
         $this->client = $this->contact->client;
 
-        count($this->fields) > 0
+        if($this->company->settings->show_accept_invoice_terms && request()->query('hash'))
+        {
+            $this->show_terms = true;
+            $this->terms_accepted = false;
+            $this->show_form = true;
+
+            $hash = Cache::get(request()->input('hash'));
+
+            $this->invoice = Invoice::find($this->decodePrimaryKey($hash['invoice_id']));
+
+        }
+
+        count($this->fields) > 0 || $this->show_terms
             ? $this->checkFields()
             : $this->show_form = false;
+
+    }
+
+    public function toggleTermsAccepted()
+    {
+        $this->terms_accepted = !$this->terms_accepted;
+
     }
 
     public function handleSubmit(array $data): bool
@@ -155,7 +209,7 @@ class RequiredClientInfo extends Component
 
     private function updateClientDetails(array $data): bool
     {
-        nlog($this->company->id);
+
         $client = [];
         $contact = [];
 
@@ -215,6 +269,7 @@ class RequiredClientInfo extends Component
                 }
             }
         }
+        
     }
 
     public function showCopyBillingCheckbox(): bool

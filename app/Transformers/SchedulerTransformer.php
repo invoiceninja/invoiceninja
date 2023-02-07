@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,7 +24,7 @@ class SchedulerTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($scheduler->id),
             'name' => (string) $scheduler->name,
             'frequency_id' => (string) $scheduler->frequency_id,
-            'next_run' => $scheduler->next_run,
+            'next_run' => $scheduler->next_run_client->format('Y-m-d'),
             'template' => (string) $scheduler->template,
             'is_paused' => (bool) $scheduler->is_paused,
             'is_deleted' => (bool) $scheduler->is_deleted,

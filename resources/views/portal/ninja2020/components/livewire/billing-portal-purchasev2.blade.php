@@ -51,18 +51,34 @@
                           </div>
                           <p class="mt-1 text-sm text-gray-500"></p>
                         </div>
-                        <div class="flex content-end text-sm mt-1">
+                        <div class="flex justify-between text-sm mt-1">
                             @if($subscription->per_seat_enabled)
-                            <p class="text-gray-500 w-full"></p>
+                            <p class="text-gray-500 w-3/4"></p>
                             <div class="flex place-content-end">
+                                @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
+                                <p class="text-sm font-light text-red-500 text-right mr-2 mt-2">Out of stock</p>
+                                @else
                                 <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
+                                @endif
+                                <select wire:model.debounce.300ms="data.{{ $index }}.recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm" 
+                                    @if($subscription->use_inventory_management && $product->in_stock_quantity == 0)
+                                    disabled 
+                                    @endif
+                                    >
+                                    <option value="1" selected="selected">1</option>
 
-                                    <select wire:model.debounce.300ms="data.{{ $index }}.recurring_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
-                                        <option value="1" selected="selected">1</option>
-                                        @for ($i = 2; $i <= $subscription->max_seats_limit; $i++)
+                                    @if($subscription->max_seats_limit > 1)
+                                    {
+                                        @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($subscription->max_seats_limit,$product->in_stock_quantity) : $subscription->max_seats_limit); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
-                                    </select>
+                                    }
+                                    @else
+                                        @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->custom_value2)) : max(100,$product->custom_value2)); $i++)
+                                        <option value="{{$i}}">{{$i}}</option>
+                                        @endfor
+                                    @endif
+                                </select>
                             </div>
                             @endif
                         </div>

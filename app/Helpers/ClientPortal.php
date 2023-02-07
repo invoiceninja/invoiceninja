@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,6 +24,9 @@ use Illuminate\View\View;
 function isActive($page, bool $boolean = false)
 {
     $current_page = Route::currentRouteName();
+    $action = Route::currentRouteAction(); // string
+
+    $show = str_replace(['.show','payment_methodss','documentss','subscriptionss','paymentss'],['s.index','payment_methods','documents','subscriptions','payments'], $current_page);
 
     if ($page == $current_page && $boolean) {
         return true;
@@ -32,6 +35,12 @@ function isActive($page, bool $boolean = false)
     if ($page == $current_page) {
         return 'bg-gray-200';
     }
+
+    if(($page == $show) && $boolean){
+        return true;
+    }
+
+
 
     return false;
 }

@@ -61,7 +61,7 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
             // $notification = new EntitySentNotification($event->invitation, 'purchase_order');
 
             /* Returns an array of notification methods */
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'purchase_order', ['all_notifications', 'purchase_order_sent', 'purchase_order_sent_all']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'purchase_order', ['all_notifications', 'purchase_order_sent', 'purchase_order_sent_all', 'purchase_order_sent_user']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {

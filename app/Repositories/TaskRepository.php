@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class TaskRepository extends BaseRepository
         }
 
         $task->fill($data);
-        $task->save();
+        $task->saveQuietly();
 
         if ($this->new_task && ! $task->status_id) {
             $this->setDefaultStatus($task);
@@ -121,7 +121,7 @@ class TaskRepository extends BaseRepository
         // $task->start_time = $task->start_time ?: $task->calcStartTime();
         // $task->duration = $task->calcDuration();
 
-        $task->save();
+        $task->saveQuietly();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $task);
@@ -183,7 +183,7 @@ class TaskRepository extends BaseRepository
             return $key >= $index;
         }))->each(function ($item, $key) {
             $item->status_order = $key;
-            $item->save();
+            $item->saveQuietly();
         });
     }
 
@@ -199,7 +199,7 @@ class TaskRepository extends BaseRepository
 
             $log = array_merge($log, [[time(), 0]]);
             $task->time_log = json_encode($log);
-            $task->save();
+            $task->saveQuietly();
         }
 
         $log = json_decode($task->time_log, true);
@@ -210,7 +210,7 @@ class TaskRepository extends BaseRepository
             $new = [time(), 0];
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
-            $task->save();
+            $task->saveQuietly();
         }
 
         return $task;
@@ -229,7 +229,7 @@ class TaskRepository extends BaseRepository
             $log = array_merge($log, [$last]);
 
             $task->time_log = json_encode($log);
-            $task->save();
+            $task->saveQuietly();
         }
 
         return $task;

@@ -40,6 +40,72 @@ class CreditTest extends TestCase
         $this->makeTestData();
     }
 
+
+
+    public function testQuoteDownloadPDF()
+    {
+        $i = $this->credit->invitations->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/credit/{$i->key}/download");
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+
+    }
+
+
+    public function testBulkActions()
+    {
+
+        $data = [
+            'action' => 'archive',
+            'ids' => [$this->credit->hashed_id]
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk', $data)
+          ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$this->credit->hashed_id],
+            'action' => 'restore'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk', $data)
+          ->assertStatus(200);
+
+        $data = [
+            'ids' => [$this->credit->hashed_id],
+            'action' => 'delete'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/bulk', $data)
+          ->assertStatus(200);
+
+    }
+
+
+    public function testCreditGetClientStatus()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/credits?client_status=draft'.$this->encodePrimaryKey($this->bank_transaction->id));
+
+        $response->assertStatus(200);
+    }
+
     public function testCreditsList()
     {
         Client::factory()->count(3)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {

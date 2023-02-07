@@ -48,6 +48,19 @@ class CompanyTokenApiTest extends TestCase
         );
     }
 
+    public function testCompanyTokenListFilter()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->get('/api/v1/tokens?filter=xx');
+
+        $response->assertStatus(200);
+    }
+
     public function testCompanyTokenList()
     {
         $this->withoutMiddleware(PasswordProtection::class);

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -80,7 +80,11 @@ class ZipQuotes implements ShouldQueue
         $path = $this->quotes->first()->client->quote_filepath($invitation);
 
         $this->quotes->each(function ($quote) {
+            
+            $quote->service()->createInvitations();
+
             (new CreateEntityPdf($quote->invitations()->first()))->handle();
+            
         });
 
         try {

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -249,18 +249,18 @@ class Credit extends BaseModel
 
         if ($this->balance == 0) {
             $this->status_id = self::STATUS_APPLIED;
-            $this->save();
+            $this->saveQuietly();
 
             return;
         }
 
-        $this->save();
+        $this->saveQuietly();
     }
 
     public function setStatus($status)
     {
         $this->status_id = $status;
-        $this->save();
+        $this->saveQuietly();
     }
 
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
@@ -313,7 +313,7 @@ class Credit extends BaseModel
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         });
     }

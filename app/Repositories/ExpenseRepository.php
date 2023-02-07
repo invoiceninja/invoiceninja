@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,7 +48,7 @@ class ExpenseRepository extends BaseRepository
         if (empty($expense->number))
             $expense = $this->findAndSaveNumber($expense);
 
-        $expense->save();
+        $expense->saveQuietly();
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $expense);

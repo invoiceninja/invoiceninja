@@ -15,7 +15,7 @@
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=0274ab4f8d2b411f2a2fe5142301e7af",
     "/js/clients/payments/checkout-credit-card.js": "/js/clients/payments/checkout-credit-card.js?id=4bd34a0b160f6f29b3096d870ac4d308",
     "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=6fb63bae43d077b5061f4dadfe8dffc8",
-    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=cdc76607aaf0b47a5a4e554e4177713d",
+    "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=61a346e1977d3a1fec3634b234baa25c",
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=809de47258a681f0ffebe787dd6a9a93",
     "/js/setup/setup.js": "/js/setup/setup.js?id=27560b012f166f8b9417ced2188aab70",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=8ce33c3deae058ad314fb8357e5be63b",
@@ -33,7 +33,7 @@
     "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=b180fd6378d3723d3e9133e0b1943ac6",
     "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=7971b212e8a849fe36bfe915f81023bd",
     "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=c36ab5621413ef1de7c864bc8eb7439e",
-    "/js/clients/payments/stripe-sepa.js": "/js/clients/payments/stripe-sepa.js?id=0e3a5b2c1c8af491d577da6e84d2c219",
+    "/js/clients/payments/stripe-sepa.js": "/js/clients/payments/stripe-sepa.js?id=b258636d8bae366e9d8f54274f437181",
     "/js/clients/payment_methods/authorize-checkout-card.js": "/js/clients/payment_methods/authorize-checkout-card.js?id=e43f862d70d8710761f0856e528ec3d1",
     "/js/clients/payments/stripe-giropay.js": "/js/clients/payments/stripe-giropay.js?id=72ad4ad19297f211c2e6d0fa1fa1f76d",
     "/js/clients/payments/stripe-acss.js": "/js/clients/payments/stripe-acss.js?id=90b1805b1ca0264474b38054a2664c5b",
@@ -44,7 +44,7 @@
     "/js/clients/payments/stripe-przelewy24.js": "/js/clients/payments/stripe-przelewy24.js?id=3d53d2f7d0291d9f92cf7414dd2d351c",
     "/js/clients/payments/stripe-browserpay.js": "/js/clients/payments/stripe-browserpay.js?id=db71055862995fd6ae21becfc587a3de",
     "/js/clients/payments/stripe-fpx.js": "/js/clients/payments/stripe-fpx.js?id=914a6846ad1e5584635e7430fef76875",
-    "/css/app.css": "/css/app.css?id=e4a77372c1d7aa003b6f548a9fddfd5b",
+    "/css/app.css": "/css/app.css?id=aeba2a01bf369ac522071ab602096c66",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ada60afcedcb7c",
     "/vendor/clipboard.min.js": "/vendor/clipboard.min.js?id=15f52a1ee547f2bdd46e56747332ca2d"
 }

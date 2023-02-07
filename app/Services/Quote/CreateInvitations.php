@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,7 +52,7 @@ class CreateInvitations
                 $ii->key = $this->createDbHash($this->quote->company->db);
                 $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
-                $ii->save();
+                $ii->saveQuietly();
             } elseif ($invitation && ! $contact->send_email) {
                 $invitation->delete();
             }
@@ -81,7 +81,7 @@ class CreateInvitations
             $ii->key = $this->createDbHash($this->quote->company->db);
             $ii->quote_id = $this->quote->id;
             $ii->client_contact_id = $contact->id;
-            $ii->save();
+            $ii->saveQuietly();
         }
 
         return $this->quote->fresh();
@@ -93,6 +93,6 @@ class CreateInvitations
         $new_contact->client_id = $this->quote->client_id;
         $new_contact->contact_key = Str::random(40);
         $new_contact->is_primary = true;
-        $new_contact->save();
+        $new_contact->saveQuietly();
     }
 }

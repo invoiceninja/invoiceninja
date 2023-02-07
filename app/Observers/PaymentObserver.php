@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,9 @@ use App\Models\Webhook;
 
 class PaymentObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the payment "created" event.
      *
@@ -25,13 +28,13 @@ class PaymentObserver
      */
     public function created(Payment $payment)
     {
-        $subscriptions = Webhook::where('company_id', $payment->company->id)
+        $subscriptions = Webhook::where('company_id', $payment->company_id)
                             ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
                             ->exists();
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(now()->addSeconds(20));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(20);
+        
     }
 
     /**
@@ -42,13 +45,21 @@ class PaymentObserver
      */
     public function updated(Payment $payment)
     {
-        $subscriptions = Webhook::where('company_id', $payment->company->id)
-                            ->where('event_id', Webhook::EVENT_UPDATE_PAYMENT)
-                            ->exists();
+        $event = Webhook::EVENT_UPDATE_PAYMENT;
 
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(now()->addSeconds(20));
-        }
+        if($payment->getOriginal('deleted_at') && !$payment->deleted_at)
+            $event = Webhook::EVENT_RESTORE_PAYMENT;
+        
+        if($payment->is_deleted)
+            $event = Webhook::EVENT_DELETE_PAYMENT; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $payment->company_id)
+                                    ->where('event_id', $event)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $payment, $payment->company, 'invoices,client')->delay(25);
     }
 
     /**
@@ -59,12 +70,15 @@ class PaymentObserver
      */
     public function deleted(Payment $payment)
     {
-        $subscriptions = Webhook::where('company_id', $payment->company->id)
-                        ->where('event_id', Webhook::EVENT_DELETE_PAYMENT)
+        if($payment->is_deleted)
+            return;
+
+        $subscriptions = Webhook::where('company_id', $payment->company_id)
+                        ->where('event_id', Webhook::EVENT_ARCHIVE_PAYMENT)
                         ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(now()->addSeconds(20));
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(20);
         }
     }
 

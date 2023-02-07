@@ -40,6 +40,9 @@ class InvitationTest extends TestCase
     protected function setUp() :void
     {
         parent::setUp();
+
+        $this->faker = \Faker\Factory::create();
+
     }
 
     public function testInvoiceCreationAfterInvoiceMarkedSent()
@@ -52,10 +55,13 @@ class InvitationTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $user = User::where('email', 'user@example.com')->first();
+        $fake_email = $this->faker->email();
+
+        $user = User::where('email', $fake_email)->first();
 
         if (! $user) {
             $user = User::factory()->create([
+                'email' => $fake_email,
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);

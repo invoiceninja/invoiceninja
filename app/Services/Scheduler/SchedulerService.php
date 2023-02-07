@@ -4,25 +4,19 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Scheduler;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Mail\Client\ClientStatement;
 use App\Models\Client;
+use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
-use App\Services\Email\EmailMailable;
-use App\Services\Email\EmailObject;
-use App\Services\Email\EmailService;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Mailables\Address;
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class SchedulerService
 {
@@ -48,37 +42,38 @@ class SchedulerService
     private function client_statement()
     {   
         $query = Client::query()
-                        ->where('company_id', $this->scheduler->company_id);
+                        ->where('company_id', $this->scheduler->company_id)
+                        ->where('is_deleted',0);
 
         //Email only the selected clients
         if(count($this->scheduler->parameters['clients']) >= 1)
-            $query->where('id', $this->transformKeys($this->scheduler->parameters['clients']));
+            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
      
-
         $query->cursor()
             ->each(function ($_client){
 
             $this->client = $_client;
-            $statement_properties = $this->calculateStatementProperties();
 
            //work out the date range 
-            $pdf = $_client->service()->statement($statement_properties);
+            $statement_properties = $this->calculateStatementProperties();
 
-            $email_service = new EmailService($this->buildMailableData($pdf), $_client->company);
-            $email_service->send();
-
-            //calculate next run dates;
+            $_client->service()->statement($statement_properties,true);
 
         });
 
+        //calculate next run dates;
+        $this->calculateNextRun();
+    
     }
 
-    private function calculateStatementProperties()
+    /**
+     * Hydrates the array needed to generate the statement
+     * 
+     * @return array The statement options array
+     */
+    private function calculateStatementProperties(): array
     {
         $start_end = $this->calculateStartAndEndDates();
-
-        $this->client_start_date = $this->translateDate($start_end[0], $this->client->date_format(), $this->client->locale());
-        $this->client_end_date = $this->translateDate($start_end[1], $this->client->date_format(), $this->client->locale());
 
         return [
             'start_date' =>$start_end[0], 
@@ -90,40 +85,87 @@ class SchedulerService
 
     }
 
-    private function calculateStartAndEndDates()
+    /**
+     * Start and end date of the statement
+     * 
+     * @return array [$start_date, $end_date];
+     */
+    private function calculateStartAndEndDates(): array
     {
         return match ($this->scheduler->parameters['date_range']) {
-            'this_month' => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
-            'this_quarter' => [now()->firstOfQuarter()->format('Y-m-d'), now()->lastOfQuarter()->format('Y-m-d')],
-            'this_year' => [now()->firstOfYear()->format('Y-m-d'), now()->lastOfYear()->format('Y-m-d')],
-            'previous_month' => [now()->subMonth()->firstOfMonth()->format('Y-m-d'), now()->subMonth()->lastOfMonth()->format('Y-m-d')],
-            'previous_quarter' => [now()->subQuarter()->firstOfQuarter()->format('Y-m-d'), now()->subQuarter()->lastOfQuarter()->format('Y-m-d')],
-            'previous_year' => [now()->subYear()->firstOfYear()->format('Y-m-d'), now()->subYear()->lastOfYear()->format('Y-m-d')],
+            'this_month' => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            'this_quarter' => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
+            'this_year' => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
+            'previous_month' => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            'previous_quarter' => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
+            'previous_year' => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
             'custom_range' => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
-             default => [now()->firstOfMonth()->format('Y-m-d'), now()->lastOfMonth()->format('Y-m-d')],
+             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
     }
 
-    private function buildMailableData($pdf)
+
+    /**
+     * Sets the next run date of the scheduled task
+     * 
+     */
+    private function calculateNextRun()
     {
+        if (! $this->scheduler->next_run) {
+            return null;
+        }
 
-        $email_object = new EmailObject;
-        $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
-        $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
-        $email_object->settings = $this->client->getMergedSettings();
-        $email_object->company = $this->client->company;
-        $email_object->client = $this->client;
-        $email_object->email_template_subject = 'email_subject_statement';
-        $email_object->email_template_body = 'email_template_statement';
-        $email_object->variables = [
-            '$client' => $this->client->present()->name(),
-            '$start_date' => $this->client_start_date,
-            '$end_date' => $this->client_end_date,
-        ];
+        $offset = $this->scheduler->company->timezone_offset();
 
-        return $email_object;
+        switch ($this->scheduler->frequency_id) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                $next_run = now()->startOfDay()->addDay();
+                break;
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                $next_run = now()->startOfDay()->addWeek();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                $next_run = now()->startOfDay()->addWeeks(2);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                $next_run = now()->startOfDay()->addWeeks(4);
+                break;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                $next_run = now()->startOfDay()->addMonthNoOverflow();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(3);
+                break;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(4);
+                break;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                $next_run = now()->startOfDay()->addMonthsNoOverflow(6);
+                break;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                $next_run = now()->startOfDay()->addYear();
+                break;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                $next_run = now()->startOfDay()->addYears(2);
+                break;
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                $next_run = now()->startOfDay()->addYears(3);
+                break;
+            default:
+                $next_run =  null;
+        }
+
+
+        $this->scheduler->next_run_client = $next_run ?: null; 
+        $this->scheduler->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
+        $this->scheduler->save();
 
     }
+
+    //handle when the scheduler has been paused.
 
 
 }

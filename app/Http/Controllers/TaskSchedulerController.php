@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,7 +47,6 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Task Scheduler Index",
      *      description="Get all schedulers with associated jobs",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -84,7 +83,6 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Gets a new blank scheduler object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
@@ -163,7 +161,6 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Show given scheduler",
      *      description="Get scheduler with associated job",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -251,7 +248,6 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Destroy Task Scheduler",
      *      description="Destroy task scheduler and its associated job",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -298,7 +294,6 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Performs bulk actions on an array of task_schedulers",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -323,7 +318,7 @@ class TaskSchedulerController extends BaseController
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/TaskScheduleSchema"),
+     *          @OA\JsonContent(ref="#/components/schemas/TaskSchedulerSchema"),
      *       ),
      *       @OA\Response(
      *          response=422,

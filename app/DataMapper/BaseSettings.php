@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,15 +12,16 @@
 namespace App\DataMapper;
 
 /**
- * ClientSettings.
+ * BaseSettings.
  */
 class BaseSettings
 {
+    //@deprecated
     public function __construct($obj)
     {
-        foreach ($obj as $key => $value) {
-            $obj->{$key} = $value;
-        }
+        // foreach ($obj as $key => $value) {
+        //     $obj->{$key} = $value;
+        // }
     }
 
     public static function setCasts($obj, $casts)
@@ -57,7 +58,4 @@ class BaseSettings
         }
     }
 
-    public static function castSingleAttribute($key, $data)
-    {
-    }
 }

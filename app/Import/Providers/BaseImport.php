@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -227,6 +227,8 @@ class BaseImport
                 ];
              
              nlog("Ingest {$ex->getMessage()}");   
+             nlog($record);
+             
             }
         }
 
@@ -368,7 +370,7 @@ class BaseImport
                                 $payment_data['invoices'] = [
                                     [
                                         'invoice_id' => $invoice->id,
-                                        'amount' => $payment_data['amount'] ?? null,
+                                        'amount' => min($invoice->amount, $payment_data['amount']) ?? null,
                                     ],
                                 ];
 

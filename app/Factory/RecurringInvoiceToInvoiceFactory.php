@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Helpers;
+use Carbon\Carbon;
 
 class RecurringInvoiceToInvoiceFactory
 {
@@ -70,11 +71,16 @@ class RecurringInvoiceToInvoiceFactory
 
     private static function transformItems($recurring_invoice, $client)
     {
+        $currentDateTime = null;
         $line_items = $recurring_invoice->line_items;
+
+        if (isset($recurring_invoice->next_send_date)) {
+            $currentDateTime = Carbon::parse($recurring_invoice->next_send_date)->timezone($client->timezone()->name);
+        }
 
         foreach ($line_items as $key => $item) {
             if (property_exists($line_items[$key], 'notes')) {
-                $line_items[$key]->notes = Helpers::processReservedKeywords($item->notes, $client);
+                $line_items[$key]->notes = Helpers::processReservedKeywords($item->notes, $client, $currentDateTime);
             }
         }
 

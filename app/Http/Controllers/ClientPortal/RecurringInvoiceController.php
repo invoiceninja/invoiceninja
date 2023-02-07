@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,6 +51,7 @@ class RecurringInvoiceController extends Controller
      *
      * @param ShowRecurringInvoiceRequest $request
      * @param RecurringInvoice $recurring_invoice
+     * 
      * @return Factory|View
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
@@ -60,19 +61,23 @@ class RecurringInvoiceController extends Controller
         ]);
     }
 
+    /**
+     * Handle the request cancellation notification
+     * 
+     * @param  RequestCancellationRequest $request           [description]
+     * @param  RecurringInvoice           $recurring_invoice [description]
+     * 
+     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     */
     public function requestCancellation(RequestCancellationRequest $request, RecurringInvoice $recurring_invoice)
     {
-        nlog('outside cancellation');
 
         if ($recurring_invoice->subscription?->allow_cancellation) {
-            nlog('inside the cancellation');
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user()))->build()));
+            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user(), false))->build()));
             $nmo->company = $recurring_invoice->company;
             $nmo->settings = $recurring_invoice->company->settings;
-
-            // $notifiable_users = $this->filterUsersByPermissions($recurring_invoice->company->company_users, $recurring_invoice, ['recurring_cancellation']);
 
             $recurring_invoice->company->company_users->each(function ($company_user) use ($nmo) {
                 $methods = $this->findCompanyUserNotificationType($company_user, ['recurring_cancellation', 'all_notifications']);
@@ -85,15 +90,6 @@ class RecurringInvoiceController extends Controller
                     NinjaMailerJob::dispatch($nmo);
                 }
             });
-
-            // $notifiable_users->each(function ($company_user) use($nmo){
-
-            //     $nmo->to_user = $company_user->user;
-            //     NinjaMailerJob::dispatch($nmo);
-
-            // });
-
-            //$recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
             return $this->render('recurring_invoices.cancellation.index', [
                 'invoice' => $recurring_invoice,

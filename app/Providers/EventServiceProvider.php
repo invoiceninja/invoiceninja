@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -241,6 +241,8 @@ use App\Models\Quote;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Observers\AccountObserver;
 use App\Observers\ClientContactObserver;
 use App\Observers\ClientObserver;
@@ -259,6 +261,8 @@ use App\Observers\QuoteObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use App\Observers\VendorContactObserver;
+use App\Observers\VendorObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Mail\Events\MessageSent;
@@ -649,6 +653,8 @@ class EventServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+        Vendor::observe(VendorObserver::class);
+        VendorContact::observe(VendorContactObserver::class);
         PurchaseOrder::observe(PurchaseOrderObserver::class);
     }
 

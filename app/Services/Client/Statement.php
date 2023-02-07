@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,30 +27,22 @@ use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class Statement
 {
     use PdfMakerTrait;
-
-    protected Client $client;
 
     /**
      * @var Invoice|Payment|null
      */
     protected $entity;
 
-    protected array $options;
-
     protected bool $rollback = false;
 
-    public function __construct(Client $client, array $options)
-    {
-        $this->client = $client;
+    public function __construct(protected Client $client, public array $options){}
 
-        $this->options = $options;
-    }
-
-    public function run(): ?string
+    public function run() :?string
     {
         $this
             ->setupOptions()
@@ -110,7 +102,7 @@ class Statement
 
         $maker = null;
         $state = null;
-        
+
         return $pdf;
     }
 
@@ -126,7 +118,7 @@ class Statement
         }
 
         if (\is_null($this->entity)) {
-            \DB::connection(config('database.default'))->beginTransaction();
+            DB::connection(config('database.default'))->beginTransaction();
 
             $this->rollback = true;
 

@@ -24,9 +24,10 @@ return new class extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('oauth_user_refresh_token')->nullable();
+            $table->string('oauth_user_token')->nullable()->change();
         });
 
-        DB::statement('alter table users modify column oauth_user_token text');
+        // DB::statement('alter table users modify column oauth_user_token text');
 
         Schema::table('companies', function (Blueprint $table) {
             $table->integer('enabled_item_tax_rates')->default(0);

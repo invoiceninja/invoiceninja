@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,9 +38,14 @@ class UserObserver
      */
     public function updated(User $user)
     {
-        // if (Ninja::isHosted() && $user->isDirty('phone')) {
-        //     VerifyPhone::dispatch($user);
-        // }
+
+        if (Ninja::isHosted() && $user->isDirty('email') && $user->company_users()->where('is_owner', true)->exists()) {
+            //ensure they are owner user and update email on file.
+            if(class_exists(\Modules\Admin\Jobs\Account\UpdateOwnerUser::class))
+                \Modules\Admin\Jobs\Account\UpdateOwnerUser::dispatch($user->account->key, $user, $user->getOriginal('email'));
+            
+        }
+
     }
 
     /**

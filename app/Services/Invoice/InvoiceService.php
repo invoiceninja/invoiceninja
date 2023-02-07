@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -526,7 +526,7 @@ class InvoiceService
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
         }
 
-        if ($settings->auto_bill_standard_invoices) {
+        if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {
             $this->invoice->auto_bill_enabled = true;
         }
 

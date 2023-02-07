@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -149,6 +149,8 @@ trait MakesTemplateData
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
         $data['$postal_city_state'] = ['value' => '90210, Los Angeles, CA', 'label' => ctrans('texts.postal_city_state')];
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$postal_city'] = ['value' => '10178 Berlin', 'label' => ctrans('texts.postal_city')];
+        $data['$client.postal_city'] = &$data['$postal_city'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
         $data['$contact_name'] = ['value' => 'Jimmy Nadel', 'label' => ctrans('texts.contact_name')];
@@ -159,6 +161,7 @@ trait MakesTemplateData
         $data['$contact4'] = ['value' => 'Custom Contact Values', 'label' => 'contact 4'];
         $data['$company.city_state_postal'] = ['value' => 'Los Angeles, CA, 90210', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => '90210, Los Angeles, CA', 'label' => ctrans('texts.postal_city_state')];
+        $data['$company.postal_city'] = ['value' => '10178 Berlin', 'label' => ctrans('texts.postal_city')];
         $data['$company.name'] = ['value' => 'ACME co', 'label' => ctrans('texts.company_name')];
         $data['$company.company_name'] = &$data['$company.name'];
         $data['$company.address1'] = ['value' => '5 Jimbuckeroo Way', 'label' => ctrans('texts.address1')];
@@ -218,6 +221,7 @@ trait MakesTemplateData
         $data['$vendor.phone'] = &$data['$phone'];
         $data['$vendor.city_state_postal'] = &$data['$city_state_postal'];
         $data['$vendor.postal_city_state'] = &$data['$postal_city_state'];
+        $data['$vendor.postal_city'] = &$data['$postal_city'];
         $data['$vendor.country'] = &$data['$country'];
         $data['$vendor.email'] = &$data['$email'];
         

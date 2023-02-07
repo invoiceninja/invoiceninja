@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,6 +60,10 @@ class CompanyGatewayTransformer extends EntityTransformer
             'require_client_phone' => (bool) $company_gateway->require_client_phone,
             'require_contact_name' => (bool) $company_gateway->require_contact_name,
             'require_contact_email' => (bool) $company_gateway->require_contact_email,
+            'require_custom_value1' => (bool) $company_gateway->require_custom_value1,
+            'require_custom_value2' => (bool) $company_gateway->require_custom_value2,
+            'require_custom_value3' => (bool) $company_gateway->require_custom_value3,
+            'require_custom_value4' => (bool) $company_gateway->require_custom_value4,
             'show_billing_address' => (bool) $company_gateway->show_billing_address, //@deprecated
             'show_shipping_address' => (bool) $company_gateway->show_shipping_address, //@deprecated
             'update_details' => (bool) $company_gateway->update_details,

@@ -19,8 +19,8 @@
  *         url="https://ninja.test",
  *     ),
  *     @OA\ExternalDocumentation(
- *         description="http://docs.invoiceninja.com",
- *         url="http://docs.invoiceninja.com"
+ *         description="https://invoiceninja.github.io",
+ *         url="https://invoiceninja.github.io"
  *     ),
  * ),
  */

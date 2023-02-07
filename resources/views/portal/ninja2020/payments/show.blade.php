@@ -66,7 +66,7 @@
                                 {{ ctrans('texts.amount') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ $payment->formattedAmount() }}
+                                {{ $payment->formatAmount($payment->amount > 0 ? $payment->amount : $payment?->invoices->sum('pivot.amount')) }}
                             </dd>
                         </div>
                     @endif
@@ -116,6 +116,7 @@
                                    href="{{ route('client.invoice.show', ['invoice' => $invoice->hashed_id])}}">
                                     {{ $invoice->number }}
                                 </a>
+                                - {{ \App\Utils\Number::formatMoney($payment->invoices->where('id', $invoice->id)->sum('pivot.amount') - $payment->invoices->where('id', $invoice->id)->sum('pivot.refunded'), $payment->client) }}
                             </div>
                         </div>
                     @endforeach

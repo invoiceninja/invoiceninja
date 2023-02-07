@@ -66,6 +66,8 @@ class ProductSalesReportTest extends TestCase
 
     public $account;
 
+    public $client;
+
     /**
      *      start_date - Y-m-d
             end_date - Y-m-d
@@ -108,6 +110,9 @@ class ProductSalesReportTest extends TestCase
             'settings' => $settings,
         ]);
 
+        $this->company->settings = $settings;
+        $this->company->save();
+
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
@@ -115,6 +120,13 @@ class ProductSalesReportTest extends TestCase
             'is_income_billed' => true,
             'include_tax' => false,
         ];
+
+        $this->client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'is_deleted' => 0,
+        ]);
+
     }
 
     public function testProductSalesInstance()
@@ -133,22 +145,16 @@ class ProductSalesReportTest extends TestCase
         $this->buildData();
 
 
-        $client = Client::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'is_deleted' => 0,
-        ]);
-
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
-            'client_id' => $client->id,
+            'client_id' => $this->client->id,
             'report_keys' => []
         ];
 
         $i = Invoice::factory()->create([
-            'client_id' => $client->id,
+            'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'amount' => 0,
@@ -174,7 +180,6 @@ class ProductSalesReportTest extends TestCase
         $response = $pl->run();
 
         $this->assertIsString($response);
-// nlog($response);
 
         $this->account->delete();
     }

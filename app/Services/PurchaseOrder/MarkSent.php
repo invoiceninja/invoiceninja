@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,7 +41,6 @@ class MarkSent
             ->setStatus(PurchaseOrder::STATUS_SENT)
             ->applyNumber()
             ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
-            //  ->touchPdf()
             ->save();
 
         return $this->purchase_order;

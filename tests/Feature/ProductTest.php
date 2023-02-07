@@ -47,6 +47,15 @@ class ProductTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testProductGetProductKeyFilter()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/products?product_key=xx')
+        ->assertStatus(200);
+    }
+
     public function testProductList()
     {
         $response = $this->withHeaders([

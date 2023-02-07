@@ -101,6 +101,7 @@
         "darkaonline/l5-swagger": "8.1.0",
         "fakerphp/faker": "^1.14",
         "filp/whoops": "^2.7",
+        "laracasts/cypress": "^3.0",
         "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",

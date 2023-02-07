@@ -31,7 +31,7 @@ class ExampleIntegrationTest extends TestCase
 
     public function testExample()
     {
-        $this->markTestIncomplete();
+        // $this->markTestIncomplete();
 
         $invoice = $this->invoice;
         $invitation = $invoice->invitations()->first();
@@ -57,10 +57,6 @@ class ExampleIntegrationTest extends TestCase
             ->design($design)
             ->build();
 
-        //      exec('echo "" > storage/logs/laravel.log');
-
-//        nlog($maker->getCompiledHTML(true));
-
-        $this->assertTrue(true);
+        $this->assertNotNull($maker->getCompiledHTML(true));
     }
 }

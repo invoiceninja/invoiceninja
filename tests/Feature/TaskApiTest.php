@@ -44,6 +44,17 @@ class TaskApiTest extends TestCase
     }
 
 
+
+    public function testTaskListClientStatus()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/tasks?client_status=invoiced')
+          ->assertStatus(200);
+
+    }
+
     public function testTaskLockingGate()
     {
         $data = [

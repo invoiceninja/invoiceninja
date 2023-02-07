@@ -62,13 +62,15 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->account->num_users = 3;
         $this->account->save();
 
-        $user = User::whereEmail('user@example.com')->first();
+        $fake_email = $this->faker->email();
+
+        $user = User::whereEmail($fake_email)->first();
 
         if (! $user) {
             $user = User::factory()->create([
                 'account_id' => $this->account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
-                'email' => 'user@example.com',
+                'email' => $fake_email,
             ]);
         }
 

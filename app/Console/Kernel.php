@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -94,8 +94,6 @@ class Kernel extends ConsoleKernel
         /* Performs system maintenance such as pruning the backup table */
         $schedule->job(new SystemMaintenance)->sundays()->at('02:30')->withoutOverlapping()->name('system-maintenance-job')->onOneServer();
 
-        /* Pulls in bank transactions from third party services */
-        $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
         if (Ninja::isSelfHost()) {
 
@@ -109,6 +107,9 @@ class Kernel extends ConsoleKernel
         if (Ninja::isHosted()) {
 
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
+
+            /* Pulls in bank transactions from third party services */
+            $schedule->job(new BankTransactionSync)->dailyAt('04:10')->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
             //not used @deprecate
             // $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();

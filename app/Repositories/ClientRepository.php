@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,7 +52,6 @@ class ClientRepository extends BaseRepository
      * @return     Client|Client|null  Client Object
      *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     * @todo       Write tests to make sure that custom client numbers work as expected.
      */
     public function save(array $data, Client $client) : ?Client
     {
@@ -103,7 +102,10 @@ class ClientRepository extends BaseRepository
             $data['name'] = $client->present()->name();
         }
 
-        $this->contact_repo->save($contact_data, $client);
+        //24-01-2023 when a logo is uploaded, no other data is set, so we need to catch here and not update
+        //the contacts array UNLESS there are no contacts and we need to maintain state.
+        if(array_key_exists('contacts', $contact_data) || $client->contacts()->count() == 0)
+            $this->contact_repo->save($contact_data, $client);
 
         return $client;
     }

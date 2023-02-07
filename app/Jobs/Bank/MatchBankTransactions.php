@@ -319,7 +319,7 @@ class MatchBankTransactions implements ShouldQueue
 
                 });
 
-        }, 1);
+        }, 2);
 
         if(!$this->invoice)
             return;

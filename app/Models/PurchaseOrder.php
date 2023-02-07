@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -141,6 +141,10 @@ class PurchaseOrder extends BaseModel
         }
     }
 
+    public function getEntityType()
+    {
+        return self::class;
+    }
 
     public function assigned_user()
     {
@@ -186,7 +190,7 @@ class PurchaseOrder extends BaseModel
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         });
     }

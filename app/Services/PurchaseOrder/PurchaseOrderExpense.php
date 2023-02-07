@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,9 +60,10 @@ class PurchaseOrderExpense
         $expense->number = empty($expense->number) ? $this->getNextExpenseNumber($expense) : $expense->number;        
 
         $expense->save();
+        event('eloquent.created: App\Models\Expense', $expense);
 
         $this->purchase_order->expense_id = $expense->id;
-        $this->purchase_order->save();
+        $this->purchase_order->saveQuietly();
 
         return $expense;
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class Activity extends StaticModel
 {
@@ -374,17 +375,4 @@ class Activity extends StaticModel
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * @return mixed
-     */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        if (is_numeric($value)) {
-            throw new ModelNotFoundException("Record with value {$value} not found");
-        }
-
-        return $this
-            //->withTrashed()
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
 }

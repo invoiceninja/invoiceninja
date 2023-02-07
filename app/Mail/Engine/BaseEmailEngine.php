@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,6 +27,8 @@ class BaseEmailEngine implements EngineInterface
 
     public $attachments = [];
 
+    public $attachment_links = [];
+
     public $link;
 
     public $text;
@@ -36,6 +38,8 @@ class BaseEmailEngine implements EngineInterface
     public $text_body;
 
     public $text_footer;
+
+    public int $max_attachment_size = 3000000;
 
     public function setFooter($footer)
     {
@@ -95,6 +99,14 @@ class BaseEmailEngine implements EngineInterface
         return $this;
     }
 
+    public function setAttachmentLinks($links)
+    {
+        $this->attachment_links = array_merge($this->getAttachmentLinks(), $links);
+
+        return $this;
+    }
+
+
     public function setViewLink($link)
     {
         $this->link = $link;
@@ -129,6 +141,11 @@ class BaseEmailEngine implements EngineInterface
     public function getAttachments()
     {
         return $this->attachments;
+    }
+
+    public function getAttachmentLinks()
+    {
+        return $this->attachment_links;
     }
 
     public function getFooter()

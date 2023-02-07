@@ -34,6 +34,18 @@ class SystemLogApiTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testFilters()
+    {
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/system_logs?type_id=3')
+        ->assertStatus(200);;
+
+    }
+
     public function testSystemLogRoutes()
     {
         $sl = [

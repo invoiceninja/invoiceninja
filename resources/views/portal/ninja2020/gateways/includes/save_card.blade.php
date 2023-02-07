@@ -10,8 +10,13 @@
         $token_billing = false;
         $token_billing_string = 'false';
     }
-    
-    if($gateway_instance->token_billing == 'optout' || $gateway_instance->token_billing == 'always'){
+
+    if($gateway_instance->token_billing == 'always'){
+        $token_billing = false;
+        $token_billing_string = 'true';
+    }
+
+    if($gateway_instance->token_billing == 'optout'){
         $checked_on = 'checked';
         $checked_off = '';
     }

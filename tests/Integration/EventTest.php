@@ -639,7 +639,6 @@ class EventTest extends TestCase
         ])->postJson('/api/v1/clients/', $data)
             ->assertStatus(200);
 
-
         $arr = $response->json();
 
         $data = [
@@ -652,7 +651,6 @@ class EventTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/clients/' . $arr['data']['id'], $data)
         ->assertStatus(200);
-
 
         $data = [
             'ids' => [$arr['data']['id']],

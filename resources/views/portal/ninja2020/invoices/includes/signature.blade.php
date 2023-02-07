@@ -27,8 +27,8 @@
                     {{ ctrans('texts.next_step') }}
                 </button>
             </div>
-            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                <button id="close_button" onclick="document.getElementById('displaySignatureModal').style.display = 'none'; return true;" type="button" class="button button-secondary">
+            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto" id="close_button">
+                <button @click="document.getElementById('displaySignatureModal').style.display = 'none';" type="button" class="button button-secondary">
                     {{ ctrans('texts.close') }}
                 </button>
             </div>

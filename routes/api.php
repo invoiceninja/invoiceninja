@@ -103,7 +103,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:50,1','api_secret_check','email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
@@ -172,6 +172,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::put('credits/{credit}/upload', [CreditController::class, 'upload'])->name('credits.upload');
     Route::get('credits/{credit}/{action}', [CreditController::class, 'action'])->name('credits.action');
     Route::post('credits/bulk', [CreditController::class, 'bulk'])->name('credits.bulk');
+    Route::get('credit/{invitation_key}/download', [CreditController::class, 'downloadPdf'])->name('credits.downloadPdf');
 
     Route::resource('designs', DesignController::class); // name = (payments. index / create / show / update / destroy / edit
     Route::post('designs/bulk', [DesignController::class, 'bulk'])->name('designs.bulk');
@@ -228,6 +229,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('preview', [PreviewController::class, 'show'])->name('preview.show');
     Route::post('live_preview', [PreviewController::class, 'live'])->name('preview.live');
+    Route::post('live_design', [PreviewController::class, 'design'])->name('preview.design');
 
     Route::post('preview/purchase_order', [PreviewPurchaseOrderController::class, 'show'])->name('preview_purchase_order.show');
     Route::post('live_preview/purchase_order', [PreviewPurchaseOrderController::class, 'live'])->name('preview_purchase_order.live');
@@ -240,10 +242,17 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('projects/bulk', [ProjectController::class, 'bulk'])->name('projects.bulk');
     Route::put('projects/{project}/upload', [ProjectController::class, 'upload'])->name('projects.upload');
 
+    Route::resource('purchase_orders', PurchaseOrderController::class);
+    Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
+    Route::put('purchase_orders/{purchase_order}/upload', [PurchaseOrderController::class, 'upload']);
+    Route::get('purchase_orders/{purchase_order}/{action}', [PurchaseOrderController::class, 'action'])->name('purchase_orders.action');
+    Route::get('purchase_order/{invitation_key}/download', [PurchaseOrderController::class, 'downloadPdf'])->name('purchase_orders.downloadPdf');
+
     Route::resource('quotes', QuoteController::class); // name = (quotes. index / create / show / update / destroy / edit
     Route::get('quotes/{quote}/{action}', [QuoteController::class, 'action'])->name('quotes.action');
     Route::post('quotes/bulk', [QuoteController::class, 'bulk'])->name('quotes.bulk');
     Route::put('quotes/{quote}/upload', [QuoteController::class, 'upload']);
+    Route::get('quote/{invitation_key}/download', [QuoteController::class, 'downloadPdf'])->name('quotes.downloadPdf');
 
     Route::resource('recurring_expenses', RecurringExpenseController::class);
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
@@ -313,12 +322,6 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', [VendorController::class, 'upload']);
 
-    Route::resource('purchase_orders', PurchaseOrderController::class);
-    Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
-    Route::put('purchase_orders/{purchase_order}/upload', [PurchaseOrderController::class, 'upload']);
-
-    Route::get('purchase_orders/{purchase_order}/{action}', [PurchaseOrderController::class, 'action'])->name('purchase_orders.action');
-
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/create', [UserController::class, 'create'])->middleware('password_protected');
     Route::get('users/{user}', [UserController::class, 'show'])->middleware('password_protected');
@@ -373,6 +376,5 @@ Route::post('api/v1/yodlee/refresh', [YodleeController::class, 'refreshWebhook']
 Route::post('api/v1/yodlee/data_updates', [YodleeController::class, 'dataUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/refresh_updates', [YodleeController::class, 'refreshUpdatesWebhook'])->middleware('throttle:100,1');
 Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook'])->middleware('throttle:100,1');
-
 
 Route::fallback([BaseController::class, 'notFound']);

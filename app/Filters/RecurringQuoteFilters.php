@@ -4,14 +4,13 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Filters;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -23,93 +22,55 @@ class RecurringQuoteFilters extends QueryFilters
      * Filter based on search text.
      *
      * @param string query filter
-     * @return Builder
+     * @return Illuminate\Database\Eloquent\Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('recurring_quotes.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_quotes.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_quotes.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_quotes.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string filter
-     * @return Builder
-     */
-    public function status(string $filter = '') : Builder
+    public function number(string $number = ''): Builder
     {
-        if (strlen($filter) == 0) {
+        if (strlen($number) == 0) {
             return $this->builder;
         }
 
-        $table = 'recurring_';
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters, $table) {
-            $query->whereNull($table.'.id');
-
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull($table.'.deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) use ($table) {
-                    $query->whereNotNull($table.'.deleted_at');
-
-                    if (! in_array($table, ['users'])) {
-                        $query->where($table.'.is_deleted', '=', 0);
-                    }
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere($table.'.is_deleted', '=', 1);
-            }
-        });
+        return $this->builder->where('number', $number);
     }
 
     /**
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
-     * @return Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-    }
-
-    /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         return $this->builder->company();
     }

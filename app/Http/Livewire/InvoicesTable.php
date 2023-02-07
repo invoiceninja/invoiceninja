@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,6 +52,7 @@ class InvoicesTable extends Component
         $query = Invoice::query()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false)
+            ->where('is_proforma', false)
             ->with('client.gateway_tokens', 'client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 

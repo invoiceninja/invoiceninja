@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,13 +45,13 @@ class VendorRepository extends BaseRepository
     {
         $vendor->fill($data);
 
-        $vendor->save();
+        $vendor->saveQuietly();
 
         if ($vendor->number == '' || ! $vendor->number) {
             $vendor->number = $this->getNextVendorNumber($vendor);
         } //todo write tests for this and make sure that custom vendor numbers also works as expected from here
 
-        $vendor->save();
+        $vendor->saveQuietly();
 
         if (isset($data['contacts'])) {
             $this->contact_repo->save($data, $vendor);

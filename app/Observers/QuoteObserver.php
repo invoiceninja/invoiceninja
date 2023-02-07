@@ -4,20 +4,22 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Observers;
 
-use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Quote;
 use App\Models\Webhook;
 
 class QuoteObserver
 {
+
+    public $afterCommit = true;
+
     /**
      * Handle the quote "created" event.
      *
@@ -26,14 +28,14 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
-        $subscriptions = Webhook::where('company_id', $quote->company->id)
+
+        $subscriptions = Webhook::where('company_id', $quote->company_id)
                         ->where('event_id', Webhook::EVENT_CREATE_QUOTE)
                         ->exists();
 
-        if ($subscriptions) {
-            $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(0);
+        
     }
 
     /**
@@ -43,15 +45,24 @@ class QuoteObserver
      * @return void
      */
     public function updated(Quote $quote)
-    {
-        $subscriptions = Webhook::where('company_id', $quote->company->id)
-                        ->where('event_id', Webhook::EVENT_UPDATE_QUOTE)
-                        ->exists();
+    {nlog("updated");
 
-        if ($subscriptions) {
-            $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
-        }
+        $event = Webhook::EVENT_UPDATE_QUOTE;
+
+        if($quote->getOriginal('deleted_at') && !$quote->deleted_at)
+            $event = Webhook::EVENT_RESTORE_QUOTE;
+        
+        if($quote->is_deleted)
+            $event = Webhook::EVENT_DELETE_QUOTE; 
+        
+        
+        $subscriptions = Webhook::where('company_id', $quote->company_id)
+                                    ->where('event_id', $event)
+                                    ->exists();
+
+        if ($subscriptions) 
+            WebhookHandler::dispatch($event, $quote, $quote->company, 'client')->delay(0);
+
     }
 
     /**
@@ -62,14 +73,16 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        $subscriptions = Webhook::where('company_id', $quote->company->id)
-                        ->where('event_id', Webhook::EVENT_DELETE_QUOTE)
+        if($quote->is_deleted)
+            return;
+
+        $subscriptions = Webhook::where('company_id', $quote->company_id)
+                        ->where('event_id', Webhook::EVENT_ARCHIVE_QUOTE)
                         ->exists();
 
-        if ($subscriptions) {
-            $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
-        }
+        if ($subscriptions) 
+            WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $quote, $quote->company, 'client')->delay(0);
+        
     }
 
     /**

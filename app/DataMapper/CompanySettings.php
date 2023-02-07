@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -229,7 +229,7 @@ class CompanySettings extends BaseSettings
     public $require_quote_signature = false;  //@TODO ben to confirm
 
     //email settings
-    public $email_sending_method = 'default'; //enum 'default','gmail','office365' //@implemented
+    public $email_sending_method = 'default'; //enum 'default','gmail','office365' 'client_postmark', 'client_mailgun'//@implemented
 
     public $gmail_sending_user_id = '0'; //@implemented
 
@@ -442,6 +442,8 @@ class CompanySettings extends BaseSettings
     public $send_email_on_mark_paid = false;
 
     public $postmark_secret = '';
+
+    public $custom_sending_email = '';
     
     public $mailgun_secret = '';
     
@@ -451,7 +453,23 @@ class CompanySettings extends BaseSettings
 
     public $email_alignment = 'center'; // center , left, right
 
+    public $show_email_footer = true;
+
+    public $company_logo_size = '';
+
+    public $show_paid_stamp = false;
+
+    public $show_shipping_address = false;
+
+    public $accept_client_input_quote_approval = false;
+
     public static $casts = [
+        'accept_client_input_quote_approval' => 'bool',
+        'custom_sending_email'               => 'string',
+        'show_paid_stamp'                    => 'bool',
+        'show_shipping_address'              => 'bool',
+        'company_logo_size'                  => 'string',
+        'show_email_footer'                  => 'bool',
         'email_alignment'                    => 'string',
         'auto_bill_standard_invoices'        => 'bool',
         'postmark_secret'                    => 'string',
@@ -730,8 +748,9 @@ class CompanySettings extends BaseSettings
      * and always ensure an up to date class is returned.
      *
      * @param $obj
+     * @deprecated
      */
-    public function __construct($obj)
+    public function __construct()
     {
         //	parent::__construct($obj);
     }
@@ -815,6 +834,7 @@ class CompanySettings extends BaseSettings
                 '$client.address1',
                 '$client.address2',
                 '$client.city_state_postal',
+                '$client.postal_city',
                 '$client.country',
                 '$client.phone',
                 '$contact.email',
@@ -826,6 +846,7 @@ class CompanySettings extends BaseSettings
                 '$vendor.address1',
                 '$vendor.address2',
                 '$vendor.city_state_postal',
+                '$vendor.postal_city',
                 '$vendor.country',
                 '$vendor.phone',
                 '$contact.email',
@@ -850,6 +871,7 @@ class CompanySettings extends BaseSettings
                 '$company.address1',
                 '$company.address2',
                 '$company.city_state_postal',
+                '$company.postal_city',
                 '$company.country',
             ],
             'invoice_details' => [
