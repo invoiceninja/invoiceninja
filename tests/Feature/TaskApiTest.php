@@ -43,6 +43,160 @@ class TaskApiTest extends TestCase
         Model::reguard();
     }
 
+    private function checkTimeLog($log)
+    {
+
+        $result = array_column($log, 0);
+
+        asort($result);
+
+        $new_array = [];
+
+        foreach($result as $key => $value)
+            $new_array[] = $log[$key];
+
+
+        foreach($new_array as $key => $array)
+        {
+            $next = false;
+
+            if(count($new_array) >1 && $array[1] == 0)
+                return false;
+            
+            /* First test is to check if the start time is greater than the end time */ 
+            /* Ignore the last value for now, we'll do a separate check for this */ 
+            if($array[0] > $array[1] && $array[1] != 0){
+                nlog("1");
+                return false;
+            }
+
+            if(array_key_exists($key+1, $new_array)){
+                nlog("2");
+                $next = $new_array[$key+1];
+            }
+
+            /* check the next time log and ensure the start time is GREATER than the end time of the previous record */
+            if($next && $next[0] < $array[1]){
+                nlog("3");
+                return false;
+            }
+
+            $last_row = end($new_array);
+
+            if($last_row[1] != 0 && $last_row[0] > $last_row[1]){
+                nlog($last_row[0]. " ".$last_row[1]);
+                nlog("4");
+                return false;
+            }
+
+            return true;
+        }
+
+
+    }
+
+    public function testTimeLogChecker1()
+    {
+
+        $log = [
+            [50,0]
+        ];
+
+        $this->assertTrue($this->checkTimeLog($log));
+
+    }
+
+    public function testTimeLogChecker2()
+    {
+
+        $log = [
+            [4,5],
+            [5,1]
+        ];
+
+
+        $this->assertFalse($this->checkTimeLog($log));
+
+    }
+
+
+    public function testTimeLogChecker3()
+    {
+
+        $log = [
+            [4,5],
+            [3,50]
+        ];
+
+
+        $this->assertFalse($this->checkTimeLog($log));
+
+    }
+
+
+    public function testTimeLogChecker4()
+    {
+
+        $log = [
+            [4,5],
+            [3,0]
+        ];
+
+
+        $this->assertFalse($this->checkTimeLog($log));
+
+    }
+
+    public function testTimeLogChecker5()
+    {
+
+        $log = [
+            [4,5],
+            [3,1]
+        ];
+
+
+        $this->assertFalse($this->checkTimeLog($log));
+
+    }
+
+    public function testTimeLogChecker6()
+    {
+
+        $log = [
+            [4,5],
+            [1,3],
+        ];
+
+
+        $this->assertTrue($this->checkTimeLog($log));
+
+    }
+
+    public function testTimeLogChecker7()
+    {
+
+        $log = [
+            [1,3],
+            [4,5]
+        ];
+
+
+        $this->assertTrue($this->checkTimeLog($log));
+
+    }
+
+   public function testTimeLogChecker8()
+    {
+
+        $log = [
+            [1,3],
+            [50,0]
+        ];
+
+        $this->assertTrue($this->checkTimeLog($log));
+
+    }
 
 
     public function testTaskListClientStatus()
