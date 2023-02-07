@@ -17,6 +17,22 @@ return new class extends Migration
             $table->unsignedInteger("max_quantity")->nullable();
             $table->string("product_image", 191)->nullable();
         });
+
+        Company::query()
+                ->chunk(1000, function ($companies) {
+
+                foreach($companies as $c)
+                {
+
+                    $settings = $c->settings;
+                    $settings->font_size = 16;
+                    $c->settings = $settings;
+                    $c->save();
+
+                }
+
+            });
+
     }
 
     /**
