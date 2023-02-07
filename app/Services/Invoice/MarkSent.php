@@ -73,13 +73,7 @@ class MarkSent extends AbstractService
         if($fire_webhook)
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
 
-        $subscriptions = Webhook::where('company_id', $this->invoice->company_id)
-                            ->where('event_id', Webhook::EVENT_SENT_INVOICE)
-                            ->exists();
-
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_SENT_INVOICE, $this->invoice, $this->invoice->company, 'client')->delay(0);
-        }
+        $this->invoice->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
 
         return $this->invoice->fresh();
     }
