@@ -54,13 +54,7 @@ class MarkSent
 
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $subscriptions = Webhook::where('company_id', $this->credit->company_id)
-            ->where('event_id', Webhook::EVENT_SENT_CREDIT)
-            ->exists();
-
-        if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_SENT_CREDIT, $this->credit, $this->credit->company)->delay(0);
-        }
+        $this->credit->sendEvent(Webhook::EVENT_SENT_CREDIT);
 
         return $this->credit;
     }

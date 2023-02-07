@@ -206,7 +206,7 @@ class BaseModel extends Model
         return ctrans('texts.item');
     }
 
-    public function sendEvent($event_id, $additional_data){
+    public function sendEvent($event_id, $additional_data=""){
         $subscriptions = Webhook::where('company_id', $this->company_id)
             ->where('event_id', $event_id)
             ->exists();
