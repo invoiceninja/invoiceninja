@@ -43,6 +43,11 @@ class CustomPaymentDriver extends BaseDriver
         return $types;
     }
 
+    public function init()
+    {
+        return $this;
+    }
+
     public function setPaymentMethod($payment_method_id)
     {
         $this->payment_method = $payment_method_id;
@@ -100,5 +105,10 @@ class CustomPaymentDriver extends BaseDriver
     public function detach(ClientGatewayToken $token)
     {
         // Driver doesn't support this feature.
+    }
+
+    public function getClientRequiredFields(): array
+    {
+        return [];
     }
 }
