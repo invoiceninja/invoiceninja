@@ -54,12 +54,7 @@ class MarkSent
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $subscriptions = Webhook::where('company_id', $this->quote->company_id)
-            ->where('event_id', Webhook::EVENT_SENT_QUOTE)
-            ->exists();
-
-        if ($subscriptions)
-            WebhookHandler::dispatch(Webhook::EVENT_SENT_QUOTE, $this->quote, $this->quote->company, 'client')->delay(0);
+        $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
 
         return $this->quote;
     }
