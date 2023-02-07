@@ -59,6 +59,9 @@ class UpdateTaskRequest extends Request
                     $fail('The '.$attribute.' - '.print_r($k,1).' is invalid. Unix timestamps only.');
             }
 
+            if(!$this->checkTimeLog($values))
+                $fail('Please correct overlapping values');
+
         }];
 
         return $this->globalRules($rules);
