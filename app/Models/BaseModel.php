@@ -206,12 +206,22 @@ class BaseModel extends Model
         return ctrans('texts.item');
     }
 
-    public function sendEvent($event_id, $additional_data=""){
+    /**
+     * Model helper to send events for webhooks
+     * 
+     * @param  int    $event_id        
+     * @param  string $additional_data optional includes
+     * 
+     * @return void                  
+     */
+    public function sendEvent(int $event_id, string $additional_data = ""): void
+    {
         $subscriptions = Webhook::where('company_id', $this->company_id)
-            ->where('event_id', $event_id)
-            ->exists();
+                                 ->where('event_id', $event_id)
+                                 ->exists();
+                            
         if ($subscriptions) {
-            WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data)->delay(0);
+            WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
         }
     }
 
