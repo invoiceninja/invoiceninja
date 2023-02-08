@@ -59,7 +59,7 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) 
-            WebhookHandler::dispatch($event, $client, $client->company)->delay(0);
+            WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(0);
         
 
     }
