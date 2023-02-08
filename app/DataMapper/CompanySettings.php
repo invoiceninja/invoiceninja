@@ -845,7 +845,6 @@ class CompanySettings extends BaseSettings
                 '$vendor.address1',
                 '$vendor.address2',
                 '$vendor.city_state_postal',
-                '$vendor.postal_city',
                 '$vendor.country',
                 '$vendor.phone',
                 '$contact.email',
