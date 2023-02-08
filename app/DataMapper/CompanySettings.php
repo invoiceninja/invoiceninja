@@ -834,7 +834,6 @@ class CompanySettings extends BaseSettings
                 '$client.address1',
                 '$client.address2',
                 '$client.city_state_postal',
-                '$client.postal_city',
                 '$client.country',
                 '$client.phone',
                 '$contact.email',
@@ -871,7 +870,6 @@ class CompanySettings extends BaseSettings
                 '$company.address1',
                 '$company.address2',
                 '$company.city_state_postal',
-                '$company.postal_city',
                 '$company.country',
             ],
             'invoice_details' => [
