@@ -136,6 +136,14 @@ class Webhook extends BaseModel
 
     const EVENT_ARCHIVE_PURCHASE_ORDER = 59; //tested
 
+    const EVENT_SENT_INVOICE = 60;
+
+    const EVENT_SENT_QUOTE = 61;
+
+    const EVENT_SENT_CREDIT = 62;
+
+    const EVENT_SENT_PURCHASE_ORDER = 63;
+
     public static $valid_events = [
         self::EVENT_CREATE_PURCHASE_ORDER,
         self::EVENT_UPDATE_PURCHASE_ORDER,
@@ -194,7 +202,11 @@ class Webhook extends BaseModel
         self::EVENT_RESTORE_QUOTE,
         self::EVENT_RESTORE_INVOICE,
         self::EVENT_RESTORE_PAYMENT,
-        self::EVENT_RESTORE_VENDOR
+        self::EVENT_RESTORE_VENDOR,
+        self::EVENT_SENT_INVOICE,
+        self::EVENT_SENT_QUOTE,
+        self::EVENT_SENT_CREDIT,
+        self::EVENT_SENT_PURCHASE_ORDER
 
     ];
 

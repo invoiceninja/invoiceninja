@@ -138,6 +138,17 @@ class InvoiceEmailEngine extends BaseEmailEngine
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
 
+            if($this->invoice->recurring_invoice()->exists())
+            {
+                foreach ($this->invoice->recurring_invoice->documents as $document) {
+        
+                    if($document->size > $this->max_attachment_size)
+                        $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                    else
+                        $this->setAttachments([['file' => base64_encode($document->getFile()), 'path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                }
+            }
+
             // Storage::url
             foreach ($this->invoice->documents as $document) {
     
