@@ -85,7 +85,11 @@ class UpdateInvoicePayment
             
             if($invoice->is_proforma)
             {
-                $invoice->number = '';
+
+                if(strlen($invoice->number) > 1 && str_starts_with($invoice->number,"####"))
+                    $invoice->number = ''; 
+                
+
                 $invoice->is_proforma = false;
                 
                 $invoice->service()

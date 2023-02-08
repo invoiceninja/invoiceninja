@@ -82,7 +82,7 @@ class ClientContactObserver
 
         CreditInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite){
 
-          if($invite->credits()->doesnthave('invitations'))
+          if($invite->credit()->doesnthave('invitations'))
             $invite->credit->service()->createInvitations();
         
         });

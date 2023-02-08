@@ -36,6 +36,7 @@ class ApplyNumber extends AbstractService
 
     public function run()
     {
+
         if ($this->invoice->number != '') {
             return $this->invoice;
         }
@@ -45,7 +46,7 @@ class ApplyNumber extends AbstractService
                 $this->trySaving();
                 break;
             case 'when_sent':
-                if ($this->invoice->status_id == Invoice::STATUS_SENT) {
+                if ($this->invoice->status_id >= Invoice::STATUS_SENT) {
                     $this->trySaving();
                 }
                 break;
