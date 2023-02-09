@@ -54,7 +54,7 @@ class PurchaseOrderService
         if (! $this->purchase_order->design_id) 
             $this->purchase_order->design_id = $this->decodePrimaryKey($settings->purchase_order_design_id);
         
-        if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
+        if (!isset($this->purchase_order->footer) || empty($this->purchase_order->footer)) 
             $this->purchase_order->footer = $settings->purchase_order_footer;
 
         if (!isset($this->purchase_order->terms)  || empty($this->purchase_order->terms)) 

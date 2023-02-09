@@ -52,14 +52,9 @@ class BankMatchingService implements ShouldQueue
     
     }
 
-    /**
-     * The unique ID of the job.
-     *
-     * @return string
-     */
-    public function uniqueId()
-    {
-        return (string)$this->company_id;
+    public function middleware()
+    {   
+        return [(new WithoutOverlapping($this->company_id))];
     }
 
 }

@@ -106,6 +106,7 @@ class Import implements ShouldQueue
     use CleanLineItems;
     use Uploadable;
     use SavesDocuments;
+
     /**
      * @var array
      */
@@ -188,10 +189,10 @@ class Import implements ShouldQueue
         $this->resources = $resources;
     }
 
-    // public function middleware()
-    // {
-    //     return [new WithoutOverlapping("only_one_migration_at_a_time_ever")];
-    // }
+    public function middleware()
+    {   
+        return [(new WithoutOverlapping($this->user->account_id))];
+    }
 
     /**
      * Execute the job.
@@ -1897,6 +1898,8 @@ class Import implements ShouldQueue
     {
         info('the job failed');
 
+        config(['queue.failed.driver' => null]);
+
         $job_failure = new MigrationFailure();
         $job_failure->string_metric5 = get_class($this);
         $job_failure->string_metric6 = $exception->getMessage();
@@ -1950,7 +1953,6 @@ class Import implements ShouldQueue
         }
 
     }
-
 
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct

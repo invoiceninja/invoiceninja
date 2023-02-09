@@ -383,7 +383,7 @@ class CompanySettings extends BaseSettings
 
     public $page_layout = 'portrait';
 
-    public $font_size = 7; //@implemented
+    public $font_size = 16; //@implemented
 
     public $primary_font = 'Roboto';
 
