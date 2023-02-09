@@ -70,14 +70,19 @@ class StripeConnectController extends BaseController
     {
         \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
+        if($request->has('error') && $request->error == 'access_denied'){
+            return view('auth.connect.access_denied');
+        }
+
         try {
             $response = \Stripe\OAuth::token([
                 'grant_type' => 'authorization_code',
                 'code' => $request->input('code'),
             ]);
         } catch (\Exception $e) {
-            nlog($e->getMessage());
-            throw new SystemError($e->getMessage(), 500);
+
+            return view('auth.connect.access_denied');
+
         }
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
