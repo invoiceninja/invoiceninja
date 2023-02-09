@@ -56,7 +56,7 @@
                     type="checkbox"
                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   /> 
-                <a href="#" class="group relative inline-block ml-4 text-blue-500 hover:text-red-500 duration-300 no-underline" @click="open = true">{{ ctrans('texts.terms')}}</a>
+                <a href="#" class="group relative inline-block ml-4 text-blue-500 hover:text-red-500 duration-300 no-underline" @click="open = true">{{ ctrans('texts.agree_to_terms', ['terms' => ctrans('texts.terms')]) }}</a>
                 
 
 
