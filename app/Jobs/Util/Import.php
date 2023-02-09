@@ -13,6 +13,7 @@ namespace App\Jobs\Util;
 
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
+use App\Exceptions\ClientHostedMigrationException;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
@@ -582,18 +583,44 @@ class Import implements ShouldQueue
         $validator = null;
     }
 
+    private function testUserDbLocationSanity(array $data): bool
+    {
+
+        if(Ninja::isSelfHost())
+            return true;
+
+        $current_db = config('database.default');
+
+        foreach (MultiDB::$dbs as $db) 
+        {
+            
+            MultiDB::setDB($db);
+
+            $db1_count = User::withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+            $db2_count = User::withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+
+        }
+
+
+        MultiDB::setDb($current_db);
+
+        return true;
+    }
+
     /**
      * @param array $data
      * @throws Exception
      */
     private function processUsers(array $data): void
     {
+        if(!$this->testUserDbLocationSanity())
+            throw new ClientHostedMigrationException('You have multiple accounts registered in the system, please contact us to resolve.', 400);
+
         User::unguard();
 
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            //'*.email' => ['distinct'],
             '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
 
@@ -749,7 +776,7 @@ class Import implements ShouldQueue
 
         Client::reguard();
 
-        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
+        Client::withTrashed()->with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
 
           $contact = $client->contacts->sortByDesc('is_primary')->first();
           $contact->is_primary = true;

@@ -91,7 +91,7 @@ class PurchaseOrderTest extends TestCase
 
         $data = [
             'ids' =>[$this->purchase_order->hashed_id],
-            'action' => 'email',
+            'action' => 'download',
         ];
 
         $response = $this->withHeaders([
