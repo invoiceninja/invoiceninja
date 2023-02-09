@@ -17,6 +17,7 @@ use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
 use App\Filters\PurchaseOrderFilters;
 use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\BulkPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
@@ -475,12 +476,12 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkPurchaseOrderRequest $request)
     {
         
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
         if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -497,7 +498,6 @@ class PurchaseOrderController extends BaseController
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
-                    nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
