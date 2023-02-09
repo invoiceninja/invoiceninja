@@ -26,14 +26,9 @@ class MarkPaid extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
     private $payable_balance;
 
-    public function __construct(Invoice $invoice)
-    {
-        $this->invoice = $invoice;
-    }
+    public function __construct(private Invoice $invoice, private ?string $reference){}
 
     public function run()
     {
@@ -73,7 +68,7 @@ class MarkPaid extends AbstractService
         $payment->applied = $this->payable_balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
-        $payment->transaction_reference = ctrans('texts.manual_entry');
+        $payment->transaction_reference = $this->reference ?: ctrans('texts.manual_entry');
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
 
