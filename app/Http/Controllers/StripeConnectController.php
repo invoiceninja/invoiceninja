@@ -70,6 +70,10 @@ class StripeConnectController extends BaseController
     {
         \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
+        if($request->has('error') && $request->error == 'access_denied'){
+            return view('auth.connect.access_denied');
+        }
+
         try {
             $response = \Stripe\OAuth::token([
                 'grant_type' => 'authorization_code',
