@@ -80,8 +80,9 @@ class StripeConnectController extends BaseController
                 'code' => $request->input('code'),
             ]);
         } catch (\Exception $e) {
-            nlog($e->getMessage());
-            throw new SystemError($e->getMessage(), 500);
+
+            return view('auth.connect.access_denied');
+
         }
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
