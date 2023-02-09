@@ -591,18 +591,16 @@ class Import implements ShouldQueue
 
         $current_db = config('database.default');
 
-        foreach (MultiDB::$dbs as $db) 
-        {
-            
-            MultiDB::setDB($db);
-
-            $db1_count = User::withTrashed()->whereIn('email', array_column($data, 'email'))->count();
-            $db2_count = User::withTrashed()->whereIn('email', array_column($data, 'email'))->count();
-
-        }
-
+        $db1_count = User::on('db-ninja-01')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+        $db2_count = User::on('db-ninja-02')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
 
         MultiDB::setDb($current_db);
+
+        if($db2_count == 0 && $db1_count == 0)
+            return true;
+
+        if($db1_count >= 1 && $db2_count >= 1)
+            return false;
 
         return true;
     }
@@ -613,8 +611,8 @@ class Import implements ShouldQueue
      */
     private function processUsers(array $data): void
     {
-        if(!$this->testUserDbLocationSanity())
-            throw new ClientHostedMigrationException('You have multiple accounts registered in the system, please contact us to resolve.', 400);
+        if(!$this->testUserDbLocationSanity($data))
+            throw new ClientHostedMigrationException('You have users that belong to different accounts registered in the system, please contact us to resolve.', 400);
 
         User::unguard();
 
