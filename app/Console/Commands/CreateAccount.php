@@ -11,6 +11,7 @@
 
 namespace App\Console\Commands;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -94,7 +95,10 @@ class CreateAccount extends Command
             'portal_domain' => config('ninja.app_url'),
             'portal_mode' => 'domain',
         ]);
-
+        
+        $company->client_registration_fields = ClientRegistrationFields::generate();
+        $company->save();
+        
         $account->default_company_id = $company->id;
         $account->save();
 
