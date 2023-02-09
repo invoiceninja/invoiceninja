@@ -232,6 +232,28 @@ abstract class QueryFilters
         
     }
 
+    public function updated_at($value = '')
+    {
+
+        if ($value == '')
+            return $this->builder;
+
+        try {
+
+            if (is_numeric($value)) {
+                $created_at = Carbon::createFromTimestamp((int)$value);
+            } else {
+                $created_at = Carbon::parse($value);
+            }
+
+            return $this->builder->where('updated_at', '>=', $created_at);
+        } catch (\Exception $e) {
+
+            return $this->builder;
+        }
+    }
+
+
     public function is_deleted($value)
     {
         if ($value == 'true') {
