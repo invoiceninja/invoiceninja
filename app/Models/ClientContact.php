@@ -240,7 +240,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            // ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
 
