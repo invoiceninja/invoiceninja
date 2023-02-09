@@ -50,7 +50,7 @@ class DocumentsTable extends Component
     {
         MultiDB::setDb($this->db);
 
-        $this->client = Client::with('company')->find($this->client_id);
+        $this->client = Client::withTrashed()->with('company')->find($this->client_id);
 
         $this->company = $this->client->company;
 
