@@ -13,6 +13,7 @@ namespace App\Jobs\Util;
 
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
+use App\Exceptions\ClientHostedMigrationException;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
@@ -582,18 +583,42 @@ class Import implements ShouldQueue
         $validator = null;
     }
 
+    private function testUserDbLocationSanity(array $data): bool
+    {
+
+        if(Ninja::isSelfHost())
+            return true;
+
+        $current_db = config('database.default');
+
+        $db1_count = User::on('db-ninja-01')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+        $db2_count = User::on('db-ninja-02')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+
+        MultiDB::setDb($current_db);
+
+        if($db2_count == 0 && $db1_count == 0)
+            return true;
+
+        if($db1_count >= 1 && $db2_count >= 1)
+            return false;
+
+        return true;
+    }
+
     /**
      * @param array $data
      * @throws Exception
      */
     private function processUsers(array $data): void
     {
+        if(!$this->testUserDbLocationSanity($data))
+            throw new ClientHostedMigrationException('You have users that belong to different accounts registered in the system, please contact us to resolve.', 400);
+
         User::unguard();
 
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            //'*.email' => ['distinct'],
             '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
 
@@ -749,7 +774,7 @@ class Import implements ShouldQueue
 
         Client::reguard();
 
-        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
+        Client::withTrashed()->with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
 
           $contact = $client->contacts->sortByDesc('is_primary')->first();
           $contact->is_primary = true;

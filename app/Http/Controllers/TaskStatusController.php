@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\TaskStatusFactory;
 use App\Filters\TaskStatusFilters;
+use App\Http\Requests\TaskStatus\ActionTaskStatusRequest;
 use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
 use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
@@ -449,18 +450,20 @@ class TaskStatusController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(ActionTaskStatusRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $task_status = TaskStatus::withTrashed()->company()->find($this->transformKeys($ids));
+        TaskStatus::withTrashed()
+                ->company()
+                ->whereIn('id', $this->transformKeys($ids))
+                ->cursor()
+                ->each(function ($task_status, $key) use ($action) {
 
-        $task_status->each(function ($task_status, $key) use ($action) {
-            if (auth()->user()->can('edit', $task_status)) {
                 $this->task_status_repo->{$action}($task_status);
-            }
+            
         });
 
         return $this->listResponse(TaskStatus::withTrashed()->whereIn('id', $this->transformKeys($ids)));

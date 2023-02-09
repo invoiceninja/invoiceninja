@@ -472,10 +472,12 @@ class BankIntegrationController extends BaseController
 
         $ids = request()->input('ids');
             
-        $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))
+                                            ->company()
+                                            ->cursor()
+                                            ->each(function ($bank_integration, $key) use ($action) {
 
-        $bank_integrations->each(function ($bank_integration, $key) use ($action) {
-            $this->bank_integration_repo->{$action}($bank_integration);
+                            $this->bank_integration_repo->{$action}($bank_integration);
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
