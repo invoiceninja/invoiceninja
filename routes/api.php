@@ -138,7 +138,6 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
 
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
-    Route::put('clients/{client}/adjust_ledger', [ClientController::class, 'adjustLedger'])->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');

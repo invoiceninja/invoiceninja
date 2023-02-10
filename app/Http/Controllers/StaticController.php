@@ -36,7 +36,7 @@ class StaticController extends BaseController
      *      summary="Gets a list of statics",
      *      description="Lists all statics",
      *
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(

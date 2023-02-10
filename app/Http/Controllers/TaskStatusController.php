@@ -50,7 +50,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Gets a list of task statuses",
      *      description="Lists task statuses",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -97,7 +97,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Gets a new blank TaskStatus object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -143,7 +143,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Adds a TaskStatus",
      *      description="Adds a TaskStatusto the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -191,7 +191,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Shows a TaskStatus Term",
      *      description="Displays an TaskStatusby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -241,7 +241,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Shows an TaskStatusfor editting",
      *      description="Displays an TaskStatusby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -299,7 +299,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Updates a TaskStatus Term",
      *      description="Handles the updating of an TaskStatus Termby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -358,7 +358,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_statuss"},
      *      summary="Deletes a TaskStatus Term",
      *      description="Handles the deletion of an TaskStatus by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -411,7 +411,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Performs bulk actions on an array of task statuses",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

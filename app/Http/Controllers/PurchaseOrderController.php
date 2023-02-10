@@ -72,7 +72,7 @@ class PurchaseOrderController extends BaseController
      *      description="Lists purchase orders, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the purchase orders, these are handled by the PurchaseOrderFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -116,7 +116,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Gets a new blank purchase order object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -160,7 +160,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purhcase_orders"},
      *      summary="Adds a purchase order",
      *      description="Adds an purchase order to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -213,7 +213,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purcase orders",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -266,7 +266,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purchase order for editting",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -320,7 +320,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Updates an purchase order",
      *      description="Handles the updating of an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -386,7 +386,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Deletes a purchase order",
      *      description="Handles the deletion of an purchase orders by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -438,7 +438,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Performs bulk actions on an array of purchase_orders",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -549,7 +549,7 @@ class PurchaseOrderController extends BaseController
      *        - archive
      *        - delete
      *        - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -714,7 +714,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Uploads a document to a purchase_orders",
      *      description="Handles the uploading of a document to a purchase_order",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -770,7 +770,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Download a specific purchase order by invitation key",
      *      description="Downloads a specific purchase order",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(

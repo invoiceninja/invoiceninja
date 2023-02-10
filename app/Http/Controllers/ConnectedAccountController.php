@@ -50,7 +50,7 @@ class ConnectedAccountController extends BaseController
      *      tags={"connected_account"},
      *      summary="Connect an oauth user to an existing user",
      *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/include_static"),

@@ -81,7 +81,7 @@ class RecurringInvoiceController extends BaseController
      *      description="Lists recurring_invoices, search and filters allow fine grained lists to be generated.
 
         Query parameters can be added to performed more fine grained filtering of the recurring_invoices, these are handled by the RecurringInvoiceFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -127,7 +127,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Gets a new blank RecurringInvoice object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -173,7 +173,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Adds a RecurringInvoice",
      *      description="Adds an RecurringInvoice to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -225,7 +225,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Shows an RecurringInvoice",
      *      description="Displays an RecurringInvoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -280,7 +280,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Shows an RecurringInvoice for editting",
      *      description="Displays an RecurringInvoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -335,7 +335,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Updates an RecurringInvoice",
      *      description="Handles the updating of an RecurringInvoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -404,7 +404,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Deletes a RecurringInvoice",
      *      description="Handles the deletion of an RecurringInvoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -452,7 +452,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Download a specific invoice by invitation key",
      *      description="Downloads a specific invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -513,7 +513,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Performs bulk actions on an array of recurring_invoices",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -590,7 +590,7 @@ class RecurringInvoiceController extends BaseController
     - archive
     - delete
     - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -717,7 +717,7 @@ class RecurringInvoiceController extends BaseController
      *      tags={"recurring_invoices"},
      *      summary="Uploads a document to a recurring_invoice",
      *      description="Handles the uploading of a document to a recurring_invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(

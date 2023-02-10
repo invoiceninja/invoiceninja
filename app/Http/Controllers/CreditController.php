@@ -79,7 +79,7 @@ class CreditController extends BaseController
      *      description="Lists credits, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the credits, these are handled by the CreditFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -124,7 +124,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Gets a new blank credit object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -169,7 +169,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Adds a credit",
      *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -229,7 +229,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -283,7 +283,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Shows an credit for editting",
      *      description="Displays an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -338,7 +338,7 @@ class CreditController extends BaseController
      *      tags={"Credits"},
      *      summary="Updates an Credit",
      *      description="Handles the updating of an Credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -405,7 +405,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Deletes a credit",
      *      description="Handles the deletion of an credit by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -457,7 +457,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Performs bulk actions on an array of credits",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -649,7 +649,7 @@ class CreditController extends BaseController
      *      tags={"quotes"},
      *      summary="Download a specific credit by invitation key",
      *      description="Downloads a specific quote",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -723,7 +723,7 @@ class CreditController extends BaseController
      *      tags={"credits"},
      *      summary="Uploads a document to a credit",
      *      description="Handles the uploading of a document to a credit",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(

@@ -62,7 +62,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Gets a list of bank_transaction_rules",
      *      description="Lists all bank transaction rules",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -122,7 +122,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Shows a bank_transaction",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -177,7 +177,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Shows a bank_transaction for editing",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -232,7 +232,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Updates a bank_transaction Rule",
      *      description="Handles the updating of a bank_transaction rule by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -290,7 +290,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Gets a new blank bank_transaction rule object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -335,7 +335,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Adds a bank_transaction rule",
      *      description="Adds an bank_transaction to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -382,7 +382,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Deletes a bank_transaction rule",
      *      description="Handles the deletion of a bank_transaction rule by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -435,7 +435,7 @@ class BankTransactionRuleController extends BaseController
      *      tags={"bank_transaction_rules"},
      *      summary="Performs bulk actions on an array of bank_transation rules",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

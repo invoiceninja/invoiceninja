@@ -59,7 +59,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a list of bank_transactions",
      *      description="Lists all bank integrations",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -119,7 +119,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -174,7 +174,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction for editing",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -229,7 +229,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Updates a bank_transaction",
      *      description="Handles the updating of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -287,7 +287,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a new blank bank_transaction object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -332,7 +332,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Adds a bank_transaction",
      *      description="Adds an bank_transaction to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -379,7 +379,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Deletes a bank_transaction",
      *      description="Handles the deletion of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -432,7 +432,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs bulk actions on an array of bank_transations",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -508,7 +508,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs match actions on an array of bank_transactions",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
