@@ -42,18 +42,18 @@ class InvoiceService
      * and executes child sub functions.
      * @return $this InvoiceService object
      */
-    public function markPaid()
+    public function markPaid(?string $reference = null)
     {
         $this->removeUnpaidGatewayFees();
 
-        $this->invoice = (new MarkPaid($this->invoice))->run();
+        $this->invoice = (new MarkPaid($this->invoice, $reference))->run();
 
         return $this;
     }
 
-    public function applyPaymentAmount($amount)
+    public function applyPaymentAmount($amount, ?string $reference = null)
     {
-        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount))->run();
+        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount, $reference))->run();
 
         return $this;
     }

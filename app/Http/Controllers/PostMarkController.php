@@ -47,7 +47,7 @@ class PostMarkController extends BaseController
      *      tags={"postmark"},
      *      summary="Processing webhooks from PostMark",
      *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(

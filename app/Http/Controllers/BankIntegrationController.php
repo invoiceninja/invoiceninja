@@ -55,7 +55,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Gets a list of bank_integrations",
      *      description="Lists all bank integrations",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -115,7 +115,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Shows a bank_integration",
      *      description="Displays a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -170,7 +170,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Shows a bank_integration for editing",
      *      description="Displays a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -225,7 +225,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Updates a bank_integration",
      *      description="Handles the updating of a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -283,7 +283,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Gets a new blank bank_integration object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -328,7 +328,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Adds a bank_integration",
      *      description="Adds an bank_integration to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -375,7 +375,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Deletes a bank_integration",
      *      description="Handles the deletion of a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -428,7 +428,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Performs bulk actions on an array of bank_integrations",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -497,7 +497,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Gets the list of accounts from the remote server",
      *      description="Adds an bank_integration to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -588,7 +588,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Removes an account from the integration",
      *      description="Removes an account from the integration",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -645,7 +645,7 @@ class BankIntegrationController extends BaseController
      *      tags={"bank_integrations"},
      *      summary="Retrieve transactions for a account",
      *      description="Retrieve transactions for a account",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
