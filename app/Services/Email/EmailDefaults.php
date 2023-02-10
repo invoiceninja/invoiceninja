@@ -236,8 +236,8 @@ class EmailDefaults
 
             if (Ninja::isHosted() && $this->email_service->company->account->isPaid()) {
                 $bccs = array_slice(explode(',', str_replace(' ', '', $this->email_object->settings->bcc_email)), 0, 2);
-            } else {
-                $bccs(explode(',', str_replace(' ', '', $this->email_object->settings->bcc_email)));
+            } elseif(Ninja::isSelfHost()) {
+                $bccs = (explode(',', str_replace(' ', '', $this->email_object->settings->bcc_email)));
             }
         }
 
