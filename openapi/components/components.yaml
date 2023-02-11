@@ -78,7 +78,7 @@ components:
         client:
           $ref: '#/components/schemas/Client'
         contact:
-          $ref: '#/components/schemas/Contact'
+          $ref: '#/components/schemas/ClientContact'
         recurring_invoice:
           $ref: '#/components/schemas/RecurringInvoice'
         invoice:
@@ -2648,6 +2648,13 @@ components:
           description: 'The project name'
           type: string
           example: 'New Project'
+      type: object
+    PurchaseOrder:
+      properties:
+        id:
+          description: 'The purchase order hashed id'
+          type: string
+          example: Opnel5aKBz
       type: object
     Quote:
       properties:

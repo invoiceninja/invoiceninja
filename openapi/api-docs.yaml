@@ -14955,7 +14955,7 @@ components:
         client:
           $ref: '#/components/schemas/Client'
         contact:
-          $ref: '#/components/schemas/Contact'
+          $ref: '#/components/schemas/ClientContact'
         recurring_invoice:
           $ref: '#/components/schemas/RecurringInvoice'
         invoice:
@@ -14964,8 +14964,18 @@ components:
           $ref: '#/components/schemas/Credit'
         quote:
           $ref: '#/components/schemas/Quote'
-
-
+        payment:
+          $ref: '#/components/schemas/Payment'
+        expense:
+          $ref: '#/components/schemas/Expense'
+        task:
+          $ref: '#/components/schemas/Task'
+        purchase_order:
+          $ref: '#/components/schemas/PurchaseOrder'
+        vendor:
+          $ref: '#/components/schemas/Vendor'
+        vendor_contact:
+          $ref: '#/components/schemas/VendorContact'
       type: object
     BTRules:
       properties:
@@ -17515,6 +17525,13 @@ components:
           description: 'The project name'
           type: string
           example: 'New Project'
+      type: object
+    PurchaseOrder:
+      properties:
+        id:
+          description: 'The purchase order hashed id'
+          type: string
+          example: Opnel5aKBz
       type: object
     Quote:
       properties:
