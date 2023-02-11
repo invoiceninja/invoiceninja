@@ -1,0 +1,17 @@
+openapi: 3.0.0
+info:
+  title: 'Invoice Ninja'
+  description: |
+  # Invoice Ninja. 
+  ## Self hosted Invoicing lives here. 
+  termsOfService: 'https://invoiceninja.github.io/docs/legal/terms_of_service/#page-content'
+  contact:
+    email: contact@invoiceninja.com
+  license:
+    name: 'Elastic License'
+    url: 'https://www.elastic.co/licensing/elastic-license'
+  version: 1.0.30
+servers:
+  -
+    url: 'https://demo.invoiceninja.com'
+    description: 'Demo API Server InvoiceNinja, you can use the demo API key `TOKEN` to test the endpoints.'
