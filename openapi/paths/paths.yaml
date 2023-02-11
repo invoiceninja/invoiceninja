@@ -4,7 +4,7 @@ paths:
       tags:
         - actvities
       summary: 'Gets a list of actvities'
-      description: 'Lists all activities'
+      description: 'Lists all activities related to this company'
       operationId: getActivities
       parameters:
         -
@@ -12,7 +12,7 @@ paths:
         -
           $ref: '#/components/parameters/X-Requested-With'
         -
-          $ref: '#/components/parameters/include'
+          $ref: '#/components/parameters/activity_include'
         -
           $ref: '#/components/parameters/index'
         -
@@ -62,6 +62,8 @@ paths:
           $ref: '#/components/parameters/X-API-TOKEN'
         -
           $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/activity_include'
         -
           name: activity_id
           in: path
@@ -1524,7 +1526,7 @@ paths:
         -
           name: rows
           in: query
-          description: 'The number of activities to return'
+          description: 'The chart'
           required: false
           schema:
             type: number
