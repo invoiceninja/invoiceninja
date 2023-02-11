@@ -16,14 +16,9 @@ paths:
         -
           $ref: '#/components/parameters/index'
         -
-          name: rows
-          in: query
-          description: 'The number of activities to return'
-          required: false
-          schema:
-            type: number
-            format: integer
-          example: '50'
+          $ref: '#/components/parameters/per_page_meta'
+        -
+          $ref: '#/components/parameters/page_meta'
       responses:
         200:
           description: 'A list of actvities'
