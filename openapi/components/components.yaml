@@ -3779,6 +3779,20 @@ components:
           type: string
           example: google
       type: object
+    AuthenticationError:
+      properties:
+        message:
+          description: 'These credentials do not match our records'
+          type: string
+          example: 'These credentials do not match our records'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object  
     ValidationError:
       properties:
         message:
@@ -4014,7 +4028,7 @@ components:
     X-API-SECRET:
       name: X-API-SECRET
       in: header
-      description: 'The API secret as defined by the .env variable API_SECRET, only needed for self hosted users, and only required on the login route if the .env parameter has been set.'
+      description: 'The API secret as defined by the .env variable API_SECRET. Only needed for self hosted users, and only applicable on the login route.'
       required: false
       schema:
         type: string
@@ -4044,6 +4058,26 @@ components:
       schema:
         type: string
         example: supersecretpassword
+    login_include:
+      name: login_include
+      in: query
+      description: Include child relations of the CompanyUser object, format is comma separated. **Note** it is possible to chain multiple includes together, ie. include=account,token
+      required: false
+      schema:
+        type: string
+      examples:
+        user:
+          value: user
+          summary: include=user will include the user object in the response
+        company:
+          value: company
+          summary: include=company will include the company object in the response
+        token:
+          value: token
+          summary: include=token will include the token object in the response
+        account:
+          value: account
+          summary: include=account will include the account object in the response
     include:
       name: include
       in: query
@@ -4051,7 +4085,7 @@ components:
       required: false
       schema:
         type: string
-        example: ''
+        example: 'first_load'
     include_static:
       name: include_static
       in: query
@@ -4097,3 +4131,9 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
+  components:
+  securitySchemes:
+    ApiKeyAuth:        
+      type: apiKey
+      in: header       
+      name: X-API-TOKEN  

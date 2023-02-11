@@ -1,9 +1,14 @@
 openapi: 3.0.0
 info:
-  title: 'Invoice Ninja'
+  title: 'Invoice Ninja API Reference - Where self host Invoicing lives.'
   description: |
-  # Invoice Ninja. 
-  ## Self hosted Invoicing lives here. 
+        ---
+        <br>
+        <div style="color: white; background-color:SlateBlue; padding: 12px; border-radius:2px">
+          The Invoice Ninja API is organized around REST and returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
+        </div>  
+        <br>
+
   termsOfService: 'https://invoiceninja.github.io/docs/legal/terms_of_service/#page-content'
   contact:
     email: contact@invoiceninja.com
@@ -14,80 +19,10 @@ info:
 servers:
   -
     url: 'https://demo.invoiceninja.com'
-    description: 'Demo API Server InvoiceNinja, you can use the demo API key `TOKEN` to test the endpoints.'
+    description: |
+          ## Demo API Server InvoiceNinja. 
+          You can use the demo API key `TOKEN` to test the endpoints from within this API spec
 paths:
-  /api/v1/signup:
-    post:
-      tags:
-        - signup
-      summary: 'Attempts a new account signup'
-      description: 'Attempts a new account signup and returns a CompanyUser object on success'
-      operationId: postSignup
-      parameters:
-        -
-          $ref: '#/components/parameters/X-Requested-With'
-        -
-          name: token_name
-          in: query
-          description: 'A custom name for the user company token'
-          required: true
-          schema:
-            type: string
-            format: string
-          example: 'Daves iOS Device'
-      requestBody:
-        description: 'Signup credentials'
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                email:
-                  description: 'The user email address'
-                  type: string
-                first_name:
-                  description: 'The signup users first name'
-                  type: string
-                last_name:
-                  description: 'The signup users last name'
-                  type: string
-                terms_of_service:
-                  description: 'The user accepted the terms of service'
-                  type: boolean
-                privacy_policy:
-                  description: 'The user accepted the privacy policy'
-                  type: boolean
-                password:
-                  description: 'The user password must meet minimum criteria ~ >6 characters'
-                  type: string
-                  example: '1234567'
-              type: object
-      responses:
-        200:
-          description: 'The Company User response'
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
-            X-RateLimit-Remaining:
-              $ref: '#/components/headers/X-RateLimit-Remaining'
-            X-RateLimit-Limit:
-              $ref: '#/components/headers/X-RateLimit-Limit'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CompanyUser'
-        422:
-          description: 'Validation error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        default:
-          description: 'Unexpected Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /api/v1/activities:
     get:
       tags:
@@ -185,6 +120,8 @@ paths:
       summary: 'Attempts authentication'
       description: 'Returns a CompanyUser object on success'
       operationId: postLogin
+      security:
+        - []
       parameters:
         -
           $ref: '#/components/parameters/X-API-SECRET'
@@ -193,7 +130,7 @@ paths:
         -
           $ref: '#/components/parameters/X-Requested-With'
         -
-          $ref: '#/components/parameters/include'
+          $ref: '#/components/parameters/login_include'
         -
           $ref: '#/components/parameters/include_static'
         -
@@ -206,12 +143,13 @@ paths:
             schema:
               properties:
                 email:
-                  description: 'The user email address'
+                  description: 'The users email address.'
                   type: string
+                  example: 'demo@invoiceninja.com'
                 password:
-                  description: 'The user password must meet minimum criteria ~ >6 characters'
+                  description: 'The user password. Must meet minimum criteria ~ > 6 characters'
                   type: string
-                  example: '1234567'
+                  example: 'Password0'
               type: object
       responses:
         200:
@@ -227,12 +165,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompanyUser'
-        422:
-          description: 'Validation error'
+        401:
+          description: 'Authentication failure'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: '#/components/schemas/AuthenticationError'
         default:
           description: 'Unexpected Error'
           content:
@@ -18721,6 +18659,20 @@ components:
           type: string
           example: google
       type: object
+    AuthenticationError:
+      properties:
+        message:
+          description: 'These credentials do not match our records'
+          type: string
+          example: 'These credentials do not match our records'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object  
     ValidationError:
       properties:
         message:
@@ -18956,7 +18908,7 @@ components:
     X-API-SECRET:
       name: X-API-SECRET
       in: header
-      description: 'The API secret as defined by the .env variable API_SECRET, only needed for self hosted users, and only required on the login route if the .env parameter has been set.'
+      description: 'The API secret as defined by the .env variable API_SECRET. Only needed for self hosted users, and only applicable on the login route.'
       required: false
       schema:
         type: string
@@ -18986,6 +18938,26 @@ components:
       schema:
         type: string
         example: supersecretpassword
+    login_include:
+      name: login_include
+      in: query
+      description: Include child relations of the CompanyUser object, format is comma separated. **Note** it is possible to chain multiple includes together, ie. include=account,token
+      required: false
+      schema:
+        type: string
+      examples:
+        user:
+          value: user
+          summary: include=user will include the user object in the response
+        company:
+          value: company
+          summary: include=company will include the company object in the response
+        token:
+          value: token
+          summary: include=token will include the token object in the response
+        account:
+          value: account
+          summary: include=account will include the account object in the response
     include:
       name: include
       in: query
@@ -18993,7 +18965,7 @@ components:
       required: false
       schema:
         type: string
-        example: ''
+        example: 'first_load'
     include_static:
       name: include_static
       in: query
@@ -19039,10 +19011,17 @@ components:
       description: 'The total number of requests in a given time window.'
       schema:
         type: integer
+  components:
+  securitySchemes:
+    ApiKeyAuth:        
+      type: apiKey
+      in: header       
+      name: X-API-TOKEN  
 tags:
   -
     name: login
-    description: Authentication
+    description: |
+          Attempts to authenticate with the API using a email/password combination.
     externalDocs:
       description: 'Find out more'
       url: 'https://invoiceninja.github.io'
@@ -19050,4 +19029,4 @@ externalDocs:
   description: 'https://invoiceninja.github.io'
   url: 'https://invoiceninja.github.io'
 security:
-  - []
+  - ApiKeyAuth: []
