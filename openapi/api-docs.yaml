@@ -57,12 +57,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Activity'
-        422:
-          description: 'Validation error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
         default:
           description: 'Unexpected Error'
           content:
