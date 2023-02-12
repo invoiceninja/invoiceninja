@@ -61,14 +61,18 @@ class OpenApiYaml extends Command
 
         $this->info($file);
 
+        }
+     
         Storage::disk('base')->delete('/openapi/api-docs.yaml');
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/info.yaml'));
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/paths/paths.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/paths/clients.yaml'));
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/components.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas/account.yaml'));
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/misc/misc.yaml'));
 
 
-        }
     }
 
 }

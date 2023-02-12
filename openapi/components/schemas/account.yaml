@@ -1,0 +1,7 @@
+    Account:
+      properties:
+        id:
+          description: 'The account hashed id'
+          type: string
+          example: AS3df3A
+      type: object
