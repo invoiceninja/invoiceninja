@@ -1637,6 +1637,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Client'
+        403:
+          description: 'Authorization error'
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schema/AuthorizationError'
         422:
           description: 'Validation error'
           content:
