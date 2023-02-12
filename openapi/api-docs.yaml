@@ -1571,9 +1571,7 @@ paths:
         - clients
       summary: 'List clients'
       description: |
-            Lists clients, search and filters allow fine grained lists to be generated.  
-
-            Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available
+            Lists clients. Fine grained filtering is also available using query parameters.  
       operationId: getClients
       parameters:
         -
@@ -1581,9 +1579,11 @@ paths:
         -
           $ref: '#/components/parameters/X-Requested-With'
         -
-          $ref: '#/components/parameters/include'
+          $ref: '#/components/parameters/client_include'
         -
           $ref: '#/components/parameters/index'
+        -
+          $ref: '#/components/parameters/client_filters'
       responses:
         200:
           description: 'A list of clients'
@@ -18973,6 +18973,55 @@ components:
         bank_transactions:
           value: bank_transactions
           summary: The associated Bank Transactions
+    client_filters:
+      name: filters
+      in: query
+      description: Search in list by name.
+      required: false
+      schema: 
+        type: string
+      examples:
+        name:
+          value: name
+          summary: ?name=bob - returns all clients with name bob
+        balance:
+          value: balance
+          summary: ?balance=lt:10 - returns all clients with balance less than 10
+        between_balance:
+          value: between_balance
+          summary: ?between_balance=10:100 - returns all clients with balance between 10 and 100
+        email:
+          value: email
+          summary: ?email=bob@gmail.com - returns all clients with an email of bob@gmail.com
+        id_number:
+          value: id_number
+          summary: ?id_number=abcd - returns all clients with a id_number of abcd
+        number:                         
+          value: number
+          summary: ?number=abcd - returns all clients with a number of abcd 
+        filter:
+          value: filter
+          summary: Filters clients on columns - name, id_number, contact.first_name contact.last_name, contact.email, custom_value1-4
+        sort:
+          value: sort
+          summary: ?sort=id|desc sorts the clients by id
+    client_include:
+      name: include
+      in: query
+      description: Include child relationships of the Client Object.
+      required: false
+      schema:
+        type: string
+      examples:
+        activities:
+          value: activities
+          summary: include=activities will include the activities object in the response
+        ledger:
+          value: ledger
+          summary: include=ledger will include the ledger object in the response
+        system_logs:
+          value: system_logs
+          summary: include=system_logs will include the system_logs object in the response
     activity_include:
       name: include
       in: query

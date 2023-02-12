@@ -1547,9 +1547,7 @@ paths:
         - clients
       summary: 'List clients'
       description: |
-            Lists clients, search and filters allow fine grained lists to be generated.  
-
-            Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available
+            Lists clients. Fine grained filtering is also available using query parameters.  
       operationId: getClients
       parameters:
         -
@@ -1557,9 +1555,11 @@ paths:
         -
           $ref: '#/components/parameters/X-Requested-With'
         -
-          $ref: '#/components/parameters/include'
+          $ref: '#/components/parameters/client_include'
         -
           $ref: '#/components/parameters/index'
+        -
+          $ref: '#/components/parameters/client_filters'
       responses:
         200:
           description: 'A list of clients'
