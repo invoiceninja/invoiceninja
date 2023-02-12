@@ -1031,6 +1031,11 @@ class BaseController extends Controller
     public function flutterRoute()
     {
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+
+            //always redirect invoicing.co to invoicing.co
+            if(Ninja::isHosted() && (request()->getSchemeAndHttpHost() != 'https://invoicing.co'))
+                return redirect()->secure('https://invoicing.co');
+
             if (config('ninja.require_https') && ! request()->isSecure()) {
                 return redirect()->secure(request()->getRequestUri());
             }

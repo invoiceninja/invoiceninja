@@ -110,19 +110,13 @@
             position: relative;
         } 
 
-        .doc_links {
-
+        a.doc_links {
+            text-decoration: none;
             padding-bottom: 10px;
             display: inline-block;
-            
-        }
-
-        a {
-
-            text-decoration: none;
             color: inherit !important;
-
         }
+
 
     </style>
 
@@ -178,6 +172,11 @@
 
                                 <div>
                                     @isset($links)
+                                        
+                                        @if(count($links) >=1)
+                                        <p><strong>{{ ctrans('texts.attachments') }}</strong></p>
+                                        @endif
+                                        
                                         @foreach($links as $link)
                                             {!! $link ?? '' !!}<br>
                                         @endforeach

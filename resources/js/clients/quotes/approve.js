@@ -75,7 +75,7 @@ class Approve {
             .getElementById('approve-button')
             .addEventListener('click', () => {
 
-                 if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput){
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput){
                     this.displayInput();
 
                         document
@@ -146,7 +146,7 @@ class Approve {
                         });
                 }
 
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput) {
+                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
                     this.submitForm();
                 }
             });

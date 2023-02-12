@@ -322,6 +322,7 @@ class BillingPortalPurchasev2 extends Component
                     'total' => $total,
                     'qty' => $qty,
                     'is_recurring' => true,
+                    'product_image' => $p->product_image,
                 ]);
             }
 

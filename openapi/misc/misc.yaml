@@ -1,0 +1,13 @@
+tags:
+  -
+    name: login
+    description: |
+          Attempts to authenticate with the API using a email/password combination.
+    externalDocs:
+      description: 'Find out more'
+      url: 'https://invoiceninja.github.io'
+externalDocs:
+  description: 'https://invoiceninja.github.io'
+  url: 'https://invoiceninja.github.io'
+security:
+  - ApiKeyAuth: []

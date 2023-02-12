@@ -11,7 +11,9 @@
 
 namespace App\Services\PurchaseOrder;
 
+use App\Jobs\Util\WebhookHandler;
 use App\Models\PurchaseOrder;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 
 class MarkSent
@@ -42,6 +44,8 @@ class MarkSent
             ->applyNumber()
             ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
             ->save();
+
+        $this->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
 
         return $this->purchase_order;
     }

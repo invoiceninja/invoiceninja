@@ -83,7 +83,7 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Gets a new blank scheduler object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -122,7 +122,7 @@ class TaskSchedulerController extends BaseController
      *      summary="Create task scheduler with job ",
      *      description="Create task scheduler with a job (action(job) request should be sent via request also. Example: We want client report to be job which will be run
      * multiple times, we should send the same parameters in the request as we would send if we wanted to get report, see example",
-     * @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     * @OA\Parameter(ref="#/components/parameters/X-API-SECRET"),
      * @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      * @OA\RequestBody(
      *          required=true,
@@ -199,7 +199,7 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Update task scheduler ",
      *      description="Update task scheduler",
-     * @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     * @OA\Parameter(ref="#/components/parameters/X-API-SECRET"),
      * @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -294,7 +294,7 @@ class TaskSchedulerController extends BaseController
      *      tags={"task_schedulers"},
      *      summary="Performs bulk actions on an array of task_schedulers",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

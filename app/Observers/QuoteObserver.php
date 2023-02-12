@@ -45,8 +45,8 @@ class QuoteObserver
      * @return void
      */
     public function updated(Quote $quote)
-    {nlog("updated");
-
+    {
+        
         $event = Webhook::EVENT_UPDATE_QUOTE;
 
         if($quote->getOriginal('deleted_at') && !$quote->deleted_at)

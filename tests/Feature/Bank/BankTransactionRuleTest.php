@@ -185,7 +185,7 @@ class BankTransactionRuleTest extends TestCase
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id, $data);
+            ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id. '?include=expense_category', $data);
 
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
@@ -194,7 +194,7 @@ class BankTransactionRuleTest extends TestCase
 
         if($response){
             $arr = $response->json();
-
+nlog($arr);
             $response->assertStatus(200);      
         }
 

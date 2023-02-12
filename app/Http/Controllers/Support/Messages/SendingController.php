@@ -18,7 +18,7 @@ class SendingController extends Controller
      *      tags={"support"},
      *      summary="Sends a support message to Invoice Ninja team",
      *      description="Allows a user to send a support message to the Invoice Ninja Team",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *         description="The message",

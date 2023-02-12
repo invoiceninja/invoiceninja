@@ -39,6 +39,8 @@ class Product extends BaseModel
         'in_stock_quantity',
         'stock_notification_threshold',
         'stock_notification',
+        'max_quantity',
+        'product_image',
     ];
 
     protected $touches = [];

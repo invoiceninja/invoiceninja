@@ -958,7 +958,7 @@ class SubscriptionService
         $invoice->subscription_id = $this->subscription->id;
         $invoice->client_id = $client_id;
         $invoice->is_proforma = true;
-        $invoice->number = ctrans('texts.subscription') . "_" . now()->format('Y-m-d') . "_" . rand(0,100000);
+        $invoice->number = "####" . ctrans('texts.subscription') . "_" . now()->format('Y-m-d') . "_" . rand(0,100000);
         $line_items = $bundle->map(function ($item){
 
             $line_item = new InvoiceItem;
