@@ -22,7 +22,7 @@ All Pro and Enterprise features from the hosted app are included in the open cod
 We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
 * [Videos](https://www.youtube.com/@appinvoiceninja)
-* [API Documentation](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
+* [API Documentation](https://api-docs.invoicing.co/)
 * [APP Documentation](https://invoiceninja.github.io/)
 * [Support Forum](https://forum.invoiceninja.com)
 

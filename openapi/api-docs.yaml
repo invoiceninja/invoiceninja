@@ -27,7 +27,7 @@ paths:
     get:
       tags:
         - actvities
-      summary: 'Gets a list of actvities'
+      summary: 'Returns a list of actvities'
       description: 'Lists all activities related to this company'
       operationId: getActivities
       parameters:
@@ -67,8 +67,8 @@ paths:
     get:
       tags:
         - actvities
-      summary: 'Gets a PDF for the given activity'
-      description: 'Gets a PDF for the given activity'
+      summary: 'Returns a PDF for the given activity'
+      description: 'Returns a PDF for the given activity'
       operationId: getActivityHistoricalEntityPdf
       parameters:
         -
@@ -172,10 +172,22 @@ paths:
     post:
       tags:
         - refresh
-      summary: 'Refreshes the dataset'
-      description: 'Refreshes the dataset'
-      operationId: refresh
+      summary: 'Refresh data by timestamp'
+      description: |
+            Refreshes the dataset.  
+
+            This endpoint can be used if you only need to access the most recent data from a certain point in time.
+            operationId: refresh
       parameters:
+        -
+          name: updated_at
+          in: query
+          description: 'The unix timestamp from which the refreshed data should be sent from, if no value is passed the system will assume you require all data.'
+          required: true
+          schema:
+            type: number
+            format: integer
+          example: 1676173763
         -
           $ref: '#/components/parameters/X-API-TOKEN'
         -
@@ -200,12 +212,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompanyUser'
-        422:
-          description: 'Validation error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
         default:
           description: 'Unexpected Error'
           content:
@@ -216,16 +222,14 @@ paths:
     post:
       tags:
         - yodlee
-      summary: 'Processing webhooks from Yodlee'
-      description: 'Notifies the system when a data point can be refreshed'
+      summary: 'Yodlee Webhook'
+      description: 'Webhook endpoint for Yodlee. Used to notify the system that a data point can be updated.'
       operationId: yodleeRefreshWebhook
       parameters:
         -
           $ref: '#/components/parameters/X-API-TOKEN'
         -
           $ref: '#/components/parameters/X-Requested-With'
-        -
-          $ref: '#/components/parameters/include'
       responses:
         200:
           description: ''
@@ -240,12 +244,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Credit'
-        422:
-          description: 'Validation error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
         default:
           description: 'Unexpected Error'
           content:
@@ -256,7 +254,7 @@ paths:
     get:
       tags:
         - bank_integrations
-      summary: 'Gets a list of bank_integrations'
+      summary: 'Returns a list of Bank Integrations'
       description: 'Lists all bank integrations'
       operationId: getBankIntegrations
       parameters:
@@ -265,7 +263,7 @@ paths:
         -
           $ref: '#/components/parameters/X-Requested-With'
         -
-          $ref: '#/components/parameters/include'
+          $ref: '#/components/parameters/bank_integration_include'
         -
           $ref: '#/components/parameters/index'
         -
@@ -1571,8 +1569,11 @@ paths:
     get:
       tags:
         - clients
-      summary: 'Gets a list of clients'
-      description: "Lists clients, search and filters allow fine grained lists to be generated.\n\n     * Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available"
+      summary: 'List clients'
+      description: |
+            Lists clients, search and filters allow fine grained lists to be generated.  
+
+            Query parameters can be added to performed more fine grained filtering of the clients, these are handled by the ClientFilters class which defines the methods available
       operationId: getClients
       parameters:
         -
@@ -1612,7 +1613,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Adds a client'
+      summary: 'Create client'
       description: 'Adds an client to a company'
       operationId: storeClient
       parameters:
@@ -1652,7 +1653,7 @@ paths:
     get:
       tags:
         - clients
-      summary: 'Shows a client'
+      summary: 'Show client'
       description: 'Displays a client by id'
       operationId: showClient
       parameters:
@@ -1700,7 +1701,7 @@ paths:
     put:
       tags:
         - clients
-      summary: 'Updates a client'
+      summary: 'Update client'
       description: 'Handles the updating of a client by id'
       operationId: updateClient
       parameters:
@@ -1748,7 +1749,7 @@ paths:
     delete:
       tags:
         - clients
-      summary: 'Deletes a client'
+      summary: 'Delete client'
       description: 'Handles the deletion of a client by id'
       operationId: deleteClient
       parameters:
@@ -1793,7 +1794,7 @@ paths:
     get:
       tags:
         - clients
-      summary: 'Shows a client for editting'
+      summary: 'Edit Client'
       description: 'Displays a client by id'
       operationId: editClient
       parameters:
@@ -1842,7 +1843,7 @@ paths:
     get:
       tags:
         - clients
-      summary: 'Gets a new blank client object'
+      summary: 'Blank Client'
       description: 'Returns a blank object with default values'
       operationId: getClientsCreate
       parameters:
@@ -1882,7 +1883,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Performs bulk actions on an array of clients'
+      summary: 'Bulk actions'
       description: ''
       operationId: bulkClients
       parameters:
@@ -1933,7 +1934,7 @@ paths:
     put:
       tags:
         - clients
-      summary: 'Uploads a document to a client'
+      summary: 'Add client document'
       description: 'Handles the uploading of a document to a client'
       operationId: uploadClient
       parameters:
@@ -1982,7 +1983,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Purges a client from the system'
+      summary: 'Purge client'
       description: 'Handles purging a client'
       operationId: purgeClient
       parameters:
@@ -2027,7 +2028,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Merges two clients'
+      summary: 'Merge client'
       description: 'Handles merging 2 clients'
       operationId: mergeClient
       parameters:
@@ -2081,7 +2082,7 @@ paths:
     get:
       tags:
         - client_gateway_tokens
-      summary: 'Gets a list of client_gateway_tokens'
+      summary: 'List of client tokens'
       description: "Lists client_gateway_tokens, search and filters allow fine grained lists to be generated.\n\n    Query parameters can be added to performed more fine grained filtering of the client_gateway_tokens, these are handled by the ClientGatewayTokenFilters class which defines the methods available"
       operationId: getClientGatewayTokens
       parameters:
@@ -2392,7 +2393,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Return a PDF of the client statement'
+      summary: 'Client statement PDF'
       description: 'Return a PDF of the client statement'
       operationId: clientStatement
       parameters:
@@ -18955,6 +18956,23 @@ components:
       schema:
         type: string
         example: supersecretpassword
+    bank_integration_include:
+      name: include
+      in: query
+      description: Include child relations of the BankIntegration object. Format is comma separated. 
+      require: false
+      schema:
+        type: string
+      examples:
+        company:
+          value: company
+          summary: The associated Company
+        account:
+          value: account
+          summary: The associated Account
+        bank_transactions:
+          value: bank_transactions
+          summary: The associated Bank Transactions
     activity_include:
       name: include
       in: query
@@ -19105,6 +19123,18 @@ tags:
     externalDocs:
       description: 'Find out more'
       url: 'https://invoiceninja.github.io'
+  -
+    name: clients
+    description: |
+          Endpoint definitions for interacting with clients.
+  -
+    name: products
+    description: |
+          Endpoint definitions for interacting with products.
+  -
+    name: invoices
+    description: |
+          Endpoint definitions for interacting with invoices.
 externalDocs:
   description: 'https://invoiceninja.github.io'
   url: 'https://invoiceninja.github.io'
