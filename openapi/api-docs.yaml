@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: 'Invoice Ninja API Reference - Where self host Invoicing lives.'
+  title: 'Invoice Ninja API Reference - Where self host invoicing lives.'
   description: |
         ---
         <br>
@@ -15,7 +15,7 @@ info:
   license:
     name: 'Elastic License'
     url: 'https://www.elastic.co/licensing/elastic-license'
-  version: 1.0.30
+  version: 5.5.70
 servers:
   -
     url: 'https://demo.invoiceninja.com'
@@ -19355,6 +19355,10 @@ components:
           description: 'The account hashed id'
           type: string
           example: AS3df3A
+        account_sms_verified:
+          description: 'Boolean flag if the account has been verified by sms'
+          type: string
+          example: true
       type: object
 tags:
   -
