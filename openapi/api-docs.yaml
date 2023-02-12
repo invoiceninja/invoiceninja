@@ -1883,7 +1883,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Client Bulk Actions'
+      summary: 'Bulk actions'
       description: ''
       operationId: bulkClients
       parameters:
@@ -1934,7 +1934,7 @@ paths:
     put:
       tags:
         - clients
-      summary: 'Client Upload'
+      summary: 'Add client document'
       description: 'Handles the uploading of a document to a client'
       operationId: uploadClient
       parameters:
@@ -2393,7 +2393,7 @@ paths:
     post:
       tags:
         - clients
-      summary: 'Return a PDF of the client statement'
+      summary: 'Client statement PDF'
       description: 'Return a PDF of the client statement'
       operationId: clientStatement
       parameters:
