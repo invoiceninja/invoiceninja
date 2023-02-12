@@ -127,6 +127,10 @@ class IncomeTransformer implements BankRevenueInterface
 
         foreach($transaction->transaction as $transaction)
         {
+            //do not store duplicate / pending transactions
+            if(property_exists($transaction,'status') && $transaction->status == 'PENDING')
+                continue;
+
             $data[] = $this->transformTransaction($transaction);
         }
 
