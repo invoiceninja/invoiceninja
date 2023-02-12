@@ -1559,7 +1559,70 @@ paths:
         -
           $ref: '#/components/parameters/index'
         -
-          $ref: '#/components/parameters/client_filters'
+          name: name
+          in: query
+          description: Filter by client name
+          required: false
+          schema:
+            type: string
+          example: bob
+        -
+          name: balance
+          in: query
+          description: Filter by client balance, format uses an operator and value separated by a colon. lt,lte, gt, gte, eq
+          required: false
+          schema:
+            type: string
+          example: lt:10
+        -
+          name: between_balance
+          in: query
+          description: Filter between client balances, format uses two values separated by a colon
+          required: false
+          schema:
+            type: string
+          example: 10:100
+        -
+          name: email
+          in: query
+          description: Filter by client email
+          required: false
+          schema:
+            type: string
+          example: bob@gmail.com
+        -
+          name: id_number
+          in: query
+          description: Filter by client id_number
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        -
+          name: number
+          in: query
+          description: Filter by client number
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        -
+          name: filter
+          in: query
+          description: Filters clients on columns - name, id_number, contact.first_name contact.last_name, contact.email, custom_value1-4
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        -
+          name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc name|desc balance|asc 
+
       responses:
         200:
           description: 'A list of clients'

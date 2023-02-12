@@ -4101,38 +4101,6 @@ components:
         bank_transactions:
           value: bank_transactions
           summary: The associated Bank Transactions
-    client_filters:
-      name: filters
-      in: query
-      description: Search in list by name.
-      required: false
-      schema: 
-        type: string
-      examples:
-        name:
-          value: name
-          summary: ?name=bob - returns all clients with name bob
-        balance:
-          value: balance
-          summary: ?balance=lt:10 - returns all clients with balance less than 10
-        between_balance:
-          value: between_balance
-          summary: ?between_balance=10:100 - returns all clients with balance between 10 and 100
-        email:
-          value: email
-          summary: ?email=bob@gmail.com - returns all clients with an email of bob@gmail.com
-        id_number:
-          value: id_number
-          summary: ?id_number=abcd - returns all clients with a id_number of abcd
-        number:                         
-          value: number
-          summary: ?number=abcd - returns all clients with a number of abcd 
-        filter:
-          value: filter
-          summary: Filters clients on columns - name, id_number, contact.first_name contact.last_name, contact.email, custom_value1-4
-        sort:
-          value: sort
-          summary: ?sort=id|desc sorts the clients by id
     client_include:
       name: include
       in: query
