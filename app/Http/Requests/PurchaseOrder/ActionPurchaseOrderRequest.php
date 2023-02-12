@@ -12,21 +12,16 @@
 namespace App\Http\Requests\PurchaseOrder;
 
 use App\Http\Requests\Request;
-use App\Models\PurchaseOrder;
-use App\Utils\Traits\MakesHash;
 
 class ActionPurchaseOrderRequest extends Request
 {
-    use MakesHash;
+    private $error_msg;
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    private $error_msg;
-
-    // private $invoice;
 
     public function authorize() : bool
     {

@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Util;
 
+use App\Exceptions\ClientHostedMigrationException;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\NonExistingMigrationFile;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
@@ -126,7 +127,7 @@ class StartMigration implements ShouldQueue
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($this->company->settings));
-        } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
+        } catch (ClientHostedMigrationException | NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 

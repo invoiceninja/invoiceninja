@@ -12,7 +12,9 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasMarkedSent;
+use App\Jobs\Util\WebhookHandler;
 use App\Models\Quote;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 use Carbon\Carbon;
 
@@ -51,6 +53,8 @@ class MarkSent
              ->save();
 
         event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $this->quote->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
 
         return $this->quote;
     }

@@ -51,8 +51,35 @@ class TemplateEmail extends Mailable
         $this->invitation = $invitation;
     }
 
+    /**
+     * Supports inline attachments for large 
+     * attachments in custom designs
+     *     
+     * @return string
+     */
+    private function buildLinksForCustomDesign(): string
+    {
+        $links = $this->build_email->getAttachmentLinks();
+
+        if(count($links) == 0)
+            return '';
+
+        $link_string = '<ul>';
+
+        foreach($this->build_email->getAttachmentLinks() as $link)
+        {
+            $link_string .= "<li>{$link}</li>";
+        }
+
+        $link_string .= '</ul>';
+
+        return $link_string;
+
+    }
+
     public function build()
     {
+
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
@@ -60,7 +87,7 @@ class TemplateEmail extends Mailable
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
-            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody().$this->buildLinksForCustomDesign(), $this->client->getSetting('email_style_custom')));
         }
 
         $settings = $this->client->getMergedSettings();

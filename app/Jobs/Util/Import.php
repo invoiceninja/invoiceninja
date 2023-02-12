@@ -13,6 +13,7 @@ namespace App\Jobs\Util;
 
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
+use App\Exceptions\ClientHostedMigrationException;
 use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
@@ -106,6 +107,7 @@ class Import implements ShouldQueue
     use CleanLineItems;
     use Uploadable;
     use SavesDocuments;
+
     /**
      * @var array
      */
@@ -188,10 +190,10 @@ class Import implements ShouldQueue
         $this->resources = $resources;
     }
 
-    // public function middleware()
-    // {
-    //     return [new WithoutOverlapping("only_one_migration_at_a_time_ever")];
-    // }
+    public function middleware()
+    {   
+        return [(new WithoutOverlapping($this->user->account_id))];
+    }
 
     /**
      * Execute the job.
@@ -581,18 +583,42 @@ class Import implements ShouldQueue
         $validator = null;
     }
 
+    private function testUserDbLocationSanity(array $data): bool
+    {
+
+        if(Ninja::isSelfHost())
+            return true;
+
+        $current_db = config('database.default');
+
+        $db1_count = User::on('db-ninja-01')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+        $db2_count = User::on('db-ninja-02')->withTrashed()->whereIn('email', array_column($data, 'email'))->count();
+
+        MultiDB::setDb($current_db);
+
+        if($db2_count == 0 && $db1_count == 0)
+            return true;
+
+        if($db1_count >= 1 && $db2_count >= 1)
+            return false;
+
+        return true;
+    }
+
     /**
      * @param array $data
      * @throws Exception
      */
     private function processUsers(array $data): void
     {
+        if(!$this->testUserDbLocationSanity($data))
+            throw new ClientHostedMigrationException('You have users that belong to different accounts registered in the system, please contact us to resolve.', 400);
+
         User::unguard();
 
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            //'*.email' => ['distinct'],
             '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
 
@@ -748,7 +774,7 @@ class Import implements ShouldQueue
 
         Client::reguard();
 
-        Client::with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
+        Client::withTrashed()->with('contacts')->where('company_id', $this->company->id)->cursor()->each(function ($client){
 
           $contact = $client->contacts->sortByDesc('is_primary')->first();
           $contact->is_primary = true;
@@ -1897,6 +1923,8 @@ class Import implements ShouldQueue
     {
         info('the job failed');
 
+        config(['queue.failed.driver' => null]);
+
         $job_failure = new MigrationFailure();
         $job_failure->string_metric5 = get_class($this);
         $job_failure->string_metric6 = $exception->getMessage();
@@ -1950,7 +1978,6 @@ class Import implements ShouldQueue
         }
 
     }
-
 
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct

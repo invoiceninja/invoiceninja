@@ -87,6 +87,9 @@ class CreditCard
             return $this->paytrace->processUnsuccessfulTransaction($data);
         }
 
+        nlog("paytrace response createCustomer");
+        nlog($response);
+
         $cgt = [];
         $cgt['token'] = $response->customer_id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
