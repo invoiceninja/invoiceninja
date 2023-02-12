@@ -1666,7 +1666,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schema/AuthorizationError'
+                $ref: '#components/schemas/AuthorizationError'
         422:
           description: 'Validation error'
           content:
@@ -18777,7 +18777,7 @@ components:
     AuthorizationError:
       properties:
         message:
-          description: 'The error message'
+          description: 'Invalid Token'
           type: string
           example: 'Invalid Token'
         errors:

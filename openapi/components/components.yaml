@@ -3836,7 +3836,7 @@ components:
     AuthorizationError:
       properties:
         message:
-          description: 'The error message'
+          description: 'Invalid Token'
           type: string
           example: 'Invalid Token'
         errors:

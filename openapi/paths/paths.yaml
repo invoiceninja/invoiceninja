@@ -1642,7 +1642,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schema/AuthorizationError'
+                $ref: '#components/schemas/AuthorizationError'
         422:
           description: 'Validation error'
           content:
