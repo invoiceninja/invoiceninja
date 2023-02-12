@@ -4084,6 +4084,23 @@ components:
       schema:
         type: string
         example: supersecretpassword
+    bank_integration_include:
+      name: include
+      in: query
+      description: Include child relations of the BankIntegration object. Format is comma separated. 
+      require: false
+      schema:
+        type: string
+      examples:
+        company:
+          value: company
+          summary: The associated Company
+        account:
+          value: account
+          summary: The associated Account
+        bank_transactions:
+          value: bank_transactions
+          summary: The associated Bank Transactions
     activity_include:
       name: include
       in: query
