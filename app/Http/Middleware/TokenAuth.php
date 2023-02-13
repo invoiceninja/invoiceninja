@@ -52,12 +52,6 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
-            $truth = app()->make(TruthSource::class);
-
-            $truth->setCompanyUser($company_token->cu);
-            $truth->setUser($company_token->user);
-            $truth->setCompany($company_token->company);
-            $truth->setCompanyToken($company_token);
 
             /*
             |
@@ -67,7 +61,19 @@ class TokenAuth
             |
             */
 
+            $truth = app()->make(TruthSource::class);
+
+            $truth->setCompanyUser($company_token->cu);
+            $truth->setUser($company_token->user);
+            $truth->setCompany($company_token->company);
+            $truth->setCompanyToken($company_token);
+
+            /*
+            | This method binds the db to the jobs created using this
+            | session 
+             */
             app('queue')->createPayloadUsing(function () use ($company_token) {
+                nlog("setting DB ". $company_token->company->db);
                 return ['db' => $company_token->company->db];
             });
 

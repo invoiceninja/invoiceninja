@@ -37,6 +37,7 @@ class MultiDBProvider extends ServiceProvider
             JobProcessing::class,
             function ($event) {
                 if (isset($event->job->payload()['db'])) {
+                    nlog("Settings DB: " . $event->job->payload()['db']);
                     MultiDB::setDb($event->job->payload()['db']);
                 }
             }
