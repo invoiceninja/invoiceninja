@@ -13,53 +13,51 @@ namespace App\Services\Email;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Services\Email\MailBuild;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class MailEntity implements ShouldQueue
+class MailEntity extends BaseMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Company $company;
 
-    public function __construct(protected $invitation, private ?string $db, private ?string $reminder_template = null, private ?string $template_data = null, private bool $override = false)
+    public function __construct(protected $invitation, private ?string $db, public MailObject $mail_object)
     {
 
         $this->invitation = $invitation;
 
+        $this->company = $invitation->company;
+
         $this->db = $db;
 
-        $this->reminder_template = $reminder_template;
+        $this->mail_object = $mail_object;
 
-        $this->template_data = $template_data;
-
-        $this->override = $override;
-
-        // $this->entity_string = $this->resolveEntityString();
-
-        // $this->entity = $invitation->{$this->entity_string};
-
-        // $this->settings = $invitation->contact->client->getMergedSettings();
-
-        // $this->reminder_template = $reminder_template ?: $this->entity->calculateTemplate($this->entity_string);
-
-        // $this->html_engine = new HtmlEngine($invitation);
-
-        // $this->template_data = $template_data;
+        $this->override = $mail_object->override;
 
     }
 
-    public function handle(): void
+    public function handle(MailBuild $builder): void
     {
         MultiDB::setDb($this->db);
 
+        $this->companyCheck();
+
         //construct mailable
 
-        //construct mailer
+        //spam checks
 
+        //what do we pass into a generaic builder?
+        
+        //construct mailer
+        $mailer = $this->configureMailer()
+                       ->trySending();
+
+     
     }
 
 }

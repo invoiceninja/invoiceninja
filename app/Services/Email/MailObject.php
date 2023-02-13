@@ -77,4 +77,11 @@ class MailObject
 
 	public array $variables = [];
 	
+	public ?string $reminder_template = null;
+
+	public ?string $template_data = null;
+
+	public bool $override = false;
+
+
 }
