@@ -11,9 +11,10 @@
 
 namespace App\Http\Requests\BankTransactionRule;
 
+use App\Models\Account;
 use App\Http\Requests\Request;
-use App\Models\BankTransactionRule;
 use App\Utils\Traits\MakesHash;
+use App\Models\BankTransactionRule;
 
 class StoreBankTransactionRuleRequest extends Request
 {
@@ -26,7 +27,7 @@ class StoreBankTransactionRuleRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', BankTransactionRule::class);
+        return auth()->user()->can('create', BankTransactionRule::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);;
     }
     
     public function rules()

@@ -110,6 +110,7 @@ class Account extends BaseModel
     const FEATURE_USERS = 'users'; // Grandfathered for old Pro users
     const FEATURE_DOCUMENTS = 'documents';
     const FEATURE_USER_PERMISSIONS = 'permissions';
+    const FEATURE_SUBSCRIPTIONS = 'subscriptions';
 
     const RESULT_FAILURE = 'failure';
     const RESULT_SUCCESS = 'success';

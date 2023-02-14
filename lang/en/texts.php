@@ -4952,6 +4952,7 @@ $LANG = array(
     'update_payment' => 'Update Payment',
     'markup' => 'Markup',
     'unlock_pro' => 'Unlock Pro',
+    'preferences' => 'Preferences'
 );
 
 
