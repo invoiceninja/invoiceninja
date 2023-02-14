@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\Design;
 
+use App\Models\Account;
 use App\Http\Requests\Request;
 
 class StoreDesignRequest extends Request
@@ -22,7 +23,7 @@ class StoreDesignRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() && auth()->user()->account->hasFeature(Account::FEATURE_API);;
     }
 
     public function rules()
