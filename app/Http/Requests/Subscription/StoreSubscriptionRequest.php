@@ -11,8 +11,9 @@
 
 namespace App\Http\Requests\Subscription;
 
-use App\Http\Requests\Request;
+use App\Models\Account;
 use App\Models\Subscription;
+use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends Request
@@ -24,7 +25,7 @@ class StoreSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->can('create', Subscription::class);
+        return auth()->user()->can('create', Subscription::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);
     }
 
     /**
