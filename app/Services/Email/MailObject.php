@@ -38,6 +38,8 @@ class MailObject
 
 	public array $attachments = [];
 
+	public array $attachment_links = [];
+
 	public string $company_key;
 
 	public ?object $settings = null;

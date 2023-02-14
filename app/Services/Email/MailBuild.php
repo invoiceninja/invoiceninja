@@ -19,44 +19,47 @@ use App\Utils\HtmlEngine;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
 use App\Utils\VendorHtmlEngine;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use App\Services\Email\MailMailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Contracts\Mail\Mailable;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class MailBuild
 {
-    
-    /**
-     * settings
-     *
-     * @var mixed
-     */
+        
+     /** @var mixed $settings */
     protected $settings;
     
-    /** @var mixed $template */
+    /** @var string $template */
     private string $template;
     
-    /** @var mixed $locale */
+    /** @var string $locale */
     private string $locale;
     
-    /** @var mixed $client */
+    /** @var ?Client $client */
     private ?Client $client;
     
-    /** @var mixed $vendor */
+    /** @var ?Vendor $vendor */
     private ?Vendor $vendor;
         
     /** @var mixed $html_engine */
     private mixed $html_engine;
     
-    /** @var mixed $variables */
+    /** @var array $variables */
     private array $variables = [];
+   
+    /** @var int $max_attachment_size */
+    public int $max_attachment_size = 3000000;
+
     /**
      * __construct
      *
-     * @param  mixed $mail_entity
+     * @param  MailEntity $mail_entity
      * @return void
      */
     public function __construct(public MailEntity $mail_entity){}
@@ -92,7 +95,7 @@ class MailBuild
      */
     public function getMailable(): Mailable
     {
-        return new MailMailable($this->mail_entity->mail_object); //todo current depends on EmailObject
+        return new MailMailable($this->mail_entity->mail_object);
     }
 
     /**
@@ -112,28 +115,6 @@ class MailBuild
         $this->vendor = $vendor_contact?->vendor;
 
         return $this;
-    }
-
-    /**
-     * Sets the meta data for the Email object
-     *
-     * @return self
-     */
-    private function setMetaData(): self
-    {
-
-        $this->mail_entity->mail_object->company_key = $this->mail_entity->company->company_key;
-
-        $this->mail_entity->mail_object->logo = $this->mail_entity->company->present()->logo();
-
-        $this->mail_entity->mail_object->signature = $this->mail_entity->mail_object->signature ?: $this->settings->email_signature;
-
-        $this->mail_entity->mail_object->whitelabel = $this->mail_entity->company->account->isPaid() ? true : false;
- 
-        $this->mail_entity->mail_object->company = $this->mail_entity->company;
-
-        return $this;
-
     }
 
     /**
@@ -166,12 +147,13 @@ class MailBuild
 
         }
         else{
+
             $this->locale = $this->mail_entity->company->locale();
             $this->settings = $this->mail_entity->company->settings;
+
         }
         
         $this->mail_entity->mail_object->settings = $this->settings;
-
 
         App::setLocale($this->locale);
         App::forgetInstance('translator');
@@ -179,6 +161,28 @@ class MailBuild
         $t->replace(Ninja::transformTranslations($this->settings));
 
         return $this;
+    }
+
+    /**
+     * Sets the meta data for the Email object
+     *
+     * @return self
+     */
+    private function setMetaData(): self
+    {
+
+        $this->mail_entity->mail_object->company_key = $this->mail_entity->company->company_key;
+
+        $this->mail_entity->mail_object->logo = $this->mail_entity->company->present()->logo();
+
+        $this->mail_entity->mail_object->signature = $this->mail_entity->mail_object->signature ?: $this->settings->email_signature;
+
+        $this->mail_entity->mail_object->whitelabel = $this->mail_entity->company->account->isPaid() ? true : false;
+ 
+        $this->mail_entity->mail_object->company = $this->mail_entity->company;
+
+        return $this;
+
     }
 
     /**
@@ -209,8 +213,12 @@ class MailBuild
      */
     private function setTo(): self
     {
-        $this->mail_entity->mail_object->to = [new Address($this->mail_entity->invitation->contact->email, $this->mail_entity->invitation->contact->present()->name())];
-    
+        
+        $this->mail_entity->mail_object->to = array_merge(
+                                                $this->mail_entity->mail_object->to ,
+                                                [new Address($this->mail_entity->invitation->contact->email, $this->mail_entity->invitation->contact->present()->name())]
+                                            );
+
         return $this;
     }
  
@@ -293,24 +301,95 @@ class MailBuild
      */    
     private function setAttachments(): self
     {
-        $attachments = [];
+        $this->setContextAttachments();
 
         if ($this->settings->document_email_attachment && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
             foreach ($this->mail_entity->company->documents as $document) {
 
-                $attachments[] = ['file' => base64_encode($document->getFile()), 'name' => $document->name];
+                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($document->getFile()), 'name' => $document->name]);
                 
             }
 
         }
 
-        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, $attachments);
-
         return $this;
 
     }
+    
+    /**
+     * Depending on context we may need to resolve the
+     * attachment dependencies.
+     * 
+     * ie. Resolve the entity.
+     * ie. Resolve if we should attach the Entity PDF
+     * ie. Create the Entity PDF
+     * ie. Inject the PDF
+     *
+     * @return array
+     */
+    private function setContextAttachments(): self
+    {
 
+        if(!$this->settings->pdf_email_attachment || !$this->mail_entity->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT))
+            return [];
+
+        if($this->mail_entity->invitation?->purchase_order){
+         
+            $pdf = (new CreatePurchaseOrderPdf($this->mail_entity->invitation))->rawPdf();
+   
+            $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->purchase_order->numberFormatter().'.pdf']);
+
+            if ($this->vendor->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+
+                // Storage::url
+                foreach ($this->mail_entity->invitation->purchase_order->documents as $document) {
+                    
+                    if($document->size > $this->max_attachment_size)
+                        $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, ["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                    else
+                        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]);
+
+                }
+            }
+
+            return $this;
+
+        }
+
+        if($this->mail_entity->invitation?->invoice)
+            $entity = 'invoice';
+    
+        if($this->mail_entity->invitation?->quote)
+            $entity = 'quote';        
+        
+        if($this->mail_entity->invitation?->credit)
+            $entity = 'credit';    
+        
+        $pdf = ((new CreateRawPdf($this->mail_entity->invitation, $this->mail_entity->invitation->company->db))->handle());
+
+        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$entity}->numberFormatter().'.pdf']);
+
+        if ($this->client->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+
+            // Storage::url
+            foreach ($this->mail_entity->invitation->{$entity}->documents as $document) {
+                
+                if($document->size > $this->max_attachment_size)
+                    $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, ["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                else
+                    $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]);
+
+            }
+        }
+
+       if($this->settings->pdf_email_attachment && $entity == 'invoice')
+       {
+
+       }
+       
+       return $this;
+    }
 
 
     /**
@@ -338,7 +417,6 @@ class MailBuild
      */
     public function setVariables(): self
     {
-
         
         if($this->mail_entity->mail_object->variables){
             $this->mail_entity->mail_object->subject = strtr($this->mail_entity->mail_object->subject, $this->mail_entity->mail_object->variables);
@@ -352,6 +430,7 @@ class MailBuild
             $this->mail_entity->mail_object->body = $this->parseMarkdownToHtml($this->mail_entity->mail_object->body);
 
         return $this;
+
     }
 
     /**
