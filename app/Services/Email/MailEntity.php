@@ -32,30 +32,30 @@ class MailEntity implements ShouldQueue
 
     public Company $company;
 
-    public int $tries = 4;
-
-    public ?string $client_postmark_secret = null;
-
-    public ?string $client_mailgun_secret = null;
-
-    public ?string $client_mailgun_domain = null;
-
-    public bool $override = false;
-
-    public $deleteWhenMissingModels = true;
-
-    private string $mailer = '';
-    
-    public $invitation;
-    
-    public Mail $mail;
-
-    private ?string $db;
-
     public MailObject $mail_object;
 
     public Mailable $mailable;
+
+    public Mail $mail;
     
+    public ?string $client_postmark_secret = null;
+    
+    public ?string $client_mailgun_secret = null;
+    
+    public ?string $client_mailgun_domain = null;
+    
+    public bool $override = false;
+        
+    private string $mailer = '';
+    
+    public $invitation;
+
+    private ?string $db;
+
+    public int $tries = 4;
+    
+    public $deleteWhenMissingModels = true;
+
     public function __construct($invitation, $db, $mail_object)
     {
 
@@ -73,22 +73,26 @@ class MailEntity implements ShouldQueue
 
     public function handle(): void
     {
-        $builder = new MailBuild($this);
-
+        
         MultiDB::setDb($this->db);
-
+        
         $this->companyCheck();
+        
+        $builder = new MailBuild($this);
 
         //construct mailable
         $builder->run($this);
 
         $this->mailable = $builder->getMailable();
 
+        //spam checks
+        if($this->preFlightChecksFail())
+            return;
+
         $this->setMailDriver()
              ->trySending();
 
-        //spam checks
-
+        
         //what do we pass into a generaic builder?
         
         //construct mailer
@@ -265,7 +269,7 @@ class MailEntity implements ShouldQueue
             {
 
                 /* If the is an entity attached to the message send a failure mailer */
-                if($this->nmo->entity)
+                if($this->mail_object->entity_id)
                     $this->entityEmailFailed($message);
 
                 /* Don't send postmark failures to Sentry */
@@ -280,13 +284,102 @@ class MailEntity implements ShouldQueue
         }
     }
 
+   /**
+     * On the hosted platform we scan all outbound email for 
+     * spam. This sequence processes the filters we use on all
+     * emails.
+     */
+    public function preFlightChecksFail(): bool
+    {
+
+        /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
+        if($this->hasInValidEmails())
+            return true;
+
+        /* GMail users are uncapped */
+        if(in_array($this->mail_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) 
+            return false;
+
+        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+        if($this->company->account && $this->company->account->emailQuotaExceeded())
+            return true;
+
+        /* If the account is verified, we allow emails to flow */
+        if($this->company->account && $this->company->account->is_verified_account) {
+
+            //11-01-2022
+
+            /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
+            // if(class_exists(\Modules\Admin\Jobs\Account\EmailQuality::class))
+            //     (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
+
+            // return false;
+        }
+
+
+        /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
+        if($this->company->account && !$this->company->account->account_sms_verified){
+            
+            if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+                (new \Modules\Admin\Jobs\Account\EmailFilter($this->mail_object, $this->company))->run();
+
+            return true;
+
+        }
+
+        /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
+        if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+            (new \Modules\Admin\Jobs\Account\EmailFilter($this->mail_object, $this->company))->run();
+
+        return false;
+
+    }
+
+    
+    /**
+     * Checks if emails are have some illegal / required characters.
+     *
+     * @return bool
+     */
+    private function hasInValidEmails(): bool
+    {
+
+        foreach($this->mail_object->to as $address_object)
+        {
+
+            if(strpos($address_object->address, '@example.com') !== false)
+                return true;
+
+            if(!str_contains($address_object->address, "@"))
+                return true;
+
+            if($address_object->address == " ")
+                return true;
+        }
+
+
+        return false;
+    }
+    
+    /**
+     * Backoff time
+     *
+     * @return void
+     */
     public function backoff()
     {
         return [5, 10, 30, 240];
     }
-
+    
+    /**
+     * Failed handler
+     *
+     * @param  mixed $exception
+     * @return void
+     */
     public function failed($exception = null)
     {
+    nlog("dying now");
 
         config(['queue.failed.driver' => null]);
 
