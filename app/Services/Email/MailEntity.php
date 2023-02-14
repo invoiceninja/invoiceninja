@@ -24,9 +24,9 @@ class MailEntity extends BaseMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Company $company;
+    public Company $company;
 
-    public function __construct(protected $invitation, private ?string $db, public MailObject $mail_object)
+    public function __construct(protected ?mixed $invitation, private ?string $db, public MailObject $mail_object)
     {
 
         $this->invitation = $invitation;
@@ -48,7 +48,7 @@ class MailEntity extends BaseMailer implements ShouldQueue
         $this->companyCheck();
 
         //construct mailable
-
+        $builder->run($this);
         //spam checks
 
         //what do we pass into a generaic builder?
