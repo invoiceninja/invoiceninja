@@ -99,6 +99,16 @@ class BaseDriver extends AbstractPaymentDriver
      * @return array[]
      */
 
+    public function init()
+    {
+        return $this;
+    }
+
+    public function updateCustomer()
+    {
+        return $this;
+    }
+
     public function getClientRequiredFields(): array
     {
         $fields = [];

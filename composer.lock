@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ac024e516d3ec373954f9da6e3d6256",
+    "content-hash": "0c7d0b98049debcdc39406241b36770a",
     "packages": [
         {
             "name": "afosto/yaac",
@@ -379,16 +379,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.258.5",
+            "version": "3.258.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c29a1db83373f8a5c4735acfdd3470e1bc594fee"
+                "reference": "e164c9c5faf3965bd27ff2a4e9b7b3048ba8a337"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c29a1db83373f8a5c4735acfdd3470e1bc594fee",
-                "reference": "c29a1db83373f8a5c4735acfdd3470e1bc594fee",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e164c9c5faf3965bd27ff2a4e9b7b3048ba8a337",
+                "reference": "e164c9c5faf3965bd27ff2a4e9b7b3048ba8a337",
                 "shasum": ""
             },
             "require": {
@@ -467,9 +467,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.258.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.258.10"
             },
-            "time": "2023-02-07T19:22:14+00:00"
+            "time": "2023-02-14T19:21:16+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1909,16 +1909,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v6.3.2",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "ea7dda77098b96e666c5ef382452f94841e439cd"
+                "reference": "4dd1e007f22a927ac77da5a3fbb067b42d3bc224"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/ea7dda77098b96e666c5ef382452f94841e439cd",
-                "reference": "ea7dda77098b96e666c5ef382452f94841e439cd",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/4dd1e007f22a927ac77da5a3fbb067b42d3bc224",
+                "reference": "4dd1e007f22a927ac77da5a3fbb067b42d3bc224",
                 "shasum": ""
             },
             "require": {
@@ -1933,6 +1933,7 @@
                 "psr/http-factory": "^1.0"
             },
             "suggest": {
+                "ext-sodium": "Support EdDSA (Ed25519) signatures",
                 "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
             },
             "type": "library",
@@ -1965,9 +1966,9 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v6.3.2"
+                "source": "https://github.com/firebase/php-jwt/tree/v6.4.0"
             },
-            "time": "2022-12-19T17:10:46+00:00"
+            "time": "2023-02-09T21:01:23+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -2042,16 +2043,16 @@
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "4.25.0",
+            "version": "4.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "ebaed83ae21cf40d7eb05f568c26f88d2cae1e5a"
+                "reference": "a8595043eb13d597e8d11c4c1bfb0e040696e6b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/ebaed83ae21cf40d7eb05f568c26f88d2cae1e5a",
-                "reference": "ebaed83ae21cf40d7eb05f568c26f88d2cae1e5a",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/a8595043eb13d597e8d11c4c1bfb0e040696e6b7",
+                "reference": "a8595043eb13d597e8d11c4c1bfb0e040696e6b7",
                 "shasum": ""
             },
             "require": {
@@ -2091,9 +2092,9 @@
             ],
             "support": {
                 "issues": "https://github.com/gocardless/gocardless-pro-php/issues",
-                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v4.25.0"
+                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v4.26.0"
             },
-            "time": "2023-01-31T13:01:05+00:00"
+            "time": "2023-02-14T11:07:20+00:00"
         },
         {
             "name": "google/apiclient",
@@ -2167,16 +2168,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.286.0",
+            "version": "v0.287.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "4a00eb9803e01f97d96e49fd82dbb03802610def"
+                "reference": "ed58596d34272a5cd0dc2c0595d9a678b9834880"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/4a00eb9803e01f97d96e49fd82dbb03802610def",
-                "reference": "4a00eb9803e01f97d96e49fd82dbb03802610def",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/ed58596d34272a5cd0dc2c0595d9a678b9834880",
+                "reference": "ed58596d34272a5cd0dc2c0595d9a678b9834880",
                 "shasum": ""
             },
             "require": {
@@ -2205,9 +2206,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.286.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.287.0"
             },
-            "time": "2023-02-05T01:20:11+00:00"
+            "time": "2023-02-12T01:08:11+00:00"
         },
         {
             "name": "google/auth",
@@ -3576,16 +3577,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v9.51.0",
+            "version": "v9.52.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "b81123134349a013a738a9f7f715c6ce99d5a414"
+                "reference": "eb85cd9d72e5bfa54b4d0d9040786f26d6184a9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/b81123134349a013a738a9f7f715c6ce99d5a414",
-                "reference": "b81123134349a013a738a9f7f715c6ce99d5a414",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/eb85cd9d72e5bfa54b4d0d9040786f26d6184a9e",
+                "reference": "eb85cd9d72e5bfa54b4d0d9040786f26d6184a9e",
                 "shasum": ""
             },
             "require": {
@@ -3770,7 +3771,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-02-07T15:37:18+00:00"
+            "time": "2023-02-14T14:51:14+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -7093,76 +7094,6 @@
             "time": "2022-06-13T21:57:56+00:00"
         },
         {
-            "name": "predis/predis",
-            "version": "v2.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/predis/predis.git",
-                "reference": "c5b60884e89630f9518a7919f0566db438f0fc9a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/predis/predis/zipball/c5b60884e89630f9518a7919f0566db438f0fc9a",
-                "reference": "c5b60884e89630f9518a7919f0566db438f0fc9a",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0 || ~9.4.4"
-            },
-            "suggest": {
-                "ext-curl": "Allows access to Webdis when paired with phpiredis"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "2.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Predis\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Till Krüss",
-                    "homepage": "https://till.im",
-                    "role": "Maintainer"
-                },
-                {
-                    "name": "Daniele Alessandri",
-                    "email": "suppakilla@gmail.com",
-                    "homepage": "http://clorophilla.net",
-                    "role": "Creator"
-                }
-            ],
-            "description": "A flexible and feature-complete Redis client for PHP.",
-            "homepage": "http://github.com/predis/predis",
-            "keywords": [
-                "nosql",
-                "predis",
-                "redis"
-            ],
-            "support": {
-                "issues": "https://github.com/predis/predis/issues",
-                "source": "https://github.com/predis/predis/tree/v2.1.1"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/sponsors/tillkruss",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-01-17T20:57:35+00:00"
-        },
-        {
             "name": "psr/cache",
             "version": "3.0.0",
             "source": {
@@ -8255,16 +8186,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.13.0",
+            "version": "3.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "a046ff5a37f5a0a0c285a6543dc17a7fc93b47f8"
+                "reference": "71c86fe4699a7f1a40c7d985f3dc7667045152f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/a046ff5a37f5a0a0c285a6543dc17a7fc93b47f8",
-                "reference": "a046ff5a37f5a0a0c285a6543dc17a7fc93b47f8",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/71c86fe4699a7f1a40c7d985f3dc7667045152f0",
+                "reference": "71c86fe4699a7f1a40c7d985f3dc7667045152f0",
                 "shasum": ""
             },
             "require": {
@@ -8276,7 +8207,7 @@
                 "php": "^7.2|^8.0",
                 "php-http/async-client-implementation": "^1.0",
                 "php-http/client-common": "^1.5|^2.0",
-                "php-http/discovery": "^1.11",
+                "php-http/discovery": "^1.11, <1.15",
                 "php-http/httplug": "^1.1|^2.0",
                 "php-http/message": "^1.5",
                 "psr/http-factory": "^1.0",
@@ -8343,7 +8274,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/3.13.0"
+                "source": "https://github.com/getsentry/sentry-php/tree/3.13.1"
             },
             "funding": [
                 {
@@ -8355,7 +8286,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-02-03T10:03:13+00:00"
+            "time": "2023-02-10T10:17:57+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
@@ -8498,16 +8429,16 @@
         },
         {
             "name": "setasign/fpdi",
-            "version": "v2.3.6",
+            "version": "v2.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Setasign/FPDI.git",
-                "reference": "6231e315f73e4f62d72b73f3d6d78ff0eed93c31"
+                "reference": "bccc892d5fa1f48c43f8ba7db5ed4ba6f30c8c05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/6231e315f73e4f62d72b73f3d6d78ff0eed93c31",
-                "reference": "6231e315f73e4f62d72b73f3d6d78ff0eed93c31",
+                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/bccc892d5fa1f48c43f8ba7db5ed4ba6f30c8c05",
+                "reference": "bccc892d5fa1f48c43f8ba7db5ed4ba6f30c8c05",
                 "shasum": ""
             },
             "require": {
@@ -8558,7 +8489,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Setasign/FPDI/issues",
-                "source": "https://github.com/Setasign/FPDI/tree/v2.3.6"
+                "source": "https://github.com/Setasign/FPDI/tree/v2.3.7"
             },
             "funding": [
                 {
@@ -8566,20 +8497,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-11T11:37:01+00:00"
+            "time": "2023-02-09T10:38:43+00:00"
         },
         {
             "name": "socialiteproviders/apple",
-            "version": "5.3.0",
+            "version": "5.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SocialiteProviders/Apple.git",
-                "reference": "13bfd5ad4a6ab33ecab35d933deba01e9de6e404"
+                "reference": "f3b9a435e302b1a3d9a50285e934a6be66b2754a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SocialiteProviders/Apple/zipball/13bfd5ad4a6ab33ecab35d933deba01e9de6e404",
-                "reference": "13bfd5ad4a6ab33ecab35d933deba01e9de6e404",
+                "url": "https://api.github.com/repos/SocialiteProviders/Apple/zipball/f3b9a435e302b1a3d9a50285e934a6be66b2754a",
+                "reference": "f3b9a435e302b1a3d9a50285e934a6be66b2754a",
                 "shasum": ""
             },
             "require": {
@@ -8637,7 +8568,7 @@
                 "issues": "https://github.com/socialiteproviders/providers/issues",
                 "source": "https://github.com/socialiteproviders/providers"
             },
-            "time": "2022-07-18T08:37:00+00:00"
+            "time": "2023-02-11T04:00:50+00:00"
         },
         {
             "name": "socialiteproviders/manager",
@@ -12292,17 +12223,83 @@
             "time": "2023-01-29T00:13:12+00:00"
         },
         {
-            "name": "twilio/sdk",
-            "version": "6.44.2",
+            "name": "turbo124/predis",
+            "version": "v1.1.11",
             "source": {
                 "type": "git",
-                "url": "git@github.com:twilio/twilio-php.git",
-                "reference": "deec3203857387213825e2634c4eb4b56880877a"
+                "url": "https://github.com/turbo124/predis.git",
+                "reference": "3ebce475e48ed0842dbe6f252ae55a4523b35116"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/deec3203857387213825e2634c4eb4b56880877a",
-                "reference": "deec3203857387213825e2634c4eb4b56880877a",
+                "url": "https://api.github.com/repos/turbo124/predis/zipball/3ebce475e48ed0842dbe6f252ae55a4523b35116",
+                "reference": "3ebce475e48ed0842dbe6f252ae55a4523b35116",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "suggest": {
+                "ext-curl": "Allows access to Webdis when paired with phpiredis",
+                "ext-phpiredis": "Allows faster serialization and deserialization of the Redis protocol"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Predis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniele Alessandri",
+                    "email": "suppakilla@gmail.com",
+                    "homepage": "http://clorophilla.net",
+                    "role": "Creator & Maintainer"
+                },
+                {
+                    "name": "Till Krüss",
+                    "homepage": "https://till.im",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Flexible and feature-complete Redis client for PHP and HHVM",
+            "homepage": "http://github.com/predis/predis",
+            "keywords": [
+                "nosql",
+                "predis",
+                "redis"
+            ],
+            "support": {
+                "issues": "https://github.com/predis/predis/issues",
+                "source": "https://github.com/turbo124/predis/tree/v1.1.11"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/tillkruss",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-10-28T04:36:19+00:00"
+        },
+        {
+            "name": "twilio/sdk",
+            "version": "6.44.3",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:twilio/twilio-php.git",
+                "reference": "0e3e513d3c428f08bde195c579cbc0788415190f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/0e3e513d3c428f08bde195c579cbc0788415190f",
+                "reference": "0e3e513d3c428f08bde195c579cbc0788415190f",
                 "shasum": ""
             },
             "require": {
@@ -12310,7 +12307,7 @@
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^6.3 || ^7.0",
-                "phpunit/phpunit": ">=7.0"
+                "phpunit/phpunit": ">=7.0 < 10"
             },
             "suggest": {
                 "guzzlehttp/guzzle": "An HTTP client to execute the API requests"
@@ -12338,7 +12335,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2023-01-25T19:34:30+00:00"
+            "time": "2023-02-08T20:09:20+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -14549,37 +14546,38 @@
         },
         {
             "name": "php-webdriver/webdriver",
-            "version": "1.13.1",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-webdriver/php-webdriver.git",
-                "reference": "6dfe5f814b796c1b5748850aa19f781b9274c36c"
+                "reference": "3ea4f924afb43056bf9c630509e657d951608563"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-webdriver/php-webdriver/zipball/6dfe5f814b796c1b5748850aa19f781b9274c36c",
-                "reference": "6dfe5f814b796c1b5748850aa19f781b9274c36c",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver/zipball/3ea4f924afb43056bf9c630509e657d951608563",
+                "reference": "3ea4f924afb43056bf9c630509e657d951608563",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "ext-zip": "*",
-                "php": "^5.6 || ~7.0 || ^8.0",
+                "php": "^7.3 || ^8.0",
                 "symfony/polyfill-mbstring": "^1.12",
-                "symfony/process": "^2.8 || ^3.1 || ^4.0 || ^5.0 || ^6.0"
+                "symfony/process": "^5.0 || ^6.0"
             },
             "replace": {
                 "facebook/webdriver": "*"
             },
             "require-dev": {
-                "ondram/ci-detector": "^2.1 || ^3.5 || ^4.0",
+                "ergebnis/composer-normalize": "^2.20.0",
+                "ondram/ci-detector": "^4.0",
                 "php-coveralls/php-coveralls": "^2.4",
-                "php-mock/php-mock-phpunit": "^1.1 || ^2.0",
+                "php-mock/php-mock-phpunit": "^2.0",
                 "php-parallel-lint/php-parallel-lint": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^7 || ^8 || ^9",
+                "phpunit/phpunit": "^9.3",
                 "squizlabs/php_codesniffer": "^3.5",
-                "symfony/var-dumper": "^3.3 || ^4.0 || ^5.0 || ^6.0"
+                "symfony/var-dumper": "^5.0 || ^6.0"
             },
             "suggest": {
                 "ext-SimpleXML": "For Firefox profile creation"
@@ -14608,9 +14606,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-webdriver/php-webdriver/issues",
-                "source": "https://github.com/php-webdriver/php-webdriver/tree/1.13.1"
+                "source": "https://github.com/php-webdriver/php-webdriver/tree/1.14.0"
             },
-            "time": "2022-10-11T11:49:44+00:00"
+            "time": "2023-02-09T12:12:19+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
