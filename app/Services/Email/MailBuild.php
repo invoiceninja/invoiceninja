@@ -11,10 +11,12 @@
 
 namespace App\Services\Email;
 
+use App\Models\Task;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Models\Account;
+use App\Models\Expense;
 use App\Utils\HtmlEngine;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
@@ -28,10 +30,12 @@ use Illuminate\Contracts\Mail\Mailable;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
+use App\Utils\Traits\MakesHash;
 
 class MailBuild
 {
-        
+    use MakesHash;
+
      /** @var mixed $settings */
     protected $settings;
     
@@ -326,19 +330,19 @@ class MailBuild
      * ie. Create the Entity PDF
      * ie. Inject the PDF
      *
-     * @return array
+     * @return self
      */
     private function setContextAttachments(): self
     {
 
         if(!$this->settings->pdf_email_attachment || !$this->mail_entity->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT))
-            return [];
+            return $this;
 
         if($this->mail_entity->invitation?->purchase_order){
          
             $pdf = (new CreatePurchaseOrderPdf($this->mail_entity->invitation))->rawPdf();
    
-            $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->purchase_order->numberFormatter().'.pdf']);
+            $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->purchase_order->numberFormatter().'.pdf']]);
 
             if ($this->vendor->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
@@ -346,9 +350,9 @@ class MailBuild
                 foreach ($this->mail_entity->invitation->purchase_order->documents as $document) {
                     
                     if($document->size > $this->max_attachment_size)
-                        $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, ["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                        $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
                     else
-                        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]);
+                        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
 
                 }
             }
@@ -365,10 +369,12 @@ class MailBuild
         
         if($this->mail_entity->invitation?->credit)
             $entity = 'credit';    
-        
-        $pdf = ((new CreateRawPdf($this->mail_entity->invitation, $this->mail_entity->invitation->company->db))->handle());
 
-        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$entity}->numberFormatter().'.pdf']);
+        $pdf = ((new CreateRawPdf($this->mail_entity->invitation, $this->mail_entity->invitation->company->db))->handle());
+         
+        nlog($this->mail_entity->mail_object->attachments);
+
+        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$entity}->numberFormatter().'.pdf']]);
 
         if ($this->client->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
@@ -376,19 +382,78 @@ class MailBuild
             foreach ($this->mail_entity->invitation->{$entity}->documents as $document) {
                 
                 if($document->size > $this->max_attachment_size)
-                    $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, ["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
+                    $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
                 else
-                    $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]);
+                    $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
 
             }
         }
 
-       if($this->settings->pdf_email_attachment && $entity == 'invoice')
+            return $this;
+
+        
+
+
+       if($this->settings->ubl_email_attachment && $entity == 'invoice')
        {
 
        }
        
+       if($entity == 'invoice')
+       {
+
+            $line_items = $this->mail_entity->invitation->invoice->line_items;
+
+            foreach ($line_items as $item) {
+                $expense_ids = [];
+
+                if (property_exists($item, 'expense_id')) {
+                    $expense_ids[] = $item->expense_id;
+                }
+
+                if (count($expense_ids) > 0) {
+                    $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
+                                       ->where('invoice_documents', 1)
+                                       ->cursor()
+                                       ->each(function ($expense) {
+                                           foreach ($expense->documents as $document) {
+
+                                            if($document->size > $this->max_attachment_size)
+                                                $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
+                                            else
+                                                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+
+
+                                           }
+                                       });
+                }
+
+                $task_ids = [];
+
+                if (property_exists($item, 'task_id')) {
+                    $task_ids[] = $item->task_id;
+                }
+
+                if (count($task_ids) > 0 && $this->mail_entity->company->invoice_task_documents) {
+                    $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
+                                       ->cursor()
+                                       ->each(function ($task) {
+                                           foreach ($task->documents as $document) {
+
+                                            if($document->size > $this->max_attachment_size)
+                                                $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
+                                            else
+                                                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+
+                                           }
+                                       });
+                }
+            }
+        }
+
+
        return $this;
+
     }
 
 
