@@ -16,6 +16,9 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Models\Account;
 use App\Utils\HtmlEngine;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use App\Utils\VendorHtmlEngine;
 use Illuminate\Support\Facades\App;
 use App\Services\Email\MailMailable;
 use Illuminate\Mail\Mailables\Address;
@@ -44,7 +47,12 @@ class MailBuild
     
     /** @var mixed $vendor */
     private ?Vendor $vendor;
+        
+    /** @var mixed $html_engine */
+    private mixed $html_engine;
     
+    /** @var mixed $variables */
+    private array $variables = [];
     /**
      * __construct
      *
@@ -61,11 +69,9 @@ class MailBuild
     public function run(): self
     {
         //resolve settings, if client existing - use merged - else default to company
-        $this->settings = $this->mail_entity->company->settings;
-        $this->mail_entity->mail_object->settings = $this->settings;
-
         $this->resolveEntities()
              ->setLocale()
+             ->setMetaData()
              ->setFrom()
              ->setTo()
              ->setTemplate()
@@ -74,7 +80,6 @@ class MailBuild
              ->setReplyTo()
              ->setBcc()
              ->setAttachments()
-             ->setMetaData()
              ->setVariables();
 
         return $this;
@@ -98,10 +103,14 @@ class MailBuild
     private function resolveEntities(): self
     {
 
-        $this->client = $this->mail_entity->mail_object->client_id ? Client::find($this->mail_entity->mail_object->client_id) : null;
+        $client_contact = $this->mail_entity?->invitation?->client_contact_id ? ClientContact::withTrashed()->find($this->mail_entity->invitation->client_contact_id) : null;
         
-        $this->vendor = $this->mail_entity->mail_object->vendor_id ? Vendor::find($this->mail_entity->mail_object->vendor_id) : null;
+        $this->client = $client_contact?->client;
+
+        $vendor_contact = $this->mail_entity?->invitation?->vendor_contact_id ? VendorContact::withTrashed()->find($this->mail_entity->invitation->vendor_contact_id) : null;
             
+        $this->vendor = $vendor_contact?->vendor;
+
         return $this;
     }
 
@@ -127,9 +136,10 @@ class MailBuild
 
     }
 
-
     /**
      * Sets the locale
+     * Sets the settings object depending on context
+     * Sets the HTML variables depending on context
      *
      * @return self
      */
@@ -137,14 +147,31 @@ class MailBuild
     {
 
         if($this->client){
+    
             $this->locale = $this->client->locale();
             $this->settings = $this->client->getMergedSettings();
-            $this->mail_entity->mail_object->settings = $this->settings;
+
+            if($this->mail_entity->invitation)
+                $this->variables = (new HtmlEngine($this->mail_entity->invitation))->makeValues();
+
         }
-        elseif($this->vendor)
+        elseif($this->vendor){
+
             $this->locale = $this->vendor->locale();
-        else
+            $this->settings = $this->mail_entity->company->settings;
+
+            if($this->mail_entity->invitation)
+                $this->variables = (new VendorHtmlEngine($this->mail_entity->invitation))->makeValues();
+
+
+        }
+        else{
             $this->locale = $this->mail_entity->company->locale();
+            $this->settings = $this->mail_entity->company->settings;
+        }
+        
+        $this->mail_entity->mail_object->settings = $this->settings;
+
 
         App::setLocale($this->locale);
         App::forgetInstance('translator');
@@ -318,10 +345,8 @@ class MailBuild
             $this->mail_entity->mail_object->body = strtr($this->mail_entity->mail_object->body, $this->mail_entity->mail_object->variables);
         }
 
-        $variables = (new HtmlEngine($this->mail_entity->invitation))->makeValues();
-
-        $this->mail_entity->mail_object->subject = strtr($this->mail_entity->mail_object->subject, $variables);
-        $this->mail_entity->mail_object->body = strtr($this->mail_entity->mail_object->body, $variables);
+        $this->mail_entity->mail_object->subject = strtr($this->mail_entity->mail_object->subject, $this->variables);
+        $this->mail_entity->mail_object->body = strtr($this->mail_entity->mail_object->body, $this->variables);
 
         if($this->template != 'custom') 
             $this->mail_entity->mail_object->body = $this->parseMarkdownToHtml($this->mail_entity->mail_object->body);
