@@ -309,11 +309,7 @@ class MailBuild
 
         if ($this->settings->document_email_attachment && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
-            foreach ($this->mail_entity->company->documents as $document) {
-
-                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, ['file' => base64_encode($document->getFile()), 'name' => $document->name]);
-                
-            }
+            $this->attachDocuments($this->mail_entity->company->documents);
 
         }
 
@@ -321,6 +317,21 @@ class MailBuild
 
     }
     
+    private function attachDocuments($documents): self
+    {
+
+        foreach ($documents as $document) {
+            
+            if($document->size > $this->max_attachment_size)
+                $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
+            else
+                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments,[['file' => base64_encode($document->getFile()), 'name' => $document->name]]);
+
+        }
+
+        return $this;
+    }
+
     /**
      * Depending on context we may need to resolve the
      * attachment dependencies.
@@ -346,15 +357,8 @@ class MailBuild
 
             if ($this->vendor->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
-                // Storage::url
-                foreach ($this->mail_entity->invitation->purchase_order->documents as $document) {
-                    
-                    if($document->size > $this->max_attachment_size)
-                        $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
-                    else
-                        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                $this->attachDocuments($this->mail_entity->invitation->purchase_order->documents);
 
-                }
             }
 
             return $this;
@@ -378,15 +382,8 @@ class MailBuild
 
         if ($this->client->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
-            // Storage::url
-            foreach ($this->mail_entity->invitation->{$entity}->documents as $document) {
-                
-                if($document->size > $this->max_attachment_size)
-                    $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
-                else
-                    $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
-
-            }
+            $this->attachDocuments($this->mail_entity->invitation->{$entity}->documents);
+            
         }
 
             return $this;
@@ -416,15 +413,9 @@ class MailBuild
                                        ->where('invoice_documents', 1)
                                        ->cursor()
                                        ->each(function ($expense) {
-                                           foreach ($expense->documents as $document) {
 
-                                            if($document->size > $this->max_attachment_size)
-                                                $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
-                                            else
-                                                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                                            $this->attachDocuments($expense->documents);
 
-
-                                           }
                                        });
                 }
 
@@ -438,14 +429,9 @@ class MailBuild
                     $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
                                        ->cursor()
                                        ->each(function ($task) {
-                                           foreach ($task->documents as $document) {
 
-                                            if($document->size > $this->max_attachment_size)
-                                                $this->mail_entity->mail_object->attachment_links = array_merge($this->mail_entity->mail_object->attachment_links, [["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]]);
-                                            else
-                                                $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                                            $this->attachDocuments($task->documents);
 
-                                           }
                                        });
                 }
             }
