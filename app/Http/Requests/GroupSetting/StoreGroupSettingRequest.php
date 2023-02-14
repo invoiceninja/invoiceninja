@@ -26,7 +26,7 @@ class StoreGroupSettingRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', GroupSetting::class) && && auth()->user()->account->hasFeature(Account::FEATURE_API);;
+        return auth()->user()->can('create', GroupSetting::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);;
     }
 
     public function rules()
