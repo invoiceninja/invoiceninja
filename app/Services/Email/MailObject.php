@@ -11,6 +11,7 @@
 
 namespace App\Services\Email;
 
+use App\Models\Company;
 use Illuminate\Mail\Mailables\Address;
 
 /**
@@ -77,11 +78,12 @@ class MailObject
 
 	public array $variables = [];
 	
-	public ?string $reminder_template = null;
+	public ?string $template = null;
 
 	public ?string $template_data = null;
 
 	public bool $override = false;
 
+	public ?Company $company = null;
 
 }

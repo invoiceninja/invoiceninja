@@ -11,15 +11,19 @@
 
 namespace App\Services\Email;
 
-use App\Libraries\MultiDB;
-use App\Models\Company;
-use App\Services\Email\MailBuild;
 use App\Utils\Ninja;
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
+use App\Services\Email\MailBuild;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Queue\InteractsWithQueue;
+use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class BaseMailer implements ShouldQueue
 {
@@ -29,27 +33,38 @@ class BaseMailer implements ShouldQueue
 
     public int $tries = 4;
 
-    public ?string $client_postmark_secret = false;
+    public ?string $client_postmark_secret = null;
 
     public ?string $client_mailgun_secret = null;
 
     public ?string $client_mailgun_domain = null;
 
-    public boolean $override = false;
+    public bool $override = false;
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct()
+    public Mail $mail;
+
+    private string $mailer = 'default';
+
+    public function __construct(public mixed $invitation, private ?string $db, public MailObject $mail_object)
     {
+
+        $this->invitation = $invitation;
+
+        $this->company = $invitation->company;
+
+        $this->db = $db;
+
+        $this->mail_object = $mail_object;
+
+        $this->override = $mail_object->override;
+
     }
 
-    public function handle(MailBuild $builder): void
-    {
-    }
 
-    public function companyCheck()
+    public function companyCheck(): void
     {
-        
         /* Handle bad state */
         if(!$this->company)
             $this->fail();
@@ -66,17 +81,109 @@ class BaseMailer implements ShouldQueue
 
     public function configureMailer(): self
     {
+        $this->setMailDriver();
 
+        $this->mail = Mail::mailer($this->mailer);
+        
         return $this;
     }
+
+
+    /** 
+     * Sets the mail driver to use and applies any specific configuration 
+     * the the mailable
+     */
+	private function setMailDriver(): self
+    {
+
+        switch ($this->mail_object->settings->email_sending_method) {
+            case 'default':
+                $this->mailer = config('mail.default');
+                break;
+            // case 'gmail':
+            //     $this->mailer = 'gmail';
+            //     $this->setGmailMailer();
+            //     return $this;
+            // case 'office365':
+            //     $this->mailer = 'office365';
+            //     $this->setOfficeMailer();
+            //     return $this;
+            // case 'client_postmark':
+            //     $this->mailer = 'postmark';
+            //     $this->setPostmarkMailer();
+            //     return $this;
+            // case 'client_mailgun':
+            //     $this->mailer = 'mailgun';
+            //     $this->setMailgunMailer();
+            //     return $this;
+
+            default:
+                break;
+        }
+
+        if(Ninja::isSelfHost())
+            $this->setSelfHostMultiMailer();
+
+        return $this;
+
+    }
+
+    /**
+     * Allows configuration of multiple mailers
+     * per company for use by self hosted users
+     */
+    private function setSelfHostMultiMailer(): void
+    {
+
+        if (env($this->email_service->company->id . '_MAIL_HOST')) 
+        {
+
+            config([
+                'mail.mailers.smtp' => [
+                    'transport' => 'smtp',
+                    'host' => env($this->email_service->company->id . '_MAIL_HOST'),
+                    'port' => env($this->email_service->company->id . '_MAIL_PORT'),
+                    'username' => env($this->email_service->company->id . '_MAIL_USERNAME'),
+                    'password' => env($this->email_service->company->id . '_MAIL_PASSWORD'),
+                ],
+            ]);
+
+            if(env($this->email_service->company->id . '_MAIL_FROM_ADDRESS'))
+            {
+            $this->email_mailable
+                 ->from(env($this->email_service->company->id . '_MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')), env($this->email_service->company->id . '_MAIL_FROM_NAME', env('MAIL_FROM_NAME')));
+            }
+
+        }
+
+    }
+
+
+    /**
+     * Ensure we discard any data that is not required
+     * 
+     * @return void
+     */
+    private function cleanUpMailers(): void
+    {
+        $this->client_postmark_secret = false;
+
+        $this->client_mailgun_secret = false;
+
+        $this->client_mailgun_domain = false;
+
+        //always dump the drivers to prevent reuse 
+        app('mail.manager')->forgetMailers();
+    }
+
 
     public function trySending()
     {
            try {
 
             $mailer
-                ->to($this->nmo->to_user->email)
-                ->send($this->nmo->mailable);
+                ->to($this->mail_object->to_user->email)
+                ->send($this->mail_object->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
@@ -154,4 +261,3 @@ class BaseMailer implements ShouldQueue
 
     }
 }
-`
