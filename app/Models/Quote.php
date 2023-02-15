@@ -351,4 +351,16 @@ class Quote extends BaseModel
     {
         return ctrans('texts.quote');
     }
+    
+    /**
+     * calculateTemplate
+     *
+     * @param  string $entity_string
+     * @return string
+     */
+    public function calculateTemplate(string $entity_string): string
+    {
+        return $entity_string;
+    }
+
 }

@@ -13,13 +13,18 @@ namespace App\Services\Email;
 
 use App\Models\Task;
 use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Vendor;
 use App\Models\Account;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Utils\HtmlEngine;
 use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
+use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
@@ -30,7 +35,6 @@ use Illuminate\Contracts\Mail\Mailable;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Utils\Traits\MakesHash;
 
 class MailBuild
 {
@@ -117,6 +121,30 @@ class MailBuild
         $vendor_contact = $this->mail_entity?->invitation?->vendor_contact_id ? VendorContact::withTrashed()->find($this->mail_entity->invitation->vendor_contact_id) : null;
             
         $this->vendor = $vendor_contact?->vendor;
+
+        if($this->mail_entity?->invitation){
+
+
+            if($this->mail_entity->invitation?->invoice){
+                $this->mail_entity->mail_object->entity_string = 'invoice';
+                $this->mail_entity->mail_object->entity_class = Invoice::class;
+            }
+
+            if($this->mail_entity->invitation?->quote){
+                $this->mail_entity->mail_object->entity_string = 'quote';        
+                $this->mail_entity->mail_object->entity_class = Quote::class;
+            }
+
+            if($this->mail_entity->invitation?->credit){
+                $this->mail_entity->mail_object->entity_string = 'credit';    
+                $this->mail_entity->mail_object->entity_class = Credit::class;
+            }
+
+            if($this->mail_entity->invitation?->puchase_order){
+                $this->mail_entity->mail_object->entity_string = 'purchase_order'; 
+                $this->mail_entity->mail_object->entity_class = PurchaseOrder::class;
+            }
+        }
 
         return $this;
     }
@@ -261,7 +289,7 @@ class MailBuild
         elseif(is_string($this->mail_entity->mail_object->email_template_subject) && strlen($this->settings->{$this->mail_entity->mail_object->email_template_subject}) > 3)
             $this->mail_entity->mail_object->subject = $this->settings->{$this->mail_entity->mail_object->email_template_subject};
         else
-            $this->mail_entity->mail_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->mail_entity->mail_object->email_template_subject, $this->locale);
+            $this->mail_entity->mail_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->resolveBaseEntityTemplate(), $this->locale);
 
         return $this;
 
@@ -282,7 +310,7 @@ class MailBuild
             $this->mail_entity->mail_object->body = $this->settings->{$this->mail_entity->mail_object->email_template_body};
         }
         else{
-            $this->mail_entity->mail_object->body = EmailTemplateDefaults::getDefaultTemplate($this->mail_entity->mail_object->email_template_body, $this->locale);
+            $this->mail_entity->mail_object->body = EmailTemplateDefaults::getDefaultTemplate($this->resolveBaseEntityTemplate('body'), $this->locale);
         }
         
         if($this->template == 'email.template.custom'){
@@ -291,6 +319,29 @@ class MailBuild
 
         return $this;
 
+    }
+    
+    /**
+     * Where no template is explicitly passed, we need to infer by the entity type - 
+     * which is hopefully resolvable.
+     *
+     * @param  string $type
+     * @return string
+     */
+    private function resolveBaseEntityTemplate(string $type = 'subject'): string
+    {
+        //handle statements being emailed
+        //handle custom templates these types won't have a resolvable entity_string
+        if(!$this->mail_entity->mail_object->entity_string)
+            return 'email_template_invoice';
+            
+        match($type){
+            'subject' => $template = "email_subject_{$this->mail_entity->mail_object->entity_string}",
+            'body' => $template =  "email_template_{$this->mail_entity->mail_object->entity_string}",
+            default => $template = "email_template_invoice",
+         };
+
+            return $template;
     }
 
     /** 
@@ -365,24 +416,18 @@ class MailBuild
 
         }
 
-        if($this->mail_entity->invitation?->invoice)
-            $entity = 'invoice';
-    
-        if($this->mail_entity->invitation?->quote)
-            $entity = 'quote';        
-        
-        if($this->mail_entity->invitation?->credit)
-            $entity = 'credit';    
+        if(!$this->mail_entity->mail_object->entity_string)
+            return $this;
 
         $pdf = ((new CreateRawPdf($this->mail_entity->invitation, $this->mail_entity->invitation->company->db))->handle());
          
         nlog($this->mail_entity->mail_object->attachments);
 
-        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$entity}->numberFormatter().'.pdf']]);
+        $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$this->mail_entity->mail_object->entity_string}->numberFormatter().'.pdf']]);
 
         if ($this->client->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
 
-            $this->attachDocuments($this->mail_entity->invitation->{$entity}->documents);
+            $this->attachDocuments($this->mail_entity->invitation->{$this->mail_entity->mail_object->entity_string}->documents);
             
         }
 
@@ -391,12 +436,12 @@ class MailBuild
         
 
 
-       if($this->settings->ubl_email_attachment && $entity == 'invoice')
+       if($this->settings->ubl_email_attachment && $this->mail_entity->mail_object->entity_string == 'invoice')
        {
 
        }
        
-       if($entity == 'invoice')
+       if($this->mail_entity->mail_object->entity_string == 'invoice')
        {
 
             $line_items = $this->mail_entity->invitation->invoice->line_items;

@@ -23,6 +23,7 @@ use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Services\Email\MailObject;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\PurchaseOrderTransformer;
@@ -126,6 +127,8 @@ class EmailController extends BaseController
             'subject' => $subject,
             'body' => $body,
         ];
+
+        $mo = new MailObject;
 
         if(Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified)
               return response(['message' => 'Please verify your account to send emails.'], 400);

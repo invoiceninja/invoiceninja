@@ -78,6 +78,8 @@ class MailObject
 
 	public ?string $entity_class = null;
 
+	public ?string $entity_string = null;
+
 	public array $variables = [];
 	
 	public ?string $template = null;
