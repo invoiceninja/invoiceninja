@@ -94,7 +94,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Mailer::macro('postmark_config', function (string $postmark_key) {
-     
+     nlog($postmark_key);
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'postmark',
                 'token' => $postmark_key

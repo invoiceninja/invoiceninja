@@ -217,3 +217,4 @@ class InvoiceEmailEngine extends BaseEmailEngine
         return $this;
     }
 }
+}

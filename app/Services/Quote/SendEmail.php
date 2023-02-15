@@ -52,9 +52,9 @@ class SendEmail
 
         $this->quote->invitations->each(function ($invitation) use ($mo){
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
-                // EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
+                EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
 
-                MailEntity::dispatch($invitation, $invitation->company->db, $mo);
+                // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
         });
 
