@@ -171,12 +171,10 @@
                         <!-- Top side spacing. -->
                     </div>
                 </tr>
-                <tr>
-                    <td align="center">
+                <tr height="50">
+                    <td align="center" height="50">
                         <div class="dark-bg" style="background-color:#f9f9f9; padding-bottom: 20px;">
-    
-                             <img class="logo-light" src="{{ $logo ?? '' }}" width="640" height="" alt="alt_text" border="0" style="width: 100%; max-width: 570px; height: auto; display: block;" class="g-img">
-
+                             <img class="logo-light" src="{{ $logo ?? '' }}" width="65%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 65%; height: auto; display: block;" class="g-img">
                         </div>
                     </td>
                 </tr>

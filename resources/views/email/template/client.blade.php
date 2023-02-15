@@ -148,15 +148,15 @@
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td>
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2; table-layout:fixed;">
                 <tr>
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
                 </tr>
-                <tr>
+                <tr height="50%">
                     <td align="center" cellpadding="20">
                         <div style="padding-bottom: 10px; padding-top:10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
-                             <img class="logo-light" src="{{ $logo ?? '' }}" width="640" height="" alt="alt_text" border="0" style="width: 100%; max-width: 570px; height: auto; display: block;" class="g-img">
+                             <img class="logo-light" src="{{ $logo ?? '' }}" width="65%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 65%; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>
