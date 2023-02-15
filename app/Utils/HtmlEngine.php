@@ -940,7 +940,6 @@ html {
         ';
 
         $css .= 'font-size:'.$this->settings->font_size.'px;';
-//        $css .= 'font-size:14px;';
 
         $css .= '}';
 

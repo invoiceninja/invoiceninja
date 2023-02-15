@@ -117,8 +117,8 @@
             color: inherit !important;
         }
 
-        .new_button, {
-            background-color: {{ $primary_color }};
+        .new_button, a {
+            background-color: {{ $primary_color }} !important;
         }
 
         a:visited {
