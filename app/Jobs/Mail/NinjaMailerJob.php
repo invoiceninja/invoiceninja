@@ -138,8 +138,6 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
             }
 
-nlog($this->nmo->to_user->email);
-
             $mailer
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
@@ -395,9 +393,8 @@ nlog($this->nmo->to_user->email);
      * as the Mailer
      */
     private function setPostmarkMailer()
-    {nlog("configuring postmark");
+    {
         if(strlen($this->nmo->settings->postmark_secret) > 2){
-            nlog($this->nmo->settings->postmark_secret);
             $this->client_postmark_secret = $this->nmo->settings->postmark_secret;
         }
         else{
@@ -409,8 +406,7 @@ nlog($this->nmo->to_user->email);
 
         $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
-nlog($sending_email);
-nlog($sending_user);
+
             $this->nmo
              ->mailable
              ->from($sending_email, $sending_user);
@@ -652,9 +648,6 @@ nlog($sending_user);
 
     public function failed($exception = null)
     {
-
-        if($exception)
-            nlog($exception->getMessage());
 
         config(['queue.failed.driver' => null]);
 
