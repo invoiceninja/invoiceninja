@@ -167,13 +167,8 @@
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2;">
                 <tr>
-                    <div style="text-align: center;padding-top: 25px; padding-bottom: 10px; background-color:#f9f9f9;">
-                        <!-- Top side spacing. -->
-                    </div>
-                </tr>
-                <tr>
                     <td align="center" >
-                        <div class="dark-bg" style="background-color:#f9f9f9; padding-bottom: 20px;">
+                        <div class="dark-bg" style="background-color:#f9f9f9; padding-bottom: 20px; padding-top: 20px;">
                              <img class="logo-light" src="{{ $logo ?? '' }}" width="65%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 65%; height: auto; display: block;" class="g-img">
                         </div>
                     </td>
