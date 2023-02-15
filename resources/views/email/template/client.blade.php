@@ -150,7 +150,7 @@
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2; table-layout:fixed;">
                 <tr>
-                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
+                    <div style="text-align: center;padding-top: 25px; padding-bottom: 10px;"></div>
                 </tr>
                 <tr height="50%">
                     <td align="center" cellpadding="20">
