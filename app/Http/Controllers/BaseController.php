@@ -11,32 +11,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
-use App\Models\CompanyGateway;
-use App\Models\Design;
-use App\Models\ExpenseCategory;
-use App\Models\GroupSetting;
-use App\Models\PaymentTerm;
-use App\Models\Scheduler;
-use App\Models\TaxRate;
 use App\Models\User;
-use App\Models\Webhook;
-use App\Transformers\ArraySerializer;
-use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
+use App\Models\Design;
 use App\Utils\Statics;
-use App\Utils\Traits\AppSetup;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\Account;
+use App\Models\TaxRate;
+use App\Models\Webhook;
+use App\Models\Scheduler;
+use App\Models\TaskStatus;
+use App\Models\PaymentTerm;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
-use League\Fractal\Resource\Collection;
+use App\Models\GroupSetting;
+use App\Models\CompanyGateway;
+use App\Utils\Traits\AppSetup;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\ExpenseCategory;
 use League\Fractal\Resource\Item;
+use App\Models\BankTransactionRule;
+use App\Transformers\ArraySerializer;
+use App\Transformers\EntityTransformer;
+use League\Fractal\Resource\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\JsonApiSerializer;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * Class BaseController.
@@ -911,8 +912,9 @@ class BaseController extends Controller
                 else
                     $query->where('user_id', '=', auth()->user()->id);
             }
-            elseif(in_array($this->entity_type,[Design::class, GroupSetting::class, PaymentTerm::class])){
-                // nlog($this->entity_type);
+            elseif(in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])){
+                nlog("inside");
+                nlog($this->entity_type);
             }
             else
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
