@@ -68,8 +68,25 @@
             .btn-white,
             [data-ogsc] .btn-white {
                 background-color: #fefefe !important;
+                mso-padding-alt: 40px;
+                mso-border-alt: 40px solid #fefefe;
+                mso-padding-alt: 0;
+                mso-ansi-font-size:20px !important;
+                mso-line-height-alt:150%;
+                mso-border-left-alt: 20 #fefefe 0;
+                mso-border-right-alt: 20 #fefefe 0;
             }
         @endif
+
+        .btn-white {
+            mso-padding-alt: 40px;
+            mso-border-alt: 40px solid #fefefe;
+            mso-padding-alt: 0;
+            mso-ansi-font-size:20px !important;
+            mso-line-height-alt:150%;
+            mso-border-left-alt: 20 #FFFFFF 0;
+            mso-border-right-alt: 20 #FFFFFF 0;
+        }
 
         /** Content-specific styles. **/
         #content .button {
@@ -131,6 +148,12 @@
             z-index:200 !important;
             position:  fixed;
         } 
+
+        .new_button {
+            background-color: {{ $primary_color }};
+        }
+
+
     </style>
 </head>
 
@@ -139,8 +162,7 @@
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td>
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
-                   style="border-collapse: collapse;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2;">
                 <tr>
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;">
                         <!-- Top side spacing. -->
@@ -148,18 +170,9 @@
                 </tr>
                 <tr>
                     <td align="center">
-                        <div class="dark-bg"
-                             style="background-color:#f9f9f9; border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 20px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+                        <div class="dark-bg" style="background-color:#f9f9f9; padding-bottom: 20px;">
     
-                            <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="155" border="0" align="middle" style="display:block;" />
-                            <div style="mso-hide:all;">
-                            <![endif]-->
-                            <img class="logo-light" src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 10px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-                            <!--[if gte mso 9]>
-                            </div>
-                            <![endif]-->
-
+                             <img class="logo-light" src="{{ $logo ?? '' }}" width="640" height="" alt="alt_text" border="0" style="width: 100%; max-width: 570px; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>
@@ -167,13 +180,20 @@
                 <tr>
                     <td>
                         <div class="dark-bg-base" id="content"
-                             style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px;">
+                             style="border: none; padding: 20px;">
                                 {{ $slot }}
                         </div> <!-- End replaceable content. -->
                     </td>
                 </tr>
+
+                <!--[if mso]>
+                <tr class="dark-bg" style="margin-top:20px; border: none; border-bottom-color: {{ $primary_color }};">
+                <td style="border: none; border-bottom: none; padding: 20px;"></td>
+                </tr>
+                <![endif]-->
+
                 <tr class="dark-bg"
-                    style="background-color: {{ $primary_color }}; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: {{ $primary_color }};">
+                    style="background-color: {{ $primary_color }}; ccborder-bottom-color: {{ $primary_color }};">
                     <td>
                         <div style="text-align: center; margin-top: 25px;">
                             <h2
@@ -183,37 +203,66 @@
 
 
                         <div style="text-align:center; margin-bottom: 35px; margin-top: 25px;">
-                            <a href="https://forum.invoiceninja.com" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}" width="13">
-                                <span>Forums</span>
-                            </a>
+
+                        <!--[if mso]>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="text-align: center;"i valign="center">
+                        <tr height="40">
+                        <td height="40">
+                        <![endif]-->
+
+                        <a href="https://forum.invoiceninja.com" target="_blank" class="btn-white"
+                            style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                            <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}" width="13">
+                            <span style="padding-left:4px;">Forums</span>
+                        </a>
+
+                        <!--[if mso]>
+                        </td><td height="40">
+                        <![endif]-->
 
 
-                            <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}" width="13">
-                                <span>Slack</span>
-                            </a>
+                        <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
+                            style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                            <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}" width="13">
+                            <span style="padding-left:4px;">Slack</span>
+                        </a>
+
+                        <!--[if mso]>
+                        </td><td height="40">
+                        <![endif]-->
 
 
-                            <a href="https://www.invoiceninja.com/contact/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}" width="13">
-                                <span>E-mail</span>
-                            </a>
+                        <a href="https://www.invoiceninja.com/contact/" target="_blank" class="btn-white"
+                            style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                            <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}" width="13">
+                            <span style="padding-left:4px;">E-mail</span>
+                        </a>
 
-                            <a href="https://invoiceninja.github.io/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <span>Support Docs</span>
-                            </a>
+                        <!--[if mso]>
+                        </td><td height="40">
+                        <![endif]-->
+
+
+                        <a href="https://invoiceninja.github.io/" target="_blank" class="btn-white"
+                            style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                            <span style="padding-left:4px;">Support Docs</span>
+                        </a>
+
+
+                        <!--[if mso]>
+                        </td>
+                        </tr>
+                        </table>
+                        <![endif]-->
+
+
                         </div>
 
                     </td>
                 </tr>
                 <tr>
                     <td class="dark-bg-base"
-                        style="background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
+                        style="background-color: #242424; border: none;">
                         <div style="padding-top: 10px;padding-bottom: 10px;">
                             <p style="text-align: center; color: #ffffff; font-size: 10px;
                             font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All Rights Reserved

@@ -432,8 +432,6 @@ class MailBuild
 
         $pdf = ((new CreateRawPdf($this->mail_entity->invitation, $this->mail_entity->invitation->company->db))->handle());
          
-        nlog($this->mail_entity->mail_object->attachments);
-
         $this->mail_entity->mail_object->attachments = array_merge($this->mail_entity->mail_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->mail_entity->invitation->{$this->mail_entity->mail_object->entity_string}->numberFormatter().'.pdf']]);
 
         if ($this->client->getSetting('document_email_attachment') !== false && $this->mail_entity->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {

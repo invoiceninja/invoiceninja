@@ -29,7 +29,7 @@ class UpdateTaskRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {
+    {nlog("oioi");
         //prevent locked tasks from updating
         if($this->task->invoice_id && $this->task->company->invoice_task_lock)
             return false;
