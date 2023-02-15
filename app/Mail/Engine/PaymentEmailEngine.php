@@ -244,12 +244,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company3')];
         $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company4')];
 
-        $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$view_link'] = ['value' => $this->buildViewButton($this->payment->getLink(), ctrans('texts.view_payment')), 'label' => ctrans('texts.view_payment')];
         $data['$view_button'] = &$data['$view_link'];
         $data['$viewButton'] = &$data['$view_link'];
         $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login').'</a>', 'label' =>''];
+        $data['$portalButton'] = ['value' =>  $this->buildViewButton($this->payment->getPortalLink(), ctrans('texts.login')), 'label' =>''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
@@ -367,7 +367,12 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         return $data;
     }
-
+    
+    /**
+     * generateLabelsAndValues
+     *
+     * @return void
+     */
     public function generateLabelsAndValues()
     {
         $data = [];
@@ -381,4 +386,25 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         return $data;
     }
+
+    /**
+     * buildViewButton
+     *
+     * @param  string $link
+     * @param  string $text
+     * @return string
+     */
+    private function buildViewButton(string $link, string $text): string
+    {
+        return '
+            <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr style="border: 0 !important; ">
+                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+                    </td>
+                </tr>
+            </table>
+        ';
+    }
+
 }

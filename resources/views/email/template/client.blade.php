@@ -119,6 +119,16 @@
 
         .new_button {
             background-color: {{ $primary_color }};
+
+        }
+        } 
+
+        .new_button, {
+            background-color: {{ $primary_color }};
+        }
+
+        a:visited {
+            color:#ffffff !important;
         }
 
     </style>

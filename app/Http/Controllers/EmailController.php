@@ -147,9 +147,9 @@ class EmailController extends BaseController
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
-                // EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
+                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
 
-                MailEntity::dispatch($invitation, $invitation->company->db, $mo);
+                // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
             
         });

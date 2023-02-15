@@ -149,10 +149,13 @@
             position:  fixed;
         } 
 
-        .new_button {
+        .new_button, a {
             background-color: {{ $primary_color }};
         }
 
+        a:visited {
+            color:#ffffff !important;
+        }
 
     </style>
 </head>
