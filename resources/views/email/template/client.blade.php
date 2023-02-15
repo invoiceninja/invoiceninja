@@ -117,12 +117,6 @@
             color: inherit !important;
         }
 
-        .new_button {
-            background-color: {{ $primary_color }};
-
-        }
-        } 
-
         .new_button, {
             background-color: {{ $primary_color }};
         }
