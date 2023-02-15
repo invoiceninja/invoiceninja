@@ -62,9 +62,7 @@ class MailObject
 
 	public ?int $vendor_contact_id = null;
 
-	public ?string $email_template_body = null;
-
-	public ?string $email_template_subject = null;
+	public ?string $email_template = null; //this defines the template in short notation WITH the email_template prefix
 
 	public ?string $html_template = null;
 

@@ -286,8 +286,8 @@ class MailBuild
 
         if ($this->mail_entity->mail_object->subject) //where the user updates the subject from the UI                
             return $this;
-        elseif(is_string($this->mail_entity->mail_object->email_template_subject) && strlen($this->settings->{$this->mail_entity->mail_object->email_template_subject}) > 3)
-            $this->mail_entity->mail_object->subject = $this->settings->{$this->mail_entity->mail_object->email_template_subject};
+        elseif(is_string($this->mail_entity->mail_object->email_template) && strlen($this->settings->{$this->resolveBaseEntityTemplate()}) > 3)
+            $this->mail_entity->mail_object->subject = $this->settings->{$this->resolveBaseEntityTemplate()};
         else
             $this->mail_entity->mail_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->resolveBaseEntityTemplate(), $this->locale);
 
@@ -306,8 +306,8 @@ class MailBuild
         if($this->mail_entity->mail_object->body){
             $this->mail_entity->mail_object->body = $this->mail_entity->mail_object->body;
         }
-        elseif(is_string($this->mail_entity->mail_object->email_template_body) && strlen($this->settings->{$this->mail_entity->mail_object->email_template_body}) > 3){
-            $this->mail_entity->mail_object->body = $this->settings->{$this->mail_entity->mail_object->email_template_body};
+        elseif(is_string($this->mail_entity->mail_object->email_template) && strlen($this->settings->{$this->resolveBaseEntityTemplate('body')}) > 3){
+            $this->mail_entity->mail_object->body = $this->settings->{$this->resolveBaseEntityTemplate('body')};
         }
         else{
             $this->mail_entity->mail_object->body = EmailTemplateDefaults::getDefaultTemplate($this->resolveBaseEntityTemplate('body'), $this->locale);
@@ -330,6 +330,17 @@ class MailBuild
      */
     private function resolveBaseEntityTemplate(string $type = 'subject'): string
     {
+        if($this->mail_entity->mail_object->email_template){
+
+            match($type){
+                'subject' => $template = "email_subject_{$this->mail_entity->mail_object->email_template}",
+                'body' => $template =  "email_template_{$this->mail_entity->mail_object->email_template}",
+                default => $template = "email_template_invoice",
+            };
+
+            return $template;
+        }
+
         //handle statements being emailed
         //handle custom templates these types won't have a resolvable entity_string
         if(!$this->mail_entity->mail_object->entity_string)
