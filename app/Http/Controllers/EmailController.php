@@ -130,10 +130,10 @@ class EmailController extends BaseController
         ];
 
         $mo = new MailObject;
-        // $mo->subject = empty($subject) ?  null : $subject;
-        // $mo->body = empty($body) ? null : $body;
-        // $mo->entity_string = $entity;
-        // $mo->email_template = $template;
+        $mo->subject = empty($subject) ?  null : $subject;
+        $mo->body = empty($body) ? null : $body;
+        $mo->entity_string = $entity;
+        $mo->email_template = $template;
 
         if(Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified)
               return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -147,9 +147,9 @@ class EmailController extends BaseController
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
+                // EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
 
-                // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
+                MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
             
         });
