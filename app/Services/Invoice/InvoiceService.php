@@ -14,18 +14,12 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
-use App\Jobs\Invoice\InvoiceWorkflowSettings;
-use App\Jobs\Util\UnlinkFile;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
-use App\Repositories\BaseRepository;
-use App\Services\Client\ClientService;
-use App\Services\Invoice\ApplyPaymentAmount;
-use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -35,7 +29,9 @@ class InvoiceService
 {
     use MakesHash;
 
-    public function __construct(public Invoice $invoice){}
+    public function __construct(public Invoice $invoice)
+    {
+    }
 
     /**
      * Marks as invoice as paid
@@ -266,10 +262,11 @@ class InvoiceService
         }
 
         //12-10-2022
-        if($this->invoice->partial > 0 && !$this->invoice->partial_due_date)
+        if ($this->invoice->partial > 0 && !$this->invoice->partial_due_date) {
             $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
-        else
+        } else {
             $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+        }
 
         return $this;
     }
@@ -294,8 +291,7 @@ class InvoiceService
             $this->setStatus(Invoice::STATUS_PAID);
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
-        }
-        elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
+        } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
         
@@ -312,8 +308,7 @@ class InvoiceService
             $this->invoice->status_id = Invoice::STATUS_PAID;
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->invoice->status_id = Invoice::STATUS_PARTIAL;
-        }
-        elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
+        } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
 

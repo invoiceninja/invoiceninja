@@ -12,19 +12,15 @@
 namespace App\Http\Controllers;
 
 use App\Factory\SchedulerFactory;
+use App\Http\Requests\Task\DestroySchedulerRequest;
 use App\Http\Requests\TaskScheduler\CreateSchedulerRequest;
 use App\Http\Requests\TaskScheduler\ShowSchedulerRequest;
 use App\Http\Requests\TaskScheduler\StoreSchedulerRequest;
 use App\Http\Requests\TaskScheduler\UpdateSchedulerRequest;
-use App\Http\Requests\Task\DestroySchedulerRequest;
-use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Report\ProfitAndLoss;
 use App\Models\Scheduler;
 use App\Repositories\SchedulerRepository;
 use App\Transformers\SchedulerTransformer;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerController extends BaseController
@@ -336,8 +332,9 @@ class TaskSchedulerController extends BaseController
     {
         $action = request()->input('action');
 
-        if(!in_array($action, ['archive', 'restore', 'delete']))
+        if (!in_array($action, ['archive', 'restore', 'delete'])) {
             return response()->json(['message' => 'Bulk action does not exist'], 400);
+        }
 
         $ids = request()->input('ids');
 
@@ -351,5 +348,4 @@ class TaskSchedulerController extends BaseController
 
         return $this->listResponse(Scheduler::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
-
 }

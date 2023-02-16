@@ -34,7 +34,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
 use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PDF;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,9 +41,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\PdfParser\StreamReader;
 
 class CreateEntityPdf implements ShouldQueue
 {

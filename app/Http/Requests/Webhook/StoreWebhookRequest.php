@@ -11,8 +11,8 @@
 
 namespace App\Http\Requests\Webhook;
 
-use App\Models\Account;
 use App\Http\Requests\Request;
+use App\Models\Account;
 
 class StoreWebhookRequest extends Request
 {
@@ -40,10 +40,11 @@ class StoreWebhookRequest extends Request
     {
         $input = $this->all();
 
-        if(!isset($input['rest_method']))
+        if (!isset($input['rest_method'])) {
             $input['rest_method'] = 'post';
-            // if(isset($input['headers']) && count($input['headers']) == 0)
-                // $input['headers'] = null;
+        }
+        // if(isset($input['headers']) && count($input['headers']) == 0)
+        // $input['headers'] = null;
 
         $this->replace($input);
     }

@@ -11,10 +11,8 @@
 
 namespace App\Services\PurchaseOrder;
 
-use App\Jobs\Util\WebhookHandler;
 use App\Models\PurchaseOrder;
 use App\Models\Webhook;
-use App\Utils\Ninja;
 
 class MarkSent
 {
@@ -30,7 +28,6 @@ class MarkSent
 
     public function run()
     {
-
         /* Return immediately if status is not draft */
         if ($this->purchase_order->status_id != PurchaseOrder::STATUS_DRAFT) {
             return $this->purchase_order;

@@ -13,7 +13,6 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Ninja\CanRestoreUserRule;
-use App\Http\ValidationRules\UniqueUserRule;
 use App\Utils\Ninja;
 
 class BulkUserRequest extends Request

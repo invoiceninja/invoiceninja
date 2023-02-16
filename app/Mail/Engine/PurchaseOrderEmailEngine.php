@@ -12,21 +12,16 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Account;
-use App\Models\Expense;
 use App\Models\PurchaseOrder;
-use App\Models\Task;
 use App\Models\Vendor;
-use App\Models\VendorContact;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
 class PurchaseOrderEmailEngine extends BaseEmailEngine
@@ -85,15 +80,15 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             $body_template .= '<div class="center">$view_button</div>';
         }
         $text_body = trans(
-                'texts.purchase_order_message',
-                [
-                    'purchase_order' => $this->purchase_order->number,
-                    'company' => $this->purchase_order->company->present()->name(),
-                    'amount' => Number::formatMoney($this->purchase_order->balance, $this->vendor),
-                ],
-                null,
-                $this->vendor->company->locale()
-            )."\n\n".$this->invitation->getLink();
+            'texts.purchase_order_message',
+            [
+                'purchase_order' => $this->purchase_order->number,
+                'company' => $this->purchase_order->company->present()->name(),
+                'amount' => Number::formatMoney($this->purchase_order->balance, $this->vendor),
+            ],
+            null,
+            $this->vendor->company->locale()
+        )."\n\n".$this->invitation->getLink();
 
         if (is_array($this->template_data) && array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
@@ -127,33 +122,29 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             ->setTextBody($text_body);
 
         if ($this->vendor->getSetting('pdf_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-
             $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
 
-            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);   
-
+            $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);
         }
 
         //attach third party documents
         if ($this->vendor->getSetting('document_email_attachment') !== false && $this->purchase_order->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
-
             // Storage::url
             foreach ($this->purchase_order->documents as $document) {
-                
-                if($document->size > $this->max_attachment_size)
+                if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
-                else
+                } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                }
             }
 
             foreach ($this->purchase_order->company->documents as $document) {
-
-                if($document->size > $this->max_attachment_size)
+                if ($document->size > $this->max_attachment_size) {
                     $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
-                else
+                } else {
                     $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null]]);
+                }
             }
-
         }
 
         return $this;

@@ -55,7 +55,7 @@ abstract class QueryFilters
 
     /**
      * The "with" filter property column.
-     * 
+     *
      * var string
      */
     protected $with_property = 'id';
@@ -151,7 +151,7 @@ abstract class QueryFilters
 
             if (in_array(self::STATUS_ARCHIVED, $filters)) {
                 $query->orWhere(function ($query) {
-                    $query->whereNotNull('deleted_at')->where('is_deleted',0);
+                    $query->whereNotNull('deleted_at')->where('is_deleted', 0);
                 });
             }
 
@@ -188,7 +188,6 @@ abstract class QueryFilters
             default:
                 return '=';
                 break;
-
         }
     }
 
@@ -208,38 +207,30 @@ abstract class QueryFilters
 
     public function created_at($value = '')
     {
-        
-        if($value == '')
+        if ($value == '') {
             return $this->builder;
+        }
 
-        try{
-
-            if(is_numeric($value)){
+        try {
+            if (is_numeric($value)) {
                 $created_at = Carbon::createFromTimestamp((int)$value);
-            }
-            else{
+            } else {
                 $created_at = Carbon::parse($value);
             }
 
             return $this->builder->where('created_at', '>=', $created_at);
-
-        }
-        catch(\Exception $e) {
-
+        } catch(\Exception $e) {
             return $this->builder;
-
         }
-        
     }
 
     public function updated_at($value = '')
     {
-
-        if ($value == '')
+        if ($value == '') {
             return $this->builder;
+        }
 
         try {
-
             if (is_numeric($value)) {
                 $created_at = Carbon::createFromTimestamp((int)$value);
             } else {
@@ -248,7 +239,6 @@ abstract class QueryFilters
 
             return $this->builder->where('updated_at', '>=', $created_at);
         } catch (\Exception $e) {
-
             return $this->builder;
         }
     }

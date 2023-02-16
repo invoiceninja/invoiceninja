@@ -27,8 +27,6 @@ use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
 use App\Jobs\Credit\ZipCredits;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Invoice\EmailCredit;
-use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -37,7 +35,6 @@ use App\Repositories\CreditRepository;
 use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Response;
@@ -499,8 +496,9 @@ class CreditController extends BaseController
     {
         $action = $request->input('action');
 
-        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
 
         $credits = Credit::withTrashed()
                          ->whereIn('id', $request->ids)
@@ -529,18 +527,16 @@ class CreditController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'bulk_print' && auth()->user()->can('view', $credits->first())){
-
-            $paths = $credits->map(function ($credit){
+        if ($action == 'bulk_print' && auth()->user()->can('view', $credits->first())) {
+            $paths = $credits->map(function ($credit) {
                 return $credit->service()->getCreditPdf($credit->invitations->first());
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
 
-                return response()->streamDownload(function () use ($merge) {
-                    echo ($merge);
-                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
+            return response()->streamDownload(function () use ($merge) {
+                echo($merge);
+            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         $credits->each(function ($credit, $key) use ($action) {
@@ -565,7 +561,7 @@ class CreditController extends BaseController
                 $credit->service()->markPaid()->save();
 
                 return $this->itemResponse($credit);
-            break;
+                break;
 
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
@@ -591,7 +587,7 @@ class CreditController extends BaseController
                 return response()->streamDownload(function () use ($file) {
                     echo Storage::get($file);
                 }, basename($file), ['Content-Type' => 'application/pdf']);
-              break;
+                break;
             case 'archive':
                 $this->credit_repository->archive($credit);
 

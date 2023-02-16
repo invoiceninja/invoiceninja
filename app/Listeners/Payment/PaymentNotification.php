@@ -16,11 +16,9 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityPaidObject;
-use App\Notifications\Admin\NewPaymentNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Notification;
 
 class PaymentNotification implements ShouldQueue
 {
@@ -62,7 +60,10 @@ class PaymentNotification implements ShouldQueue
         foreach ($payment->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $methods = $this->findUserEntityNotificationType($payment, $company_user, [
+            $methods = $this->findUserEntityNotificationType(
+                $payment,
+                $company_user,
+                [
                 'payment_success',
                 'payment_success_all',
                 'payment_success_user',

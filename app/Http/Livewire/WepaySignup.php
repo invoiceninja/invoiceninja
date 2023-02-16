@@ -20,7 +20,6 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\User;
 use App\PaymentDrivers\WePayPaymentDriver;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use WePay;
 

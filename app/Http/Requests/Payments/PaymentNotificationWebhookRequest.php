@@ -14,11 +14,6 @@ namespace App\Http\Requests\Payments;
 
 use App\Http\Requests\Request;
 use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
 
 class PaymentNotificationWebhookRequest extends Request

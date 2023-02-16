@@ -12,10 +12,8 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Invoice\InvoiceBalanceSanity;
 use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
-use App\Models\Invoice;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;

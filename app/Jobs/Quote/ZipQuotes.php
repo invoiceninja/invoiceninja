@@ -19,15 +19,12 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadQuotes;
 use App\Models\Company;
 use App\Models\User;
-use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
 
 class ZipQuotes implements ShouldQueue
 {
@@ -80,11 +77,9 @@ class ZipQuotes implements ShouldQueue
         $path = $this->quotes->first()->client->quote_filepath($invitation);
 
         $this->quotes->each(function ($quote) {
-            
             $quote->service()->createInvitations();
 
             (new CreateEntityPdf($quote->invitations()->first()))->handle();
-            
         });
 
         try {

@@ -55,13 +55,11 @@ class ClientApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
-
     }
 
 
     public function testCrossCompanyBulkActionsFail()
     {
-
         $account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
@@ -122,7 +120,6 @@ class ClientApiTest extends TestCase
         $v = $this->app['validator']->make($data, $rules);
 
         $this->assertFalse($v->passes());
-
     }
 
 
@@ -156,20 +153,17 @@ class ClientApiTest extends TestCase
 
         $data = [
             'action' => 'archive',
-            'ids' => 
+            'ids' =>
                 $this->client->hashed_id
             
         ];
 
         $v = $this->app['validator']->make($data, $rules);
         $this->assertFalse($v->passes());
-
-
     }
 
     public function testClientStatement()
     {
-
         $response = null;
 
         $data  = [
@@ -195,12 +189,10 @@ class ClientApiTest extends TestCase
         $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
 
         $response->assertStatus(200);
-
     }
 
     public function testClientStatementEmail()
     {
-
         $response = null;
         
         $data  = [
@@ -228,7 +220,6 @@ class ClientApiTest extends TestCase
 
 
         $response->assertStatus(200);
-
     }
 
 
@@ -267,7 +258,7 @@ class ClientApiTest extends TestCase
              'currency_id' => '3',
           ],
           'client_hash' => 'xx',
-          'contacts' => 
+          'contacts' =>
           [
             [
               'first_name' => '',
@@ -280,8 +271,8 @@ class ClientApiTest extends TestCase
               'custom_value4' => '',
             ]
           ],
-          'country_id' => NULL,
-          'shipping_country_id' => NULL,
+          'country_id' => null,
+          'shipping_country_id' => null,
           'user_id' => $this->user->id,
         ];
 
@@ -298,12 +289,10 @@ class ClientApiTest extends TestCase
         $c->refresh();
 
         $this->assertEquals("3", $c->settings->currency_id);
-
     }
 
     public function testClientSettingsSave()
     {
-        
         $std = new \stdClass;
         $std->entity = 'App\\Models\\Client';
         $std->currency_id = 3;
@@ -313,13 +302,11 @@ class ClientApiTest extends TestCase
         $this->saveSettings($std, $this->client);
 
         $this->assertTrue(true);
-
     }
 
 
     public function testClientSettingsSave2()
     {
-
         $std = new \stdClass;
         $std->entity = 'App\\Models\\Client';
         $std->industry_id = '';
@@ -331,16 +318,14 @@ class ClientApiTest extends TestCase
         $this->saveSettings($std, $this->client);
 
         $this->assertTrue(true);
-
     }
 
     public function testClientStoreValidation()
     {
+        auth()->login($this->user, false);
+        auth()->user()->setCompany($this->company);
 
-         auth()->login($this->user, false);
-         auth()->user()->setCompany($this->company);
-
-        $data = array (
+        $data = [
           'company_id' => $this->company->id,
           'name' => 'Christian xx',
           'phone' => '',
@@ -366,16 +351,16 @@ class ClientApiTest extends TestCase
           'balance' => '0',
           'paid_to_date' => '0',
           'credit_balance' => 0,
-          'settings' => 
-          (object) array(
+          'settings' =>
+          (object) [
              'entity' => 'App\\Models\\Client',
              'currency_id' => '3',
-          ),
+          ],
           'client_hash' => 'xx',
-          'contacts' => 
-          array (
-            0 => 
-            array (
+          'contacts' =>
+          [
+            0 =>
+            [
               'first_name' => '',
               'last_name' => '',
               'email' => '',
@@ -384,12 +369,12 @@ class ClientApiTest extends TestCase
               'custom_value2' => '',
               'custom_value3' => '',
               'custom_value4' => '',
-            ),
-          ),
-          'country_id' => NULL,
-          'shipping_country_id' => NULL,
+            ],
+          ],
+          'country_id' => null,
+          'shipping_country_id' => null,
           'user_id' => $this->user->id,
-        );
+        ];
 
 
         $request_name = StoreClientRequest::class;
@@ -409,17 +394,13 @@ class ClientApiTest extends TestCase
         $_syn_request_class->setValidator($validator);
 
         $this->assertFalse($validator->fails());
-
-
     }
 
 
 
     public function testClientImportDataStructure()
     {
-
-
-        $data = array (
+        $data = [
           'company_id' => $this->company->id,
           'name' => 'Christian xx',
           'phone' => '',
@@ -445,16 +426,16 @@ class ClientApiTest extends TestCase
           'balance' => '0',
           'paid_to_date' => '0',
           'credit_balance' => 0,
-          'settings' => 
-          (object) array(
+          'settings' =>
+          (object) [
              'entity' => 'App\\Models\\Client',
              'currency_id' => '3',
-          ),
+          ],
           'client_hash' => 'xx',
-          'contacts' => 
-          array (
-            0 => 
-            array (
+          'contacts' =>
+          [
+            0 =>
+            [
               'first_name' => '',
               'last_name' => '',
               'email' => '',
@@ -463,12 +444,12 @@ class ClientApiTest extends TestCase
               'custom_value2' => '',
               'custom_value3' => '',
               'custom_value4' => '',
-            ),
-          ),
-          'country_id' => NULL,
-          'shipping_country_id' => NULL,
+            ],
+          ],
+          'country_id' => null,
+          'shipping_country_id' => null,
           'user_id' => $this->user->id,
-        );
+        ];
 
         $crepo = new ClientRepository(new ClientContactRepository());
 
@@ -481,7 +462,6 @@ class ClientApiTest extends TestCase
 
     public function testClientCsvImport()
     {
-
         $settings = ClientSettings::defaults();
         $settings->currency_id = "840";
 
@@ -521,8 +501,6 @@ class ClientApiTest extends TestCase
 
         $c = $crepo->save($data, ClientFactory::create($this->company->id, $this->user->id));
         $c->saveQuietly();
-
-
     }
 
 
@@ -815,7 +793,7 @@ class ClientApiTest extends TestCase
 
         $response = false;
 
-        try{
+        try {
             $response = $this->withHeaders([
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/clients/bulk?action=archive', $data);
@@ -824,7 +802,7 @@ class ClientApiTest extends TestCase
             nlog($message);
         }
 
-        if($response){
+        if ($response) {
             $arr = $response->json();
             $this->assertNotNull($arr['data'][0]['archived_at']);
         }
@@ -976,6 +954,4 @@ class ClientApiTest extends TestCase
         $x = Number::formatValueNoTrailingZeroes(1.50000005, $currency);
         $this->assertEquals(1.50000005, $x);
     }
-
-
 }

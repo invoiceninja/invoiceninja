@@ -65,14 +65,13 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where(function ($query) use ($status_parameters){
-
+        $this->builder->where(function ($query) use ($status_parameters) {
             if (in_array('sent', $status_parameters)) {
-                $query->orWhere(function ($q){
-                              $q->where('status_id', Quote::STATUS_SENT)
-                              ->whereNull('due_date')
-                              ->orWhere('due_date', '>=', now()->toDateString());
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                    ->whereNull('due_date')
+                    ->orWhere('due_date', '>=', now()->toDateString());
+                });
             }
     
             $quote_filters = [];
@@ -86,26 +85,25 @@ class QuoteFilters extends QueryFilters
                 $quote_filters[] = Quote::STATUS_APPROVED;
             }
 
-            if(count($quote_filters) >0){
+            if (count($quote_filters) >0) {
                 $query->orWhereIn('status_id', $quote_filters);
             }
 
             if (in_array('expired', $status_parameters)) {
-                $query->orWhere(function ($q){
-                              $q->where('status_id', Quote::STATUS_SENT)
-                              ->whereNotNull('due_date')
-                              ->where('due_date', '<=', now()->toDateString());
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                    ->whereNotNull('due_date')
+                    ->where('due_date', '<=', now()->toDateString());
+                });
             }
 
             if (in_array('upcoming', $status_parameters)) {
-                $query->orWhere(function ($q){
-                            $q->where('status_id', Quote::STATUS_SENT)
-                              ->where('due_date', '>=', now()->toDateString())
-                              ->orderBy('due_date', 'DESC');
-                          });
+                $query->orWhere(function ($q) {
+                    $q->where('status_id', Quote::STATUS_SENT)
+                      ->where('due_date', '>=', now()->toDateString())
+                      ->orderBy('due_date', 'DESC');
+                });
             }
-
         });
 
         return $this->builder;
@@ -134,8 +132,9 @@ class QuoteFilters extends QueryFilters
             return $this->builder;
         }
 
-        if($sort_col[0] == 'valid_until')
+        if ($sort_col[0] == 'valid_until') {
             $sort_col[0] = 'due_date';
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

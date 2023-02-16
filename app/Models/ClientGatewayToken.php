@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesDates;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClientGatewayToken extends BaseModel
@@ -69,5 +68,4 @@ class ClientGatewayToken extends BaseModel
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
-    
 }

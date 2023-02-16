@@ -12,7 +12,6 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
-use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;

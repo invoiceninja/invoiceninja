@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\PaymentExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ProfitLossRequest;
 use App\Jobs\Report\SendToAdmin;

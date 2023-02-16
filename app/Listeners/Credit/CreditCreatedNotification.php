@@ -49,7 +49,6 @@ class CreditCreatedNotification implements ShouldQueue
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 

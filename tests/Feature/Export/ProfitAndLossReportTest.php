@@ -15,22 +15,16 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ExpenseFactory;
-use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ProfitLoss;
 use App\Utils\Traits\MakesHash;
-use Database\Factories\ClientContactFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
-use League\Csv\Writer;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**

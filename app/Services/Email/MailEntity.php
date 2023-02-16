@@ -11,24 +11,23 @@
 
 namespace App\Services\Email;
 
+use App\DataMapper\Analytics\EmailSuccess;
+use App\Libraries\Google\Google;
+use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\User;
 use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
 use App\Utils\Traits\MakesHash;
-use App\Libraries\Google\Google;
-use App\Services\Email\MailBuild;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
-use App\DataMapper\Analytics\EmailSuccess;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class MailEntity implements ShouldQueue
 {
@@ -62,7 +61,9 @@ class MailEntity implements ShouldQueue
      * @param  mixed $mail_object
      * @return void
      */
-    public function __construct(public mixed $invitation, private ?string $db, public MailObject $mail_object){}
+    public function __construct(public mixed $invitation, private ?string $db, public MailObject $mail_object)
+    {
+    }
     
     /**
      * Handle the job
@@ -71,7 +72,6 @@ class MailEntity implements ShouldQueue
      */
     public function handle(): void
     {
-
         MultiDB::setDb($this->db);
 
         /* Where there are no invitations, we need to harvest the company and also use the correct context to build the mailable*/
@@ -81,19 +81,19 @@ class MailEntity implements ShouldQueue
 
         $builder = new MailBuild($this);
 
-        /* Construct Mailable */ 
+        /* Construct Mailable */
         $builder->run($this);
 
         $this->mailable = $builder->getMailable();
 
         /* Email quality checks */
-        if($this->preFlightChecksFail())
+        if ($this->preFlightChecksFail()) {
             return;
+        }
 
         /* Try sending email */
         $this->setMailDriver()
              ->trySending();
-
     }
     
     public function configureMailer(): self
@@ -106,13 +106,12 @@ class MailEntity implements ShouldQueue
     }
 
 
-    /** 
-     * Sets the mail driver to use and applies any specific configuration 
+    /**
+     * Sets the mail driver to use and applies any specific configuration
      * the the mailable
      */
-	private function setMailDriver(): self
+    private function setMailDriver(): self
     {
-
         switch ($this->mail_object->settings->email_sending_method) {
             case 'default':
                 $this->mailer = config('mail.default');
@@ -138,11 +137,11 @@ class MailEntity implements ShouldQueue
                 break;
         }
 
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             $this->setSelfHostMultiMailer();
+        }
 
         return $this;
-
     }
 
     /**
@@ -151,10 +150,7 @@ class MailEntity implements ShouldQueue
      */
     private function setSelfHostMultiMailer(): void
     {
-
-        if (env($this->company->id . '_MAIL_HOST')) 
-        {
-
+        if (env($this->company->id . '_MAIL_HOST')) {
             config([
                 'mail.mailers.smtp' => [
                     'transport' => 'smtp',
@@ -165,20 +161,17 @@ class MailEntity implements ShouldQueue
                 ],
             ]);
 
-            if(env($this->company->id . '_MAIL_FROM_ADDRESS'))
-            {
-            $this->mailable
-                 ->from(env($this->company->id . '_MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')), env($this->company->id . '_MAIL_FROM_NAME', env('MAIL_FROM_NAME')));
+            if (env($this->company->id . '_MAIL_FROM_ADDRESS')) {
+                $this->mailable
+                     ->from(env($this->company->id . '_MAIL_FROM_ADDRESS', env('MAIL_FROM_ADDRESS')), env($this->company->id . '_MAIL_FROM_NAME', env('MAIL_FROM_NAME')));
             }
-
         }
-
     }
 
 
     /**
      * Ensure we discard any data that is not required
-     * 
+     *
      * @return void
      */
     private function cleanUpMailers(): void
@@ -201,7 +194,6 @@ class MailEntity implements ShouldQueue
     public function trySending(): void
     {
         try {
-
             $mail = Mail::mailer($this->mailer);
             $mail->send($this->mailable);
 
@@ -210,24 +202,19 @@ class MailEntity implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
-
-         }
-        catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
-                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-                $this->fail();
-                $this->cleanUpMailers();
-                // $this->logMailError($e->getMessage(), $this->company->clients()->first());
-                return;
-        }
-        catch(\Symfony\Component\Mime\Exception\LogicException $e){
-                nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
-                $this->fail();
-                $this->cleanUpMailers();
-                // $this->logMailError($e->getMessage(), $this->company->clients()->first());
-                return;
-        }
-        catch (\Exception | \Google\Service\Exception $e) {
-            
+        } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+            $this->fail();
+            $this->cleanUpMailers();
+            // $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            return;
+        } catch(\Symfony\Component\Mime\Exception\LogicException $e) {
+            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+            $this->fail();
+            $this->cleanUpMailers();
+            // $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            return;
+        } catch (\Exception | \Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -236,9 +223,7 @@ class MailEntity implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if(stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) 
-            { 
-
+            if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
@@ -246,63 +231,65 @@ class MailEntity implements ShouldQueue
                 $this->cleanUpMailers();
 
                 return;
-
             }
 
             //only report once, not on all tries
-            if($this->attempts() == $this->tries)
-            {
-
+            if ($this->attempts() == $this->tries) {
                 /* If the is an entity attached to the message send a failure mailer */
-                if($this->mail_object->entity_id)
+                if ($this->mail_object->entity_id) {
                     // $this->entityEmailFailed($message);
 
-                /* Don't send postmark failures to Sentry */
-                if(Ninja::isHosted() && (!$e instanceof ClientException)) 
-                    app('sentry')->captureException($e);
-
+                    /* Don't send postmark failures to Sentry */
+                    if (Ninja::isHosted() && (!$e instanceof ClientException)) {
+                        app('sentry')->captureException($e);
+                    }
+                }
             }
         
             /* Releasing immediately does not add in the backoff */
             $this->release($this->backoff()[$this->attempts()-1]);
-
         }
     }
 
    /**
-     * On the hosted platform we scan all outbound email for 
+     * On the hosted platform we scan all outbound email for
      * spam. This sequence processes the filters we use on all
      * emails.
      */
     public function preFlightChecksFail(): bool
     {
         /* Handle bad state */
-        if(!$this->company)
+        if (!$this->company) {
             return true;
+        }
 
         /* Handle deactivated company */
-        if($this->company->is_disabled && !$this->override) 
+        if ($this->company->is_disabled && !$this->override) {
             return true;
+        }
 
         /* To handle spam users we drop all emails from flagged accounts */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) 
+        if (Ninja::isHosted() && $this->company->account && $this->company->account->is_flagged) {
             return true;
+        }
 
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
-        if($this->hasInValidEmails())
+        if ($this->hasInValidEmails()) {
             return true;
+        }
 
         /* GMail users are uncapped */
-        if(in_array($this->mail_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) 
+        if (in_array($this->mail_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) {
             return false;
+        }
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
+        if (Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded()) {
             return true;
+        }
 
         /* If the account is verified, we allow emails to flow */
-        if(Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
-
+        if (Ninja::isHosted() && $this->company->account && $this->company->account->is_verified_account) {
             //11-01-2022
 
             /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
@@ -314,21 +301,20 @@ class MailEntity implements ShouldQueue
 
 
         /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
-        if($this->company->account && !$this->company->account->account_sms_verified){
-            
-            if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+        if ($this->company->account && !$this->company->account->account_sms_verified) {
+            if (class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class)) {
                 (new \Modules\Admin\Jobs\Account\EmailFilter($this->mail_object, $this->company))->run();
+            }
 
             return true;
-
         }
 
         /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
-        if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+        if (class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class)) {
             (new \Modules\Admin\Jobs\Account\EmailFilter($this->mail_object, $this->company))->run();
+        }
 
         return false;
-
     }
 
     
@@ -339,20 +325,22 @@ class MailEntity implements ShouldQueue
      */
     private function hasInValidEmails(): bool
     {
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             return false;
+        }
 
-        foreach($this->mail_object->to as $address_object)
-        {
-
-            if(strpos($address_object->address, '@example.com') !== false)
+        foreach ($this->mail_object->to as $address_object) {
+            if (strpos($address_object->address, '@example.com') !== false) {
                 return true;
+            }
 
-            if(!str_contains($address_object->address, "@"))
+            if (!str_contains($address_object->address, "@")) {
                 return true;
+            }
 
-            if($address_object->address == " ")
+            if ($address_object->address == " ") {
                 return true;
+            }
         }
 
 
@@ -360,17 +348,16 @@ class MailEntity implements ShouldQueue
     }
 
 
-    /** 
+    /**
      * Check to ensure no cross account
      * emails can be sent.
-     * 
+     *
      * @param User $user
      */
     private function checkValidSendingUser($user)
     {
         /* Always ensure the user is set on the correct account */
-        if($user->account_id != $this->company->account_id){
-
+        if ($user->account_id != $this->company->account_id) {
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -380,17 +367,18 @@ class MailEntity implements ShouldQueue
      * Resolves the sending user
      * when configuring the Mailer
      * on behalf of the client
-     * 
+     *
      * @return User $user
      */
     private function resolveSendingUser(): ?User
     {
         $sending_user = $this->mail_object->settings->gmail_sending_user_id;
 
-        if($sending_user == "0")
+        if ($sending_user == "0") {
             $user = $this->company->owner();
-        else
+        } else {
             $user = User::find($this->decodePrimaryKey($sending_user));
+        }
 
         return $user;
     }
@@ -401,11 +389,10 @@ class MailEntity implements ShouldQueue
      */
     private function setMailgunMailer()
     {
-        if(strlen($this->mail_object->settings->mailgun_secret) > 2 && strlen($this->mail_object->settings->mailgun_domain) > 2){
+        if (strlen($this->mail_object->settings->mailgun_secret) > 2 && strlen($this->mail_object->settings->mailgun_domain) > 2) {
             $this->client_mailgun_secret = $this->mail_object->settings->mailgun_secret;
             $this->client_mailgun_domain = $this->mail_object->settings->mailgun_domain;
-        }
-        else{
+        } else {
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -415,8 +402,8 @@ class MailEntity implements ShouldQueue
         $sending_email = (isset($this->mail_object->settings->custom_sending_email) && stripos($this->mail_object->settings->custom_sending_email, "@")) ? $this->mail_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->mail_object->settings->email_from_name) && strlen($this->mail_object->settings->email_from_name) > 2) ? $this->mail_object->settings->email_from_name : $user->name();
 
-            $this->mailable
-             ->from($sending_email, $sending_user);
+        $this->mailable
+         ->from($sending_email, $sending_user);
     }
 
     /**
@@ -425,10 +412,9 @@ class MailEntity implements ShouldQueue
      */
     private function setPostmarkMailer()
     {
-        if(strlen($this->mail_object->settings->postmark_secret) > 2){
+        if (strlen($this->mail_object->settings->postmark_secret) > 2) {
             $this->client_postmark_secret = $this->mail_object->settings->postmark_secret;
-        }
-        else{
+        } else {
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -438,8 +424,8 @@ class MailEntity implements ShouldQueue
         $sending_email = (isset($this->mail_object->settings->custom_sending_email) && stripos($this->mail_object->settings->custom_sending_email, "@")) ? $this->mail_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->mail_object->settings->email_from_name) && strlen($this->mail_object->settings->email_from_name) > 2) ? $this->mail_object->settings->email_from_name : $user->name();
 
-            $this->mailable
-             ->from($sending_email, $sending_user);
+        $this->mailable
+         ->from($sending_email, $sending_user);
     }
 
     /**
@@ -456,25 +442,19 @@ class MailEntity implements ShouldQueue
 
         $token = $this->refreshOfficeToken($user);
 
-        if($token)
-        {
+        if ($token) {
             $user->oauth_user_token = $token;
             $user->save();
-
-        }
-        else {
-
+        } else {
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
-        
         }
 
         $this->mailable
              ->from($user->email, $user->name())
-             ->withSymfonyMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
+             ->withSymfonyMessage(function ($message) use ($token) {
+                 $message->getHeaders()->addTextHeader('gmailtoken', $token);
              });
-
     }
 
     /**
@@ -483,7 +463,6 @@ class MailEntity implements ShouldQueue
      */
     private function setGmailMailer()
     {
-
         $user = $this->resolveSendingUser();
 
         $this->checkValidSendingUser($user);
@@ -492,17 +471,14 @@ class MailEntity implements ShouldQueue
 
         $google = (new Google())->init();
 
-        try{
-
+        try {
             if ($google->getClient()->isAccessTokenExpired()) {
                 $google->refreshToken($user);
                 $user = $user->fresh();
             }
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
-
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
             // $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
@@ -512,7 +488,7 @@ class MailEntity implements ShouldQueue
          * If the user doesn't have a valid token, notify them
          */
 
-        if(!$user->oauth_user_token) {
+        if (!$user->oauth_user_token) {
             $this->company->account->gmailCredentialNotification();
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
@@ -526,7 +502,7 @@ class MailEntity implements ShouldQueue
 
         $token = $user->oauth_user_token->access_token;
 
-        if(!$token) {
+        if (!$token) {
             $this->company->account->gmailCredentialNotification();
             $this->mail_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();
@@ -534,15 +510,14 @@ class MailEntity implements ShouldQueue
 
         $this->mailable
              ->from($user->email, $user->name())
-             ->withSymfonyMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('gmailtoken', $token);     
+             ->withSymfonyMessage(function ($message) use ($token) {
+                 $message->getHeaders()->addTextHeader('gmailtoken', $token);
              });
-
     }
 
   /**
      * Attempts to refresh the Microsoft refreshToken
-     * 
+     *
      * @param  App\Models\User
      * @return string | boool
      */
@@ -550,10 +525,9 @@ class MailEntity implements ShouldQueue
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
 
-        if($expiry->lt(now()))
-        {
-            $guzzle = new \GuzzleHttp\Client(); 
-            $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'; 
+        if ($expiry->lt(now())) {
+            $guzzle = new \GuzzleHttp\Client();
+            $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
             $token = json_decode($guzzle->post($url, [
                 'form_params' => [
@@ -565,8 +539,7 @@ class MailEntity implements ShouldQueue
                 ],
             ])->getBody()->getContents());
             
-            if($token){
-                
+            if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
                 $user->oauth_user_token = $token->access_token;
                 $user->oauth_user_token_expiry = now()->addSeconds($token->expires_in);
@@ -579,7 +552,6 @@ class MailEntity implements ShouldQueue
         }
 
         return $user->oauth_user_token;
-        
     }
 
     /**

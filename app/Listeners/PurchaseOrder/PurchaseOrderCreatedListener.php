@@ -37,7 +37,6 @@ class PurchaseOrderCreatedListener implements ShouldQueue
      */
     public function handle(PurchaseOrderWasCreated $event)
     {
-        
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -51,7 +50,6 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 

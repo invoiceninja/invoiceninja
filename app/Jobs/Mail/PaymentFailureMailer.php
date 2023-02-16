@@ -11,11 +11,7 @@
 
 namespace App\Jobs\Mail;
 
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
@@ -72,13 +68,11 @@ class PaymentFailureMailer implements ShouldQueue
      */
     public function handle()
     {
-
         //Set DB
         MultiDB::setDb($this->company->db);
 
         //iterate through company_users
         $this->company->company_users->each(function ($company_user) {
-
             //determine if this user has the right permissions
             $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure_all', 'payment_failure', 'payment_failure_user', 'all_notifications']);
 

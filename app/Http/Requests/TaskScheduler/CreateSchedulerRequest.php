@@ -24,5 +24,4 @@ class CreateSchedulerRequest extends Request
     {
         return auth()->user()->isAdmin();
     }
-
 }

@@ -55,7 +55,7 @@ class ACSS
         $customer = $this->stripe->findOrCreateCustomer();
 
         try {
-            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }

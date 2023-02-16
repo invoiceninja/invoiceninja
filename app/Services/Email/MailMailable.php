@@ -11,8 +11,6 @@
 
 namespace App\Services\Email;
 
-use App\Services\Email\MailObject;
-
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -21,13 +19,14 @@ use Illuminate\Mail\Mailables\Headers;
 
 class MailMailable extends Mailable
 {
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(public MailObject $mail_object){}
+    public function __construct(public MailObject $mail_object)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -57,7 +56,7 @@ class MailMailable extends Mailable
             view: $this->mail_object->html_template,
             text: $this->mail_object->text_template,
             with: [
-                'text_body' => str_replace("<br>","\n", strip_tags($this->mail_object->body,"<br>")), //@todo this is a bit hacky here.
+                'text_body' => str_replace("<br>", "\n", strip_tags($this->mail_object->body, "<br>")), //@todo this is a bit hacky here.
                 'body' => $this->mail_object->body,
                 'settings' => $this->mail_object->settings,
                 'whitelabel' => $this->mail_object->whitelabel,
@@ -76,16 +75,13 @@ class MailMailable extends Mailable
      */
     public function attachments()
     {
-
         $attachments  = [];
 
-        foreach($this->mail_object->attachments as $file)
-        {
+        foreach ($this->mail_object->attachments as $file) {
             $attachments[] = Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
         }
 
         return $attachments;
-        
     }
  
     /**
@@ -95,13 +91,10 @@ class MailMailable extends Mailable
      */
     public function headers()
     {
-
         return new Headers(
             messageId: null,
             references: [],
             text: $this->mail_object->headers,
         );
-
     }
-
 }

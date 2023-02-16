@@ -43,14 +43,12 @@ class ExpenseApiTest extends TestCase
 
     public function testExpenseGetClientStatus()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/expenses?client_status=paid');
 
         $response->assertStatus(200);
-
     }
 
     public function testExpensePost()

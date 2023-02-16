@@ -762,7 +762,6 @@ class CompanySettings extends BaseSettings
      */
     public static function defaults(): stdClass
     {
-
         $data = (object) get_class_vars(self::class);
 
         unset($data->casts);

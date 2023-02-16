@@ -11,15 +11,10 @@
 
 namespace Tests\Feature\Import\Invoice2Go;
 
-use App\Import\Providers\BaseImport;
-use App\Import\Providers\Freshbooks;
 use App\Import\Providers\Invoice2Go;
-use App\Import\Providers\Zoho;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\Product;
-use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;

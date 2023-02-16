@@ -11,14 +11,11 @@
 
 namespace App\Listeners;
 
-use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\VerifyUserObject;
 use App\Mail\User\UserAdded;
 use App\Utils\Ninja;
-use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;

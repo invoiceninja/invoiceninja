@@ -11,7 +11,6 @@
 
 namespace Tests\Feature\Notify;
 
-
 use App\DataMapper\CompanySettings;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
@@ -51,7 +50,7 @@ class NotificationTest extends TestCase
         $u = User::factory()->create([
             'account_id' => $this->account->id,
             'email' => $this->faker->safeEmail(),
-            'confirmation_code' => uniqid("st",true),
+            'confirmation_code' => uniqid("st", true),
         ]);
 
         $company_token = new CompanyToken;
@@ -81,7 +80,7 @@ class NotificationTest extends TestCase
         $i = Invoice::factory()->create([
             'user_id' => $u->id,
             'company_id' => $this->company->id,
-            'number' => uniqid("st",true),
+            'number' => uniqid("st", true),
             'client_id' => $this->client->id,
         ]);
 
@@ -99,7 +98,6 @@ class NotificationTest extends TestCase
         $methods = $this->findUserNotificationTypes($invitation, $company_user, 'invoice', ['all_notifications', 'invoice_viewed', 'invoice_viewed_all']);
 
         $this->assertCount(0, $methods);
-
     }
 
 
@@ -110,7 +108,7 @@ class NotificationTest extends TestCase
 
         $this->user->company_users()->where('company_id', $this->company->id)->update(['notifications' => (array)$notifications]);
 
-        $this->assertTrue(property_exists($this->cu->notifications,'email'));
+        $this->assertTrue(property_exists($this->cu->notifications, 'email'));
 
         $p = Product::factory()->create([
             'user_id' => $this->user->id,
@@ -125,7 +123,6 @@ class NotificationTest extends TestCase
 
         $notification_users = $this->filterUsersByPermissions($this->company->company_users, $p, ['inventory_user','invalid notification']);
         $this->assertCount(0, $notification_users->toArray());
-
     }
 
     public function testAllNotificationsFires()
@@ -142,7 +139,6 @@ class NotificationTest extends TestCase
 
         $notification_users = $this->filterUsersByPermissions($this->company->company_users, $p, ['inventory_all']);
         $this->assertCount(1, $notification_users->toArray());
-
     }
 
     public function testAllNotificationsFiresForUser()
@@ -159,7 +155,6 @@ class NotificationTest extends TestCase
 
         $notification_users = $this->filterUsersByPermissions($this->company->company_users, $p, ['all_user_notifications']);
         $this->assertCount(1, $notification_users->toArray());
-
     }
 
     public function testAllNotificationsDoesNotFiresForUser()
@@ -167,7 +162,7 @@ class NotificationTest extends TestCase
         $u = User::factory()->create([
             'account_id' => $this->account->id,
             'email' => $this->faker->safeEmail(),
-            'confirmation_code' => uniqid("st",true),
+            'confirmation_code' => uniqid("st", true),
         ]);
 
         $company_token = new CompanyToken;
@@ -237,8 +232,5 @@ class NotificationTest extends TestCase
         $this->assertCount(1, $methods);
 
         $this->assertTrue($this->checkNotificationExists($cu, $p, ['inventory_all', 'inventory_user']));
-
     }
-
-
 }

@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class Activity extends StaticModel
 {
@@ -374,5 +373,4 @@ class Activity extends StaticModel
     {
         return $this->belongsTo(Company::class);
     }
-
 }

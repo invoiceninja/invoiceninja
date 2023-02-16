@@ -12,8 +12,6 @@
 namespace App\Providers;
 
 use App\Utils\CssInlinerPlugin;
-use Illuminate\Container\Container;
-use Illuminate\Mail\MailManager;
 use Illuminate\Support\ServiceProvider;
 
 class MailCssInlinerServiceProvider extends ServiceProvider

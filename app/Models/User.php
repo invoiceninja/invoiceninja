@@ -29,9 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -319,7 +317,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns true is user is an admin _or_ owner
-     * 
+     *
      * @return boolean
      */
     public function isSuperUser() :bool
@@ -367,18 +365,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasPermission($permission) : bool
     {
-
-       /**
-        * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
-        *
-        * For example view_recurring_invoice without the limit would split to view bank recurring invoice
-        *
-        * Using only part 0 and 1 would search for permission view_recurring / edit_recurring so this would
-        * leak permissions for other recurring_* entities
-        *
-        * The solution here will split the word - consistently - into view _ {entity} and edit _ {entity}
-        * 
-        */
+        /**
+         * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
+         *
+         * For example view_recurring_invoice without the limit would split to view bank recurring invoice
+         *
+         * Using only part 0 and 1 would search for permission view_recurring / edit_recurring so this would
+         * leak permissions for other recurring_* entities
+         *
+         * The solution here will split the word - consistently - into view _ {entity} and edit _ {entity}
+         *
+         */
         $parts = explode('_', $permission, 2);
         $all_permission = '____';
         $edit_all = '____';
@@ -389,11 +386,10 @@ class User extends Authenticatable implements MustVerifyEmail
             $all_permission = $parts[0].'_all';
 
             /*If this is a view search, make sure we add in the edit_{entity} AND edit_all permission into the checks*/
-            if($parts[0] == 'view') {
+            if ($parts[0] == 'view') {
                 $edit_all = 'edit_all';
                 $edit_entity = "edit_{$parts[1]}";
             }
-
         }
 
         return  $this->isOwner() ||
@@ -402,7 +398,6 @@ class User extends Authenticatable implements MustVerifyEmail
                 (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_entity) !== false);
-
     }
 
     /**
@@ -411,13 +406,12 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
+     *
      * @param  string  $permission '["view_all"]'
-     * @return boolean             
+     * @return boolean
      */
     public function hasExactPermission(string $permission = '___'): bool
     {
-
         $parts = explode('_', $permission);
         $all_permission = '__';
 
@@ -427,7 +421,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $permission) !== false);
-
     }
 
     /**
@@ -436,23 +429,19 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
-     * @param  array  $permissions 
-     * @return boolean             
+     *
+     * @param  array  $permissions
+     * @return boolean
      */
     public function hasIntersectPermissions(array $permissions = []): bool
     {
-
-        foreach($permissions as $permission)
-        {
-
-            if($this->hasExactPermission($permission))
+        foreach ($permissions as $permission) {
+            if ($this->hasExactPermission($permission)) {
                 return true;
-
+            }
         }
 
         return false;
-        
     }
 
     /**
@@ -461,26 +450,23 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
-     * @param  array  $permissions 
-     * @return boolean             
+     *
+     * @param  array  $permissions
+     * @return boolean
      */
     public function hasIntersectPermissionsOrAdmin(array $permissions = []): bool
     {
-        
-        if($this->isSuperUser())
+        if ($this->isSuperUser()) {
             return true;
+        }
 
-        foreach($permissions as $permission)
-        {
-
-            if($this->hasExactPermission($permission))
+        foreach ($permissions as $permission) {
+            if ($this->hasExactPermission($permission)) {
                 return true;
-
+            }
         }
 
         return false;
-        
     }
 
 

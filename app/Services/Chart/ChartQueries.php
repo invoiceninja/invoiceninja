@@ -11,9 +11,6 @@
 
 namespace App\Services\Chart;
 
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 
 /**

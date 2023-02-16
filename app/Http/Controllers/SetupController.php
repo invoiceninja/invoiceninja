@@ -20,7 +20,6 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
@@ -31,9 +30,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -212,7 +209,6 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-
             // if (config('ninja.pdf_generator') == 'phantom') {
             //     return $this->testPhantom();
             // }

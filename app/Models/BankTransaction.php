@@ -11,9 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\BankTransactionRule;
-use App\Models\Filterable;
-use App\Models\Invoice;
 use App\Services\Bank\BankService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,15 +48,12 @@ class BankTransaction extends BaseModel
 
         $invoices = explode(",", $this->invoice_ids);
 
-        if(count($invoices) >= 1) 
-        {
-
-            foreach($invoices as $invoice){
-
-                if(is_string($invoice) && strlen($invoice) > 1)
+        if (count($invoices) >= 1) {
+            foreach ($invoices as $invoice) {
+                if (is_string($invoice) && strlen($invoice) > 1) {
                     $collection->push($this->decodePrimaryKey($invoice));
+                }
             }
-        
         }
 
         return $collection;
@@ -104,5 +98,4 @@ class BankTransaction extends BaseModel
     {
         return new BankService($this);
     }
-
 }

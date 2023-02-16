@@ -11,11 +11,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
 use App\Models\User;
 use App\Utils\Ninja;
 use Closure;
-use Hashids\Hashids;
 use Illuminate\Http\Request;
 
 /**

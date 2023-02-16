@@ -126,17 +126,16 @@ class BraintreePaymentDriver extends BaseDriver
 
             return $result->customer;
         }
-            //12-08-2022 catch when the customer is not created.
-            $data = [
-                'transaction_reference' => null,
-                'transaction_response' => $result,
-                'success' => false,
-                'description' => 'Could not create customer',
-                'code' => 500,
-            ];
+        //12-08-2022 catch when the customer is not created.
+        $data = [
+            'transaction_reference' => null,
+            'transaction_response' => $result,
+            'success' => false,
+            'description' => 'Could not create customer',
+            'code' => 500,
+        ];
 
-            SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
-
+        SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
@@ -272,7 +271,8 @@ class BraintreePaymentDriver extends BaseDriver
         $this->init();
 
         $webhookNotification = $this->gateway->webhookNotification()->parse(
-            $request->input('bt_signature'), $request->input('bt_payload')
+            $request->input('bt_signature'),
+            $request->input('bt_payload')
         );
 
         nlog('braintree webhook');

@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\PurchaseOrder;
 
-
 use App\Http\Requests\Request;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\CleanLineItems;
@@ -57,13 +56,13 @@ class StorePurchaseOrderRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        if (isset($input['line_items']) && is_array($input['line_items'])) 
+        if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         $input['amount'] = 0;
         $input['balance'] = 0;
 
         $this->replace($input);
     }
-
 }

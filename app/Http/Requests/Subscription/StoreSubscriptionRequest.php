@@ -11,9 +11,9 @@
 
 namespace App\Http\Requests\Subscription;
 
+use App\Http\Requests\Request;
 use App\Models\Account;
 use App\Models\Subscription;
-use App\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends Request
@@ -37,8 +37,8 @@ class StoreSubscriptionRequest extends Request
     {
         $rules = [
             'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)],
-            'group_id' => ['bail','sometimes', 'nullable', Rule::exists('group_settings','id')->where('company_id', auth()->user()->company()->id)],
-            'assigned_user_id' => ['bail','sometimes', 'nullable', Rule::exists('users','id')->where('account_id', auth()->user()->account_id)],
+            'group_id' => ['bail','sometimes', 'nullable', Rule::exists('group_settings', 'id')->where('company_id', auth()->user()->company()->id)],
+            'assigned_user_id' => ['bail','sometimes', 'nullable', Rule::exists('users', 'id')->where('account_id', auth()->user()->account_id)],
             'product_ids' => 'bail|sometimes|nullable|string',
             'recurring_product_ids' => 'bail|sometimes|nullable|string',
             'is_recurring' => 'bail|sometimes|bool',

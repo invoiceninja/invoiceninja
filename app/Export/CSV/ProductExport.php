@@ -12,9 +12,7 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
-use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Product;
 use App\Transformers\ProductTransformer;

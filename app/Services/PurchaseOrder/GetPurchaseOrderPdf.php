@@ -15,7 +15,6 @@ use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
 use App\Services\AbstractService;
-use App\Utils\TempFile;
 use Illuminate\Support\Facades\Storage;
 
 class GetPurchaseOrderPdf extends AbstractService

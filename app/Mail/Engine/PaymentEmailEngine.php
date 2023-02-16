@@ -90,28 +90,22 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewText('');
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            
             $this->payment->invoices->each(function ($invoice) {
-
                 $pdf = ((new CreateRawPdf($invoice->invitations->first(), $invoice->company->db))->handle());
 
-                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]); 
+                $this->setAttachments([['file' => base64_encode($pdf), 'name' => $invoice->numberFormatter().'.pdf']]);
 
                 //attach invoice documents also to payments
-                if ($this->client->getSetting('document_email_attachment') !== false)
-                {
+                if ($this->client->getSetting('document_email_attachment') !== false) {
                     foreach ($invoice->documents as $document) {
-
-                        if($document->size > $this->max_attachment_size)
+                        if ($document->size > $this->max_attachment_size) {
                             $this->setAttachmentLinks(["<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>"]);
-                        else
-                            $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => NULL, ]]);
+                        } else {
+                            $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => null, ]]);
+                        }
                     }
                 }
-
             });
-
-
         }
 
         return $this;
@@ -268,11 +262,11 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices.po_number'] = ['value' => $this->formatInvoiceField('po_number'), 'label' => ctrans('texts.invoices')];
 
 
-        if($this->payment->status_id == 4) {
+        if ($this->payment->status_id == 4) {
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
-        }
-        else
+        } else {
             $data['$status_logo'] = ['value' => '', 'label' => ''];
+        }
 
 
         $arrKeysLength = array_map('strlen', array_keys($data));
@@ -286,21 +280,20 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoicex = '';
 
         foreach ($this->payment->invoices as $invoice) {
-
             $invoice_field = $invoice->{$field};
 
-            if(in_array($field, ['amount', 'balance']))
+            if (in_array($field, ['amount', 'balance'])) {
                 $invoice_field = Number::formatMoney($invoice_field, $this->client);
+            }
 
-            if($field == 'due_date')
+            if ($field == 'due_date') {
                 $invoice_field = $this->translateDate($invoice_field, $this->client->date_format(), $this->client->locale());
+            }
 
             $invoicex .= ctrans('texts.invoice_number_short') . "{$invoice->number} {$invoice_field}";
-
         }
 
         return $invoicex;
-
     }
 
     private function formatInvoice()
@@ -341,15 +334,14 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            
-            if(strlen($invoice->po_number) > 1)
+            if (strlen($invoice->po_number) > 1) {
                 $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            }
 
             $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} <br>";
             $invoice_list .= ctrans('texts.invoice_amount').' '.Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
             $invoice_list .= ctrans('texts.invoice_balance').' '.Number::formatMoney($invoice->fresh()->balance, $this->client).'<br>';
             $invoice_list .= '-----<br>';
-
         }
 
         return $invoice_list;
@@ -406,5 +398,4 @@ class PaymentEmailEngine extends BaseEmailEngine
             </table>
         ';
     }
-
 }

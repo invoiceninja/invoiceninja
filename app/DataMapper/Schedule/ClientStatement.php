@@ -11,15 +11,11 @@
 
 namespace App\DataMapper\Schedule;
 
-use App\Models\Client;
-use stdClass;
-
 class ClientStatement
 {
-
     /**
      * Defines the template name
-     * 
+     *
      * @var string
      */
     public string $template = 'client_statement';
@@ -28,7 +24,7 @@ class ClientStatement
      * An array of clients hashed_ids
      *
      * Leave blank if this action should apply to all clients
-     * 
+     *
      * @var array
      */
     public array $clients = [];
@@ -46,7 +42,7 @@ class ClientStatement
 
     /**
      * The date range the statement should include
-     * 
+     *
      * @var string
      */
     public string $date_range = 'this_month';
@@ -54,7 +50,7 @@ class ClientStatement
     /**
      * If a custom range is select for the date range then
      * the start_date should be supplied in Y-m-d format
-     * 
+     *
      * @var string
      */
     public string $start_date = '';
@@ -62,7 +58,7 @@ class ClientStatement
     /**
      * If a custom range is select for the date range then
      * the end_date should be supplied in Y-m-d format
-     * 
+     *
      * @var string
      */
     public string $end_date = '';
@@ -87,10 +83,8 @@ class ClientStatement
      * String const which defines whether
      * the invoices to be shown are either
      * paid or unpaid
-     * 
+     *
      * @var string
      */
     public string $status = 'paid'; // paid | unpaid
-
-
 }

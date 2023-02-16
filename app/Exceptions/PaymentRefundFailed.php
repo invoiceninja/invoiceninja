@@ -36,7 +36,6 @@ class PaymentRefundFailed extends Exception
      */
     public function render($request)
     {
-
         // $msg = 'Unable to refund the transaction';
         $msg = ctrans('texts.warning_local_refund');
 

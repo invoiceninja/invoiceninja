@@ -62,7 +62,7 @@ trait CompanyGatewayFeesAndLimitsSaver
             case 'real':
             case 'float':
             case 'double':
-               return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
+                return ! is_string($value) && (is_float($value) || is_numeric(strval($value)));
            //     return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
@@ -76,7 +76,7 @@ trait CompanyGatewayFeesAndLimitsSaver
             case 'json':
                 json_decode($value);
 
-                    return json_last_error() == JSON_ERROR_NONE;
+                return json_last_error() == JSON_ERROR_NONE;
             default:
                 return false;
         }

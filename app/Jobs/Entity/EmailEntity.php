@@ -83,7 +83,6 @@ class EmailEntity implements ShouldQueue
         $this->html_engine = new HtmlEngine($invitation);
 
         $this->template_data = $template_data;
-
     }
 
     /**

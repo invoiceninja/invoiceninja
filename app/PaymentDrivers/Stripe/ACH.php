@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -27,6 +26,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Stripe\Customer;
@@ -36,7 +36,6 @@ use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\PaymentIntent;
-use App\Utils\Number;
 
 class ACH
 {
@@ -69,7 +68,7 @@ class ACH
         $customer = $this->stripe->findOrCreateCustomer();
 
         try {
-            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
@@ -96,22 +95,18 @@ class ACH
 
     public function updateBankAccount(array $event)
     {
-
         $stripe_event = $event['data']['object'];
 
         $token = ClientGatewayToken::where('token', $stripe_event['id'])
                                    ->where('gateway_customer_reference', $stripe_event['customer'])
                                    ->first();
 
-        if($token && isset($stripe_event['object']) && $stripe_event['object'] == 'bank_account' && isset($stripe_event['status']) && $stripe_event['status'] == 'verified') {
-
+        if ($token && isset($stripe_event['object']) && $stripe_event['object'] == 'bank_account' && isset($stripe_event['status']) && $stripe_event['status'] == 'verified') {
             $meta = $token->meta;
             $meta->state = 'authorized';
             $token->meta = $meta;
             $token->save();
-
         }
-
     }
 
     public function verificationView(ClientGatewayToken $token)
@@ -128,8 +123,7 @@ class ACH
         $bank_account = Customer::retrieveSource($token->gateway_customer_reference, $token->token, [], $this->stripe->stripe_connect_auth);
 
         /* Catch externally validated bank accounts and mark them as verified */
-        if(isset($bank_account->status) && $bank_account->status == 'verified'){
-
+        if (isset($bank_account->status) && $bank_account->status == 'verified') {
             $meta = $token->meta;
             $meta->state = 'authorized';
             $token->meta = $meta;
@@ -138,7 +132,6 @@ class ACH
             return redirect()
                 ->route('client.payment_methods.show', $token->hashed_id)
                 ->with('message', __('texts.payment_method_verified'));
-
         }
 
         $data = [
@@ -222,7 +215,8 @@ class ACH
 
         if (count($data['tokens']) == 0) {
             $intent =
-            $this->stripe->createPaymentIntent([
+            $this->stripe->createPaymentIntent(
+                [
                 'amount' => $data['amount'],
                 'currency' => $data['currency'],
                 'setup_future_usage' => 'off_session',
@@ -338,23 +332,23 @@ class ACH
                     $data['error_code'] = $e->getError()->code;
                     $data['param'] = $e->getError()->param;
                     $data['message'] = $e->getError()->message;
-                break;
+                    break;
                 case $e instanceof RateLimitException:
                     $data['message'] = 'Too many requests made to the API too quickly';
-                break;
+                    break;
                 case $e instanceof InvalidRequestException:
                     $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
-                break;
+                    break;
                 case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';
-                break;
+                    break;
                 case $e instanceof ApiErrorException:
                     $data['message'] = 'Network communication with Stripe failed';
-                break;
+                    break;
 
                 default:
                     $data['message'] = $e->getMessage();
-                break;
+                    break;
             }
 
             $this->stripe->processInternallyFailedPayment($this->stripe, $e);

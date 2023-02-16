@@ -58,7 +58,6 @@ class InvoiceTransformer extends BaseTransformer
 
         $line_items = [];
         foreach ($line_items_data as $record) {
-
             $item_notes_key = array_key_exists('Item Description', $record) ? 'Item Description' : 'Item Desc';
             
             $line_items[] = [

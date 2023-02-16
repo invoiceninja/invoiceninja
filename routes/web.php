@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 //Auth::routes(['password.reset' => false]);
 
 Route::get('/', [BaseController::class, 'flutterRoute'])->middleware('guest');
-    // Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
+// Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
 
 Route::get('setup', [SetupController::class, 'index'])->middleware('guest');
 Route::post('setup', [SetupController::class, 'doSetup'])->middleware('guest');

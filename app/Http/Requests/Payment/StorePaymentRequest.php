@@ -43,7 +43,7 @@ class StorePaymentRequest extends Request
         $invoices_total = 0;
         $credits_total = 0;
 
-        if (isset($input['client_id']) && is_string($input['client_id']) ) {
+        if (isset($input['client_id']) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
@@ -53,9 +53,9 @@ class StorePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-
-                if(is_string($value['invoice_id']))
+                if (is_string($value['invoice_id'])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+                }
 
                 if (array_key_exists('amount', $value)) {
                     $invoices_total += $value['amount'];

@@ -15,7 +15,6 @@ class CompanyGatewayObserver
      */
     public function created(CompanyGateway $company_gateway)
     {
-
         /* Set company gateway if not exists*/
         if (! $company_gateway->label) {
             $company_gateway->label = $company_gateway->gateway->name;

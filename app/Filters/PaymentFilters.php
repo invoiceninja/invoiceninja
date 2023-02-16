@@ -46,17 +46,14 @@ class PaymentFilters extends QueryFilters
      */
     public function match_transactions($value = 'true'): Builder
     {
-
-        if($value == 'true'){
-
+        if ($value == 'true') {
             return $this->builder
-                        ->where('is_deleted',0)
-                        ->where(function ($query){
+                        ->where('is_deleted', 0)
+                        ->where(function ($query) {
                             $query->whereNull('transaction_id')
-                            ->orWhere("transaction_id","")
+                            ->orWhere("transaction_id", "")
                             ->company();
                         });
-                        
         }
 
         return $this->builder;

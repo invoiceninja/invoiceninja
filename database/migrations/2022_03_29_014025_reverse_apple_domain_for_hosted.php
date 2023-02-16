@@ -5,8 +5,6 @@ use App\Models\Currency;
 use App\Models\Gateway;
 use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     /**

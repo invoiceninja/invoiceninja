@@ -57,11 +57,13 @@ class SendEmailRequest extends Request
             unset($input['template']);
         }
 
-        if(array_key_exists('entity_id', $input))
+        if (array_key_exists('entity_id', $input)) {
             $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        }
         
-        if(array_key_exists('entity', $input))
+        if (array_key_exists('entity', $input)) {
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
+        }
 
         $this->replace($input);
     }

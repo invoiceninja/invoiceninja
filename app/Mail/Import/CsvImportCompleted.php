@@ -34,7 +34,7 @@ class CsvImportCompleted extends Mailable
      *       'company' => Company $company,
      *       'entity_count' => (array) $entity_count
      *   ];
-     */    
+     */
     public $data;
 
     /**

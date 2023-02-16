@@ -16,12 +16,10 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityViewedObject;
-use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue
 {

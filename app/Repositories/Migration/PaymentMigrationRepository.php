@@ -69,7 +69,6 @@ class PaymentMigrationRepository extends BaseRepository
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
-
         //check currencies here and fill the exchange rate data if necessary
         if (! $payment->id) {
             $this->processExchangeRates($data, $payment);

@@ -13,10 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Quote\QuoteWasEmailed;
-use App\Http\Middleware\UserVerified;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Mail\EntitySentMailer;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -135,15 +133,15 @@ class EmailController extends BaseController
         $mo->entity_string = $entity;
         $mo->email_template = $template;
 
-        if(Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified)
-              return response(['message' => 'Please verify your account to send emails.'], 400);
+        if (Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified) {
+            return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
         
-        if($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder'){
+        if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
             return $this->sendPurchaseOrder($entity_obj, $data, $template);
         }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template, $mo) {
-
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
@@ -151,7 +149,6 @@ class EmailController extends BaseController
 
                 // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
-            
         });
 
         $entity_obj = $entity_obj->fresh();
@@ -196,7 +193,6 @@ class EmailController extends BaseController
 
     private function sendPurchaseOrder($entity_obj, $data, $template)
     {
-
         $this->entity_type = PurchaseOrder::class;
 
         $this->entity_transformer = PurchaseOrderTransformer::class;
@@ -206,6 +202,5 @@ class EmailController extends BaseController
         PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
         
         return $this->itemResponse($entity_obj);
-
     }
 }

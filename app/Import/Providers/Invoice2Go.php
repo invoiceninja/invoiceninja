@@ -11,12 +11,9 @@
 
 namespace App\Import\Providers;
 
-use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
-use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Import\Transformer\Invoice2Go\InvoiceTransformer;
-use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 
 class Invoice2Go extends BaseImport
@@ -45,7 +42,6 @@ class Invoice2Go extends BaseImport
 
     public function invoice()
     {
-
         //make sure we update and create products with wave
         $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;

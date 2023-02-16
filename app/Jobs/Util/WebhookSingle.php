@@ -11,13 +11,9 @@
 
 namespace App\Jobs\Util;
 
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
-use App\Models\Client as ClientModel;
 use App\Models\Company;
-use App\Models\Product;
 use App\Models\SystemLog;
-use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
@@ -76,15 +72,15 @@ class WebhookSingle implements ShouldQueue
      */
     public function handle()
     {
-
         MultiDB::setDb($this->db);
 
         $subscription = Webhook::with('company')->find($this->subscription_id);
 
-        if($subscription)
+        if ($subscription) {
             nlog("firing event ID {$subscription->event_id}");
+        }
         
-        if(!$subscription){
+        if (!$subscription) {
             $this->fail();
             
             nlog("failed to fire event, could not find webhook ID {$this->subscription_id}");
@@ -133,10 +129,7 @@ class WebhookSingle implements ShouldQueue
                 $this->resolveClient(),
                 $this->company
             );
-
-        } 
-        catch(\GuzzleHttp\Exception\ConnectException $e){
-
+        } catch(\GuzzleHttp\Exception\ConnectException $e) {
             nlog("connection problem");
             nlog($e->getCode());
             nlog($e->getMessage());
@@ -149,12 +142,8 @@ class WebhookSingle implements ShouldQueue
                 $this->resolveClient(),
                 $this->company
             );
-
-        }
-        catch (BadResponseException $e) {
-
-            if ($e->getResponse()->getStatusCode() >= 400 && $e->getResponse()->getStatusCode() < 500){
-
+        } catch (BadResponseException $e) {
+            if ($e->getResponse()->getStatusCode() >= 400 && $e->getResponse()->getStatusCode() < 500) {
                 $message = "Server encountered a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " scheduling retry.";
                 
                 nlog($message);
@@ -169,10 +158,9 @@ class WebhookSingle implements ShouldQueue
                 );
 
                 $this->release($this->backoff()[$this->attempts()-1]);
-
             }
 
-            if($e->getResponse()->getStatusCode() >= 500){
+            if ($e->getResponse()->getStatusCode() >= 500) {
                 nlog("endpoint returned a 500, failing");
 
                 $message = "Server encountered a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
@@ -189,11 +177,7 @@ class WebhookSingle implements ShouldQueue
                 $this->fail();
                 return;
             }
-
-
-        }
-        catch (ServerException $e) {
-
+        } catch (ServerException $e) {
             nlog("Server exception");
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
@@ -205,10 +189,7 @@ class WebhookSingle implements ShouldQueue
                 $this->resolveClient(),
                 $this->company
             );
-            
-        }
-        catch (ClientException $e) {
-
+        } catch (ClientException $e) {
             nlog("Client exception");
             $error = json_decode($e->getResponse()->getBody()->getContents());
 
@@ -220,11 +201,7 @@ class WebhookSingle implements ShouldQueue
                 $this->resolveClient(),
                 $this->company
             );
-            
-
-        }
-        catch (\Exception $e) {
-            
+        } catch (\Exception $e) {
             nlog("Exception handler => " . $e->getMessage());
             nlog($e->getCode());
 
@@ -238,22 +215,20 @@ class WebhookSingle implements ShouldQueue
             );
 
             $this->release($this->backoff()[$this->attempts()-1]);
-
         }
     }
 
     private function resolveClient()
-    {   nlog(get_class($this->entity));
+    {
+        nlog(get_class($this->entity));
         
         //make sure it isn't an instance of the Client Model
-        if (!$this->entity instanceof \App\Models\Client && 
-            !$this->entity instanceof \App\Models\Vendor && 
-            !$this->entity instanceof \App\Models\Product && 
+        if (!$this->entity instanceof \App\Models\Client &&
+            !$this->entity instanceof \App\Models\Vendor &&
+            !$this->entity instanceof \App\Models\Product &&
             !$this->entity instanceof \App\Models\PurchaseOrder &&
             $this->entity->client()->exists()) {
-
             return $this->entity->client;
-
         }
         
 
@@ -262,8 +237,6 @@ class WebhookSingle implements ShouldQueue
 
     public function failed($exception = null)
     {
-        
         config(['queue.failed.driver' => null]);
-
     }
 }

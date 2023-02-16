@@ -57,5 +57,4 @@ class BaseSettings
                 return $value;
         }
     }
-
 }

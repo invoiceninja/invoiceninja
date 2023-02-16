@@ -70,17 +70,16 @@ class UserFilters extends QueryFilters
     }
 
     /**
-     * Overrides the base with() function as no company ID 
+     * Overrides the base with() function as no company ID
      * exists on the user table
-     * 
+     *
      * @param  string $value Hashed ID of the user to return back in the dataset
-     * 
+     *
      * @return Builder
      */
     public function with(string $value = ''): Builder
     {
-
-        if(strlen($value) == 0) {
+        if (strlen($value) == 0) {
             return $this->builder;
         }
 
@@ -89,5 +88,4 @@ class UserFilters extends QueryFilters
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])
             ->where('account_id', auth()->user()->account_id);
     }
-
 }

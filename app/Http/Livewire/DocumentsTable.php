@@ -83,7 +83,7 @@ class DocumentsTable extends Component
                 break;
 
             case 'expenses':
-               // $this->query = $this->expenses();
+                // $this->query = $this->expenses();
                 break;
 
             case 'invoices':

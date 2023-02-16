@@ -41,7 +41,6 @@ use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
@@ -64,7 +63,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * Class MockAccountData.
@@ -196,7 +194,6 @@ trait MockAccountData
         $this->artisan('db:seed --force');
 
         foreach ($cached_tables as $name => $class) {
-
             // check that the table exists in case the migration is pending
             if (! Schema::hasTable((new $class())->getTable())) {
                 continue;
@@ -828,7 +825,6 @@ trait MockAccountData
         ]);
 
         $this->scheduler->save();
-        
     }
 
     /**

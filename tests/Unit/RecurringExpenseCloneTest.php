@@ -16,9 +16,7 @@ use App\Factory\RecurringExpenseToExpenseFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\RecurringExpense;
 use App\Models\User;
-use App\Utils\Ninja;
 use Tests\TestCase;
 
 /**

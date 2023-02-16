@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Helpers\Document\WithTypeHelpers;
-use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 

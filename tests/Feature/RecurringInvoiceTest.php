@@ -60,7 +60,6 @@ class RecurringInvoiceTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/recurring_invoices?client_status=active')
           ->assertStatus(200);
-
     }
 
 

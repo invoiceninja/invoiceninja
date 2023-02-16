@@ -24,7 +24,6 @@ use Tests\TestCase;
 
 class BankTransactionTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -74,13 +73,10 @@ class BankTransactionTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/bank_transactions/bulk', $data)
           ->assertStatus(200);
-
-
     }
 
     public function testLinkExpenseToTransaction()
     {
-
         $data = [];
 
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
@@ -119,12 +115,10 @@ class BankTransactionTest extends TestCase
         $this->assertEquals($bt->refresh()->expense_id, $this->expense->id);
         $this->assertEquals($this->vendor->id, $bt->vendor_id);
         $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
-
     }
 
     public function testLinkingManuallyPaidInvoices()
     {
-
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
         $invoice->client_id = $this->client->id;
         $invoice->status_id = Invoice::STATUS_SENT;
@@ -180,13 +174,11 @@ class BankTransactionTest extends TestCase
         $this->assertEquals($bt->refresh()->payment_id, $p->id);
         $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
         $this->assertEquals($invoice->hashed_id, $bt->invoice_ids);
-
     }
 
 
     public function testLinkPaymentToTransaction()
     {
-
         $data = [];
 
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
@@ -221,7 +213,6 @@ class BankTransactionTest extends TestCase
         $this->assertEquals($this->payment->refresh()->transaction_id, $bt->id);
         $this->assertEquals($bt->refresh()->payment_id, $this->payment->id);
         $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
-
     }
 
 
@@ -244,10 +235,9 @@ class BankTransactionTest extends TestCase
 
     public function testMatchBankTransactionValidationShouldPass()
     {
-
-         if (config('ninja.testvars.travis') !== false) {
-                $this->markTestSkipped('Skip test for Github Actions');
-         }
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for Github Actions');
+        }
 
         $data = [];
 
@@ -278,5 +268,4 @@ class BankTransactionTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 }

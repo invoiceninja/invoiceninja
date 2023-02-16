@@ -11,28 +11,17 @@
 
 namespace Tests\Feature\Export;
 
-use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Export\CSV\ProductSalesExport;
-use App\Factory\ExpenseCategoryFactory;
-use App\Factory\ExpenseFactory;
-use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\User;
-use App\Services\Report\ProfitLoss;
 use App\Utils\Traits\MakesHash;
-use Database\Factories\ClientContactFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
-use League\Csv\Writer;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -126,7 +115,6 @@ class ProductSalesReportTest extends TestCase
             'company_id' => $this->company->id,
             'is_deleted' => 0,
         ]);
-
     }
 
     public function testProductSalesInstance()
@@ -140,7 +128,7 @@ class ProductSalesReportTest extends TestCase
         $this->account->delete();
     }
 
-    public function testSimpleReport()  
+    public function testSimpleReport()
     {
         $this->buildData();
 
@@ -213,5 +201,4 @@ class ProductSalesReportTest extends TestCase
 
         return $line_items;
     }
-
 }

@@ -13,7 +13,6 @@ namespace App\Events\PurchaseOrder;
 
 use App\Models\Company;
 use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
 use App\Models\VendorContact;
 use Illuminate\Queue\SerializesModels;
 

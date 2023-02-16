@@ -51,23 +51,21 @@ class SchedulerTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
     }
 
     public function testClientCountResolution()
     {
-
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000,100000),
+            'number' => rand(1000, 100000),
             'name' => 'A fancy client'
         ]);
 
         $c2 = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000,100000),
+            'number' => rand(1000, 100000),
             'name' => 'A fancy client'
         ]);
 
@@ -82,7 +80,7 @@ class SchedulerTest extends TestCase
                 'show_aging_table' => true,
                 'status' => 'paid',
                 'clients' => [
-                    $c2->hashed_id, 
+                    $c2->hashed_id,
                     $c->hashed_id
                 ],
             ],
@@ -90,12 +88,11 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try{
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/task_schedulers', $data);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -117,23 +114,21 @@ class SchedulerTest extends TestCase
               ->cursor();
 
         $this->assertCount(2, $q);
-
     }
 
     public function testClientsValidationInScheduledTask()
     {
-
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000,100000),
+            'number' => rand(1000, 100000),
             'name' => 'A fancy client'
         ]);
 
         $c2 = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000,100000),
+            'number' => rand(1000, 100000),
             'name' => 'A fancy client'
         ]);
 
@@ -148,7 +143,7 @@ class SchedulerTest extends TestCase
                 'show_aging_table' => true,
                 'status' => 'paid',
                 'clients' => [
-                    $c2->hashed_id, 
+                    $c2->hashed_id,
                     $c->hashed_id
                 ],
             ],
@@ -156,12 +151,11 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try{
+        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/task_schedulers', $data);
-
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -181,7 +175,7 @@ class SchedulerTest extends TestCase
                 'show_aging_table' => true,
                 'status' => 'paid',
                 'clients' => [
-                    $c2->hashed_id, 
+                    $c2->hashed_id,
                 ],
             ],
         ];
@@ -205,7 +199,7 @@ class SchedulerTest extends TestCase
                 'show_aging_table' => true,
                 'status' => 'paid',
                 'clients' => [
-                    'xx33434', 
+                    'xx33434',
                 ],
             ],
         ];
@@ -216,14 +210,11 @@ class SchedulerTest extends TestCase
         ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(422);
-        
-        
     }
 
 
     public function testCalculateNextRun()
     {
-
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
         
         $data = [
@@ -247,13 +238,12 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); 
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
 
         $scheduler->fresh();
         $offset = $this->company->timezone_offset();
 
         $this->assertEquals(now()->startOfDay()->addMonthNoOverflow()->addSeconds($offset)->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
-
     }
 
     public function testCalculateStartAndEndDates()
@@ -283,19 +273,17 @@ class SchedulerTest extends TestCase
 
         $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStartAndEndDates');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); 
+        $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
 
         $this->assertIsArray($method);
 
         $this->assertEquals('previous_month', $scheduler->parameters['date_range']);
 
         $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $method);
-
     }
 
     public function testCalculateStatementProperties()
     {
-
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
         
         $data = [
@@ -329,12 +317,10 @@ class SchedulerTest extends TestCase
         $this->assertIsArray($method);
 
         $this->assertEquals('paid', $method['status']);
-
     }
 
     public function testGetThisMonthRange()
     {
-
         $this->travelTo(Carbon::parse('2023-01-14'));
 
         $this->assertEqualsCanonicalizing(['2023-01-01','2023-01-31'], $this->getDateRange('this_month'));
@@ -346,7 +332,6 @@ class SchedulerTest extends TestCase
         $this->assertEqualsCanonicalizing(['2022-01-01','2022-12-31'], $this->getDateRange('previous_year'));
 
         $this->travelBack();
-
     }
 
     private function getDateRange($range)
@@ -384,12 +369,10 @@ class SchedulerTest extends TestCase
         ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(200);
-        
     }
 
     public function testDeleteSchedule()
     {
-
         $data = [
             'ids' => [$this->scheduler->hashed_id],
         ];
@@ -410,12 +393,10 @@ class SchedulerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/task_schedulers/bulk?action=restore', $data)
         ->assertStatus(200);
-
-    }  
+    }
 
     public function testRestoreSchedule()
     {
-
         $data = [
             'ids' => [$this->scheduler->hashed_id],
         ];
@@ -436,12 +417,10 @@ class SchedulerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/task_schedulers/bulk?action=restore', $data)
         ->assertStatus(200);
-
-    }    
+    }
 
     public function testArchiveSchedule()
     {
-
         $data = [
             'ids' => [$this->scheduler->hashed_id],
         ];
@@ -451,12 +430,10 @@ class SchedulerTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/task_schedulers/bulk?action=archive', $data)
         ->assertStatus(200);
-
     }
 
     public function testSchedulerPost()
     {
-
         $data = [
             'name' => 'A different Name',
             'frequency_id' => 5,
@@ -471,11 +448,10 @@ class SchedulerTest extends TestCase
         ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(200);
-    }    
+    }
 
     public function testSchedulerPut()
     {
-
         $data = [
             'name' => 'A different Name',
             'frequency_id' => 5,
@@ -490,7 +466,7 @@ class SchedulerTest extends TestCase
         ])->putJson('/api/v1/task_schedulers/'.$this->scheduler->hashed_id, $data);
 
         $response->assertStatus(200);
-    }    
+    }
 
     public function testSchedulerGet()
     {

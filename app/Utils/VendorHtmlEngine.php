@@ -14,18 +14,13 @@ namespace App\Utils;
 
 use App\Models\Country;
 use App\Models\CreditInvitation;
-use App\Models\GatewayType;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Ninja;
-use App\Utils\Number;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\DesignCalculator;
 use App\Utils\Traits\MakesDates;
-use App\Utils\transformTranslations;
 use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
@@ -71,9 +66,9 @@ class VendorHtmlEngine
 
         $this->contact = $invitation->contact->load('vendor');
         
-        $this->vendor = $this->contact->vendor->load('company','country');
+        $this->vendor = $this->contact->vendor->load('company', 'country');
         
-        if(!$this->vendor->currency_id){
+        if (!$this->vendor->currency_id) {
             $this->vendor->currency_id = $this->company->settings->currency_id;
             $this->vendor->save();
         }
@@ -116,7 +111,7 @@ class VendorHtmlEngine
 
     public function buildEntityDataArray() :array
     {
-    if (! $this->vendor->currency()) {
+        if (! $this->vendor->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }
@@ -176,25 +171,23 @@ class VendorHtmlEngine
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
-        if($this->entity->uses_inclusive_taxes)
+        if ($this->entity->uses_inclusive_taxes) {
             $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
-        else
+        } else {
             $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+        }
 
         if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
-
         } else {
-
-            if($this->entity->status_id == 1){
+            if ($this->entity->status_id == 1) {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
-            }
-            else{
+            } else {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
@@ -255,8 +248,9 @@ class VendorHtmlEngine
         $data['$country_2'] = ['value' => isset($this->vendor->country) ? $this->vendor->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         
-        if(str_contains($data['$email']['value'], 'example.com'))
+        if (str_contains($data['$email']['value'], 'example.com')) {
             $data['$email'] = ['value' => '', 'label' => ctrans('texts.email')];
+        }
 
         $data['$vendor_name'] = ['value' => $this->vendor->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.vendor_name')];
         $data['$vendor.name'] = &$data['$vendor_name'];
@@ -426,9 +420,7 @@ class VendorHtmlEngine
 
         $data['$payments'] = ['value' => '', 'label' => ctrans('texts.payments')];
 
-        if($this->entity->client()->exists())
-        {
-
+        if ($this->entity->client()->exists()) {
             $data['$client1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client1', $this->entity->client->custom_value1, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client1')];
             $data['$client2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client2', $this->entity->client->custom_value2, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client2')];
             $data['$client3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client3', $this->entity->client->custom_value3, $this->entity->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client3')];
@@ -486,7 +478,6 @@ class VendorHtmlEngine
 
             $data['$client.balance'] = ['value' => Number::formatMoney($this->entity->client->balance, $this->entity->client), 'label' => ctrans('texts.account_balance')];
             $data['$client_balance'] = ['value' => Number::formatMoney($this->entity->client->balance, $this->entity->client), 'label' => ctrans('texts.account_balance')];
-
         }
 
 
@@ -568,27 +559,21 @@ class VendorHtmlEngine
 
     private function getCountryName() :string
     {
-
         $countries = Cache::get('countries');
 
         if (! $countries) {
             $this->buildCache(true);
 
             $countries = Cache::get('countries');
-
         }
 
-        if($countries){
-
-         
+        if ($countries) {
             $country = $countries->filter(function ($item) {
                 return $item->id == $this->settings->country_id;
             })->first();
-
-   
-        }
-        else
+        } else {
             $country = Country::find($this->settings->country_id);
+        }
 
         if ($country) {
             return ctrans('texts.country_' . $country->name);
@@ -602,8 +587,9 @@ class VendorHtmlEngine
     {
         $country = Country::find($this->settings->country_id);
 
-        if($country)
+        if ($country) {
             return $country->iso_3166_2;
+        }
         // if ($country) {
         //     return ctrans('texts.country_' . $country->iso_3166_2);
         // }
@@ -780,8 +766,8 @@ html {
 
     /**
      * Generate markup for HTML images on entity.
-     * 
-     * @return string|void 
+     *
+     * @return string|void
      */
     protected function generateEntityImagesMarkup()
     {
@@ -831,5 +817,4 @@ html {
             </table>
         ';
     }
-
 }

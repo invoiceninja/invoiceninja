@@ -15,14 +15,13 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
-use App\Jobs\Ledger\LedgerBalanceUpdate;
+use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
@@ -96,16 +95,13 @@ class Kernel extends ConsoleKernel
 
 
         if (Ninja::isSelfHost()) {
-
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
-
         }
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
-
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:30')->withoutOverlapping();
 
             /* Pulls in bank transactions from third party services */
@@ -119,15 +115,12 @@ class Kernel extends ConsoleKernel
             $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:20')->withoutOverlapping()->name('check-data-db-2-job')->onOneServer();
 
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping()->name('s3-cleanup-job')->onOneServer();
-
         }
 
         if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && ! config('ninja.is_docker')) {
-
             $schedule->command('queue:work database --stop-when-empty --memory=256')->everyMinute()->withoutOverlapping();
 
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
-            
         }
     }
 

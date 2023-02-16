@@ -13,8 +13,6 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\AccountDeleted;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\DefaultSettings;
-use App\Factory\CompanyFactory;
 use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
@@ -29,7 +27,6 @@ use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Ninja\RefundCancelledAccount;
 use App\Mail\Company\CompanyDeleted;
 use App\Models\Account;
 use App\Models\Company;
@@ -42,9 +39,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**

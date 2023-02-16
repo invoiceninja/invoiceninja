@@ -13,7 +13,6 @@ namespace App\Utils;
 
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\Vendor;
 
 /**
  * Class Number.
@@ -136,7 +135,6 @@ class Number
      */
     public static function formatMoney($value, $entity) :string
     {
-
         $value = floatval($value);
 
         $currency = $entity->currency();
@@ -227,8 +225,7 @@ class Number
         /* 08-02-2023 special if block to render $0.5 to $0.50*/
         if ($v < 1 && strlen($v) == 3) {
             $precision = 2;
-        }
-        elseif ($v < 1) {
+        } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
         }
 

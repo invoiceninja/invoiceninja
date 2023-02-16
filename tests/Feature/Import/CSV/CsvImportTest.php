@@ -14,20 +14,13 @@ namespace Tests\Feature\Import\CSV;
 use App\Import\Providers\Csv;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use App\Utils\TruthSource;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -53,7 +46,6 @@ class CsvImportTest extends TestCase
         $this->withoutExceptionHandling();
 
         auth()->login($this->user);
-
     }
 
     public function testExpenseCsvImport()
@@ -324,6 +316,6 @@ class CsvImportTest extends TestCase
 
         $this->assertTrue($invoice->payments()->exists());
         $this->assertEquals(1, $invoice->payments()->count());
-        $this->assertEquals(51.03, round($invoice->payments()->sum('payments.amount'),2));
+        $this->assertEquals(51.03, round($invoice->payments()->sum('payments.amount'), 2));
     }
 }

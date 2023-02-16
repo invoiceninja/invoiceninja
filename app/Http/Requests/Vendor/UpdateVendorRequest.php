@@ -64,8 +64,9 @@ class UpdateVendorRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
-        if(array_key_exists('country_id', $input) && is_null($input['country_id']))
+        if (array_key_exists('country_id', $input) && is_null($input['country_id'])) {
             unset($input['country_id']);
+        }
 
         $input = $this->decodePrimaryKeys($input);
 

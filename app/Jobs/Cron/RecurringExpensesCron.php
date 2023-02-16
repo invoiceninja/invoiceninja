@@ -46,7 +46,6 @@ class RecurringExpensesCron
         nlog('Sending recurring expenses '.Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
-            
             $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
                                                         ->whereNull('deleted_at')
@@ -67,34 +66,31 @@ class RecurringExpensesCron
                     $this->generateExpense($recurring_expense);
                 }
             });
-
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                    $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
-                                                                ->whereNotNull('next_send_date')
-                                                                ->whereNull('deleted_at')
-                                                                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                                                                ->where('remaining_cycles', '!=', '0')
-                                                                ->whereHas('company', function ($query) {
-                                                                    $query->where('is_disabled', 0);
-                                                                })
-                                                                ->with('company')
-                                                                ->cursor();
+                $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
+                                                            ->whereNotNull('next_send_date')
+                                                            ->whereNull('deleted_at')
+                                                            ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                            ->where('remaining_cycles', '!=', '0')
+                                                            ->whereHas('company', function ($query) {
+                                                                $query->where('is_disabled', 0);
+                                                            })
+                                                            ->with('company')
+                                                            ->cursor();
 
-                    nlog(now()->format('Y-m-d').' Generating Recurring Expenses. Count = '.$recurring_expenses->count());
+                nlog(now()->format('Y-m-d').' Generating Recurring Expenses. Count = '.$recurring_expenses->count());
 
-                    $recurring_expenses->each(function ($recurring_expense, $key) {
-                        nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_expense->next_send_date);
+                $recurring_expenses->each(function ($recurring_expense, $key) {
+                    nlog('Current date = '.now()->format('Y-m-d').' Recurring date = '.$recurring_expense->next_send_date);
 
-                        if (! $recurring_expense->company->is_disabled) {
-                            $this->generateExpense($recurring_expense);
-                        }
-                    });
-
-
+                    if (! $recurring_expense->company->is_disabled) {
+                        $this->generateExpense($recurring_expense);
+                    }
+                });
             }
         }
     }

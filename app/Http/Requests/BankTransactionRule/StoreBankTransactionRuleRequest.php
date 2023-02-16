@@ -11,10 +11,10 @@
 
 namespace App\Http\Requests\BankTransactionRule;
 
-use App\Models\Account;
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
+use App\Models\Account;
 use App\Models\BankTransactionRule;
+use App\Utils\Traits\MakesHash;
 
 class StoreBankTransactionRuleRequest extends Request
 {
@@ -27,7 +27,8 @@ class StoreBankTransactionRuleRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', BankTransactionRule::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);;
+        return auth()->user()->can('create', BankTransactionRule::class) && auth()->user()->account->hasFeature(Account::FEATURE_API);
+        ;
     }
     
     public function rules()
@@ -44,14 +45,17 @@ class StoreBankTransactionRuleRequest extends Request
             'applies_to' => 'bail|sometimes|string',
         ];
 
-        if(isset($this->category_id)) 
+        if (isset($this->category_id)) {
             $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        }
         
-        if(isset($this->vendor_id))
+        if (isset($this->vendor_id)) {
             $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        }
 
-        if(isset($this->client_id))
+        if (isset($this->client_id)) {
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        }
 
 
         return $rules;
@@ -65,7 +69,4 @@ class StoreBankTransactionRuleRequest extends Request
 
         $this->replace($input);
     }
-
-
-
 }

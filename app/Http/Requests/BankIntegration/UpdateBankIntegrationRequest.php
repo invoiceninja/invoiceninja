@@ -49,5 +49,4 @@ class UpdateBankIntegrationRequest extends Request
 
         $this->replace($input);
     }
-
 }

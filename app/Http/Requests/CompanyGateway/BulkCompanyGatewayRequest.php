@@ -31,24 +31,20 @@ class BulkCompanyGatewayRequest extends Request
 
     public function rules()
     {
-
         return [
-            'ids' => ['required','bail','array',Rule::exists('company_gateways','id')->where('company_id', auth()->user()->company()->id)],
+            'ids' => ['required','bail','array',Rule::exists('company_gateways', 'id')->where('company_id', auth()->user()->company()->id)],
             'action' => 'required|bail|in:archive,restore,delete'
         ];
-
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        if(isset($input['ids']))
+        if (isset($input['ids'])) {
             $input['ids'] = $this->transformKeys($input['ids']);
+        }
 
         $this->replace($input);
     }
-
-
-
 }

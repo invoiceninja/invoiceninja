@@ -14,14 +14,8 @@ namespace App\Services\Client;
 use App\Factory\CompanyLedgerFactory;
 use App\Models\Activity;
 use App\Models\Client;
-use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
-use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
 
 class Merge extends AbstractService
 {

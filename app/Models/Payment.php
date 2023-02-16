@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
-use App\Models\GatewayType;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
@@ -23,7 +22,6 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
 class Payment extends BaseModel
 {

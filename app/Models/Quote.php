@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Events\Quote\QuoteWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
@@ -242,7 +241,6 @@ class Quote extends BaseModel
         if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         } elseif (Ninja::isHosted() && $portal) {
-
             $file_path = (new CreateEntityPdf($invitation, config('filesystems.default')))->handle();
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
@@ -362,5 +360,4 @@ class Quote extends BaseModel
     {
         return $entity_string;
     }
-
 }

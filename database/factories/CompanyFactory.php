@@ -12,7 +12,6 @@
 namespace Database\Factories;
 
 use App\DataMapper\CompanySettings;
-use App\Models\Company;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

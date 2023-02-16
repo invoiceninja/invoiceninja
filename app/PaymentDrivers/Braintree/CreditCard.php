@@ -230,7 +230,6 @@ class CreditCard
      */
     private function processUnsuccessfulPayment($response)
     {
-
         $this->braintree->sendFailureMail($response?->transaction?->additionalProcessorResponse);
 
         $message = [

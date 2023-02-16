@@ -14,10 +14,7 @@ namespace App\Mail;
 
 use App\Models\Company;
 use App\Utils\ClientPortal\MagicLink;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
 class ContactPasswordlessLogin extends Mailable

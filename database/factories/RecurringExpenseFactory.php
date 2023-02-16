@@ -11,7 +11,6 @@
 
 namespace Database\Factories;
 
-use App\Models\RecurringExpense;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RecurringExpenseFactory extends Factory
