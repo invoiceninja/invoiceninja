@@ -59,7 +59,7 @@ class Merge extends AbstractService
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact) {
             $exist = $this->client->contacts->contains(function ($client_contact) use ($contact) {
-                return $client_contact->email == $contact->email;
+                return $client_contact->email == $contact->email || empty($contact->email) || $contact->email == ' ';
             });
 
             if ($exist) {
