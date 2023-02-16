@@ -808,6 +808,22 @@ html {
     private function buildViewButton(string $link, string $text): string
     {
         return '
+        
+            <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+            <tbody><tr>
+            <td align="center" class="hover-bg-green-600" style="border-radius: 2px; background-color: #66BB7F">
+                <a href="'. $link . '" target="_blank" class="all-font-sans hover-border-green-600" style="text-decoration: none; border: 1px solid #66BB7F; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+                <singleline label="cta button">'. $text .'</singleline>
+                </a>
+            </td>
+            </tr>
+            </tbody>
+            </table>
+
+        ';
+
+
+        return '
             <table border="0" cellspacing="0" cellpadding="0" align="center">
                 <tr style="border: 0 !important; ">
                     <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
