@@ -53,7 +53,15 @@ class MailEntity implements ShouldQueue
     public int $tries = 4;
     
     public $deleteWhenMissingModels = true;
-
+    
+    /**
+     * __construct
+     *
+     * @param  mixed $invitation
+     * @param  mixed $db
+     * @param  mixed $mail_object
+     * @return void
+     */
     public function __construct(public mixed $invitation, private ?string $db, public MailObject $mail_object){}
     
     /**
