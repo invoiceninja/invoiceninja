@@ -137,9 +137,13 @@
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
                    style="border: 1px solid #c2c2c2;" class="dark-bg-base">
-                <tr>
-                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
+                
+                <!--[if mso]>
+                <tr class="dark-bg" style="margin-top:0px; border: none;">
+                <td style="border: none;"></td>
                 </tr>
+                <![endif]-->
+                
                 <tr>
                     <td align="center" cellpadding="20">
                         <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">

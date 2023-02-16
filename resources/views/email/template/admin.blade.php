@@ -137,27 +137,22 @@
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td>
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
+            <table class="dark-bg" align="center" border="0" cellpadding="0" cellspacing="0" width="570"
                    style="border: 1px solid #c2c2c2; background-color:#f9f9f9">
-                <tr>
-                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px; background-color:#f9f9f9">
-                        <!-- Top side spacing. -->
-                    </div>
+
+                <!--[if mso]>
+                <tr class="dark-bg" style="margin-top:0px; border: none;">
+                <td style="border: none;"></td>
                 </tr>
+                <![endif]-->
+
+
                 <tr>
                     <td align="center">
                         <div class="dark-bg"
-                             style="background-color:#f9f9f9; padding-bottom: 20px;">
+                             style="background-color:#f9f9f9; padding-bottom: 20px; margin-top:20px;">
     
-                            <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="155" border="0" align="middle" style="display:block;" />
-                            <div style="mso-hide:all;">
-                            <![endif]-->
-                            <img class="logo-light" src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 10px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-                            <!--[if gte mso 9]>
-                            </div>
-                            <![endif]-->
-
+                            <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 50%; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>
