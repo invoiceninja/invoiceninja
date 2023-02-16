@@ -141,7 +141,7 @@
                    style="border: 1px solid #c2c2c2; background-color:#f9f9f9">
 
                 <!--[if mso]>
-                <tr class="dark-bg" style="margin-top:20px; border: none; background-color:#f9f9f9;">
+                <tr class="dark-bg" style="margin-top:20px; border: none;">
                 <td style="border: none;"></td>
                 </tr>
                 <![endif]-->
