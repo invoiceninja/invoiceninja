@@ -149,7 +149,7 @@
                         <div class="dark-bg"
                              style="background-color:#f9f9f9; padding-bottom: 20px;">
     
-                            <img class="logo-light" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 50%; height: auto; display: block;" class="g-img">
+                            <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 50%; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>
