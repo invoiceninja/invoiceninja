@@ -20,6 +20,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Mail\Mailable;
@@ -37,7 +38,7 @@ class MailEntity implements ShouldQueue
 
     public Mailable $mailable;
 
-    public Mail $mail;
+    public Mailer $mail;
     
     public ?string $client_postmark_secret = null;
     
@@ -207,8 +208,8 @@ class MailEntity implements ShouldQueue
     public function trySending(): void
     {
         try {
-            $mail = Mail::mailer($this->mailer);
-            $mail->send($this->mailable);
+
+            $this->mail->send($this->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
             Cache::increment($this->company->account->key);
