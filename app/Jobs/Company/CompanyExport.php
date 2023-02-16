@@ -471,7 +471,6 @@ class CompanyExport implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $company_reference = Company::find($this->company->id);
-        ;
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new DownloadBackup($storage_file_path, $company_reference);
