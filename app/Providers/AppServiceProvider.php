@@ -101,7 +101,7 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
         
-        Mailer::macro('mailgun_config', function ($secret, $domain) {
+        Mailer::macro('mailgun_config', function (string $secret, string $domain) {
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'mailgun',
                 'secret' => $secret,

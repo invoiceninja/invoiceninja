@@ -96,6 +96,7 @@
     "require-dev": {
         "php": "^8.1",
         "barryvdh/laravel-debugbar": "^3.6",
+        "barryvdh/laravel-ide-helper": "^2.13",
         "beyondcode/laravel-query-detector": "^1.6",
         "brianium/paratest": "^6.1",
         "darkaonline/l5-swagger": "8.1.0",

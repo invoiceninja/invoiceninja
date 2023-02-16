@@ -93,14 +93,27 @@ class MailEntity implements ShouldQueue
 
         /* Try sending email */
         $this->setMailDriver()
+             ->configureMailer()
              ->trySending();
     }
-    
+        
+    /**
+     * configureMailer
+     *
+     * @return self
+     */
     public function configureMailer(): self
     {
-        $this->setMailDriver();
-
+        
         $this->mail = Mail::mailer($this->mailer);
+        
+        if ($this->client_postmark_secret) {
+            $this->mail->postmark_config($this->client_postmark_secret);
+        }
+
+        if ($this->client_mailgun_secret) {
+            $this->mail->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+        }
         
         return $this;
     }
