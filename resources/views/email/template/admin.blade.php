@@ -137,11 +137,11 @@
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
     <tr>
         <td>
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
+            <table class="dark-bg" align="center" border="0" cellpadding="0" cellspacing="0" width="570"
                    style="border: 1px solid #c2c2c2; background-color:#f9f9f9">
 
                 <!--[if mso]>
-                <tr class="dark-bg" style="margin-top:20px; border: none;">
+                <tr class="dark-bg" style="margin-top:0px; border: none;">
                 <td style="border: none;"></td>
                 </tr>
                 <![endif]-->
