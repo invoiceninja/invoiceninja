@@ -139,15 +139,18 @@
         <td>
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
                    style="border: 1px solid #c2c2c2; background-color:#f9f9f9">
-                <tr>
-                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px; background-color:#f9f9f9">
-                        <!-- Top side spacing. -->
-                    </div>
+
+                <!--[if mso]>
+                <tr class="dark-bg" style="margin-top:20px; border: none; background-color:#f9f9f9;">
+                <td style="border: none;"></td>
                 </tr>
+                <![endif]-->
+
+
                 <tr>
                     <td align="center">
                         <div class="dark-bg"
-                             style="background-color:#f9f9f9; padding-bottom: 20px;">
+                             style="background-color:#f9f9f9; padding-bottom: 20px; margin-top:20px;">
     
                             <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 50%; height: auto; display: block;" class="g-img">
 
