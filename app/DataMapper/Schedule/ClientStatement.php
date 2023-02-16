@@ -32,13 +32,17 @@ class ClientStatement
     /**
      * The consts to be used to define the date_range variable of the statement
      */
-    public const THIS_MONTH = 'this_month';
-    public const THIS_QUARTER = 'this_quarter';
-    public const THIS_YEAR = 'this_year';
-    public const PREVIOUS_MONTH = 'previous_month';
-    public const PREVIOUS_QUARTER = 'previous_quarter';
-    public const PREVIOUS_YEAR = 'previous_year';
-    public const CUSTOM_RANGE = "custom_range";
+    public const LAST7 = "last7_days";
+    public const LAST30 = "last30_days";
+    public const LAST365 = "last365_days";
+    public const THIS_MONTH = "this_month";
+    public const LAST_MONTH = "last_month";
+    public const THIS_QUARTER = "this_quarter";
+    public const LAST_QUARTER = "last_quarter";
+    public const THIS_YEAR = "this_year";
+    public const LAST_YEAR = "last_year";
+    public const CUSTOM_RANGE = "custom";
+
 
     /**
      * The date range the statement should include
