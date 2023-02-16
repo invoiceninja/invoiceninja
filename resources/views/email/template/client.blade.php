@@ -82,7 +82,6 @@
         #content .left {
             text-align: left !important;
         }
-
         .stamp {
             transform: rotate(12deg);
             color: #555;
@@ -96,7 +95,6 @@
             z-index:200 !important;
             position: relative;
         }
-
         .is-paid {
             color:  #D23;
             border: 1rem double  #D23;
@@ -109,20 +107,15 @@
             z-index:200 !important;
             position: relative;
         } 
-
         a.doc_links {
             text-decoration: none;
             padding-bottom: 10px;
             display: inline-block;
             color: inherit !important;
         }
-
-        .new_button, a {
-            background-color: {{ $primary_color }} !important;
-        }
-
-        a:visited {
-            color:#ffffff !important;
+        
+        .new_button a {
+            background-color: {{ $primary_color }};
         }
 
     </style>
@@ -139,38 +132,46 @@
 
 <body
     style="margin: 0; padding: 0; font-family: 'roboto', Arial, Helvetica, sans-serif; color: #3b3b3b;-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" >
     <tr>
         <td>
-            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570" style="border: 1px solid #c2c2c2; table-layout:fixed;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="570"
+                   style="border: 1px solid #c2c2c2;" class="dark-bg-base">
                 <tr>
-                    <td align="center">
-                        <div style="border-top-left-radius: 3px; border-top-right-radius: 3px; padding-bottom: 20px; padding-top:20px;">
-                             <img class="logo-light" src="{{ $logo ?? '' }}" width="65%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 65%; height: auto; display: block;" class="g-img">
+                    <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
+                </tr>
+                <tr>
+                    <td align="center" cellpadding="20">
+                        <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
+
+                            <!--[if gte mso 9]>
+                            <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
+                            <div style="mso-hide:all;">
+                            <![endif]-->
+                            <img src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 40px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
+                            <!--[if gte mso 9]>
+                            </div>
+                            <![endif]-->
 
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <div style="padding: 20px; text-align: {{ $email_alignment }}" id="content">
+                    <td cellpadding="5">
+                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: {{ $email_alignment }}" id="content">
+                                <div style="padding-top: 10px;"></div>
 
                                 {{ $slot ?? '' }}
                                 {!! $body ?? '' !!}
 
                                 <div>
                                     <a href="#"
-                                        style="display: inline-block; background-color: {{ $primary_color }} ; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                                        style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
                                     </a>
                                 </div>
 
                                 <div>
                                     @isset($links)
-                                        
-                                        @if(count($links) >=1)
-                                        <p><strong>{{ ctrans('texts.attachments') }}</strong></p>
-                                        @endif
-                                        
                                         @foreach($links as $link)
                                             {!! $link ?? '' !!}<br>
                                         @endforeach
@@ -182,20 +183,14 @@
                 
                 <tr>
                   <td height="0">
-                   <div style="padding: 5px; text-align: center" id="content"> </div>
+                   <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 5px; text-align: center" id="content"> </div>
                  </td>
                 </tr>
-
-                <!--[if mso]>
-                <tr class="dark-bg" style="margin-top:20px; border: none; border-bottom-color: {{ $primary_color }};">
-                <td style="border: none; border-bottom: none; padding: 20px;"></td>
-                </tr>
-                <![endif]-->
 
                 <tr>
                     <td cellpadding="20" bgcolor="#f9f9f9">
                         <div class="dark-bg dark-text-white"
-                             style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; ">
+                             style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
                             @isset($signature)
                                 <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
                                     {!! nl2br($signature) !!}
@@ -217,7 +212,7 @@
                 <tr>
                     <td bgcolor="#242424"  cellpadding="20">
                         <div class="dark-bg-base"
-                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; ">
+                             style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                             @if(isset($company))
                                 @if($company->account->isPaid())
                                     <p style="text-align: center; color: #ffffff; font-size: 10px;

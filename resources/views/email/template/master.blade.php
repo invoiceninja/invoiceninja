@@ -2,7 +2,6 @@
     if(!isset($design)) {
         $design = 'light';
     }
-
     $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
 @endphp
 
@@ -28,7 +27,6 @@
             color: #0000ee;
             text-decoration: underline;
         }
-
         @media only screen and (min-width: 520px) {
             .u-row {
                 width: 500px !important;
@@ -40,7 +38,6 @@
                 width: 500px !important;
             }
         }
-
         @media (max-width: 520px) {
             .u-row-container {
                 max-width: 100% !important;
@@ -62,37 +59,30 @@
                 margin: 0 auto;
             }
         }
-
         body {
             margin: 0;
             padding: 0;
         }
-
         table,
         tr,
         td {
             vertical-align: top;
             border-collapse: collapse;
         }
-
         p {
             margin: 0;
         }
-
         .ie-container table,
         .mso-container table {
             table-layout: fixed;
         }
-
         * {
             line-height: inherit;
         }
-
         a[x-apple-data-detectors='true'] {
             color: inherit !important;
             text-decoration: none !important;
         }
-
         .header-logo {
             outline: none;
             text-decoration: none;
@@ -105,15 +95,12 @@
             width: 60%;
             max-width: 288px;
         }
-
         h1 {
             margin: 0px; color: #000000; line-height: 140%; text-align: left; word-wrap: break-word; font-weight: normal; font-family: arial,helvetica,sans-serif; font-size: 22px;
         }
-
         p {
             font-size: 14px; line-height: 140%
         }
-
         .button {
             padding: 12px;
             box-sizing: border-box;
@@ -134,16 +121,13 @@
             word-wrap: break-word;
             mso-border-alt: none;
         }
-
         .center {
             text-align: center;
         }
-
         .content-contrast-color {
             color: {{ $design == 'dark' ? '#ffffff' : '#000000' }} !important;
             opacity: {{ $design == 'dark' ? '87%': '100%' }} !important;
         }
-
         .stamp {
           transform: rotate(12deg);
             color: #555;
@@ -160,7 +144,6 @@
             position:  fixed;
             text-align: center;
         }
-
         .is-paid {
             color:  #D23;
             border: 1rem double  #D23;
