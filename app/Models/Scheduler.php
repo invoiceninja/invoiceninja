@@ -42,6 +42,7 @@ class Scheduler extends BaseModel
         'template',
         'is_paused',
         'parameters',
+        'remaining_cycles',
     ];
 
     protected $casts = [
@@ -71,44 +72,21 @@ class Scheduler extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
-
-    // public function nextScheduledDate(): ?Carbon
-    // {
-    //     $offset = 0;
-
-    //     $entity_send_time = $this->company->settings->entity_send_time;
-
-    //     if ($entity_send_time != 0) {
-    //         $timezone = $this->company->timezone();
-
-    //         $offset -= $timezone->utc_offset;
-    //         $offset += ($entity_send_time * 3600);
-    //     }
-
-    //     /*
-    //     As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
-    //     to add ON a day - a day = 86400 seconds
-    //     */
-
-    //     if ($offset < 0) {
-    //         $offset += 86400;
-    //     }
-
-    //     switch ($this->repeat_every) {
-    //         case self::DAILY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addDay()->addSeconds($offset);
-    //         case self::WEEKLY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addWeek()->addSeconds($offset);
-    //         case self::BIWEEKLY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addWeeks(2)->addSeconds($offset);
-    //         case self::MONTHLY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
-    //         case self::QUARTERLY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
-    //         case self::ANNUALLY:
-    //             return Carbon::parse($this->scheduled_run)->startOfDay()->addYearNoOverflow()->addSeconds($offset);
-    //         default:
-    //             return null;
-    //     }
-    // }
+    
+    /**
+     * remainingCycles
+     *
+     * @return int
+     */
+    public function remainingCycles() : int
+    {
+        if ($this->remaining_cycles == 0) {
+            return 0;
+        } elseif ($this->remaining_cycles == -1) {
+            return -1;
+        } else {
+            return $this->remaining_cycles - 1;
+        }
+    }
+    
 }

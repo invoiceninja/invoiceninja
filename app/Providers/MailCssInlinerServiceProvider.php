@@ -45,8 +45,8 @@ class MailCssInlinerServiceProvider extends ServiceProvider
         //     return new CssInlinerPlugin([]);
         // });
 
-        $this->app->bind(CssInlinerPlugin::class, function ($app) {
-            return new CssInlinerPlugin([]);
-        });
+        // $this->app->bind(CssInlinerPlugin::class, function ($app) {
+        //     return new CssInlinerPlugin([]);
+        // });
     }
 }

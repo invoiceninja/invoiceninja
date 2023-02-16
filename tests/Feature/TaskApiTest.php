@@ -220,6 +220,16 @@ class TaskApiTest extends TestCase
     }
 
 
+    public function testTimeLogChecker12()
+    {
+        $log = [
+            [1,2,'a',true],
+            [3,4,'d',false],
+        ];
+
+        $this->assertTrue($this->checkTimeLog($log));
+    }
+
     public function testTaskListClientStatus()
     {
         $response = $this->withHeaders([
