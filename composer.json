@@ -106,6 +106,7 @@
         "laravel/dusk": "^6.15",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^6.1",
+        "phpstan/phpstan": "^1.9",
         "phpunit/phpunit": "^9.5.10",
         "spatie/laravel-ignition": "^1.0",
         "vimeo/psalm": "^4.24"
