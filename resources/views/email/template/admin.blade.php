@@ -149,15 +149,7 @@
                         <div class="dark-bg"
                              style="background-color:#f9f9f9; padding-bottom: 20px;">
     
-                            <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="155" border="0" align="middle" style="display:block;" />
-                            <div style="mso-hide:all;">
-                            <![endif]-->
-                            <img class="logo-light" src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 10px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-                            <!--[if gte mso 9]>
-                            </div>
-                            <![endif]-->
-
+                            <img class="logo-light" src="{{ $logo ?? '' }}" width="65%" height="" alt="alt_text" border="0" style="width: 100%; max-width: 65%; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>
