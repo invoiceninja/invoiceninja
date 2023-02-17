@@ -137,6 +137,8 @@ class Number
     {
         $value = floatval($value);
 
+        $_value = $value;
+
         $currency = $entity->currency();
 
         $thousand = $currency->thousand_separator;
@@ -177,6 +179,15 @@ class Number
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
         } elseif ($entity->getSetting('show_currency_code') === false) {
+
+                /* Ensures we place the negative symbol ahead of the currency symbol*/ 
+                if($_value < 0){
+
+                    $value = substr($value, 1);
+                    $symbol = "-{$symbol}";
+
+                }
+
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);
