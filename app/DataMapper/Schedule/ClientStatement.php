@@ -22,7 +22,7 @@ class ClientStatement
      * 
      * @var string
      */
-    public string $template = 'client_statement';
+    public string $template = 'email_statement';
 
     /**
      * An array of clients hashed_ids

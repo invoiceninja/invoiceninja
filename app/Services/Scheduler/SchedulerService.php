@@ -39,8 +39,8 @@ class SchedulerService
         $this->{$this->scheduler->template}();
     }
 
-    private function client_statement()
-    {   
+    private function email_statement()
+    {
         $query = Client::query()
                         ->where('company_id', $this->scheduler->company_id)
                         ->where('is_deleted',0);
