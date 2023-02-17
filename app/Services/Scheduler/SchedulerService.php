@@ -15,12 +15,9 @@ use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesDates;
-<<<<<<< HEAD
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
-=======
 use App\DataMapper\Schedule\EmailStatement;
->>>>>>> 63a7a1185 (Minor fixes for types)
 
 class SchedulerService
 {
@@ -97,16 +94,6 @@ class SchedulerService
     private function calculateStartAndEndDates(): array
     {
         return match ($this->scheduler->parameters['date_range']) {
-<<<<<<< HEAD
-            'this_month' => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
-            'this_quarter' => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
-            'this_year' => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
-            'previous_month' => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            'previous_quarter' => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
-            'previous_year' => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
-            'custom_range' => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
-             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
-=======
             EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
             EmailStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
             EmailStatement::LAST365 => [now()->startOfDay()->subDays(365)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
@@ -118,7 +105,6 @@ class SchedulerService
             EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
             EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
->>>>>>> 63a7a1185 (Minor fixes for types)
         };
     }
 
