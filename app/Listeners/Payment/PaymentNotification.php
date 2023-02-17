@@ -26,7 +26,7 @@ class PaymentNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 5;
+    public $delay = 20;
 
     /**
      * Create the event listener.
@@ -74,7 +74,7 @@ class PaymentNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
             }
         }
 

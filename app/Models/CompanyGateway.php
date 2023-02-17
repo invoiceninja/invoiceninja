@@ -78,6 +78,8 @@ class CompanyGateway extends BaseModel
     // const TYPE_WEPAY = 309;
     // const TYPE_PAYFAST = 310;
     // const TYPE_PAYTRACE = 311;
+    // const TYPE_MOLLIE = 312;
+    // const TYPE_EWAY = 313; 
     // const TYPE_FORTE = 314;
 
     public $gateway_consts = [
@@ -91,6 +93,8 @@ class CompanyGateway extends BaseModel
         '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
         'd6814fc83f45d2935e7777071e629ef9' => 310,
         'bbd736b3254b0aabed6ad7fda1298c88' => 311,
+        '1bd651fb213ca0c9d66ae3c336dc77e7' => 312,
+        '944c20175bbe6b9972c05bcfe294c2c7' => 313,
         'kivcvjexxvdiyqtj3mju5d6yhpeht2xs' => 314,
         '65faab2ab6e3223dbe848b1686490baz' => 320,
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321,

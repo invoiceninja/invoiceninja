@@ -16,6 +16,7 @@ use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use stdClass;
+use App\Models\Payment;
 
 class EntityPaidObject
 {
@@ -29,7 +30,7 @@ class EntityPaidObject
 
     public $settings;
 
-    public function __construct($payment)
+    public function __construct(public Payment $payment)
     {
         $this->payment = $payment;
         $this->company = $payment->company;
