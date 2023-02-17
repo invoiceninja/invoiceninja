@@ -465,7 +465,10 @@ class CompanySettings extends BaseSettings
 
     public $allow_billable_task_items = false;
 
+    public $show_task_item_description = false;
+
     public static $casts = [
+        'show_task_item_description'         => 'bool',
         'allow_billable_task_items'          => 'bool',
         'accept_client_input_quote_approval' => 'bool',
         'custom_sending_email'               => 'string',

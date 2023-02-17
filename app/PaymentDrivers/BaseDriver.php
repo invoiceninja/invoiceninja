@@ -59,7 +59,6 @@ class BaseDriver extends AbstractPaymentDriver
     /* The Invitation */
     public $invitation;
 
-
     /* The client */
     public $client;
 
@@ -91,7 +90,7 @@ class BaseDriver extends AbstractPaymentDriver
     /** @var array */
     public $required_fields = [];
 
-    public function __construct(CompanyGateway $company_gateway, ?Client $client = null, $invitation = false)
+    public function __construct(CompanyGateway $company_gateway, ?Client $client = null, $invitation = null)
     {
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
