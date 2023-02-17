@@ -25,7 +25,6 @@ use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRestarted;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionInGracePeriod;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPauseScheduleChanged;
-use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPaused;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionPriceChangeConfirmed;
 
 return [
