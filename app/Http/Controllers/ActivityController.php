@@ -92,10 +92,10 @@ class ActivityController extends BaseController
                                 ->take($default_activities);
 
         if ($request->has('react')) {
-
-            if(!auth()->user()->isAdmin())
+            if (!auth()->user()->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
-                // return response()->json(['data' => []], 200);
+            }
+            // return response()->json(['data' => []], 200);
 
             $system = ctrans('texts.system');
 
@@ -183,7 +183,6 @@ class ActivityController extends BaseController
         */
 
         if ($backup && $backup->filename && Storage::disk(config('filesystems.default'))->exists($backup->filename)) { //disk
-
             if (Ninja::isHosted()) {
                 $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->url($backup->filename));
             } else {

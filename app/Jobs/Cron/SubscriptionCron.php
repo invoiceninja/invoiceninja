@@ -15,7 +15,6 @@ use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Utils\Traits\SubscriptionHooker;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Carbon;
 
 class SubscriptionCron
 {
@@ -41,11 +40,10 @@ class SubscriptionCron
         nlog('Subscription Cron');
 
         if (! config('ninja.db.multi_db_enabled')) {
-
             $invoices = Invoice::where('is_deleted', 0)
                               ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                               ->where('balance', '>', 0)
-                              ->where('is_proforma',0)
+                              ->where('is_proforma', 0)
                               ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                               ->whereNull('deleted_at')
                               ->whereNotNull('subscription_id')
@@ -65,8 +63,6 @@ class SubscriptionCron
                 //This will send the notification daily.
                 //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
             });
-
-
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
@@ -75,7 +71,7 @@ class SubscriptionCron
                 $invoices = Invoice::where('is_deleted', 0)
                                   ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                   ->where('balance', '>', 0)
-                                  ->where('is_proforma',0)
+                                  ->where('is_proforma', 0)
                                   ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                                   ->whereNull('deleted_at')
                                   ->whereNotNull('subscription_id')
@@ -95,10 +91,7 @@ class SubscriptionCron
                     //This will send the notification daily.
                     //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
                 });
-
-
             }
         }
     }
-
 }

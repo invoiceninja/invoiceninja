@@ -33,6 +33,7 @@ class SchedulerTransformer extends EntityTransformer
             'updated_at' => (int) $scheduler->updated_at,
             'created_at' => (int) $scheduler->created_at,
             'archived_at' => (int) $scheduler->deleted_at,
+            'remaining_cycles' => (int) $scheduler->remaining_cycles,
         ];
     }
 }

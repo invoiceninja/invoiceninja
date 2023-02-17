@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 class UpdateRecurringQuoteRequest extends Request

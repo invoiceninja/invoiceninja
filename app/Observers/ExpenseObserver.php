@@ -31,9 +31,9 @@ class ExpenseObserver
                             ->where('event_id', Webhook::EVENT_CREATE_EXPENSE)
                             ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_EXPENSE, $expense, $expense->company)->delay(0);
-        
+        }
     }
 
     /**
@@ -46,20 +46,22 @@ class ExpenseObserver
     {
         $event = Webhook::EVENT_UPDATE_EXPENSE;
 
-        if($expense->getOriginal('deleted_at') && !$expense->deleted_at)
+        if ($expense->getOriginal('deleted_at') && !$expense->deleted_at) {
             $event = Webhook::EVENT_RESTORE_EXPENSE;
+        }
         
-        if($expense->is_deleted)
-            $event = Webhook::EVENT_DELETE_EXPENSE; 
+        if ($expense->is_deleted) {
+            $event = Webhook::EVENT_DELETE_EXPENSE;
+        }
         
         
         $subscriptions = Webhook::where('company_id', $expense->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $expense, $expense->company)->delay(0);
-        
+        }
     }
 
     /**
@@ -70,16 +72,17 @@ class ExpenseObserver
      */
     public function deleted(Expense $expense)
     {
-        if($expense->is_deleted)
+        if ($expense->is_deleted) {
             return;
+        }
 
         $subscriptions = Webhook::where('company_id', $expense->company_id)
                             ->where('event_id', Webhook::EVENT_ARCHIVE_EXPENSE)
                             ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_EXPENSE, $expense, $expense->company)->delay(0);
-        
+        }
     }
 
     /**

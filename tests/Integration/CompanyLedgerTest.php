@@ -23,11 +23,8 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /** @test*/

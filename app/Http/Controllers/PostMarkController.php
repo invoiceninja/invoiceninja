@@ -11,20 +11,8 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\Mail\EmailBounce;
-use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\MultiDB;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use App\Models\SystemLog;
-use App\Notifications\Ninja\EmailBounceNotification;
-use App\Notifications\Ninja\EmailSpamNotification;
 use Illuminate\Http\Request;
-use Turbo124\Beacon\Facades\LightLogs;
 
 /**
  * Class PostMarkController.

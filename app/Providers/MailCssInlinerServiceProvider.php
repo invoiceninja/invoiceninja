@@ -12,8 +12,6 @@
 namespace App\Providers;
 
 use App\Utils\CssInlinerPlugin;
-use Illuminate\Container\Container;
-use Illuminate\Mail\MailManager;
 use Illuminate\Support\ServiceProvider;
 
 class MailCssInlinerServiceProvider extends ServiceProvider
@@ -47,8 +45,8 @@ class MailCssInlinerServiceProvider extends ServiceProvider
         //     return new CssInlinerPlugin([]);
         // });
 
-        $this->app->bind(CssInlinerPlugin::class, function ($app) {
-            return new CssInlinerPlugin([]);
-        });
+        // $this->app->bind(CssInlinerPlugin::class, function ($app) {
+        //     return new CssInlinerPlugin([]);
+        // });
     }
 }

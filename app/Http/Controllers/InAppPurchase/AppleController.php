@@ -58,7 +58,6 @@ class AppleController extends BaseController
      */
     public function confirm_purchase(Request $request)
     {
-
         //store transaction_id in accounts table for future reference.
     }
 

@@ -463,7 +463,13 @@ class CompanySettings extends BaseSettings
 
     public $accept_client_input_quote_approval = false;
 
+    public $allow_billable_task_items = false;
+
+    public $show_task_item_description = false;
+
     public static $casts = [
+        'show_task_item_description'         => 'bool',
+        'allow_billable_task_items'          => 'bool',
         'accept_client_input_quote_approval' => 'bool',
         'custom_sending_email'               => 'string',
         'show_paid_stamp'                    => 'bool',
@@ -762,7 +768,6 @@ class CompanySettings extends BaseSettings
      */
     public static function defaults(): stdClass
     {
-
         $data = (object) get_class_vars(self::class);
 
         unset($data->casts);

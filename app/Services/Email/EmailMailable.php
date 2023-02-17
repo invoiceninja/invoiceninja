@@ -11,25 +11,22 @@
 
 namespace App\Services\Email;
 
-use App\Services\Email\EmailObject;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Headers;
 
 class EmailMailable extends Mailable
 {
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(public EmailObject $email_object){}
+    public function __construct(public EmailObject $email_object)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -78,16 +75,13 @@ class EmailMailable extends Mailable
      */
     public function attachments()
     {
-
         $attachments  = [];
 
-        foreach($this->email_object->attachments as $file)
-        {
+        foreach ($this->email_object->attachments as $file) {
             $attachments[] = Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
         }
 
         return $attachments;
-        
     }
  
     /**
@@ -97,13 +91,10 @@ class EmailMailable extends Mailable
      */
     public function headers()
     {
-
         return new Headers(
             messageId: null,
             references: [],
             text: $this->email_object->headers,
         );
-
     }
-
 }

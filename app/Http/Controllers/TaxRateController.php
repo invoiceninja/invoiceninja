@@ -23,7 +23,6 @@ use App\Models\TaxRate;
 use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**

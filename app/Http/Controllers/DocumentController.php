@@ -13,7 +13,6 @@ use App\Models\Document;
 use App\Repositories\DocumentRepository;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class DocumentController extends BaseController

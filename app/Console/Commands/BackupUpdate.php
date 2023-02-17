@@ -14,11 +14,9 @@ namespace App\Console\Commands;
 use App\Libraries\MultiDB;
 use App\Models\Backup;
 use App\Models\Company;
-use App\Models\Design;
 use App\Models\Document;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use stdClass;
 
 class BackupUpdate extends Command
 {
@@ -60,7 +58,6 @@ class BackupUpdate extends Command
         if (! config('ninja.db.multi_db_enabled')) {
             $this->handleOnDb();
         } else {
-
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
@@ -78,50 +75,43 @@ class BackupUpdate extends Command
 
         //logos
         Company::cursor()
-               ->each(function ($company){
+               ->each(function ($company) {
+                   $company_logo = $company->present()->logo();
 
-                  $company_logo = $company->present()->logo();
+                   if ($company_logo == 'https://invoicing.co/images/new_logo.png') {
+                       return;
+                   }
 
-                  if($company_logo == 'https://invoicing.co/images/new_logo.png')
-                    return;
+                   $logo = @file_get_contents($company_logo);
 
-                  $logo = @file_get_contents($company_logo);
+                   if ($logo) {
+                       $path = str_replace("https://objects.invoicing.co/", "", $company->present()->logo());
+                       $path = str_replace("https://v5-at-backup.us-southeast-1.linodeobjects.com/", "", $path);
 
-                    if($logo){
-
-                        $path = str_replace("https://objects.invoicing.co/", "", $company->present()->logo());
-                        $path = str_replace("https://v5-at-backup.us-southeast-1.linodeobjects.com/", "", $path);
-
-                        Storage::disk($this->option('disk'))->put($path, $logo);
-                    }
-
+                       Storage::disk($this->option('disk'))->put($path, $logo);
+                   }
                });
 
 
         //documents
         Document::cursor()
-                ->each(function ($document){
-
+                ->each(function ($document) {
                     $doc_bin = $document->getFile();
 
-                    if($doc_bin)
+                    if ($doc_bin) {
                         Storage::disk($this->option('disk'))->put($document->url, $doc_bin);
-
+                    }
                 });
 
 
-       //backups
+        //backups
         Backup::cursor()
-                ->each(function ($backup){
+                ->each(function ($backup) {
+                    $backup_bin = Storage::disk('s3')->get($backup->filename);
 
-                  $backup_bin = Storage::disk('s3')->get($backup->filename);
-
-                    if($backup_bin)
+                    if ($backup_bin) {
                         Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
-
+                    }
                 });
-
-
-        
     }
 }

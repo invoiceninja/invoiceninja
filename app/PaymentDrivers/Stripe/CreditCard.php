@@ -19,11 +19,11 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
+use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Number;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
-use App\Utils\Number;
 
 class CreditCard
 {
@@ -60,7 +60,6 @@ class CreditCard
 
     public function paymentView(array $data)
     {
-
         $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
         $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
 
@@ -111,7 +110,7 @@ class CreditCard
             $state['store_card'] = false;
         }
 
-        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
         $state['customer'] = $state['payment_intent']->customer;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
@@ -169,12 +168,12 @@ class CreditCard
 
         //If the user has come from a subscription double check here if we need to redirect.
         //08-08-2022
-        if($payment->invoices()->whereHas('subscription')->exists()){
+        if ($payment->invoices()->whereHas('subscription')->exists()) {
             $subscription = $payment->invoices()->first()->subscription;
 
-            if($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1)
-            return redirect($subscription->webhook_configuration['return_url']);
-
+            if ($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1) {
+                return redirect($subscription->webhook_configuration['return_url']);
+            }
         }
         //08-08-2022
 

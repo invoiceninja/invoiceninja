@@ -13,20 +13,17 @@ namespace App\Services\Bank;
 
 use App\Models\BankTransaction;
 use App\Models\Invoice;
-use App\Services\Bank\ProcessBankRules;
 
 class BankService
 {
-
-    public function __construct(public BankTransaction $bank_transaction) {}
+    public function __construct(public BankTransaction $bank_transaction)
+    {
+    }
 
 
     public function matchInvoiceNumber()
     {
-
-        if(strlen($this->bank_transaction->description) > 1)
-        {
-
+        if (strlen($this->bank_transaction->description) > 1) {
             $i = Invoice::where('company_id', $this->bank_transaction->company_id)
                     ->whereIn('status_id', [1,2,3])
                     ->where('is_deleted', 0)
@@ -37,12 +34,10 @@ class BankService
         }
 
         return false;
-
     }
 
     public function processRules()
     {
         (new ProcessBankRules($this->bank_transaction))->run();
     }
-
 }

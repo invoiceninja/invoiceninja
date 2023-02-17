@@ -14,8 +14,6 @@ namespace App\Models;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Presenters\RecurringQuotePresenter;
-use App\Models\Quote;
-use App\Models\RecurringQuoteInvitation;
 use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -418,7 +416,6 @@ class RecurringQuote extends BaseModel
      */
     public function recurringDates()
     {
-
         /* Return early if nothing to send back! */
         if ($this->status_id == self::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||

@@ -11,9 +11,7 @@
 
 namespace App\Mail\Ninja;
 
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
 class EmailQuotaExceeded extends Mailable

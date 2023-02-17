@@ -33,11 +33,11 @@ class GoCardlessInstantBankPaymentTest extends TestCase
     use MakesHash;
 
     private array $mock = [
-  'events' => 
+  'events' =>
   [
     [
       'id' => 'EV032JF',
-      'links' => 
+      'links' =>
       [
         'customer' => 'CU001ZDX',
         'billing_request' => 'BRQ0005',
@@ -45,7 +45,7 @@ class GoCardlessInstantBankPaymentTest extends TestCase
         'customer_bank_account' => 'BA001V2111PK6J',
       ],
       'action' => 'payer_details_confirmed',
-      'details' => 
+      'details' =>
       [
         'cause' => 'billing_request_payer_details_confirmed',
         'origin' => 'api',
@@ -57,7 +57,7 @@ class GoCardlessInstantBankPaymentTest extends TestCase
     ],
     [
       'id' => 'EV032JF67TF2',
-      'links' => 
+      'links' =>
       [
         'customer' => 'CU001DXYDR3',
         'billing_request' => 'BRQ005YJ7GHF',
@@ -65,7 +65,7 @@ class GoCardlessInstantBankPaymentTest extends TestCase
         'mandate_request_mandate' => 'MD01W5RP7GA',
       ],
       'action' => 'fulfilled',
-      'details' => 
+      'details' =>
       [
         'cause' => 'billing_request_fulfilled',
         'origin' => 'api',
@@ -77,18 +77,18 @@ class GoCardlessInstantBankPaymentTest extends TestCase
     ],
     [
       'id' => 'EV032JF67S0M8',
-      'links' => 
+      'links' =>
       [
         'mandate' => 'MD001W5RP7GA1W',
       ],
       'action' => 'created',
-      'details' => 
+      'details' =>
       [
         'cause' => 'mandate_created',
         'origin' => 'api',
         'description' => 'Mandate created via the API.',
       ],
-      'metadata' => 
+      'metadata' =>
       [],
       'created_at' => '2022-11-06T08:50:34.667Z',
       'resource_type' => 'mandates',
@@ -110,42 +110,35 @@ class GoCardlessInstantBankPaymentTest extends TestCase
 
     public function testWebhookProcessingWithGoCardless()
     {
+        $this->assertIsArray($this->mock);
 
-      $this->assertIsArray($this->mock);
-
-      foreach($this->mock['events'] as $event)
-      {
-
-            if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
-
-              $this->assertEquals('CU001DXYDR3', $event['links']['customer']);
-              $this->assertEquals('BRQ005YJ7GHF', $event['links']['billing_request']);
-              $this->assertEquals('BA00V2111PK', $event['links']['customer_bank_account']);
-
+        foreach ($this->mock['events'] as $event) {
+            if ($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+                $this->assertEquals('CU001DXYDR3', $event['links']['customer']);
+                $this->assertEquals('BRQ005YJ7GHF', $event['links']['billing_request']);
+                $this->assertEquals('BA00V2111PK', $event['links']['customer_bank_account']);
             }
+        }
 
-      }
-
-      // mock the invoice and the payment hash 
-
+        // mock the invoice and the payment hash
     }
 
     public function testInvoiceDelayedNotificationPayment()
     {
-
-      $gocardlesspayment = new \stdClass;
-      $links = new \stdClass;
-      $links->mandate = "my_mandate";
-      $gocardlesspayment->links = $links;
-      $gocardlesspayment->id = "gocardless_payment_id";
+        $gocardlesspayment = new \stdClass;
+        $links = new \stdClass;
+        $links->mandate = "my_mandate";
+        $gocardlesspayment->links = $links;
+        $gocardlesspayment->id = "gocardless_payment_id";
 
 
         $invoice = Invoice::factory()->create(
-          [
-            'user_id' => $this->user->id, 
-            'company_id' => $this->company->id, 
-            'client_id' => $this->client->id
-          ]);
+            [
+              'user_id' => $this->user->id,
+              'company_id' => $this->company->id,
+              'client_id' => $this->client->id
+            ]
+        );
 
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->calc()->getInvoice()->save();
@@ -171,7 +164,7 @@ class GoCardlessInstantBankPaymentTest extends TestCase
 
         $this->assertIsArray($data_object->invoices);
         $this->assertIsObject(end($data_object->invoices));
-        $this->assertEquals(1, count($data_object->invoices));    
+        $this->assertEquals(1, count($data_object->invoices));
 
         $test_invoice_object = end($data_object->invoices);
 
@@ -191,65 +184,52 @@ class GoCardlessInstantBankPaymentTest extends TestCase
         $cg->fees_and_limits = '';
         $cg->save();
 
-          foreach($this->mock['events'] as $event)
-          {
+        foreach ($this->mock['events'] as $event) {
+            if ($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+                $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
 
-                if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
+                $this->assertNotNull($hash);
+                $this->assertEquals('1234567890abc', $hash->hash);
 
-                  $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
+                $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-                  $this->assertNotNull($hash);
-                  $this->assertEquals('1234567890abc', $hash->hash);
+                $this->assertNotNull($invoices);
+                $this->assertEquals(1, $invoices->count());
 
-                  $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
+                // remove all paid invoices
+                $invoices->filter(function ($invoice) {
+                    return $invoice->isPayable();
+                });
 
-                  $this->assertNotNull($invoices);
-                  $this->assertEquals(1, $invoices->count());
-
-                  // remove all paid invoices
-                  $invoices->filter(function ($invoice){
-                      return $invoice->isPayable();
-                  });
-
-                  $this->assertEquals(1, $invoices->count());
+                $this->assertEquals(1, $invoices->count());
 
 
-                    $data = [
-                        'payment_method' => $gocardlesspayment->links->mandate,
-                        'payment_type' => PaymentType::INSTANT_BANK_PAY,
-                        'amount' => $hash->data->amount_with_fee,
-                        'transaction_reference' => $gocardlesspayment->id,
-                        'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
-                    ];
+                $data = [
+                    'payment_method' => $gocardlesspayment->links->mandate,
+                    'payment_type' => PaymentType::INSTANT_BANK_PAY,
+                    'amount' => $hash->data->amount_with_fee,
+                    'transaction_reference' => $gocardlesspayment->id,
+                    'gateway_type_id' => GatewayType::INSTANT_BANK_PAY,
+                ];
 
 
-                  $this->assertEquals('my_mandate', $data['payment_method']);
-                  $this->assertEquals('gocardless_payment_id', $data['transaction_reference']);
-                  $this->assertEquals($invoice->balance, $data['amount']);
+                $this->assertEquals('my_mandate', $data['payment_method']);
+                $this->assertEquals('gocardless_payment_id', $data['transaction_reference']);
+                $this->assertEquals($invoice->balance, $data['amount']);
 
-                  $gocardless_driver = $cg->driver($this->client);
-                  $gocardless_driver->setPaymentHash($hash);
+                $gocardless_driver = $cg->driver($this->client);
+                $gocardless_driver->setPaymentHash($hash);
 
-                  $payment = $gocardless_driver->createPayment($data, Payment::STATUS_COMPLETED);
+                $payment = $gocardless_driver->createPayment($data, Payment::STATUS_COMPLETED);
 
-                  $this->assertInstanceOf(Payment::class, $payment);
+                $this->assertInstanceOf(Payment::class, $payment);
 
-                  $this->assertEquals(round($invoice->amount,2), round($payment->amount,2));
-                  $this->assertEquals(Payment::STATUS_COMPLETED, $payment->status_id);
-                  $this->assertEquals(1, $payment->invoices()->count());
-                  $this->assertEquals($invoice->number, $payment->invoices()->first()->number);
-                  $this->assertEquals(Invoice::STATUS_PAID, $payment->invoices()->first()->status_id);
-
-
-
-                }
-
-          }
-
+                $this->assertEquals(round($invoice->amount, 2), round($payment->amount, 2));
+                $this->assertEquals(Payment::STATUS_COMPLETED, $payment->status_id);
+                $this->assertEquals(1, $payment->invoices()->count());
+                $this->assertEquals($invoice->number, $payment->invoices()->first()->number);
+                $this->assertEquals(Invoice::STATUS_PAID, $payment->invoices()->first()->status_id);
+            }
+        }
     }
-
-
 }
-
-
-

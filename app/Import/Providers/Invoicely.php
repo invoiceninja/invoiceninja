@@ -72,7 +72,6 @@ class Invoicely extends BaseImport
 
     public function invoice()
     {
-
         //make sure we update and create products with wave
         $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;

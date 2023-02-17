@@ -14,14 +14,9 @@ namespace App\Models;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
-use App\Models\CompanyGateway;
-use App\Models\Expense;
 use App\Models\Presenters\ClientPresenter;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Models\Task;
-use App\Services\Client\ClientService;
 use App\Models\Traits\Excludable;
+use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
@@ -375,7 +370,6 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getSetting($setting)
     {
-
         /*Client Settings*/
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
             /*need to catch empty string here*/

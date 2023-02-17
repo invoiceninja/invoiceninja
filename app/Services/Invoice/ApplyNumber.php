@@ -36,7 +36,6 @@ class ApplyNumber extends AbstractService
 
     public function run()
     {
-
         if ($this->invoice->number != '') {
             return $this->invoice;
         }
@@ -60,32 +59,24 @@ class ApplyNumber extends AbstractService
 
     private function trySaving()
     {
-
         $x=1;
 
-        do{
-
-            try{
-
+        do {
+            try {
                 $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;
-
-            }
-            catch(QueryException $e){
-
+            } catch(QueryException $e) {
                 $x++;
 
-                if($x>50)
+                if ($x>50) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
+        } while ($this->completed);
 
 
         return $this;
     }
-
 }

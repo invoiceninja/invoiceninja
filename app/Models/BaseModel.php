@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-
 /**
  * Class BaseModel
  *
@@ -139,7 +138,7 @@ class BaseModel extends Model
                 $this->company->settings = $settings;
                 $this->company->save();
                 break;
-            //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
+                //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
             default:
                 $this->client->settings = $settings;
                 $this->client->save();
@@ -168,7 +167,6 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
@@ -208,11 +206,11 @@ class BaseModel extends Model
 
     /**
      * Model helper to send events for webhooks
-     * 
-     * @param  int    $event_id        
+     *
+     * @param  int    $event_id
      * @param  string $additional_data optional includes
-     * 
-     * @return void                  
+     *
+     * @return void
      */
     public function sendEvent(int $event_id, string $additional_data = ""): void
     {
@@ -224,6 +222,4 @@ class BaseModel extends Model
             WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
         }
     }
-
-
 }

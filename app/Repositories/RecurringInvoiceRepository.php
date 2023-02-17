@@ -11,7 +11,6 @@
 
 namespace App\Repositories;
 
-use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 

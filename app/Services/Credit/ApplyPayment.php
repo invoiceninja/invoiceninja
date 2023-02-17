@@ -42,7 +42,6 @@ class ApplyPayment
 
     public function run() :Credit
     {
-
         //$available_credit_balance = $this->credit->balance;
         $applicable_amount = min($this->amount, $this->credit->balance);
         $invoice_balance = $this->invoice->balance;
@@ -138,6 +137,7 @@ class ApplyPayment
                  ->updateBalance($this->amount_applied * -1)
                  ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
+                 ->touchPdf()
                  ->save();
 
         $this->credit

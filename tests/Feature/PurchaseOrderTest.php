@@ -11,7 +11,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Client;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -133,7 +132,6 @@ class PurchaseOrderTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post("/api/v1/purchase_orders/bulk", $data)
         ->assertStatus(302);
-
     }
 
     public function testPurchaseOrderDownloadPDF()
@@ -147,7 +145,6 @@ class PurchaseOrderTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
-
     }
 
 

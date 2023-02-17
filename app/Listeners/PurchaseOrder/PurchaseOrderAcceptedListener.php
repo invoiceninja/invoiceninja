@@ -15,9 +15,7 @@ use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
-use App\Mail\Admin\EntityCreatedObject;
 use App\Mail\Admin\PurchaseOrderAcceptedObject;
-use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -50,7 +48,6 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -67,7 +64,7 @@ class PurchaseOrderAcceptedListener implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;

@@ -59,7 +59,7 @@ class UserRepository extends BaseRepository
         // if(array_key_exists('oauth_provider_id', $details))
         //     unset($details['oauth_provider_id']);
         
-        if (request()->has('validated_phone')){
+        if (request()->has('validated_phone')) {
             $details['phone'] = request()->input('validated_phone');
             $user->verified_phone_number = false;
         }
@@ -93,17 +93,15 @@ class UserRepository extends BaseRepository
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 if (auth()->user()->isAdmin()) {
-
                     $cu->fill($data['company_user']);
                     $cu->restore();
                     $cu->tokens()->restore();
                     $cu->save();
 
                     //05-08-2022
-                    if($cu->tokens()->count() == 0){
+                    if ($cu->tokens()->count() == 0) {
                         (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
                     }
-
                 } else {
                     $cu->notifications = $data['company_user']['notifications'];
                     $cu->settings = $data['company_user']['settings'];
@@ -221,28 +219,23 @@ class UserRepository extends BaseRepository
      * and there are some that are not admins,
      * we force all companies to large to ensure
      * the queries are appropriate for all users
-     *     
-     * @param  User   $user 
+     *
+     * @param  User   $user
      * @return void
      */
     private function verifyCorrectCompanySizeForPermissions(User $user): void
     {
-
-        if(Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterpriseClient()))
-        {
-
+        if (Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterpriseClient())) {
             $user->account()
-               ->whereHas('companies', function ($query){
-                    $query->where('is_large',0);
+               ->whereHas('companies', function ($query) {
+                   $query->where('is_large', 0);
                })
-               ->whereHas('company_users', function ($query){
-                    $query->where('is_admin', 0);
-               })            
-               ->cursor()->each(function ($account){
-                    $account->companies()->update(['is_large' => true]);
+               ->whereHas('company_users', function ($query) {
+                   $query->where('is_admin', 0);
+               })
+               ->cursor()->each(function ($account) {
+                   $account->companies()->update(['is_large' => true]);
                });
-
         }
-
     }
 }

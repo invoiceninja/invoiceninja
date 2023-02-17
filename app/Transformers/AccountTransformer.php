@@ -112,6 +112,5 @@ class AccountTransformer extends EntityTransformer
         $transformer = new UserTransformer($this->serializer);
 
         return $this->includeItem(auth()->user(), $transformer, User::class);
-
     }
 }

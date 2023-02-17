@@ -12,15 +12,9 @@
 namespace App\Http\Requests\Preview;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
-use App\Models\Credit;
-use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class PreviewPurchaseOrderRequest extends Request
 {
@@ -55,7 +49,7 @@ class PreviewPurchaseOrderRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
-        $input['number'] = ctrans('texts.live_preview') . " #". rand(0,1000);
+        $input['number'] = ctrans('texts.live_preview') . " #". rand(0, 1000);
         
         $this->replace($input);
     }

@@ -11,9 +11,7 @@
 
 namespace App\Utils\Traits;
 
-use App\Designs\Designer;
 use Exception;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\Factory;

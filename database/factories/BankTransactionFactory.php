@@ -11,9 +11,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Account;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class BankTransactionFactory extends Factory
 {
@@ -26,7 +24,7 @@ class BankTransactionFactory extends Factory
     {
         return [
             'transaction_id' => $this->faker->randomNumber(9, true) ,
-            'amount' => $this->faker->randomFloat(2,10,10000) ,
+            'amount' => $this->faker->randomFloat(2, 10, 10000) ,
             'currency_id' => '1',
             'account_type' => 'creditCard',
             'category_id' => 1,
@@ -35,7 +33,7 @@ class BankTransactionFactory extends Factory
             'bank_account_id' => 1 ,
             'description' =>$this->faker->words(5, true) ,
             'status_id'=> 1,
-            'base_type' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
+            'base_type' => (bool)rand(0, 1) ? 'CREDIT' : 'DEBIT',
         ];
     }
 }

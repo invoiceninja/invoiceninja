@@ -12,7 +12,6 @@
 namespace App\Jobs\Payment;
 
 use App\Events\Payment\PaymentWasEmailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
@@ -28,7 +27,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
 
 class EmailRefundPayment implements ShouldQueue
 {

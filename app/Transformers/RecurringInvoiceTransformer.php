@@ -15,12 +15,8 @@ use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Document;
-use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
-use App\Transformers\ActivityTransformer;
-use App\Transformers\ClientTransformer;
-use App\Transformers\InvoiceHistoryTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringInvoiceTransformer extends EntityTransformer

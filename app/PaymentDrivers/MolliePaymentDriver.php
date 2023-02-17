@@ -321,7 +321,6 @@ class MolliePaymentDriver extends BaseDriver
                 // record from the meta data in the payment hash.
 
                 if ($payment && property_exists($payment->metadata, 'hash') && $payment->metadata->hash) {
-
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
 

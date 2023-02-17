@@ -64,14 +64,11 @@ class PaymentTest extends TestCase
 
     public function testGetPaymentMatchList()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/payments?match_transactions=true')
           ->assertStatus(200);
-
-        
     }
 
     public function testStorePaymentIdempotencyKeyIllegalLength()
@@ -114,12 +111,9 @@ class PaymentTest extends TestCase
             ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             // $message = json_decode($e->validator->getMessageBag(), 1);
-
-
         }
 
         $this->assertFalse($response);
-        
     }
 
 

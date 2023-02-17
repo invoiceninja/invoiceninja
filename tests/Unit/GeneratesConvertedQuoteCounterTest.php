@@ -11,26 +11,18 @@
 
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
-use App\Factory\ClientFactory;
-use App\Factory\QuoteFactory;
-use App\Factory\VendorFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Timezone;
 use App\Models\User;
 use App\Utils\Traits\GeneratesConvertedQuoteCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**

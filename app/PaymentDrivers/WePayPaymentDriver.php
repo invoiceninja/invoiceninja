@@ -345,29 +345,21 @@ class WePayPaymentDriver extends BaseDriver
 
 
         if ($this->company_gateway->require_custom_value1) {
-
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
-
         }
         
         if ($this->company_gateway->require_custom_value2) {
-
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
 
         if ($this->company_gateway->require_custom_value3) {
-
             $fields[] = ['name' => 'client_custom_value3', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client3'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
 
         if ($this->company_gateway->require_custom_value4) {
-
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
 

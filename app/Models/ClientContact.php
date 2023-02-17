@@ -16,8 +16,8 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\ClientContact\ClientContactResetPasswordObject;
 use App\Models\Presenters\ClientContactPresenter;
-use App\Notifications\ClientContactResetPassword;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,7 +40,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     use PresentableTrait;
     use SoftDeletes;
     use HasFactory;
-
+    use AppSetup;
+    
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
@@ -208,7 +209,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         $nmo->settings = $this->company->settings;
 
         NinjaMailerJob::dispatch($nmo);
-
     }
 
     public function preferredLocale()
@@ -289,7 +289,5 @@ class ClientContact extends Authenticatable implements HasLocalePreference
                 return '';
                 break;
         }
-
-
     }
 }

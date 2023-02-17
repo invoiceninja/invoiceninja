@@ -12,7 +12,6 @@
 namespace Tests\Unit;
 
 use App\Factory\InvoiceInvitationFactory;
-use App\Models\CompanyToken;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;

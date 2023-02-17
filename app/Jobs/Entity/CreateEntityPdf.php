@@ -13,7 +13,6 @@ namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -34,7 +33,6 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
 use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PDF;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,9 +40,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\PdfParser\StreamReader;
 
 class CreateEntityPdf implements ShouldQueue
 {
@@ -76,19 +72,15 @@ class CreateEntityPdf implements ShouldQueue
         $this->invitation = $invitation;
 
         if ($invitation instanceof InvoiceInvitation) {
-            // $invitation->load('contact.client.company','invoice.client','invoice.user.account');
             $this->entity = $invitation->invoice;
             $this->entity_string = 'invoice';
         } elseif ($invitation instanceof QuoteInvitation) {
-            // $invitation->load('contact.client.company','quote.client','quote.user.account');
             $this->entity = $invitation->quote;
             $this->entity_string = 'quote';
         } elseif ($invitation instanceof CreditInvitation) {
-            // $invitation->load('contact.client.company','credit.client','credit.user.account');
             $this->entity = $invitation->credit;
             $this->entity_string = 'credit';
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
-            // $invitation->load('contact.client.company','recurring_invoice');
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
         }

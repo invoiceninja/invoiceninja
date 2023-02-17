@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\RecurringQuote;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

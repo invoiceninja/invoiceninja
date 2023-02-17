@@ -16,7 +16,6 @@ use App\Models\GatewayType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

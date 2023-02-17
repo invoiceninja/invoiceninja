@@ -12,17 +12,13 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
-use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Invoice;
-use App\Models\Product;
-use App\Transformers\ProductTransformer;
 use App\Utils\Ninja;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
-use Illuminate\Support\Carbon;
 
 class ProductSalesExport extends BaseExport
 {
@@ -98,10 +94,9 @@ class ProductSalesExport extends BaseExport
 
         $query->cursor()
               ->each(function ($invoice) {
-
-                  foreach($invoice->line_items as $item)
-                    $this->csv->insertOne($this->buildRow($invoice, $item));
-
+                  foreach ($invoice->line_items as $item) {
+                      $this->csv->insertOne($this->buildRow($invoice, $item));
+                  }
               });
 
         return $this->csv->toString();

@@ -14,10 +14,8 @@ namespace App\Http\Requests\Twilio;
 use App\Http\Requests\Request;
 use App\Libraries\MultiDB;
 
-
 class Generate2faRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,21 +29,19 @@ class Generate2faRequest extends Request
 
     public function rules()
     {
-
         return [
             'email' => 'required|exists:users,email',
         ];
-        
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        if(array_key_exists('email', $input))
+        if (array_key_exists('email', $input)) {
             MultiDB::userFindAndSetDb($input['email']);
+        }
 
         $this->replace($input);
     }
-
 }

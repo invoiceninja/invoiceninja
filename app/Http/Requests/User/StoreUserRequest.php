@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\User;
 
-use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Ninja\CanAddUserRule;
@@ -21,7 +20,6 @@ use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
 use App\Utils\Ninja;
-use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends Request
 {
@@ -51,9 +49,9 @@ class StoreUserRequest extends Request
         if (Ninja::isHosted()) {
             $rules['id'] = new CanAddUserRule();
 
-            if($this->phone && isset($this->phone))
+            if ($this->phone && isset($this->phone)) {
                 $rules['phone'] = ['bail', 'string', 'sometimes', new HasValidPhoneNumber()];
-            
+            }
         }
 
         return $rules;

@@ -147,8 +147,9 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        if($sort_col[0] == 'display_name')
+        if ($sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';
+        }
         
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
@@ -165,11 +166,10 @@ class ClientFilters extends QueryFilters
 
     public function filter_details(string $filter = '')
     {
-        
-        if($filter == 'true')
+        if ($filter == 'true') {
             return $this->builder->select('id', 'name', 'number', 'id_number');
+        }
 
         return $this->builder;
-
     }
 }

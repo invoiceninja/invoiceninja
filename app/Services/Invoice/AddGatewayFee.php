@@ -12,10 +12,8 @@
 namespace App\Services\Invoice;
 
 use App\DataMapper\InvoiceItem;
-use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;

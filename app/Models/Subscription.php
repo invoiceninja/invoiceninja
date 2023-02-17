@@ -11,11 +11,8 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
-use App\Models\RecurringInvoice;
 use App\Services\Subscription\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends BaseModel
@@ -96,7 +93,6 @@ class Subscription extends BaseModel
     public function nextDateByInterval($date, $frequency_id)
     {
         switch ($frequency_id) {
-
             case RecurringInvoice::FREQUENCY_DAILY:
                 return $date->addDay();
             case RecurringInvoice::FREQUENCY_WEEKLY:

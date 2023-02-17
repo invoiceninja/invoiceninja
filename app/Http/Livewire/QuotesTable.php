@@ -15,7 +15,6 @@ namespace App\Http\Livewire;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Quote;
-use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -29,7 +28,7 @@ class QuotesTable extends Component
 
     public Company $company;
 
-    public string $sort = 'status_id'; 
+    public string $sort = 'status_id';
 
     public bool $sort_asc = true;
 
@@ -56,16 +55,13 @@ class QuotesTable extends Component
 
     public function render()
     {
-
         $query = Quote::query()
             ->with('client.contacts', 'company')
             ->orderBy($this->sort, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {
-
             /* Special filter for expired*/
             if (in_array('-1', $this->status)) {
-
                 $query->where(function ($query) {
                     $query->whereDate('due_date', '<=', now()->startOfDay())
                           ->whereNotNull('due_date')

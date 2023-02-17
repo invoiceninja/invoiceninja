@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
 use App\Models\Traits\Excludable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -60,5 +59,4 @@ class BankIntegration extends BaseModel
     {
         return $this->hasMany(BankTransaction::class)->withTrashed();
     }
-
 }

@@ -16,7 +16,6 @@ use App\Models\Backup;
 use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 use League\Fractal\Resource\Item;
 

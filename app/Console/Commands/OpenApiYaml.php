@@ -63,9 +63,7 @@ class OpenApiYaml extends Command
         $this->info($directory);
 
         foreach ($directory as $file) {
-
-        $this->info($file);
-
+            $this->info($file);
         }
      
         Storage::disk('base')->delete('/openapi/api-docs.yaml');
@@ -76,14 +74,9 @@ class OpenApiYaml extends Command
         $directory = new DirectoryIterator($path . '/paths/');
 
         foreach ($directory as $file) {
-
-            if ($file->isFile() && ! $file->isDot())
-            {
-        
+            if ($file->isFile() && ! $file->isDot()) {
                 Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/paths/{$file->getFilename()}"));
-
             }
-
         }
 
 
@@ -96,20 +89,12 @@ class OpenApiYaml extends Command
         $directory = new DirectoryIterator($path . '/components/schemas/');
 
         foreach ($directory as $file) {
-
-            if ($file->isFile() && ! $file->isDot())
-            {
-        
+            if ($file->isFile() && ! $file->isDot()) {
                 Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/components/schemas/{$file->getFilename()}"));
-
             }
-
         }
 
         // Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas/account.yaml'));
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/misc/misc.yaml'));
-
-
     }
-
 }

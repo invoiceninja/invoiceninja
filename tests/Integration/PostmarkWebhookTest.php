@@ -12,7 +12,6 @@
 namespace Tests\Integration;
 
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
-use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;

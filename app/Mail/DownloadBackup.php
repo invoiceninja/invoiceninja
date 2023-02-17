@@ -13,9 +13,7 @@
 namespace App\Mail;
 
 use App\Models\Company;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
 class DownloadBackup extends Mailable

@@ -20,9 +20,6 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\VendorContactTransformer;
-use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 class ActivityTransformer extends EntityTransformer

@@ -25,7 +25,6 @@ use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**

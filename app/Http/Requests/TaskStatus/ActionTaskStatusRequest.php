@@ -27,11 +27,9 @@ class ActionTaskStatusRequest extends Request
 
     public function rules()
     {
-
         return [
             'ids' => 'required|bail|array',
             'action' => 'in:archive,restore,delete'
         ];
-
     }
 }

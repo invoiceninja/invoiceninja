@@ -12,7 +12,6 @@
 namespace App\Http\Requests\TwoFactor;
 
 use App\Http\Requests\Request;
-use Illuminate\Validation\Rule;
 
 class EnableTwoFactorRequest extends Request
 {
@@ -23,7 +22,8 @@ class EnableTwoFactorRequest extends Request
      */
     public function authorize() : bool
     {
-        return true;;
+        return true;
+        ;
     }
 
     public function rules()
@@ -36,6 +36,5 @@ class EnableTwoFactorRequest extends Request
 
     public function prepareForValidation()
     {
-
     }
 }

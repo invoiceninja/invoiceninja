@@ -11,16 +11,13 @@
 
 namespace App\Helpers\Mail;
 
-use Illuminate\Support\Str;
 use Microsoft\Graph\Graph;
-use Microsoft\Graph\Model\UploadSession;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\MessageConverter;
 
 class Office365MailTransport extends AbstractTransport
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -28,7 +25,6 @@ class Office365MailTransport extends AbstractTransport
 
     protected function doSend(SentMessage $message): void
     {
-
         $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
 
         $graph = new Graph();
@@ -41,16 +37,11 @@ class Office365MailTransport extends AbstractTransport
 
         $bcc_list = '';
 
-        if($bccs)
-        {
-
-            foreach($bccs->getAddresses() as $address){
-
+        if ($bccs) {
+            foreach ($bccs->getAddresses() as $address) {
                 $bcc_list .= 'Bcc: "'.$address->getAddress().'" <'.$address->getAddress().'>\r\n';
-
             }
-
-        }   
+        }
 
         try {
             $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
@@ -66,12 +57,10 @@ class Office365MailTransport extends AbstractTransport
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
         }
-        
     }
 
     public function __toString(): string
     {
         return 'office365';
     }
-
 }

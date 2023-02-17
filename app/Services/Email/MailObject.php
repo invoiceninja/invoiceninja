@@ -11,6 +11,7 @@
 
 namespace App\Services\Email;
 
+use App\Models\Company;
 use Illuminate\Mail\Mailables\Address;
 
 /**
@@ -18,63 +19,71 @@ use Illuminate\Mail\Mailables\Address;
  */
 class MailObject
 {
+    public ?string $db = null;
 
-	public ?string $db = null;
+    public array $to = [];
 
-	public array $to = [];
+    public ?Address $from = null;
 
-	public ?Address $from = null;
+    public array $reply_to = [];
 
-	public array $reply_to = [];
+    public array $cc = [];
 
-	public array $cc = [];
+    public array $bcc = [];
 
-	public array $bcc = [];
+    public ?string $subject = null;
 
-	public ?string $subject = null;
+    public ?string $body = null;
 
-	public ?string $body = null;
+    public array $attachments = [];
 
-	public array $attachments = [];
+    public array $attachment_links = [];
 
-	public string $company_key;
+    public string $company_key;
 
-	public ?object $settings = null;
+    public ?object $settings = null;
 
-	public bool $whitelabel = false;
+    public bool $whitelabel = false;
 
-	public ?string $logo = null;
+    public ?string $logo = null;
 
-	public ?string $signature = null;
+    public ?string $signature = null;
 
-	public ?string $greeting = null;
+    public ?string $greeting = null;
 
-	public ?int $client_id = null;
+    public ?int $client_id = null;
 
-	public ?int $vendor_id = null;
+    public ?int $vendor_id = null;
 
-	public ?int $user_id = null;
+    public ?int $user_id = null;
 
-	public ?int $client_contact_id = null;
+    public ?int $client_contact_id = null;
 
-	public ?int $vendor_contact_id = null;
+    public ?int $vendor_contact_id = null;
 
-	public ?string $email_template_body = null;
+    public ?string $email_template = null; //this defines the template in short notation WITH the email_template prefix
 
-	public ?string $email_template_subject = null;
+    public ?string $html_template = null;
 
-	public ?string $html_template = null;
+    public ?string $text_template = 'email.template.text';
 
-	public ?string $text_template = 'email.template.text';
+    public array $headers = [];
 
-	public array $headers = [];
+    public ?string $invitation_key = null;
+    
+    public ?int $entity_id = null;
 
-	public ?string $invitation_key = null;
-	
-	public ?int $entity_id = null;
+    public ?string $entity_class = null;
 
-	public ?string $entity_class = null;
+    public ?string $entity_string = null;
 
-	public array $variables = [];
-	
+    public array $variables = [];
+    
+    public ?string $template = null;
+
+    public ?string $template_data = null;
+
+    public bool $override = false;
+
+    public ?Company $company = null;
 }

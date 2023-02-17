@@ -14,10 +14,10 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BankTransactionRuleController;
-use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
@@ -350,7 +350,6 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
     Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
-
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:10,1');

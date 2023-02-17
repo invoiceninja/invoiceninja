@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,7 +12,6 @@ return new class extends Migration
      */
     public function up()
     {
-
         Schema::create('bank_integrations', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('account_id');
@@ -44,9 +42,9 @@ return new class extends Migration
 
         Schema::table('accounts', function (Blueprint $table) {
             $table->text('bank_integration_account_id')->nullable();
-        });        
+        });
 
-        Schema::create('bank_transactions', function (Blueprint $table){
+        Schema::create('bank_transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('company_id');
             $table->unsignedInteger('user_id');
@@ -75,21 +73,19 @@ return new class extends Migration
             $table->foreign('bank_integration_id')->references('id')->on('bank_integrations')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
-
         });
 
         Schema::table('expense_categories', function (Blueprint $table) {
             $table->unsignedInteger('bank_category_id')->nullable();
-        });    
+        });
 
         Schema::table('payments', function (Blueprint $table) {
             $table->unsignedBigInteger('transaction_id')->nullable();
-        }); 
+        });
 
         Schema::table('expenses', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->unsignedBigInteger('transaction_id')->nullable()->change();
-        }); 
-
+        });
     }
 
     /**
@@ -99,6 +95,5 @@ return new class extends Migration
      */
     public function down()
     {
-            
     }
 };

@@ -24,61 +24,61 @@ use Illuminate\Mail\Mailables\Address;
  */
 class EmailObject
 {
+    public array $to = [];
 
-	public array $to = [];
+    public ?Address $from = null;
 
-	public ?Address $from = null;
+    public array $reply_to = [];
 
-	public array $reply_to = [];
+    public array $cc = [];
 
-	public array $cc = [];
+    public array $bcc = [];
 
-	public array $bcc = [];
+    public ?string $subject = null;
 
-	public ?string $subject = null;
+    public ?string $body = null;
 
-	public ?string $body = null;
+    public array $attachments = [];
 
-	public array $attachments = [];
+    public string $company_key;
 
-	public string $company_key;
+    public ?object $settings = null;
 
-	public ?object $settings = null;
+    public bool $whitelabel = false;
 
-	public bool $whitelabel = false;
+    public ?string $logo = null;
 
-	public ?string $logo = null;
+    public ?string $signature = null;
 
-	public ?string $signature = null;
+    public ?string $greeting = null;
 
-	public ?string $greeting = null;
+    public ?Client $client = null;
 
-	public ?Client $client = null;
+    public ?Vendor $vendor = null;
 
-	public ?Vendor $vendor = null;
+    public ?User $user = null;
 
-	public ?User $user = null;
+    public ?ClientContact $client_contact = null;
 
-	public ?ClientContact $client_contact = null;
+    public ?VendorContact $vendor_contact = null;
 
-	public ?VendorContact $vendor_contact = null;
+    public ?string $email_template_body = null;
 
-	public ?string $email_template_body = null;
+    public ?string $email_template_subject = null;
 
-	public ?string $email_template_subject = null;
+    public ?string $html_template = null;
 
-	public ?string $html_template = null;
+    public ?string $text_template = 'email.template.text';
 
-	public ?string $text_template = 'email.template.text';
+    public array $headers = [];
 
-	public array $headers = [];
+    public ?string $invitation_key = null;
+    
+    public ?int $entity_id = null;
 
-	public ?string $invitation_key = null;
-	
-	public ?int $entity_id = null;
+    public ?string $entity_class = null;
 
-	public ?string $entity_class = null;
+    public array $variables = [];
 
-	public array $variables = [];
-	
+    public ?Company $company = null;
 }

@@ -158,7 +158,6 @@ class CompanyGatewayTest extends TestCase
 
     public function testGatewayFeesAreClearedAppropriately()
     {
-
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -205,7 +204,6 @@ class CompanyGatewayTest extends TestCase
 
     public function testMarkPaidAdjustsGatewayFeeAppropriately()
     {
-
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -248,8 +246,6 @@ class CompanyGatewayTest extends TestCase
         $i = Invoice::withTrashed()->find($this->invoice->id);
 
         $this->assertEquals($wiped_balance, $i->amount);
-
-
     }
 
 

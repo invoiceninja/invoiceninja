@@ -23,7 +23,6 @@ class SortTaskRequest extends Request
     public function authorize() : bool
     {
         return true;
-
     }
 
     public function rules()

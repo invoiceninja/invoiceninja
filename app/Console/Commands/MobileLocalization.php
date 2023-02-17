@@ -11,8 +11,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Company;
-use App\Models\User;
 use App\Utils\CurlUtils;
 use Illuminate\Console\Command;
 

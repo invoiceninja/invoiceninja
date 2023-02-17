@@ -201,7 +201,7 @@ return [
         App\Providers\MultiDBProvider::class,
         App\Providers\ClientPortalServiceProvider::class,
         App\Providers\NinjaTranslationServiceProvider::class,
-        App\Providers\MailCssInlinerServiceProvider::class,
+        // App\Providers\MailCssInlinerServiceProvider::class,
     ],
 
     /*

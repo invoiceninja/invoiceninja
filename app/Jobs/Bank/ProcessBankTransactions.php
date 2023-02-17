@@ -22,7 +22,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 
 class ProcessBankTransactions implements ShouldQueue
 {
@@ -49,7 +48,6 @@ class ProcessBankTransactions implements ShouldQueue
         $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
-
     }
 
     /**
@@ -60,41 +58,33 @@ class ProcessBankTransactions implements ShouldQueue
      */
     public function handle()
     {
-
         set_time_limit(0);
 
         //Loop through everything until we are up to date
         $this->from_date = $this->from_date ?: '2021-01-01';
 
-        do{
-
+        do {
             try {
                 $this->processTransactions();
-            }
-            catch(\Exception $e) {
+            } catch(\Exception $e) {
                 nlog("{$this->bank_integration_account_id} - exited abnormally => ". $e->getMessage());
                 return;
             }
-
-        }
-        while($this->stop_loop);
+        } while ($this->stop_loop);
 
         BankMatchingService::dispatch($this->company->id, $this->company->db);
-
     }
 
 
     private function processTransactions()
     {
-
         $yodlee = new Yodlee($this->bank_integration_account_id);
 
-        if(!$yodlee->getAccount($this->bank_integration->bank_account_id)) 
-        {
-             $this->bank_integration->disabled_upstream = true;
-             $this->bank_integration->save();
-             $this->stop_loop = false;
-             return;   
+        if (!$yodlee->getAccount($this->bank_integration->bank_account_id)) {
+            $this->bank_integration->disabled_upstream = true;
+            $this->bank_integration->save();
+            $this->stop_loop = false;
+            return;
         }
 
         $data = [
@@ -111,11 +101,10 @@ class ProcessBankTransactions implements ShouldQueue
         $count = $transaction_count->transaction->TOTAL->count;
 
         //get transactions array
-        $transactions = $yodlee->getTransactions($data); 
+        $transactions = $yodlee->getTransactions($data);
 
         //if no transactions, update the from_date and move on
-        if(count($transactions) == 0){
-
+        if (count($transactions) == 0) {
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->disabled_upstream = false;
             $this->bank_integration->save();
@@ -135,15 +124,14 @@ class ProcessBankTransactions implements ShouldQueue
 
         $now = now();
         
-        foreach($transactions as $transaction)
-        {
-
-            if(BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists())
+        foreach ($transactions as $transaction) {
+            if (BankTransaction::where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->withTrashed()->exists()) {
                 continue;
+            }
 
             //this should be much faster to insert than using ::create()
             $bt = \DB::table('bank_transactions')->insert(
-                array_merge($transaction,[
+                array_merge($transaction, [
                     'company_id' => $this->company->id,
                     'user_id' => $user_id,
                     'bank_integration_id' => $this->bank_integration->id,
@@ -151,19 +139,15 @@ class ProcessBankTransactions implements ShouldQueue
                     'updated_at' => $now,
                 ])
             );
-
         }
 
 
         $this->skip = $this->skip + 500;
 
-        if($count < 500){
+        if ($count < 500) {
             $this->stop_loop = false;
             $this->bank_integration->from_date = now()->subDays(2);
             $this->bank_integration->save();
-
         }
-
     }
-
 }

@@ -32,7 +32,7 @@ class SendEmail
      */
     public function run()
     {
-        $this->payment->load('company', 'client.contacts','invoices');
+        $this->payment->load('company', 'client.contacts', 'invoices');
 
         $contact = $this->payment->client->contacts()->first();
 
@@ -40,19 +40,12 @@ class SendEmail
         //     EmailPayment::dispatch($this->payment, $this->payment->company, $contact)->delay(now()->addSeconds(2));
 
 
-        $this->payment->invoices->sortByDesc('id')->first(function ($invoice){
-
+        $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
             $invoice->invitations->each(function ($invitation) {
-
-                if(!$invitation->contact->trashed() && $invitation->contact->email) {
-
+                if (!$invitation->contact->trashed() && $invitation->contact->email) {
                     EmailPayment::dispatch($this->payment, $this->payment->company, $invitation->contact)->delay(now()->addSeconds(2));
-
                 }
-
             });
-
         });
-         
     }
 }

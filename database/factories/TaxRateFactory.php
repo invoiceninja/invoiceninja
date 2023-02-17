@@ -11,9 +11,7 @@
 
 namespace Database\Factories;
 
-use App\Models\TaxRate;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class TaxRateFactory extends Factory
 {

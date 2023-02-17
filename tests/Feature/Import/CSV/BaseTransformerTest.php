@@ -14,18 +14,12 @@ namespace Tests\Feature\Import\CSV;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

@@ -12,7 +12,6 @@
 namespace Database\Factories;
 
 use App\Models\RecurringInvoice;
-use App\Models\Scheduler;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SchedulerFactory extends Factory
@@ -26,12 +25,12 @@ class SchedulerFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'is_paused' => rand(0,1),
-            'is_deleted' => rand(0,1),
+            'is_paused' => rand(0, 1),
+            'is_deleted' => rand(0, 1),
             'parameters' => [],
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
-            'next_run' => now()->addSeconds(rand(86400,8640000)),
-            'next_run_client' => now()->addSeconds(rand(86400,8640000)),
+            'next_run' => now()->addSeconds(rand(86400, 8640000)),
+            'next_run_client' => now()->addSeconds(rand(86400, 8640000)),
             'template' => 'client_statement',
         ];
     }

@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\RuntimeFormRequest;
 use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
@@ -154,7 +153,6 @@ class Request extends FormRequest
                 if (array_key_exists('vendor_contact_id', $input['invitations'][$key]) && is_string($input['invitations'][$key]['vendor_contact_id'])) {
                     $input['invitations'][$key]['vendor_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['vendor_contact_id']);
                 }
-
             }
         }
 
@@ -198,8 +196,9 @@ class Request extends FormRequest
 
     public function checkTimeLog(array $log): bool
     {
-        if(count($log) == 0)
+        if (count($log) == 0) {
             return true;
+        }
 
         /*Get first value of all arrays*/
         $result = array_column($log, 0);
@@ -210,41 +209,44 @@ class Request extends FormRequest
         $new_array = [];
 
         /*Rebuild the array in order*/
-        foreach($result as $key => $value)
+        foreach ($result as $key => $value) {
             $new_array[] = $log[$key];
+        }
 
         /*Iterate through the array and perform checks*/
-        foreach($new_array as $key => $array)
-        {
+        foreach ($new_array as $key => $array) {
             /*Flag which helps us know if there is a NEXT timelog*/
             $next = false;
             /* If there are more than 1 time log in the array, ensure the last timestamp is not zero*/
-            if(count($new_array) >1 && $array[1] == 0)
+            if (count($new_array) >1 && $array[1] == 0) {
                 return false;
+            }
 
-            /* Check if the start time is greater than the end time */ 
-            /* Ignore the last value for now, we'll do a separate check for this */ 
-            if($array[0] > $array[1] && $array[1] != 0)
+            /* Check if the start time is greater than the end time */
+            /* Ignore the last value for now, we'll do a separate check for this */
+            if ($array[0] > $array[1] && $array[1] != 0) {
                 return false;
+            }
             
             /* Find the next time log value - if it exists */
-            if(array_key_exists($key+1, $new_array))
+            if (array_key_exists($key+1, $new_array)) {
                 $next = $new_array[$key+1];
+            }
 
             /* check the next time log and ensure the start time is GREATER than the end time of the previous record */
-            if($next && $next[0] < $array[1])
+            if ($next && $next[0] < $array[1]) {
                 return false;
+            }
 
             /* Get the last row of the timelog*/
             $last_row = end($new_array);
             
             /*If the last value is NOT zero, ensure start time is not GREATER than the endtime */
-            if($last_row[1] != 0 && $last_row[0] > $last_row[1])
+            if ($last_row[1] != 0 && $last_row[0] > $last_row[1]) {
                 return false;
+            }
 
             return true;
         }
-
     }
-
 }

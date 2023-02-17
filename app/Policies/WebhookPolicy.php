@@ -28,5 +28,4 @@ class WebhookPolicy extends EntityPolicy
     {
         return $user->isAdmin();
     }
-
 }

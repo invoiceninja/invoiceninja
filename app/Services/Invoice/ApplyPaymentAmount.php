@@ -26,7 +26,9 @@ class ApplyPaymentAmount extends AbstractService
 {
     use GeneratesCounter;
 
-    public function __construct(private Invoice $invoice, private float $amount, private ?string $reference){}
+    public function __construct(private Invoice $invoice, private float $amount, private ?string $reference)
+    {
+    }
 
     public function run()
     {

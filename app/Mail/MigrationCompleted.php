@@ -40,7 +40,6 @@ class MigrationCompleted extends Mailable
      */
     public function build()
     {
-
         MultiDB::setDb($this->db);
         $this->company = Company::find($this->company_id);
 

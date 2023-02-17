@@ -21,7 +21,6 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

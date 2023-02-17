@@ -17,7 +17,6 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Subscription;
 use App\Utils\Traits\CleanLineItems;
@@ -45,7 +44,6 @@ class SubscriptionRepository extends BaseRepository
 
     private function calculatePrice($subscription) :array
     {
-
         // DB::beginTransaction();
         DB::connection(config('database.default'))->beginTransaction();
         $data = [];
@@ -124,21 +122,16 @@ class SubscriptionRepository extends BaseRepository
 
         $line_items = [];
 
-        $line_items = collect($bundle)->filter(function ($item){
-
+        $line_items = collect($bundle)->filter(function ($item) {
             return $item->is_recurring;
-            
-        })->map(function ($item){
+        })->map(function ($item) {
+            $line_item = new InvoiceItem;
+            $line_item->product_key = $item->product_key;
+            $line_item->quantity = (float)$item->qty;
+            $line_item->cost = (float)$item->unit_cost;
+            $line_item->notes = $item->description;
 
-                $line_item = new InvoiceItem;
-                $line_item->product_key = $item->product_key;
-                $line_item->quantity = (float)$item->qty;
-                $line_item->cost = (float)$item->unit_cost;
-                $line_item->notes = $item->description;
-
-                return $line_item;
-            
-
+            return $line_item;
         })->toArray();
 
 

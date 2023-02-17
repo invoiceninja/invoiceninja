@@ -16,7 +16,6 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntitySentObject;
-use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -54,8 +53,6 @@ class QuoteEmailedNotification implements ShouldQueue
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            // $notification = new EntitySentNotification($event->invitation, 'quote');
-
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all', 'quote_sent_user']);
 
             if (($key = array_search('mail', $methods)) !== false) {
@@ -63,14 +60,8 @@ class QuoteEmailedNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
-
-                // $first_notification_sent = false;
+                (new NinjaMailerJob($nmo))->handle();
             }
-
-            // $notification->method = $methods;
-
-            // $user->notify($notification);
         }
     }
 }

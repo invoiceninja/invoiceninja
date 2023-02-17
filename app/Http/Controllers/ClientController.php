@@ -493,7 +493,6 @@ class ClientController extends BaseController
      */
     public function bulk(BulkClientRequest $request)
     {
-
         $action = $request->action;
 
         $clients = Client::withTrashed()
@@ -501,10 +500,10 @@ class ClientController extends BaseController
                          ->whereIn('id', $request->ids)
                          ->cursor()
                          ->each(function ($client) use ($action) {
-                                if (auth()->user()->can('edit', $client)) {
-                                    $this->client_repo->{$action}($client);
-                                }
-                    });
+                             if (auth()->user()->can('edit', $client)) {
+                                 $this->client_repo->{$action}($client);
+                             }
+                         });
 
         return $this->listResponse(Client::withTrashed()->company()->whereIn('id', $request->ids));
     }
@@ -625,14 +624,11 @@ class ClientController extends BaseController
     {
         //delete all documents
         $client->documents->each(function ($document) {
-
-            try{
+            try {
                 Storage::disk(config('filesystems.default'))->delete($document->url);
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 nlog($e->getMessage());
             }
-
         });
 
         //force delete the client
@@ -707,19 +703,17 @@ class ClientController extends BaseController
 
     public function merge(PurgeClientRequest $request, Client $client, string $mergeable_client)
     {
-        
         $m_client = Client::withTrashed()
                             ->where('id', $this->decodePrimaryKey($mergeable_client))
                             ->where('company_id', auth()->user()->company()->id)
                             ->first();
 
-        if(!$m_client)
+        if (!$m_client) {
             return response()->json(['message' => "Client not found"]);
+        }
 
         $merged_client = $client->service()->merge($m_client)->save();
 
         return $this->itemResponse($merged_client);
-
     }
-
 }

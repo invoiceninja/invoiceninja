@@ -18,13 +18,10 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\Cache;
-use Livewire\Livewire;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 class AccountEmailQuotaTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -33,7 +30,6 @@ class AccountEmailQuotaTest extends TestCase
 
     public function testIfQuotaBreached()
     {
-
         config([
             'ninja.production' => true
         ]);
@@ -92,12 +88,10 @@ class AccountEmailQuotaTest extends TestCase
         $this->assertTrue($account->emailQuotaExceeded());
 
         Cache::forget('123ifyouknowwhatimean');
-
     }
 
     public function testQuotaValidRule()
     {
-
         $account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
@@ -115,7 +109,6 @@ class AccountEmailQuotaTest extends TestCase
         $this->assertFalse($account->emailQuotaExceeded());
 
         Cache::forget('123ifyouknowwhatimean');
-
     }
 
     public function testEmailSentCount()
@@ -140,7 +133,5 @@ class AccountEmailQuotaTest extends TestCase
         $this->assertEquals(3000, $count);
 
         Cache::forget('123ifyouknowwhatimean');
-
     }
-
 }

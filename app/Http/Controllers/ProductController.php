@@ -26,7 +26,6 @@ use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ProductController extends BaseController

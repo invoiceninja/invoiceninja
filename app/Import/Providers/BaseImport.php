@@ -15,7 +15,6 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\QuoteFactory;
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
@@ -31,12 +30,9 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\QuoteRepository;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class BaseImport
 {
@@ -152,7 +148,7 @@ class BaseImport
 
 
     private function runValidation($data)
-    {        
+    {
         $_syn_request_class = new $this->request_name;
         $_syn_request_class->setContainer(app());
         $_syn_request_class->initialize($data);
@@ -163,7 +159,6 @@ class BaseImport
         $_syn_request_class->setValidator($validator);
 
         return $validator;
-
     }
 
     public function ingest($data, $entity_type)
@@ -173,8 +168,7 @@ class BaseImport
         $is_free_hosted_client = $this->company->account->isFreeHostedClient();
         $hosted_client_count = $this->company->account->hosted_client_count;
 
-        if($this->factory_name == 'App\Factory\ClientFactory' && $is_free_hosted_client && (count($data) > $hosted_client_count))
-        {
+        if ($this->factory_name == 'App\Factory\ClientFactory' && $is_free_hosted_client && (count($data) > $hosted_client_count)) {
             $this->error_array[$entity_type][] = [
                 $entity_type => 'client',
                 'error' => 'Error, you are attempting to import more clients than your plan allows',
@@ -184,12 +178,12 @@ class BaseImport
         }
 
         foreach ($data as $key => $record) {
-
             try {
                 $entity = $this->transformer->transform($record);
 
-                if(!$entity)
+                if (!$entity) {
                     continue;
+                }
 
                 $validator = $this->runValidation($entity);
 
@@ -226,9 +220,8 @@ class BaseImport
                     'error' => $message,
                 ];
              
-             nlog("Ingest {$ex->getMessage()}");   
-             nlog($record);
-             
+                nlog("Ingest {$ex->getMessage()}");
+                nlog($record);
             }
         }
 
@@ -415,7 +408,6 @@ class BaseImport
         }
 
         return $count;
-
     }
 
     private function actionInvoiceStatus(
@@ -568,11 +560,9 @@ class BaseImport
                     'error' => $message,
                 ];
             }
-
         }
 
         return $count;
-
     }
 
     protected function getUserIDForRecord($record)

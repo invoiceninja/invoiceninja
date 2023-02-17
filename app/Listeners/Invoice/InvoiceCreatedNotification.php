@@ -24,7 +24,7 @@ class InvoiceCreatedNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 5;
+    public $delay = 7;
 
     public function __construct()
     {
@@ -51,7 +51,6 @@ class InvoiceCreatedNotification implements ShouldQueue
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -71,7 +70,7 @@ class InvoiceCreatedNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;

@@ -15,7 +15,6 @@ use App\DataMapper\ClientSettings;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\Chart\ChartService;
-use App\Utils\Ninja;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;

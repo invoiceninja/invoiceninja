@@ -13,7 +13,6 @@ namespace App\Transformers;
 
 use App\Models\CompanyGateway;
 use App\Models\SystemLog;
-use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;

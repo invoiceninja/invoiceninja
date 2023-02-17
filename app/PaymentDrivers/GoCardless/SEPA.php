@@ -15,7 +15,6 @@ namespace App\PaymentDrivers\GoCardless;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;

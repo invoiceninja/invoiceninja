@@ -20,8 +20,6 @@ use App\Models\GatewayType;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Utils\Ninja;
-use App\Utils\Number;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\DesignCalculator;
 use App\Utils\Traits\MakesDates;
@@ -67,7 +65,7 @@ class HtmlEngine
 
         $this->contact = $invitation->contact->load('client');
         
-        $this->client = $this->contact->client->load('company','country');
+        $this->client = $this->contact->client->load('company', 'country');
         
         $this->entity->load('client');
 
@@ -147,7 +145,7 @@ class HtmlEngine
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
-        $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
+        $data['$payment_button'] = ['value' => $this->buildViewButton($this->invitation->getPaymentLink(), ctrans('texts.pay_now')), 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
         $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
 
@@ -159,7 +157,7 @@ class HtmlEngine
             $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
+            $data['$view_link'] = ['value' => $this->buildViewButton($this->invitation->getLink(), ctrans('texts.view_invoice')), 'label' => ctrans('texts.view_invoice')];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
             $data['$view_button'] = &$data['$view_link'];
@@ -187,29 +185,26 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$invoice.custom3'];
             $data['$credit.custom4'] = &$data['$invoice.custom4'];
 
-            if($this->entity->project) {
+            if ($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
             }
 
-            if($this->entity->status_id == 4) {
+            if ($this->entity->status_id == 4) {
                 $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
             }
 
-            if($this->entity->vendor) {
+            if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
             }
 
-            if(strlen($this->company->getSetting('qr_iban')) > 5)
-            {
-                try{
+            if (strlen($this->company->getSetting('qr_iban')) > 5) {
+                try {
                     $data['$swiss_qr'] = ['value' => (new SwissQrGenerator($this->entity, $this->company))->run(), 'label' => ''];
-                }
-                catch(\Exception $e){
+                } catch(\Exception $e) {
                     $data['$swiss_qr'] = ['value' => '', 'label' => ''];
                 }
             }
-
         }
 
         if ($this->entity_string == 'quote') {
@@ -218,11 +213,11 @@ class HtmlEngine
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.quote_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
+            $data['$view_link'] = ['value' => $this->buildViewButton($this->invitation->getLink(), ctrans('texts.view_quote')), 'label' => ctrans('texts.view_quote')];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
             $data['$view_button'] = &$data['$view_link'];
-            $data['$approveButton'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.approve')];
+            $data['$approveButton'] = ['value' => $this->buildViewButton($this->invitation->getLink(), ctrans('texts.view_quote')), 'label' => ctrans('texts.approve')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
 
@@ -246,15 +241,14 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$quote.custom3'];
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
-            if($this->entity->project) {
+            if ($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
             }
 
-            if($this->entity->vendor) {
+            if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
             }
-
         }
 
         if ($this->entity_string == 'credit') {
@@ -263,7 +257,7 @@ class HtmlEngine
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.credit_terms')];
             $data['$terms'] = &$data['$entity.terms'];
-            $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
+            $data['$view_link'] = ['value' => $this->buildViewButton($this->invitation->getLink(), ctrans('texts.view_credit')), 'label' => ctrans('texts.view_credit')];
             $data['$viewButton'] = &$data['$view_link'];
             $data['$view_button'] = &$data['$view_link'];
             $data['$viewLink'] = &$data['$view_link'];
@@ -290,7 +284,6 @@ class HtmlEngine
             $data['$invoice.custom2'] = &$data['$credit.custom2'];
             $data['$invoice.custom3'] = &$data['$credit.custom3'];
             $data['$invoice.custom4'] = &$data['$credit.custom4'];
-
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
@@ -301,10 +294,11 @@ class HtmlEngine
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
-        if($this->entity->uses_inclusive_taxes)
+        if ($this->entity->uses_inclusive_taxes) {
             $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
-        else
+        } else {
             $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+        }
 
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
@@ -314,15 +308,12 @@ class HtmlEngine
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$amount_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
             $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
-
         } else {
-
-            if($this->entity->status_id == 1){
+            if ($this->entity->status_id == 1) {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
-            }
-            else{
+            } else {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
@@ -336,13 +327,13 @@ class HtmlEngine
         if ($this->entity_string == 'credit') {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
             $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.credit_balance')];
-            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
+            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
         }
 
         if ($this->entity_string == 'credit' && $this->entity->status_id == 1) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
             $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.credit_balance')];
-            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];         
+            $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
         }
 
         /* Do not change the order of these */
@@ -425,8 +416,9 @@ class HtmlEngine
         $data['$country_2'] = ['value' => isset($this->client->country) ? $this->client->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         
-        if(str_contains($data['$email']['value'], 'example.com'))
+        if (str_contains($data['$email']['value'], 'example.com')) {
             $data['$email'] = ['value' => '', 'label' => ctrans('texts.email')];
+        }
 
         $data['$client_name'] = ['value' => $this->entity->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
@@ -489,7 +481,7 @@ class HtmlEngine
 
         $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
 
-        $data['$portal_button'] = ['value' => '<a class="button" href="'.$this->contact->getLoginLink().'?client_hash='.$this->client->client_hash.'">'.ctrans('texts.view_client_portal').'</a>', 'label' => ctrans('view_client_portal')];
+        $data['$portal_button'] = ['value' => $this->buildViewButton($this->contact->getLoginLink().'?client_hash='.$this->client->client_hash, ctrans('texts.view_client_portal')), 'label' => ctrans('view_client_portal')];
         $data['$contact.portal_button'] = &$data['$portal_button'];
         $data['$portalButton'] = &$data['$portal_button'];
 
@@ -642,7 +634,6 @@ class HtmlEngine
         $data['$payments'] = ['value' => '', 'label' => ctrans('texts.payments')];
 
         if ($this->entity_string == 'invoice' && $this->entity->payments()->exists()) {
-            
             $payment_list = '<br><br>';
 
             foreach ($this->entity->payments as $payment) {
@@ -652,9 +643,8 @@ class HtmlEngine
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
         }
 
-        if(($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1))
-        {
-            $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity,$data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
+        if (($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1)) {
+            $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity, $data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
         }
 
         $arrKeysLength = array_map('strlen', array_keys($data));
@@ -735,27 +725,21 @@ class HtmlEngine
 
     private function getCountryName() :string
     {
-
         $countries = Cache::get('countries');
 
         if (! $countries) {
             $this->buildCache(true);
 
             $countries = Cache::get('countries');
-
         }
 
-        if($countries){
-
-         
+        if ($countries) {
             $country = $countries->filter(function ($item) {
                 return $item->id == $this->settings->country_id;
             })->first();
-
-   
-        }
-        else
+        } else {
             $country = Country::find($this->settings->country_id);
+        }
 
         if ($country) {
             return ctrans('texts.country_' . $country->name);
@@ -769,8 +753,9 @@ class HtmlEngine
     {
         $country = Country::find($this->settings->country_id);
 
-        if($country)
+        if ($country) {
             return $country->iso_3166_2;
+        }
         // if ($country) {
         //     return ctrans('texts.country_' . $country->iso_3166_2);
         // }
@@ -940,7 +925,6 @@ html {
         ';
 
         $css .= 'font-size:'.$this->settings->font_size.'px;';
-//        $css .= 'font-size:14px;';
 
         $css .= '}';
 
@@ -949,8 +933,8 @@ html {
 
     /**
      * Generate markup for HTML images on entity.
-     * 
-     * @return string|void 
+     *
+     * @return string|void
      */
     protected function generateEntityImagesMarkup()
     {
@@ -983,5 +967,49 @@ html {
         $dom = null;
 
         return $html;
+    }
+    
+    /**
+     * buildViewButton
+     *
+     * @param  string $link
+     * @param  string $text
+     * @return string
+     */
+    private function buildViewButton(string $link, string $text): string
+    {
+        return '
+<!--[if (gte mso 9)|(IE)]>
+<table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
+    <tr>
+    <td align="center" valign="top">
+        <![endif]-->        
+        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
+        <tbody><tr>
+        <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
+            <a href="'. $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid '.$this->settings->primary_color.'; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
+            <singleline label="cta button">'. $text .'</singleline>
+            </a>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+<!--[if (gte mso 9)|(IE)]>
+    </td>
+    </tr>
+</table>
+<![endif]-->
+        ';
+
+
+        return '
+            <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr style="border: 0 !important; ">
+                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+                    </td>
+                </tr>
+            </table>
+        ';
     }
 }

@@ -5,7 +5,9 @@
 /storage/*.key
 /storage/debugbar
 /storage/*
+/tests/bootstrap/
 /vendor
+/app/Console/Commands/vendor/
 /.idea
 /.vscode
 /.vagrant

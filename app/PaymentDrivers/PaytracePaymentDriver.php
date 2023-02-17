@@ -90,7 +90,6 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-
         $data = [
             'amount' => $amount,
             'transaction_id' => $payment->transaction_reference,

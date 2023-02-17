@@ -21,10 +21,8 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 /**
@@ -42,7 +40,6 @@ class InvitationTest extends TestCase
         parent::setUp();
 
         $this->faker = \Faker\Factory::create();
-
     }
 
     public function testInvoiceCreationAfterInvoiceMarkedSent()

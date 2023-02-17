@@ -11,13 +11,13 @@
 
 namespace App\PaymentDrivers;
 
-use App\Models\Payment;
 use App\Jobs\Util\SystemLogger;
-use App\Models\SystemLog;
 use App\Models\GatewayType;
-use App\Utils\Traits\MakesHash;
+use App\Models\Payment;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Forte\ACH;
 use App\PaymentDrivers\Forte\CreditCard;
+use App\Utils\Traits\MakesHash;
 
 class FortePaymentDriver extends BaseDriver
 {
@@ -45,8 +45,8 @@ class FortePaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
-            $types[] = GatewayType::BANK_TRANSFER;
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
     }
@@ -83,9 +83,9 @@ class FortePaymentDriver extends BaseDriver
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $forte_base_uri = "https://sandbox.forte.net/api/v3/";
-            if($this->company_gateway->getConfigField('testMode') == false){
-                $forte_base_uri = "https://api.forte.net/v3/";
-            }
+        if ($this->company_gateway->getConfigField('testMode') == false) {
+            $forte_base_uri = "https://api.forte.net/v3/";
+        }
         $forte_api_access_id = $this->company_gateway->getConfigField('apiAccessId');
         $forte_secure_key = $this->company_gateway->getConfigField('secureKey');
         $forte_auth_organization_id = $this->company_gateway->getConfigField('authOrganizationId');
@@ -95,7 +95,7 @@ class FortePaymentDriver extends BaseDriver
         try {
             $curl = curl_init();
 
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
                 CURLOPT_URL => $forte_base_uri.'organizations/'.$forte_organization_id.'/locations/'.$forte_location_id.'/transactions',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
@@ -110,12 +110,12 @@ class FortePaymentDriver extends BaseDriver
                      "original_transaction_id":"'.$payment->transaction_reference.'",
                      "authorization_code": "9ZQ754"
               }',
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_HTTPHEADER => [
                   'Content-Type: application/json',
                   'X-Forte-Auth-Organization-Id: '.$forte_organization_id,
                   'Authorization: Basic '.base64_encode($forte_api_access_id.':'.$forte_secure_key)
-                ),
-              ));
+                ],
+              ]);
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -123,7 +123,6 @@ class FortePaymentDriver extends BaseDriver
             curl_close($curl);
 
             $response=json_decode($response);
-
         } catch (\Throwable $th) {
             $message = [
                 'action' => 'error',

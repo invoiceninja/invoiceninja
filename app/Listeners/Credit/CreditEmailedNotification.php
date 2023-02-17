@@ -62,14 +62,8 @@ class CreditEmailedNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
-
-                // $first_notification_sent = false;
+                (new NinjaMailerJob($nmo))->handle();
             }
-
-            // $notification->method = $methods;
-
-            // $user->notify($notification);
         }
     }
 }

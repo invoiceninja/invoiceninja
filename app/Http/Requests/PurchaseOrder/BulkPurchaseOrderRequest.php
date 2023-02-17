@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 
 class BulkPurchaseOrderRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -34,5 +33,4 @@ class BulkPurchaseOrderRequest extends Request
             'action' => 'in:archive,restore,delete,email,bulk_download,bulk_print,mark_sent,download,send_email,add_to_inventory,expense,cancel'
         ];
     }
-
 }

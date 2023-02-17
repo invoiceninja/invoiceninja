@@ -32,7 +32,6 @@ class BaseExport
         }
 
         switch ($date_range) {
-
             case 'all':
                 return $query;
             case 'last7':
@@ -53,7 +52,6 @@ class BaseExport
                 return $query->whereBetween($this->date_key, [$custom_start_date, $custom_end_date])->orderBy($this->date_key, 'ASC');
             default:
                 return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
-
         }
     }
 

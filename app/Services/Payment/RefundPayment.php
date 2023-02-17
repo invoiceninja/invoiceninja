@@ -12,17 +12,11 @@
 namespace App\Services\Payment;
 
 use App\Exceptions\PaymentRefundFailed;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceItemFactory;
-use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailRefundPayment;
-use App\Jobs\Util\SystemLogger;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
 use stdClass;
@@ -200,7 +194,6 @@ class RefundPayment
         if ($this->payment->credits()->exists()) {
             //Adjust credits first!!!
             foreach ($this->payment->credits as $paymentable_credit) {
-
                 $available_credit = $paymentable_credit->pivot->amount - $paymentable_credit->pivot->refunded;
 
                 if ($available_credit > $this->total_refund) {
@@ -244,7 +237,6 @@ class RefundPayment
      */
     private function adjustInvoices()
     {
-
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
@@ -291,7 +283,6 @@ class RefundPayment
             }
 
             $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
-
         } else {
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
 
@@ -302,7 +293,6 @@ class RefundPayment
             }
 
             $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
-
         }
 
         return $this;
@@ -319,5 +309,4 @@ class RefundPayment
 
         return $this->payment;
     }
-
 }

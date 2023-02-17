@@ -27,11 +27,10 @@ class UpdateSchedulerRequest extends Request
 
     public function rules(): array
     {
-
         $rules = [
             'name' => ['bail', 'sometimes', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)->ignore($this->task_scheduler->id)],
             'is_paused' => 'bail|sometimes|boolean',
-            'frequency_id' => 'bail|required|integer|digits_between:1,12',
+            'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
@@ -39,19 +38,16 @@ class UpdateSchedulerRequest extends Request
         ];
 
         return $rules;
-        
     }
 
     public function prepareForValidation()
     {
-
         $input = $this->all();
 
-        if (array_key_exists('next_run', $input) && is_string($input['next_run'])) 
+        if (array_key_exists('next_run', $input) && is_string($input['next_run'])) {
             $this->merge(['next_run_client' => $input['next_run']]);
+        }
         
         return $input;
-    
     }
-
 }

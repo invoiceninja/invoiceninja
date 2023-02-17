@@ -54,7 +54,6 @@ class RandomDataSeeder extends Seeder
      */
     public function run()
     {
-
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
 
@@ -209,7 +208,6 @@ class RandomDataSeeder extends Seeder
             $credit->save();
 
             $credit->service()->createInvitations()->markSent()->save();
-
         });
 
         /* Recurring Invoice Factory */

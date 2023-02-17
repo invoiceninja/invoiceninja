@@ -33,7 +33,6 @@ use Illuminate\Support\Str;
  */
 trait GeneratesConvertedQuoteCounter
 {
-
     private int $update_counter;
 
     private function harvestQuoteCounter($quote, $invoice, Client $client)
@@ -369,8 +368,7 @@ trait GeneratesConvertedQuoteCounter
         }
 
         //if ($type == 'credit') {
-            return (bool) $client->getSetting('shared_invoice_credit_counter');
-        
+        return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -479,15 +477,12 @@ trait GeneratesConvertedQuoteCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
 
         if ($reset_counter_frequency == 0) {
-
-                if($client->getSetting('reset_counter_date')){
-
-                    $settings = $client->company->settings;
-                    $settings->reset_counter_date = "";
-                    $client->company->settings = $settings;
-                    $client->company->save();
-                    
-                }
+            if ($client->getSetting('reset_counter_date')) {
+                $settings = $client->company->settings;
+                $settings->reset_counter_date = "";
+                $client->company->settings = $settings;
+                $client->company->save();
+            }
 
             return;
         }
@@ -536,7 +531,7 @@ trait GeneratesConvertedQuoteCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }

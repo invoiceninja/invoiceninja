@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -70,10 +69,9 @@ class TokenAuth
 
             /*
             | This method binds the db to the jobs created using this
-            | session 
+            | session
              */
             app('queue')->createPayloadUsing(function () use ($company_token) {
-                nlog("setting DB ". $company_token->company->db);
                 return ['db' => $company_token->company->db];
             });
 

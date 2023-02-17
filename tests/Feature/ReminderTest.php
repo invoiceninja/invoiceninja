@@ -51,7 +51,6 @@ class ReminderTest extends TestCase
 
     public function testForClientTimezoneEdges()
     {
-
         $this->invoice->next_send_date = null;
         $this->invoice->date = now()->format('Y-m-d');
         $this->invoice->due_date = Carbon::now()->addDays(5)->format('Y-m-d');
@@ -128,7 +127,6 @@ class ReminderTest extends TestCase
         $this->assertTrue($next_send_date->eq($calculatedReminderDate));
 
         nlog($next_send_date->format('Y-m-d h:i:s'));
-
     }
 
     public function testReminderQueryCatchesDate()
@@ -272,6 +270,4 @@ class ReminderTest extends TestCase
 
         $this->assertNotNull($this->invoice->next_send_date);
     }
-
-
 }

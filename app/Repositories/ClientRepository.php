@@ -14,7 +14,6 @@ namespace App\Repositories;
 use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\Company;
-use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Database\QueryException;
@@ -79,7 +78,6 @@ class ClientRepository extends BaseRepository
         $client->save();
 
         if (! isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
-
             $x = 1;
 
             do {
@@ -104,8 +102,9 @@ class ClientRepository extends BaseRepository
 
         //24-01-2023 when a logo is uploaded, no other data is set, so we need to catch here and not update
         //the contacts array UNLESS there are no contacts and we need to maintain state.
-        if(array_key_exists('contacts', $contact_data) || $client->contacts()->count() == 0)
+        if (array_key_exists('contacts', $contact_data) || $client->contacts()->count() == 0) {
             $this->contact_repo->save($contact_data, $client);
+        }
 
         return $client;
     }

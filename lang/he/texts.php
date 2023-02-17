@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'ארגון ',
     'name' => 'שם',
     'website' => 'אתר אינטרנט',
@@ -4900,7 +4900,7 @@ $LANG = array(
     'export_company' => 'Create company backup',
     'backup' => 'Backup',
     'notification_purchase_order_created_body' => 'The following purchase_order :purchase_order was created for vendor :vendor for :amount.',
-    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',    
+    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',
     'notification_purchase_order_sent_subject' => 'Purchase Order :purchase_order was sent to :vendor',
     'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
     'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
@@ -4915,8 +4915,6 @@ $LANG = array(
     'matomo_url' => 'Matomo URL',
     'matomo_id' => 'Matomo Id',
     'action_add_to_invoice' => 'Add To Invoice',
-);
+];
 
 return $LANG;
-
-?>

@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Events\Credit\CreditWasUpdated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;

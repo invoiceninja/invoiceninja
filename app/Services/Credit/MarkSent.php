@@ -12,7 +12,6 @@
 namespace App\Services\Credit;
 
 use App\Events\Credit\CreditWasMarkedSent;
-use App\Jobs\Util\WebhookHandler;
 use App\Models\Credit;
 use App\Models\Webhook;
 use App\Utils\Ninja;
@@ -31,7 +30,6 @@ class MarkSent
 
     public function run()
     {
-
         /* Return immediately if status is not draft */
         if ($this->credit->status_id != Credit::STATUS_DRAFT) {
             return $this->credit;

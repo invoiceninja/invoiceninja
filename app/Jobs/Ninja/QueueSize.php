@@ -19,7 +19,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Queue;
 use Turbo124\Beacon\Facades\LightLogs;
-use Turbo124\Beacon\Jobs\Database\MySQL\DbStatus;
 
 class QueueSize implements ShouldQueue
 {

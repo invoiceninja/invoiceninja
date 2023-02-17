@@ -584,7 +584,7 @@ class PaymentController extends BaseController
     {
         switch ($action) {
             case 'restore':
-             $this->payment_repo->restore($payment);
+                $this->payment_repo->restore($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
@@ -592,7 +592,7 @@ class PaymentController extends BaseController
 
                 break;
             case 'archive':
-             $this->payment_repo->archive($payment);
+                $this->payment_repo->archive($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
@@ -600,7 +600,7 @@ class PaymentController extends BaseController
                 // code...
                 break;
             case 'delete':
-             $this->payment_repo->delete($payment);
+                $this->payment_repo->delete($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);

@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Filterable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
