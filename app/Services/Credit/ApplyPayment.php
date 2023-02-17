@@ -138,6 +138,7 @@ class ApplyPayment
                  ->updateBalance($this->amount_applied * -1)
                  ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
+                 ->touchPdf()
                  ->save();
 
         $this->credit

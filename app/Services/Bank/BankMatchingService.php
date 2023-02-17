@@ -33,8 +33,9 @@ use Illuminate\Support\Facades\Cache;
 class BankMatchingService implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public function __construct(public $company_id, public $db){}
+    public function __construct(public $company_id, public $db)
+    {
+    }
 
     public function handle() :void
     {

@@ -54,8 +54,6 @@ class QuoteEmailedNotification implements ShouldQueue
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            // $notification = new EntitySentNotification($event->invitation, 'quote');
-
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all', 'quote_sent_user']);
 
             if (($key = array_search('mail', $methods)) !== false) {
@@ -63,14 +61,10 @@ class QuoteEmailedNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
-                // $first_notification_sent = false;
             }
 
-            // $notification->method = $methods;
-
-            // $user->notify($notification);
         }
     }
 }

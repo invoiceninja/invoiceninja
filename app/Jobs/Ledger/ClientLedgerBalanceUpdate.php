@@ -19,25 +19,16 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 
 class ClientLedgerBalanceUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
     public $tries = 1;
-
-    public $company;
-
-    public $client;
-
     public $deleteWhenMissingModels = true;
-
-    public function __construct(Company $company, Client $client)
-    {
-        $this->company = $company;
-        $this->client = $client;
-    }
+    public function __construct(public Company $company, public Client $client)
+    {}
 
     /**
      * Execute the job.
@@ -78,4 +69,11 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
         });
 
     }
+
+
+    public function middleware()
+    {
+        return [(new WithoutOverlapping($this->client->id))->dontRelease()];
+    }
+
 }
