@@ -105,7 +105,6 @@ class MailEntity implements ShouldQueue
      */
     public function configureMailer(): self
     {
-        
         $this->mail = Mail::mailer($this->mailer);
         
         if ($this->client_postmark_secret) {
@@ -208,7 +207,6 @@ class MailEntity implements ShouldQueue
     public function trySending(): void
     {
         try {
-
             $this->mail->send($this->mailable);
 
             /* Count the amount of emails sent across all the users accounts */

@@ -67,7 +67,6 @@ class CreditCreatedNotification implements ShouldQueue
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
-
             }
 
             /* Override the methods in the Notification Class */

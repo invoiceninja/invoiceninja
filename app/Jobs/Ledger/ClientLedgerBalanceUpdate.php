@@ -28,7 +28,8 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
     public $tries = 1;
     public $deleteWhenMissingModels = true;
     public function __construct(public Company $company, public Client $client)
-    {}
+    {
+    }
 
     /**
      * Execute the job.
@@ -68,5 +69,4 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
     {
         return [(new WithoutOverlapping($this->client->id))->dontRelease()];
     }
-
 }

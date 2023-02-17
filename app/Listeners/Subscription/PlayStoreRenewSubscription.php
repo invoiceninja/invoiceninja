@@ -11,12 +11,12 @@
 
 namespace App\Listeners\Subscription;
 
-use Carbon\Carbon;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
-use App\Libraries\MultiDB;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Ninja\RenewalFailureNotification;
+use Carbon\Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
 
 class PlayStoreRenewSubscription implements ShouldQueue
@@ -44,6 +44,4 @@ class PlayStoreRenewSubscription implements ShouldQueue
             return;
         }
     }
-
-
 }

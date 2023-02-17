@@ -75,7 +75,7 @@ class CompanyGateway extends BaseModel
     // const TYPE_PAYFAST = 310;
     // const TYPE_PAYTRACE = 311;
     // const TYPE_MOLLIE = 312;
-    // const TYPE_EWAY = 313; 
+    // const TYPE_EWAY = 313;
     // const TYPE_FORTE = 314;
 
     public $gateway_consts = [

@@ -11,12 +11,12 @@
 
 namespace App\Services\Scheduler;
 
-use App\Models\Client;
-use App\Models\Scheduler;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Utils\Traits\MakesDates;
 use App\DataMapper\Schedule\EmailStatement;
+use App\Models\Client;
+use App\Models\RecurringInvoice;
+use App\Models\Scheduler;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 
 class SchedulerService
 {

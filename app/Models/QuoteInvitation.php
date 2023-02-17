@@ -11,9 +11,7 @@
 
 namespace App\Models;
 
-use App\Events\Quote\QuoteWasUpdated;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

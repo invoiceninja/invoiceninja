@@ -179,14 +179,11 @@ class Number
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
         } elseif ($entity->getSetting('show_currency_code') === false) {
-
-                /* Ensures we place the negative symbol ahead of the currency symbol*/ 
-                if($_value < 0){
-
-                    $value = substr($value, 1);
-                    $symbol = "-{$symbol}";
-
-                }
+            /* Ensures we place the negative symbol ahead of the currency symbol*/
+            if ($_value < 0) {
+                $value = substr($value, 1);
+                $symbol = "-{$symbol}";
+            }
 
             return "{$symbol}{$value}";
         } else {

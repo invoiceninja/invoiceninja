@@ -158,8 +158,8 @@ class WebhookSingle implements ShouldQueue
                     $this->company
                 ))->handle();
 
-                /* Some 400's should never be repeated */ 
-                if(in_array($e->getResponse()->getStatusCode(), [404, 410])){
+                /* Some 400's should never be repeated */
+                if (in_array($e->getResponse()->getStatusCode(), [404, 410])) {
                     $this->fail();
                     return;
                 }
@@ -227,7 +227,6 @@ class WebhookSingle implements ShouldQueue
 
     private function resolveClient()
     {
-        
         //make sure it isn't an instance of the Client Model
         if (!$this->entity instanceof \App\Models\Client &&
             !$this->entity instanceof \App\Models\Vendor &&
@@ -238,7 +237,6 @@ class WebhookSingle implements ShouldQueue
         }
 
         return null;
-
     }
 
     public function failed($exception = null)

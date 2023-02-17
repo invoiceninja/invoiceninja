@@ -12,11 +12,11 @@
 namespace App\Mail\Admin;
 
 use App\Mail\Engine\PaymentEmailEngine;
+use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
 use stdClass;
-use App\Models\Payment;
 
 class EntityPaidObject
 {

@@ -388,7 +388,6 @@ class PaymentEmailEngine extends BaseEmailEngine
      */
     private function buildViewButton(string $link, string $text): string
     {
-
         return '
 <!--[if (gte mso 9)|(IE)]>
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">

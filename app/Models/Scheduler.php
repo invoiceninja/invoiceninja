@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Services\Scheduler\SchedulerService;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * @property bool paused
@@ -88,5 +87,4 @@ class Scheduler extends BaseModel
             return $this->remaining_cycles - 1;
         }
     }
-    
 }

@@ -58,6 +58,5 @@ class AppStoreRenewSubscription implements ShouldQueue
         }
 
         $account->save();
-
     }
 }

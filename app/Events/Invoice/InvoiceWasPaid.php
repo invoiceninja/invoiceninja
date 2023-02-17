@@ -48,5 +48,4 @@ class InvoiceWasPaid
         $this->company = $company;
         $this->event_vars = $event_vars;
     }
-
 }

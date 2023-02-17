@@ -468,7 +468,6 @@ class BankTransactionController extends BaseController
         $bank_transactions = BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if ($action == 'convert_matched') { //catch this action
-            
             $this->bank_transaction_repo->convert_matched($bank_transactions);
         } else {
             $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
