@@ -59,8 +59,5 @@ class AppStoreRenewSubscription implements ShouldQueue
 
         $account->save();
 
-        // $server_notification = $event->getServerNotification();
-        // $subscription = $event->getSubscription();
-        // $subscription_identifier = $event->getSubscriptionIdentifier();
     }
 }
