@@ -11,10 +11,11 @@
 
 namespace App\Services\Email;
 
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\User;
+use App\Models\Client;
 use App\Models\Vendor;
+use App\Models\Company;
+use App\Models\ClientContact;
 use App\Models\VendorContact;
 use Illuminate\Mail\Mailables\Address;
 
@@ -78,4 +79,6 @@ class EmailObject
     public ?string $entity_class = null;
 
     public array $variables = [];
+
+    public ?Company $company = null;
 }

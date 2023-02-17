@@ -11,7 +11,7 @@
 
 namespace App\DataMapper\Schedule;
 
-class ClientStatement
+class EmailStatement
 {
     /**
      * Defines the template name

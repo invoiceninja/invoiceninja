@@ -21,7 +21,7 @@ use App\Models\RecurringInvoice;
 use App\Factory\SchedulerFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
-use App\DataMapper\Schedule\ClientStatement;
+use App\DataMapper\Schedule\EmailStatement;
 use App\Services\Scheduler\SchedulerService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
@@ -76,7 +76,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -139,7 +139,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -171,7 +171,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->addDay()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -195,7 +195,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -224,7 +224,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -259,7 +259,7 @@ class SchedulerTest extends TestCase
             'next_run' => "2023-01-01",
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -278,7 +278,7 @@ class SchedulerTest extends TestCase
 
         $this->assertIsArray($method);
 
-        $this->assertEquals(ClientStatement::LAST_MONTH, $scheduler->parameters['date_range']);
+        $this->assertEquals(EmailStatement::LAST_MONTH, $scheduler->parameters['date_range']);
 
         $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $method);
     }
@@ -293,7 +293,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
@@ -324,13 +324,13 @@ class SchedulerTest extends TestCase
     {
         $this->travelTo(Carbon::parse('2023-01-14'));
 
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-01-31'], $this->getDateRange(ClientStatement::THIS_MONTH));
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-03-31'], $this->getDateRange(ClientStatement::THIS_QUARTER));
-        $this->assertEqualsCanonicalizing(['2023-01-01','2023-12-31'], $this->getDateRange(ClientStatement::THIS_YEAR));
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-01-31'], $this->getDateRange(EmailStatement::THIS_MONTH));
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-03-31'], $this->getDateRange(EmailStatement::THIS_QUARTER));
+        $this->assertEqualsCanonicalizing(['2023-01-01','2023-12-31'], $this->getDateRange(EmailStatement::THIS_YEAR));
 
-        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $this->getDateRange(ClientStatement::LAST_MONTH));
-        $this->assertEqualsCanonicalizing(['2022-10-01','2022-12-31'], $this->getDateRange(ClientStatement::LAST_QUARTER));
-        $this->assertEqualsCanonicalizing(['2022-01-01','2022-12-31'], $this->getDateRange(ClientStatement::LAST_YEAR));
+        $this->assertEqualsCanonicalizing(['2022-12-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_MONTH));
+        $this->assertEqualsCanonicalizing(['2022-10-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_QUARTER));
+        $this->assertEqualsCanonicalizing(['2022-01-01','2022-12-31'], $this->getDateRange(EmailStatement::LAST_YEAR));
 
         $this->travelBack();
     }
@@ -338,16 +338,16 @@ class SchedulerTest extends TestCase
     private function getDateRange($range)
     {
         return match ($range) {
-            ClientStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            ClientStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            ClientStatement::LAST365 => [now()->startOfDay()->subDays(365)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            ClientStatement::THIS_MONTH => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
-            ClientStatement::LAST_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            ClientStatement::THIS_QUARTER => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
-            ClientStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
-            ClientStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
-            ClientStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
-            ClientStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
+            EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST365 => [now()->startOfDay()->subDays(365)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::THIS_MONTH => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::LAST_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::THIS_QUARTER => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
+            EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
     }
@@ -360,7 +360,7 @@ class SchedulerTest extends TestCase
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
-                'date_range' => ClientStatement::LAST_MONTH,
+                'date_range' => EmailStatement::LAST_MONTH,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
                 'status' => 'paid',
