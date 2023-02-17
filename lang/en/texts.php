@@ -4952,7 +4952,8 @@ $LANG = [
     'update_payment' => 'Update Payment',
     'markup' => 'Markup',
     'unlock_pro' => 'Unlock Pro',
-    'preferences' => 'Preferences'
+    'preferences' => 'Preferences',
+    'click_to_variables' => 'Client here to see all variables.',
 ];
 
 
