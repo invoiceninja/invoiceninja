@@ -39,7 +39,6 @@ class PaymentEmailedActivity implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-
         $payment = $event->payment;
     }
 }

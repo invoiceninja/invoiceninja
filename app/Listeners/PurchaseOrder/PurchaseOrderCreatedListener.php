@@ -25,6 +25,8 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 {
     use UserNotifies;
 
+    public $delay = 7;
+    
     public function __construct()
     {
     }
@@ -69,7 +71,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;

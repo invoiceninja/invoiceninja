@@ -323,7 +323,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} - ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
         }
 
         return $invoice_list;

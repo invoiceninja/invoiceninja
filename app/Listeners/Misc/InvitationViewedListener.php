@@ -74,7 +74,7 @@ class InvitationViewedListener implements ShouldQueue
                 unset($methods[$key]);
 
                 $nmo->to_user = $company_user->user;
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
             }
         }
     }

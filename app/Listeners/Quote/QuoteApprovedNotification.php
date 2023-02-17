@@ -23,7 +23,7 @@ class QuoteApprovedNotification implements ShouldQueue
 {
     use UserNotifies;
 
-    public $delay = 5;
+    public $delay = 8;
 
     public function __construct()
     {
@@ -66,7 +66,7 @@ class QuoteApprovedNotification implements ShouldQueue
 
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
