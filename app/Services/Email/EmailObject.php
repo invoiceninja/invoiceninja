@@ -11,11 +11,17 @@
 
 namespace App\Services\Email;
 
+<<<<<<< HEAD
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+=======
+>>>>>>> 63a7a1185 (Minor fixes for types)
 use App\Models\User;
+use App\Models\Client;
 use App\Models\Vendor;
+use App\Models\Company;
+use App\Models\ClientContact;
 use App\Models\VendorContact;
 use Illuminate\Mail\Mailables\Address;
 
@@ -77,8 +83,15 @@ class EmailObject
 	
 	public ?int $entity_id = null;
 
+<<<<<<< HEAD
 	public ?string $entity_class = null;
 
 	public array $variables = [];
 	
 }
+=======
+    public array $variables = [];
+
+    public ?Company $company = null;
+}
+>>>>>>> 63a7a1185 (Minor fixes for types)

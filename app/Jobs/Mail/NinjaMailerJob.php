@@ -225,7 +225,7 @@ class NinjaMailerJob implements ShouldQueue
 
         switch ($class) {
             case Invoice::class:
-                event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+                event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
             case Payment::class:
                 event(new PaymentWasEmailedAndFailed($this->nmo->entity, $this->nmo->company, $message, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -578,7 +578,7 @@ class NinjaMailerJob implements ShouldQueue
      * Logs any errors to the SystemLog
      * 
      * @param  string $errors
-     * @param  App\Models\User | App\Models\Client $recipient_object
+     * @param  App\Models\User | App\Models\Client | null $recipient_object
      * @return void
      */
     private function logMailError($errors, $recipient_object) :void

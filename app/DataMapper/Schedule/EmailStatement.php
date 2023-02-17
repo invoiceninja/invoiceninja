@@ -11,10 +11,14 @@
 
 namespace App\DataMapper\Schedule;
 
+<<<<<<< HEAD:app/DataMapper/Schedule/ClientStatement.php
 use App\Models\Client;
 use stdClass;
 
 class ClientStatement
+=======
+class EmailStatement
+>>>>>>> 63a7a1185 (Minor fixes for types):app/DataMapper/Schedule/EmailStatement.php
 {
 
     /**
