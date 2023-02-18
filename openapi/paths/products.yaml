@@ -343,8 +343,6 @@
             type: string
             format: string
           example: D2J234DFA
-      produces:
-        - application/json
       requestBody:
         required: true
         content:
@@ -358,6 +356,7 @@
                 documents:
                   type: array
                   format: binary
+      responses:
         200:
           description: "Returns the Product object"
           headers:
