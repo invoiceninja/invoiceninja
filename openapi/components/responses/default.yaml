@@ -1,5 +1,6 @@
-description: 'Unexpected Error'
-content:
-  application/json:
-    schema:
-      $ref: '#/components/schemas/Error'
+    default:
+      description: 'Unexpected Error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

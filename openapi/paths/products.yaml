@@ -27,29 +27,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
     post:
       tags:
         - products
@@ -74,18 +58,14 @@
             application/json:
               schema:
                 $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
   "/api/v1/products/{id}":
     get:
       tags:
@@ -120,29 +100,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
     put:
       tags:
         - products
@@ -176,29 +140,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
     delete:
       tags:
         - products
@@ -228,29 +176,13 @@
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
   "/api/v1/products/{id}/edit":
     get:
       tags:
@@ -285,29 +217,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
   "/api/v1/products/create":
     get:
       tags:
@@ -334,29 +250,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
 
   /api/v1/products/bulk:
     post:
@@ -395,29 +295,13 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'
 
   "/api/v1/products/{id}/upload":
     put:
@@ -467,26 +351,10 @@
               schema:
                 $ref: "#/components/schemas/Product"
         401:
-          description: "Authentication error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthenticationError"
+          $ref: '#/components/responses/401'
         403:
-          description: "Authorization error"
-          content:
-            application/json:
-              schema:
-                $ref: "#components/schemas/AuthorizationError"
+          $ref: '#/components/responses/403'
         422:
-          description: "Validation error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
+          $ref: '#/components/responses/422'
         default:
-          description: "Unexpected Error"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: '#/components/responses/default'

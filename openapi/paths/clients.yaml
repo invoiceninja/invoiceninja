@@ -83,11 +83,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -119,11 +115,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -164,11 +156,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -208,11 +196,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -248,11 +232,7 @@
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -293,11 +273,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -330,11 +306,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -378,11 +350,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -438,11 +406,7 @@
               schema:
                 $ref: '#/components/schemas/Client'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -479,11 +443,7 @@
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:
@@ -528,11 +488,7 @@
             X-RateLimit-Limit:
               $ref: '#/components/headers/X-RateLimit-Limit'
         401:
-          description: 'Authentication error'
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/AuthenticationError'
+          $ref: '#/components/responses/401'
         403:
           $ref: '#/components/responses/403'
         422:

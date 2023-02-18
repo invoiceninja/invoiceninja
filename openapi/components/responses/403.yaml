@@ -1,5 +1,6 @@
-description: 'Authorization error'
-content:
-  application/json:
-    schema:
-      $ref: '#components/schemas/AuthorizationError'
+    403:
+      description: 'Authorization error'
+      content:
+        application/json:
+          schema:
+            $ref: '#components/schemas/AuthorizationError'
