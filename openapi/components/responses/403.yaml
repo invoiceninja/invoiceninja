@@ -1,0 +1,5 @@
+description: 'Authorization error'
+content:
+  application/json:
+    schema:
+      $ref: '#components/schemas/AuthorizationError'

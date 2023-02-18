@@ -1,0 +1,5 @@
+description: 'Authentication error'
+content:
+  application/json:
+    schema:
+      $ref: '#components/schemas/AuthenticationError'
