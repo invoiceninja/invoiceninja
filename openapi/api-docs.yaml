@@ -39,26 +39,27 @@ paths:
         - $ref: "#/components/parameters/page_meta"
       responses:
         200:
-          description: 'Returns the client object'
+          description: "Returns the client object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
-              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
             X-RateLimit-Remaining:
-              $ref: '#/components/headers/X-RateLimit-Remaining'
+              $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
-              $ref: '#/components/headers/X-RateLimit-Limit'
+              $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client'
+                $ref: "#/components/schemas/Client"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/actvities/download_entity/{activity_id}":
     get:
       tags:
@@ -91,14 +92,14 @@ paths:
         404:
           description: "No file exists for the given record"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
-                
+          $ref: "#/components/responses/default"
+
   /api/v1/login:
     post:
       tags:
@@ -133,26 +134,26 @@ paths:
               type: object
       responses:
         200:
-          description: 'Returns the company user object'
+          description: "Returns the company user object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
-              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
             X-RateLimit-Remaining:
-              $ref: '#/components/headers/X-RateLimit-Remaining'
+              $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
-              $ref: '#/components/headers/X-RateLimit-Limit'
+              $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Client'
+                $ref: "#/components/schemas/Client"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/refresh:
     post:
       tags:
@@ -192,13 +193,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyUser"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/yodlee/refresh:
     post:
       tags:
@@ -224,13 +225,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations:
     get:
       tags:
@@ -266,13 +267,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - bank_integrations
@@ -298,13 +299,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_integrations/{id}":
     get:
       tags:
@@ -339,13 +340,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - bank_integrations
@@ -379,13 +380,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - bank_integrations
@@ -415,13 +416,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_integrations/{id}/edit":
     get:
       tags:
@@ -456,13 +457,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations/create:
     get:
       tags:
@@ -489,13 +490,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations/bulk:
     post:
       tags:
@@ -529,13 +530,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations/refresh_accounts:
     post:
       tags:
@@ -562,13 +563,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations/remove_account/account_id:
     post:
       tags:
@@ -595,13 +596,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_integrations/get_transactions/account_id:
     post:
       tags:
@@ -628,13 +629,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankIntegration"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transactions:
     get:
       tags:
@@ -670,13 +671,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - bank_transactions
@@ -702,13 +703,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_transactions/{id}":
     get:
       tags:
@@ -743,13 +744,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - bank_transactions
@@ -783,13 +784,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - bank_transactions
@@ -819,13 +820,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_transactions/{id}/edit":
     get:
       tags:
@@ -860,13 +861,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transactions/create:
     get:
       tags:
@@ -893,13 +894,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransaction"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transations/bulk:
     post:
       tags:
@@ -933,13 +934,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transations/match:
     post:
       tags:
@@ -973,13 +974,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transaction_rules:
     get:
       tags:
@@ -1015,13 +1016,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - bank_transaction_rules
@@ -1047,13 +1048,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_transaction_rules/{id}":
     get:
       tags:
@@ -1088,13 +1089,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - bank_transaction_rules
@@ -1128,13 +1129,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - bank_transaction_rules
@@ -1164,13 +1165,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/bank_transaction_rules/{id}/edit":
     get:
       tags:
@@ -1205,13 +1206,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transaction_rules/create:
     get:
       tags:
@@ -1238,13 +1239,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/BankTransactionRule"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/bank_transation_rules/bulk:
     post:
       tags:
@@ -1278,13 +1279,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/charts/totals:
     post:
       tags:
@@ -1316,9 +1317,9 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
 
   /api/v1/client_gateway_tokens:
     get:
@@ -1347,13 +1348,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - client_gateway_tokens
@@ -1379,13 +1380,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/client_gateway_tokens/{id}":
     get:
       tags:
@@ -1420,13 +1421,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - client_gateway_tokens
@@ -1460,13 +1461,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - client_gateway_tokens
@@ -1496,13 +1497,13 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/client_gateway_tokens/{id}/edit":
     get:
       tags:
@@ -1537,13 +1538,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/client_gateway_tokens/create:
     get:
       tags:
@@ -1570,13 +1571,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ClientGatewayToken"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
 
   /api/v1/companies:
     get:
@@ -1604,13 +1605,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - companies
@@ -1636,13 +1637,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/companies/create:
     get:
       tags:
@@ -1669,13 +1670,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/companies/{id}":
     get:
       tags:
@@ -1710,13 +1711,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - companies
@@ -1750,13 +1751,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - companies
@@ -1786,13 +1788,14 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/companies/{id}/edit":
     get:
       tags:
@@ -1827,13 +1830,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/companies/{id}/upload":
     put:
       tags:
@@ -1868,13 +1872,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/companies/{company}/default":
     post:
       tags:
@@ -1909,13 +1914,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Company"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/company_gateways:
     get:
       tags:
@@ -1942,13 +1948,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - company_gateways
@@ -1973,10 +1980,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/company_gateways/create:
     get:
       tags:
@@ -2003,13 +2014,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/company_gateways/{id}":
     get:
       tags:
@@ -2044,13 +2056,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - company_gateways
@@ -2084,13 +2097,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - company_gateways
@@ -2120,13 +2134,14 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/company_gateways/{id}/edit":
     get:
       tags:
@@ -2161,13 +2176,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/company_gateways/bulk:
     post:
       tags:
@@ -2205,13 +2221,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyGateway"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/company_ledger:
     get:
       tags:
@@ -2238,13 +2255,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyLedger"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/company_users:
     post:
       tags:
@@ -2269,13 +2287,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/CompanyUser"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/connected_account:
     post:
       tags:
@@ -2304,13 +2323,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/credits:
     get:
       tags:
@@ -2337,13 +2357,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - credits
@@ -2369,13 +2390,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/credits/create:
     get:
       tags:
@@ -2402,13 +2424,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/credits/{id}":
     get:
       tags:
@@ -2443,13 +2466,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - Credits
@@ -2483,13 +2507,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - credits
@@ -2519,13 +2544,14 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/edit":
     get:
       tags:
@@ -2560,13 +2586,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Invoice"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/credits/bulk:
     post:
       tags:
@@ -2600,13 +2627,14 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/credit/{invitation_key}/download":
     get:
       tags:
@@ -2637,13 +2665,14 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/credits/{id}/upload":
     put:
       tags:
@@ -2678,13 +2707,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Credit"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/designs:
     get:
       tags:
@@ -2712,13 +2742,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Design"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - designs
@@ -2744,13 +2775,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Design"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/designs/{id}":
     get:
       tags:
@@ -2785,13 +2817,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Design"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - designs
@@ -2825,13 +2858,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Design"
         401:
-          $ref: '#/components/responses/401'
+          $ref: "#/components/responses/401"
         403:
-          $ref: '#/components/responses/403'
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - designs
@@ -2860,10 +2894,15 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/designs/{id}/edit":
     get:
       tags:
@@ -2897,10 +2936,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Design"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/designs/create:
     get:
       tags:
@@ -2926,10 +2970,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Design"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/designs/bulk:
     post:
       tags:
@@ -2966,10 +3015,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Design"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/documents:
     get:
       tags:
@@ -2996,10 +3049,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Document"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/emails:
     post:
       tags:
@@ -3046,10 +3103,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Template"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expense_categories:
     get:
       tags:
@@ -3073,10 +3134,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - expense_categories
@@ -3101,10 +3166,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expense_categories/create:
     get:
       tags:
@@ -3129,10 +3198,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/expense_categories/{id}":
     get:
       tags:
@@ -3165,10 +3238,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - expense_categories
@@ -3200,10 +3277,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - expense_categories
@@ -3231,10 +3312,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/expense_categories/{id}/edit":
     get:
       tags:
@@ -3267,10 +3352,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExpenseCategory"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expense_categories/bulk:
     post:
       tags:
@@ -3307,10 +3396,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expenses:
     get:
       tags:
@@ -3337,10 +3430,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - expenses
@@ -3365,10 +3462,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/expenses/{id}":
     get:
       tags:
@@ -3402,10 +3503,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - expenses
@@ -3438,10 +3543,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - expenses
@@ -3470,10 +3579,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/expenses/{id}/edit":
     get:
       tags:
@@ -3507,10 +3620,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expenses/create:
     get:
       tags:
@@ -3536,10 +3653,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/expenses/bulk:
     post:
       tags:
@@ -3576,10 +3697,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/expenses/{id}/upload":
     put:
       tags:
@@ -3613,10 +3738,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Expense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/export:
     post:
       tags:
@@ -3636,10 +3765,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/group_settings:
     get:
       tags:
@@ -3665,10 +3798,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - group_settings
@@ -3693,10 +3830,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/group_settings/create:
     get:
       tags:
@@ -3722,10 +3863,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/group_settings/{id}":
     get:
       tags:
@@ -3759,10 +3904,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - group_settings
@@ -3795,10 +3944,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - group_settings
@@ -3827,10 +3980,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/group_settings/{id}/edit":
     get:
       tags:
@@ -3864,10 +4021,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GroupSetting"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/group_settings/bulk:
     post:
       tags:
@@ -3900,10 +4061,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/group_settings/{id}/upload":
     put:
       tags:
@@ -3937,10 +4102,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/preimport:
     post:
       tags:
@@ -3970,10 +4139,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/import_json:
     post:
       tags:
@@ -3993,10 +4166,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/apple/confirm_purchase:
     post:
       tags:
@@ -4018,10 +4195,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/apple/process_webhook:
     post:
       tags:
@@ -4043,10 +4224,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/invoices:
     get:
       tags:
@@ -4072,10 +4257,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - invoices
@@ -4106,10 +4295,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/invoices/create:
     get:
       tags:
@@ -4135,10 +4328,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}":
     get:
       tags:
@@ -4172,10 +4369,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - invoices
@@ -4208,10 +4409,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - invoices
@@ -4240,10 +4445,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/edit":
     get:
       tags:
@@ -4277,10 +4486,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/invoices/bulk:
     post:
       tags:
@@ -4313,10 +4526,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/{action}":
     get:
       tags:
@@ -4358,10 +4575,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoice/{invitation_key}/download":
     get:
       tags:
@@ -4391,10 +4612,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/delivery_note":
     get:
       tags:
@@ -4424,10 +4649,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/upload":
     put:
       tags:
@@ -4461,10 +4690,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/claim_license:
     get:
       tags:
@@ -4500,10 +4733,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/logout:
     post:
       tags:
@@ -4526,10 +4763,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/migration/purge/{company}":
     post:
       tags:
@@ -4558,10 +4799,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/migration/purge_save_settings/{company}":
     post:
       tags:
@@ -4590,10 +4835,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/migration/start:
     post:
       tags:
@@ -4623,10 +4872,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/one_time_token:
     post:
       tags:
@@ -4646,10 +4899,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payments:
     get:
       tags:
@@ -4675,10 +4932,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - payments
@@ -4710,10 +4971,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payments/create:
     get:
       tags:
@@ -4739,10 +5004,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payments/{id}":
     get:
       tags:
@@ -4776,10 +5045,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - payments
@@ -4812,10 +5085,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - payments
@@ -4844,10 +5121,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payments/{id}/edit":
     get:
       tags:
@@ -4881,10 +5162,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payments/bulk:
     post:
       tags:
@@ -4921,10 +5206,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payments/{id}/{action}":
     get:
       tags:
@@ -4966,10 +5255,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payments/refund:
     post:
       tags:
@@ -5002,10 +5295,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payments/{id}/upload":
     put:
       tags:
@@ -5039,10 +5336,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payment_terms:
     get:
       tags:
@@ -5069,10 +5370,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - payment_terms
@@ -5104,10 +5409,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payment_terms/create:
     get:
       tags:
@@ -5133,10 +5442,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Payment"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payment_terms/{id}":
     get:
       tags:
@@ -5170,10 +5483,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - payment_terms
@@ -5206,10 +5523,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - payment_termss
@@ -5238,10 +5559,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/payment_terms/{id}/edit":
     get:
       tags:
@@ -5275,10 +5600,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/payment_terms/bulk:
     post:
       tags:
@@ -5315,10 +5644,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaymentTerm"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/ping:
     get:
       tags:
@@ -5382,10 +5715,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/preview:
     post:
       tags:
@@ -5405,10 +5742,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/preview/purchase_order:
     post:
       tags:
@@ -5428,10 +5769,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
 
   /api/v1/projects:
     get:
@@ -5459,10 +5804,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - projects
@@ -5487,10 +5836,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/projects/{id}":
     get:
       tags:
@@ -5524,10 +5877,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - projects
@@ -5560,10 +5917,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - projects
@@ -5592,10 +5953,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/projects/{id}/edit":
     get:
       tags:
@@ -5629,10 +5994,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/projects/create:
     get:
       tags:
@@ -5658,10 +6027,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/projects/bulk:
     post:
       tags:
@@ -5698,10 +6071,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/projects/{id}/upload":
     put:
       tags:
@@ -5735,10 +6112,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Project"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/purchase_orders:
     get:
       tags:
@@ -5764,10 +6145,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - purhcase_orders
@@ -5792,10 +6177,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/purchase_orders/create:
     get:
       tags:
@@ -5821,10 +6210,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}":
     get:
       tags:
@@ -5858,10 +6251,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - purchase_orders
@@ -5890,10 +6287,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}/edit":
     get:
       tags:
@@ -5927,10 +6328,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_order/{id}":
     put:
       tags:
@@ -5964,10 +6369,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Credit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/purchase_orders/bulk:
     post:
       tags:
@@ -6000,10 +6409,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}/{action}":
     get:
       tags:
@@ -6045,10 +6458,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_orders/{id}/upload":
     put:
       tags:
@@ -6082,10 +6499,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/purchase_order/{invitation_key}/download":
     get:
       tags:
@@ -6115,10 +6536,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/quotes:
     get:
       tags:
@@ -6144,10 +6569,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - quotes
@@ -6172,10 +6601,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/quotes/create:
     get:
       tags:
@@ -6201,10 +6634,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}":
     get:
       tags:
@@ -6238,10 +6675,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - quotes
@@ -6274,10 +6715,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - quotes
@@ -6306,10 +6751,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/edit":
     get:
       tags:
@@ -6343,10 +6792,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/quotes/bulk:
     post:
       tags:
@@ -6383,10 +6836,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/{action}":
     get:
       tags:
@@ -6428,10 +6885,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/quote/{invitation_key}/download":
     get:
       tags:
@@ -6461,10 +6922,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/quotes/{id}/upload":
     put:
       tags:
@@ -6498,10 +6963,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_expenses:
     get:
       tags:
@@ -6528,10 +6997,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - recurring_expenses
@@ -6556,10 +7029,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_expenses/{id}":
     get:
       tags:
@@ -6593,10 +7070,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - recurring_expenses
@@ -6629,10 +7110,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - recurring_expenses
@@ -6661,10 +7146,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_expenses/{id}/edit":
     get:
       tags:
@@ -6698,10 +7187,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_expenses/create:
     get:
       tags:
@@ -6727,10 +7220,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_expenses/bulk:
     post:
       tags:
@@ -6767,10 +7264,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_expenses/{id}/upload":
     put:
       tags:
@@ -6804,10 +7305,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringExpense"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_invoices:
     get:
       tags:
@@ -6833,10 +7338,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - recurring_invoices
@@ -6861,10 +7370,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_invoices/create:
     get:
       tags:
@@ -6890,10 +7403,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}":
     get:
       tags:
@@ -6927,10 +7444,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - recurring_invoices
@@ -6963,10 +7484,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - recurring_invoices
@@ -6995,10 +7520,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/edit":
     get:
       tags:
@@ -7032,10 +7561,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_invoice/{invitation_key}/download":
     get:
       tags:
@@ -7065,10 +7598,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_invoices/bulk:
     post:
       tags:
@@ -7105,10 +7642,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/{action}":
     get:
       tags:
@@ -7150,10 +7691,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_invoices/{id}/upload":
     put:
       tags:
@@ -7187,10 +7732,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringInvoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_quotes:
     get:
       tags:
@@ -7216,10 +7765,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - recurring_quotes
@@ -7244,10 +7797,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_quotes/create:
     get:
       tags:
@@ -7273,10 +7830,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_quotes/{id}":
     get:
       tags:
@@ -7310,10 +7871,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - recurring_quotes
@@ -7346,10 +7911,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - recurring_quotes
@@ -7378,10 +7947,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_quotes/{id}/edit":
     get:
       tags:
@@ -7415,10 +7988,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/recurring_quotes/bulk:
     post:
       tags:
@@ -7455,10 +8032,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/recurring_quotes/{id}/{action}":
     get:
       tags:
@@ -7500,10 +8081,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecurringQuote"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/contacts:
     post:
       tags:
@@ -7529,10 +8114,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/clients:
     post:
       tags:
@@ -7558,10 +8147,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/credit:
     post:
       tags:
@@ -7587,10 +8180,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/documents:
     post:
       tags:
@@ -7616,10 +8213,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/expense:
     post:
       tags:
@@ -7645,10 +8246,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/invoice_items:
     post:
       tags:
@@ -7674,10 +8279,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/invoices:
     post:
       tags:
@@ -7703,10 +8312,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/payments:
     post:
       tags:
@@ -7732,10 +8345,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/products:
     post:
       tags:
@@ -7761,10 +8378,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/product_sales:
     post:
       tags:
@@ -7790,10 +8411,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/profitloss:
     post:
       tags:
@@ -7819,10 +8444,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/quote_items:
     post:
       tags:
@@ -7848,10 +8477,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/quotes:
     post:
       tags:
@@ -7877,10 +8510,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/recurring_invoices:
     post:
       tags:
@@ -7906,10 +8543,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/reports/tasks:
     post:
       tags:
@@ -7935,10 +8576,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/self-update:
     post:
       tags:
@@ -7954,10 +8599,14 @@ paths:
       responses:
         200:
           description: "Success/failure response"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/statics:
     get:
       tags:
@@ -7979,10 +8628,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/subscriptions:
     get:
       tags:
@@ -8008,10 +8661,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - subscriptions
@@ -8036,10 +8693,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/subscriptions/create:
     get:
       tags:
@@ -8065,10 +8726,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/subscriptions/{id}":
     get:
       tags:
@@ -8102,10 +8767,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - subscriptions
@@ -8138,10 +8807,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - subscriptions
@@ -8170,10 +8843,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/subscriptions/{id}/edit":
     get:
       tags:
@@ -8207,10 +8884,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/subscriptions/bulk:
     post:
       tags:
@@ -8247,10 +8928,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Subscription"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/support/messages/send:
     post:
       tags:
@@ -8291,7 +8976,7 @@ paths:
                   type: string
                   example: true
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/system_logs:
     get:
       tags:
@@ -8317,10 +9002,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SystemLog"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/system_logs/{id}":
     get:
       tags:
@@ -8354,10 +9043,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SystemLog"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tasks:
     get:
       tags:
@@ -8384,10 +9077,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - tasks
@@ -8412,10 +9109,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tasks/{id}":
     get:
       tags:
@@ -8449,10 +9150,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - tasks
@@ -8485,10 +9190,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - tasks
@@ -8517,10 +9226,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tasks/{id}/edit":
     get:
       tags:
@@ -8554,10 +9267,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tasks/create:
     get:
       tags:
@@ -8583,10 +9300,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tasks/bulk:
     post:
       tags:
@@ -8623,10 +9344,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tasks/{id}/upload":
     put:
       tags:
@@ -8660,10 +9385,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tasks/stort:
     post:
       tags:
@@ -8685,10 +9414,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/task_schedulers/:
     get:
       tags:
@@ -8709,7 +9442,7 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - task_schedulers
@@ -8735,10 +9468,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/invoices/task_schedulers:
     get:
       tags:
@@ -8764,10 +9501,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskSchedulerSchema"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/task_schedulers/{id}":
     get:
       tags:
@@ -8796,7 +9537,7 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - task_schedulers
@@ -8830,10 +9571,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - task_schedulers
@@ -8861,7 +9606,7 @@ paths:
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/task_schedulers/bulk:
     post:
       tags:
@@ -8898,10 +9643,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskSchedulerSchema"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/task_statuses:
     get:
       tags:
@@ -8928,10 +9677,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - task_status
@@ -8963,10 +9716,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/task_statuses/create:
     get:
       tags:
@@ -8992,10 +9749,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/task_statuses/{id}":
     get:
       tags:
@@ -9029,10 +9790,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - task_status
@@ -9065,10 +9830,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - task_statuss
@@ -9097,10 +9866,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/task_statuses/{id}/edit":
     get:
       tags:
@@ -9134,10 +9907,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/task_statuses/bulk:
     post:
       tags:
@@ -9174,10 +9951,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaskStatus"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tax_rates:
     get:
       tags:
@@ -9201,10 +9982,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tax_rates/create:
     get:
       tags:
@@ -9229,10 +10014,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tax_rates/{id}":
     get:
       tags:
@@ -9265,10 +10054,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - tax_rates
@@ -9300,10 +10093,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - tax_rates
@@ -9331,10 +10128,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tax_rates/{id}/edit":
     get:
       tags:
@@ -9367,10 +10168,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TaxRate"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tax_rates/bulk:
     post:
       tags:
@@ -9407,10 +10212,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/templates:
     post:
       tags:
@@ -9448,10 +10257,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Template"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tokens:
     get:
       tags:
@@ -9478,10 +10291,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - tokens
@@ -9506,10 +10323,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tokens/{id}":
     get:
       tags:
@@ -9543,10 +10364,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - tokens
@@ -9579,10 +10404,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - tokens
@@ -9611,10 +10440,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/tokens/{id}/edit":
     get:
       tags:
@@ -9648,10 +10481,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tokens/create:
     get:
       tags:
@@ -9677,10 +10514,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/tokens/bulk:
     post:
       tags:
@@ -9717,10 +10558,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompanyToken"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/users:
     get:
       tags:
@@ -9746,10 +10591,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - users
@@ -9774,10 +10623,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/users/create:
     get:
       tags:
@@ -9803,10 +10656,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/users/{id}":
     get:
       tags:
@@ -9840,10 +10697,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - users
@@ -9876,10 +10737,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - users
@@ -9916,10 +10781,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/users/{id}/edit":
     get:
       tags:
@@ -9953,10 +10822,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/users/bulk:
     post:
       tags:
@@ -9993,10 +10866,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/users/{user}/detach_from_company":
     delete:
       tags:
@@ -10026,10 +10903,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/users/{user}/invite":
     post:
       tags:
@@ -10059,10 +10940,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/users/{user}/reconfirm":
     post:
       tags:
@@ -10092,10 +10977,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/vendors:
     get:
       tags:
@@ -10122,10 +11011,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - vendors
@@ -10150,10 +11043,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/vendors/{id}":
     get:
       tags:
@@ -10187,10 +11084,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - vendors
@@ -10223,10 +11124,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - vendors
@@ -10255,10 +11160,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/vendors/{id}/edit":
     get:
       tags:
@@ -10292,10 +11201,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/vendors/create:
     get:
       tags:
@@ -10321,10 +11234,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/vendors/bulk:
     post:
       tags:
@@ -10361,10 +11278,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/vendors/{id}/upload":
     put:
       tags:
@@ -10398,10 +11319,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Vendor"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/webcron:
     get:
       tags:
@@ -10421,10 +11346,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/webhooks:
     get:
       tags:
@@ -10451,10 +11380,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     post:
       tags:
         - webhooks
@@ -10479,10 +11412,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/webhooks/{id}":
     get:
       tags:
@@ -10516,10 +11453,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     put:
       tags:
         - webhooks
@@ -10552,10 +11493,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - Webhooks
@@ -10584,10 +11529,14 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   "/api/v1/webhooks/{id}/edit":
     get:
       tags:
@@ -10621,10 +11570,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/webhooks/create:
     get:
       tags:
@@ -10650,10 +11603,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
   /api/v1/webhooks/bulk:
     post:
       tags:
@@ -10690,10 +11647,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Webhook"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         422:
-          $ref: '#/components/responses/422'
+          $ref: "#/components/responses/422"
         default:
-          $ref: '#/components/responses/default'
+          $ref: "#/components/responses/default"
 
   /api/v1/products:
     get:
