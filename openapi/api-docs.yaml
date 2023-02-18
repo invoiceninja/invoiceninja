@@ -12496,34 +12496,6 @@ paths:
       summary: "Bulk invoice actions"
       description: |
         There are multiple actions that are available including:  
-          - bulk_download  
-            summary: Bulk download an array of invoice PDFs (These are sent to the admin via email.)  
-          - download  
-            summary: Download a single PDF. (Returns a single PDF object)  
-          - bulk_print  
-            summary: Merges an array of Invoice PDFs for easy one click printing.  
-          - auto_bill  
-            summary: Attempts to automatically bill the invoices with the payment method on file.  
-          - clone_to_invoice  
-            summary: Returns a clone of the invoice.  
-          - clone_to_quote  
-            summary: Returns a quote cloned using the properties of the given invoice.  
-          - mark_paid  
-            summary: Marks an array of invoices as paid.  
-          - mark_sent  
-            summary: Marks an array of invoices as sent.  
-          - restore  
-            summary: Restores an array of invoices  
-          - delete  
-            summary: Deletes an array of invoices  
-          - archive  
-            summary: Archives an array of invoices  
-          - cancel  
-            summary: Cancels an array of invoices  
-          - email  
-            summary: Emails an array of invoices  
-          - send_email  
-            summary: Emails an array of invoices. Requires additional properties to be sent. `email_type`  
 
       operationId: bulkInvoices
       parameters:
@@ -12540,14 +12512,47 @@ paths:
               properties:
                 action:
                   type: string
-                  description: "The action to be performed ie 'bulk_download'"
+                  description: |
+                    The action to be performed, options include:  
+                    - `bulk_download`  
+                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)  
+                    - `download`  
+                      Download a single PDF. (Returns a single PDF object)  
+                    - `bulk_print`  
+                      Merges an array of Invoice PDFs for easy one click printing.  
+                    - `auto_bill`  
+                      Attempts to automatically bill the invoices with the payment method on file.  
+                    - `clone_to_invoice`  
+                      Returns a clone of the invoice.  
+                    - `clone_to_quote`  
+                      Returns a quote cloned using the properties of the given invoice.  
+                    - `mark_paid`  
+                      Marks an array of invoices as paid.  
+                    - `mark_sent`  
+                      Marks an array of invoices as sent.  
+                    - `restore`  
+                      Restores an array of invoices  
+                    - `delete`  
+                      Deletes an array of invoices  
+                    - `archive`  
+                      Archives an array of invoices  
+                    - `cancel`  
+                      Cancels an array of invoices  
+                    - `email`  
+                      Emails an array of invoices  
+                    - `send_email`  
+                      Emails an array of invoices. Requires additional properties to be sent. `email_type`  
                   required: true
                 ids:
                   required: true
                   type: array
                   items:
-                    description: "Array of hashed IDs to be bulk 'actioned - [{invoice_id_1},{invoice_id_2},{invoice_id_3},{invoice_id_4}]"
+                    description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
                     type: string
+              example:
+                action: bulk_download
+                ids: "['D2J234DFA','D2J234DFA','D2J234DFA']"
+              
       responses:
         200:
           description: "The Bulk Action response"
