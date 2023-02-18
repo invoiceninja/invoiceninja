@@ -527,7 +527,7 @@
       tags:
         - clients
       summary: 'Add client document'
-      description: 'Handles the uploading of a document to a client'
+      description: 'Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST'
       operationId: uploadClient
       parameters:
         -
@@ -545,6 +545,21 @@
             type: string
             format: string
           example: D2J234DFA
+      produces:
+        - application/json
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: POST
+                documents:
+                  type: array
+                  format: binary
       responses:
         200:
           description: 'Returns the client object'

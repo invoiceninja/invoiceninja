@@ -1,0 +1,409 @@
+  /api/v1/products:
+    get:
+      tags:
+        - products
+      summary: 'List products'
+      description: "Lists products, search and filters allow fine grained lists to be generated.\n\n    Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available"
+      operationId: getProducts
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+      responses:
+        200:
+          description: 'A list of products'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - products
+      summary: 'Create Product'
+      description: 'Adds an Product to the system'
+      operationId: storeProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+      responses:
+        200:
+          description: 'Returns the saved Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/products/create:
+    get:
+      tags:
+        - products
+      summary: 'Create product'
+      description: 'Returns a blank object with default values'
+      operationId: getProductsCreate
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+      responses:
+        200:
+          description: 'A blank Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api/v1/products/{id}':
+    get:
+      tags:
+        - products
+      summary: 'Show product'
+      description: 'Displays an Product by id'
+      operationId: showProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: id
+          in: path
+          description: 'The Product Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - products
+      summary: 'Update product'
+      description: 'Handles the updating of an Product by id'
+      operationId: updateProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: id
+          in: path
+          description: 'The Product Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - products
+      summary: 'Delete product'
+      description: 'Handles the deletion of an Product by id'
+      operationId: deleteProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: id
+          in: path
+          description: 'The Product Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns a HTTP status'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api/v1/products/{id}/edit':
+    get:
+      tags:
+        - products
+      summary: 'Show product'
+      description: 'Displays an Product by id'
+      operationId: editProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: id
+          in: path
+          description: 'The Product Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/products/bulk:
+    post:
+      tags:
+        - products
+      summary: 'Bulk product actions'
+      description: ''
+      operationId: bulkProducts
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/index'
+      requestBody:
+        description: 'Hashed IDs'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: 'Array of hashed IDs to be bulk ''actioned'
+                type: integer
+                example: '[0,1,2,3]'
+      responses:
+        200:
+          description: 'The Product response'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/api/v1/products/{id}/upload':
+    put:
+      tags:
+        - products
+      summary: 'Add product document'
+      description: 'Handles the uploading of a document to a product'
+      operationId: uploadProduct
+      parameters:
+        -
+          $ref: '#/components/parameters/X-API-TOKEN'
+        -
+          $ref: '#/components/parameters/X-Requested-With'
+        -
+          $ref: '#/components/parameters/include'
+        -
+          name: id
+          in: path
+          description: 'The Product Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the Product object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        422:
+          description: 'Validation error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        default:
+          description: 'Unexpected Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
