@@ -11670,6 +11670,13 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - name: filter
+          in: query
+          description: Filter by product name
+          required: false
+          schema:
+            type: string
+          example: bob
       responses:
         200:
           description: "A list of products"

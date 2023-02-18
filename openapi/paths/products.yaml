@@ -12,6 +12,27 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - name: filter
+          in: query
+          description: Filter by product name
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: product_key
+          in: query
+          description: Filter by product key
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc product_key|desc  
       responses:
         200:
           description: "A list of products"
