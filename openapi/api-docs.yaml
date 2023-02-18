@@ -4232,472 +4232,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/invoices:
-    get:
-      tags:
-        - invoices
-      summary: "Gets a list of invoices"
-      description: "Lists invoices, search and filters allow fine grained lists to be generated.\n     *\n     *\t\tQuery parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available"
-      operationId: getInvoices
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-      responses:
-        200:
-          description: "A list of invoices"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-    post:
-      tags:
-        - invoices
-      summary: "Adds a invoice"
-      description: "Adds an invoice to the system"
-      operationId: storeInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FillableInvoice"
-      responses:
-        200:
-          description: "Returns the saved invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  /api/v1/invoices/create:
-    get:
-      tags:
-        - invoices
-      summary: "Gets a new blank invoice object"
-      description: "Returns a blank object with default values"
-      operationId: getInvoicesCreate
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-      responses:
-        200:
-          description: "A blank invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoices/{id}":
-    get:
-      tags:
-        - invoices
-      summary: "Shows an invoice"
-      description: "Displays an invoice by id"
-      operationId: showInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-    put:
-      tags:
-        - invoices
-      summary: "Updates an invoice"
-      description: "Handles the updating of an invoice by id"
-      operationId: updateInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-    delete:
-      tags:
-        - invoices
-      summary: "Deletes a invoice"
-      description: "Handles the deletion of an invoice by id"
-      operationId: deleteInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns a HTTP status"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoices/{id}/edit":
-    get:
-      tags:
-        - invoices
-      summary: "Shows an invoice for editting"
-      description: "Displays an invoice by id"
-      operationId: editInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  /api/v1/invoices/bulk:
-    post:
-      tags:
-        - invoices
-      summary: "Performs bulk actions on an array of invoices"
-      description: ""
-      operationId: bulkInvoices
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/index"
-      requestBody:
-        description: "User credentials"
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
-      responses:
-        200:
-          description: "The Bulk Action response"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoices/{id}/{action}":
-    get:
-      tags:
-        - invoices
-      summary: "Performs a custom action on an invoice"
-      description: "Performs a custom action on an invoice.\n     *\n     *        The current range of actions are as follows\n     *        - clone_to_invoice\n     *        - clone_to_quote\n     *        - history\n     *        - delivery_note\n     *        - mark_paid\n     *        - download\n     *        - archive\n     *        - delete\n     *        - email"
-      operationId: actionInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-        - name: action
-          in: path
-          description: "The action string to be performed"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: clone_to_quote
-      responses:
-        200:
-          description: "Returns the invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoice/{invitation_key}/download":
-    get:
-      tags:
-        - invoices
-      summary: "Download a specific invoice by invitation key"
-      description: "Downloads a specific invoice"
-      operationId: downloadInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: invitation_key
-          in: path
-          description: "The Invoice Invitation Key"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the invoice pdf"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoices/{id}/delivery_note":
-    get:
-      tags:
-        - invoices
-      summary: "Download a specific invoice delivery notes"
-      description: "Downloads a specific invoice delivery notes"
-      operationId: deliveryNote
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hahsed Id"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the invoice delivery note pdf"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
-  "/api/v1/invoices/{id}/upload":
-    put:
-      tags:
-        - invoices
-      summary: "Uploads a document to a invoice"
-      description: "Handles the uploading of a document to a invoice"
-      operationId: uploadInvoice
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Invoice Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the Invoice object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Invoice"
-        401:
-          $ref: "#/components/responses/401"
-        403:
-          $ref: "#/components/responses/403"
-        422:
-          $ref: "#/components/responses/422"
-        default:
-          $ref: "#/components/responses/default"
+  
   /api/v1/claim_license:
     get:
       tags:
@@ -7572,7 +7107,7 @@ paths:
   "/api/v1/recurring_invoice/{invitation_key}/download":
     get:
       tags:
-        - invoices
+        - recurring_invoices
       summary: "Download a specific invoice by invitation key"
       description: "Downloads a specific invoice"
       operationId: downloadRecurringInvoice
@@ -9476,7 +9011,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/invoices/task_schedulers:
+  /api/v1/task_schedulers/create:
     get:
       tags:
         - task_schedulers
@@ -11656,387 +11191,6 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
-  /api/v1/products:
-    get:
-      tags:
-        - products
-      summary: "List products"
-      description: |
-        Lists products, search and filters allow fine grained lists to be generated.    
-        Query parameters can be added to perform fine grained filtering of the products list, these are handled by the ProductFilters class
-        which defines the methods available
-      operationId: getProducts
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: filter
-          in: query
-          description: Filter by product name
-          required: false
-          schema:
-            type: string
-          example: bob
-        - name: product_key
-          in: query
-          description: Filter by product key
-          required: false
-          schema:
-            type: string
-          example: bob
-        - name: sort
-          in: query
-          description: Returns the list sorted by column in ascending or descending order.
-          required: false
-          schema:
-            type: string
-          example: id|desc product_key|desc  
-      responses:
-        200:
-          description: "A list of products"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-    post:
-      tags:
-        - products
-      summary: "Create Product"
-      description: "Adds a product to a company"
-      operationId: storeProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-      responses:
-        200:
-          description: "Returns the saved product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-  "/api/v1/products/{id}":
-    get:
-      tags:
-        - products
-      summary: "Show product"
-      description: "Displays a product by id"
-      operationId: showProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Product Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-    put:
-      tags:
-        - products
-      summary: "Update product"
-      description: "Handles the updating of a product by id"
-      operationId: updateProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Product Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the Product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-    delete:
-      tags:
-        - products
-      summary: "Delete product"
-      description: "Handles the deletion of a product by id"
-      operationId: deleteProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Product Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns a HTTP status"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-  "/api/v1/products/{id}/edit":
-    get:
-      tags:
-        - products
-      summary: "Edit product"
-      description: "Displays an Product by id"
-      operationId: editProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-        - name: id
-          in: path
-          description: "The Product Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      responses:
-        200:
-          description: "Returns the Product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-  "/api/v1/products/create":
-    get:
-      tags:
-        - products
-      summary: "Blank product"
-      description: "Returns a blank product object with default values"
-      operationId: getProductsCreate
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
-      responses:
-        200:
-          description: "A blank Product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-
-  /api/v1/products/bulk:
-    post:
-      tags:
-        - products
-      summary: "Bulk product actions"
-      description: "Archive / Restore / Delete in bulk"
-      operationId: bulkProducts
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/index"
-      requestBody:
-        description: "Hashed IDs"
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
-      responses:
-        200:
-          description: "The Product response"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-
-  "/api/v1/products/{id}/upload":
-    put:
-      tags:
-        - products
-      summary: "Add product document"
-      description: "Handles the uploading of a document to a product"
-      operationId: uploadProduct
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/client_include"
-        - name: id
-          in: path
-          description: "The Product Hashed ID"
-          required: true
-          schema:
-            type: string
-            format: string
-          example: D2J234DFA
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                _method:
-                  type: string
-                  example: POST
-                documents:
-                  type: array
-                  format: binary
-      responses:
-        200:
-          description: "Returns the Product object"
-          headers:
-            X-MINIMUM-CLIENT-VERSION:
-              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
-            X-RateLimit-Remaining:
-              $ref: "#/components/headers/X-RateLimit-Remaining"
-            X-RateLimit-Limit:
-              $ref: "#/components/headers/X-RateLimit-Limit"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Product"
-        401:
-          $ref: '#/components/responses/401'
-        403:
-          $ref: '#/components/responses/403'
-        422:
-          $ref: '#/components/responses/422'
-        default:
-          $ref: '#/components/responses/default'
-
   /api/v1/clients:
     get:
       tags:
@@ -12050,6 +11204,12 @@ paths:
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
         - $ref: '#/components/parameters/index'
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
         - name: name
           in: query
           description: Filter by client name
@@ -12590,7 +11750,1009 @@ paths:
           $ref: '#/components/responses/422'
         default:
           $ref: '#/components/responses/default'
+  /api/v1/products:
+    get:
+      tags:
+        - products
+      summary: "List products"
+      description: |
+        Lists products, search and filters allow fine grained lists to be generated.    
+        Query parameters can be added to perform fine grained filtering of the products list, these are handled by the ProductFilters class
+        which defines the methods available
+      operationId: getProducts
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: filter
+          in: query
+          description: Filter by product name
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: product_key
+          in: query
+          description: Filter by product key
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc product_key|desc  
+      responses:
+        200:
+          description: "A list of products"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    post:
+      tags:
+        - products
+      summary: "Create Product"
+      description: "Adds a product to a company"
+      operationId: storeProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "Returns the saved product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/{id}":
+    get:
+      tags:
+        - products
+      summary: "Show product"
+      description: "Displays a product by id"
+      operationId: showProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    put:
+      tags:
+        - products
+      summary: "Update product"
+      description: "Handles the updating of a product by id"
+      operationId: updateProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - products
+      summary: "Delete product"
+      description: "Handles the deletion of a product by id"
+      operationId: deleteProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/{id}/edit":
+    get:
+      tags:
+        - products
+      summary: "Edit product"
+      description: "Displays an Product by id"
+      operationId: editProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  "/api/v1/products/create":
+    get:
+      tags:
+        - products
+      summary: "Blank product"
+      description: "Returns a blank product object with default values"
+      operationId: getProductsCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+
+  /api/v1/products/bulk:
+    post:
+      tags:
+        - products
+      summary: "Bulk product actions"
+      description: "Archive / Restore / Delete in bulk"
+      operationId: bulkProducts
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: "Hashed IDs"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: "Array of hashed IDs to be bulk 'actioned"
+                type: integer
+                example: "[0,1,2,3]"
+      responses:
+        200:
+          description: "The Product response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+
+  "/api/v1/products/{id}/upload":
+    put:
+      tags:
+        - products
+      summary: "Add product document"
+      description: "Handles the uploading of a document to a product"
+      operationId: uploadProduct
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/client_include"
+        - name: id
+          in: path
+          description: "The Product Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: POST
+                documents:
+                  type: array
+                  format: binary
+      responses:
+        200:
+          description: "Returns the Product object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+
+  /api/v1/invoices:
+    get:
+      tags:
+        - invoices
+      summary: "List invoices"
+      description: |
+        Lists invoices, search and filters allow fine grained lists to be generated.  
+        Query parameters can be added to performed more fine grained filtering of the invoices,  
+        these are handled by the InvoiceFilters class which defines the methods available"
+      operationId: getInvoices
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: client_status
+          in: query
+          description: |
+            A comma separated list of invoice status strings. Valid options include:  
+            - all
+            - paid  
+            - unpaid  
+            - overdue   
+          required: false
+          schema:
+            type: string
+          example: ?client_status=paid,unpaid
+        - name: number
+          in: query
+          description: |
+            Search invoices by invoice number 
+          required: false
+          schema:
+            type: string
+          example: ?number=INV-001
+        - name: filter
+          in: query
+          description: |
+            Searches across a range of columns including:  
+            - number  
+            - po_number  
+            - date  
+            - amount  
+            - balance  
+            - custom_value1  
+            - custom_value2  
+            - custom_value3  
+            - custom_value4
+          required: false
+          schema:
+            type: string
+          example: ?filter=bob
+        - name: without_deleted_clients
+          in: query
+          description: |
+            Returns the invoice list without the invoices of deleted clients.
+          required: false
+          schema:
+            type: string
+          example: ?without_deleted_clients=
+        - name: overdue
+          in: query
+          description: |
+            Returns the list of invoices that are overdue
+          required: false
+          schema:
+            type: string
+          example: ?over_due=
+        - name: payable
+          in: query
+          description: |
+            Returns the invoice list that are payable for a defined client. Please note, you must pass the client_id as the value for this query parameter
+          required: false
+          schema:
+            type: string
+          example: ?payable={client_id}
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc number|desc balance|asc 
+        - name: private_notes
+          in: query
+          description: |
+            Searches on the private_notes field of the invoices
+          required: false
+          schema:
+            type: string
+          example: ?private_notes=super secret
+      responses:
+        200:
+          description: "A list of invoices"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+    post:
+      tags:
+        - invoices
+      summary: "Create invoice"
+      description: "Adds a invoice to a company"
+      operationId: storeInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FillableInvoice"
+      responses:
+        200:
+          description: "Returns the saved invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  "/api/v1/invoices/{id}":
+    get:
+      tags:
+        - invoices
+      summary: "Show invoice"
+      description: "Displays an invoice by id"
+      operationId: showInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+    put:
+      tags:
+        - invoices
+      summary: "Update invoice"
+      description: "Handles the updating of an invoice by id"
+      operationId: updateInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"  
+    delete:
+      tags:
+        - invoices
+      summary: "Delete invoice"
+      description: "Handles the deletion of an invoice by id"
+      operationId: deleteInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/edit":
+    get:
+      tags:
+        - invoices
+      summary: "Edit invoice"
+      description: "Displays an invoice by id"
+      operationId: editInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/invoices/create:
+    get:
+      tags:
+        - invoices
+      summary: "Blank invoice"
+      description: "Returns a blank object with default values"
+      operationId: getInvoicesCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/invoices/bulk:
+    post:
+      tags:
+        - invoices
+      summary: "Bulk invoice actions"
+      description: ""
+      operationId: bulkInvoices
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: "User credentials"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: "Array of hashed IDs to be bulk 'actioned"
+                type: integer
+                example: "[0,1,2,3]"
+      responses:
+        200:
+          description: "The Bulk Action response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  "/api/v1/invoices/{id}/{action}":
+    get:
+      deprecated: true
+      tags:
+        - invoices
+      summary: "Custom invoice action"
+      description: |
+        Performs a custom action on an invoice.  
+        The current range of actions are as follows  
+        - clone_to_invoice  
+        - clone_to_quote  
+        - history  
+        - delivery_note  
+        - mark_paid  
+        - download  
+        - archive  
+        - delete  
+        - email  
+      operationId: actionInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+        - name: action
+          in: path
+          description: "The action string to be performed"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: clone_to_quote
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoice/{invitation_key}/download":
+    get:
+      tags:
+        - invoices
+      summary: "Download invoice PDF"
+      description: "Downloads a specific invoice"
+      operationId: downloadInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: invitation_key
+          in: path
+          description: "The Invoice Invitation Key"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice pdf"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/delivery_note":
+    get:
+      tags:
+        - invoices
+      summary: "Download delivery note"
+      description: "Downloads a specific invoice delivery notes"
+      operationId: deliveryNote
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hahsed Id"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice delivery note pdf"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/upload":
+    put:
+      tags:
+        - invoices
+      summary: "Add invoice document"
+      description: "Handles the uploading of a document to a invoice"
+      operationId: uploadInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the Invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
 components:
+  headers:
+    X-MINIMUM-CLIENT-VERSION:
+      description: 'The API version'
+      schema:
+        type: number
+    X-RateLimit-Remaining:
+      description: 'The number of requests left for the time window.'
+      schema:
+        type: integer
+    X-RateLimit-Limit:
+      description: 'The total number of requests in a given time window.'
+      schema:
+        type: integer
+  components:
+  securitySchemes:
+    ApiKeyAuth:        
+      type: apiKey
+      in: header       
+      name: X-API-TOKEN 
+  responses:
+    422:
+      description: 'Validation error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    403:
+      description: 'Authorization error'
+      content:
+        application/json:
+          schema:
+            $ref: '#components/schemas/AuthorizationError'
+    401:      
+      description: 'Authentication error'
+      content:
+        application/json:
+          schema:
+            $ref: '#components/schemas/AuthenticationError'
+
+    default:
+      description: 'Unexpected Error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     X-API-SECRET:
       name: X-API-SECRET
@@ -12782,51 +12944,76 @@ components:
       schema:
         type: number
         example: user
-  headers:
-    X-MINIMUM-CLIENT-VERSION:
-      description: 'The API version'
+   
+########################### Generic filters available across all filter ##################################
+    status:
+      name: status
+      in: query
+      description: |
+        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:  
+        - active
+        - archived
+        - deleted  
+      required: false
       schema:
-        type: number
-    X-RateLimit-Remaining:
-      description: 'The number of requests left for the time window.'
+        type: string
+      example: ?status=archived,deleted
+    client_id:
+      name: client_id
+      in: query
+      description: |
+        Filters the entity list by client_id. Suitable when you only want the entities of a specific client.
+      required: false
+      schema:
+        type: string
+      example: ?client_id={client_id}
+    created_at:
+      name: created_at
+      in: query
+      description: |
+        Filters the entity list by the created at timestamp. Parameter value can be a datetime string or unix timestamp
+      required: false
       schema:
         type: integer
-    X-RateLimit-Limit:
-      description: 'The total number of requests in a given time window.'
+      example: ?created_at=2022-01-10
+    updated_at:
+      name: updated_at
+      in: query
+      description: |
+        Filters the entity list by the updated at timestamp. Parameter value can be a datetime string or unix timestamp
+      required: false
       schema:
         type: integer
-  components:
-  securitySchemes:
-    ApiKeyAuth:        
-      type: apiKey
-      in: header       
-      name: X-API-TOKEN  
-  responses:
-    403:
-      description: 'Authorization error'
-      content:
-        application/json:
-          schema:
-            $ref: '#components/schemas/AuthorizationError'
+      example: ?updated_at=2022-01-10
+    is_deleted:
+      name: is_deleted
+      in: query
+      description: |
+        Filters the entity list by entities that have been deleted.
+      required: false
+      schema:
+        type: booleans
+      example: ?is_deleted=true
+    vendor_id:
+      name: vendor_id
+      in: query
+      description: |
+        Filters the entity list by an associated vendor
+      required: false
+      schema:
+        type: string
+      example: ?vendor_id={vendor_id}
+    filter_deleted_clients:
+      name: filter_deleted_clients
+      in: query
+      description: |
+        Filters the entity list and only returns entities for clients that have not been deleted
+      required: false
+      schema:
+        type: string
+      example: ?filter_deleted_clients=true
+  ########################### Generic filters available across all filter ##################################
 
-    default:
-      description: 'Unexpected Error'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    422:
-      description: 'Validation error'
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ValidationError'
-    401:      
-      description: 'Authentication error'
-      content:
-        application/json:
-          schema:
-            $ref: '#components/schemas/AuthenticationError'
   schemas:
     BankTransactionRule:
       properties:
@@ -16675,6 +16862,99 @@ components:
           type: string
           example: JSON
       type: object
+    Activity:
+      properties:
+        id:
+          description: 'The id field of the activity'
+          type: string
+          example: Opnel5aKBz
+        activity_type_id:
+          description: 'The activity type id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The invoice hashed id'
+          type: string
+          example: Opnel5aKBz
+        payment_id:
+          description: 'The payment hashed id'
+          type: string
+          example: Opnel5aKBz
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: Opnel5aKBz
+        updated_at:
+          description: 'Unixtimestamp the last time the record was updated'
+          type: integer
+          example: '343421434'
+        expense_id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        is_system:
+          description: 'Defines is the activity was performed by the system'
+          type: boolean
+          example: true
+        contact_id:
+          description: 'The contact hashed id'
+          type: string
+          example: Opnel5aKBz
+        task_id:
+          description: 'The task hashed id'
+          type: string
+          example: Opnel5aKBz
+        notes:
+          description: 'Activity Notes'
+          type: string
+          example: Opnel5aKBz
+        token_id:
+          description: 'The hashed ID of the token who performed the action'
+          type: string
+          example: Opnel5aKBz
+        ip:
+          description: 'The IP Address of the user who performed the action'
+          type: string
+          example: 192.168.1.252
+        user:
+          $ref: '#/components/schemas/User'
+        client:
+          $ref: '#/components/schemas/Client'
+        contact:
+          $ref: '#/components/schemas/ClientContact'
+        recurring_invoice:
+          $ref: '#/components/schemas/RecurringInvoice'
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+        credit:
+          $ref: '#/components/schemas/Credit'
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        expense:
+          $ref: '#/components/schemas/Expense'
+        task:
+          $ref: '#/components/schemas/Task'
+        purchase_order:
+          $ref: '#/components/schemas/PurchaseOrder'
+        vendor:
+          $ref: '#/components/schemas/Vendor'
+        vendor_contact:
+          $ref: '#/components/schemas/VendorContact'
+      type: object
     BankTransaction:
       properties:
         id:
@@ -16776,99 +17056,6 @@ components:
           description: 'iso_3166_3 code'
           type: string
           example: USD
-      type: object
-    Activity:
-      properties:
-        id:
-          description: 'The id field of the activity'
-          type: string
-          example: Opnel5aKBz
-        activity_type_id:
-          description: 'The activity type id'
-          type: string
-          example: Opnel5aKBz
-        client_id:
-          description: 'The client hashed id'
-          type: string
-          example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
-        user_id:
-          description: 'The user hashed id'
-          type: string
-          example: Opnel5aKBz
-        invoice_id:
-          description: 'The invoice hashed id'
-          type: string
-          example: Opnel5aKBz
-        payment_id:
-          description: 'The payment hashed id'
-          type: string
-          example: Opnel5aKBz
-        credit_id:
-          description: 'The credit hashed id'
-          type: string
-          example: Opnel5aKBz
-        updated_at:
-          description: 'Unixtimestamp the last time the record was updated'
-          type: integer
-          example: '343421434'
-        expense_id:
-          description: 'The expense hashed id'
-          type: string
-          example: Opnel5aKBz
-        is_system:
-          description: 'Defines is the activity was performed by the system'
-          type: boolean
-          example: true
-        contact_id:
-          description: 'The contact hashed id'
-          type: string
-          example: Opnel5aKBz
-        task_id:
-          description: 'The task hashed id'
-          type: string
-          example: Opnel5aKBz
-        notes:
-          description: 'Activity Notes'
-          type: string
-          example: Opnel5aKBz
-        token_id:
-          description: 'The hashed ID of the token who performed the action'
-          type: string
-          example: Opnel5aKBz
-        ip:
-          description: 'The IP Address of the user who performed the action'
-          type: string
-          example: 192.168.1.252
-        user:
-          $ref: '#/components/schemas/User'
-        client:
-          $ref: '#/components/schemas/Client'
-        contact:
-          $ref: '#/components/schemas/ClientContact'
-        recurring_invoice:
-          $ref: '#/components/schemas/RecurringInvoice'
-        invoice:
-          $ref: '#/components/schemas/Invoice'
-        credit:
-          $ref: '#/components/schemas/Credit'
-        quote:
-          $ref: '#/components/schemas/Quote'
-        payment:
-          $ref: '#/components/schemas/Payment'
-        expense:
-          $ref: '#/components/schemas/Expense'
-        task:
-          $ref: '#/components/schemas/Task'
-        purchase_order:
-          $ref: '#/components/schemas/PurchaseOrder'
-        vendor:
-          $ref: '#/components/schemas/Vendor'
-        vendor_contact:
-          $ref: '#/components/schemas/VendorContact'
       type: object
     BTRules:
       properties:

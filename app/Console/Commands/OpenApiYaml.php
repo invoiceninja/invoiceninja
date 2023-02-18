@@ -91,6 +91,16 @@ class OpenApiYaml extends Command
             }
         }
 
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/parameters.yaml'));
+
+        $directory = new DirectoryIterator($path . '/components/parameters/');
+
+        foreach ($directory as $file) {
+            if ($file->isFile() && ! $file->isDot()) {
+                Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/components/parameters/{$file->getFilename()}"));
+            }
+        }
+
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas.yaml'));
 
         //iterate schemas

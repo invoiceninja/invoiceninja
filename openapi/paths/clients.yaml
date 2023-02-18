@@ -11,6 +11,12 @@
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
         - $ref: '#/components/parameters/index'
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
         - name: name
           in: query
           description: Filter by client name
