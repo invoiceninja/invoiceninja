@@ -262,7 +262,7 @@
     get:
       tags:
         - products
-      summary: 'Show product'
+      summary: 'Edit product'
       description: 'Displays an Product by id'
       operationId: editProduct
       parameters:
