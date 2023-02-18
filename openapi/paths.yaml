@@ -2836,6 +2836,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
         default:
@@ -2873,6 +2877,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Design"
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
         default:
