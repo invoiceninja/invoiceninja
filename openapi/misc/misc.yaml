@@ -14,6 +14,9 @@ tags:
   - name: invoices
     description: |
       Endpoint definitions for interacting with invoices.
+  - name: recurring_invoices
+    description: |
+      Endpoint definitions for interacting with recurring_invoices.
 externalDocs:
   description: "https://invoiceninja.github.io"
   url: "https://invoiceninja.github.io"
