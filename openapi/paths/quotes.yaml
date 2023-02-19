@@ -1,16 +1,15 @@
-  /api/v1/recurring_invoices:
+  /api/v1/quotes:
     get:
       tags:
-        - recurring_invoices
-      summary: "List recurring invoices"
-      description: |
-        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
-
-      operationId: getRecurringInvoices
+        - quotes
+      summary: "List quotes"
+      description: "Lists quotes, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available"
+      operationId: getQuotes
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -21,6 +20,7 @@
           in: query
           description: |
             Searches across a range of columns including:  
+            - number  
             - custom_value1  
             - custom_value2  
             - custom_value3  
@@ -32,15 +32,25 @@
         - name: client_status
           in: query
           description: |
-            A comma separated list of invoice status strings. Valid options include:  
+            A comma separated list of quote status strings. Valid options include:  
             - all
-            - active  
-            - paused  
-            - completed  
+            - draft  
+            - sent  
+            - approved
+            - expired
+            - upcoming   
           required: false
           schema:
             type: string
-          example: ?client_status=active,paused
+          example: ?client_status=paid,unpaid
+        - name: number
+          in: query
+          description: |
+            Search quote by quote number 
+          required: false
+          schema:
+            type: string
+          example: ?number=Q-001
         - name: sort
           in: query
           description: Returns the list sorted by column in ascending or descending order.
@@ -50,7 +60,7 @@
           example: id|desc number|desc balance|asc 
       responses:
         200:
-          description: "A list of recurring_invoices"
+          description: "A list of quotes"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -61,7 +71,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -72,17 +82,17 @@
           $ref: "#/components/responses/default"
     post:
       tags:
-        - recurring_invoices
-      summary: "Create recurring invoice"
-      description: "Adds a Recurring Invoice to the system"
-      operationId: storeRecurringInvoice
+        - quotes
+      summary: "Create quote"
+      description: "Adds an Quote to the system"
+      operationId: storeQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "Returns the saved RecurringInvoice object"
+          description: "Returns the saved Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -93,7 +103,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -102,21 +112,20 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
-  "/api/v1/recurring_invoices/{id}":
+  "/api/v1/quotes/{id}":
     get:
       tags:
-        - recurring_invoices
-      summary: "Show recurring invoice"
-      description: "Displays an RecurringInvoice by id"
-      operationId: showRecurringInvoice
+        - quotes
+      summary: "Show quote"
+      description: "Displays an Quote by id"
+      operationId: showQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -124,7 +133,7 @@
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the RecurringInvoice object"
+          description: "Returns the Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -135,7 +144,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -146,17 +155,17 @@
           $ref: "#/components/responses/default"
     put:
       tags:
-        - recurring_invoices
-      summary: "Update recurring invoice"
-      description: "Handles the updating of an RecurringInvoice by id"
-      operationId: updateRecurringInvoice
+        - quotes
+      summary: "Update quote"
+      description: "Handles the updating of an Quote by id"
+      operationId: updateQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -164,7 +173,7 @@
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the RecurringInvoice object"
+          description: "Returns the Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -175,7 +184,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -186,17 +195,17 @@
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - recurring_invoices
-      summary: "Delete recurring invoice"
-      description: "Handles the deletion of an RecurringInvoice by id"
-      operationId: deleteRecurringInvoice
+        - quotes
+      summary: "Delete quote"
+      description: "Handles the deletion of an Quote by id"
+      operationId: deleteQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -220,20 +229,20 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoices/{id}/edit":
+  "/api/v1/quotes/{id}/edit":
     get:
       tags:
-        - recurring_invoices
-      summary: "Edit recurring invoice"
-      description: "Displays an RecurringInvoice by id"
-      operationId: editRecurringInvoice
+        - quotes
+      summary: "Edit quote"
+      description: "Displays an Quote by id"
+      operationId: editQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -241,7 +250,7 @@
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the RecurringInvoice object"
+          description: "Returns the Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -252,7 +261,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -261,21 +270,20 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
-  /api/v1/recurring_invoices/create:
+  /api/v1/quotes/create:
     get:
       tags:
-        - recurring_invoices
-      summary: "Blank recurring invoice"
+        - quotes
+      summary: "Blank quote"
       description: "Returns a blank object with default values"
-      operationId: getRecurringInvoicesCreate
+      operationId: getQuotesCreate
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
       responses:
         200:
-          description: "A blank RecurringInvoice object"
+          description: "A blank Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -286,7 +294,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -295,19 +303,19 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/recurring_invoices/bulk:
+  /api/v1/quotes/bulk:
     post:
       tags:
-        - recurring_invoices
-      summary: "Bulk recurring invoice actions"
+        - quotes
+      summary: "Bulk quote actions"
       description: ""
-      operationId: bulkRecurringInvoices
+      operationId: bulkQuotes
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed IDs"
+        description: "Hashed ids"
         required: true
         content:
           application/json:
@@ -319,7 +327,7 @@
                 example: "[0,1,2,3]"
       responses:
         200:
-          description: "The RecurringInvoice response"
+          description: "The Quote response"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -330,7 +338,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -339,21 +347,21 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoices/{id}/{action}":
+  "/api/v1/quotes/{id}/{action}":
     get:
       deprecated: true
       tags:
-        - recurring_invoices
-      summary: "Custom recurring invoice action"
-      description: "Performs a custom action on an RecurringInvoice.\n\n    The current range of actions are as follows\n    - clone_to_RecurringInvoice\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
-      operationId: actionRecurringInvoice
+        - quotes
+      summary: "Performs a custom action on an Quote"
+      description: "Performs a custom action on an Quote.\n\n    The current range of actions are as follows\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - convert\n    - convert_to_invoice\n    - email"
+      operationId: actionQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -369,7 +377,7 @@
           example: clone_to_quote
       responses:
         200:
-          description: "Returns the RecurringInvoice object"
+          description: "Returns the Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -380,7 +388,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -389,20 +397,20 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoice/{invitation_key}/download":
+  "/api/v1/quote/{invitation_key}/download":
     get:
       tags:
-        - recurring_invoices
-      summary: "Download recurring invoice PDF"
-      description: "Downloads a specific invoice"
-      operationId: downloadRecurringInvoice
+        - quotes
+      summary: "Download quote PDF"
+      description: "Downloads a specific quote"
+      operationId: downloadQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: invitation_key
           in: path
-          description: "The Recurring Invoice Invitation Key"
+          description: "The Quote Invitation Key"
           required: true
           schema:
             type: string
@@ -410,7 +418,7 @@
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the recurring invoice pdf"
+          description: "Returns the quote pdf"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -426,20 +434,20 @@
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  "/api/v1/recurring_invoices/{id}/upload":
+  "/api/v1/quotes/{id}/upload":
     put:
       tags:
-        - recurring_invoices
-      summary: "Add recurring invoice document"
-      description: "Handles the uploading of a document to a recurring_invoice"
-      operationId: uploadRecurringInvoice
+        - quotes
+      summary: "Upload a quote document"
+      description: "Handles the uploading of a document to a quote"
+      operationId: uploadQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - name: id
           in: path
-          description: "The RecurringInvoice Hashed ID"
+          description: "The Quote Hashed ID"
           required: true
           schema:
             type: string
@@ -447,7 +455,7 @@
           example: D2J234DFA
       responses:
         200:
-          description: "Returns the RecurringInvoice object"
+          description: "Returns the Quote object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -458,7 +466,7 @@
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecurringInvoice"
+                $ref: "#/components/schemas/Quote"
         401:
           $ref: "#/components/responses/401"
         403:
