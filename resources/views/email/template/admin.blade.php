@@ -150,16 +150,8 @@
                     <td align="center">
                         <div class="dark-bg"
                              style="background-color:#f9f9f9; border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 20px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
-    
-                            <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="155" border="0" align="middle" style="display:block;" />
-                            <div style="mso-hide:all;">
-                            <![endif]-->
-                            <img class="logo-light" src="{{ $logo ?? '' }}" alt="" width="400" style="margin-top: 10px; max-width: 200px; display: block; margin-left: auto; margin-right: auto;"/>
-                            <!--[if gte mso 9]>
-                            </div>
-                            <![endif]-->
-
+                             
+                            <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 50%; max-width: 570px; height: auto; display: block;" class="g-img">
 
                         </div>
                     </td>

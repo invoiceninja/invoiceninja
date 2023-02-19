@@ -29,7 +29,9 @@ class RenewalFailureNotification extends Notification
      * @return void
      */
 
-    public function __construct(protected string $notification_message){}
+    public function __construct(protected ?string $notification_message)
+    {
+    }
 
     /**
      * Get the notification's delivery channels.

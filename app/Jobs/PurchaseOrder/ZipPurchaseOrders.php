@@ -77,7 +77,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.purchase_orders')).'.zip';
         $invitation = $this->purchase_orders->first()->invitations->first();
         $path = $this->purchase_orders->first()->vendor->purchase_order_filepath($invitation);
 

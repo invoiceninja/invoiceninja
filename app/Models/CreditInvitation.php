@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Events\Credit\CreditWasUpdated;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
@@ -43,38 +42,6 @@ class CreditInvitation extends BaseModel
     {
         return self::class;
     }
-
-    // public function getSignatureDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getSentDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getViewedDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
-
-    // public function getOpenedDateAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return (new Carbon($value))->format('Y-m-d');
-    //     }
-    //     return $value;
-    // }
 
     public function entityType()
     {
@@ -129,7 +96,6 @@ class CreditInvitation extends BaseModel
         $storage_path = Storage::url($this->credit->client->quote_filepath($this).$this->credit->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->credit->client->credit_filepath($this).$this->credit->numberFormatter().'.pdf')) {
-            event(new CreditWasUpdated($this->credit, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             (new CreateEntityPdf($this))->handle();
         }
 

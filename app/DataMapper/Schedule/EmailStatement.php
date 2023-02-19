@@ -11,24 +11,20 @@
 
 namespace App\DataMapper\Schedule;
 
-use App\Models\Client;
-use stdClass;
-
-class ClientStatement
+class EmailStatement
 {
-
     /**
      * Defines the template name
-     * 
+     *
      * @var string
      */
-    public string $template = 'client_statement';
+    public string $template = 'email_statement';
 
     /**
      * An array of clients hashed_ids
      *
      * Leave blank if this action should apply to all clients
-     * 
+     *
      * @var array
      */
     public array $clients = [];
@@ -36,17 +32,21 @@ class ClientStatement
     /**
      * The consts to be used to define the date_range variable of the statement
      */
-    public const THIS_MONTH = 'this_month';
-    public const THIS_QUARTER = 'this_quarter';
-    public const THIS_YEAR = 'this_year';
-    public const PREVIOUS_MONTH = 'previous_month';
-    public const PREVIOUS_QUARTER = 'previous_quarter';
-    public const PREVIOUS_YEAR = 'previous_year';
-    public const CUSTOM_RANGE = "custom_range";
+    public const LAST7 = "last7_days";
+    public const LAST30 = "last30_days";
+    public const LAST365 = "last365_days";
+    public const THIS_MONTH = "this_month";
+    public const LAST_MONTH = "last_month";
+    public const THIS_QUARTER = "this_quarter";
+    public const LAST_QUARTER = "last_quarter";
+    public const THIS_YEAR = "this_year";
+    public const LAST_YEAR = "last_year";
+    public const CUSTOM_RANGE = "custom";
+
 
     /**
      * The date range the statement should include
-     * 
+     *
      * @var string
      */
     public string $date_range = 'this_month';
@@ -54,7 +54,7 @@ class ClientStatement
     /**
      * If a custom range is select for the date range then
      * the start_date should be supplied in Y-m-d format
-     * 
+     *
      * @var string
      */
     public string $start_date = '';
@@ -62,7 +62,7 @@ class ClientStatement
     /**
      * If a custom range is select for the date range then
      * the end_date should be supplied in Y-m-d format
-     * 
+     *
      * @var string
      */
     public string $end_date = '';
@@ -87,10 +87,8 @@ class ClientStatement
      * String const which defines whether
      * the invoices to be shown are either
      * paid or unpaid
-     * 
+     *
      * @var string
      */
     public string $status = 'paid'; // paid | unpaid
-
-
 }

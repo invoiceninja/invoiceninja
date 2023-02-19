@@ -409,16 +409,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasCreated::class => [
             CreateInvoiceActivity::class,
             InvoiceCreatedNotification::class,
-            //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
             InvoicePaidActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasViewed::class => [
             InvoiceViewedActivity::class,
@@ -436,7 +433,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,
-            CreateInvoicePdf::class,
         ],
         InvoiceWasArchived::class => [
             InvoiceArchivedActivity::class,
@@ -455,7 +451,7 @@ class EventServiceProvider extends ServiceProvider
             InvitationViewedListener::class,
         ],
         PaymentWasEmailed::class => [
-            PaymentEmailedActivity::class,
+            // PaymentEmailedActivity::class,
         ],
         PaymentWasEmailedAndFailed::class => [
             // PaymentEmailFailureActivity::class,

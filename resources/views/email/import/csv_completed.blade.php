@@ -2,8 +2,6 @@
     <div class="center">
         <h1>{{ ctrans('texts.import_complete') }}</h1>
 
-        <p><img src="{{ $logo }}"></p>
-
         @if($client_count)
             <p><b>{{ ctrans('texts.clients') }}:</b> {{ $client_count }} </p>
         @endif
