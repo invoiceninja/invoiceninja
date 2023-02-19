@@ -147,8 +147,8 @@
                 <tr>
                     <td align="center" cellpadding="20">
                         <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
-                            @if($logo)
-                             <img class="" src="{{ $logo ?? '' }}" width="570" height="" alt="alt_text" border="0" style="width: 50%; max-width: 570px; height: auto; display: block;" class="g-img">
+                            @if($logo && strpos($logo, 'blank.png') === false)
+                             <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt="alt_text" border="0" style="width: 50%; max-width: 570px; display: block;">
                             @endif
                         </div>
                     </td>
