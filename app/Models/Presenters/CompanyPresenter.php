@@ -42,8 +42,7 @@ class CompanyPresenter extends EntityPresenter
         } elseif (strlen($settings->company_logo) >= 1) {
             return url('') . $settings->company_logo;
         } else {
-            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            //return asset('images/new_logo.png');
+            return asset('images/blank.png');
         }
     }
 
