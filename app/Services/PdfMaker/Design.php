@@ -766,6 +766,10 @@ class Design extends BaseDesign
             if ($this->entity->partial > 0) {
                 $variables[] = '$partial_due';
             }
+
+            if (in_array('$paid_to_date', $variables)) {
+                $variables = \array_diff($variables, ['$paid_to_date']);
+            }
         }
 
         if ($this->entity instanceof Credit) {
