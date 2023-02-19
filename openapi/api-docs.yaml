@@ -10182,7 +10182,7 @@ paths:
   /api/v1/purchase_orders:
     get:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "List purchase orders"
       description: "Lists purchase orders, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the purchase orders, these are handled by the PurchaseOrderFilters class which defines the methods available"
       operationId: getPurchaseOrders
@@ -10214,7 +10214,7 @@ paths:
           $ref: "#/components/responses/default"
     post:
       tags:
-        - purhcase_orders
+        - Purchase Orders
       summary: "Create purchase order"
       description: "Adds an purchase order to the system"
       operationId: storePurchaseOrder
@@ -10248,8 +10248,8 @@ paths:
   "/api/v1/purchase_orders/{id}":
     get:
       tags:
-        - purchase_orders
-      summary: "Show purcase order"
+        - Purchase Orders
+      summary: "Show purchase order"
       description: "Displays an purchase order by id"
       operationId: showPurchaseOrder
       parameters:
@@ -10289,7 +10289,7 @@ paths:
   "/api/v1/purchase_order/{id}":
     put:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Update purchase order"
       description: "Handles the updating of an purchase order by id"
       operationId: updatePurchaseOrder
@@ -10329,7 +10329,7 @@ paths:
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Delete purchase order"
       description: "Handles the deletion of an purchase orders by id"
       operationId: deletePurchaseOrder
@@ -10366,7 +10366,7 @@ paths:
   "/api/v1/purchase_orders/{id}/edit":
     get:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Edit purchase order"
       description: "Displays an purchase order by id"
       operationId: editPurchaseOrder
@@ -10408,7 +10408,7 @@ paths:
   /api/v1/purchase_orders/create:
     get:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Blank purchase order"
       description: "Returns a blank object with default values"
       operationId: getPurchaseOrderCreate
@@ -10441,7 +10441,7 @@ paths:
   /api/v1/purchase_orders/bulk:
     post:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Bulk purchase order action"
       description: ""
       operationId: bulkPurchaseOrderss
@@ -10482,7 +10482,7 @@ paths:
     get:
       deprecated: true
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Custom purchase order actions"
       description: "Performs a custom action on an purchase order.\n     *\n     *        The current range of actions are as follows\n     *        - mark_paid\n     *        - download\n     *        - archive\n     *        - delete\n     *        - email"
       operationId: actionPurchaseOrder
@@ -10531,7 +10531,7 @@ paths:
   "/api/v1/purchase_orders/{id}/upload":
     put:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Uploads a purchase order document"
       description: "Handles the uploading of a document to a purchase_order"
       operationId: uploadPurchaseOrder
@@ -10572,7 +10572,7 @@ paths:
   "/api/v1/purchase_order/{invitation_key}/download":
     get:
       tags:
-        - purchase_orders
+        - Purchase Orders
       summary: "Download a purchase order PDF"
       description: "Downloads a specific purchase order"
       operationId: downloadPurchaseOrder
@@ -17300,7 +17300,8 @@ tags:
   - name: vendors
     description: |
       Endpoint definitions for interacting with vendors.
-  - name: purchase_orders
+  - name: Purchase Orders
+    summary: Purchase Orders
     description: |
       Endpoint definitions for interacting with purchase orders.
   - name: expenses
