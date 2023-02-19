@@ -63,6 +63,7 @@ class Handler extends ExceptionHandler
         Symfony\Component\Process\Exception\RuntimeException::class,
         InvalidArgumentException::class,
         RuntimeException::class,
+        Aws\Exception\CredentialsException::class,
     ];
 
     protected $hostedDontReport = [
