@@ -70,7 +70,7 @@ class EntityCreatedObject
             );
 
             $mail_obj->markdown = 'email.admin.generic';
-            $mail_obj->tag = $this->company->company_key;
+            // $mail_obj->tag = $this->company->company_key;
             $mail_obj->data = [
                                 'title' => $mail_obj->subject,
                                 'message' => ctrans(
@@ -97,7 +97,7 @@ class EntityCreatedObject
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();
             $mail_obj->markdown = 'email.admin.generic';
-            $mail_obj->tag = $this->entity->company->company_key;
+            // $mail_obj->tag = $this->entity->company->company_key;
         }
         
         return $mail_obj;

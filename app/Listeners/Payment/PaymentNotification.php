@@ -51,11 +51,6 @@ class PaymentNotification implements ShouldQueue
 
         $payment = $event->payment;
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
-        $nmo->company = $event->company;
-        $nmo->settings = $event->company->settings;
-
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
             $user = $company_user->user;
@@ -73,9 +68,16 @@ class PaymentNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
+                $nmo->company = $event->company;
+                $nmo->settings = $event->company->settings;
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
+
+                $nmo = null;
+                
             }
         }
 

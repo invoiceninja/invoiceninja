@@ -45,13 +45,7 @@ class InvoiceFailedEmailNotification
         $first_notification_sent = true;
 
         $invoice = $event->invitation->invoice;
-        // $invoice->update(['last_sent_date' => now()]);
-
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());
-        $nmo->company = $invoice->company;
-        $nmo->settings = $invoice->company->settings;
-
+        
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -60,9 +54,15 @@ class InvoiceFailedEmailNotification
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());
+                $nmo->company = $invoice->company;
+                $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
+
+                $nmo = null;
 
                 $first_notification_sent = false;
             }
