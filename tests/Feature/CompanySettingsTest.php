@@ -10,14 +10,15 @@
  */
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
+use Tests\TestCase;
+use App\Models\Company;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\CompanySettings;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -179,6 +180,8 @@ class CompanySettingsTest extends TestCase
 
     public function testCompanyNullValueMatrixPOST()
     {
+        Company::truncate();
+
         $settings = CompanySettings::defaults();
         $settings->reset_counter_date = null;
 
