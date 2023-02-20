@@ -11,34 +11,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Design;
-use App\Utils\Statics;
 use App\Models\Account;
-use App\Models\TaxRate;
-use App\Models\Webhook;
-use App\Models\Scheduler;
-use App\Models\TaskStatus;
-use App\Models\PaymentTerm;
-use Illuminate\Support\Str;
-use League\Fractal\Manager;
-use App\Models\GroupSetting;
-use App\Models\CompanyGateway;
-use App\Utils\Traits\AppSetup;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\ExpenseCategory;
-use League\Fractal\Resource\Item;
 use App\Models\BankTransactionRule;
+use App\Models\Client;
+use App\Models\CompanyGateway;
+use App\Models\Design;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\PaymentTerm;
+use App\Models\Scheduler;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
-use League\Fractal\Resource\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use League\Fractal\Serializer\JsonApiSerializer;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use App\Utils\Ninja;
+use App\Utils\Statics;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
+use League\Fractal\Manager;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
+use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
  * Class BaseController.
@@ -63,25 +63,41 @@ class BaseController extends Controller
      */
     public $forced_index = 'data';
 
+    /**
+     * The calling controller Model Type
+     */
     protected $entity_type;
 
+    /**
+     * The calling controller Transformer type
+     *
+     */
     protected $entity_transformer;
 
+    /**
+     * The serializer in use with Fractal
+     *
+     */
     protected $serializer;
 
     /* Grouped permissions when we want to hide columns for particular permission groups*/
+    
     private array $client_exclusion_fields = ['balance', 'paid_to_date', 'credit_balance', 'client_hash'];
     private array $client_excludable_permissions = ['view_client'];
     private array $client_excludable_overrides = ['edit_client', 'edit_all', 'view_invoice', 'view_all', 'edit_invoice'];
+    
     /* Grouped permissions when we want to hide columns for particular permission groups*/
 
 
     /**
      * Fractal manager.
-     * @var object
+     * @var Manager $manager
      */
     protected Manager $manager;
 
+    /**
+     * An array of includes to be loaded by default.
+     */
     private $first_load = [
           'account',
           'user.company_user',
@@ -134,6 +150,10 @@ class BaseController extends Controller
           'company.task_schedulers',
         ];
 
+    /**
+     * An array of includes to be loaded by default
+     * when the company is large.
+     */
     private $mini_load = [
         'account',
         'user.company_user',
@@ -153,12 +173,23 @@ class BaseController extends Controller
         'company.bank_transaction_rules',
         'company.task_schedulers',
     ];
-
+    
+    /**
+     * __construct
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->manager = new Manager();
     }
-
+    
+    /**
+     * Initializes the Manager and transforms
+     * the required includes
+     *
+     * @return void
+     */
     private function buildManager()
     {
         $include = '';
@@ -186,8 +217,7 @@ class BaseController extends Controller
     }
 
     /**
-     * Catch all fallback route
-     * for non-existant route.
+     * Catch all fallback route.
      */
     public function notFound()
     {
@@ -241,9 +271,10 @@ class BaseController extends Controller
 
     /**
      * API Error response.
-     * @param string $message The return error message
-     * @param int $httpErrorCode 404/401/403 etc
-     * @return Response               The JSON response
+     *
+     * @param string    $message        The return error message
+     * @param int       $httpErrorCode  404/401/403 etc
+     * @return Response                 The JSON response
      * @throws BindingResolutionException
      */
     protected function errorResponse($message, $httpErrorCode = 400)
@@ -259,7 +290,8 @@ class BaseController extends Controller
 
     /**
      * Refresh API response with latest cahnges
-     * @param  Builer $query
+     *
+     * @param  Builder           $query
      * @property App\Models\User auth()->user()
      * @return Builer
      */
@@ -528,7 +560,13 @@ class BaseController extends Controller
 
         return 20;
     }
-
+    
+    /**
+     * Mini Load Query
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function miniLoadResponse($query)
     {
         $user = auth()->user();
@@ -612,6 +650,7 @@ class BaseController extends Controller
      * able to access multiple companies, then we
      * need to pass back the mini load only
      *
+     * @deprecated
      * @return bool
      */
     private function complexPermissionsUser(): bool
@@ -623,7 +662,13 @@ class BaseController extends Controller
 
         return false;
     }
-
+    
+    /**
+     * Passes back the miniloaded data response
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function timeConstrainedResponse($query)
     {
         $user = auth()->user();
@@ -862,7 +907,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
+    
+    /**
+     * List response
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function listResponse($query)
     {
         $this->buildManager();
@@ -916,7 +967,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
+    
+    /**
+     * Sorts the response by keys
+     *
+     * @param  mixed $response
+     * @return void
+     */
     protected function response($response)
     {
         $index = request()->input('index') ?: $this->forced_index;
@@ -947,7 +1004,13 @@ class BaseController extends Controller
 
         return response()->make($response, 200, $headers);
     }
-
+    
+    /**
+     * Item Response
+     *
+     * @param  mixed $item
+     * @return void
+     */
     protected function itemResponse($item)
     {
         $this->buildManager();
@@ -966,8 +1029,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
-    public static function getApiHeaders()
+    
+    /**
+     * Returns the API headers.
+     *
+     * @return array
+     */
+    public static function getApiHeaders(): array
     {
         return [
             'Content-Type' => 'application/json',
@@ -975,8 +1043,14 @@ class BaseController extends Controller
             'X-App-Version' => config('ninja.app_version'),
         ];
     }
-
-    protected function getRequestIncludes($data)
+    
+    /**
+     * Returns the parsed relationship includes
+     *
+     * @param  mixed $data
+     * @return array
+     */
+    protected function getRequestIncludes($data): array
     {
         /*
          * Thresholds for displaying large account on first load
@@ -1002,7 +1076,12 @@ class BaseController extends Controller
 
         return $data;
     }
-
+    
+    /**
+     * Main entrypoint for the default /  route.
+     *
+     * @return mixed
+     */
     public function flutterRoute()
     {
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
@@ -1067,7 +1146,12 @@ class BaseController extends Controller
 
         return redirect('/setup');
     }
-
+    
+    /**
+     * Sets the Flutter build to serve
+     *
+     * @return void
+     */
     private function setBuild()
     {
         $build = '';
@@ -1095,7 +1179,13 @@ class BaseController extends Controller
                 return 'main.foss.dart.js';
         }
     }
-
+    
+    /**
+     * Checks in a account has a required feature
+     *
+     * @param  mixed $feature
+     * @return bool
+     */
     public function checkFeature($feature)
     {
         if (auth()->user()->account->hasFeature($feature)) {
@@ -1104,7 +1194,12 @@ class BaseController extends Controller
 
         return false;
     }
-
+    
+    /**
+     * Feature failure response
+     *
+     * @return mixed
+     */
     public function featureFailure()
     {
         return response()->json(['message' => 'Upgrade to a paid plan for this feature.'], 403);
