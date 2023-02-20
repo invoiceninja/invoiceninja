@@ -19,8 +19,6 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Services\Credit\CreateInvitations;
-use App\Services\Credit\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
 class CreditService

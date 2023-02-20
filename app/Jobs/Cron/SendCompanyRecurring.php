@@ -16,7 +16,6 @@ use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Carbon;
 
 /*@not used*/
 
@@ -38,11 +37,9 @@ class SendCompanyRecurring
 
     public function __construct($company_id, $db)
     {
-    
         $this->company_id = $company_id;
 
         $this->db = $db;
-
     }
 
     /**
@@ -52,40 +49,36 @@ class SendCompanyRecurring
      */
     public function handle() : void
     {
-
         MultiDB::setDB($this->db);
 
         $recurring_invoices = Company::where('id', $this->company_id)
                                      ->where('is_disabled', 0)
-                                     ->whereHas('recurring_invoices', function ($query){
-                                        $query->where('next_send_date', '<=', now()->toDateTimeString())
-                                              ->whereNotNull('next_send_date')
-                                              ->whereNull('deleted_at')
-                                              ->where('is_deleted', false)
-                                              ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                                              ->where('remaining_cycles', '!=', '0')
-                                              ->whereHas('client', function ($query) {
-                                                 $query->where('is_deleted', 0)
-                                                       ->where('deleted_at', null);
-                                            });
-                                          })
-                                      ->cursor()->each(function ($recurring_invoice){
+                                     ->whereHas('recurring_invoices', function ($query) {
+                                         $query->where('next_send_date', '<=', now()->toDateTimeString())
+                                               ->whereNotNull('next_send_date')
+                                               ->whereNull('deleted_at')
+                                               ->where('is_deleted', false)
+                                               ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                               ->where('remaining_cycles', '!=', '0')
+                                               ->whereHas('client', function ($query) {
+                                                   $query->where('is_deleted', 0)
+                                                         ->where('deleted_at', null);
+                                               });
+                                     })
+                                      ->cursor()->each(function ($recurring_invoice) {
+                                          nlog("Trying to send {$recurring_invoice->number}");
 
-                                nlog("Trying to send {$recurring_invoice->number}");
+                                          if ($recurring_invoice->company->stop_on_unpaid_recurring) {
+                                              if ($recurring_invoice->invoices()->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
+                                                  return;
+                                              }
+                                          }
 
-                                if ($recurring_invoice->company->stop_on_unpaid_recurring) {
-                                    if ($recurring_invoice->invoices()->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
-                                        return;
-                                    }
-                                }
-
-                                try {
-                                    (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
-                                } catch (\Exception $e) {
-                                    nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
-                                }
-
-                            });
-        
+                                          try {
+                                              (new SendRecurring($recurring_invoice, $recurring_invoice->company->db))->handle();
+                                          } catch (\Exception $e) {
+                                              nlog("Unable to sending recurring invoice {$recurring_invoice->id} ".$e->getMessage());
+                                          }
+                                      });
     }
 }

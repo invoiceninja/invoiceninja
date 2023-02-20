@@ -17,7 +17,6 @@ use App\Models\Client;
 use App\Models\RecurringQuote;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 
 class StoreRecurringQuoteRequest extends Request
 {

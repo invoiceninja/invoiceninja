@@ -37,45 +37,107 @@ class UpdatePaymentMethods
     {
         $this->stripe->client = $client;
 
-        $card_methods = PaymentMethod::all([
+        $card_methods = PaymentMethod::all(
+            [
             'customer' => $customer->id,
             'type' => 'card',
         ],
-                     $this->stripe->stripe_connect_auth);
+            $this->stripe->stripe_connect_auth
+        );
 
         foreach ($card_methods as $method) {
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::CREDIT_CARD);
         }
 
-        $alipay_methods = PaymentMethod::all([
+        $alipay_methods = PaymentMethod::all(
+            [
             'customer' => $customer->id,
             'type' => 'alipay',
         ],
-                     $this->stripe->stripe_connect_auth);
+            $this->stripe->stripe_connect_auth
+        );
 
         foreach ($alipay_methods as $method) {
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::ALIPAY);
         }
 
-        $sofort_methods = PaymentMethod::all([
+        $sofort_methods = PaymentMethod::all(
+            [
             'customer' => $customer->id,
             'type' => 'sofort',
         ],
-                     $this->stripe->stripe_connect_auth);
+            $this->stripe->stripe_connect_auth
+        );
 
         foreach ($sofort_methods as $method) {
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
         }
 
         $this->importBankAccounts($customer, $client);
+        
+        $this->importPMBankAccounts($customer, $client);
+
+    }
+
+    /* ACH may also be nested inside Payment Methods.*/ 
+    public function importPMBankAccounts($customer, $client)
+    {
+        $bank_methods = \Stripe\PaymentMethod::all(
+            [
+            'customer' => $customer->id,
+            'type' => 'us_bank_account',
+        ], 
+            $this->stripe->stripe_connect_auth
+        );
+
+        foreach($bank_methods->data as $method)
+        {
+
+            $token_exists = ClientGatewayToken::where([
+                'gateway_customer_reference' => $customer->id,
+                'token' => $method->id,
+                'client_id' => $client->id,
+                'company_id' => $client->company_id,
+            ])->exists();
+
+            /* Already exists return */
+            if ($token_exists) {
+                continue;
+            }
+
+            $bank_account = $method['us_bank_account'];
+
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $bank_account->bank_name, ctrans('texts.ach'));
+            $payment_meta->last4 = (string) $bank_account->last4;
+            $payment_meta->type = GatewayType::BANK_TRANSFER;
+            $payment_meta->state = 'authorized';
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $method->id,
+                'payment_method_id' => GatewayType::BANK_TRANSFER,
+            ];
+
+            $additional_data = ['gateway_customer_reference' => $customer->id];
+
+            if ($customer->default_source === $method->id) {
+                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 1];
+            }
+
+            $this->stripe->storeGatewayToken($data, $additional_data);
+
+        }
+
     }
 
     public function importBankAccounts($customer, $client)
     {
         $sources = $customer->sources;
 
-        if(!$customer || is_null($sources) || !property_exists($sources, 'data'))
+        if (!$customer || is_null($sources) || !property_exists($sources, 'data')) {
             return;
+        }
 
         foreach ($sources->data as $method) {
             $token_exists = ClientGatewayToken::where([

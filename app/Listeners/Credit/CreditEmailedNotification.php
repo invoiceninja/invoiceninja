@@ -44,11 +44,6 @@ class CreditEmailedNotification implements ShouldQueue
         $credit->last_sent_date = now();
         $credit->saveQuietly();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'credit', $event->template))->build());
-        $nmo->company = $credit->company;
-        $nmo->settings = $credit->company->settings;
-
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -60,16 +55,16 @@ class CreditEmailedNotification implements ShouldQueue
                 // if (($key = array_search('mail', $methods))) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'credit', $event->template))->build());
+                $nmo->company = $credit->company;
+                $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
-                // $first_notification_sent = false;
+                $nmo = null;
             }
-
-            // $notification->method = $methods;
-
-            // $user->notify($notification);
         }
     }
 }

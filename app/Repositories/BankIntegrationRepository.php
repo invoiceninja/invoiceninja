@@ -12,23 +12,18 @@
 namespace App\Repositories;
 
 use App\Models\BankIntegration;
-use App\Models\Task;
-use App\Models\TaskStatus;
 
 /**
  * Class for bank integration repository.
  */
 class BankIntegrationRepository extends BaseRepository
 {
-
     public function save($data, BankIntegration $bank_integration)
     {
-
         //stub to store
         $bank_integration->fill($data);
         $bank_integration->save();
 
         return $bank_integration->fresh();
     }
-
 }

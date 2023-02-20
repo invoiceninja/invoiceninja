@@ -12,7 +12,6 @@
 namespace App\Http\Requests\RecurringExpense;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\RecurringExpense\UniqueRecurringExpenseNumberRule;
 use App\Models\RecurringExpense;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;

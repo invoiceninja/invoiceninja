@@ -1,0 +1,68 @@
+########################### Generic filters available across all filter ##################################
+    status:
+      name: status
+      in: query
+      description: |
+        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:  
+        - active
+        - archived
+        - deleted  
+      required: false
+      schema:
+        type: string
+      example: ?status=archived,deleted
+    client_id:
+      name: client_id
+      in: query
+      description: |
+        Filters the entity list by client_id. Suitable when you only want the entities of a specific client.
+      required: false
+      schema:
+        type: string
+      example: ?client_id={client_id}
+    created_at:
+      name: created_at
+      in: query
+      description: |
+        Filters the entity list by the created at timestamp. Parameter value can be a datetime string or unix timestamp
+      required: false
+      schema:
+        type: integer
+      example: ?created_at=2022-01-10
+    updated_at:
+      name: updated_at
+      in: query
+      description: |
+        Filters the entity list by the updated at timestamp. Parameter value can be a datetime string or unix timestamp
+      required: false
+      schema:
+        type: integer
+      example: ?updated_at=2022-01-10
+    is_deleted:
+      name: is_deleted
+      in: query
+      description: |
+        Filters the entity list by entities that have been deleted.
+      required: false
+      schema:
+        type: booleans
+      example: ?is_deleted=true
+    vendor_id:
+      name: vendor_id
+      in: query
+      description: |
+        Filters the entity list by an associated vendor
+      required: false
+      schema:
+        type: string
+      example: ?vendor_id={vendor_id}
+    filter_deleted_clients:
+      name: filter_deleted_clients
+      in: query
+      description: |
+        Filters the entity list and only returns entities for clients that have not been deleted
+      required: false
+      schema:
+        type: string
+      example: ?filter_deleted_clients=true
+  ########################### Generic filters available across all filter ##################################

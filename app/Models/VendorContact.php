@@ -145,7 +145,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            ->company()
+            // ->company()
             ->where('id', $this->decodePrimaryKey($value))
             ->firstOrFail();
     }
@@ -157,10 +157,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function getLoginLink()
     {
-
         $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
 
         return $domain.'/vendor/key_login/'.$this->contact_key;
-
     }
 }

@@ -14,9 +14,7 @@ namespace App\Services\Client;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 class PaymentMethod
@@ -121,7 +119,6 @@ class PaymentMethod
         $this->payment_methods = [];
 
         foreach ($this->gateways as $gateway) {
-
             //if gateway doesn't exist or is not implemented - continue here //todo
             if (! $gateway->driver($this->client)) {
                 continue;
@@ -187,7 +184,6 @@ class PaymentMethod
         }
 
         if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
-
             // Show credits as only payment option if both statements are true.
             if (
                 $this->client->service()->getCreditBalance() > $this->amount

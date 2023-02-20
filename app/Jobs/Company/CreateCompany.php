@@ -18,7 +18,6 @@ use App\Models\Company;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 
 class CreateCompany
 {

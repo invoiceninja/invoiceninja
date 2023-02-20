@@ -105,7 +105,6 @@ class SubscriptionsCalcTest extends TestCase
 
     public function testProrataDiscountRatioPercentage()
     {
-
         $subscription = Subscription::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -157,12 +156,10 @@ class SubscriptionsCalcTest extends TestCase
         $ratio = $subscription->service()->calculateDiscountRatio($invoice);
 
         $this->assertEquals(.1, $ratio);
-
     }
 
     public function testProrataDiscountRatioAmount()
     {
-
         $subscription = Subscription::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -214,9 +211,5 @@ class SubscriptionsCalcTest extends TestCase
         $ratio = $subscription->service()->calculateDiscountRatio($invoice);
 
         $this->assertEquals(.2, $ratio);
-
     }
-
-
-
 }

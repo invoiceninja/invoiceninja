@@ -80,7 +80,7 @@ class PaymentController extends BaseController
      *      description="Lists payments, search and filters allow fine grained lists to be generated.
 
         Query parameters can be added to performed more fine grained filtering of the payments, these are handled by the PaymentFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -126,7 +126,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Gets a new blank Payment object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -172,7 +172,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Adds a Payment",
      *      description="Adds an Payment to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -205,6 +205,8 @@ class PaymentController extends BaseController
     {
         $payment = $this->payment_repo->save($request->all(), PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         return $this->itemResponse($payment);
     }
 
@@ -223,7 +225,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Shows an Payment",
      *      description="Displays an Payment by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -278,7 +280,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Shows an Payment for editting",
      *      description="Displays an Payment by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -333,7 +335,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Updates an Payment",
      *      description="Handles the updating of an Payment by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -378,6 +380,8 @@ class PaymentController extends BaseController
 
         event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
+        event('eloquent.updated: App\Models\Payment', $payment);
+
         return $this->itemResponse($payment);
     }
 
@@ -397,7 +401,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Deletes a Payment",
      *      description="Handles the deletion of an Payment by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -450,7 +454,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Performs bulk actions on an array of payments",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -527,7 +531,7 @@ class PaymentController extends BaseController
     - archive
     - delete
     - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -580,7 +584,7 @@ class PaymentController extends BaseController
     {
         switch ($action) {
             case 'restore':
-             $this->payment_repo->restore($payment);
+                $this->payment_repo->restore($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
@@ -588,7 +592,7 @@ class PaymentController extends BaseController
 
                 break;
             case 'archive':
-             $this->payment_repo->archive($payment);
+                $this->payment_repo->archive($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
@@ -596,7 +600,7 @@ class PaymentController extends BaseController
                 // code...
                 break;
             case 'delete':
-             $this->payment_repo->delete($payment);
+                $this->payment_repo->delete($payment);
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
@@ -639,7 +643,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Adds a Refund",
      *      description="Adds an Refund to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -692,7 +696,7 @@ class PaymentController extends BaseController
      *      tags={"payments"},
      *      summary="Uploads a document to a payment",
      *      description="Handles the uploading of a document to a payment",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(

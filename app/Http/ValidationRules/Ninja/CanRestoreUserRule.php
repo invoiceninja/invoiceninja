@@ -12,7 +12,6 @@
 namespace App\Http\ValidationRules\Ninja;
 
 use App\Models\CompanyUser;
-use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**

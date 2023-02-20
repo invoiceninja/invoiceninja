@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\TaskStatusFactory;
 use App\Filters\TaskStatusFilters;
+use App\Http\Requests\TaskStatus\ActionTaskStatusRequest;
 use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
 use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
@@ -49,7 +50,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Gets a list of task statuses",
      *      description="Lists task statuses",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -96,7 +97,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Gets a new blank TaskStatus object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -142,7 +143,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Adds a TaskStatus",
      *      description="Adds a TaskStatusto the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -190,7 +191,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Shows a TaskStatus Term",
      *      description="Displays an TaskStatusby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -240,7 +241,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Shows an TaskStatusfor editting",
      *      description="Displays an TaskStatusby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -298,7 +299,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Updates a TaskStatus Term",
      *      description="Handles the updating of an TaskStatus Termby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -357,7 +358,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_statuss"},
      *      summary="Deletes a TaskStatus Term",
      *      description="Handles the deletion of an TaskStatus by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -410,7 +411,7 @@ class TaskStatusController extends BaseController
      *      tags={"task_status"},
      *      summary="Performs bulk actions on an array of task statuses",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -449,19 +450,19 @@ class TaskStatusController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(ActionTaskStatusRequest $request)
     {
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        $task_status = TaskStatus::withTrashed()->company()->find($this->transformKeys($ids));
-
-        $task_status->each(function ($task_status, $key) use ($action) {
-            if (auth()->user()->can('edit', $task_status)) {
-                $this->task_status_repo->{$action}($task_status);
-            }
-        });
+        TaskStatus::withTrashed()
+                ->company()
+                ->whereIn('id', $this->transformKeys($ids))
+                ->cursor()
+                ->each(function ($task_status, $key) use ($action) {
+                    $this->task_status_repo->{$action}($task_status);
+                });
 
         return $this->listResponse(TaskStatus::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }

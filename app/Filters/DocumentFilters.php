@@ -39,9 +39,10 @@ class DocumentFilters extends QueryFilters
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder
+     *
      * @param  string $client_id The client hashed id.
-     * 
-     * @return Builder           
+     *
+     * @return Builder
      */
     public function client_id(string $client_id = ''): Builder
     {
@@ -54,21 +55,23 @@ class DocumentFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort = '') : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
-        if(is_array($sort_col))
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
-        return $this->builder;
+        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
 
     public function company_documents($value = 'false')
     {
-        if($value == 'true')
+        if ($value == 'true') {
             return $this->builder->where('documentable_type', Company::class);
+        }
     
         return $this->builder;
     }

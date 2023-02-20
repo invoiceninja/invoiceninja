@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Client;
 
 use App\Http\Requests\Request;
-use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
@@ -32,20 +31,19 @@ class BulkClientRequest extends Request
 
     public function rules()
     {
-
         return [
-            'ids' => ['required','bail','array',Rule::exists('clients','id')->where('company_id', auth()->user()->company()->id)],
+            'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', auth()->user()->company()->id)],
             'action' => 'in:archive,restore,delete'
         ];
-
     }
 
     public function prepareForValidation()
     {
         $input = $this->all();
 
-        if(isset($input['ids']))
+        if (isset($input['ids'])) {
             $input['ids'] = $this->transformKeys($input['ids']);
+        }
 
         $this->replace($input);
     }

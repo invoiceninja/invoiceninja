@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 
 class YodleeAdminRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -35,5 +34,4 @@ class YodleeAdminRequest extends Request
     {
         return [];
     }
-
 }

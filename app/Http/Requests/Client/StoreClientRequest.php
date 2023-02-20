@@ -97,24 +97,25 @@ class StoreClientRequest extends Request
         $settings = (array)ClientSettings::defaults();
 
         /* Stub settings if they don't exist */
-        if(!array_key_exists('settings', $input))
+        if (!array_key_exists('settings', $input)) {
             $input['settings'] = [];
-        elseif(is_object($input['settings']))
+        } elseif (is_object($input['settings'])) {
             $input['settings'] = (array)$input['settings'];
+        }
         
         /* Merge default into base settings */
         $input['settings'] = array_merge($input['settings'], $settings);
 
         /* Type and property enforcement */
-        foreach ($input['settings'] as $key => $value) 
-        {
+        foreach ($input['settings'] as $key => $value) {
             if ($key == 'default_task_rate') {
                 $value = floatval($value);
                 $input['settings'][$key] = $value;
             }
 
-            if($key == 'translations')
+            if ($key == 'translations') {
                 unset($input['settings']['translations']);
+            }
         }
 
         /* Convert hashed IDs to IDs*/
@@ -129,7 +130,6 @@ class StoreClientRequest extends Request
             } else {
                 $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
             }
-
         } elseif (! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
@@ -141,8 +141,9 @@ class StoreClientRequest extends Request
         if (isset($input['language_code'])) {
             $input['settings']['language_id'] = $this->getLanguageId($input['language_code']);
 
-            if(strlen($input['settings']['language_id']) == 0)
+            if (strlen($input['settings']['language_id']) == 0) {
                 unset($input['settings']['language_id']);
+            }
         }
 
         if (isset($input['country_code'])) {

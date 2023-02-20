@@ -57,6 +57,4 @@ class DownloadHistoricalInvoiceTest extends TestCase
 
         $this->assertNotNull($this->invoice->activities);
     }
-
-
 }

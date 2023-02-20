@@ -11,14 +11,15 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: $font_size 
+        font-size: $font_size !important;
         zoom: 80%;
     }
-/*
-    body, table{
-        font-size: $font_size
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
     }
-*/
+
+
     body, html {
         margin: 0;
         padding: 0;
@@ -129,7 +130,7 @@
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-top: 1rem;
+        margin-top: 0rem;
         margin-bottom: 0px;
     }
 

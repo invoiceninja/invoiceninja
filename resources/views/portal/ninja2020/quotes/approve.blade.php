@@ -12,6 +12,8 @@
         @csrf
         <input type="hidden" name="action" value="approve">
         <input type="hidden" name="process" value="true">
+        <input type="hidden" name="user_input" value="">
+
         @foreach($quotes as $quote)
             <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
         @endforeach
@@ -83,6 +85,8 @@
 
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => $quotes, 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
+
+
 @endsection
 
 @push('footer')

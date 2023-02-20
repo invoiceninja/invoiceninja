@@ -11,10 +11,8 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\ProductExport;
 use App\Export\CSV\ProductSalesExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\GenericReportRequest;
 use App\Http\Requests\Report\ProductSalesReportRequest;
 use App\Jobs\Report\SendToAdmin;
 use App\Models\Client;

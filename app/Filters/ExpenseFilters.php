@@ -25,7 +25,7 @@ class ExpenseFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -53,7 +53,7 @@ class ExpenseFilters extends QueryFilters
      *
      * @return Builder
      */
-    public function client_status(string $value = '') :Builder
+    public function client_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
             return $this->builder;
@@ -65,52 +65,40 @@ class ExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where(function ($query) use($status_parameters){
-
+        $this->builder->where(function ($query) use ($status_parameters) {
             if (in_array('logged', $status_parameters)) {
-
-                $query->orWhere(function ($query){
+                $query->orWhere(function ($query) {
                     $query->where('amount', '>', 0)
                           ->whereNull('invoice_id')
                           ->whereNull('payment_date')
-                          ->where('should_be_invoiced',false);
+                          ->where('should_be_invoiced', false);
                 });
-                
             }
 
             if (in_array('pending', $status_parameters)) {
-
-                $query->orWhere(function ($query){
-                    $query->where('should_be_invoiced',true)
+                $query->orWhere(function ($query) {
+                    $query->where('should_be_invoiced', true)
                           ->whereNull('invoice_id');
                 });
-                
             }
 
             if (in_array('invoiced', $status_parameters)) {
-
-                $query->orWhere(function ($query){
+                $query->orWhere(function ($query) {
                     $query->whereNotNull('invoice_id');
                 });
-                
             }
 
             if (in_array('paid', $status_parameters)) {
-
-                $query->orWhere(function ($query){
+                $query->orWhere(function ($query) {
                     $query->whereNotNull('payment_date');
                 });
-                
             }
 
             if (in_array('unpaid', $status_parameters)) {
-
-                $query->orWhere(function ($query){
+                $query->orWhere(function ($query) {
                     $query->whereNull('payment_date');
                 });
-                
             }
-
         });
 
         // nlog($this->builder->toSql());
@@ -123,13 +111,20 @@ class ExpenseFilters extends QueryFilters
      */
     public function match_transactions($value = '')
     {
-
-        if($value == 'true')
-        {
-            return $this->builder->where('is_deleted',0)->whereNull('transaction_id');
+        if ($value == 'true') {
+            return $this->builder->where('is_deleted', 0)->whereNull('transaction_id');
         }
 
         return $this->builder;
+    }
+
+    public function number(string $number = ''): Builder
+    {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
     }
 
     /**
@@ -138,9 +133,13 @@ class ExpenseFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);

@@ -12,7 +12,6 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Transformers\InvoiceTransformer;

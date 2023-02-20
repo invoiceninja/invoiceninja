@@ -12,20 +12,15 @@
 
 namespace App\PaymentDrivers\PayTrace;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\PayFastPaymentDriver;
 use App\PaymentDrivers\PaytracePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
@@ -86,6 +81,9 @@ class CreditCard
 
             return $this->paytrace->processUnsuccessfulTransaction($data);
         }
+
+        nlog("paytrace response createCustomer");
+        nlog($response);
 
         $cgt = [];
         $cgt['token'] = $response->customer_id;

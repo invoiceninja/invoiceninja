@@ -12,7 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\FeesAndLimits;
-use App\Exceptions\SystemError;
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Libraries\MultiDB;
@@ -20,10 +19,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use App\PaymentDrivers\Stripe\Connect\Account;
 use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
-use Exception;
-use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
 
 class StripeConnectController extends BaseController
@@ -70,14 +66,17 @@ class StripeConnectController extends BaseController
     {
         \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
+        if ($request->has('error') && $request->error == 'access_denied') {
+            return view('auth.connect.access_denied');
+        }
+
         try {
             $response = \Stripe\OAuth::token([
                 'grant_type' => 'authorization_code',
                 'code' => $request->input('code'),
             ]);
         } catch (\Exception $e) {
-            nlog($e->getMessage());
-            throw new SystemError($e->getMessage(), 500);
+            return view('auth.connect.access_denied');
         }
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);

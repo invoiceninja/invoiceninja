@@ -13,7 +13,6 @@ namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class ProductSalesReportRequest extends Request
 {
@@ -31,7 +30,6 @@ class ProductSalesReportRequest extends Request
 
     public function rules()
     {
-
         return [
             'date_range' => 'bail|required|string',
             'end_date' => 'bail|required_if:date_range,custom|nullable|date',
@@ -46,7 +44,7 @@ class ProductSalesReportRequest extends Request
     {
         $input = $this->all();
 
-        if (! array_key_exists('date_range', $input)) {
+        if (! array_key_exists('date_range', $input) || $input['date_range'] == '') {
             $input['date_range'] = 'all';
         }
 
@@ -63,8 +61,9 @@ class ProductSalesReportRequest extends Request
             $input['end_date'] = null;
         }
 
-        if(array_key_exists('client_id', $input) && strlen($input['client_id']) >=1)
+        if (array_key_exists('client_id', $input) && strlen($input['client_id']) >=1) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
 
         $this->replace($input);
     }

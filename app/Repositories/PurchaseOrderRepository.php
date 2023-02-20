@@ -44,7 +44,6 @@ class PurchaseOrderRepository extends BaseRepository
             });
 
             foreach ($data['invitations'] as $invitation) {
-
                 //if no invitations are present - create one.
                 if (! $this->getInvitation($invitation)) {
                     if (isset($invitation['id'])) {
@@ -67,7 +66,7 @@ class PurchaseOrderRepository extends BaseRepository
                             $new_invitation->purchase_order_id = $purchase_order->id;
                             $new_invitation->vendor_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($purchase_order->company->db);
-                            $new_invitation->save();
+                            $new_invitation->saveQuietly();
                         }
                     }
                 }

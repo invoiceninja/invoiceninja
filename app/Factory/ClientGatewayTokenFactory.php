@@ -12,7 +12,6 @@
 namespace App\Factory;
 
 use App\Models\ClientGatewayToken;
-use Illuminate\Support\Str;
 
 class ClientGatewayTokenFactory
 {

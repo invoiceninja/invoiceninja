@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+$LANG = [
     'organization' => 'Unternehmen',
     'name' => 'Name',
     'website' => 'Webseite',
@@ -4910,7 +4910,7 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'export_company' => 'Unternehmens Sicherungskopie erstellen',
     'backup' => 'Sicherungskopie',
     'notification_purchase_order_created_body' => 'Die folgende Bestellung :purchase_order wurde für den Lieferant :vendor in Höhe von :amount erstellt.',
-    'notification_purchase_order_created_subject' => 'Bestellung :purchase_order wurde für :vendor erstellt',    
+    'notification_purchase_order_created_subject' => 'Bestellung :purchase_order wurde für :vendor erstellt',
     'notification_purchase_order_sent_subject' => 'Bestellung :purchase_order wurde an :vendor gesendet',
     'notification_purchase_order_sent' => 'Der folgende Lieferant :vendor hat eine Bestellung :purchase_order über :amount erhalten.',
     'subscription_blocked' => 'Dieses Produkt ist ein eingeschränkter Artikel, bitte kontaktieren Sie den Lieferant für weitere Informationen.',
@@ -4925,8 +4925,6 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'matomo_url' => 'Matomo URL',
     'matomo_id' => 'Matomo ID',
     'action_add_to_invoice' => 'Zur Rechnung hinzufügen',
-);
+];
 
 return $LANG;
-
-?>

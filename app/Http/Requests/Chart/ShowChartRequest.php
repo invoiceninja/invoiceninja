@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Chart;
 
 use App\Http\Requests\Request;
-use App\Models\Activity;
 
 class ShowChartRequest extends Request
 {

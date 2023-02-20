@@ -46,7 +46,7 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a list of actvities",
      *      description="Lists all activities",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -92,10 +92,10 @@ class ActivityController extends BaseController
                                 ->take($default_activities);
 
         if ($request->has('react')) {
-
-            if(!auth()->user()->isAdmin())
+            if (!auth()->user()->isAdmin()) {
                 $activities->where('user_id', auth()->user()->id);
-                // return response()->json(['data' => []], 200);
+            }
+            // return response()->json(['data' => []], 200);
 
             $system = ctrans('texts.system');
 
@@ -136,7 +136,7 @@ class ActivityController extends BaseController
      *      tags={"actvities"},
      *      summary="Gets a PDF for the given activity",
      *      description="Gets a PDF for the given activity",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="activity_id",
@@ -183,7 +183,6 @@ class ActivityController extends BaseController
         */
 
         if ($backup && $backup->filename && Storage::disk(config('filesystems.default'))->exists($backup->filename)) { //disk
-
             if (Ninja::isHosted()) {
                 $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->url($backup->filename));
             } else {

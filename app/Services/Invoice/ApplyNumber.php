@@ -45,7 +45,7 @@ class ApplyNumber extends AbstractService
                 $this->trySaving();
                 break;
             case 'when_sent':
-                if ($this->invoice->status_id == Invoice::STATUS_SENT) {
+                if ($this->invoice->status_id >= Invoice::STATUS_SENT) {
                     $this->trySaving();
                 }
                 break;
@@ -59,32 +59,24 @@ class ApplyNumber extends AbstractService
 
     private function trySaving()
     {
-
         $x=1;
 
-        do{
-
-            try{
-
+        do {
+            try {
                 $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;
-
-            }
-            catch(QueryException $e){
-
+            } catch(QueryException $e) {
                 $x++;
 
-                if($x>50)
+                if ($x>50) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
+        } while ($this->completed);
 
 
         return $this;
     }
-
 }

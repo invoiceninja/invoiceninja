@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Preview;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
@@ -20,7 +19,6 @@ use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class DesignPreviewRequest extends Request
 {
@@ -34,10 +32,10 @@ class DesignPreviewRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Invoice::class) || 
-               auth()->user()->can('create', Quote::class) || 
-               auth()->user()->can('create', RecurringInvoice::class) || 
-               auth()->user()->can('create', Credit::class) || 
+        return auth()->user()->can('create', Invoice::class) ||
+               auth()->user()->can('create', Quote::class) ||
+               auth()->user()->can('create', RecurringInvoice::class) ||
+               auth()->user()->can('create', Credit::class) ||
                auth()->user()->can('create', PurchaseOrder::class);
     }
 

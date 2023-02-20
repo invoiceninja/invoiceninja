@@ -31,7 +31,6 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('task_scheduler', function ($value) {
-
             if (is_numeric($value)) {
                 throw new ModelNotFoundException("Record with value {$value} not found");
             }
@@ -40,10 +39,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->withTrashed()
                 ->company()
                 ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-
         });
-
-
     }
 
     /**

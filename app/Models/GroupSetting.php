@@ -13,8 +13,8 @@ namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroupSetting extends StaticModel
 {
@@ -73,7 +73,6 @@ class GroupSetting extends StaticModel
      */
     public function resolveRouteBinding($value, $field = null)
     {
-            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
@@ -82,7 +81,5 @@ class GroupSetting extends StaticModel
             ->withTrashed()
             ->company()
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-
     }
 }
-

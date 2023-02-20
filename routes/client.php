@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\ContactLoginController;
 use App\Http\Controllers\Auth\ContactRegisterController;
 use App\Http\Controllers\Auth\ContactResetPasswordController;
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\ClientPortal\DocumentController;
 use App\Http\Controllers\ClientPortal\PaymentMethodController;
 use App\Http\Controllers\ClientPortal\SubscriptionController;
 use App\Http\Controllers\ClientPortal\TaskController;
@@ -45,7 +44,6 @@ Route::get('client/ninja/{contact_key}/{company_key}', [App\Http\Controllers\Cli
 Route::post('client/ninja/trial_confirmation', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'trial_confirmation'])->name('client.trial.response')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
-    
     Route::get('dashboard', [App\Http\Controllers\ClientPortal\DashboardController::class, 'index'])->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
@@ -109,7 +107,6 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::post('upload', App\Http\Controllers\ClientPortal\UploadController::class)->name('upload.store');
     Route::get('logout', [ContactLoginController::class, 'logout'])->name('logout');
-
 });
 
 Route::post('payments/process/response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'response'])->name('client.payments.response')->middleware(['locale', 'domain_db', 'verify_hash']);
@@ -133,7 +130,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
-
 });
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');

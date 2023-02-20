@@ -13,11 +13,9 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Utils\Ninja;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ApplePayDomainController extends Controller
 {
@@ -25,7 +23,6 @@ class ApplePayDomainController extends Controller
 
     public function showAppleMerchantId(Request $request)
     {
-
         /* Self Host */
 
         if (Ninja::isSelfHost()) {

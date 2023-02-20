@@ -64,7 +64,6 @@ class RegisterRequest extends FormRequest
 
     public function company()
     {
-
         //this should be all we need, the rest SHOULD be redundant because of our Middleware
         if ($this->key) {
             return Company::where('company_key', $this->key)->first();

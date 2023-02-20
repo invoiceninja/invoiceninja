@@ -23,7 +23,7 @@ class DesignFilters extends QueryFilters
      *
      * @param string query filter
      * @return Builder
-     * 
+     *
      * @deprecated
      */
     public function filter(string $filter = ''): Builder
@@ -32,7 +32,7 @@ class DesignFilters extends QueryFilters
             return $this->builder;
         }
 
-        return  $this->builder->where(function ($query) use ($filter) {
+        return $this->builder->where(function ($query) use ($filter) {
             $query->where('designs.name', 'like', '%'.$filter.'%');
         });
     }
@@ -41,17 +41,18 @@ class DesignFilters extends QueryFilters
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
-     * 
+     *
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
 
-        if(is_array($sort_col))
-            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
-        return $this->builder;
+        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
     /**
@@ -61,7 +62,6 @@ class DesignFilters extends QueryFilters
      */
     public function entityFilter(): Builder
     {
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
-        return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id','asc');
+        return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
     }
 }

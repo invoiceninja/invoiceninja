@@ -14,13 +14,11 @@ namespace App\Repositories;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Ninja\TransactionLog;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -30,20 +28,22 @@ use Illuminate\Support\Carbon;
 /**
  * PaymentRepository.
  */
-class PaymentRepository extends BaseRepository {
-	use MakesHash;
-	use SavesDocuments;
+class PaymentRepository extends BaseRepository
+{
+    use MakesHash;
+    use SavesDocuments;
 
-	protected $credit_repo;
+    protected $credit_repo;
 
-	public function __construct( CreditRepository $credit_repo ) {
-		$this->credit_repo = $credit_repo;
-	}
+    public function __construct(CreditRepository $credit_repo)
+    {
+        $this->credit_repo = $credit_repo;
+    }
 
-	/**
-	 * Saves and updates a payment. //todo refactor to handle refunds and payments.
-	 *
-	 * @param array   $data the request object
+    /**
+     * Saves and updates a payment. //todo refactor to handle refunds and payments.
+     *
+     * @param array   $data the request object
      * @param Payment $payment The Payment object
      * @return Payment|null Payment $payment
      */
@@ -60,7 +60,6 @@ class PaymentRepository extends BaseRepository {
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
-
         $is_existing_payment = true;
         $client = false;
 
@@ -69,13 +68,13 @@ class PaymentRepository extends BaseRepository {
             $payment = $this->processExchangeRates($data, $payment);
 
             /* This is needed here otherwise the ->fill() overwrites anything that exists*/
-            if($payment->exchange_rate != 1)
+            if ($payment->exchange_rate != 1) {
                 unset($data['exchange_rate']);
+            }
 
             $is_existing_payment = false;
 
             \DB::connection(config('database.default'))->transaction(function () use ($data) {
-
                 $client = Client::where('id', $data['client_id'])->withTrashed()->lockForUpdate()->first();
 
                 /*We only update the paid to date ONCE per payment*/
@@ -85,14 +84,12 @@ class PaymentRepository extends BaseRepository {
                     }
                     
                     $client->service()->updatePaidToDate($data['amount'])->save();
-                    $client->save();
-                }
-
-                else{
+                    $client->saveQuietly();
+                } else {
                     //this fixes an edge case with unapplied payments
                     $client->service()->updatePaidToDate($data['amount'])->save();
                     // $client->paid_to_date += $data['amount'];
-                    $client->save();
+                    $client->saveQuietly();
                 }
 
                 if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
@@ -100,11 +97,9 @@ class PaymentRepository extends BaseRepository {
 
                     $client->service()->updatePaidToDate($_credit_totals)->save();
                     // $client->paid_to_date += $_credit_totals;
-                    $client->save();
+                    $client->saveQuietly();
                 }
-
-             }, 1);
-
+            }, 1);
         }
 
         /*Fill the payment*/
@@ -113,15 +108,14 @@ class PaymentRepository extends BaseRepository {
         $payment->status_id = Payment::STATUS_COMPLETED;
 
         if (! $payment->currency_id && $client) {
-
-            if(property_exists($client->settings, 'currency_id'))
+            if (property_exists($client->settings, 'currency_id')) {
                 $payment->currency_id = $client->settings->currency_id;
-            else    
+            } else {
                 $payment->currency_id = $client->company->settings->currency_id;
-            
+            }
         }
 
-        $payment->save();
+        $payment->saveQuietly();
 
         /*Save documents*/
         if (array_key_exists('documents', $data)) {
@@ -140,7 +134,6 @@ class PaymentRepository extends BaseRepository {
 
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
-
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::withTrashed()->whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
@@ -186,29 +179,19 @@ class PaymentRepository extends BaseRepository {
             }
         }
 
-		if ( ! $is_existing_payment && ! $this->import_mode ) {
-
-            if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == 'true') 
+        if (! $is_existing_payment && ! $this->import_mode) {
+            if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == 'true') {
                 $payment->service()->sendEmail();
-			elseif(!array_key_exists('email_receipt', $data) && $payment->client->getSetting('client_manual_payment_notification'))
+            } elseif (!array_key_exists('email_receipt', $data) && $payment->client->getSetting('client_manual_payment_notification')) {
                 $payment->service()->sendEmail();
+            }
 
-            event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null) ) );
-		}
+            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        }
 
         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
 
-        $payment->save();
-
-        $transaction = [
-            'invoice' => [],
-            'payment' => $payment->transaction_event(),
-            'client' => $payment->client->transaction_event(),
-            'credit' => [],
-            'metadata' => [],
-        ];
-
-        // TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
+        $payment->saveQuietly();
 
         return $payment->refresh();
     }
@@ -222,8 +205,7 @@ class PaymentRepository extends BaseRepository {
      */
     public function processExchangeRates($data, $payment)
     {
-
-        if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1){
+        if (array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']) && $data['exchange_rate'] != 1) {
             return $payment;
         }
 
@@ -233,7 +215,6 @@ class PaymentRepository extends BaseRepository {
         $company_currency = $client->company->settings->currency_id;
 
         if ($company_currency != $client_currency) {
-
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
@@ -257,11 +238,11 @@ class PaymentRepository extends BaseRepository {
 
         $payment = $payment->service()->deletePayment();
 
-        if($payment)
+        if ($payment) {
             event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        }
 
         return $payment;
-
     }
 
     public function restore($payment)

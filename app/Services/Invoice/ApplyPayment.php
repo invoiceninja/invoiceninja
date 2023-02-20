@@ -41,7 +41,6 @@ class ApplyPayment extends AbstractService
 
         if ($this->invoice->hasPartial()) {
             if ($this->invoice->partial == $this->payment_amount) {
-
                 //is partial and amount is exactly the partial amount
 
                 $amount_paid = $this->payment_amount * -1;

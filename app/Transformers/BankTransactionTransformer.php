@@ -15,8 +15,6 @@ use App\Models\Account;
 use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\Invoice;
-use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -111,5 +109,4 @@ class BankTransactionTransformer extends EntityTransformer
 
         return $this->includeItem($bank_transaction->payment, $transformer, Payment::class);
     }
-
 }

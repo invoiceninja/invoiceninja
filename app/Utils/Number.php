@@ -13,7 +13,6 @@ namespace App\Utils;
 
 use App\Models\Company;
 use App\Models\Currency;
-use App\Models\Vendor;
 
 /**
  * Class Number.
@@ -136,8 +135,9 @@ class Number
      */
     public static function formatMoney($value, $entity) :string
     {
-
         $value = floatval($value);
+
+        $_value = $value;
 
         $currency = $entity->currency();
 
@@ -179,6 +179,12 @@ class Number
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
         } elseif ($entity->getSetting('show_currency_code') === false) {
+            /* Ensures we place the negative symbol ahead of the currency symbol*/
+            if ($_value < 0) {
+                $value = substr($value, 1);
+                $symbol = "-{$symbol}";
+            }
+
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);
@@ -223,14 +229,13 @@ class Number
 
         /* 08-01-2022 allow increased precision for unit price*/
         $v = rtrim(sprintf('%f', $value), '0');
-        // $precision = strlen(substr(strrchr($v, $decimal), 1));
 
-        if ($v < 1) {
+        /* 08-02-2023 special if block to render $0.5 to $0.50*/
+        if ($v < 1 && strlen($v) == 3) {
+            $precision = 2;
+        } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
         }
-
-        // if($precision == 1)
-        //     $precision = 2;
 
         $value = number_format($v, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;

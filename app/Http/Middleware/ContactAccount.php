@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Utils\Ninja;
 use Closure;

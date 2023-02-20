@@ -11,20 +11,12 @@
 
 namespace App\Notifications\Ninja;
 
-use App\Models\Account;
-use App\Models\Client;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class DomainRenewalFailureNotification extends Notification 
+class DomainRenewalFailureNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
@@ -75,7 +67,7 @@ class DomainRenewalFailureNotification extends Notification
     public function toSlack($notifiable)
     {
         $content = "Domain Certificate _renewal_ failure:\n";
-        $content .= "{$this->domain}\n";        
+        $content .= "{$this->domain}\n";
 
         return (new SlackMessage)
                 ->success()

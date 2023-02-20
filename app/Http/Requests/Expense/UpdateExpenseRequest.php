@@ -68,14 +68,11 @@ class UpdateExpenseRequest extends Request
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
 
-            if($project){
+            if ($project) {
                 $input['client_id'] = $project->client_id;
-            }
-            else
-            {
+            } else {
                 unset($input['project_id']);
             }
-
         }
 
         $this->replace($input);

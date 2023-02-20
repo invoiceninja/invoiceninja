@@ -24,7 +24,6 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Route;
 
 class ContactLoginController extends Controller
 {
@@ -45,12 +44,11 @@ class ContactLoginController extends Controller
         if ($request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
-        }
-        elseif($request->has('company_key')){
-             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+        } elseif ($request->has('company_key')) {
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
-        }elseif($company_key){
-             MultiDB::findAndSetDbByCompanyKey($company_key);
+        } elseif ($company_key) {
+            MultiDB::findAndSetDbByCompanyKey($company_key);
             $company = Company::where('company_key', $company_key)->first();
         }
 

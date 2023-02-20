@@ -17,9 +17,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\WePay\WePayCommon;
 use App\PaymentDrivers\WePayPaymentDriver;
 use Illuminate\Support\Str;
 

@@ -27,9 +27,7 @@ use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
-use App\Import\ImportException;
-use App\Import\Providers\BaseImport;
-use App\Import\Providers\ImportInterface;
+use App\Import\Transformer\Bank\BankTransformer;
 use App\Import\Transformer\Csv\ClientTransformer;
 use App\Import\Transformer\Csv\ExpenseTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
@@ -37,7 +35,6 @@ use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\QuoteTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
-use App\Import\Transformer\Bank\BankTransformer;
 use App\Repositories\BankTransactionRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ExpenseRepository;
@@ -48,8 +45,6 @@ use App\Repositories\QuoteRepository;
 use App\Repositories\VendorRepository;
 use App\Services\Bank\BankMatchingService;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Csv extends BaseImport implements ImportInterface
 {
@@ -81,16 +76,12 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        if (is_array($data)) 
-        {
-
+        if (is_array($data)) {
             $data = $this->preTransformCsv($data, $entity_type);
 
-            foreach($data as $key => $value)
-            {
+            foreach ($data as $key => $value) {
                 $data[$key]['transaction.bank_integration_id'] = $this->decodePrimaryKey($this->request['bank_integration_id']);
             }
-
         }
 
         if (empty($data)) {
@@ -111,7 +102,6 @@ class Csv extends BaseImport implements ImportInterface
         nlog("bank matching co id = {$this->company->id}");
 
         (new BankMatchingService($this->company->id, $this->company->db))->handle();
-
     }
 
     public function client()

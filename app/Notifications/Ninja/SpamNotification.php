@@ -11,18 +11,12 @@
 
 namespace App\Notifications\Ninja;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class SpamNotification extends Notification 
+class SpamNotification extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
@@ -77,38 +71,30 @@ class SpamNotification extends Notification
         // foreach($this->spam_lists as $spam_list)
         // {
 
-            if(array_key_exists('companies', $this->spam_list))
-            {
-                $content .= " Companies \n";
+        if (array_key_exists('companies', $this->spam_list)) {
+            $content .= " Companies \n";
 
-                foreach($this->spam_list['companies'] as $company)
-                {
-                    $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
-                }
+            foreach ($this->spam_list['companies'] as $company) {
+                $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
             }
+        }
 
-            if(array_key_exists('templates', $this->spam_list))
-            {
-                $content .= " Templates \n";
+        if (array_key_exists('templates', $this->spam_list)) {
+            $content .= " Templates \n";
 
-                foreach($this->spam_list['templates'] as $company)
-                {
-                    $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
-                }
+            foreach ($this->spam_list['templates'] as $company) {
+                $content .= "{$company['name']} - c_key={$company['company_key']} - a_key={$company['account_key']} - {$company['owner']} \n";
             }
+        }
 
 
-            if(array_key_exists('users', $this->spam_list))
-            {
+        if (array_key_exists('users', $this->spam_list)) {
+            $content .= ' Users \n';
 
-                $content .= ' Users \n';
-
-                foreach($this->spam_list['users'] as $user)
-                {
-                    $content .= "{$user['email']} - a_key={$user['account_key']} - created={$user['created']} \n";
-                }
-
+            foreach ($this->spam_list['users'] as $user) {
+                $content .= "{$user['email']} - a_key={$user['account_key']} - created={$user['created']} \n";
             }
+        }
 
         // }
 

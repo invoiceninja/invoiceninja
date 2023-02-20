@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
 use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
 use App\Models\Company;
-use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;

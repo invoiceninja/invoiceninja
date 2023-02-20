@@ -13,11 +13,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
-use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Utils\Traits\MakesHash;
-use Auth;
 
 class PaymentNotificationWebhookController extends Controller
 {

@@ -14,7 +14,6 @@ namespace App\Console\Commands;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Ninja\SendReminders;
 use App\Jobs\Util\WebhookHandler;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
@@ -97,7 +96,6 @@ class SendRemindersCron extends Command
                          $invoice->save();
                      }
                  });
-
     }
 
     private function calcLateFee($invoice, $template) :Invoice

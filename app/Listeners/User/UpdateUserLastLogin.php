@@ -16,7 +16,6 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\User\UserLoggedIn;
-use App\Models\Client;
 use App\Models\SystemLog;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -11,11 +11,7 @@
 
 namespace App\Filters;
 
-use App\Models\BankTransactionRule;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * BankTransactionRuleilters.
@@ -30,10 +26,11 @@ class BankTransactionRuleFilters extends QueryFilters
      */
     public function name(string $name = ''): Builder
     {
-        if(strlen($name) >=1)
-            return $this->builder->where('name', 'like', '%'.$name.'%');
-
-        return $this->builder;
+        if (strlen($name) == 0) {
+            return $this->builder;
+        }
+        
+        return $this->builder->where('name', 'like', '%'.$name.'%');
     }
 
     /**
@@ -43,7 +40,7 @@ class BankTransactionRuleFilters extends QueryFilters
      * @return Builder
      * @deprecated
      */
-    public function filter(string $filter = '') : Builder
+    public function filter(string $filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;
@@ -52,7 +49,6 @@ class BankTransactionRuleFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('bank_transaction_rules.name', 'like', '%'.$filter.'%');
         });
-
     }
 
     /**
@@ -61,24 +57,15 @@ class BankTransactionRuleFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort) : Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
         
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
-    }
-
-    /**
-     * Returns the base query.
-     *
-     * @param int company_id
-     * @param User $user
-     * @return Builder
-     * @deprecated
-     */
-    public function baseQuery(int $company_id, User $user) : Builder
-    {
-
     }
 
     /**

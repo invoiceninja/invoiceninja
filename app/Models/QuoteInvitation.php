@@ -11,9 +11,7 @@
 
 namespace App\Models;
 
-use App\Events\Quote\QuoteWasUpdated;
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -101,7 +99,6 @@ class QuoteInvitation extends BaseModel
         $storage_path = Storage::url($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->quote->client->quote_filepath($this).$this->quote->numberFormatter().'.pdf')) {
-            event(new QuoteWasUpdated($this->quote, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             (new CreateEntityPdf($this))->handle();
         }
 

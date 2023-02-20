@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
-use Illuminate\Validation\Rule;
 
 class GenericReportRequest extends Request
 {
@@ -28,7 +27,6 @@ class GenericReportRequest extends Request
 
     public function rules()
     {
-
         return [
             'date_range' => 'bail|required|string',
             'end_date' => 'bail|required_if:date_range,custom|nullable|date',
@@ -42,7 +40,7 @@ class GenericReportRequest extends Request
     {
         $input = $this->all();
 
-        if (! array_key_exists('date_range', $input)) {
+        if (! array_key_exists('date_range', $input) || $input['date_range'] == '') {
             $input['date_range'] = 'all';
         }
 
@@ -58,7 +56,7 @@ class GenericReportRequest extends Request
             $input['start_date'] = null;
             $input['end_date'] = null;
         }
-
+        nlog($input);
 
         $this->replace($input);
     }

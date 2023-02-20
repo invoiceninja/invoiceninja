@@ -11,7 +11,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Project;
 use App\Models\Quote;
@@ -50,6 +49,19 @@ class QuoteTest extends TestCase
         );
     }
 
+    public function testQuoteDownloadPDF()
+    {
+        $i = $this->quote->invitations->first();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/quote/{$i->key}/download");
+
+        $response->assertStatus(200);
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+    }
+
     public function testQuoteListApproved()
     {
         $response = $this->withHeaders([
@@ -66,7 +78,7 @@ class QuoteTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes/bulk',['action' => 'convert_to_project', 'ids' => [$this->quote->hashed_id]]);
+        ])->post('/api/v1/quotes/bulk', ['action' => 'convert_to_project', 'ids' => [$this->quote->hashed_id]]);
 
         $response->assertStatus(200);
 
@@ -169,5 +181,4 @@ class QuoteTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 }

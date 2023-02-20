@@ -175,7 +175,5 @@ class EntityTranslationTest extends TestCase
         $this->assertEquals(str_replace(" ", "_", ctrans('texts.invoice')) . "_xxx", $invoice->numberFormatter());
         $this->assertEquals(str_replace(" ", "_", ctrans('texts.quote')) . "_xxx", $quote->numberFormatter());
         $this->assertEquals(str_replace(" ", "_", ctrans('texts.purchase_order')) . "_xxx", $po->numberFormatter());
-
-
     }
 }

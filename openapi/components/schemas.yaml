@@ -1,0 +1,3848 @@
+  schemas:
+    BankTransactionRule:
+      properties:
+        id:
+          description: 'The bank transaction rules hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: AS3df3A
+        name:
+          description: 'The name of the transaction'
+          type: string
+          example: 'Rule 1'
+        rules:
+          description: 'A mapped collection of the sub rules for the BankTransactionRule'
+          type: array
+          items:
+            $ref: '#/components/schemas/BTRules'
+        auto_convert:
+          description: 'Flags whether the rule converts the transaction automatically'
+          type: boolean
+          example: true
+        matches_on_all:
+          description: 'Flags whether all subrules are required for the match'
+          type: boolean
+          example: true
+        applies_to:
+          description: 'Flags whether the rule applies to a CREDIT or DEBIT'
+          type: string
+          example: CREDIT
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: AS3df3A
+        vendor_id:
+          description: 'The vendor hashed id'
+          type: string
+          example: AS3df3A
+        category_id:
+          description: 'The category hashed id'
+          type: string
+          example: AS3df3A
+      type: object
+    Subscription:
+      properties:
+        id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        product_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        recurring_invoice_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        is_recurring:
+          description: ______
+          type: boolean
+          example: 'true'
+        frequency_id:
+          description: 'integer const representation of the frequency'
+          type: string
+          example: '1'
+        auto_bill:
+          description: 'enum setting'
+          type: string
+          example: always
+        promo_code:
+          description: ______
+          type: string
+          example: PROMOCODE4U
+        promo_discount:
+          description: ______
+          type: number
+          example: 10
+        is_amount_discount:
+          description: ______
+          type: boolean
+          example: 'true'
+        allow_cancellation:
+          description: ______
+          type: boolean
+          example: 'true'
+        per_seat_enabled:
+          description: ______
+          type: boolean
+          example: 'true'
+        currency_id:
+          description: ______
+          type: integer
+          example: '1'
+        max_seats_limit:
+          description: ______
+          type: integer
+          example: '100'
+        trial_enabled:
+          description: ______
+          type: boolean
+          example: 'true'
+        trial_duration:
+          description: ______
+          type: integer
+          example: '2'
+        allow_query_overrides:
+          description: ______
+          type: boolean
+          example: 'true'
+        allow_plan_changes:
+          description: ______
+          type: boolean
+          example: 'true'
+        refund_period:
+          description: ______
+          type: integer
+          example: '2'
+        webhook_configuration:
+          description: ______
+          type: string
+          example: '2'
+        is_deleted:
+          description: ______
+          type: boolean
+          example: 'true'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    BulkAction:
+      type: array
+      items:
+        type: integer
+        example: '[0,1,2,3,]'
+    ClientContact:
+      properties:
+        id:
+          description: 'The hashed if of the contact'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the contact'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+        first_name:
+          description: 'The first name of the contact'
+          type: string
+          example: John
+        last_name:
+          description: 'The last name of the contact'
+          type: string
+          example: Doe
+        phone:
+          description: 'The phone number of the contact'
+          type: string
+          example: 555-152-4524
+        custom_value1:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        email:
+          description: 'The email of the contact'
+          type: string
+          example: ''
+        accepted_terms_version:
+          description: 'The terms of service which the contact has accpeted'
+          type: string
+          example: 'A long set of ToS'
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '*****'
+        confirmation-code:
+          description: 'The confirmation code used to authenticate the contacts email address'
+          type: string
+          example: 333-sdjkh34gbasd
+        token:
+          description: 'A uuid based token.'
+          type: string
+          example: 333-sdjkh34gbasd
+        is_primary:
+          description: 'Defines is this contact is the primary contact for the client'
+          type: boolean
+          example: true
+        confirmed:
+          description: 'Boolean value confirms the user has confirmed their account.'
+          type: boolean
+          example: true
+        is_locked:
+          description: 'Boolean value defines if the contact has been locked out.'
+          type: boolean
+          example: true
+        send_email:
+          description: 'Boolean value determines is this contact should receive emails'
+          type: boolean
+          example: true
+        failed_logins:
+          description: 'The number of failed logins the contact has had'
+          type: number
+          format: integer
+          example: '3'
+        email_verified_at:
+          description: 'The date which the contact confirmed their email'
+          type: number
+          format: integer
+          example: '134341234234'
+        last_login:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    ClientGatewayToken:
+      properties:
+        id:
+          description: 'The hashed id of the client gateway token'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: '2'
+        client_id:
+          description: 'The hashed_id of the client'
+          type: string
+          example: '2'
+        token:
+          description: 'The payment token'
+          type: string
+          example: '2'
+        routing_number:
+          description: 'THe bank account routing number'
+          type: string
+          example: '2'
+        company_gateway_id:
+          description: 'The hashed id of the company gateway'
+          type: string
+          example: '2'
+        is_default:
+          description: 'Flag determining if the token is the default payment method'
+          type: boolean
+          example: 'true'
+      type: object
+    Client:
+      properties:
+        id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user'
+          type: string
+          example: ''
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: ''
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientContact'
+        name:
+          description: 'The client name'
+          type: string
+          example: 'Jims housekeeping'
+        website:
+          description: 'The client website'
+          type: string
+          example: www.jims.com
+        private_notes:
+          description: 'Private notes on the client'
+          type: string
+          example: 'These are very private notes'
+        client_hash:
+          description: 'The client hash'
+          type: string
+          example: asdfkjhk342hjhbfdvmnfb1
+        industry_id:
+          description: 'The industry id of the client'
+          type: number
+          example: '5'
+        size_id:
+          description: 'The size id of the client'
+          type: number
+          example: '2'
+        address1:
+          description: 'Address line 1'
+          type: string
+          example: ''
+        address2:
+          description: 'Address line 2'
+          type: string
+          example: ''
+        city:
+          description: City
+          type: string
+          example: 'Beverley Hills'
+        state:
+          description: State/Locality
+          type: string
+          example: Californnia
+        postal_code:
+          description: 'Zip / Postal code'
+          type: string
+          example: '90210'
+        phone:
+          description: 'The client phone number'
+          type: string
+          example: 555-3434-3434
+        country_id:
+          description: 'The client country id'
+          type: number
+          format: integer
+          example: '1'
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: 'Something custom'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: '2002-01-01'
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: 'Something custom'
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: 'Something custom'
+        vat_number:
+          description: 'The client VAT number'
+          type: string
+          example: VAT123
+        id_number:
+          description: ' The client id number'
+          type: string
+          example: CLIENT_ID_NUMBER
+        number:
+          description: 'The client number - assigned by the system typically'
+          type: string
+          example: ''
+        shipping_address1:
+          description: 'The shipping address line 1'
+          type: string
+          example: '5 Wallaby Way'
+        shipping_address2:
+          description: 'The shipping address line 2'
+          type: string
+          example: 'Suite 5'
+        shipping_city:
+          description: 'The shipping city'
+          type: string
+          example: Perth
+        shipping_state:
+          description: 'The shipping state'
+          type: string
+          example: 'Western Australia'
+        shipping_postal_code:
+          description: 'The shipping postal code'
+          type: string
+          example: '6110'
+        shipping_country_id:
+          description: 'The shipping country id'
+          type: number
+          format: integer
+          example: '4'
+        is_deleted:
+          description: 'Boolean flagged determining if the client has been deleted'
+          type: boolean
+          example: true
+        balance:
+          description: 'The client balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount the client has paid to date.'
+          type: number
+          format: float
+          example: '10.00'
+        credit_balance:
+          description: 'An amount which is available to the client for future use.'
+          type: number
+          format: float
+          example: '10.00'
+        last_login:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+      type: object
+    CompanyGateway:
+      properties:
+        id:
+          description: 'The hashed id of the company gateway'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: '2'
+        gateway_key:
+          description: 'The gateway key (hash)'
+          type: string
+          example: '2'
+        accepted_credit_cards:
+          description: 'Bitmask representation of cards'
+          type: integer
+          example: '32'
+        require_billing_address:
+          description: 'Determines if the the billing address is required prior to payment.'
+          type: boolean
+          example: true
+        require_shipping_address:
+          description: 'Determines if the the billing address is required prior to payment.'
+          type: boolean
+          example: true
+        config:
+          description: 'The configuration map for the gateway'
+          type: string
+          example: dfadsfdsafsafd
+        update_details:
+          description: 'Determines if the client details should be updated.'
+          type: boolean
+          example: true
+        fees_and_limits:
+          description: 'A mapped collection of the fees and limits for the configured gateway'
+          type: array
+          items:
+            $ref: '#/components/schemas/FeesAndLimits'
+      type: object
+    CompanyLedger:
+      properties:
+        entity_id:
+          description: 'This field will reference one of the following entity hashed ID payment_id, invoice_id or credit_id'
+          type: string
+          example: AS3df3A
+        notes:
+          description: 'The notes which reference this entry of the ledger'
+          type: string
+          example: 'Credit note for invoice #3212'
+        balance:
+          description: 'The client balance'
+          type: number
+          format: float
+          example: '10.00'
+        adjustment:
+          description: 'The amount the client balance is adjusted by'
+          type: number
+          format: float
+          example: '10.00'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
+    Company:
+      properties:
+        id:
+          description: 'The company hash id'
+          type: string
+          example: WJxbojagwO
+        size_id:
+          description: 'The company size ID'
+          type: string
+          example: '1'
+        industry_id:
+          description: 'The company industry ID'
+          type: string
+          example: '1'
+        slack_webhook_url:
+          description: 'The slack webhook notification URL'
+          type: string
+          example: 'https://slack.com/sh328sj'
+        google_analytics_key:
+          description: 'The google analytics key'
+          type: string
+          example: '1'
+        portal_mode:
+          description: 'Determines the client facing urls ie: subdomain,domain,iframe'
+          type: string
+          example: subdomain
+        subdomain:
+          description: 'Specifies the first part of the company domain ie acme in acme.domain.com'
+          type: string
+          example: aceme
+        portal_domain:
+          description: 'The fully qualified domain for client facing URLS'
+          type: string
+          example: 'https://subdomain.invoicing.co'
+        enabled_tax_rates:
+          description: 'Number of taxes rates used per entity'
+          type: integer
+          example: '1'
+        fill_products:
+          description: 'Toggles filling a product description based on product key'
+          type: boolean
+          example: true
+        convert_products:
+          description: ___________
+          type: boolean
+          example: true
+        update_products:
+          description: 'Toggles updating a product description which description changes'
+          type: boolean
+          example: true
+        show_product_details:
+          description: 'Toggles showing a product description which description changes'
+          type: boolean
+          example: true
+        custom_fields:
+          description: 'Custom fields map'
+          type: object
+        enable_product_cost:
+          description: 'Show/Hide the product cost field in the UI'
+          type: boolean
+          example: true
+        enable_product_quantity:
+          description: 'Show/hide the product quantity field (used in the UI to show the default quantity)'
+          type: boolean
+          example: true
+        default_quantity:
+          description: 'Enable/Disable whether to use a default quantity'
+          type: boolean
+          example: true
+        custom_surcharge_taxes1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_taxes2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_taxes3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_taxes4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        logo:
+          description: 'The company logo - binary'
+          type: object
+          example: logo.png
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+      type: object
+    CompanySettings:
+      properties:
+        timezone_id:
+          description: 'The timezone id'
+          type: string
+          example: '15'
+        date_format_id:
+          description: 'The date format id'
+          type: string
+          example: '15'
+        military_time:
+          description: 'Toggles 12/24 hour time'
+          type: boolean
+          example: true
+        language_id:
+          description: 'The language id'
+          type: string
+          example: '1'
+        show_currency_code:
+          description: 'Toggles whether the currency symbol or code is shown'
+          type: boolean
+          example: true
+        currency_id:
+          description: 'The default currency id'
+          type: string
+          example: true
+        payment_terms:
+          description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
+          type: integer
+          example: '1'
+        company_gateway_ids:
+          description: 'A commad separate list of available gateways'
+          type: string
+          example: '1,2,3,4'
+        custom_value1:
+          description: 'A Custom Label'
+          type: string
+          example: 'Custom Label'
+        custom_value2:
+          description: 'A Custom Label'
+          type: string
+          example: 'Custom Label'
+        custom_value3:
+          description: 'A Custom Label'
+          type: string
+          example: 'Custom Label'
+        custom_value4:
+          description: 'A Custom Label'
+          type: string
+          example: 'Custom Label'
+        default_task_rate:
+          description: 'The default task rate'
+          type: number
+          format: float
+          example: '10.00'
+        send_reminders:
+          description: 'Toggles whether reminders are sent'
+          type: boolean
+          example: true
+        enable_client_portal_tasks:
+          description: 'Show/hide the tasks panel in the client portal'
+          type: boolean
+          example: true
+        email_style:
+          description: 'options include plain,light,dark,custom'
+          type: string
+          example: light
+        reply_to_email:
+          description: 'The reply to email address'
+          type: string
+          example: email@gmail.com
+        bcc_email:
+          description: 'A comma separate list of BCC emails'
+          type: string
+          example: 'email@gmail.com, contact@gmail.com'
+        pdf_email_attachment:
+          description: 'Toggles whether to attach PDF as attachment'
+          type: boolean
+          example: true
+        ubl_email_attachment:
+          description: 'Toggles whether to attach UBL as attachment'
+          type: boolean
+          example: true
+        email_style_custom:
+          description: 'The custom template'
+          type: string
+          example: '<HTML></HTML>'
+        counter_number_applied:
+          description: 'enum when the invoice number counter is set, ie when_saved, when_sent, when_paid'
+          type: string
+          example: when_sent
+        quote_number_applied:
+          description: 'enum when the quote number counter is set, ie when_saved, when_sent'
+          type: string
+          example: when_sent
+        custom_message_dashboard:
+          description: 'A custom message which is displayed on the dashboard'
+          type: string
+          example: 'Please pay invoices immediately'
+        custom_message_unpaid_invoice:
+          description: 'A custom message which is displayed in the client portal when a client is viewing a unpaid invoice.'
+          type: string
+          example: 'Please pay invoices immediately'
+        custom_message_paid_invoice:
+          description: 'A custom message which is displayed in the client portal when a client is viewing a paid invoice.'
+          type: string
+          example: 'Thanks for paying this invoice!'
+        custom_message_unapproved_quote:
+          description: 'A custom message which is displayed in the client portal when a client is viewing a unapproved quote.'
+          type: string
+          example: 'Please approve quote'
+        lock_invoices:
+          description: 'Toggles whether invoices are locked once sent and cannot be modified further'
+          type: boolean
+          example: true
+        auto_archive_invoice:
+          description: 'Toggles whether a invoice is archived immediately following payment'
+          type: boolean
+          example: true
+        auto_archive_quote:
+          description: 'Toggles whether a quote is archived after being converted to a invoice'
+          type: boolean
+          example: true
+        auto_convert_quote:
+          description: 'Toggles whether a quote is converted to a invoice when approved'
+          type: boolean
+          example: true
+        inclusive_taxes:
+          description: 'Boolean flag determining whether inclusive or exclusive taxes are used'
+          type: boolean
+          example: true
+        translations:
+          description: 'JSON payload of customized translations'
+          type: object
+          example: ''
+        task_number_pattern:
+          description: 'Allows customisation of the task number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        task_number_counter:
+          description: 'The incrementing counter for tasks'
+          type: integer
+          example: '1'
+        reminder_send_time:
+          description: 'Time from UTC +0 when the email will be sent to the client'
+          type: integer
+          example: '32400'
+        expense_number_pattern:
+          description: 'Allows customisation of the expense number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        expense_number_counter:
+          description: 'The incrementing counter for expenses'
+          type: integer
+          example: '1'
+        vendor_number_pattern:
+          description: 'Allows customisation of the vendor number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        vendor_number_counter:
+          description: 'The incrementing counter for vendors'
+          type: integer
+          example: '1'
+        ticket_number_pattern:
+          description: 'Allows customisation of the ticket number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        ticket_number_counter:
+          description: 'The incrementing counter for tickets'
+          type: integer
+          example: '1'
+        payment_number_pattern:
+          description: 'Allows customisation of the payment number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        payment_number_counter:
+          description: 'The incrementing counter for payments'
+          type: integer
+          example: '1'
+        invoice_number_pattern:
+          description: 'Allows customisation of the invoice number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        invoice_number_counter:
+          description: 'The incrementing counter for invoices'
+          type: integer
+          example: '1'
+        quote_number_pattern:
+          description: 'Allows customisation of the quote number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        quote_number_counter:
+          description: 'The incrementing counter for quotes'
+          type: integer
+          example: '1'
+        client_number_pattern:
+          description: 'Allows customisation of the client number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        client_number_counter:
+          description: 'The incrementing counter for clients'
+          type: integer
+          example: '1'
+        credit_number_pattern:
+          description: 'Allows customisation of the credit number pattern'
+          type: string
+          example: '{$year}-{$counter}'
+        credit_number_counter:
+          description: 'The incrementing counter for credits'
+          type: integer
+          example: '1'
+        recurring_invoice_number_prefix:
+          description: 'This string is prepended to the recurring invoice number'
+          type: string
+          example: R
+        reset_counter_frequency_id:
+          description: 'CONSTANT which is used to apply the frequency which the counters are reset'
+          type: integer
+          example: '1'
+        reset_counter_date:
+          description: 'The explicit date which is used to reset counters'
+          type: string
+          example: '2019-01-01'
+        counter_padding:
+          description: 'Pads the counter with leading zeros'
+          type: integer
+          example: '1'
+        shared_invoice_quote_counter:
+          description: 'Flags whether to share the counter for invoices and quotes'
+          type: boolean
+          example: true
+        update_products:
+          description: 'Determines if client fields are updated from third party APIs'
+          type: boolean
+          example: true
+        convert_products:
+          description: ''
+          type: boolean
+          example: true
+        fill_products:
+          description: 'Automatically fill products based on product_key'
+          type: boolean
+          example: true
+        invoice_terms:
+          description: 'The default invoice terms'
+          type: string
+          example: 'Invoice Terms are...'
+        quote_terms:
+          description: 'The default quote terms'
+          type: string
+          example: 'Quote Terms are...'
+        invoice_taxes:
+          description: 'Taxes can be applied to the invoice'
+          type: number
+          example: '1'
+        invoice_design_id:
+          description: 'The default design id (invoice, quote etc)'
+          type: string
+          example: '1'
+        quote_design_id:
+          description: 'The default design id (invoice, quote etc)'
+          type: string
+          example: '1'
+        invoice_footer:
+          description: 'The default invoice footer'
+          type: string
+          example: '1'
+        invoice_labels:
+          description: 'JSON string of invoice labels'
+          type: string
+          example: '1'
+        tax_rate1:
+          description: 'The tax rate (float)'
+          type: number
+          example: '10'
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: GST
+        tax_rate2:
+          description: 'The tax rate (float)'
+          type: number
+          example: '10'
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: GST
+        tax_rate3:
+          description: 'The tax rate (float)'
+          type: number
+          example: '10'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: GST
+        payment_type_id:
+          description: 'The default payment type id'
+          type: string
+          example: '1'
+        custom_fields:
+          description: 'JSON string of custom fields'
+          type: string
+          example: '{}'
+        email_footer:
+          description: 'The default email footer'
+          type: string
+          example: 'A default email footer'
+        email_sending_method:
+          description: 'The email driver to use to send email, options include default, gmail'
+          type: string
+          example: default
+        gmail_sending_user_id:
+          description: 'The hashed_id of the user account to send email from'
+          type: string
+          example: F76sd34D
+        email_subject_invoice:
+          description: ''
+          type: string
+          example: 'Your Invoice Subject'
+        email_subject_quote:
+          description: ''
+          type: string
+          example: 'Your Quote Subject'
+        email_subject_payment:
+          description: ''
+          type: string
+          example: 'Your Payment Subject'
+        email_template_invoice:
+          description: 'The full template for invoice emails'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_quote:
+          description: 'The full template for quote emails'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_payment:
+          description: 'The full template for payment emails'
+          type: string
+          example: '<HTML></HTML>'
+        email_subject_reminder1:
+          description: 'Email subject for Reminder'
+          type: string
+          example: '<HTML></HTML>'
+        email_subject_reminder2:
+          description: 'Email subject for Reminder'
+          type: string
+          example: '<HTML></HTML>'
+        email_subject_reminder3:
+          description: 'Email subject for Reminder'
+          type: string
+          example: '<HTML></HTML>'
+        email_subject_reminder_endless:
+          description: 'Email subject for endless reminders'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_reminder1:
+          description: 'The full template for Reminder 1'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_reminder2:
+          description: 'The full template for Reminder 2'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_reminder3:
+          description: 'The full template for Reminder 3'
+          type: string
+          example: '<HTML></HTML>'
+        email_template_reminder_endless:
+          description: 'The full template for enless reminders'
+          type: string
+          example: '<HTML></HTML>'
+        enable_portal_password:
+          description: 'Toggles whether a password is required to log into the client portal'
+          type: boolean
+          example: true
+        show_accept_invoice_terms:
+          description: 'Toggles whether the terms dialogue is shown to the client'
+          type: boolean
+          example: true
+        show_accept_quote_terms:
+          description: 'Toggles whether the terms dialogue is shown to the client'
+          type: boolean
+          example: true
+        require_invoice_signature:
+          description: 'Toggles whether a invoice signature is required'
+          type: boolean
+          example: true
+        require_quote_signature:
+          description: 'Toggles whether a quote signature is required'
+          type: boolean
+          example: true
+        name:
+          description: 'The company name'
+          type: string
+          example: 'Acme Co'
+        company_logo:
+          description: 'The company logo file'
+          type: object
+          example: logo.png
+        website:
+          description: 'The company website URL'
+          type: string
+          example: www.acme.com
+        address1:
+          description: 'The company address line 1'
+          type: string
+          example: 'Suite 888'
+        address2:
+          description: 'The company address line 2'
+          type: string
+          example: '5 Jimbo Way'
+        city:
+          description: 'The company city'
+          type: string
+          example: Sydney
+        state:
+          description: 'The company state'
+          type: string
+          example: Florisa
+        postal_code:
+          description: 'The company zip/postal code'
+          type: string
+          example: '90210'
+        phone:
+          description: 'The company phone'
+          type: string
+          example: 555-213-3948
+        email:
+          description: 'The company email'
+          type: string
+          example: joe@acme.co
+        country_id:
+          description: 'The country ID'
+          type: string
+          example: '1'
+        vat_number:
+          description: 'The company VAT/TAX ID number'
+          type: string
+          example: '32 120 377 720'
+        page_size:
+          description: 'The default page size'
+          type: string
+          example: A4
+        font_size:
+          description: 'The font size'
+          type: number
+          example: '9'
+        primary_font:
+          description: 'The primary font'
+          type: string
+          example: roboto
+        secondary_font:
+          description: 'The secondary font'
+          type: string
+          example: roboto
+        hide_paid_to_date:
+          description: 'Flags whether to hide the paid to date field'
+          type: boolean
+          example: false
+        embed_documents:
+          description: 'Toggled whether to embed documents in the PDF'
+          type: boolean
+          example: false
+        all_pages_header:
+          description: 'The header for the PDF'
+          type: boolean
+          example: false
+        all_pages_footer:
+          description: 'The footer for the PDF'
+          type: boolean
+          example: false
+        document_email_attachment:
+          description: 'Toggles whether to attach documents in the email'
+          type: boolean
+          example: false
+        enable_client_portal_password:
+          description: 'Toggles password protection of the client portal'
+          type: boolean
+          example: false
+        enable_email_markup:
+          description: 'Toggles the use of markdown in emails'
+          type: boolean
+          example: false
+        enable_client_portal_dashboard:
+          description: 'Toggles whether the client dashboard is shown in the client portal'
+          type: boolean
+          example: false
+        enable_client_portal:
+          description: 'Toggles whether the entire client portal is displayed to the client, or only the context'
+          type: boolean
+          example: false
+        email_template_statement:
+          description: 'The body of the email for statements'
+          type: string
+          example: 'template matter'
+        email_subject_statement:
+          description: 'The subject of the email for statements'
+          type: string
+          example: 'subject matter'
+        signature_on_pdf:
+          description: 'Toggles whether the signature (if available) is displayed on the PDF'
+          type: boolean
+          example: false
+        quote_footer:
+          description: 'The default quote footer'
+          type: string
+          example: 'the quote footer'
+        email_subject_custom1:
+          description: 'Custom reminder template subject'
+          type: string
+          example: 'Custom Subject 1'
+        email_subject_custom2:
+          description: 'Custom reminder template subject'
+          type: string
+          example: 'Custom Subject 2'
+        email_subject_custom3:
+          description: 'Custom reminder template subject'
+          type: string
+          example: 'Custom Subject 3'
+        email_template_custom1:
+          description: 'Custom reminder template body'
+          type: string
+          example: '<HTML>'
+        email_template_custom2:
+          description: 'Custom reminder template body'
+          type: string
+          example: '<HTML>'
+        email_template_custom3:
+          description: 'Custom reminder template body'
+          type: string
+          example: '<HTML>'
+        enable_reminder1:
+          description: 'Toggles whether this reminder is enabled'
+          type: boolean
+          example: false
+        enable_reminder2:
+          description: 'Toggles whether this reminder is enabled'
+          type: boolean
+          example: false
+        enable_reminder3:
+          description: 'Toggles whether this reminder is enabled'
+          type: boolean
+          example: false
+        num_days_reminder1:
+          description: 'The Reminder interval'
+          type: number
+          example: '9'
+        num_days_reminder2:
+          description: 'The Reminder interval'
+          type: number
+          example: '9'
+        num_days_reminder3:
+          description: 'The Reminder interval'
+          type: number
+          example: '9'
+        schedule_reminder1:
+          description: '(enum: after_invoice_date, before_due_date, after_due_date)'
+          type: string
+          example: after_invoice_date
+        schedule_reminder2:
+          description: '(enum: after_invoice_date, before_due_date, after_due_date)'
+          type: string
+          example: after_invoice_date
+        schedule_reminder3:
+          description: '(enum: after_invoice_date, before_due_date, after_due_date)'
+          type: string
+          example: after_invoice_date
+        late_fee_amount1:
+          description: 'The late fee amount for reminder 1'
+          type: number
+          example: 10
+        late_fee_amount2:
+          description: 'The late fee amount for reminder 2'
+          type: number
+          example: 20
+        late_fee_amount3:
+          description: 'The late fee amount for reminder 2'
+          type: number
+          example: 100
+        endless_reminder_frequency_id:
+          description: 'The frequency id of the endless reminder'
+          type: string
+          example: '1'
+        client_online_payment_notification:
+          description: 'Determines if a client should receive the notification for a online payment'
+          type: boolean
+          example: false
+        client_manual_payment_notification:
+          description: 'Determines if a client should receive the notification for a manually entered payment'
+          type: boolean
+          example: false
+      type: object
+    CompanyToken:
+      properties:
+        name:
+          description: 'The token name'
+          type: string
+          example: 'Token Name'
+        token:
+          description: 'The token value'
+          type: string
+          example: AS3df3jUUH765fhfd9KJuidj3JShjA
+        is_system:
+          description: 'Determines whether the token is created by the system rather than a user'
+          type: boolean
+          example: 'true'
+      type: object
+    CompanyUser:
+      properties:
+        permissions:
+          description: 'The company user permissions'
+          type: string
+          example: '[create_invoice]'
+        settings:
+          description: 'Settings that are used for the frontend applications to store user preferences / metadata'
+          type: object
+          example: 'json object'
+        is_owner:
+          description: 'Determines whether the user owns this company'
+          type: boolean
+          example: true
+        is_admin:
+          description: 'Determines whether the user is the admin of this company'
+          type: boolean
+          example: true
+        is_locked:
+          description: 'Determines whether the users access to this company has been locked'
+          type: boolean
+          example: true
+        updated_at:
+          description: 'The last time the record was modified, format Unix Timestamp'
+          type: integer
+          example: '1231232312321'
+        deleted_at:
+          description: 'Timestamp when the user was archived, format Unix Timestamp'
+          type: integer
+          example: '12312312321'
+        account:
+          $ref: '#/components/schemas/Account'
+        company:
+          $ref: '#/components/schemas/Company'
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          $ref: '#/components/schemas/CompanyToken'
+      type: object
+    CreditPaymentable:
+      properties:
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: Opnel5aKBz
+        amount:
+          description: 'The credit amount'
+          type: string
+          example: '2'
+      type: object
+    Credit:
+      properties:
+        id:
+          description: 'The credit hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: ''
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: ''
+        status_id:
+          description: 'The status field id infors of the current status of the credit'
+          type: string
+          example: ''
+        invoice_id:
+          description: 'The linked invoice this credit is applied to'
+          type: string
+          example: ''
+        number:
+          description: 'The credit number - is a unique alpha numeric number per credit per company'
+          type: string
+          example: QUOTE_101
+        po_number:
+          description: 'The purchase order number this credit refers to'
+          type: string
+          example: ''
+        terms:
+          description: 'The credit terms field'
+          type: string
+          example: ''
+        public_notes:
+          description: 'The public notes field of the credit'
+          type: string
+          example: ''
+        private_notes:
+          description: 'The private notes field of the credit'
+          type: string
+          example: ''
+        footer:
+          description: 'The credit footer text'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A Custom value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A Custom value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A Custom value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A Custom value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax rate'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax name'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the credit'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'The line items array containing the line items of the credit'
+          type: object
+          example: ''
+        amount:
+          description: 'The total credit amount'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The credit balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: _________
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: _________
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: _________
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: _________
+          type: boolean
+          example: true
+        is_deleted:
+          description: _________
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The Credit Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the credit was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: _________
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: _________
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object
+    Design:
+      properties:
+        id:
+          description: 'The design hashed id'
+          type: string
+          example: AS3df3A
+        name:
+          description: 'The design name'
+          type: string
+          example: Beauty
+        design:
+          description: 'The design HTML'
+          type: string
+          example: '<html></html>'
+        is_custom:
+          description: 'Flag to determine if the design is a custom user design'
+          type: boolean
+          example: true
+        is_active:
+          description: 'Flag to determine if the design is available for use'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Flag to determine if the design is deleted'
+          type: boolean
+          example: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    Document:
+      properties:
+        id:
+          description: 'The document hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        project_id:
+          description: 'The project associated with this document'
+          type: string
+          example: ''
+        vendor_id:
+          description: 'The vendor associated with this documents'
+          type: string
+          example: ''
+        name:
+          description: 'The document name'
+          type: string
+          example: Beauty
+        url:
+          description: 'The document url'
+          type: string
+          example: Beauty
+        preview:
+          description: 'The document preview url'
+          type: string
+          example: Beauty
+        type:
+          description: 'The document type'
+          type: string
+          example: Beauty
+        disk:
+          description: 'The document disk'
+          type: string
+          example: Beauty
+        hash:
+          description: 'The document hashed'
+          type: string
+          example: Beauty
+        is_deleted:
+          description: 'Flag to determine if the document is deleted'
+          type: boolean
+          example: true
+        is_default:
+          description: 'Flag to determine if the document is a default doc'
+          type: boolean
+          example: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    Error:
+      properties:
+        message:
+          description: 'Something terrible went wrong'
+          type: string
+          example: 'Unexpected error'
+        code:
+          description: 'The HTTP error code, ie 5xx 4xx'
+          type: integer
+          example: '500'
+      type: object
+    ExpenseCategory:
+      properties:
+        id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The expense category name'
+          type: string
+          example: Accounting
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: XS987sD
+        is_deleted:
+          description: 'Flag determining whether the expense category has been deleted'
+          type: boolean
+          example: true
+        updated_at:
+          description: 'The updated at timestamp'
+          type: integer
+          example: '2'
+        created_at:
+          description: 'The created at timestamp'
+          type: integer
+          example: '2'
+      type: object
+    Expense:
+      properties:
+        id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: ''
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: ''
+        invoice_id:
+          description: 'The related invoice hashed id'
+          type: string
+          example: ''
+        bank_id:
+          description: 'The bank id related to this expense'
+          type: string
+          example: ''
+        invoice_currency_id:
+          description: 'The currency id of the related invoice'
+          type: string
+          example: ''
+        expense_currency_id:
+          description: 'The currency id of the expense'
+          type: string
+          example: ''
+        invoice_category_id:
+          description: 'The invoice category id'
+          type: string
+          example: ''
+        payment_type_id:
+          description: 'The payment type id'
+          type: string
+          example: ''
+        recurring_expense_id:
+          description: 'The related recurring expense this expense was created from'
+          type: string
+          example: ''
+        private_notes:
+          description: 'The private notes of the expense'
+          type: string
+          example: ''
+        public_notes:
+          description: 'The public notes of the expense'
+          type: string
+          example: ''
+        transaction_reference:
+          description: 'The transaction references of the expense'
+          type: string
+          example: ''
+        transcation_id:
+          description: 'The transaction id of the expense'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The total expense amont'
+          type: number
+          format: float
+          example: '10.00'
+        foreign_amount:
+          description: 'The total foreign amount of the expense'
+          type: number
+          format: float
+          example: '10.00'
+        exchange_rate:
+          description: 'The exchange rate at the time of the expense'
+          type: number
+          format: float
+          example: '0.80'
+        date:
+          description: 'The expense date formate Y-m-d'
+          type: string
+          example: '2022-12-01'
+        payment_date:
+          description: 'The date of payment for the expense, format Y-m-d'
+          type: string
+          example: ''
+        should_be_invoiced:
+          description: 'Flag whether the expense should be invoiced'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean determining whether the expense has been deleted'
+          type: boolean
+          example: true
+        invoice_documents:
+          description: 'Passing the expense documents over to the invoice'
+          type: boolean
+          example: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
+    FeesAndLimits:
+      properties:
+        min_limit:
+          description: 'The minimum amount accepted for this gateway'
+          type: string
+          example: '2'
+        max_limit:
+          description: 'The maximum amount accepted for this gateway'
+          type: string
+          example: '2'
+        fee_amount:
+          description: 'The gateway fee amount'
+          type: number
+          format: float
+          example: '2.0'
+        fee_percent:
+          description: 'The gateway fee percentage'
+          type: number
+          format: float
+          example: '2.0'
+        fee_tax_name1:
+          description: 'Fee tax name'
+          type: string
+          example: GST
+        fee_tax_name2:
+          description: 'Fee tax name'
+          type: string
+          example: VAT
+        fee_tax_name3:
+          description: 'Fee tax name'
+          type: string
+          example: 'CA Sales Tax'
+        fee_tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.0'
+        fee_tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '17.5'
+        fee_tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '25.0'
+        fee_cap:
+          description: 'If set the fee amount will be no higher than this amount'
+          type: number
+          format: float
+          example: '2.0'
+        adjust_fee_percent:
+          description: 'Adjusts the fee to match the exact gateway fee.'
+          type: boolean
+          example: true
+      type: object
+    FillableInvoice:
+      properties:
+        assigned_user_id:
+          description: __________
+          type: string
+          example: ''
+        client_id:
+          description: ________
+          type: string
+          example: ''
+        number:
+          description: 'The invoice number - is a unique alpha numeric number per invoice per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: ________
+          type: string
+          example: ''
+        terms:
+          description: ________
+          type: string
+          example: ''
+        public_notes:
+          description: ________
+          type: string
+          example: ''
+        private_notes:
+          description: ________
+          type: string
+          example: ''
+        footer:
+          description: ________
+          type: string
+          example: ''
+        custom_value1:
+          description: ________
+          type: string
+          example: ''
+        custom_value2:
+          description: ________
+          type: string
+          example: ''
+        custom_value3:
+          description: ________
+          type: string
+          example: ''
+        custom_value4:
+          description: ________
+          type: string
+          example: ''
+        tax_name1:
+          description: ________
+          type: string
+          example: ''
+        tax_name2:
+          description: ________
+          type: string
+          example: ''
+        tax_rate1:
+          description: _________
+          type: number
+          example: '10.00'
+        tax_rate2:
+          description: _________
+          type: number
+          example: '10.00'
+        tax_name3:
+          description: ________
+          type: string
+          example: ''
+        tax_rate3:
+          description: _________
+          type: number
+          example: '10.00'
+        line_items:
+          description: _________
+          type: object
+          example: ''
+        discount:
+          description: _________
+          type: number
+          example: '10.00'
+        partial:
+          description: _________
+          type: number
+          example: '10.00'
+        is_amount_discount:
+          description: _________
+          type: boolean
+          example: '1'
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: '1'
+        date:
+          description: 'The Invoice Date'
+          type: string
+          example: '1994-07-30'
+        partial_due_date:
+          description: _________
+          type: string
+          example: '1994-07-30'
+        due_date:
+          description: _________
+          type: string
+          example: '1994-07-30'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          example: '10.00'
+      type: object
+    GenericReportSchema:
+      properties:
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2000-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2'
+        report_keys:
+          type: array
+          items:
+            description: 'Array of Keys to export'
+            type: string
+            example: '[''name'',''date'']'
+      type: object
+    GroupSetting:
+      properties:
+        id:
+          description: 'The group setting hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The name of the group'
+          type: string
+          example: 'A groupies group'
+        settings:
+          description: 'The settings object'
+          type: object
+          example: ''
+      type: object
+    InvoicePaymentable:
+      properties:
+        invoice_id:
+          description: ______
+          type: string
+          example: Opnel5aKBz
+        amount:
+          description: ______
+          type: string
+          example: '2'
+      type: object
+    Invoice:
+      properties:
+        id:
+          description: 'The invoice hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The invoice status variable'
+          type: string
+          example: '4'
+        number:
+          description: 'The invoice number - is a unique alpha numeric number per invoice per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: 'The purchase order associated with this invoice'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The invoice terms'
+          type: string
+          example: 'These are invoice terms'
+        public_notes:
+          description: 'The public notes of the invoice'
+          type: string
+          example: 'These are some public notes'
+        private_notes:
+          description: 'The private notes of the invoice'
+          type: string
+          example: 'These are some private notes'
+        footer:
+          description: 'The invoice footer notes'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: '2022-10-01'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Something custom'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the invoice'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of objects which define the line items of the invoice'
+          type: object
+          example: ''
+        amount:
+          description: 'The invoice amount'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The invoice balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount paid on the invoice to date'
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: 'The invoice discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Defines if the invoice has been deleted'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The Invoice Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the invoice was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The due date of the invoice'
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object
+    Payment:
+      properties:
+        id:
+          description: 'The payment hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        invitation_id:
+          description: 'The invitation hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_contact_id:
+          description: 'The client contact hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        type_id:
+          description: 'The Payment Type ID'
+          type: string
+          example: '1'
+        date:
+          description: 'The Payment date'
+          type: string
+          example: 1-1-2014
+        transaction_reference:
+          description: 'The transaction reference as defined by the payment gateway'
+          type: string
+          example: xcsSxcs124asd
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        private_notes:
+          description: 'The private notes of the payment'
+          type: string
+          example: 'The payment was refunded due to error'
+        is_manual:
+          description: 'Flags whether the payment was made manually or processed via a gateway'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Defines if the payment has been deleted'
+          type: boolean
+          example: true
+        amount:
+          description: 'The amount of this payment'
+          type: number
+          example: 10
+        refunded:
+          description: 'The refunded amount of this payment'
+          type: number
+          example: 10
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        company_gateway_id:
+          description: 'The company gateway id'
+          type: string
+          example: '3'
+        paymentables:
+          $ref: '#/components/schemas/Paymentable'
+        invoices:
+          description: ''
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoicePaymentable'
+        credits:
+          description: ''
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditPaymentable'
+      type: object
+    PaymentTerm:
+      properties:
+        num_days:
+          description: 'The payment term length in days'
+          type: integer
+          example: '1'
+        name:
+          description: 'The payment term length in string format'
+          type: string
+          example: 'NET 1'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    Paymentable:
+      properties:
+        id:
+          description: 'The paymentable hashed id'
+          type: string
+          example: AS3df3A
+        invoice_id:
+          description: 'The invoice hashed id'
+          type: string
+          example: AS3df3A
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: AS3df3A
+        refunded:
+          description: 'The amount that has been refunded for this payment'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The amount that has been applied to the payment'
+          type: number
+          format: float
+          example: '10.00'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
+    Product:
+      properties:
+        id:
+          description: 'The product hashed id'
+          type: string
+          example: Opnel5aKBz
+      type: object
+    Project:
+      properties:
+        id:
+          description: 'The project hashed id'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The project name'
+          type: string
+          example: 'New Project'
+      type: object
+    PurchaseOrder:
+      properties:
+        id:
+          description: 'The purchase order hashed id'
+          type: string
+          example: Opnel5aKBz
+      type: object
+    Quote:
+      properties:
+        id:
+          description: 'The quote hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: ''
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: ''
+        status_id:
+          description: 'The status of the quote'
+          type: string
+          example: ''
+        number:
+          description: 'The quote number - is a unique alpha numeric number per quote per company'
+          type: string
+          example: QUOTE_101
+        po_number:
+          description: 'The purchase order number associated with this quote'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The quote terms'
+          type: string
+          example: 'These are some quote terms. Valid for 14 days.'
+        public_notes:
+          description: 'Public notes for the quote'
+          type: string
+          example: 'These are public notes which the client may see'
+        private_notes:
+          description: 'Private notes for the quote'
+          type: string
+          example: 'These are private notes, not to be disclosed to the client'
+        footer:
+          description: 'Footer text of quote'
+          type: string
+          example: 'The text goes in the footer of the quote'
+        custom_value1:
+          description: 'Custom value field'
+          type: string
+          example: 'A custom value'
+        custom_value2:
+          description: 'Custom value field'
+          type: string
+          example: 'A custom value'
+        custom_value3:
+          description: 'Custom value field'
+          type: string
+          example: 'A custom value'
+        custom_value4:
+          description: 'Custom value field'
+          type: string
+          example: 'A custom value'
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: GST
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: VAT
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the quote'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of line items of the quote'
+          type: object
+          example: ''
+        amount:
+          description: 'The total amount of the quote'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The balance due of the quote'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount that has been paid to date on the quote'
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: 'The quote discount'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The partial/deposit amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Boolean flag determining if the quote is an amount or percentage'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean flag determining if the quote has been deleted'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The Quote Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the quote was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The date when the partial/deposit is due'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The date the quote is valid until'
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object
+    RecurringExpense:
+      properties:
+        id:
+          description: 'The hashed id of the recurring expense'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the recurring expense'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The hashed id of the user assigned to this recurring expense'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The hashed id of the invoice'
+          type: string
+          example: Opnel5aKBz
+        bank_id:
+          description: 'The id of the bank associated with this recurring expense'
+          type: string
+          example: '22'
+        invoice_currency_id:
+          description: 'The currency id of the invoice associated with this recurring expense'
+          type: string
+          example: '1'
+        expense_currency_id:
+          description: 'The currency id of the expense associated with this recurring expense'
+          type: string
+          example: '1'
+        invoice_category_id:
+          description: 'The category id of the invoice'
+          type: string
+          example: '1'
+        payment_type_id:
+          description: 'The payment type id'
+          type: string
+          example: '1'
+        private_notes:
+          description: 'The recurring expense private notes'
+          type: string
+          example: 'Private and confidential'
+        public_notes:
+          description: 'The recurring expense public notes'
+          type: string
+          example: 'This is the best client in the world'
+        transaction_reference:
+          description: 'The recurring expense transaction reference'
+          type: string
+          example: EXP-1223-2333
+        transcation_id:
+          description: 'The transaction id of the recurring expense'
+          type: string
+          example: '1233312312'
+        custom_value1:
+          description: 'Custom value field'
+          type: string
+          example: $1000
+        custom_value2:
+          description: 'Custom value field'
+          type: string
+          example: '2022-10-10'
+        custom_value3:
+          description: 'Custom value field'
+          type: string
+          example: 'short text'
+        custom_value4:
+          description: 'Custom value field'
+          type: string
+          example: 'very long text'
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: GST
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: VAT
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The total amount of the recurring expense'
+          type: number
+          format: float
+          example: '10.00'
+        frequency_id:
+          description: 'The frequency this recurring expense fires'
+          type: number
+          format: int
+          example: '1'
+        remaining_cycles:
+          description: 'The number of remaining cycles for this recurring expense'
+          type: number
+          format: int
+          example: '1'
+        foreign_amount:
+          description: 'The foreign currency amount of the recurring expense'
+          type: number
+          format: float
+          example: '10.00'
+        exchange_rate:
+          description: 'The exchange rate for the expernse'
+          type: number
+          format: float
+          example: '0.80'
+        date:
+          description: 'The date of the expense'
+          type: string
+          example: ''
+        payment_date:
+          description: 'The date the expense was paid'
+          type: string
+          example: ''
+        should_be_invoiced:
+          description: 'Boolean flag determining if the expense should be invoiced'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean flag determining if the recurring expense is deleted'
+          type: boolean
+          example: true
+        last_sent_date:
+          description: 'The Date it was sent last'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The next send date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        invoice_documents:
+          description: 'Boolean flag determining if the documents associated with this expense should be passed onto the invoice if it is converted to an invoice'
+          type: boolean
+          example: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
+    RecurringInvoice:
+      properties:
+        id:
+          description: 'The hashed id of the recurring invoice'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The invoice status variable'
+          type: string
+          example: '4'
+        frequency_id:
+          description: 'The recurring invoice frequency'
+          type: number
+          example: '4'
+        remaining_cycles:
+          description: 'The number of invoices left to be generated'
+          type: number
+          example: '4'
+        number:
+          description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: 'The purchase order associated with this recurring invoice'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The invoice terms'
+          type: string
+          example: 'These are invoice terms'
+        public_notes:
+          description: 'The public notes of the invoice'
+          type: string
+          example: 'These are some public notes'
+        private_notes:
+          description: 'The private notes of the invoice'
+          type: string
+          example: 'These are some private notes'
+        footer:
+          description: 'The invoice footer notes'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: '2022-10-01'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Something custom'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the invoice'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of objects which define the line items of the invoice'
+          type: object
+          example: ''
+        amount:
+          description: 'The invoice amount'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The invoice balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount paid on the invoice to date'
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: 'The invoice discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Defines if the invoice has been deleted'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The Invoice Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the invoice was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The due date of the invoice'
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object
+    RecurringQuote:
+      properties:
+        id:
+          description: 'The hashed id of the recurring quote'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The quote status variable'
+          type: string
+          example: '4'
+        frequency_id:
+          description: 'The recurring quote frequency'
+          type: number
+          example: '4'
+        remaining_cycles:
+          description: 'The number of quotes left to be generated'
+          type: number
+          example: '4'
+        number:
+          description: 'The recurringquote number - is a unique alpha numeric number per quote per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: 'The purchase order associated with this recurring quote'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The quote terms'
+          type: string
+          example: 'These are quote terms'
+        public_notes:
+          description: 'The public notes of the quote'
+          type: string
+          example: 'These are some public notes'
+        private_notes:
+          description: 'The private notes of the quote'
+          type: string
+          example: 'These are some private notes'
+        footer:
+          description: 'The quote footer notes'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: '2022-10-01'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Something custom'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the quote'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of objects which define the line items of the quote'
+          type: object
+          example: ''
+        amount:
+          description: 'The quote amount'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The quote balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount paid on the quote to date'
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: 'The quote discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Defines if the quote has been deleted'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The quote Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the quote was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The due date of the quote'
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object
+    SystemLog:
+      properties:
+        id:
+          description: 'The account hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user_id hashed id'
+          type: string
+          example: AS3df3A
+        client_id:
+          description: 'The client_id hashed id'
+          type: string
+          example: AS3df3A
+        event_id:
+          description: 'The Log Type ID'
+          type: integer
+          example: 1
+        category_id:
+          description: 'The Category Type ID'
+          type: integer
+          example: 1
+        type_id:
+          description: 'The Type Type ID'
+          type: integer
+          example: 1
+        log:
+          description: 'The json object of the error'
+          type: object
+          example: '{''key'':''value''}'
+        updated_at:
+          description: Timestamp
+          type: string
+          example: '2'
+        created_at:
+          description: Timestamp
+          type: string
+          example: '2'
+      type: object
+    TaskSchedulerSchema:
+      properties:
+        paused:
+          description: 'The scheduler paused state'
+          type: boolean
+          example: 'false'
+        repeat_every:
+          description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
+          type: string
+          example: DAY
+        start_from:
+          description: 'Timestamp when we should start the scheduler, default is today'
+          type: integer
+          example: '1652898504'
+        job:
+          description: 'Job, we can find list of available jobs in Scheduler model'
+          type: string
+          example: create_credit_report
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2022-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2022-10-31'
+        report_keys:
+          type: array
+          items:
+            description: 'Array of Keys to export'
+            type: string
+            example: '[''name'',''date'']'
+      type: object
+    UpdateTaskSchedulerSchema:
+      properties:
+        paused:
+          description: 'The scheduler paused state'
+          type: boolean
+          example: 'false'
+        repeat_every:
+          description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
+          type: string
+          example: DAY
+        start_from:
+          description: 'Timestamp when we should start the scheduler, default is today'
+          type: integer
+          example: '1652898504'
+        job:
+          description: 'Job, we can find list of available jobs in Scheduler model'
+          type: string
+          example: create_credit_report
+        date_range:
+          description: 'The string representation of the date range of data to be returned'
+          type: string
+          example: last7
+        date_key:
+          description: 'The date column to search between.'
+          type: string
+          example: created_at
+        start_date:
+          description: 'The start date to search between'
+          type: string
+          example: '2022-10-31'
+        end_date:
+          description: 'The end date to search between'
+          type: string
+          example: '2022-10-31'
+      type: object
+    UpdateJobForASchedulerSchema:
+      properties:
+        job:
+          description: 'Set action name, action names can be found in Scheduler Model'
+          type: string
+          example: create_client_report
+      type: object
+    Task:
+      properties:
+        id:
+          description: 'The hashed id of the task'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the task'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user of the task'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed if of the client'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The hashed id of the invoice associated with the task'
+          type: string
+          example: Opnel5aKBz
+        project_id:
+          description: 'The hashed id of the project associated with the task'
+          type: string
+          example: Opnel5aKBz
+        number:
+          description: 'The number of the task'
+          type: string
+          example: TASK-123
+        time_log:
+          description: 'An array of unix time stamps defining the start and end times of the task'
+          type: string
+          example: '[[1,2],[3,4]]'
+        is_running:
+          description: 'Determines if the task is still running'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean flag determining if the task has been deleted'
+          type: boolean
+          example: true
+        task_status_id:
+          description: 'The hashed id of the task status'
+          type: string
+          example: Opnel5aKBz
+        description:
+          description: 'The task description'
+          type: string
+          example: 'A wonder task to work on'
+        duration:
+          description: 'The task duration'
+          type: integer
+          example: ''
+        task_status_order:
+          description: 'The order of the task'
+          type: integer
+          example: '4'
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: '2022-10-10'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: $1100
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: 'I need help'
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: INV-3343
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
+    TaskStatus:
+      properties:
+        name:
+          description: 'The task status name'
+          type: string
+          example: Backlog
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        is_deleted:
+          description: 'A boolean flag determining if the task status has been deleted'
+          type: boolean
+          example: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    TaxRate:
+      properties:
+        id:
+          description: 'Thie hashed id of the tax'
+          type: string
+          example: Opnel5aKBz
+        name:
+          description: 'The tax name'
+          type: string
+          example: GST
+        rate:
+          description: 'The tax rate'
+          type: number
+          example: '10'
+        is_deleted:
+          description: 'Boolean flag determining if the tax has been deleted'
+          type: boolean
+          example: true
+      type: object
+    Template:
+      properties:
+        html:
+          description: 'The template HTML'
+          type: string
+          example: '<HTML></HTML>'
+      type: object
+    User:
+      properties:
+        id:
+          description: 'The hashed id of the user'
+          type: string
+          example: Opnel5aKBz
+        first_name:
+          description: 'The first name of the user'
+          type: string
+          example: Brad
+        last_name:
+          description: 'The last name of the user'
+          type: string
+          example: Pitt
+        email:
+          description: 'The users email address'
+          type: string
+          example: brad@pitt.com
+        phone:
+          description: 'The users phone number'
+          type: string
+          example: 555-1233-23232
+        signature:
+          description: 'The users sign off signature'
+          type: string
+          example: 'Have a nice day!'
+        avatar:
+          description: 'The users avatar'
+          type: string
+          example: 'https://url.to.your/avatar.png'
+        accepted_terms_version:
+          description: 'The version of the invoice ninja terms that has been accepted by the user'
+          type: string
+          example: 1.0.1
+        oauth_user_id:
+          description: 'The provider id of the oauth entity'
+          type: string
+          example: jkhasdf789as6f675sdf768sdfs
+        oauth_provider_id:
+          description: 'The oauth entity id'
+          type: string
+          example: google
+      type: object
+    AuthenticationError:
+      type: object  
+      properties:
+        message:
+          description: 'These credentials do not match our records / Invalid Token'
+          type: string
+          example: 'These credentials do not match our records / Invalid Token'
+    ValidationError:
+      properties:
+        message:
+          description: 'The error message'
+          type: string
+          example: 'The given data was invalid.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    AuthorizationError:
+      properties:
+        message:
+          description: 'Insufficient permissions for this resource.'
+          type: string
+          example: 'Insufficient permissions for this resource.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    VendorContact:
+      properties:
+        id:
+          description: 'The hashed id of the vendor contact'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The hashed id of the vendor'
+          type: string
+          example: Opnel5aKBz
+        first_name:
+          description: 'The first name of the contact'
+          type: string
+          example: Harry
+        last_name:
+          description: 'The last name of the contact'
+          type: string
+          example: Windsor
+        phone:
+          description: 'The contacts phone number'
+          type: string
+          example: 555-123-1234
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: '2022-10-10'
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: $1000
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: ''
+        email:
+          description: 'The contact email address'
+          type: string
+          example: harry@windsor.com
+        is_primary:
+          description: 'Boolean flag determining if the contact is the primary contact for the vendor'
+          type: boolean
+          example: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    Vendor:
+      properties:
+        id:
+          description: 'The hashed id of the vendor'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the vendor'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The hashed id of the assigned user to this vendor'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorContact'
+        name:
+          description: 'The vendor name'
+          type: string
+          example: 'Harry''s cafe de wheels'
+        website:
+          description: 'The website of the vendor'
+          type: string
+          example: www.harry.com
+        private_notes:
+          description: 'The private notes of the vendor'
+          type: string
+          example: 'Shhh, don''t tell the vendor'
+        industry_id:
+          description: 'The industry id of the vendor'
+          type: string
+          example: '1'
+        size_id:
+          description: ________
+          type: string
+          example: ''
+        address1:
+          description: ________
+          type: string
+          example: ''
+        address2:
+          description: ________
+          type: string
+          example: ''
+        city:
+          description: ________
+          type: string
+          example: ''
+        state:
+          description: ________
+          type: string
+          example: ''
+        postal_code:
+          description: ________
+          type: string
+          example: ''
+        phone:
+          description: 'The client phone number'
+          type: string
+          example: 555-3434-3434
+        country_id:
+          description: ________
+          type: string
+          example: ''
+        currency_id:
+          description: ________
+          type: string
+          example: '4'
+        custom_value1:
+          description: ________
+          type: string
+          example: ''
+        custom_value2:
+          description: ________
+          type: string
+          example: ''
+        custom_value3:
+          description: ________
+          type: string
+          example: ''
+        custom_value4:
+          description: ________
+          type: string
+          example: ''
+        vat_number:
+          description: ________
+          type: string
+          example: ''
+        id_number:
+          description: ________
+          type: string
+          example: ''
+        number:
+          description: ________
+          type: string
+          example: ''
+        is_deleted:
+          description: ________
+          type: boolean
+          example: true
+        last_login:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+      type: object
+    Webhook:
+      properties:
+        id:
+          description: 'The subscription hashed id'
+          type: string
+          example: AS3df3A
+        event_id:
+          description: 'The subscription event id'
+          type: string
+          example: AS3df3A
+        target_url:
+          description: 'The api endpoint'
+          type: string
+          example: AS3df3A
+        format:
+          description: 'JSON or UBL'
+          type: string
+          example: JSON
+      type: object

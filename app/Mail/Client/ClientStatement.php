@@ -11,23 +11,21 @@
 
 namespace App\Mail\Client;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
 class ClientStatement extends Mailable
 {
-    
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(public array $data){}
+    public function __construct(public array $data)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -79,16 +77,12 @@ class ClientStatement extends Mailable
     {
         $array_of_attachments = [];
 
-        foreach($this->data['attachments'] as $attachment)
-        {
-
-            $array_of_attachments[] = 
+        foreach ($this->data['attachments'] as $attachment) {
+            $array_of_attachments[] =
                     Attachment::fromData(fn () => base64_decode($attachment['file']), $attachment['name'])
                               ->withMime('application/pdf');
-
         }
 
         return $array_of_attachments;
-        
     }
 }

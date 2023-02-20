@@ -56,7 +56,7 @@ class SOFORT
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::SOFORT,
             ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -77,11 +77,10 @@ class SOFORT
 
     public function paymentResponse($request)
     {
-        
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (in_array($request->redirect_status,  ['succeeded','pending'])) {
+        if (in_array($request->redirect_status, ['succeeded','pending'])) {
             return $this->processSuccessfulPayment($request->payment_intent);
         }
 

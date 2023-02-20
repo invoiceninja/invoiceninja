@@ -33,7 +33,6 @@ class QueryLogging
      */
     public function handle(Request $request, Closure $next)
     {
-
         // Enable query logging for development
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
@@ -69,7 +68,7 @@ class QueryLogging
                 $ip = request()->ip();
             }
 
-            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()),0,180), $count, $time, $ip))
+            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip))
                  ->batch();
         }
 

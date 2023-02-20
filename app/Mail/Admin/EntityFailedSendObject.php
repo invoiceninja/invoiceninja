@@ -15,7 +15,7 @@ use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
-        use stdClass;
+use stdClass;
 
 class EntityFailedSendObject
 {

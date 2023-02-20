@@ -200,6 +200,7 @@ return [
                 'replication' => 'sentinel',
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
                 'sentinel_timeout' => 3.0,
+                // 'load_balancing' => false,
                 'parameters' => [
                     'password' => env('REDIS_PASSWORD', null),
                     'database' => env('REDIS_DB', 0),
@@ -229,3 +230,11 @@ return [
     ],
 
 ];
+
+/**
+*'replication' => function () {
+*    $strategy = new Predis\Replication\ReplicationStrategy();
+*    $strategy->disableLoadBalancing();
+*    return new Predis\Connection\Replication\SentinelReplication($strategy);
+*}];
+ */

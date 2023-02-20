@@ -12,23 +12,23 @@
 namespace App\Services\Email;
 
 use App\Models\Company;
-use App\Services\Email\EmailObject;
 use App\Utils\Ninja;
 use Illuminate\Mail\Mailable;
 
 class EmailService
 {
-
     /**
      * Used to flag whether we force send the email regardless
-     * 
+     *
      * @var bool $override;
      */
     protected bool $override;
 
     public Mailable $mailable;
 
-    public function __construct(public EmailObject $email_object, public Company $company){}
+    public function __construct(public EmailObject $email_object, public Company $company)
+    {
+    }
  
     /**
      * Sends the email via a dispatched job
@@ -53,11 +53,11 @@ class EmailService
 
     private function email($force = false): void
     {
-        if($force)
+        if ($force) {
             (new EmailMailer($this, $this->mailable))->handle();
-        else
+        } else {
             EmailMailer::dispatch($this, $this->mailable)->delay(2);
-
+        }
     }
 
     private function setDefaults(): self
@@ -76,41 +76,45 @@ class EmailService
     }
 
    /**
-     * On the hosted platform we scan all outbound email for 
+     * On the hosted platform we scan all outbound email for
      * spam. This sequence processes the filters we use on all
      * emails.
-     * 
+     *
      * @return bool
      */
     public function preFlightChecksFail(): bool
     {
-
         /* If we are migrating data we don't want to fire any emails */
-        if($this->company->is_disabled && !$this->override) 
+        if ($this->company->is_disabled && !$this->override) {
             return true;
+        }
 
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             return false;
+        }
 
         /* To handle spam users we drop all emails from flagged accounts */
-        if($this->company->account && $this->company->account->is_flagged) 
+        if ($this->company->account && $this->company->account->is_flagged) {
             return true;
+        }
 
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
-        if($this->hasInValidEmails())
+        if ($this->hasInValidEmails()) {
             return true;
+        }
 
         /* GMail users are uncapped */
-        if(in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) 
+        if (in_array($this->email_object->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun'])) {
             return false;
+        }
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if($this->company->account && $this->company->account->emailQuotaExceeded())
+        if ($this->company->account && $this->company->account->emailQuotaExceeded()) {
             return true;
+        }
 
         /* If the account is verified, we allow emails to flow */
-        if($this->company->account && $this->company->account->is_verified_account) {
-
+        if ($this->company->account && $this->company->account->is_verified_account) {
             //11-01-2022
 
             /* Continue to analyse verified accounts in case they later start sending poor quality emails*/
@@ -121,40 +125,39 @@ class EmailService
         }
 
         /* On the hosted platform if the user has not verified their account we fail here - but still check what they are trying to send! */
-        if($this->company->account && !$this->company->account->account_sms_verified){
-            
-            if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+        if ($this->company->account && !$this->company->account->account_sms_verified) {
+            if (class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class)) {
                 return (new \Modules\Admin\Jobs\Account\EmailFilter($this->email_object, $this->company))->run();
+            }
 
             return true;
         }
 
         /* On the hosted platform we actively scan all outbound emails to ensure outbound email quality remains high */
-        if(class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+        if (class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class)) {
             return (new \Modules\Admin\Jobs\Account\EmailFilter($this->email_object, $this->company))->run();
+        }
 
         return false;
     }
 
     private function hasInValidEmails(): bool
     {
-
-        foreach($this->email_object->to as $address_object)
-        {
-
-            if(strpos($address_object->address, '@example.com') !== false)
+        foreach ($this->email_object->to as $address_object) {
+            if (strpos($address_object->address, '@example.com') !== false) {
                 return true;
+            }
 
-            if(!str_contains($address_object->address, "@"))
+            if (!str_contains($address_object->address, "@")) {
                 return true;
+            }
 
-            if($address_object->address == " ")
+            if ($address_object->address == " ") {
                 return true;
+            }
         }
 
 
         return false;
     }
-
-
 }

@@ -38,8 +38,6 @@ use Checkout\Common\Phone;
 use Checkout\Customers\CustomerRequest;
 use Checkout\Customers\Four\CustomerRequest as FourCustomerRequest;
 use Checkout\Environment;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Refund;
 use Checkout\Payments\Four\Request\PaymentRequest;
 use Checkout\Payments\Four\Request\Source\RequestIdSource as SourceRequestIdSource;
@@ -155,49 +153,6 @@ class CheckoutComPaymentDriver extends BaseDriver
         return 'gateways.checkout.credit_card.pay';
     }
 
-    public function getClientRequiredFields(): array
-    {
-        $fields = [];
-
-        if ($this->company_gateway->require_client_name) {
-            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_contact_name) {
-            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_contact_email) {
-            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-        }
-
-        if ($this->company_gateway->require_client_phone) {
-            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_billing_address) {
-            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_postal_code) {
-            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_shipping_address) {
-            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        return $fields;
-    }
-
     public function authorizeView($data)
     {
         return $this->payment_method->authorizeView($data);
@@ -257,7 +212,6 @@ class CheckoutComPaymentDriver extends BaseDriver
         } catch (CheckoutApiException $e) {
             // API error
             throw new PaymentFailed($e->getMessage(), $e->getCode());
-
         } catch (CheckoutArgumentException $e) {
             // Bad arguments
 
@@ -291,73 +245,69 @@ class CheckoutComPaymentDriver extends BaseDriver
             $response = $this->gateway->getCustomersClient()->get($this->client->present()->email());
 
             return $response;
-
         } catch (\Exception $e) {
-
             if ($this->is_four_api) {
                 $request = new FourCustomerRequest();
-            }
-            else{
+            } else {
                 $request = new CustomerRequest();
             }
             
-                $phone = new Phone();
-                // $phone->number = $this->client->present()->phone();
-                $phone->number = substr(str_pad($this->client->present()->phone(),6, "0", STR_PAD_RIGHT), 0 , 24);
+            $phone = new Phone();
+            // $phone->number = $this->client->present()->phone();
+            $phone->number = substr(str_pad($this->client->present()->phone(), 6, "0", STR_PAD_RIGHT), 0, 24);
 
-                $request->email = $this->client->present()->email();
-                $request->name = $this->client->present()->name();
-                $request->phone = $phone;
+            $request->email = $this->client->present()->email();
+            $request->name = $this->client->present()->name();
+            $request->phone = $phone;
 
-                try {
-                    $response = $this->gateway->getCustomersClient()->create($request);
-                } 
-                catch (CheckoutApiException $e) {
-                    // API error
-                    $request_id = $e->request_id;
-                    $http_status_code = $e->http_status_code;
-                    $error_details = $e->error_details;
+            try {
+                $response = $this->gateway->getCustomersClient()->create($request);
+            } catch (CheckoutApiException $e) {
+                // API error
+                $request_id = $e->request_id;
+                $http_status_code = $e->http_status_code;
+                $error_details = $e->error_details;
 
-                    if(is_array($error_details)) {
-                        $error_details = end($e->error_details['error_codes']);
-                    }
-
-                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
-
-
-                    throw new PaymentFailed($human_exception);
-                } catch (CheckoutArgumentException $e) {
-                    // Bad arguments
-
-                    $error_details = $e->error_details;
-
-                    if(is_array($error_details)) {
-                        $error_details = end($e->error_details['error_codes']);
-                    }
-
-                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
-
-                    throw new PaymentFailed($human_exception);
-                } catch (CheckoutAuthorizationException $e) {
-                    // Bad Invalid authorization
-          
-                    $error_details = $e->error_details;
-         
-                     if(is_array($error_details)) {
-                        $error_details = end($e->error_details['error_codes']);
-                    }
-
-                    $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
-
-                    throw new PaymentFailed($human_exception);
+                if (is_array($error_details)) {
+                    $error_details = end($e->error_details['error_codes']);
                 }
 
+                $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
 
 
-                // catch (\Exception $e) {
+                throw new PaymentFailed($human_exception);
+            } catch (CheckoutArgumentException $e) {
+                // Bad arguments
+
+                $error_details = $e->error_details;
+
+                if (is_array($error_details)) {
+                    $error_details = end($e->error_details['error_codes']);
+                }
+
+                $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                throw new PaymentFailed($human_exception);
+            } catch (CheckoutAuthorizationException $e) {
+                // Bad Invalid authorization
+          
+                $error_details = $e->error_details;
+         
+                if (is_array($error_details)) {
+                    $error_details = end($e->error_details['error_codes']);
+                }
+
+                $human_exception = $error_details ? new \Exception($error_details, 400) : $e;
+
+                throw new PaymentFailed($human_exception);
+            }
+
+
+
+            // catch (\Exception $e) {
                 //     // API error
                 //     throw new PaymentFailed($e->getMessage(), $e->getCode());
-                // } 
+            // }
 
             return $response;
         }
@@ -451,8 +401,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
             $error_details = '';
 
-            if(property_exists($e, 'error_details'))
+            if (property_exists($e, 'error_details')) {
                 $error_details = $e->error_details;
+            }
 
             $data = [
                 'status' => $e->error_details,
@@ -482,7 +433,6 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function process3dsConfirmation(Checkout3dsRequest $request)
     {
-
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
 

@@ -64,15 +64,14 @@ class CreateRecurringInvitations extends AbstractService
         }
 
         if ($this->entity->invitations()->count() == 0) {
-
             $invitation = $this->invitation_class::where('company_id', $this->entity->company_id)
                                     ->where($this->entity_id_name, $this->entity->id)
                                     ->withTrashed()
                                     ->first();
 
-            if ($invitation) 
+            if ($invitation) {
                 $invitation->restore();
-                
+            }
         }
 
 

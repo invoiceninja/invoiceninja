@@ -43,7 +43,7 @@ class TriggeredActions extends AbstractService
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
-            $this->invoice = $this->invoice->service()->markPaid()->save(); //update notification sends automatically for this.
+            $this->invoice = $this->invoice->service()->markPaid($this->request->input('reference'))->save(); //update notification sends automatically for this.
         }
 
         if ($this->request->has('mark_sent') && $this->request->input('mark_sent') == 'true' && $this->invoice->status_id == Invoice::STATUS_DRAFT) {
@@ -52,7 +52,7 @@ class TriggeredActions extends AbstractService
         }
         
         if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid'))) {
-            $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'))->save();
+            $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'), $this->request->input('reference'))->save();
             $this->updated = false;
         }
 
@@ -67,7 +67,7 @@ class TriggeredActions extends AbstractService
             $this->updated = false;
         }
 
-        if($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
+        if ($this->request->has('save_default_footer') && $this->request->input('save_default_footer') == 'true') {
             $company = $this->invoice->company;
             $settings = $company->settings;
             $settings->invoice_footer = $this->invoice->footer;
@@ -75,7 +75,7 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
+        if ($this->request->has('save_default_terms') && $this->request->input('save_default_terms') == 'true') {
             $company = $this->invoice->company;
             $settings = $company->settings;
             $settings->invoice_terms = $this->invoice->terms;
@@ -83,8 +83,9 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if($this->updated)
+        if ($this->updated) {
             event('eloquent.updated: App\Models\Invoice', $this->invoice);
+        }
 
 
         return $this->invoice;

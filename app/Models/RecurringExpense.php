@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\RecurringInvoice;
 use App\Services\Recurring\RecurringService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -203,7 +202,6 @@ class RecurringExpense extends BaseModel
 
     public function recurringDates()
     {
-
         /* Return early if nothing to send back! */
         if ($this->status_id == RecurringInvoice::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||

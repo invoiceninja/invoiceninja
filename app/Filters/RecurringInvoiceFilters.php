@@ -66,21 +66,33 @@ class RecurringInvoiceFilters extends QueryFilters
 
         $recurring_filters = [];
 
-        if (in_array('active', $status_parameters)) 
+        if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
+        }
 
 
-        if (in_array('paused', $status_parameters)) 
+        if (in_array('paused', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_PAUSED;
+        }
 
-        if (in_array('completed', $status_parameters)) 
+        if (in_array('completed', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_COMPLETED;
+        }
 
-        if(count($recurring_filters) >= 1)
+        if (count($recurring_filters) >= 1) {
             return $this->builder->whereIn('status_id', $recurring_filters);
+        }
 
         return $this->builder;
+    }
 
+    public function number(string $number = ''): Builder
+    {
+        if (strlen($number) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('number', $number);
     }
 
     /**
@@ -89,9 +101,13 @@ class RecurringInvoiceFilters extends QueryFilters
      * @param string sort formatted as column|asc
      * @return Builder
      */
-    public function sort(string $sort): Builder
+    public function sort(string $sort = ''): Builder
     {
         $sort_col = explode('|', $sort);
+
+        if (!is_array($sort_col) || count($sort_col) != 2) {
+            return $this->builder;
+        }
 
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }

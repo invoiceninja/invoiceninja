@@ -12,7 +12,6 @@
 
 namespace App\Http\Requests\StripeConnect;
 
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;

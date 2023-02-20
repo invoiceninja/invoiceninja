@@ -49,7 +49,6 @@ class CompanyTest extends TestCase
 
     public function testUpdateCompanyPropertyInvoiceTaskHours()
     {
-
         $company_update = [
             'invoice_task_hours' => true
         ];
@@ -61,9 +60,9 @@ class CompanyTest extends TestCase
             ->assertStatus(200);
 
 
-       $arr = $response->json();
+        $arr = $response->json();
 
-       $this->assertTrue($arr['data']['invoice_task_hours']);
+        $this->assertTrue($arr['data']['invoice_task_hours']);
 
 
         $company_update = [
@@ -77,10 +76,9 @@ class CompanyTest extends TestCase
             ->assertStatus(200);
 
 
-       $arr = $response->json();
+        $arr = $response->json();
 
-       $this->assertFalse($arr['data']['invoice_task_hours']);
-
+        $this->assertFalse($arr['data']['invoice_task_hours']);
     }
 
     public function testCompanyList()

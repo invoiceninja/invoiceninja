@@ -11,10 +11,8 @@
 
 namespace App\Models;
 
-
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Utils\Ninja;
@@ -141,6 +139,10 @@ class PurchaseOrder extends BaseModel
         }
     }
 
+    public function getEntityType()
+    {
+        return self::class;
+    }
 
     public function assigned_user()
     {
@@ -186,7 +188,7 @@ class PurchaseOrder extends BaseModel
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
                 $invitation->sent_date = Carbon::now();
-                $invitation->save();
+                $invitation->saveQuietly();
             }
         });
     }
@@ -194,31 +196,30 @@ class PurchaseOrder extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-
-            if($this->invitations()->exists())
+            if ($this->invitations()->exists()) {
                 $invitation = $this->invitations()->first();
-            else{
+            } else {
                 $this->service()->createInvitations();
                 $invitation = $this->invitations()->first();
             }
-
         }
 
-        if(!$invitation)
+        if (!$invitation) {
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+        }
 
         $file_path = $this->vendor->purchase_order_filepath($invitation).$this->numberFormatter().'.pdf';
 
-        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+        if (Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)) {
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
-        }
-        elseif(Ninja::isHosted() && $portal){
-            $file_path = (new CreatePurchaseOrderPdf($invitation,config('filesystems.default')))->handle();
+        } elseif (Ninja::isHosted() && $portal) {
+            $file_path = (new CreatePurchaseOrderPdf($invitation, config('filesystems.default')))->handle();
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
-        if(Storage::disk('public')->exists($file_path))
+        if (Storage::disk('public')->exists($file_path)) {
             return Storage::disk('public')->{$type}($file_path);
+        }
 
         $file_path = (new CreatePurchaseOrderPdf($invitation))->handle();
         return Storage::disk('public')->{$type}($file_path);

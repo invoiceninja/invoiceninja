@@ -11,7 +11,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
 use Tests\MockAccountData;
@@ -42,5 +41,4 @@ class RecurringDateTest extends TestCase
 
         $this->assertequals($trial_ends->format('Y-m-d'), '2021-12-03');
     }
-
 }

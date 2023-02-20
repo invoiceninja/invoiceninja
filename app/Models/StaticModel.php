@@ -12,12 +12,14 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use App\Models\Traits\Excludable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class StaticModel extends Model
 {
     use MakesHash;
+    use Excludable;
     
     protected $casts = [
         'updated_at' => 'timestamp',
@@ -51,13 +53,11 @@ class StaticModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
 
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-
     }
 }

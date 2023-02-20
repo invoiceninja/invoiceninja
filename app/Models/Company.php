@@ -12,12 +12,7 @@
 namespace App\Models;
 
 use App\DataMapper\CompanySettings;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
-use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
-use App\Models\PurchaseOrder;
-use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
@@ -384,7 +379,6 @@ class Company extends BaseModel
             $this->buildCache(true);
 
             $companies = Cache::get('countries');
-
         }
 
         return $companies->filter(function ($item) {
@@ -449,14 +443,13 @@ class Company extends BaseModel
         }
 
         //if the cache is still dead, get from DB
-        if(!$languages && property_exists($this->settings, 'language_id'))
+        if (!$languages && property_exists($this->settings, 'language_id')) {
             return Language::find($this->settings->language_id);
+        }
 
         return $languages->filter(function ($item) {
             return $item->id == $this->settings->language_id;
         })->first();
-
-
     }
 
     public function getLocale()
@@ -686,5 +679,4 @@ class Company extends BaseModel
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;
     }
-
 }

@@ -250,8 +250,7 @@ class RecurringInvoice extends BaseModel
         /* If this setting is enabled, the recurring invoice may be set in the past */
 
         if ($this->company->stop_on_unpaid_recurring) {
-
-                /* Lets set the next send date to now so we increment from today, rather than in the past*/
+            /* Lets set the next send date to now so we increment from today, rather than in the past*/
             if (Carbon::parse($this->next_send_date)->lt(now()->subDays(3))) {
                 $this->next_send_date_client = now()->format('Y-m-d');
             }
@@ -296,8 +295,7 @@ class RecurringInvoice extends BaseModel
         /* If this setting is enabled, the recurring invoice may be set in the past */
 
         if ($this->company->stop_on_unpaid_recurring) {
-
-                /* Lets set the next send date to now so we increment from today, rather than in the past*/
+            /* Lets set the next send date to now so we increment from today, rather than in the past*/
             if (Carbon::parse($this->next_send_date)->lt(now()->subDays(3))) {
                 $this->next_send_date_client = now()->format('Y-m-d');
             }
@@ -499,7 +497,6 @@ class RecurringInvoice extends BaseModel
      */
     public function recurringDates()
     {
-
         /* Return early if nothing to send back! */
         if ($this->status_id == self::STATUS_COMPLETED ||
             $this->remaining_cycles == 0 ||
@@ -553,7 +550,7 @@ class RecurringInvoice extends BaseModel
             case '0':
                 return $this->calculateDateFromTerms($date);
                 break;
-				
+                
             case 'on_receipt':
                 return Carbon::parse($date)->copy();
                 break;

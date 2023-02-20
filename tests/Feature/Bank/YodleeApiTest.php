@@ -38,15 +38,13 @@ class YodleeApiTest extends TestCase
         parent::setUp();
 
         // if(!config('ninja.yodlee.client_id'))
-            $this->markTestSkipped('Skip test no Yodlee API credentials found');
+        $this->markTestSkipped('Skip test no Yodlee API credentials found');
 
         $this->makeTestData();
-        
     }
 
     public function testExpenseGenerationFromBankFeed()
     {
-
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
         $bi->save();
 
@@ -73,7 +71,6 @@ class YodleeApiTest extends TestCase
 
         $this->assertNotNull($expense);
         $this->assertEquals(10, (int)$expense->amount);
-
     }
 
     public function testIncomeMatchingAndPaymentGeneration()
@@ -148,7 +145,7 @@ class YodleeApiTest extends TestCase
 
         $transactions = $yodlee->getTransactionCategories();
 
-        $this->assertTrue(property_exists($transactions,'transactionCategory'));
+        $this->assertTrue(property_exists($transactions, 'transactionCategory'));
 
         $t = collect($transactions->transactionCategory);
 
@@ -157,7 +154,6 @@ class YodleeApiTest extends TestCase
         $this->assertNotNull($x);
 
         $this->assertEquals('Automotive Expenses', $x->highLevelCategoryName);
-
     }
 
 //     public function testFunctionalMatching()
@@ -165,7 +161,7 @@ class YodleeApiTest extends TestCase
 
 //         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
-//         $accounts = $yodlee->getAccounts(); 
+//         $accounts = $yodlee->getAccounts();
 
 //         foreach($accounts as $account)
 //         {
@@ -216,7 +212,6 @@ class YodleeApiTest extends TestCase
 
     public function testDataMatching()
     {
-
         $transaction = collect([
             (object)[
                 'description' => 'tinkertonkton'
@@ -256,19 +251,14 @@ class YodleeApiTest extends TestCase
 
 
         $invoice = $transaction->first(function ($value, $key) {
-
             return str_contains($value->description, 'tinker');
-            
         });
 
         $this->assertNotNull($invoice);
-
-
     }
 
     public function testYodleeInstance()
     {
-
         $yodlee = new Yodlee();
 
         $this->assertNotNull($yodlee);
@@ -278,7 +268,6 @@ class YodleeApiTest extends TestCase
 
     public function testAccessTokenGeneration()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $access_token = $yodlee->getAccessToken();
@@ -463,13 +452,11 @@ class YodleeApiTest extends TestCase
 
     public function testGetCategories()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb2');
 
         $transactions = $yodlee->getTransactionCategories();
  
         $this->assertIsArray($transactions->transactionCategory);
-
     }
 
 
@@ -497,7 +484,7 @@ class YodleeApiTest extends TestCase
                     [includeInNetWorth] => 1
                     [providerId] => 18769
                     [providerName] => Dag Site Captcha
-                    [isManual] => 
+                    [isManual] =>
                     [currentBalance] => stdClass Object
                         (
                             [currency] => USD
@@ -541,7 +528,7 @@ class YodleeApiTest extends TestCase
                     [includeInNetWorth] => 1
                     [providerId] => 18769
                     [providerName] => Dag Site Captcha
-                    [isManual] => 
+                    [isManual] =>
                     [availableBalance] => stdClass Object
                         (
                             [currency] => USD
@@ -576,7 +563,6 @@ class YodleeApiTest extends TestCase
 */
     public function testGetAccounts()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $accounts = $yodlee->getAccounts();
@@ -612,7 +598,7 @@ class YodleeApiTest extends TestCase
                             [original] => CHEROKEE NATION TAX TA TAHLEQUAH OK
                         )
 
-                    [isManual] => 
+                    [isManual] =>
                     [sourceType] => AGGREGATED
                     [date] => 2022-08-03
                     [transactionDate] => 2022-08-03
@@ -628,23 +614,20 @@ class YodleeApiTest extends TestCase
                     [checkNumber] => 998
                 )
 
- 
+
  */
 
     public function testGetTransactions()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $transactions = $yodlee->getTransactions(['categoryId' => 2, 'fromDate' => '2000-01-01']);
 
         $this->assertIsArray($transactions);
-
     }
 
     public function testGetTransactionsWithParams()
     {
-
         $yodlee = new Yodlee('sbMem62e1e69547bfb1');
 
         $data = [
@@ -654,10 +637,8 @@ class YodleeApiTest extends TestCase
             'fromDate' => '2000-10-10', /// YYYY-MM-DD
         ];
 
-        $accounts = $yodlee->getTransactions($data); 
+        $accounts = $yodlee->getTransactions($data);
 
         $this->assertIsArray($accounts);
-
     }
-
 }

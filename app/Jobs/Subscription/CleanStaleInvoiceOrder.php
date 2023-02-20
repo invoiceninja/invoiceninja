@@ -15,7 +15,6 @@ use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -30,17 +29,17 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      * @param int invoice_id
      * @param string $db
      */
-    public function __construct(){}
+    public function __construct()
+    {
+    }
 
     /**
-     * @param InvoiceRepository $repo 
-     * @return void 
+     * @param InvoiceRepository $repo
+     * @return void
      */
     public function handle(InvoiceRepository $repo) : void
     {
-
-         if (! config('ninja.db.multi_db_enabled')) {
-
+        if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
                     ->where('is_proforma', 1)
@@ -52,12 +51,10 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                     });
 
             return;
-         }
+        }
 
 
-        foreach (MultiDB::$dbs as $db) 
-        {
-
+        foreach (MultiDB::$dbs as $db) {
             MultiDB::setDB($db);
 
             Invoice::query()
@@ -69,9 +66,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                         $invoice->is_proforma = false;
                         $repo->delete($invoice);
                     });
-        
         }
-
     }
 
     public function failed($exception = null)

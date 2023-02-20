@@ -11,18 +11,13 @@
 
 namespace App\Jobs\Mail;
 
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\ClientPaymentFailureObject;
-use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
-use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
@@ -70,7 +65,7 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
-        if(!is_string($this->error)){
+        if (!is_string($this->error)) {
             $this->error = "Payment failed, no reason given.";
         }
 

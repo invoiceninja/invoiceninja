@@ -59,7 +59,7 @@ class UserRepository extends BaseRepository
         // if(array_key_exists('oauth_provider_id', $details))
         //     unset($details['oauth_provider_id']);
         
-        if (request()->has('validated_phone')){
+        if (request()->has('validated_phone')) {
             $details['phone'] = request()->input('validated_phone');
             $user->verified_phone_number = false;
         }
@@ -99,10 +99,9 @@ class UserRepository extends BaseRepository
                     $cu->save();
 
                     //05-08-2022
-                    if($cu->tokens()->count() == 0){
+                    if ($cu->tokens()->count() == 0) {
                         (new CreateCompanyToken($cu->company, $cu->user, 'restored_user'))->handle();
                     }
-
                 } else {
                     $cu->notifications = $data['company_user']['notifications'];
                     $cu->settings = $data['company_user']['settings'];
@@ -116,6 +115,8 @@ class UserRepository extends BaseRepository
             }])->first();
         }
         $user->restore();
+
+        $this->verifyCorrectCompanySizeForPermissions($user);
 
         return $user->fresh();
     }
@@ -210,5 +211,31 @@ class UserRepository extends BaseRepository
         $cu->restore();
 
         event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+    }
+
+
+    /**
+     * If we have multiple users in the system,
+     * and there are some that are not admins,
+     * we force all companies to large to ensure
+     * the queries are appropriate for all users
+     *
+     * @param  User   $user
+     * @return void
+     */
+    private function verifyCorrectCompanySizeForPermissions(User $user): void
+    {
+        if (Ninja::isSelfHost() || (Ninja::isHosted() && $user->account->isEnterpriseClient())) {
+            $user->account()
+               ->whereHas('companies', function ($query) {
+                   $query->where('is_large', 0);
+               })
+               ->whereHas('company_users', function ($query) {
+                   $query->where('is_admin', 0);
+               })
+               ->cursor()->each(function ($account) {
+                   $account->companies()->update(['is_large' => true]);
+               });
+        }
     }
 }

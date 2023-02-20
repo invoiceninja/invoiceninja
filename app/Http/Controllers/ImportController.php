@@ -35,7 +35,7 @@ class ImportController extends Controller
      *      tags={"imports"},
      *      summary="Pre Import checks - returns a reference to the job and the headers of the CSV",
      *      description="Pre Import checks - returns a reference to the job and the headers of the CSV",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -159,14 +159,15 @@ class ImportController extends Controller
 
     public function detectDelimiter($csvfile)
     {
-        $delimiters = array(',', '.', ';');
+        $delimiters = [',', '.', ';'];
         $bestDelimiter = ' ';
         $count = 0;
-        foreach ($delimiters as $delimiter)
+        foreach ($delimiters as $delimiter) {
             if (substr_count($csvfile, $delimiter) > $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
+        }
         return $bestDelimiter;
     }
 }

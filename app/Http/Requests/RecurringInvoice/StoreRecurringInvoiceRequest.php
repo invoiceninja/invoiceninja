@@ -18,7 +18,6 @@ use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 
 class StoreRecurringInvoiceRequest extends Request
 {
@@ -74,7 +73,7 @@ class StoreRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])){
+        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
         }
 

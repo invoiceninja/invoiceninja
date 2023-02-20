@@ -13,7 +13,6 @@ namespace App\Utils\Traits;
 
 trait DesignCalculator
 {
-
     private function resolveCompanyLogoSize()
     {
         $design_map = [
@@ -48,23 +47,26 @@ trait DesignCalculator
             "11221" => "65%", //"C-DB1"
         ];
 
-        if(isset($this->settings->company_logo_size) && strlen($this->settings->company_logo_size) > 1)
+        if (isset($this->settings->company_logo_size) && strlen($this->settings->company_logo_size) > 1) {
             return $this->settings->company_logo_size;
+        }
 
-        if($this->entity->design_id && array_key_exists($this->entity->design_id, $design_int_map))
+        if ($this->entity->design_id && array_key_exists($this->entity->design_id, $design_int_map)) {
             return $design_int_map[$this->entity->design_id];
+        }
 
         $default_design_id = $this->entity_string."_design_id";
 
-        if($default_design_id == 'recurring_invoice_design_id')
+        if ($default_design_id == 'recurring_invoice_design_id') {
             $default_design_id = 'invoice_design_id';
+        }
         
         $design_id = $this->settings->{$default_design_id};
 
-        if(array_key_exists($design_id, $design_map))
+        if (array_key_exists($design_id, $design_map)) {
             return $design_map[$design_id];
+        }
 
         return '65%';
-
     }
 }

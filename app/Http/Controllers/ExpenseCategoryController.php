@@ -104,7 +104,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Gets a new blank Expens Category object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -149,7 +149,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Adds a expense category",
      *      description="Adds an expense category to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -196,7 +196,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Shows a Expens Category",
      *      description="Displays an ExpenseCategory by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -249,7 +249,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Shows a Expens Category for editting",
      *      description="Displays a Expens Category by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -303,7 +303,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Updates a tax rate",
      *      description="Handles the updating of a tax rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -360,7 +360,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Deletes a ExpenseCategory",
      *      description="Handles the deletion of an ExpenseCategory by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -414,7 +414,7 @@ class ExpenseCategoryController extends BaseController
      *      tags={"expense_categories"},
      *      summary="Performs bulk actions on an array of ExpenseCategorys",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

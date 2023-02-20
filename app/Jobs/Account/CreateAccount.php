@@ -18,25 +18,16 @@ use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\User\CreateUser;
 use App\Jobs\Util\VersionCheck;
-use App\Mail\Admin\AccountCreatedObject;
-use App\Mail\Admin\VerifyUserObject;
 use App\Models\Account;
-use App\Models\Timezone;
-use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Ninja;
 use App\Utils\Traits\User\LoginCache;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class CreateAccount
@@ -86,7 +77,7 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if(in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])){
+            if (in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])) {
                 $sp794f3f->account_sms_verified = false;
             }
 
@@ -96,7 +87,7 @@ class CreateAccount
 
         $sp794f3f->save();
 
-        $sp035a66 = (new CreateCompany($this->request,$sp794f3f))->handle();
+        $sp035a66 = (new CreateCompany($this->request, $sp794f3f))->handle();
         $sp035a66->load('account');
         $sp794f3f->default_company_id = $sp035a66->id;
         $sp794f3f->save();
@@ -115,6 +106,7 @@ class CreateAccount
 
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         $sp2d97e8 = (new CreateCompanyToken($sp035a66, $spaa9f78, $spafe62e))->handle();
+        
         if ($spaa9f78) {
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
@@ -163,7 +155,7 @@ class CreateAccount
 
     private function getDomain($email)
     {
-        if( filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             // split on @ and return last value of array (the domain)
             $domain = explode('@', $email);
          
@@ -174,5 +166,4 @@ class CreateAccount
 
         return 'gmail.com';
     }
-
 }

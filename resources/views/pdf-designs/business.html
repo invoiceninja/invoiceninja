@@ -16,9 +16,15 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
     }
+
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
+    }
+
 
     @page {
         margin-left: $global_margin;

@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 
 class Backup extends BaseModel
@@ -38,17 +37,17 @@ class Backup extends BaseModel
 
         Storage::disk(config('filesystems.default'))->put($file_path, $html);
 
-            $this->filename = $file_path;
-            $this->save();
-        
+        $this->filename = $file_path;
+        $this->save();
     }
 
     public function deleteFile()
     {
         nlog('deleting => '.$this->filename);
 
-        if(!$this->filename)
+        if (!$this->filename) {
             return;
+        }
 
         try {
             Storage::disk(config('filesystems.default'))->delete($this->filename);

@@ -12,13 +12,11 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
-use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
-use App\Services\Quote\TriggeredActions;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -129,7 +127,7 @@ class QuoteService
     /**
      * Sometimes we need to refresh the
      * PDF when it is updated etc.
-     * 
+     *
      * @return QuoteService
      */
     public function touchPdf($force = false)

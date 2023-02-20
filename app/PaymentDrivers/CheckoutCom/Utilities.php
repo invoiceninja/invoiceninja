@@ -15,9 +15,7 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use Checkout\Models\Payments\Payment;
 use Exception;
 use stdClass;
 
@@ -84,7 +82,6 @@ trait Utilities
 
     public function processUnsuccessfulPayment($_payment, $throw_exception = true)
     {
-
         $error_message = '';
 
         nlog("checkout failure");
@@ -92,8 +89,7 @@ trait Utilities
         
         if (is_array($_payment) && array_key_exists('status', $_payment)) {
             $error_message = $_payment['status'];
-        }
-        else {
+        } else {
             $error_message = 'Error processing payment.';
         }
 

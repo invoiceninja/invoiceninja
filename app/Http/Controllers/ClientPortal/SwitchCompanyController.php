@@ -15,7 +15,6 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Auth;
 
 class SwitchCompanyController extends Controller
 {

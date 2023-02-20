@@ -46,19 +46,15 @@ class VendorContactObserver
      */
     public function deleted(VendorContact $vendorContact)
     {
-        
         $vendor_contact_id = $vendorContact->id;
 
         $vendorContact->purchase_order_invitations()->delete();
        
-        PurchaseOrderInvitation::withTrashed()->where('vendor_contact_id', $vendor_contact_id)->cursor()->each(function ($invite){
-
-          if($invite->purchase_order()->doesnthave('invitations'))
-            $invite->purchase_order->service()->createInvitations();
-
+        PurchaseOrderInvitation::withTrashed()->where('vendor_contact_id', $vendor_contact_id)->cursor()->each(function ($invite) {
+            if ($invite->purchase_order()->doesnthave('invitations')) {
+                $invite->purchase_order->service()->createInvitations();
+            }
         });
-
-        
     }
 
     /**
@@ -69,7 +65,6 @@ class VendorContactObserver
      */
     public function restored(VendorContact $vendorContact)
     {
-
     }
 
     /**

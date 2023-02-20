@@ -142,31 +142,30 @@ class PaymentService
 
     public function applyCreditsToInvoice($invoice)
     {
+        $amount = $invoice->amount;
 
-            $amount = $invoice->amount;
+        $credits = $invoice->client
+                            ->service()
+                            ->getCredits();
 
-            $credits = $invoice->client
-                                ->service()
-                                ->getCredits();
+        foreach ($credits as $credit) {
+            //starting invoice balance
+            $invoice_balance = $invoice->balance;
 
-            foreach ($credits as $credit) {
-                //starting invoice balance
-                $invoice_balance = $invoice->balance;
+            //credit payment applied
+            $credit->service()->applyPayment($invoice, $amount, $this->payment);
 
-                //credit payment applied
-                $credit->service()->applyPayment($invoice, $amount, $this->payment);
+            //amount paid from invoice calculated
+            $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
 
-                //amount paid from invoice calculated
-                $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
+            //reduce the amount to be paid on the invoice from the NEXT credit
+            $amount -= $remaining_balance;
 
-                //reduce the amount to be paid on the invoice from the NEXT credit
-                $amount -= $remaining_balance;
-
-                //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
-                if (! $invoice->isPayable() || (int) $amount == 0) {
-                    break;
-                }
+            //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
+            if (! $invoice->isPayable() || (int) $amount == 0) {
+                break;
             }
+        }
         
 
         return $this;

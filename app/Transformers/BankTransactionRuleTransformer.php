@@ -11,13 +11,12 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
+use App\Models\Client;
 use App\Models\Company;
-use App\Models\Expense;
-use App\Models\Invoice;
-use App\Transformers\VendorTransformer;
+use App\Models\ExpenseCategory;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -75,16 +74,34 @@ class BankTransactionRuleTransformer extends EntityTransformer
 
     public function includeClient(BankTransactionRule $bank_transaction_rule)
     {
-        $transformer = new ClientTransformer($this->serializer);
+        if (!$bank_transaction_rule->client) {
+            return null;
+        }
 
-        return $this->includeItem($bank_transaction_rule->expense, $transformer, Client::class);
+        $transformer = new ClientTransformer($this->serializer);
+        
+        return $this->includeItem($bank_transaction_rule->client, $transformer, Client::class);
     }
 
     public function includeVendor(BankTransactionRule $bank_transaction_rule)
     {
+        if (!$bank_transaction_rule->vendor) {
+            return null;
+        }
+
         $transformer = new VendorTransformer($this->serializer);
 
         return $this->includeItem($bank_transaction_rule->vendor, $transformer, Vendor::class);
     }
 
+    public function includeExpenseCategory(BankTransactionRule $bank_transaction_rule)
+    {
+        if (!$bank_transaction_rule->expense_category) {
+            return null;
+        }
+
+        $transformer = new ExpenseCategoryTransformer($this->serializer);
+
+        return $this->includeItem($bank_transaction_rule->expense_category, $transformer, ExpenseCategory::class);
+    }
 }

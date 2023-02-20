@@ -14,7 +14,6 @@ namespace App\Mail\Admin;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use stdClass;

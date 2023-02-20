@@ -11,10 +11,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\FilePermissionsFailure;
-use App\Exceptions\InternalPDFFailure;
-use App\Exceptions\PhantomPDFFailure;
-use App\Exceptions\StripeConnectFailure;
 use App\Utils\Ninja;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -29,14 +25,13 @@ use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use League\Flysystem\UnableToCreateDirectory;
 use PDOException;
 use Sentry\Laravel\Integration;
 use Sentry\State\Scope;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use League\Flysystem\UnableToCreateDirectory;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -68,6 +63,7 @@ class Handler extends ExceptionHandler
         Symfony\Component\Process\Exception\RuntimeException::class,
         InvalidArgumentException::class,
         RuntimeException::class,
+        Aws\Exception\CredentialsException::class,
     ];
 
     protected $hostedDontReport = [
@@ -128,7 +124,6 @@ class Handler extends ExceptionHandler
             if ($this->validException($exception) && $this->sentryShouldReport($exception)) {
                 Integration::captureUnhandledException($exception);
             }
-
         } elseif (app()->bound('sentry')) {
             Integration::configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
@@ -192,10 +187,11 @@ class Handler extends ExceptionHandler
      */
     protected function sentryShouldReport(Throwable $e)
     {
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             $dontReport = array_merge($this->hostedDontReport, $this->internalDontReport);
-        else
+        } else {
             $dontReport = array_merge($this->selfHostDontReport, $this->internalDontReport);
+        }
 
         return is_null(Arr::first($dontReport, fn ($type) => $e instanceof $type));
     }
@@ -222,7 +218,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message'=>'Too many requests'], 429);
         // } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
         //     return response()->json(['message'=>'Fatal error'], 500); //@deprecated
-        } elseif ($exception instanceof AuthorizationException) {
+        } elseif ($exception instanceof AuthorizationException && $request->expectsJson()) {
             return response()->json(['message'=> $exception->getMessage()], 401);
         } elseif ($exception instanceof TokenMismatchException) {
             return redirect()
@@ -245,7 +241,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
-        } 
+        }
 
         return parent::render($request, $exception);
     }
@@ -259,7 +255,7 @@ class Handler extends ExceptionHandler
         $guard = Arr::get($exception->guards(), 0);
 
         switch ($guard) {
-           case 'contact':
+            case 'contact':
                 $login = 'client.login';
                 break;
             case 'user':

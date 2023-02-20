@@ -15,11 +15,10 @@ use App\Services\Email\EmailObject;
 use App\Services\Email\EmailService;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Tests\MockAccountData;
-use Tests\TestCase;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Cache;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test
@@ -39,8 +38,9 @@ class EmailServiceTest extends TestCase
     {
         parent::setUp();
 
-        if(!class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class))
+        if (!class_exists(\Modules\Admin\Jobs\Account\EmailFilter::class)) {
             $this->markTestSkipped('Skipped :: test not needed in this environment');
+        }
 
         $this->makeTestData();
 
@@ -59,7 +59,6 @@ class EmailServiceTest extends TestCase
         ];
 
         $this->email_service = new EmailService($this->email_object, $this->company);
-
     }
 
     public function testScanEmailsAttemptedFromVerifiedAccounts()
@@ -76,21 +75,17 @@ class EmailServiceTest extends TestCase
 
         $this->assertFalse($this->email_service->preFlightChecksFail());
 
-        collect($email_filter->getSpamKeywords())->each(function ($spam_subject){
-
+        collect($email_filter->getSpamKeywords())->each(function ($spam_subject) {
             $this->email_object->subject = $spam_subject;
 
             $this->assertTrue($this->email_service->preFlightChecksFail());
-
         });
-
     }
 
 
 
     public function scanEmailsAttemptedFromUnverifiedAccounts()
     {
-
         config(['ninja.environment' => 'hosted']);
 
         Cache::put($this->account->key, 1);
@@ -99,7 +94,6 @@ class EmailServiceTest extends TestCase
         $this->account->save();
 
         $this->assertTrue($this->email_service->preFlightChecksFail());
-
     }
 
 
@@ -113,45 +107,39 @@ class EmailServiceTest extends TestCase
         $this->account->save();
 
         $this->assertFalse($this->email_service->preFlightChecksFail());
-
     }
 
     public function testClientMailersAreUnCapped()
     {
-
         config(['ninja.environment' => 'hosted']);
 
         Cache::put($this->account->key, 1000000);
 
         collect([
-            'gmail', 
-            'office365', 
-            'client_postmark', 
+            'gmail',
+            'office365',
+            'client_postmark',
             'client_mailgun'])
-        ->each(function ($mailer){
-
+        ->each(function ($mailer) {
             $this->email_object->settings->email_sending_method = $mailer;
 
             $this->assertFalse($this->email_service->preFlightChecksFail());
-
         });
 
         $this->email_object->settings->email_sending_method = 'postmark';
 
         $this->assertTrue($this->email_service->preFlightChecksFail());
-
     }
 
     public function testFlaggedInvalidEmailsPrevented()
     {
-
         config(['ninja.environment' => 'hosted']);
 
         Cache::put($this->account->key, 1);
 
-            $this->email_object->to = [new Address("user@example.com", "Cool Name")];
+        $this->email_object->to = [new Address("user@example.com", "Cool Name")];
 
-            $this->assertTrue($this->email_service->preFlightChecksFail());
+        $this->assertTrue($this->email_service->preFlightChecksFail());
 
 
         collect([
@@ -159,21 +147,15 @@ class EmailServiceTest extends TestCase
             '',
             'bademail',
             'domain.com',
-        ])->each(function ($email){
-
-
+        ])->each(function ($email) {
             $this->email_object->to = [new Address($email, "Cool Name")];
 
             $this->assertTrue($this->email_service->preFlightChecksFail());
-
         });
-
-        
     }
 
     public function testFlaggedAccountsPrevented()
     {
-
         Cache::put($this->account->key, 1);
 
         config(['ninja.environment' => 'hosted']);
@@ -182,31 +164,23 @@ class EmailServiceTest extends TestCase
         $this->account->save();
 
         $this->assertTrue($this->email_service->preFlightChecksFail());
-
     }
 
     public function testPreFlightChecksHosted()
     {
-
         Cache::put($this->account->key, 1);
     
         config(['ninja.environment' => 'hosted']);
     
         $this->assertFalse($this->email_service->preFlightChecksFail());
-
     }
 
     public function testPreFlightChecksSelfHost()
     {
-
         Cache::put($this->account->key, 1);
 
         config(['ninja.environment' => 'selfhost']);
     
         $this->assertFalse($this->email_service->preFlightChecksFail());
-
     }
-
-
-
 }
