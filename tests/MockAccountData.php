@@ -217,8 +217,8 @@ trait MockAccountData
         $fake_email = $this->faker->email();
 
         $this->account = Account::factory()->create([
-            'hosted_client_count' => 1000,
-            'hosted_company_count' => 1000,
+            'hosted_client_count' => 1000000,
+            'hosted_company_count' => 1000000,
         ]);
 
         $this->account->num_users = 3;
