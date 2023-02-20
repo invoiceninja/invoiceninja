@@ -46,10 +46,6 @@ class InvoiceEmailedNotification implements ShouldQueue
         $invoice->last_sent_date = now();
         $invoice->saveQuietly();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
-        $nmo->company = $invoice->company;
-        $nmo->settings = $invoice->company->settings;
 
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->invitation->company->company_users as $company_user) {
@@ -66,10 +62,15 @@ class InvoiceEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
+                $nmo->company = $invoice->company;
+                $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
-
+                
+                $nmo = null;
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

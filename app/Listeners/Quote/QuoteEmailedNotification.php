@@ -45,11 +45,6 @@ class QuoteEmailedNotification implements ShouldQueue
         $quote->last_sent_date = now();
         $quote->saveQuietly();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'quote', $event->template))->build());
-        $nmo->company = $quote->company;
-        $nmo->settings = $quote->company->settings;
-
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -58,9 +53,15 @@ class QuoteEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'quote', $event->template))->build());
+                $nmo->company = $quote->company;
+                $nmo->settings = $quote->company->settings;
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
+
+                $nmo = null;
             }
         }
     }

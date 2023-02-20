@@ -54,6 +54,131 @@ class SchedulerTest extends TestCase
         );
     }
 
+    public function testCustomDateRanges()
+    {
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => now()->format('Y-m-d'),
+                'end_date' => now()->addDays(4)->format('Y-m-d')
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testCustomDateRangesFails()
+    {
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => now()->format('Y-m-d'),
+                'end_date' => now()->subDays(4)->format('Y-m-d')
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
+
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => now()->format('Y-m-d'),
+                'end_date' => null
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => null,
+                'end_date' => now()->format('Y-m-d')
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);           
+
+
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => '',
+                'end_date' => ''
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422); 
+
+    }
+
     public function testClientCountResolution()
     {
         $c = Client::factory()->create([

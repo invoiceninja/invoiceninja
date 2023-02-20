@@ -1,0 +1,192 @@
+  parameters:
+    X-API-SECRET:
+      name: X-API-SECRET
+      in: header
+      description: 'The API secret as defined by the .env variable API_SECRET. Only needed for self hosted users, and only applicable on the login route.'
+      required: false
+      schema:
+        type: string
+        example: password
+    X-Requested-With:
+      name: X-Requested-With
+      in: header
+      description: 'Used to send the XMLHttpRequest header'
+      required: true
+      schema:
+        type: string
+        readOnly: true
+        example: XMLHttpRequest
+    X-API-TOKEN:
+      name: X-API-TOKEN
+      in: header
+      description: 'The API token to be used for authentication'
+      required: true
+      schema:
+        type: string
+        example: TOKEN
+    X-API-PASSWORD:
+      name: X-API-PASSWORD
+      in: header
+      description: 'The login password when challenged on certain protected routes'
+      required: false
+      schema:
+        type: string
+        example: supersecretpassword
+    bank_integration_include:
+      name: include
+      in: query
+      description: Include child relations of the BankIntegration object. Format is comma separated. 
+      require: false
+      schema:
+        type: string
+      examples:
+        company:
+          value: company
+          summary: The associated Company
+        account:
+          value: account
+          summary: The associated Account
+        bank_transactions:
+          value: bank_transactions
+          summary: The associated Bank Transactions
+    client_include:
+      name: include
+      in: query
+      description: Include child relationships of the Client Object.
+      required: false
+      schema:
+        type: string
+      examples:
+        activities:
+          value: activities
+          summary: include=activities will include the activities object in the response
+        ledger:
+          value: ledger
+          summary: include=ledger will include the ledger object in the response
+        system_logs:
+          value: system_logs
+          summary: include=system_logs will include the system_logs object in the response
+    activity_include:
+      name: include
+      in: query
+      description: Include child relations of the Activity object, format is comma separated. **Note** it is possible to chain multiple includes together, ie. include=account,token
+      required: false
+      schema:
+        type: string
+      examples:
+        history:
+          value: history
+          summary: include=history will include the history object in the response (This could include references to the backup HTML of the entity)
+        user:
+          value: user
+          summary: include=user will include the user object in the response
+        client:
+          value: client
+          summary: include=client will include the client object in the response
+        recurring_invoice:
+          value: recurring_invoice
+          summary: include=recurring_invoice will include the recurring_invoice object in the response
+        invoice:
+          value: invoice
+          summary: include=invoice will include the invoice object in the response
+        credit:
+          value: credit
+          summary: include=credit will include the credit object in the response
+        quote:
+          value: quote
+          summary: include=quote will include the quote object in the response
+        payment:
+          value: payment
+          summary: include=payment will include the payment object in the response
+        expense:
+          value: expense
+          summary: include=expense will include the expense object in the response           
+        vendor_contact:
+          value: vendor_contact
+          summary: include=vendor_contact will include the vendor_contact object in the response
+        vendor:
+          value: vendor
+          summary: include=vendor will include the vendor object in the response
+        purchase_order:
+          value: purchase_order
+          summary: include=purchase_order will include the purchase_order object in the response
+        task:
+          value: task
+          summary: include=task will include the task object in the response        
+    login_include:
+      name: include
+      in: query
+      description: Include child relations of the CompanyUser object, format is comma separated. **Note** it is possible to chain multiple includes together, ie. include=account,token
+      required: false
+      schema:
+        type: string
+      examples:
+        user:
+          value: user
+          summary: include=user will include the user object in the response
+        company:
+          value: company
+          summary: include=company will include the company object in the response
+        token:
+          value: token
+          summary: include=token will include the token object in the response
+        account:
+          value: account
+          summary: include=account will include the account object in the response
+    per_page_meta:
+      name: per_page
+      in: query
+      description: The number of records to return for each request, default is 20
+      required: false
+      schema:
+        type: int
+        example: 20
+    page_meta:
+      name: page
+      in: query
+      description: The page number to return for this request (when performing pagination), default is 1
+      required: false
+      schema:
+        type: int
+        example: 1
+    include:
+      name: include
+      in: query
+      description: 'Includes child relationships in the response, format is comma separated. Check each model for the list of associated includes'
+      required: false
+      schema:
+        type: string
+        example: 'first_load'
+    include_static:
+      name: include_static
+      in: query
+      description: 'Returns static variables'
+      required: false
+      schema:
+        type: string
+        example: include_static=true
+    clear_cache:
+      name: clear_cache
+      in: query
+      description: 'Clears the static cache'
+      required: false
+      schema:
+        type: string
+        example: clear_cache=true
+    index:
+      name: index
+      in: query
+      description: 'Replaces the default response index from data to a user specific string'
+      required: false
+      schema:
+        type: string
+        example: user
+    api_version:
+      name: api_version
+      in: query
+      description: 'The API version'
+      required: false
+      schema:
+        type: number
+        example: user
+   

@@ -45,11 +45,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 
         $purchase_order = $event->purchase_order;
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
-        $nmo->company = $purchase_order->company;
-        $nmo->settings = $purchase_order->company->settings;
-
+        
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
             /* The User */
@@ -69,10 +65,16 @@ class PurchaseOrderCreatedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($purchase_order, 'purchase_order'))->build());
+                $nmo->company = $purchase_order->company;
+                $nmo->settings = $purchase_order->company->settings;
+
                 $nmo->to_user = $user;
 
                 (new NinjaMailerJob($nmo))->handle();
 
+                $nmo = null;
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
             }

@@ -1,5 +1,4 @@
   schemas:
-
     BankTransactionRule:
       properties:
         id:
