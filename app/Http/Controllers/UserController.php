@@ -75,8 +75,8 @@ class UserController extends BaseController
      *      tags={"users"},
      *      summary="Gets a list of users",
      *      description="Lists users, search and filters allow fine grained lists to be generated.
-
-    Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
+     *
+     *Query parameters can be added to performed more fine grained filtering of the users, these are handled by the UserFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

@@ -82,6 +82,13 @@ class PermissionsTest extends TestCase
         $low_cu->save();
 
         $this->assertTrue($this->user->hasExcludedPermissions(["view_client"]));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = 'view_client';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasExcludedPermissions(["view_client"]));
+    
     }
 
     public function testHasExcludedPermissions2()

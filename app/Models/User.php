@@ -392,8 +392,7 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
-        return  $this->isOwner() ||
-                $this->isAdmin() ||
+        return  $this->isSuperUser() ||
                 (stripos($this->token()->cu->permissions, $permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
@@ -505,23 +504,25 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasExcludedPermissions(array $matched_permission = [], array $excluded_permissions = []): bool
     {
         if ($this->isSuperUser()) {
+            nlog("returning false as is superuser");
             return false;
         }
         
         foreach ($excluded_permissions as $permission) {
             if ($this->hasExactPermission($permission)) {
+                nlog("returning false as has excluded permission {$permission}");
                 return false;
             }
         }
 
         foreach($matched_permission as $permission) {
             if ($this->hasExactPermission($permission)) {
+                nlog("returning true as has matched permission {$permission}");
                 return true;
             }
         }
 
     }
-
 
     public function documents()
     {

@@ -11,33 +11,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
-use App\Models\CompanyGateway;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Client;
 use App\Models\Design;
-use App\Models\ExpenseCategory;
-use App\Models\GroupSetting;
-use App\Models\PaymentTerm;
+use App\Utils\Statics;
+use App\Models\Account;
+use App\Models\TaxRate;
+use App\Models\Webhook;
 use App\Models\Scheduler;
 use App\Models\TaskStatus;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Webhook;
-use App\Transformers\ArraySerializer;
-use App\Transformers\EntityTransformer;
-use App\Utils\Ninja;
-use App\Utils\Statics;
-use App\Utils\Traits\AppSetup;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Builder;
+use App\Models\PaymentTerm;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
-use League\Fractal\Resource\Collection;
+use App\Models\GroupSetting;
+use App\Models\CompanyGateway;
+use App\Utils\Traits\AppSetup;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\ExpenseCategory;
 use League\Fractal\Resource\Item;
+use App\Models\BankTransactionRule;
+use App\Transformers\ArraySerializer;
+use App\Transformers\EntityTransformer;
+use League\Fractal\Resource\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\JsonApiSerializer;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * Class BaseController.
@@ -68,7 +69,13 @@ class BaseController extends Controller
 
     protected $serializer;
 
-    private array $client_exclusion_fields = ['balance','paid_to_date', 'credit_balance','client_hash'];
+    /* Grouped permissions when we want to hide columns for particular permission groups*/
+    private array $client_exclusion_fields = ['balance', 'paid_to_date', 'credit_balance', 'client_hash'];
+    private array $client_excludable_permissions = ['view_client'];
+    private array $client_excludable_overrides = ['edit_client', 'edit_all', 'view_invoice', 'view_all', 'edit_invoice'];
+    /* Grouped permissions when we want to hide columns for particular permission groups*/
+
+
     /**
      * Fractal manager.
      * @var object
@@ -293,7 +300,10 @@ class BaseController extends Controller
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
                         });
                     }
-                    
+
+                    if ($user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+                        $query->exclude($this->client_exclusion_fields);
+                    }
                 },
                 'company.company_gateways' => function ($query) use ($user) {
                     $query->whereNotNull('updated_at')->with('gateway');
@@ -489,7 +499,6 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
@@ -499,11 +508,8 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
 
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-
         } else {
-
             $resource = new Collection($query, $transformer, $this->entity_type);
-
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
@@ -657,10 +663,9 @@ class BaseController extends Controller
                         });
                     }
                     
-                    if($user->hasIntersectPermissions(['view_client'])){
+                    if ($user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
                         $query->exclude($this->client_exclusion_fields);
                     }
-
                 },
                 'company.company_gateways' => function ($query) use ($user) {
                     $query->whereNotNull('created_at')->with('gateway');
@@ -871,32 +876,25 @@ class BaseController extends Controller
         $query->with($includes);
 
         if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
-
             if (in_array($this->entity_type, [User::class])) {
-
                 $query->where('id', auth()->user()->id);
-
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
-
                 if ($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 else {
                     $query->where('user_id', '=', auth()->user()->id);
                 }
-
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
-
             }
         }
-
-        // if(auth()->user()->hasIntersectPermissions(['view_client'])){
-        //     $query->exclude($this->client_exclusion_fields);
-        // }
+        
+        if ($this->entity_type == Client::class && auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+            $query->exclude($this->client_exclusion_fields);
+        }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
