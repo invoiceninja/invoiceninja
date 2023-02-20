@@ -15,6 +15,7 @@ use App\Models\Account;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
+use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\Design;
 use App\Models\ExpenseCategory;
@@ -63,11 +64,40 @@ class BaseController extends Controller
     public $forced_index = 'data';
 
     /**
+     * The calling controller Model Type
+     */
+    protected $entity_type;
+
+    /**
+     * The calling controller Transformer type
+     *
+     */
+    protected $entity_transformer;
+
+    /**
+     * The serializer in use with Fractal
+     *
+     */
+    protected $serializer;
+
+    /* Grouped permissions when we want to hide columns for particular permission groups*/
+    
+    private array $client_exclusion_fields = ['balance', 'paid_to_date', 'credit_balance', 'client_hash'];
+    private array $client_excludable_permissions = ['view_client'];
+    private array $client_excludable_overrides = ['edit_client', 'edit_all', 'view_invoice', 'view_all', 'edit_invoice'];
+    
+    /* Grouped permissions when we want to hide columns for particular permission groups*/
+
+
+    /**
      * Fractal manager.
-     * @var object
+     * @var Manager $manager
      */
     protected Manager $manager;
 
+    /**
+     * An array of includes to be loaded by default.
+     */
     private $first_load = [
           'account',
           'user.company_user',
@@ -120,6 +150,10 @@ class BaseController extends Controller
           'company.task_schedulers',
         ];
 
+    /**
+     * An array of includes to be loaded by default
+     * when the company is large.
+     */
     private $mini_load = [
         'account',
         'user.company_user',
@@ -139,12 +173,23 @@ class BaseController extends Controller
         'company.bank_transaction_rules',
         'company.task_schedulers',
     ];
-
+    
+    /**
+     * __construct
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->manager = new Manager();
     }
-
+    
+    /**
+     * Initializes the Manager and transforms
+     * the required includes
+     *
+     * @return void
+     */
     private function buildManager()
     {
         $include = '';
@@ -172,8 +217,7 @@ class BaseController extends Controller
     }
 
     /**
-     * Catch all fallback route
-     * for non-existant route.
+     * Catch all fallback route.
      */
     public function notFound()
     {
@@ -187,7 +231,7 @@ class BaseController extends Controller
      * end user has the correct permissions to
      * view the includes
      *
-     * @param  array  $includes The includes for the object
+     * @param  string  $includes The includes for the object
      * @return string            The filtered array of includes
      */
     private function filterIncludes(string $includes): string
@@ -227,9 +271,10 @@ class BaseController extends Controller
 
     /**
      * API Error response.
-     * @param string $message The return error message
-     * @param int $httpErrorCode 404/401/403 etc
-     * @return Response               The JSON response
+     *
+     * @param string    $message        The return error message
+     * @param int       $httpErrorCode  404/401/403 etc
+     * @return Response                 The JSON response
      * @throws BindingResolutionException
      */
     protected function errorResponse($message, $httpErrorCode = 400)
@@ -245,7 +290,8 @@ class BaseController extends Controller
 
     /**
      * Refresh API response with latest cahnges
-     * @param  Builer $query
+     *
+     * @param  Builder           $query
      * @property App\Models\User auth()->user()
      * @return Builer
      */
@@ -285,6 +331,10 @@ class BaseController extends Controller
                         $query->whereNested(function ($query) use ($user) {
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
                         });
+                    }
+
+                    if ($user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+                        $query->exclude($this->client_exclusion_fields);
                     }
                 },
                 'company.company_gateways' => function ($query) use ($user) {
@@ -481,12 +531,14 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-            //27-10-2022 - enforce unsigned integer
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
             $query = $paginator->getCollection();
+
             $resource = new Collection($query, $transformer, $this->entity_type);
+
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
             $resource = new Collection($query, $transformer, $this->entity_type);
@@ -494,8 +546,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
-    private function resolveQueryLimit()
+    
+    /**
+     * Returns the per page limit for the query.
+     *
+     * @return int
+     */
+    private function resolveQueryLimit(): int
     {
         if (request()->has('per_page')) {
             return abs((int)request()->input('per_page', 20));
@@ -503,7 +560,13 @@ class BaseController extends Controller
 
         return 20;
     }
-
+    
+    /**
+     * Mini Load Query
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function miniLoadResponse($query)
     {
         $user = auth()->user();
@@ -587,6 +650,7 @@ class BaseController extends Controller
      * able to access multiple companies, then we
      * need to pass back the mini load only
      *
+     * @deprecated
      * @return bool
      */
     private function complexPermissionsUser(): bool
@@ -598,7 +662,13 @@ class BaseController extends Controller
 
         return false;
     }
-
+    
+    /**
+     * Passes back the miniloaded data response
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function timeConstrainedResponse($query)
     {
         $user = auth()->user();
@@ -636,6 +706,10 @@ class BaseController extends Controller
                         $query->whereNested(function ($query) use ($user) {
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
                         });
+                    }
+                    
+                    if ($user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+                        $query->exclude($this->client_exclusion_fields);
                     }
                 },
                 'company.company_gateways' => function ($query) use ($user) {
@@ -833,7 +907,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
+    
+    /**
+     * List response
+     *
+     * @param  mixed $query
+     * @return void
+     */
     protected function listResponse($query)
     {
         $this->buildManager();
@@ -847,7 +927,6 @@ class BaseController extends Controller
         $query->with($includes);
 
         if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
-            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
             if (in_array($this->entity_type, [User::class])) {
                 $query->where('id', auth()->user()->id);
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
@@ -863,7 +942,10 @@ class BaseController extends Controller
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
             }
         }
-        // $query->exclude(['balance','credit_balance','paid_to_date']);
+        
+        if ($this->entity_type == Client::class && auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+            $query->exclude($this->client_exclusion_fields);
+        }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));
@@ -885,7 +967,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
+    
+    /**
+     * Sorts the response by keys
+     *
+     * @param  mixed $response
+     * @return void
+     */
     protected function response($response)
     {
         $index = request()->input('index') ?: $this->forced_index;
@@ -916,7 +1004,13 @@ class BaseController extends Controller
 
         return response()->make($response, 200, $headers);
     }
-
+    
+    /**
+     * Item Response
+     *
+     * @param  mixed $item
+     * @return void
+     */
     protected function itemResponse($item)
     {
         $this->buildManager();
@@ -935,8 +1029,13 @@ class BaseController extends Controller
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
-    public static function getApiHeaders()
+    
+    /**
+     * Returns the API headers.
+     *
+     * @return array
+     */
+    public static function getApiHeaders(): array
     {
         return [
             'Content-Type' => 'application/json',
@@ -944,8 +1043,14 @@ class BaseController extends Controller
             'X-App-Version' => config('ninja.app_version'),
         ];
     }
-
-    protected function getRequestIncludes($data)
+    
+    /**
+     * Returns the parsed relationship includes
+     *
+     * @param  mixed $data
+     * @return array
+     */
+    protected function getRequestIncludes($data): array
     {
         /*
          * Thresholds for displaying large account on first load
@@ -971,7 +1076,12 @@ class BaseController extends Controller
 
         return $data;
     }
-
+    
+    /**
+     * Main entrypoint for the default /  route.
+     *
+     * @return mixed
+     */
     public function flutterRoute()
     {
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
@@ -1036,7 +1146,12 @@ class BaseController extends Controller
 
         return redirect('/setup');
     }
-
+    
+    /**
+     * Sets the Flutter build to serve
+     *
+     * @return void
+     */
     private function setBuild()
     {
         $build = '';
@@ -1064,7 +1179,13 @@ class BaseController extends Controller
                 return 'main.foss.dart.js';
         }
     }
-
+    
+    /**
+     * Checks in a account has a required feature
+     *
+     * @param  mixed $feature
+     * @return bool
+     */
     public function checkFeature($feature)
     {
         if (auth()->user()->account->hasFeature($feature)) {
@@ -1073,7 +1194,12 @@ class BaseController extends Controller
 
         return false;
     }
-
+    
+    /**
+     * Feature failure response
+     *
+     * @return mixed
+     */
     public function featureFailure()
     {
         return response()->json(['message' => 'Upgrade to a paid plan for this feature.'], 403);

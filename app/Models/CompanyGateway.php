@@ -28,6 +28,10 @@ class CompanyGateway extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $with = [
+        'gateway',
+    ];
+
     protected $fillable = [
         'gateway_key',
         'accepted_credit_cards',

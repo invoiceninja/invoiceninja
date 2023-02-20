@@ -392,8 +392,7 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         }
 
-        return  $this->isOwner() ||
-                $this->isAdmin() ||
+        return  $this->isSuperUser() ||
                 (stripos($this->token()->cu->permissions, $permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
@@ -410,7 +409,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  string  $permission '["view_all"]'
      * @return boolean
      */
-    public function hasExactPermission(string $permission = '___'): bool
+    public function hasExactPermissionAndAll(string $permission = '___'): bool
     {
         $parts = explode('_', $permission);
         $all_permission = '__';
@@ -436,13 +435,29 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasIntersectPermissions(array $permissions = []): bool
     {
         foreach ($permissions as $permission) {
-            if ($this->hasExactPermission($permission)) {
+            if ($this->hasExactPermissionAndAll($permission)) {
                 return true;
             }
         }
 
         return false;
     }
+
+    /**
+     * Used when we need to match exactly what permission
+     * the user has, and not aggregate owner and admins.
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     *
+     * @param  string  $permission '["view_all"]'
+     * @return boolean
+     */
+    public function hasExactPermission(string $permission = '___'): bool
+    {
+        return  (stripos($this->token()->cu->permissions, $permission) !== false);
+    }
+
 
     /**
      * Used when we need to match a range of permissions
@@ -461,6 +476,44 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         foreach ($permissions as $permission) {
+            if ($this->hasExactPermissionAndAll($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    /**
+     * Used when we need to filter permissions carefully.
+     * 
+     * For instance, users that have view_client permissions should not
+     * see the client balance, however if they also have 
+     * view_invoice or view_all etc, then they should be able to see the balance.
+     * 
+     * First we pass over the excluded permissions and return false if we find a match.
+     * 
+     * If those permissions are not hit, then we can iterate through the matched_permissions and search for a hit.
+     * 
+     * Note, returning FALSE here means the user does NOT have the permission we want to exclude
+     *
+     * @param  array $matched_permission
+     * @param  array $excluded_permissions
+     * @return bool
+     */
+    public function hasExcludedPermissions(array $matched_permission = [], array $excluded_permissions = []): bool
+    {
+        if ($this->isSuperUser()) {
+            return false;
+        }
+        
+        foreach ($excluded_permissions as $permission) {
+            if ($this->hasExactPermission($permission)) {
+                return false;
+            }
+        }
+
+        foreach($matched_permission as $permission) {
             if ($this->hasExactPermission($permission)) {
                 return true;
             }
@@ -468,7 +521,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return false;
     }
-
 
     public function documents()
     {

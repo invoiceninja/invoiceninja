@@ -16,6 +16,7 @@ use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -26,7 +27,8 @@ use Tests\TestCase;
 class CompanyGatewayTest extends TestCase
 {
     use MockAccountData;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
+    use RefreshDatabase;
 
     protected function setUp() :void
     {
