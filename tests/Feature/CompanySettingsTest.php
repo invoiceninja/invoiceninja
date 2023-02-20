@@ -29,9 +29,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class CompanySettingsTest extends TestCase
 {
     use MakesHash;
-    // use DatabaseTransactions;
+    use DatabaseTransactions;
     use MockAccountData;
-    use RefreshDatabase;
+    // use RefreshDatabase;
 
     public function setUp() :void
     {
