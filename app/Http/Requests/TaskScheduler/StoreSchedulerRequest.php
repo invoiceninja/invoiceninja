@@ -40,6 +40,8 @@ class StoreSchedulerRequest extends Request
             'template' => 'bail|required|string',
             'parameters' => 'bail|array',
             'parameters.clients' => ['bail','sometimes', 'array', new ValidClientIds()],
+            'parameters.start_date' => ['bail', 'sometimes', 'date'],
+            'parameters.end_date' => ['bail', 'sometimes', 'date', 'after_or_equal:parameters.start_date'],
         ];
 
         return $rules;
