@@ -12,12 +12,14 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Company;
+use App\Models\Activity;
 use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\CompanySettings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
@@ -27,8 +29,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class CompanySettingsTest extends TestCase
 {
     use MakesHash;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
     use MockAccountData;
+    use RefreshDatabase;
 
     public function setUp() :void
     {
@@ -180,7 +183,6 @@ class CompanySettingsTest extends TestCase
 
     public function testCompanyNullValueMatrixPOST()
     {
-        Company::truncate();
 
         $settings = CompanySettings::defaults();
         $settings->reset_counter_date = null;
