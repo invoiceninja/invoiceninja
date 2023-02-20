@@ -129,8 +129,6 @@ class SchedulerTest extends TestCase
 
         $response->assertStatus(422);
 
-
-
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
@@ -153,6 +151,31 @@ class SchedulerTest extends TestCase
         ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(422);           
+
+
+
+        $data = [
+            'name' => 'A test statement scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'client_statement',
+            'parameters' => [
+                'date_range' => EmailStatement::CUSTOM_RANGE,
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'paid',
+                'clients' => [],
+                'start_date' => '',
+                'end_date' => ''
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422); 
 
     }
 
