@@ -30,7 +30,7 @@ class ValidCompanyQuantity implements Rule
             return auth()->user()->company()->account->companies->count() < 10;
         }
 
-        return auth()->user()->company()->account->companies->count() < auth()->user()->company()->account->hosted_company_count;
+        return auth()->user()->account->isPaid() && auth()->user()->company()->account->companies->count() < 10 ;
     }
 
     /**
