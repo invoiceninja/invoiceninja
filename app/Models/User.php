@@ -504,20 +504,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasExcludedPermissions(array $matched_permission = [], array $excluded_permissions = []): bool
     {
         if ($this->isSuperUser()) {
-            nlog("returning false as is superuser");
             return false;
         }
         
         foreach ($excluded_permissions as $permission) {
             if ($this->hasExactPermission($permission)) {
-                nlog("returning false as has excluded permission {$permission}");
                 return false;
             }
         }
 
         foreach($matched_permission as $permission) {
             if ($this->hasExactPermission($permission)) {
-                nlog("returning true as has matched permission {$permission}");
                 return true;
             }
         }
