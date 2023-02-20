@@ -62,6 +62,13 @@ class BaseController extends Controller
      */
     public $forced_index = 'data';
 
+    protected $entity_type;
+
+    protected $entity_transformer;
+
+    protected $serializer;
+
+    private array $client_exclusion_fields = ['balance','paid_to_date', 'credit_balance','client_hash'];
     /**
      * Fractal manager.
      * @var object
@@ -187,7 +194,7 @@ class BaseController extends Controller
      * end user has the correct permissions to
      * view the includes
      *
-     * @param  array  $includes The includes for the object
+     * @param  string  $includes The includes for the object
      * @return string            The filtered array of includes
      */
     private function filterIncludes(string $includes): string
@@ -286,6 +293,7 @@ class BaseController extends Controller
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
                         });
                     }
+                    
                 },
                 'company.company_gateways' => function ($query) use ($user) {
                     $query->whereNotNull('updated_at')->with('gateway');
@@ -481,21 +489,32 @@ class BaseController extends Controller
         );
 
         if ($query instanceof Builder) {
-            //27-10-2022 - enforce unsigned integer
+
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
             $query = $paginator->getCollection();
+
             $resource = new Collection($query, $transformer, $this->entity_type);
+
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+
         } else {
+
             $resource = new Collection($query, $transformer, $this->entity_type);
+
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
-
-    private function resolveQueryLimit()
+    
+    /**
+     * Returns the per page limit for the query.
+     *
+     * @return int
+     */
+    private function resolveQueryLimit(): int
     {
         if (request()->has('per_page')) {
             return abs((int)request()->input('per_page', 20));
@@ -637,6 +656,11 @@ class BaseController extends Controller
                             $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
                         });
                     }
+                    
+                    if($user->hasIntersectPermissions(['view_client'])){
+                        $query->exclude($this->client_exclusion_fields);
+                    }
+
                 },
                 'company.company_gateways' => function ($query) use ($user) {
                     $query->whereNotNull('created_at')->with('gateway');
@@ -847,23 +871,32 @@ class BaseController extends Controller
         $query->with($includes);
 
         if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
-            //06-10-2022 - some entities do not have assigned_user_id - this becomes an issue when we have a large company and low permission users
+
             if (in_array($this->entity_type, [User::class])) {
+
                 $query->where('id', auth()->user()->id);
+
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
+
                 if ($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 else {
                     $query->where('user_id', '=', auth()->user()->id);
                 }
+
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
+
                 $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+
             }
         }
-        // $query->exclude(['balance','credit_balance','paid_to_date']);
+
+        // if(auth()->user()->hasIntersectPermissions(['view_client'])){
+        //     $query->exclude($this->client_exclusion_fields);
+        // }
 
         if (request()->has('updated_at') && request()->input('updated_at') > 0) {
             $query->where('updated_at', '>=', date('Y-m-d H:i:s', intval(request()->input('updated_at'))));

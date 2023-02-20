@@ -75,6 +75,44 @@ class PermissionsTest extends TestCase
         $company_token->save();
     }
 
+    public function testHasExcludedPermissions()
+    {
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_client"]';
+        $low_cu->save();
+
+        $this->assertTrue($this->user->hasExcludedPermissions(["view_client"]));
+    }
+
+    public function testHasExcludedPermissions2()
+    {
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = '["view_client","edit_all"]';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasExcludedPermissions(["view_client"], ['edit_all']));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = 'view_client,edit_all';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasExcludedPermissions(["view_client"], ['edit_all']));
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = 'view_client,view_all';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasExcludedPermissions(["view_client"], ['view_all']));
+
+
+        $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
+        $low_cu->permissions = 'view_client,view_invoice';
+        $low_cu->save();
+
+        $this->assertFalse($this->user->hasExcludedPermissions(["view_client"], ['view_invoice']));
+
+    }
+
     public function testIntersectPermissions()
     {
         $low_cu = CompanyUser::where(['company_id' => $this->company->id, 'user_id' => $this->user->id])->first();
@@ -212,8 +250,8 @@ class PermissionsTest extends TestCase
 
     public function testExactPermissions()
     {
-        $this->assertTrue($this->user->hasExactPermission("view_client"));
-        $this->assertFalse($this->user->hasExactPermission("view_all"));
+        $this->assertTrue($this->user->hasExactPermissionAndAll("view_client"));
+        $this->assertFalse($this->user->hasExactPermissionAndAll("view_all"));
     }
 
     public function testMissingPermissions()
@@ -222,8 +260,8 @@ class PermissionsTest extends TestCase
         $low_cu->permissions = '[""]';
         $low_cu->save();
 
-        $this->assertFalse($this->user->hasExactPermission("view_client"));
-        $this->assertFalse($this->user->hasExactPermission("view_all"));
+        $this->assertFalse($this->user->hasExactPermissionAndAll("view_client"));
+        $this->assertFalse($this->user->hasExactPermissionAndAll("view_all"));
     }
 
     public function testViewAllValidPermissions()
@@ -232,8 +270,8 @@ class PermissionsTest extends TestCase
         $low_cu->permissions = '["view_all"]';
         $low_cu->save();
 
-        $this->assertTrue($this->user->hasExactPermission("view_client"));
-        $this->assertTrue($this->user->hasExactPermission("view_all"));
+        $this->assertTrue($this->user->hasExactPermissionAndAll("view_client"));
+        $this->assertTrue($this->user->hasExactPermissionAndAll("view_all"));
     }
 
     public function testReturnTypesOfStripos()

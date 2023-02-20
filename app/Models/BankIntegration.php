@@ -11,14 +11,12 @@
 
 namespace App\Models;
 
-use App\Models\Traits\Excludable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankIntegration extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
-    use Excludable;
     
     protected $fillable = [
         'bank_account_name',
