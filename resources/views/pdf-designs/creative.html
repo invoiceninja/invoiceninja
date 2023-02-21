@@ -40,14 +40,15 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 20px;
+        grid-template-columns: 0.3fr 0.3fr 0.3fr 0.3fr; 
         line-height: var(--line-height);
     }
 
     .company-logo {
 /*        max-width: 65%;*/
         max-width: $company_logo_size;
+                float:right;
+
     }
 
     #entity-details p { margin-top: 5px; }
@@ -93,6 +94,12 @@
 
     .entity-label-wrapper #entity-details {
         text-align: left;
+    }
+
+    #shipping-details {
+        visibility: $show_shipping_address_visibility; 
+        flex-direction: column;
+        line-height: var(--line-height);
     }
 
     .entity-label-wrapper #entity-details > tr,
@@ -327,6 +334,8 @@
                <div class="header-wrapper">
                   <div id="client-details"></div>
                   <div id="vendor-details"></div>
+                  <div id="shipping-details"></div>
+
                   <div class="company-info-wrapper">
                      <div id="company-details"></div>
                      <div id="company-address"></div>

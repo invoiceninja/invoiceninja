@@ -89,6 +89,12 @@
         color: var(--primary-color);
     }
 
+    #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
     #entity-details {
         background-color: var(--primary-color);
         padding: 1.2rem;
@@ -382,6 +388,7 @@
                <div class="client-and-entity-wrapper">
                   <div id="client-details"></div>
                   <div id="vendor-details"></div>
+                <div id="shipping-details"></div>
                   <div class="entity-details-wrapper">
                      <table id="entity-details" cellspacing="0" dir="$dir"></table>
                   </div>

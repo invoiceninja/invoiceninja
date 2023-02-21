@@ -45,7 +45,7 @@
 
     .header-wrapper2 {
         display: grid;
-        grid-template-columns: 1fr 0.5fr;
+        grid-template-columns: 1fr 1fr 1fr;
         margin-top: 2rem;
         min-width: 100%;
     }
@@ -93,6 +93,12 @@
 
     #client-details {
         display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
+    #shipping-details {
+        display: $show_shipping_address;
         flex-direction: column;
         line-height: var(--line-height);
     }
@@ -368,6 +374,7 @@
                <div class="header-wrapper2">
                <div id="client-details"></div>
                <div id="vendor-details"></div>
+               <div id="shipping-details"></div>
 
                <div>
                <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
