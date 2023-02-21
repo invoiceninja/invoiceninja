@@ -99,7 +99,7 @@ class EmailRefundPayment implements ShouldQueue
             $nmo->company = $this->company;
             $nmo->entity = $this->payment;
 
-            NinjaMailerJob::dispatch($nmo);
+            (new NinjaMailerJob($nmo))->handle();
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
