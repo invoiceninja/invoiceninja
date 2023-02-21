@@ -13,7 +13,6 @@ namespace App\Services\Pdf;
 
 class PdfDesigner
 {
-
     const BOLD = 'bold';
     const BUSINESS = 'business';
     const CLEAN = 'clean';
@@ -30,29 +29,19 @@ class PdfDesigner
     const STATEMENT = 'statement';
     const PURCHASE_ORDER = 'purchase_order';
 
-
-    public PdfService $service;
-
     public string $template;
 
-    public function __construct(PdfService $service)
+    public function __construct(public PdfService $service)
     {
-        $this->service = $service;
     }
 
     public function build() :self
     {
-
         /*If the design is custom*/
-        if ($this->service->config->design->is_custom) 
-        {
-            
+        if ($this->service->config->design->is_custom) {
             $this->template = $this->composeFromPartials(json_decode(json_encode($this->service->config->design->design), true));
-            
-        } 
-        else 
-        {
-            $this->template = file_get_contents(config('ninja.designs.base_path') . strtolower($this->service->config->design->name) . '.html');        
+        } else {
+            $this->template = file_get_contents(config('ninja.designs.base_path') . strtolower($this->service->config->design->name) . '.html');
         }
 
         return $this;
@@ -63,12 +52,12 @@ class PdfDesigner
      */
 
     /**
-     * Returns the custom HTML design as 
+     * Returns the custom HTML design as
      * a string
-     * 
+     *
      * @param  array
      * @return string
-     * 
+     *
      */
     private function composeFromPartials(array $partials) :string
     {
@@ -81,5 +70,4 @@ class PdfDesigner
 
         return $html;
     }
-    
 }

@@ -33,7 +33,7 @@ class PdfBuilder
     private float $payment_amount_total = 0;
     /**
      * an array of sections to be injected into the template
-     * 
+     *
      * @var array
      */
     public array $sections = [];
@@ -46,29 +46,26 @@ class PdfBuilder
     public DomDocument $document;
 
     /**
-     * @param PdfService $service 
-     * @return void 
+     * @param PdfService $service
+     * @return void
      */
     public function __construct(PdfService $service)
     {
-
         $this->service = $service;
 
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
         ]);
-
     }
 
     /**
      * Builds the template sections
-     * 
+     *
      * @return self
-     * 
+     *
      */
     public function build(): self
     {
-
         $this->getTemplate()
              ->buildSections()
              ->getEmptyElements()
@@ -93,13 +90,12 @@ class PdfBuilder
 
     /**
      * Generate the template
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getTemplate() :self
     {
-
         $document = new DOMDocument();
 
         $document->validateOnParse = true;
@@ -111,50 +107,44 @@ class PdfBuilder
         $this->xpath = new DOMXPath($document);
 
         return $this;
-
     }
 
     /**
      * Generates product entity sections
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getProductSections(): self
     {
-     
         $this->genericSectionBuilder()
              ->getClientDetails()
              ->getProductAndTaskTables()
              ->getProductEntityDetails()
              ->getProductTotals();
 
-         return $this;
-
+        return $this;
     }
 
     private function mergeSections(array $section) :self
     {
-
         $this->sections = array_merge($this->sections, $section);
 
         return $this;
-
     }
 
     /**
      * Generates delivery note sections
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getDeliveryNoteSections(): self
     {
-
         $this->genericSectionBuilder()
              ->getProductTotals();
 
-        $this->mergeSections([            
+        $this->mergeSections([
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDeliveryDetails(),
@@ -170,21 +160,19 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
      * Generates statement sections
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getStatementSections(): self
     {
-
         $this->genericSectionBuilder();
 
-        $this->mergeSections( [
+        $this->mergeSections([
             'statement-invoice-table' => [
                 'id' => 'statement-invoice-table',
                 'elements' => $this->statementInvoiceTable(),
@@ -212,7 +200,6 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
@@ -223,13 +210,11 @@ class PdfBuilder
      */
     public function statementInvoiceTableTotals(): array
     {
-
         $outstanding = $this->service->options['invoices']->sum('balance');
 
         return [
             ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->service->config->client)],
         ];
-
     }
 
 
@@ -240,7 +225,6 @@ class PdfBuilder
      */
     public function statementPaymentTable(): array
     {
-
         if (is_null($this->service->option['payments'])) {
             return [];
         }
@@ -254,9 +238,9 @@ class PdfBuilder
         //24-03-2022 show payments per invoice
         foreach ($this->service->options['invoices'] as $invoice) {
             foreach ($invoice->payments as $payment) {
-
-                if($payment->is_deleted)
+                if ($payment->is_deleted) {
                     continue;
+                }
 
                 $element = ['element' => 'tr', 'elements' => []];
 
@@ -275,14 +259,13 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
         ];
-
     }
 
     /**
      * Generates the statement payments table
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function statementPaymentTableTotals(): array
     {
@@ -304,13 +287,12 @@ class PdfBuilder
 
     /**
      * Generates the statement aging table
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function statementAgingTable(): array
     {
-
         if (\array_key_exists('show_aging_table', $this->service->options) && $this->service->options['show_aging_table'] === false) {
             return [];
         }
@@ -333,18 +315,17 @@ class PdfBuilder
 
     /**
      * Generates the purchase order sections
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getPurchaseOrderSections(): self
     {
-
         $this->genericSectionBuilder()
              ->getProductAndTaskTables()
              ->getProductTotals();
 
-        $this->mergeSections([            
+        $this->mergeSections([
             'vendor-details' => [
                 'id' => 'vendor-details',
                 'elements' => $this->vendorDetails(),
@@ -356,19 +337,17 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
      * Generates the generic section which apply
      * across all design templates
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function genericSectionBuilder(): self
     {
-
         $this->mergeSections([
             'company-details' => [
                 'id' => 'company-details',
@@ -391,13 +370,12 @@ class PdfBuilder
 
     /**
      * Generates the invoices table for statements
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function statementInvoiceTable(): array
     {
-
         $tbody = [];
 
         foreach ($this->service->options['invoices'] as $invoice) {
@@ -424,7 +402,7 @@ class PdfBuilder
      *
      * @param string $type "$product" or "$task"
      * @return array
-     * 
+     *
      */
     public function buildTableBody(string $type): array
     {
@@ -516,7 +494,7 @@ class PdfBuilder
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax2-td']];
                     } elseif ($cell == '$product.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax3-td']];
-                    } else if ($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
@@ -542,8 +520,7 @@ class PdfBuilder
      * @return array
      */
     public function transformLineItems($items, $table_type = '$product') :array
-    { 
-
+    {
         $data = [];
 
         $locale_info = localeconv();
@@ -559,7 +536,7 @@ class PdfBuilder
 
             if ($table_type == '$task' && $item->type_id != 2) {
                 // if ($item->type_id != 4 && $item->type_id != 5) {
-                    continue;
+                continue;
                 // }
             }
 
@@ -654,7 +631,7 @@ class PdfBuilder
      *
      * @param string $type "product" or "task"
      * @return array
-     * 
+     *
      */
     public function buildTableHeader(string $type): array
     {
@@ -688,7 +665,6 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
     /**
@@ -703,7 +679,6 @@ class PdfBuilder
      */
     public function processTaxColumns(string $type): void
     {
-
         if ($type == 'product') {
             $type_id = 1;
         }
@@ -746,15 +721,14 @@ class PdfBuilder
                 array_splice($this->service->config->pdf_variables["{$type}_columns"], $key, 1, $taxes);
             }
         }
-
     }
 
     /**
-     * Generates the javascript block for 
+     * Generates the javascript block for
      * hiding elements which need to be hidden
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function sharedFooterElements(): array
     {
@@ -777,20 +751,18 @@ class PdfBuilder
             ['element' => 'script', 'content' => $javascript],
             ['element' => 'script', 'content' => $html_decode],
         ]];
-
     }
 
     /**
-     * Generates the totals table for 
+     * Generates the totals table for
      * the product type entities
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getProductTotals(): self
     {
-
-        $this->mergeSections([    
+        $this->mergeSections([
             'table-totals' => [
                 'id' => 'table-totals',
                 'elements' => $this->getTableTotals(),
@@ -798,7 +770,6 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
@@ -806,76 +777,62 @@ class PdfBuilder
      * Credits
      * Quotes
      * Invoices
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function getProductEntityDetails(): self
     {
-
-        if($this->service->config->entity_string == 'invoice')
-        {
-            $this->mergeSections( [
+        if ($this->service->config->entity_string == 'invoice') {
+            $this->mergeSections([
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->invoiceDetails(),
                 ],
             ]);
-        }
-        elseif($this->service->config->entity_string == 'quote')
-        {
-
-            $this->mergeSections( [
+        } elseif ($this->service->config->entity_string == 'quote') {
+            $this->mergeSections([
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->quoteDetails(),
                 ],
             ]);
-
-        }
-        elseif($this->service->config->entity_string == 'credit')
-        {
-
-            $this->mergeSections( [
+        } elseif ($this->service->config->entity_string == 'credit') {
+            $this->mergeSections([
                 'entity-details' => [
                     'id' => 'entity-details',
                     'elements' => $this->creditDetails(),
                 ],
             ]);
-
         }
 
         return $this;
-        
     }
 
     /**
      * Parent entry point when building sections of the design content
-     * 
+     *
      * @return self
-     * 
+     *
      */
     private function buildSections() :self
     {
-
         return match ($this->service->document_type) {
             PdfService::PRODUCT => $this->getProductSections(),
             PdfService::DELIVERY_NOTE => $this->getDeliveryNoteSections(),
             PdfService::STATEMENT => $this->getStatementSections(),
             PdfService::PURCHASE_ORDER => $this->getPurchaseOrderSections(),
-        };      
-
+        };
     }
 
     /**
      * Generates the table totals for statements
-     * 
+     *
      * @return array
-     * 
+     *
      */
     private function statementTableTotals(): array
     {
-
         return [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
@@ -883,16 +840,15 @@ class PdfBuilder
                 ]],
             ]],
         ];
-
     }
 
     /**
      * Performs a variable check to ensure
      * the variable exists
-     * 
+     *
      * @param  string $variables
      * @return bool
-     * 
+     *
      */
     public function entityVariableCheck(string $variable): bool
     {
@@ -925,15 +881,14 @@ class PdfBuilder
         }
 
         return false;
-
     }
 
     //First pass done, need a second pass to abstract this content completely.
     /**
      * Builds the table totals for all entities, we'll want to split this
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function getTableTotals() :array
     {
@@ -980,7 +935,6 @@ class PdfBuilder
             if (in_array('$paid_to_date', $variables)) {
                 $variables = \array_diff($variables, ['$paid_to_date']);
             }
-
         }
 
         foreach (['discount'] as $property) {
@@ -1057,19 +1011,17 @@ class PdfBuilder
         ]];
 
         return $elements;
-    
     }
 
     /**
      * Generates the product and task tables
-     * 
+     *
      * @return self
-     * 
+     *
      */
     public function getProductAndTaskTables(): self
     {
-        
-        $this->mergeSections( [
+        $this->mergeSections([
             'product-table' => [
                 'id' => 'product-table',
                 'elements' => $this->productTable(),
@@ -1081,19 +1033,17 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
      * Generates the client details
-     * 
+     *
      * @return self
-     * 
+     *
      */
     public function getClientDetails(): self
     {
-
-        $this->mergeSections( [
+        $this->mergeSections([
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
@@ -1101,7 +1051,6 @@ class PdfBuilder
         ]);
 
         return $this;
-
     }
 
     /**
@@ -1111,7 +1060,6 @@ class PdfBuilder
      */
     public function productTable(): array
     {
-
         $product_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         });
@@ -1124,7 +1072,6 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('product')],
             ['element' => 'tbody', 'elements' => $this->buildTableBody('$product')],
         ];
-
     }
 
     /**
@@ -1134,7 +1081,6 @@ class PdfBuilder
      */
     public function taskTable(): array
     {
-
         $task_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
             return $item->type_id == 2;
         });
@@ -1147,19 +1093,17 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $this->buildTableHeader('task')],
             ['element' => 'tbody', 'elements' => $this->buildTableBody('$task')],
         ];
-
     }
 
 
     /**
      * Generates the statement details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function statementDetails(): array
     {
-
         $s_date = $this->translateDate(now(), $this->service->config->client->date_format(), $this->service->config->client->locale());
         
         return [
@@ -1176,33 +1120,29 @@ class PdfBuilder
                 ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->service->options['invoices']->sum('balance'), $this->service->config->client)],
             ]],
         ];
-
     }
 
     /**
      * Generates the invoice details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function invoiceDetails(): array
     {
-
-       $variables = $this->service->config->pdf_variables['invoice_details'];
+        $variables = $this->service->config->pdf_variables['invoice_details'];
 
         return $this->genericDetailsBuilder($variables);
-
     }
 
     /**
      * Generates the quote details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function quoteDetails(): array
     {
-
         $variables = $this->service->config->pdf_variables['quote_details'];
         
         if ($this->service->config->entity->partial > 0) {
@@ -1210,48 +1150,42 @@ class PdfBuilder
         }
 
         return $this->genericDetailsBuilder($variables);
-
     }
 
 
     /**
      * Generates the credit note details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function creditDetails(): array
     {
-    
         $variables = $this->service->config->pdf_variables['credit_details'];
     
         return $this->genericDetailsBuilder($variables);
-
     }
 
     /**
      * Generates the purchase order details
-     * 
+     *
      * @return array
      */
     public function purchaseOrderDetails(): array
     {
-
         $variables = $this->service->config->pdf_variables['purchase_order_details'];
 
         return $this->genericDetailsBuilder($variables);
-    
     }
 
     /**
      * Generates the deliveyr note details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function deliveryNoteDetails(): array
     {
-
         $variables = $this->service->config->pdf_variables['invoice_details'];
 
         $variables = array_filter($variables, function ($m) {
@@ -1259,19 +1193,17 @@ class PdfBuilder
         });
 
         return $this->genericDetailsBuilder($variables);
-
     }
 
     /**
      * Generates the custom values for the
      * entity.
-     * 
+     *
      * @param  array
      * @return array
      */
     public function genericDetailsBuilder(array $variables): array
     {
-
         $elements = [];
 
 
@@ -1295,24 +1227,23 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
 
     /**
      * Generates the client delivery
      * details array
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function clientDeliveryDetails(): array
     {
-        
         $elements = [];
 
-        if(!$this->service->config->client)
+        if (!$this->service->config->client) {
             return $elements;
+        }
 
         $elements = [
                 ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
@@ -1327,26 +1258,25 @@ class PdfBuilder
                 ['element' => 'p', 'content' => optional($this->service->config->client->shipping_country)->name, 'show_empty' => false],
             ];
 
-            if (!is_null($this->service->config->contact)) {
-                $elements[] = ['element' => 'p', 'content' => $this->service->config->contact->email, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-contact.email']];
-            }
+        if (!is_null($this->service->config->contact)) {
+            $elements[] = ['element' => 'p', 'content' => $this->service->config->contact->email, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-contact.email']];
+        }
 
         return $elements;
-
     }
 
     /**
      * Generates the client details section
-     * 
+     *
      * @return array
      */
     public function clientDetails(): array
     {
-
         $elements = [];
 
-        if(!$this->service->config->client)
+        if (!$this->service->config->client) {
             return $elements;
+        }
 
         $variables = $this->service->config->pdf_variables['client_details'];
 
@@ -1355,12 +1285,11 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
     /**
      * Generates the delivery note table
-     * 
+     *
      * @return array
      */
     public function deliveryNoteTable(): array
@@ -1396,20 +1325,18 @@ class PdfBuilder
             ['element' => 'thead', 'elements' => $thead],
             ['element' => 'tbody', 'elements' => $this->buildTableBody(PdfService::DELIVERY_NOTE)],
         ];
-
     }
 
     /**
      * Passes an array of items by reference
      * and performs a nl2br
-     * 
+     *
      * @param  array
      * @return void
-     * 
+     *
      */
     public function processNewLines(array &$items): void
     {
-
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
                 $item[$variable] = str_replace("\n", '<br>', $value);
@@ -1417,18 +1344,16 @@ class PdfBuilder
 
             $items[$key] = $item;
         }
-
     }
 
     /**
      * Generates an arary of the company details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function companyDetails(): array
     {
-
         $variables = $this->service->config->pdf_variables['company_details'];
 
         $elements = [];
@@ -1438,19 +1363,17 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
     /**
      *
      * Generates an array of the company address
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function companyAddress(): array
     {
-
         $variables = $this->service->config->pdf_variables['company_address'];
 
         $elements = [];
@@ -1460,19 +1383,17 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
     /**
      *
      * Generates an array of vendor details
-     * 
+     *
      * @return array
-     * 
+     *
      */
     public function vendorDetails(): array
     {
-
         $elements = [];
 
         $variables = $this->service->config->pdf_variables['vendor_details'];
@@ -1482,7 +1403,6 @@ class PdfBuilder
         }
 
         return $elements;
-
     }
 
 
@@ -1493,14 +1413,11 @@ class PdfBuilder
 
     public function getSectionNode(string $selector)
     {
-
         return $this->document->getElementById($selector);
-
     }
 
     public function updateElementProperties() :self
     {
-
         foreach ($this->sections as $element) {
             if (isset($element['tag'])) {
                 $node = $this->document->getElementsByTagName($element['tag'])->item(0);
@@ -1522,7 +1439,6 @@ class PdfBuilder
         }
 
         return $this;
-
     }
 
     public function updateElementProperty($element, string $attribute, ?string $value)
@@ -1542,12 +1458,10 @@ class PdfBuilder
         }
 
         return $element;
-
     }
 
     public function createElementContent($element, $children) :self
     {
-
         foreach ($children as $child) {
             $contains_html = false;
 
@@ -1596,12 +1510,10 @@ class PdfBuilder
         }
 
         return $this;
-
     }
 
     public function updateVariables()
     {
-
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
 
         $html = strtr($html, $this->service->html_variables['values']);
@@ -1611,12 +1523,10 @@ class PdfBuilder
         $this->document->saveHTML();
 
         return $this;
-
     }
 
     public function updateVariable(string $element, string $variable, string $value)
     {
-
         $element = $this->document->getElementById($element);
 
         $original = $element->nodeValue;
@@ -1630,12 +1540,10 @@ class PdfBuilder
         );
 
         return $element;
-    
     }
 
     public function getEmptyElements() :self
     {
-
         foreach ($this->sections as $element) {
             if (isset($element['elements'])) {
                 $this->getEmptyChildrens($element['elements'], $this->service->html_variables);
@@ -1643,12 +1551,10 @@ class PdfBuilder
         }
 
         return $this;
-
     }
 
     public function getEmptyChildrens(array $children)
     {
-
         foreach ($children as $key => $child) {
             if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
                 $value = strtr($child['content'], $this->service->html_variables['values']);
@@ -1663,7 +1569,5 @@ class PdfBuilder
         }
 
         return $this;
-
     }
-
 }

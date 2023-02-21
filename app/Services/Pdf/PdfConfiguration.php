@@ -14,21 +14,15 @@ namespace App\Services\Pdf;
 use App\DataMapper\CompanySettings;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Currency;
 use App\Models\Design;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
-use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Vendor;
 use App\Models\VendorContact;
-use App\Services\Pdf\PdfService;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
@@ -59,19 +53,23 @@ class PdfConfiguration
 
     public Currency $currency;
 
+    public ?string $path;
+
+    public int $entity_design_id;
     /**
-     * The parent object of the currency 
-     * 
+     * The parent object of the currency
+     *
      * @var App\Models\Client | App\Models\Vendor
-     * 
+     *
      */
     public Client | Vendor $currency_entity;
 
-    public function __construct(public PdfService $service){}
+    public function __construct(public PdfService $service)
+    {
+    }
 
     public function init(): self
     {
-
         $this->setEntityType()
              ->setPdfVariables()
              ->setDesign()
@@ -79,12 +77,10 @@ class PdfConfiguration
              ->setLocale();
 
         return $this;
-
     }
 
     private function setLocale(): self
     {
-
         App::forgetInstance('translator');
 
         $t = app('translator');
@@ -94,23 +90,19 @@ class PdfConfiguration
         $t->replace(Ninja::transformTranslations($this->settings));
 
         return $this;
-
     }
 
     private function setCurrency(): self
     {
-
         $this->currency = $this->client ? $this->client->currency() : $this->vendor->currency();
 
         $this->currency_entity = $this->client ? $this->client : $this->vendor;
 
         return $this;
-
     }
 
     private function setPdfVariables() :self
     {
-
         $default = (array) CompanySettings::getEntityVariableDefaults();
 
         $variables = (array)$this->service->company->settings->pdf_variables;
@@ -126,12 +118,10 @@ class PdfConfiguration
         $this->pdf_variables = $variables;
 
         return $this;
-
     }
 
     private function setEntityType()
     {
-
         $entity_design_id = '';
 
         if ($this->service->invitation instanceof InvoiceInvitation) {
@@ -188,18 +178,14 @@ class PdfConfiguration
         $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         return $this;
-
     }
 
     private function setDesign()
     {
-
         $design_id = $this->entity->design_id ? : $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
             
         $this->design = Design::find($design_id ?: 2);
 
         return $this;
-
     }
-
 }
