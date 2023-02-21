@@ -195,7 +195,7 @@ class BaseRepository
                     });
                 }
             }
-
+        }
             $model->saveQuietly();
 
             /* Model now persisted, now lets do some child tasks */
@@ -364,4 +364,3 @@ class BaseRepository
             return $model->fresh();
         }
     }
-}
