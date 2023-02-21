@@ -72,7 +72,7 @@ class CreditCard
                     'sequenceType' => 'recurring',
                     'description' => $description,
                     'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
-                    'idempotencyKey' => uniqid("st", true),
+                    // 'idempotencyKey' => uniqid("st", true),
                     'metadata' => [
                         'client_id' => $this->mollie->client->hashed_id,
                         'hash' => $this->mollie->payment_hash->hash,
@@ -111,7 +111,7 @@ class CreditCard
                     'value' => $amount,
                 ],
                 'description' => $description,
-                'idempotencyKey' => uniqid("st", true),
+                // 'idempotencyKey' => uniqid("st", true),
                 'redirectUrl' => route('mollie.3ds_redirect', [
                     'company_key' => $this->mollie->client->company->company_key,
                     'company_gateway_id' => $this->mollie->company_gateway->hashed_id,

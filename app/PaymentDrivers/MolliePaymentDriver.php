@@ -218,6 +218,7 @@ class MolliePaymentDriver extends BaseDriver
                 'customerId' => $cgt->gateway_customer_reference,
                 'sequenceType' => 'recurring',
                 'description' => $description,
+                'idempotencyKey' => uniqid("st", true),
                 'webhookUrl'  => $this->company_gateway->webhookUrl(),
             ]);
 

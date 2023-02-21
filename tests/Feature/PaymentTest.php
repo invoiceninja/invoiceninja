@@ -62,6 +62,16 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testPatymentGetClientStatus()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?client_status=completed');
+
+        $response->assertStatus(200);
+    }
+
     public function testGetPaymentMatchList()
     {
         $response = $this->withHeaders([
