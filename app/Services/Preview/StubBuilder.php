@@ -17,6 +17,7 @@ use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
+use Illuminate\Support\Str;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
@@ -26,6 +27,8 @@ use App\Services\PdfMaker\Design;
 use App\Utils\HostedPDF\NinjaPdf;
 use Illuminate\Support\Facades\DB;
 use App\Services\PdfMaker\PdfMaker;
+use App\Factory\GroupSettingFactory;
+use App\Models\Design as DesignModel;
 use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\Response;
 
@@ -47,6 +50,10 @@ class StubBuilder
 
     public string $html;
 
+    public string $dynamic_settings_type;
+
+    public object $settings;
+
     public function __construct(public Company $company, public User $user){}
     
     public function setEntityType($entity_type)
@@ -62,7 +69,9 @@ class StubBuilder
         try{
             DB::connection($this->company->db)->beginTransaction();
 
-                $this->createRecipient()
+                $this
+                     ->createRecipient()
+                     ->initializeSettings()
                      ->createEntity()  
                      ->linkRelations()
                      ->buildHtml();     
@@ -71,7 +80,8 @@ class StubBuilder
         }
         catch(\Exception $e)
         {
-            return $e->getMessage();
+            nlog($e->getMessage())
+            // return $e->getMessage();
 
             DB::connection($this->company->db)->rollBack();
 
@@ -99,9 +109,66 @@ class StubBuilder
             return $pdf;
         }
 
-
         return (new PreviewPdf($this->html, $this->company))->handle();
 
+    }
+
+    private function initializeSettings(): self
+    {
+
+        $this->dynamic_settings_type = 'company';
+
+        match($this->dynamic_settings_type) {
+            'company' => $this->setCompanySettings(),
+            'client' => $this->setClientSettings(),
+            'group' => $this->setGroupSettings(),
+        };
+
+
+        return $this;
+    }
+
+    private function setCompanySettings(): self
+    {
+        $this->company->settings = $this->settings;
+        $this->company->save();
+
+        return $this;
+    }
+
+    private function setClientSettings(): self
+    {
+        $this->recipient->settings = $this->settings;
+        $this->recipient->save();
+
+        return $this;
+    }
+
+    private function setGroupSettings(): self
+    {
+        $g = GroupSettingFactory::create($this->company, $this->user);
+        $g->name = Str::random(10);
+        $g->settings = $this->settings;
+        $g->save();
+
+        $this->recipient->group_settings_id = $g->id;
+        $this->recipient->save();
+
+        return $this;
+    }
+
+    public function setSettings($settings): self
+    {
+        $this->settings = $settings;
+
+        return $this;
+    }
+
+    public function setSettingsType($type): self
+    {
+        $this->dynamic_settings_type = $type;
+
+        return $this;
     }
 
     private function buildHtml(): self
@@ -109,14 +176,15 @@ class StubBuilder
 
         $html = new HtmlEngine($this->invitation);
 
-        $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
+        $design_string = "{$this->entity_type}_design_id";
+        $design = DesignModel::withTrashed()->find($html->settings->{$design_string});
 
         $state = [
             'template' => $design->elements([
                 'client' => $this->recipient,
                 'entity' => $this->entity,
-                'pdf_variables' => (array) $this->company->settings->pdf_variables,
-                'products' => request()->design['design']['product'],
+                'pdf_variables' => (array) $html->settings->pdf_variables,
+                '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
             'process_markdown' => $this->company->markdown_enabled,
