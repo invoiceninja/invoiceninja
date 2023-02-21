@@ -94,6 +94,7 @@ class StubBuilder
 
     public function getPdf(): mixed
     {
+nlog($this->html);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->convertHtmlToPdf($this->html);
@@ -179,11 +180,8 @@ class StubBuilder
         $html = new HtmlEngine($this->invitation);
 
         $design_string = "{$this->entity_type}_design_id";
-        nlog($design_string);
 
         $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
-        
-       nlog($design->toArray());
 
         $template = new PdfMakerDesign(strtolower($design->name));
 
@@ -200,13 +198,9 @@ class StubBuilder
 
         $maker = new PdfMaker($state);
 
-        nlog("pre html");
-
         $this->html = $maker->design($template)
                             ->build()
                             ->getCompiledHTML();
-
-        nlog($this->html);
 
         return $this;
     }
@@ -292,6 +286,7 @@ class StubBuilder
             'client_id' => $this->recipient->id,
             'terms' => $this->company->settings->invoice_terms,
             'footer' => $this->company->settings->invoice_footer,
+            'status_id' => Invoice::STATUS_PAID,
         ]);
 
         $this->invitation = InvoiceInvitation::factory()->create([
