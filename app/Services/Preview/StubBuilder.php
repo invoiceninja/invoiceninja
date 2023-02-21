@@ -195,9 +195,13 @@ class StubBuilder
 
         $maker = new PdfMaker($state);
 
+        nlog("pre html");
+
         $this->html = $maker->design($template)
                             ->build()
                             ->getCompiledHTML();
+
+        nlog($this->html);
 
         return $this;
     }
