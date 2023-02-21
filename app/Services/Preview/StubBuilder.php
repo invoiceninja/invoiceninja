@@ -80,7 +80,7 @@ class StubBuilder
         }
         catch(\Exception $e)
         {
-            nlog($e->getMessage())
+            nlog($e->getMessage());
             // return $e->getMessage();
 
             DB::connection($this->company->db)->rollBack();
