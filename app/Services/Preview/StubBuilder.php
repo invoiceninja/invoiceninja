@@ -52,7 +52,7 @@ class StubBuilder
 
     public string $dynamic_settings_type;
 
-    public object $settings;
+    public array $settings;
 
     public function __construct(public Company $company, public User $user){}
     
