@@ -179,7 +179,12 @@ class StubBuilder
         $html = new HtmlEngine($this->invitation);
 
         $design_string = "{$this->entity_type}_design_id";
-        $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($design_string));
+        nlog($design_string);
+
+        $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($html->settings->{$design_string}));
+        
+       nlog($design->toArray());
+
         $template = new PdfMakerDesign(strtolower($design->name));
 
         $state = [
