@@ -182,8 +182,13 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
 
+        
         $stub = new StubBuilder(auth()->user()->company(), auth()->user());
         $stub->setEntityType($request->entity_type)
+             ->setSettings($request->settings)
+             ->setSettingsType($request->settings_type);
+
+
         $pdf = $stub->build()->getPdf();
 
         $response = Response::make($pdf, 200);
