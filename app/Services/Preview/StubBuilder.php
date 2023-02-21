@@ -31,6 +31,7 @@ use App\Factory\GroupSettingFactory;
 use App\Models\Design as DesignModel;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PageNumbering;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 
 class StubBuilder
 {
@@ -147,7 +148,7 @@ class StubBuilder
 
     private function setGroupSettings(): self
     {
-        $g = GroupSettingFactory::create($this->company, $this->user);
+        $g = GroupSettingFactory::create($this->company->id, $this->user->id);
         $g->name = Str::random(10);
         $g->settings = $this->settings;
         $g->save();
@@ -179,9 +180,10 @@ class StubBuilder
 
         $design_string = "{$this->entity_type}_design_id";
         $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($design_string));
+        $template = new PdfMakerDesign(strtolower($design->name));
 
         $state = [
-            'template' => $design->elements([
+            'template' => $template->elements([
                 'client' => $this->recipient,
                 'entity' => $this->entity,
                 'pdf_variables' => (array) $html->settings->pdf_variables,
