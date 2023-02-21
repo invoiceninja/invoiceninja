@@ -36,6 +36,7 @@ use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker;
+use App\Services\Preview\StubBuilder;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
@@ -176,6 +177,23 @@ class PreviewController extends BaseController
     }
 
     public function design(DesignPreviewRequest $request)
+    {
+        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
+            return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        }
+
+        $stub = new StubBuilder(auth()->user()->company(), auth()->user());
+        $stub->setEntityType($request->entity_type)
+        $pdf = $stub->build()->getPdf();
+
+        $response = Response::make($pdf, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
+    }
+
+    public function oldDesign(DesignPreviewRequest $request)
     {
         if(Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])){
             return response()->json(['message' => 'This server cannot handle this request.'], 400);

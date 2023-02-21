@@ -42,8 +42,7 @@ class DesignPreviewRequest extends Request
     public function rules()
     {
         $rules = [
-            'entity' => 'bail|sometimes|string',
-            'entity_id' => 'bail|sometimes|string',
+            'entity_type' => 'bail|required|in:invoice,quote,credit,purchase_order',
             'settings_type' => 'bail|required|in:company,group,client',
             'settings' => 'sometimes',
             'group_id' => 'sometimes',
