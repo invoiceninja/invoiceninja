@@ -36,14 +36,10 @@ class SendEmail
 
         $contact = $this->payment->client->contacts()->first();
 
-        // if ($contact?->email)
-        //     EmailPayment::dispatch($this->payment, $this->payment->company, $contact)->delay(now()->addSeconds(2));
-
-
         $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
             $invoice->invitations->each(function ($invitation) {
                 if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                    EmailPayment::dispatch($this->payment, $this->payment->company, $invitation->contact)->delay(now()->addSeconds(2));
+                    EmailPayment::dispatch($this->payment, $this->payment->company, $invitation->contact);
                 }
             });
         });
