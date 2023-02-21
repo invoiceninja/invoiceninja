@@ -195,7 +195,7 @@ class StubBuilder
 
         $maker = new PdfMaker($state);
 
-        $this->html = $maker->design($design)
+        $this->html = $maker->design($template)
                             ->build()
                             ->getCompiledHTML();
 
