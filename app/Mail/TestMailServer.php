@@ -39,7 +39,8 @@ class TestMailServer extends Mailable
         $settings = new \stdClass;
         $settings->primary_color = '#4caf50';
         $settings->email_style = 'dark';
-
+        $settings->email_alignment = 'left';
+        
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [

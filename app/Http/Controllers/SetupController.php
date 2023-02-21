@@ -23,7 +23,6 @@ use App\Utils\CurlUtils;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
-use Beganovich\Snappdf\Snappdf;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -209,30 +208,9 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-            // if (config('ninja.pdf_generator') == 'phantom') {
-            //     return $this->testPhantom();
-            // }
 
-            // $pdf = new Snappdf();
-
-            // if (config('ninja.snappdf_chromium_path')) {
-            //     $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
-            // }
-
-            // if (config('ninja.snappdf_chromium_arguments')) {
-            //     $pdf->clearChromiumArguments();
-            //     $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
-            // }
-
-            // $pdf = $pdf
-            //     ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
-            //     ->generate();
-
-            // Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
-            // Storage::disk('local')->put('test.pdf', $pdf);
             return response(['url' => ''], 200);
 
-            // return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
         } catch (Exception $e) {
             nlog($e->getMessage());
 
