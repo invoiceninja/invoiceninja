@@ -29,12 +29,13 @@ use Illuminate\Support\Facades\DB;
 use App\Services\PdfMaker\PdfMaker;
 use App\Factory\GroupSettingFactory;
 use App\Models\Design as DesignModel;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\Response;
 
 class StubBuilder
 {
     use PageNumbering;
+    use MakesHash;
 
     public $entity;
 
@@ -177,7 +178,7 @@ class StubBuilder
         $html = new HtmlEngine($this->invitation);
 
         $design_string = "{$this->entity_type}_design_id";
-        $design = DesignModel::withTrashed()->find($html->settings->{$design_string});
+        $design = DesignModel::withTrashed()->find($this->decodePrimaryKey($design_string));
 
         $state = [
             'template' => $design->elements([
