@@ -36,7 +36,7 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1.2fr 1.8fr;
+        grid-template-columns: 0.5fr 1.5fr;
         gap: 20px;
         line-height: var(--line-height);
     }
@@ -67,16 +67,37 @@
 
     .header-wrapper .header-right-side-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        /* grid-template-columns: 1fr 1fr; */
         gap: 10px;
         border-left: 1px solid #303030;
         padding-left: 1rem;
+
+        grid-template-columns: auto auto auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        justify-content:left;
+
     }
 
     .header-wrapper .header-right-side-wrapper #client-details {
         display: flex;
         flex-direction: column;
         margin-top: 0.8rem;
+    }
+
+    .header-wrapper .header-right-side-wrapper #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        margin-top: 0.8rem;
+    }
+
+    .shipping-text-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: bold;
+        display: $show_shipping_address;
     }
 
     .header-wrapper {
@@ -108,6 +129,10 @@
     [data-element='entity-details-wrapper-amount-due'] {
         color: var(--primary-color);
         font-weight: bold;
+    }
+
+    [data-ref="shipping_address-label"] {
+        display: none;
     }
 
     [data-ref="table"] {
@@ -355,6 +380,10 @@
                         <div id="client-details"></div>
                         <div id="vendor-details"></div>
                      </div>
+                    <div class="header-right-side-wrapper-left">
+                        <p class="shipping-text-label">$shipping_label:</p>
+                        <div id="shipping-details"></div>
+                    </div>
                      <div class="header-right-side-wrapper-right">
                         <img
                            class="company-logo"
