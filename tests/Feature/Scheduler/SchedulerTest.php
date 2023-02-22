@@ -54,6 +54,22 @@ class SchedulerTest extends TestCase
         );
     }
 
+
+
+    public function testSchedulerGet2()
+    {
+        
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/task_schedulers/'.$this->encodePrimaryKey($scheduler->id));
+
+        $response->assertStatus(200);
+    }
+
+
     public function testCustomDateRanges()
     {
         $data = [
@@ -617,21 +633,6 @@ class SchedulerTest extends TestCase
 
         $response->assertStatus(200);
     }
-
-
-    // public function testSchedulerPut()
-    // {
-    //     $data = [
-    //         'description' => $this->faker->firstName(),
-    //     ];
-
-    //     $response = $this->withHeaders([
-    //         'X-API-SECRET' => config('ninja.api_secret'),
-    //         'X-API-TOKEN' => $this->token,
-    //     ])->put('/api/v1/task_schedulers/'.$this->encodePrimaryKey($this->task->id), $data);
-
-    //     $response->assertStatus(200);
-    // }
 
 
 
