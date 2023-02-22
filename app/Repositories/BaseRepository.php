@@ -196,171 +196,171 @@ class BaseRepository
                 }
             }
         }
-            $model->saveQuietly();
+        $model->saveQuietly();
 
-            /* Model now persisted, now lets do some child tasks */
+        /* Model now persisted, now lets do some child tasks */
 
-            if ($model instanceof Invoice) {
-                $model->service()->setReminder()->save();
-            }
-
-            /* Save any documents */
-            if (array_key_exists('documents', $data)) {
-                $this->saveDocuments($data['documents'], $model);
-            }
-
-            if (array_key_exists('file', $data)) {
-                $this->saveDocuments($data['file'], $model);
-            }
-
-            /* If invitations are present we need to filter existing invitations with the new ones */
-            if (isset($data['invitations'])) {
-                $invitations = collect($data['invitations']);
-
-                /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-                $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
-                    $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                    $invitation = $invitation_class::where('key', $invitation)->first();
-
-                    if ($invitation) {
-                        $invitation->delete();
-                    }
-                });
-
-                foreach ($data['invitations'] as $invitation) {
-                    //if no invitations are present - create one.
-                    if (! $this->getInvitation($invitation, $resource)) {
-                        if (isset($invitation['id'])) {
-                            unset($invitation['id']);
-                        }
-
-                        //make sure we are creating an invite for a contact who belongs to the client only!
-                        $contact = ClientContact::find($invitation['client_contact_id']);
-
-                        if ($contact && $model->client_id == $contact->client_id) {
-                            $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-
-                            $new_invitation = $invitation_class::withTrashed()
-                                                ->where('client_contact_id', $contact->id)
-                                                ->where($lcfirst_resource_id, $model->id)
-                                                ->first();
-
-                            if ($new_invitation && $new_invitation->trashed()) {
-                                $new_invitation->restore();
-                            } else {
-                                $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
-                                $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                                $new_invitation->{$lcfirst_resource_id} = $model->id;
-                                $new_invitation->client_contact_id = $contact->id;
-                                $new_invitation->key = $this->createDbHash($model->company->db);
-                                $new_invitation->saveQuietly();
-                            }
-                        }
-                    }
-                }
-            }
-
-            /* If no invitations have been created, this is our fail safe to maintain state*/
-            if ($model->invitations()->count() == 0) {
-                $model->service()->createInvitations();
-            }
-
-            /* Recalculate invoice amounts */
-            $model = $model->calc()->getInvoice();
-
-            /* We use this to compare to our starting amount */
-            $state['finished_amount'] = $model->amount;
-
-            /* Apply entity number */
-            $model = $model->service()->applyNumber()->save();
-
-            /* Handle attempts where the deposit is greater than the amount/balance of the invoice */
-            if ((int)$model->balance != 0 && $model->partial > $model->amount && $model->amount > 0) {
-                $model->partial = min($model->amount, $model->balance);
-            }
-
-            /* Update product details if necessary - if we are inside a transaction - do nothing */
-            if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0) {
-                UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
-            }
-
-            /* Perform model specific tasks */
-            if ($model instanceof Invoice) {
-                if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
-                    $model->service()->updateStatus()->save();
-                    $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
-                    $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
-                }
-
-                if (! $model->design_id) {
-                    $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
-                }
-
-                //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
-                if (\DB::transactionLevel() == 0) {
-                    $model->service()->linkEntities()->save();
-                }
-
-                if ($this->new_model) {
-                    event('eloquent.created: App\Models\Invoice', $model);
-                } else {
-                    event('eloquent.updated: App\Models\Invoice', $model);
-                }
-            }
-
-            if ($model instanceof Credit) {
-                $model = $model->calc()->getCredit();
-
-                if (! $model->design_id) {
-                    $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
-                }
-
-                if (array_key_exists('invoice_id', $data) && $data['invoice_id']) {
-                    $model->invoice_id = $data['invoice_id'];
-                }
-
-                if ($this->new_model) {
-                    event('eloquent.created: App\Models\Credit', $model);
-                } else {
-                    event('eloquent.updated: App\Models\Credit', $model);
-                }
-
-                if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Credit::STATUS_DRAFT)) {
-                    $model->client->service()->adjustCreditBalance(($state['finished_amount'] - $state['starting_amount']))->save();
-                }
-            }
-
-            if ($model instanceof Quote) {
-                if (! $model->design_id) {
-                    $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
-                }
-
-                $model = $model->calc()->getQuote();
-
-                if ($this->new_model) {
-                    event('eloquent.created: App\Models\Quote', $model);
-                } else {
-                    event('eloquent.updated: App\Models\Quote', $model);
-                }
-            }
-
-            if ($model instanceof RecurringInvoice) {
-                if (! $model->design_id) {
-                    $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
-                }
-
-                $model = $model->calc()->getRecurringInvoice();
-
-
-                if ($this->new_model) {
-                    event('eloquent.created: App\Models\RecurringInvoice', $model);
-                } else {
-                    event('eloquent.updated: App\Models\RecurringInvoice', $model);
-                }
-            }
-
-            $model->saveQuietly();
-
-            return $model->fresh();
+        if ($model instanceof Invoice) {
+            $model->service()->setReminder()->save();
         }
+
+        /* Save any documents */
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $model);
+        }
+
+        if (array_key_exists('file', $data)) {
+            $this->saveDocuments($data['file'], $model);
+        }
+
+        /* If invitations are present we need to filter existing invitations with the new ones */
+        if (isset($data['invitations'])) {
+            $invitations = collect($data['invitations']);
+
+            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
+            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
+                $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
+                $invitation = $invitation_class::where('key', $invitation)->first();
+
+                if ($invitation) {
+                    $invitation->delete();
+                }
+            });
+
+            foreach ($data['invitations'] as $invitation) {
+                //if no invitations are present - create one.
+                if (! $this->getInvitation($invitation, $resource)) {
+                    if (isset($invitation['id'])) {
+                        unset($invitation['id']);
+                    }
+
+                    //make sure we are creating an invite for a contact who belongs to the client only!
+                    $contact = ClientContact::find($invitation['client_contact_id']);
+
+                    if ($contact && $model->client_id == $contact->client_id) {
+                        $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
+
+                        $new_invitation = $invitation_class::withTrashed()
+                                            ->where('client_contact_id', $contact->id)
+                                            ->where($lcfirst_resource_id, $model->id)
+                                            ->first();
+
+                        if ($new_invitation && $new_invitation->trashed()) {
+                            $new_invitation->restore();
+                        } else {
+                            $invitation_factory_class = sprintf('App\\Factory\\%sInvitationFactory', $resource);
+                            $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
+                            $new_invitation->{$lcfirst_resource_id} = $model->id;
+                            $new_invitation->client_contact_id = $contact->id;
+                            $new_invitation->key = $this->createDbHash($model->company->db);
+                            $new_invitation->saveQuietly();
+                        }
+                    }
+                }
+            }
+        }
+
+        /* If no invitations have been created, this is our fail safe to maintain state*/
+        if ($model->invitations()->count() == 0) {
+            $model->service()->createInvitations();
+        }
+
+        /* Recalculate invoice amounts */
+        $model = $model->calc()->getInvoice();
+
+        /* We use this to compare to our starting amount */
+        $state['finished_amount'] = $model->amount;
+
+        /* Apply entity number */
+        $model = $model->service()->applyNumber()->save();
+
+        /* Handle attempts where the deposit is greater than the amount/balance of the invoice */
+        if ((int)$model->balance != 0 && $model->partial > $model->amount && $model->amount > 0) {
+            $model->partial = min($model->amount, $model->balance);
+        }
+
+        /* Update product details if necessary - if we are inside a transaction - do nothing */
+        if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0) {
+            UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
+        }
+
+        /* Perform model specific tasks */
+        if ($model instanceof Invoice) {
+            if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
+                $model->service()->updateStatus()->save();
+                $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
+                $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
+            }
+
+            if (! $model->design_id) {
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+            }
+
+            //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
+            if (\DB::transactionLevel() == 0) {
+                $model->service()->linkEntities()->save();
+            }
+
+            if ($this->new_model) {
+                event('eloquent.created: App\Models\Invoice', $model);
+            } else {
+                event('eloquent.updated: App\Models\Invoice', $model);
+            }
+        }
+
+        if ($model instanceof Credit) {
+            $model = $model->calc()->getCredit();
+
+            if (! $model->design_id) {
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
+            }
+
+            if (array_key_exists('invoice_id', $data) && $data['invoice_id']) {
+                $model->invoice_id = $data['invoice_id'];
+            }
+
+            if ($this->new_model) {
+                event('eloquent.created: App\Models\Credit', $model);
+            } else {
+                event('eloquent.updated: App\Models\Credit', $model);
+            }
+
+            if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Credit::STATUS_DRAFT)) {
+                $model->client->service()->adjustCreditBalance(($state['finished_amount'] - $state['starting_amount']))->save();
+            }
+        }
+
+        if ($model instanceof Quote) {
+            if (! $model->design_id) {
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
+            }
+
+            $model = $model->calc()->getQuote();
+
+            if ($this->new_model) {
+                event('eloquent.created: App\Models\Quote', $model);
+            } else {
+                event('eloquent.updated: App\Models\Quote', $model);
+            }
+        }
+
+        if ($model instanceof RecurringInvoice) {
+            if (! $model->design_id) {
+                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+            }
+
+            $model = $model->calc()->getRecurringInvoice();
+
+
+            if ($this->new_model) {
+                event('eloquent.created: App\Models\RecurringInvoice', $model);
+            } else {
+                event('eloquent.updated: App\Models\RecurringInvoice', $model);
+            }
+        }
+
+        $model->saveQuietly();
+
+        return $model->fresh();
     }
+}

@@ -76,23 +76,20 @@ class UpdatePaymentMethods
         $this->importBankAccounts($customer, $client);
         
         $this->importPMBankAccounts($customer, $client);
-
     }
 
-    /* ACH may also be nested inside Payment Methods.*/ 
+    /* ACH may also be nested inside Payment Methods.*/
     public function importPMBankAccounts($customer, $client)
     {
         $bank_methods = \Stripe\PaymentMethod::all(
             [
             'customer' => $customer->id,
             'type' => 'us_bank_account',
-        ], 
+        ],
             $this->stripe->stripe_connect_auth
         );
 
-        foreach($bank_methods->data as $method)
-        {
-
+        foreach ($bank_methods->data as $method) {
             $token_exists = ClientGatewayToken::where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
@@ -126,9 +123,7 @@ class UpdatePaymentMethods
             }
 
             $this->stripe->storeGatewayToken($data, $additional_data);
-
         }
-
     }
 
     public function importBankAccounts($customer, $client)
