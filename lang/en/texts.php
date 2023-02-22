@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$LANG = array(
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -4586,7 +4586,7 @@ $LANG = [
     'alternate_pdf_viewer' => 'Alternate PDF Viewer',
     'alternate_pdf_viewer_help' => 'Improve scrolling over the PDF preview [BETA]',
     'currency_cayman_island_dollar' => 'Cayman Island Dollar',
-    'download_report_description' => 'Your report(s) are attached.',
+    'download_report_description' => 'Please see attached file to check your report.',
     'left' => 'Left',
     'right' => 'Right',
     'center' => 'Center',
@@ -4908,7 +4908,7 @@ $LANG = [
     'export_company' => 'Create company backup',
     'backup' => 'Backup',
     'notification_purchase_order_created_body' => 'The following purchase_order :purchase_order was created for vendor :vendor for :amount.',
-    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',
+    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',    
     'notification_purchase_order_sent_subject' => 'Purchase Order :purchase_order was sent to :vendor',
     'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
     'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
@@ -4952,8 +4952,6 @@ $LANG = [
     'update_payment' => 'Update Payment',
     'markup' => 'Markup',
     'unlock_pro' => 'Unlock Pro',
-    'preferences' => 'Preferences',
-    'click_to_variables' => 'Client here to see all variables.',
     'upgrade_to_paid_plan_to_schedule' => 'Upgrade to a paid plan to create schedules',
     'next_run' => 'Next Run',
     'all_clients' => 'All Clients',
@@ -5001,7 +4999,9 @@ $LANG = [
     'client_contacts' => 'Client Contacts',
     'sync_from' => 'Sync From',
 
-];
+);
 
 
 return $LANG;
+
+?>
