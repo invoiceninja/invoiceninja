@@ -514,6 +514,8 @@ class Import implements ShouldQueue
                 $data['portal_domain'] = '';
             }
            
+            $company_settings->font_size = 16;
+            
             $data['settings'] = $company_settings;
         }
 
