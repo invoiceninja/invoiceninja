@@ -208,9 +208,7 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-
             return response(['url' => ''], 200);
-
         } catch (Exception $e) {
             nlog($e->getMessage());
 

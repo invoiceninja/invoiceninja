@@ -50,9 +50,9 @@ class ContactHashLoginController extends Controller
     public function errorPage()
     {
         return render('generic.error', [
-            'title' => session()->get('title'), 
-            'notification' => session()->get('notification'), 
-            'account' => auth()->guard('contact')?->user()?->user?->account, 
+            'title' => session()->get('title'),
+            'notification' => session()->get('notification'),
+            'account' => auth()->guard('contact')?->user()?->user?->account,
             'company' => auth()->guard('contact')?->user()?->user?->company
         ]);
     }

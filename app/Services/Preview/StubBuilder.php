@@ -11,27 +11,26 @@
 
 namespace App\Services\Preview;
 
-use App\Models\User;
-use App\Models\Client;
-use App\Models\Vendor;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Utils\HtmlEngine;
-use Illuminate\Support\Str;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\ClientContact;
-use App\Models\VendorContact;
-use App\Utils\PhantomJS\Phantom;
-use App\Models\InvoiceInvitation;
-use App\Services\PdfMaker\Design;
-use App\Utils\HostedPDF\NinjaPdf;
-use Illuminate\Support\Facades\DB;
-use App\Services\PdfMaker\PdfMaker;
 use App\Factory\GroupSettingFactory;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Design as DesignModel;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\PdfMaker\PdfMaker;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PageNumbering;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StubBuilder
 {
@@ -56,7 +55,9 @@ class StubBuilder
 
     public array $settings;
 
-    public function __construct(public Company $company, public User $user){}
+    public function __construct(public Company $company, public User $user)
+    {
+    }
     
     public function setEntityType($entity_type)
     {
@@ -67,26 +68,26 @@ class StubBuilder
 
     public function build(): self
     {
-
-        try{
-            DB::connection($this->company->db)->beginTransaction();
-
-                $this
-                     ->createRecipient()
+        try {
+            DB::connection(config('database.default'))->transaction(function () {
+                $this->createRecipient()
                      ->initializeSettings()
-                     ->createEntity()  
+                     ->createEntity()
                      ->linkRelations()
-                     ->buildHtml();     
-
-            DB::connection($this->company->db)->rollBack();
-        }
-        catch(\Exception $e)
-        {
+                     ->buildHtml();
+            });
+        } catch (\Throwable $throwable) {
+            nlog("DB ERROR " . $throwable->getMessage());
+                
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
+        } catch(\Exception $e) {
             nlog($e->getMessage());
-            // return $e->getMessage();
 
-            DB::connection($this->company->db)->rollBack();
-
+            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
+                DB::connection(config('database.default'))->rollBack();
+            }
         }
 
         return $this;
@@ -94,7 +95,6 @@ class StubBuilder
 
     public function getPdf(): mixed
     {
-
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->convertHtmlToPdf($this->html);
         }
@@ -112,15 +112,13 @@ class StubBuilder
         }
 
         return (new PreviewPdf($this->html, $this->company))->handle();
-
     }
 
     private function initializeSettings(): self
     {
-
         $this->dynamic_settings_type = 'company';
 
-        match($this->dynamic_settings_type) {
+        match ($this->dynamic_settings_type) {
             'company' => $this->setCompanySettings(),
             'client' => $this->setClientSettings(),
             'group' => $this->setGroupSettings(),
@@ -175,7 +173,6 @@ class StubBuilder
 
     private function buildHtml(): self
     {
-
         $html = new HtmlEngine($this->invitation);
 
         $design_string = "{$this->entity_type}_design_id";
@@ -216,8 +213,7 @@ class StubBuilder
 
     private function createRecipient(): self
     {
-
-        match($this->entity_type) {
+        match ($this->entity_type) {
             'invoice' => $this->createClient(),
             'quote' => $this->createClient(),
             'credit' => $this->createClient(),
@@ -225,7 +221,6 @@ class StubBuilder
         };
 
         return $this;
-
     }
 
     private function createClient(): self
@@ -267,7 +262,7 @@ class StubBuilder
 
     private function createEntity(): self
     {
-        match($this->entity_type) {
+        match ($this->entity_type) {
             'invoice' => $this->createInvoice(),
             'quote' => $this->createQuote(),
             'credit' => $this->createCredit(),
@@ -299,15 +294,15 @@ class StubBuilder
     private function createQuote()
     {
         $this->entity->save();
-    }   
+    }
 
     private function createCredit()
     {
         $this->entity->save();
-    }   
+    }
 
     private function createPurchaseOrder()
     {
         $this->entity->save();
-    }   
+    }
 }

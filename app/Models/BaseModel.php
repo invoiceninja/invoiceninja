@@ -11,16 +11,16 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use App\Utils\Traits\MakesHash;
+use App\DataMapper\ClientSettings;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
-use App\DataMapper\ClientSettings;
-use Illuminate\Database\Eloquent\Model;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class BaseModel

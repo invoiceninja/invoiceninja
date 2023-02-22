@@ -195,12 +195,11 @@ class PreviewController extends BaseController
         $response->header('Content-Type', 'application/pdf');
 
         return $response;
-
     }
 
     public function oldDesign(DesignPreviewRequest $request)
     {
-        if(Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])){
+        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
 
@@ -238,13 +237,12 @@ class PreviewController extends BaseController
                                     ->first();
             }
 
-            if($request->has('client_id') && strlen($request->client_id) > 4) {
+            if ($request->has('client_id') && strlen($request->client_id) > 4) {
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($request->client_id));
-                    if($request->settings_type == 'client' && $client ){
-                        $client->settings = $request->settings;
-                        $client->save();
-                    }
-
+                if ($request->settings_type == 'client' && $client) {
+                    $client->settings = $request->settings;
+                    $client->save();
+                }
             }
 
             if ($request->has('group_id')) {
@@ -340,13 +338,13 @@ class PreviewController extends BaseController
 
                 $headers = ['Content-Type' => 'application/pdf'];
 
-                if(request()->input('inline') == 'true')
+                if (request()->input('inline') == 'true') {
                     $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+                }
 
-                return response()->streamDownload(function () use($pdf) {
-                        echo $pdf;
-                },  "preview.pdf", $headers);
-                
+                return response()->streamDownload(function () use ($pdf) {
+                    echo $pdf;
+                }, "preview.pdf", $headers);
             }
             
             if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
@@ -354,13 +352,13 @@ class PreviewController extends BaseController
 
                 $headers = ['Content-Type' => 'application/pdf'];
 
-                if(request()->input('inline') == 'true')
+                if (request()->input('inline') == 'true') {
                     $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+                }
 
-                return response()->streamDownload(function () use($pdf) {
-                        echo $pdf;
-                },  "preview.pdf", $headers);
-
+                return response()->streamDownload(function () use ($pdf) {
+                    echo $pdf;
+                }, "preview.pdf", $headers);
             }
 
         $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
@@ -372,8 +370,9 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
-        if(Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co']))
+        if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
+        }
         
         
         $company = auth()->user()->company();
