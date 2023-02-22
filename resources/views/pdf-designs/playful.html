@@ -72,9 +72,16 @@
 
     .contacts-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
+        /* grid-template-columns: 1fr 1fr; */
+        gap: 20px;
         padding: 1rem 0rem 0rem 2rem;
+
+        grid-template-columns: auto auto;
+        grid-template-areas: "a b";
+        grid-auto-columns: auto;
+        grid-auto-flow: column;
+        justify-content: space-between;
+
     }
 
     .contacts-wrapper .contact-label {
@@ -83,10 +90,23 @@
         margin-left: 1rem;
     }
 
+    .contacts-wrapper .shipping-label {
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-left: 1rem;
+        display: $show_shipping_address;
+    }
+
     .contacts-wrapper #company-address,
     .contacts-wrapper #company-details,
     .contacts-wrapper #client-details {
         display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+    }
+
+    .contacts-wrapper #shipping-details {
+        display: $show_shipping_address;
         flex-direction: column;
         margin-bottom: 0.5rem;
     }
@@ -106,9 +126,21 @@
         border-top: 1px solid var(--primary-color);
     }
 
+    .contacts-wrapper #shipping-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+
     .contact-wrapper-left-side,
     .contact-wrapper-right-side {
         border-bottom: 1px solid var(--primary-color);
+    }
+
+    .shipping-wrapper-right-side {
+        border-bottom: 1px solid var(--primary-color);
+        display: $show_shipping_address_block;
     }
 
     [data-ref="table"] {
@@ -299,6 +331,10 @@
         overflow-wrap: break-word; 
     }
 
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
     .stamp {
       transform: rotate(12deg);
         color: #555;
@@ -387,38 +423,43 @@
    <tbody>
       <tr>
          <td>
-               <div class="header-wrapper">
-                  <div>
-                     <img class="company-logo" src="$company.logo" alt="$company.name logo">
-                  </div>
-                  <div class="entity-details-wrapper">
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
-                  </div>
-               </div>
-               <div class="contacts-wrapper">
-                  <div class="contact-wrapper-left-side">
-                     <p class="contact-label">$from_label:</p>
-                     <div class="company-info">
-                        <div id="company-details"></div>
-                        <div id="company-address"></div>
-                     </div>
-                  </div>
-                  <div class="contact-wrapper-right-side">
-                     <p class="contact-label">$to_label:</p>
-                     <div id="client-details"></div>
-                     <div id="vendor-details"></div>
-                  </div>
-               </div>
-               <table id="product-table" cellspacing="0" data-ref="table"></table>
-               <table id="task-table" cellspacing="0" data-ref="table"></table>
-               <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-               <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-               <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-               <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>      
+            <div class="header-wrapper">
+                <div>
+                    <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                </div>
+                <div class="entity-details-wrapper">
+                    <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                </div>
+            </div>
+            <div class="contacts-wrapper">
+                <div class="contact-wrapper-left-side">
+                    <p class="contact-label">$from_label:</p>
+                    <div class="company-info">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                    </div>
+                </div>
+                <div class="contact-wrapper-right-side">
+                    <p class="contact-label">$to_label:</p>
+                    <div id="client-details"></div>
+                    <div id="vendor-details"></div>
+                </div>
+
+                <div class="shipping-wrapper-right-side">
+                    <p class="shipping-label">$shipping_label:</p>
+                    <div id="shipping-details"></div>
+                </div>
+            </div>
+            <table id="product-table" cellspacing="0" data-ref="table"></table>
+            <table id="task-table" cellspacing="0" data-ref="table"></table>
+            <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+            <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+            <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+            <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+            <div id="table-totals" cellspacing="0">$status_logo</div>      
          </td>
       </tr>
    </tbody>
