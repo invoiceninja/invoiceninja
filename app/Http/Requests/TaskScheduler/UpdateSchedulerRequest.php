@@ -23,7 +23,7 @@ class UpdateSchedulerRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() && $this->task_scheduler->company_id == auth()->user()->company()->id;
     }
 
     public function rules(): array

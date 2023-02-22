@@ -11,20 +11,15 @@
 
 namespace App\Services\Payment;
 
+use App\Models\Payment;
+use App\Models\ClientContact;
 use App\Jobs\Payment\EmailPayment;
 
 class SendEmail
 {
-    public $payment;
 
-    public $contact;
-
-    public function __construct($payment, $contact)
-    {
-        $this->payment = $payment;
-
-        $this->contact = $contact;
-    }
+    public function __construct(public Payment $payment, public ?ClientContact $contact)
+    {}
 
     /**
      * Builds the correct template to send.
@@ -34,18 +29,16 @@ class SendEmail
     {
         $this->payment->load('company', 'client.contacts', 'invoices');
 
-        $contact = $this->payment->client->contacts()->first();
+        if(!$this->contact)
+            $this->contact = $this->payment->client->contacts()->first();
 
-        // if ($contact?->email)
-        //     EmailPayment::dispatch($this->payment, $this->payment->company, $contact)->delay(now()->addSeconds(2));
-
-
-        $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
-            $invoice->invitations->each(function ($invitation) {
-                if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                    EmailPayment::dispatch($this->payment, $this->payment->company, $invitation->contact)->delay(now()->addSeconds(2));
-                }
-            });
-        });
+        // $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
+        //     $invoice->invitations->each(function ($invitation) {
+        //         if (!$invitation->contact->trashed() && $invitation->contact->email) {
+                    EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
+        //         }
+        //     });
+        // });
+        
     }
 }
