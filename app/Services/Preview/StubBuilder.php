@@ -94,7 +94,6 @@ class StubBuilder
 
     public function getPdf(): mixed
     {
-nlog($this->html);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->convertHtmlToPdf($this->html);
