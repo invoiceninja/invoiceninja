@@ -4954,6 +4954,7 @@ $LANG = [
     'unlock_pro' => 'Unlock Pro',
     'preferences' => 'Preferences',
     'click_to_variables' => 'Client here to see all variables.',
+    'ship_to' => 'Ship to',
 ];
 
 

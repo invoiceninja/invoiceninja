@@ -587,6 +587,8 @@ class HtmlEngine
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
+        $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
+
         $data['$details'] = ['value' => '', 'label' => ctrans('texts.details')];
 
         $data['_rate1'] = ['value' => '', 'label' => ctrans('texts.tax')];
