@@ -45,9 +45,13 @@
 
     .header-wrapper2 {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
         margin-top: 2rem;
-        min-width: 100%;
+        gap: 20px;
+        grid-template-columns: 2fr 2fr auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: left;
     }
     
     .company-logo {
@@ -71,15 +75,13 @@
     .header-wrapper #entity-details {
         margin-top: 0.5rem;
         text-align: left;
-        width: 100%;
+        /* width: 100%; */
     }
 
     .header-wrapper #entity-details > tr,
     .header-wrapper #entity-details th {
         font-weight: normal;
-        padding-left: 0.9rem;
-        padding-top: 0.3rem;
-        padding-bottom: 0.3rem;
+        white-space: nowrap;
     }
 	
     .header-wrapper
@@ -98,7 +100,7 @@
     }
 
     #shipping-details {
-        display: $show_shipping_address;
+        visibility: $show_shipping_address_visibility;
         flex-direction: column;
         line-height: var(--line-height);
     }
@@ -180,7 +182,7 @@
 
 	#entity-details {
         text-align: left;
-        width: 100%;
+        /* width: 100%; */
 	}
 	
 	#entity-details th {
@@ -276,6 +278,10 @@
     [data-ref="total_table-public_notes"] { font-weight: normal; } 
     [data-ref="total_table-terms"] { font-weight: normal; } 
 
+    /* [data-ref="shipping_address-label"] {
+        display: none;
+    } */
+
     .stamp {
       transform: rotate(12deg);
         color: #555;
@@ -362,25 +368,24 @@
       <tr>
          <td>
             <div id="">
-               <div class="header-wrapper">
-                  <div>
-                     <img class="company-logo" src="$company.logo" alt="$company.name logo">
-                  </div>
-                  <div style="float:right; width:100%;">
-                  <div id="company-details"></div>
-                  <div id="company-address" style="margin-top:10px;"></div>
-                  </div>
-               </div>
-               <div class="header-wrapper2">
-               <div id="client-details"></div>
-               <div id="vendor-details"></div>
-               <div id="shipping-details"></div>
-
-               <div>
-               <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
-               <table id="entity-details" cellspacing="0" dir="ltr"></table>
-               </div>
-               </div>
+                <div class="header-wrapper">
+                    <div>
+                        <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                    </div>
+                    <div style="float:right; width:100%;">
+                    <div id="company-details"></div>
+                    <div id="company-address" style="margin-top:10px;"></div>
+                    </div>
+                </div>
+                <div class="header-wrapper2">
+                    <div id="client-details"></div>
+                    <div id="vendor-details"></div>
+                    <div id="shipping-details"></div>
+                    <div>
+                        <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color; padding-left: 5px;">$entity_label</p>
+                        <table id="entity-details" cellspacing="5" dir="ltr"></table>
+                    </div>
+                </div>
             
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
