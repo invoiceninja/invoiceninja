@@ -82,19 +82,28 @@
       }
 
       .logo-client-wrapper {
-        margin: 0 2rem 0rem;
+        margin-left: 2rem;
         display: grid;
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 1fr auto auto;
       }
 
       .company-logo {
-/*        max-width: 55%;*/
           max-width: $company_logo_size;
       }
 
       #client-details {
         display: flex;
         flex-direction: column;
+        margin-left: 10px;
+        margin-right: 10px;
+
+      }
+
+      #shipping-details {
+          display: $show_shipping_address;
+          flex-direction: column;
+          margin-left: 10px;
+          margin-right: 10px;
       }
 
       #client-details > * {
@@ -378,6 +387,7 @@
                     <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
                     <div id="client-details"></div>
                     <div id="vendor-details"></div>
+                    <div id="shipping-details"></div>
                 </div>
                 <div class="table-wrapper">
                     <table id="product-table" cellspacing="0" data-ref="table"></table>
@@ -395,7 +405,7 @@
                     <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                     <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
                 </div>
-                <div id="table-totals" cellspacing="0"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
             </td>
         </tr>
         </tbody>
