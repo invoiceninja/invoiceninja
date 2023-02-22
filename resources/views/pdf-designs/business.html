@@ -68,7 +68,7 @@
     }
 
     .entity-issued-to {
-        margin-top: 2rem;
+        /* margin-top: 2rem; */
         font-weight: bold;
     }
 
@@ -81,12 +81,13 @@
     #client-details {
         display: flex;
         flex-direction: column;
-        margin-top: 1rem;
         line-height: var(--line-height);
+        vertical-align: top;
     }
 
-    #client-details > p:nth-child(1) {
+    #client-details > p:nth-child(2) {
         color: var(--primary-color);
+        font-size: 120%;
     }
 
     #shipping-details {
@@ -117,7 +118,7 @@
 
     [data-ref="table"] {
         margin-top: 0.5rem;
-        margin-bottom: 50px; 
+        margin-bottom: 5px; 
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -179,14 +180,12 @@
     }
 
     #table-totals {
-        margin-top: 0.5rem;
+        margin-top: 0rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 80px;
-        padding-left: 1rem;
         padding-top: 0.5rem;
         padding-bottom: 0.8rem;
-        margin-right: .5rem;
         page-break-inside:auto;
         overflow: visible !important;
     }
@@ -235,7 +234,7 @@
     }
 
     [data-ref="total_table-footer"] {
-        padding-left: 1rem
+        padding-left: 0rem
     }
 
     #footer {
@@ -384,9 +383,8 @@
                   <div id="company-details"></div>
                   <div id="company-address"></div>
                </div>
-               <p class="entity-issued-to">$entity_issued_to_label:</p>
                <div class="client-and-entity-wrapper">
-                  <div id="client-details"></div>
+                <div id="client-details"><p class="entity-issued-to">$entity_issued_to_label:</p></div>
                   <div id="vendor-details"></div>
                 <div id="shipping-details"></div>
                   <div class="entity-details-wrapper">
@@ -402,7 +400,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
+               <div id="table-totals" cellspacing="0">$status_logo</div>
             </div>
          </td>
       </tr>
