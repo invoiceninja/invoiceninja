@@ -146,8 +146,9 @@ class BaseRepository
      * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
-    {
-        if (array_key_exists('client_id', $data) && !empty($data['client_id'])) {
+    {   //$start = microtime(true);
+        //forces the client_id if it doesn't exist
+        if (array_key_exists('client_id', $data)) {
             $model->client_id = $data['client_id'];
         }
 
@@ -176,26 +177,27 @@ class BaseRepository
 
         if (isset($tmp_data['client_contacts'])) {
             unset($tmp_data['client_contacts']);
+        }
 
-            $model->fill($tmp_data);
+        $model->fill($tmp_data);
 
-            $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
-            $model->custom_surcharge_tax2 = $client->company->custom_surcharge_taxes2;
-            $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
-            $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
+        $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
+        $model->custom_surcharge_tax2 = $client->company->custom_surcharge_taxes2;
+        $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
+        $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
-            if (!$model->id) {
-                $this->new_model = true;
+        if (!$model->id) {
+            $this->new_model = true;
 
-                if (is_array($model->line_items) && !($model instanceof RecurringInvoice)) {
-                    $model->line_items = (collect($model->line_items))->map(function ($item) use ($model, $client) {
-                        $item->notes = Helpers::processReservedKeywords($item->notes, $client);
+            if (is_array($model->line_items) && !($model instanceof RecurringInvoice)) {
+                $model->line_items = (collect($model->line_items))->map(function ($item) use ($model, $client) {
+                    $item->notes = Helpers::processReservedKeywords($item->notes, $client);
 
-                        return $item;
-                    });
-                }
+                    return $item;
+                });
             }
         }
+
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
