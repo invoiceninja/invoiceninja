@@ -55,6 +55,12 @@
         float:right;  
     }
 
+    ,logo-wrapper {
+        grid-area: e; 
+        align-content: right; 
+        border:1px solid #000;
+    }
+
     #entity-details p { margin-top: 5px; }
 
     .header-wrapper #client-details,
@@ -103,7 +109,6 @@
 
     #shipping-details {
         display: $show_shipping_address;
-        /* visibility: $show_shipping_address_visibility;  */
         flex-direction: column;
         line-height: var(--line-height);
     }
@@ -338,15 +343,15 @@
          <td>
             <div id="body">
                <div class="header-wrapper">
-                  <div id="client-details" style="border:1px solid #000;" ></div>
-                  <div id="vendor-details"  style="border:1px solid #000;"></div>
-                  <div id="shipping-details"  style="border:1px solid #000;"></div>
+                  <div id="client-details"></div>
+                  <div id="vendor-details"></div>
+                  <div id="shipping-details"></div>
 
-                  <div class="company-info-wrapper" style="border:1px solid #000;">
+                  <div class="company-info-wrapper">
                      <div id="company-details"></div>
                      <div id="company-address"></div>
                   </div>
-                  <div style="grid-area: e; align-content: right; border:1px solid #000;">
+                  <div class="logo-wrapper">
                   <img
                      class="company-logo"
                      src="$company.logo"
