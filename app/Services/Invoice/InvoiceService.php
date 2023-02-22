@@ -103,7 +103,6 @@ class InvoiceService
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
      * @return InvoiceService          Parent class object
-     * @deprecated 24-11-2022 - cannot find any references to this method anywhere
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {

@@ -36,12 +36,12 @@ class SendEmail
 
         $contact = $this->payment->client->contacts()->first();
 
-        $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
-            $invoice->invitations->each(function ($invitation) {
-                if (!$invitation->contact->trashed() && $invitation->contact->email) {
-                    EmailPayment::dispatch($this->payment, $this->payment->company, $invitation->contact);
-                }
-            });
-        });
+        // $this->payment->invoices->sortByDesc('id')->first(function ($invoice) {
+        //     $invoice->invitations->each(function ($invitation) {
+        //         if (!$invitation->contact->trashed() && $invitation->contact->email) {
+                    EmailPayment::dispatch($this->payment, $this->payment->company, $contact);
+        //         }
+        //     });
+        // });
     }
 }
