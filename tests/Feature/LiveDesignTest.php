@@ -43,8 +43,7 @@ class LiveDesignTest extends TestCase
     public function testDesignRoute200()
     {
         $data = [
-            'entity' => 'invoice',
-            'entity_id' => $this->invoice->hashed_id,
+            'entity_type' => 'invoice',
             'settings_type' => 'company',
             'settings' => (array)$this->company->settings,
         ];
