@@ -40,12 +40,19 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr; 
+        grid-template-rows:1fr;
+        grid-template-columns: auto auto auto auto;
+        grid-template-areas: "a b c d e";
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        justify-content:left;
+        gap: 20px;
         line-height: var(--line-height);
     }
 
     .company-logo {
-        max-width: $company_logo_size;    
+        max-width: $company_logo_size;  
+        float:right;  
     }
 
     #entity-details p { margin-top: 5px; }
@@ -68,6 +75,7 @@
 
     .header-wrapper .company-info-wrapper > * {
         margin-bottom: 1rem;
+        grid-row-end: 4;
     }
 
     .entity-label-wrapper {
@@ -330,19 +338,21 @@
          <td>
             <div id="body">
                <div class="header-wrapper">
-                  <div id="client-details"></div>
-                  <div id="vendor-details"></div>
-                  <div id="shipping-details"></div>
+                  <div id="client-details" style="border:1px solid #000;" ></div>
+                  <div id="vendor-details"  style="border:1px solid #000;"></div>
+                  <div id="shipping-details"  style="border:1px solid #000;"></div>
 
-                  <div class="company-info-wrapper">
+                  <div class="company-info-wrapper" style="border:1px solid #000;">
                      <div id="company-details"></div>
                      <div id="company-address"></div>
                   </div>
+                  <div style="grid-area: e; align-content: right; border:1px solid #000;">
                   <img
                      class="company-logo"
                      src="$company.logo"
                      alt="$company.name logo"
                      />
+                  </div>
                </div>
                <div class="entity-label-wrapper">
                   <h1 class="entity-label">
