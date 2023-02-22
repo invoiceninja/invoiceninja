@@ -49,7 +49,7 @@ class EmailPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ClientContact $contact)
+    public function __construct(Payment $payment, Company $company, ?ClientContact $contact)
     {
         $this->payment = $payment;
         $this->contact = $contact;
@@ -72,6 +72,10 @@ class EmailPayment implements ShouldQueue
             MultiDB::setDb($this->company->db);
 
             $this->payment->load('invoices');
+
+            if(!$this->contact)
+                $this->contact = $this->payment->client->contacts()->first();
+                
             $this->contact->load('client');
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
