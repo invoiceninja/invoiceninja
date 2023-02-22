@@ -615,7 +615,7 @@ class PaymentController extends BaseController
                 }
                 break;
             case 'email_receipt':
-                $this->payment->service()->sendEmail();
+                $payment->service()->sendEmail();
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
