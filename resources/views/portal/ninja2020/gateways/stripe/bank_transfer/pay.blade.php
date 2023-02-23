@@ -45,11 +45,21 @@
 
 <script>
     const options = {
-    clientSecret: '{{ $client_secret }}',
-    // Fully customizable with appearance API.
-    appearance: {/*...*/},
+        clientSecret: '{{ $client_secret }}',
+            style: {
+                base: {
+                    padding: '10px 12px',
+                    color: '#32325d',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    },
+                },
+            },
     };
 
+
+    
     const stripe = Stripe(document.querySelector('meta[name="stripe-publishable-key"]').getAttribute('content'));
     const stripeConnect = document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
@@ -67,27 +77,30 @@
 
     form.addEventListener('submit', async (event) => {
     event.preventDefault();
+
     document.getElementById('pay-now').disabled = true;
     document.querySelector('#pay-now > svg').classList.add('hidden');
     document.querySelector('#pay-now > span').classList.remove('hidden');
 
         const {error} = await stripe.confirmPayment({
-            //`Elements` instance that was used to create the Payment Element
             elements,
             confirmParams: {
-            return_url: '{!! $return_url !!}',
+                return_url: '{!! $return_url !!}',
             },
+
         });
-
-    if (error) {
-
-        const messageContainer = document.querySelector('#errors');
-        messageContainer.textContent = error.message;
-    } else {
+            
+            if (error) {
+                document.getElementById('pay-now').disabled = false;
+                document.querySelector('svg').classList.remove('hidden');
+                document.querySelector('span').classList.add('hidden');
+                const messageContainer = document.querySelector('#errors');
+                messageContainer.textContent = error.message;
+            } 
 
         
-    }
-    });
+        });
+
 
 </script>
 @endpush
