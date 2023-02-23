@@ -102,6 +102,20 @@ var ProcessPRZELEWY24 = /*#__PURE__*/_createClass(function ProcessPRZELEWY24(key
           }
         },
         return_url: document.querySelector('meta[name="return-url"]').content
+      }).then(function (result) {
+        if (result.error) {
+          // Show error to your customer
+          errors.textContent = result.error.message;
+          errors.hidden = false;
+          document.getElementById('pay-now').disabled = false;
+          document.querySelector('#pay-now > svg').classList.add('hidden');
+          document.querySelector('#pay-now > span').classList.remove('hidden');
+        } else {
+          // The payment has been processed!
+          if (result.paymentIntent.status === 'succeeded') {
+            window.location = document.querySelector('meta[name="return-url"]').content;
+          }
+        }
       });
     });
   });

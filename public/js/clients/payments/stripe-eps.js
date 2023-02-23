@@ -65,7 +65,6 @@ var ProcessEPSPay = /*#__PURE__*/_createClass(function ProcessEPSPay(key, stripe
       if (!document.getElementById('eps-name').value) {
         errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
         errors.hidden = false;
-        console.log("name");
         return;
       }
 
@@ -77,7 +76,7 @@ var ProcessEPSPay = /*#__PURE__*/_createClass(function ProcessEPSPay(key, stripe
         payment_method: {
           eps: _this.eps,
           billing_details: {
-            name: document.getElementById("ideal-name").value
+            name: document.getElementById("eps-name").value
           }
         },
         return_url: document.querySelector('meta[name="return-url"]').content
