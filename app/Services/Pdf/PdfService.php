@@ -13,17 +13,18 @@ namespace App\Services\Pdf;
 
 use App\Models\Account;
 use App\Models\Company;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
+use App\Models\QuoteInvitation;
 use App\Utils\VendorHtmlEngine;
+use App\Models\CreditInvitation;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Services\Pdf\PdfDesigner;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Models\RecurringInvoiceInvitation;
 
 class PdfService
 {
@@ -86,22 +87,17 @@ class PdfService
     public function getPdf()
     {
         try {
-            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $pdf = (new Phantom)->convertHtmlToPdf($this->getHtml());
-            } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($this->getHtml());
-            } else {
-                $pdf = $this->makePdf(null, null, $this->getHtml());
-            }
+
+            $pdf = $this->resolvePdfEngine();
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
             }
+
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
-
             throw new \Exception($e->getMessage(), $e->getCode());
         }
 
@@ -124,4 +120,24 @@ class PdfService
 
         return $html;
     }
+    
+    /**
+     * resolvePdfEngine
+     *
+     * @return mixed
+     */
+    private function resolvePdfEngine(): mixed
+    {
+
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            $pdf = (new Phantom)->convertHtmlToPdf($this->getHtml());
+        } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($this->getHtml());
+        } else {
+            $pdf = $this->makePdf(null, null, $this->getHtml());
+        }
+
+        return $pdf;
+    }
+
 }
