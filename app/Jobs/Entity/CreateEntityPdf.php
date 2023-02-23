@@ -14,39 +14,17 @@ namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
 use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\Credit;
 use App\Models\CreditInvitation;
-use App\Models\Design;
-use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
-use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\Pdf\PdfService;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PDF;
-use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\PdfParser\StreamReader;
 
 class CreateEntityPdf implements ShouldQueue
 {

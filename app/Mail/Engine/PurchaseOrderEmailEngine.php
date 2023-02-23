@@ -132,7 +132,7 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
             //     $this->setAttachments([$this->purchase_order->pdf_file_path($this->invitation)]);
             // }
 
-            $pdf = (new CreatePurchaseOrderPdf($this->invitation))->rawPdf();
+            $pdf = (new CreatePurchaseOrderPdf($this->invitation))->handle();
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);   
 

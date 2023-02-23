@@ -55,7 +55,7 @@ class PdfConfiguration
 
     public ?string $path;
 
-    public int $entity_design_id;
+    public string $entity_design_id;
     /**
      * The parent object of the currency
      *
