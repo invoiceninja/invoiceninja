@@ -61,8 +61,6 @@ class PdfService
 
         $this->account = $this->company->account;
 
-        $this->config = (new PdfConfiguration($this))->init();
-
         $this->document_type = $document_type;
 
         $this->options = $options;
@@ -121,6 +119,9 @@ class PdfService
      */
     public function init(): self
     {
+
+        $this->config = (new PdfConfiguration($this))->init();
+
 
         $this->html_variables = $this->config->client ?
                                     (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
