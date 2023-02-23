@@ -212,7 +212,7 @@ class PdfBuilder
         $outstanding = $this->service->options['invoices']->sum('balance');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->service->config->client)],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . $this->service->config->formatMoney($outstanding)],
         ];
     }
 
@@ -279,8 +279,9 @@ class PdfBuilder
         $payment = $this->service->options['payments']->first();
 
         return [
-            // ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->service->options['payments']->sum('amount'), $this->service->config->client))],
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->service->config->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), $this->service->config->formatMoney($this->payment_amount_total))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.payment_method'), $payment->type ? $payment->type->name : ctrans('texts.manual_entry'))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.payment_date'), $this->translateDate($payment->date, $this->service->config->date_format, $this->service->config->locale) ?: '&nbsp;')],
         ];
     }
 
@@ -383,8 +384,8 @@ class PdfBuilder
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
             $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->service->config->client->date_format(), $this->service->config->locale) ?: ' '];
             $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->service->config->client->date_format(), $this->service->config->locale) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->service->config->client) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->service->config->client) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($invoice->amount) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($invoice->balance) ?: ' '];
 
             $tbody[] = $element;
         }
@@ -564,9 +565,9 @@ class PdfBuilder
 
                 $data[$key][$table_type.'.unit_cost'] = Number::formatMoneyNoRounding($item->cost, $this->service->config->currency_entity);
 
-                $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.cost'] = $this->service->config->formatMoney($item->cost);
 
-                $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.line_total'] = $this->service->config->formatMoney($item->line_total);
             } else {
                 $data[$key][$table_type.'.quantity'] = '';
 
@@ -578,20 +579,20 @@ class PdfBuilder
             }
 
             if (property_exists($item, 'gross_line_total')) {
-                $data[$key][$table_type.'.gross_line_total'] = ($item->gross_line_total == 0) ? '' : Number::formatMoney($item->gross_line_total, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.gross_line_total'] = ($item->gross_line_total == 0) ? '' : $this->service->config->formatMoney($item->gross_line_total);
             } else {
                 $data[$key][$table_type.'.gross_line_total'] = '';
             }
 
             if (property_exists($item, 'tax_amount')) {
-                $data[$key][$table_type.'.tax_amount'] = ($item->tax_amount == 0) ? '' : Number::formatMoney($item->tax_amount, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.tax_amount'] = ($item->tax_amount == 0) ? '' : $this->service->config->formatMoney($item->tax_amount);
             } else {
                 $data[$key][$table_type.'.tax_amount'] = '';
             }
 
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
-                    $data[$key][$table_type.'.discount'] = Number::formatMoney($item->discount, $this->service->config->currency_entity);
+                    $data[$key][$table_type.'.discount'] = $this->service->config->formatMoney($item->discount);
                 } else {
                     $data[$key][$table_type.'.discount'] = floatval($item->discount).'%';
                 }
@@ -647,19 +648,19 @@ class PdfBuilder
 
         foreach ($this->service->config->pdf_variables["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {
-                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.discount' && !$this->service->company->enable_product_discount) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.quantity' && !$this->service->company->enable_product_quantity) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.tax_rate1') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax1-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.tax_rate2') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax2-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.tax_rate3') {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-product.tax3-th", 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             } else {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->service->config->settings_object->getSetting('hide_empty_columns_on_pdf')]];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->service->config->settings->hide_empty_columns_on_pdf]];
             }
         }
 
@@ -963,7 +964,7 @@ class PdfBuilder
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->service->config->currency_entity), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => $this->service->config->formatMoney($tax['total']), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
                     ]];
                 }
             } elseif ($variable == '$line_taxes') {
@@ -976,7 +977,7 @@ class PdfBuilder
                 foreach ($taxes as $i => $tax) {
                     $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i . '-label']],
-                        ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->service->config->entity instanceof \App\Models\PurchaseOrder ? $this->service->config->vendor : $this->service->config->client), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
+                        ['element' => 'span', 'content', 'content' => $this->service->config->formatMoney($tax['total']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
@@ -1103,7 +1104,7 @@ class PdfBuilder
      */
     public function statementDetails(): array
     {
-        $s_date = $this->translateDate(now(), $this->service->config->client->date_format(), $this->service->config->locale);
+        $s_date = $this->translateDate(now(), $this->service->config->date_format, $this->service->config->locale);
         
         return [
             ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
@@ -1116,7 +1117,7 @@ class PdfBuilder
             ]],
             ['element' => 'tr', 'properties' => [], 'elements' => [
                 ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->service->options['invoices']->sum('balance'), $this->service->config->client)],
+                ['element' => 'th', 'properties' => [], 'content' => $this->service->config->formatMoney($this->service->options['invoices']->sum('balance'))],
             ]],
         ];
     }

@@ -129,7 +129,6 @@ class PdfService
 
         $this->designer = (new PdfDesigner($this))->build();
 
-
         $this->builder = (new PdfBuilder($this))->build();
 
         return $this;
