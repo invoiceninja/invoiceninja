@@ -556,6 +556,7 @@ class BaseController extends Controller
     {
         if (request()->has('per_page')) {
             return min(abs((int)request()->input('per_page', 20)), 5000);
+            // return abs((int)request()->input('per_page', 20));
         }
 
         return 20;
