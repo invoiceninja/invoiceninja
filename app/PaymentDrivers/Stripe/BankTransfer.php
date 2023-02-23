@@ -119,8 +119,6 @@ class BankTransfer
                 $this->stripe->stripe_connect_auth
             );
 
-            nlog($pi);
-
             if (in_array($pi->status, ['succeeded', 'processing'])) {
                 return $this->processSuccesfulRedirect($pi);
             }
