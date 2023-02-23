@@ -104,7 +104,7 @@ class PdfBuilder
 
         $this->document = $document;
 
-        $this->xpath = new DOMXPath($document);
+        // $this->xpath = new DOMXPath($document);
 
         return $this;
     }
@@ -225,7 +225,7 @@ class PdfBuilder
      */
     public function statementPaymentTable(): array
     {
-        if (is_null($this->service->option['payments'])) {
+        if (is_null($this->service->options['payments'])) {
             return [];
         }
 
@@ -281,7 +281,7 @@ class PdfBuilder
 
         return [
             // ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->service->options['payments']->sum('amount'), $this->service->config->client))],
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payment_amount_total, $this->service->config->client))],
         ];
     }
 
@@ -382,8 +382,8 @@ class PdfBuilder
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->service->config->client->locale()) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->service->config->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->service->config->client->date_format(), $this->service->config->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->service->config->client->date_format(), $this->service->config->client->locale()) ?: ' '];
             $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->service->config->client) ?: ' '];
             $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->service->config->client) ?: ' '];
 
@@ -525,7 +525,7 @@ class PdfBuilder
 
         $locale_info = localeconv();
 
-        $this->service->config->entity_currency = $this->service->config->currency;
+        // $this->service->config->entity_currency = $this->service->config->currency;
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
