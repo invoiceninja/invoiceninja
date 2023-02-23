@@ -528,7 +528,7 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
-
+ (new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
         /* If we are migrating data we don't want to fire any emails */
         if($this->company->is_disabled && !$this->override) 
             return true;

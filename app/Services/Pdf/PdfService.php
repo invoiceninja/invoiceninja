@@ -63,17 +63,10 @@ class PdfService
 
         $this->config = (new PdfConfiguration($this))->init();
 
-        $this->html_variables = $this->config->client ?
-                                    (new HtmlEngine($invitation))->generateLabelsAndValues() :
-                                    (new VendorHtmlEngine($invitation))->generateLabelsAndValues();
-
-        $this->designer = (new PdfDesigner($this))->build();
-
         $this->document_type = $document_type;
 
         $this->options = $options;
 
-        $this->builder = (new PdfBuilder($this))->build();
     }
 
     /**
@@ -120,7 +113,28 @@ class PdfService
 
         return $html;
     }
-    
+        
+    /**
+     * Initialize all the services to build the PDF
+     *
+     * @return self
+     */
+    public function init(): self
+    {
+
+        $this->html_variables = $this->config->client ?
+                                    (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
+                                    (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues();
+
+        $this->designer = (new PdfDesigner($this))->build();
+
+
+        $this->builder = (new PdfBuilder($this))->build();
+
+        return $this;
+        
+    }
+
     /**
      * resolvePdfEngine
      *
