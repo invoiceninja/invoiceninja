@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+* @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,7 +51,7 @@ class Bancontact
             'currency' => 'eur',
             'payment_method_types' => ['bancontact'],
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->getDescription(false),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::BANCONTACT,

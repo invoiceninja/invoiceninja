@@ -7,9 +7,9 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
-    <meta name="return-url" content="{{ $return_url }}">
-    <meta name="currency" content="{{ $currency }}">
-    <meta name="amount" content="{{ $stripe_amount }}">
+    <meta name="return_url" content="{{ $return_url }}">
+    <meta name="ci_intent" content="{{ $ci_intent }}">
+    
 @endsection
 
 @section('gateway_content')

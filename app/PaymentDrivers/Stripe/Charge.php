@@ -55,13 +55,8 @@ class Charge
         }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
-        if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         $this->stripe->init();
 

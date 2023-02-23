@@ -104,6 +104,7 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'customer.source.updated','payment_intent.processing']],
+                    GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing','payment_intent.succeeded','payment_intent.partially_funded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'payment_intent.succeeded']],
@@ -141,6 +142,7 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'customer.source.updated','payment_intent.processing']],
+                    GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing','payment_intent.succeeded','payment_intent.partially_funded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'payment_intent.succeeded']],

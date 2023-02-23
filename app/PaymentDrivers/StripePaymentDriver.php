@@ -12,51 +12,53 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\PaymentFailed;
-use App\Exceptions\StripeConnectFailure;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\ACH;
-use App\PaymentDrivers\Stripe\ACSS;
-use App\PaymentDrivers\Stripe\Alipay;
-use App\PaymentDrivers\Stripe\Bancontact;
-use App\PaymentDrivers\Stripe\BECS;
-use App\PaymentDrivers\Stripe\BrowserPay;
-use App\PaymentDrivers\Stripe\Charge;
-use App\PaymentDrivers\Stripe\Connect\Verify;
-use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\EPS;
-use App\PaymentDrivers\Stripe\FPX;
-use App\PaymentDrivers\Stripe\GIROPAY;
-use App\PaymentDrivers\Stripe\iDeal;
-use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
-use App\PaymentDrivers\Stripe\Klarna;
-use App\PaymentDrivers\Stripe\PRZELEWY24;
-use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\SOFORT;
-use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
-use App\PaymentDrivers\Stripe\Utilities;
-use App\Utils\Traits\MakesHash;
 use Exception;
-use Illuminate\Http\RedirectResponse;
-use Laracasts\Presenter\Exceptions\PresenterException;
+use Stripe\Stripe;
 use Stripe\Account;
 use Stripe\Customer;
-use Stripe\Exception\ApiErrorException;
+use App\Models\Payment;
+use Stripe\SetupIntent;
+use Stripe\StripeClient;
+use App\Models\SystemLog;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
-use Stripe\SetupIntent;
-use Stripe\Stripe;
-use Stripe\StripeClient;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
+use App\Http\Requests\Request;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\Stripe\EPS;
+use App\PaymentDrivers\Stripe\FPX;
+use App\PaymentDrivers\Stripe\ACSS;
+use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\iDeal;
+use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\Charge;
+use App\PaymentDrivers\Stripe\Klarna;
+use App\PaymentDrivers\Stripe\SOFORT;
+use Illuminate\Http\RedirectResponse;
+use App\PaymentDrivers\Stripe\GIROPAY;
+use Stripe\Exception\ApiErrorException;
+use App\Exceptions\StripeConnectFailure;
+use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\Stripe\Bancontact;
+use App\PaymentDrivers\Stripe\BrowserPay;
+use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\BankTransfer;
+use App\PaymentDrivers\Stripe\Connect\Verify;
+use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
 
 class StripePaymentDriver extends BaseDriver
 {
@@ -95,6 +97,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::ACSS => ACSS::class,
         GatewayType::FPX => FPX::class,
         GatewayType::KLARNA => Klarna::class,
+        GatewayType::DIRECT_DEBIT => BankTransfer::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -253,6 +256,14 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_2, ['AE', 'AT', 'AU', 'BE', 'BG', 'BR', 'CA', 'CH', 'CI', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'EE', 'ES', 'FI', 'FR', 'GB', 'GI', 'GR', 'GT', 'HK', 'HU', 'ID', 'IE', 'IN', 'IT', 'JP', 'LI', 'LT', 'LU', 'LV', 'MT', 'MX', 'MY', 'NL', 'NO', 'NZ', 'PE', 'PH', 'PL', 'PT', 'RO', 'SE', 'SG', 'SI', 'SK', 'SN', 'TH', 'TT', 'US', 'UY'])
         ) {
             $types[] = GatewayType::APPLE_PAY;
+        }
+
+        if (
+            $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'GB', 'DE', 'ES', 'JP', 'MX'])
+        ) {
+            $types[] = GatewayType::DIRECT_DEBIT;
         }
 
         return $types;
@@ -653,6 +664,12 @@ class StripePaymentDriver extends BaseDriver
         //payment_intent.succeeded - this will confirm or cancel the payment
         if ($request->type === 'payment_intent.succeeded') {
             PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+
+            return response()->json([], 200);
+        }
+
+        if ($request->type === 'payment_intent.partially_funded') {
+            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
 
             return response()->json([], 200);
         }

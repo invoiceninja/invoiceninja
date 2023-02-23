@@ -47,15 +47,7 @@ class Klarna
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
 
-        $amount = $data['total']['amount_with_fee'];
-
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number');
-
-        if ($invoice_numbers->count() > 0) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers->implode(', '), 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
