@@ -20,13 +20,11 @@ use App\Jobs\Util\SystemLogger;
 use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Stripe\Customer;
@@ -158,20 +156,6 @@ class ACH
 
         $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
-        // /* Catch externally validated bank accounts and mark them as verified */
-        // if(isset($bank_account->status) && $bank_account->status == 'verified'){
-
-        //     $meta = $token->meta;
-        //     $meta->state = 'authorized';
-        //     $token->meta = $meta;
-        //     $token->save();
-
-        //     return redirect()
-        //         ->route('client.payment_methods.show', $token->hashed_id)
-        //         ->with('message', __('texts.payment_method_verified'));
-
-        // }
-
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
 
@@ -198,18 +182,8 @@ class ACH
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $amount = $data['total']['amount_with_fee'];
 
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
-                          ->withTrashed()
-                          ->first();
-
-        if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
-
+        $description = $this->stripe->getDescription(false);
 
         $intent = false;
 
@@ -239,18 +213,11 @@ class ACH
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
-                          ->withTrashed()
-                          ->first();
 
-        if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         if (substr($cgt->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $invoice, $description, $cgt, false);
+            return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
         }
 
         $this->stripe->init();
@@ -291,7 +258,7 @@ class ACH
         }
     }
 
-    public function paymentIntentTokenBilling($amount, $invoice, $description, $cgt, $client_present = true)
+    public function paymentIntentTokenBilling($amount, $description, $cgt, $client_present = true)
     {
         $this->stripe->init();
 
@@ -483,18 +450,11 @@ class ACH
         $this->stripe->payment_hash->save();
 
         $amount = array_sum(array_column($this->stripe->payment_hash->invoices(), 'amount')) + $this->stripe->payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
-                          ->withTrashed()
-                          ->first();
 
-        if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         if (substr($source->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $invoice, $description, $source);
+            return $this->paymentIntentTokenBilling($amount, $description, $source);
         }
 
         try {

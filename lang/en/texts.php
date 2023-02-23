@@ -4998,6 +4998,8 @@ $LANG = array(
     'failed' => 'Failed',
     'client_contacts' => 'Client Contacts',
     'sync_from' => 'Sync From',
+    'gateway_payment_text' => 'Invoices: :invoices for :amount for client :client',
+    'gateway_payment_text_no_invoice' => 'Payment with no invoice for amount :amount for client :client',
 
 );
 
