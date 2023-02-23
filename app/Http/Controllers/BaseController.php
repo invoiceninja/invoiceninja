@@ -555,7 +555,8 @@ class BaseController extends Controller
     private function resolveQueryLimit(): int
     {
         if (request()->has('per_page')) {
-            return abs((int)request()->input('per_page', 20));
+            return min(abs((int)request()->input('per_page', 20)), 5000);
+            // return abs((int)request()->input('per_page', 20));
         }
 
         return 20;
