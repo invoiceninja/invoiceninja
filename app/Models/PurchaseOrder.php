@@ -141,6 +141,10 @@ class PurchaseOrder extends BaseModel
         }
     }
 
+    public function getEntityType()
+    {
+        return self::class;
+    }
 
     public function assigned_user()
     {

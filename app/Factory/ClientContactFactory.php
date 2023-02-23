@@ -22,7 +22,7 @@ class ClientContactFactory
         $client_contact->first_name = '';
         $client_contact->user_id = $user_id;
         $client_contact->company_id = $company_id;
-        $client_contact->contact_key = Str::random(40);
+        $client_contact->contact_key = Str::random(32);
         $client_contact->id = 0;
         $client_contact->send_email = true;
 

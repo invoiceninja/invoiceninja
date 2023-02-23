@@ -120,9 +120,7 @@ class InvitationController extends Controller
         return response()->streamDownload(function () use($file) {
                 echo $file;
         },  $file_name, $headers);
+
     }
-
-
-
 
 }

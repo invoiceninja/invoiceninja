@@ -22,7 +22,7 @@ class VendorContactFactory
         $vendor_contact->first_name = '';
         $vendor_contact->user_id = $user_id;
         $vendor_contact->company_id = $company_id;
-        $vendor_contact->contact_key = Str::random(40);
+        $vendor_contact->contact_key = Str::random(32);
         $vendor_contact->id = 0;
 
         return $vendor_contact;

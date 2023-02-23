@@ -11,42 +11,44 @@
 
 namespace App\Jobs\Vendor;
 
-use App\Exceptions\FilePermissionsFailure;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\Design;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
+use App\Utils\Ninja;
 use App\Models\Quote;
+use App\Models\Credit;
+use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Invoice;
+use App\Utils\HtmlEngine;
+use App\Libraries\MultiDB;
+use App\Utils\Traits\Pdf\PDF;
+use Illuminate\Bus\Queueable;
 use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
+use App\Models\CreditInvitation;
 use App\Models\RecurringInvoice;
+use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
+use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Illuminate\Queue\SerializesModels;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use setasign\Fpdi\PdfParser\StreamReader;
+use App\Exceptions\FilePermissionsFailure;
 use App\Models\RecurringInvoiceInvitation;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Services\Pdf\PdfService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PDF;
-use App\Utils\Traits\Pdf\PageNumbering;
-use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\PdfParser\StreamReader;
 
 class CreatePurchaseOrderPdf implements ShouldQueue
 {
@@ -56,9 +58,9 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
     private $disk;
 
-    public $invitation;
+    public PurchaseOrderInvitation $invitation;
 
-
+    public Vendor $vendor;
     /**
      * Create a new job instance.
      *
