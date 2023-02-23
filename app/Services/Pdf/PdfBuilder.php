@@ -17,7 +17,6 @@ use App\Utils\Helpers;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use DOMDocument;
-use DOMXPath;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use League\CommonMark\CommonMarkConverter;
@@ -245,9 +244,9 @@ class PdfBuilder
                 $element = ['element' => 'tr', 'elements' => []];
 
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-                $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $this->service->config->client->date_format(), $this->service->config->client->locale()) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $this->service->config->date_format, $this->service->config->locale) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => $payment->type ? $payment->type->name : ctrans('texts.manual_entry')];
-                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->pivot->amount, $this->service->config->client) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => $this->service->config->formatMoney($payment->pivot->amount) ?: '&nbsp;'];
 
                 $tbody[] = $element;
                 
@@ -382,8 +381,8 @@ class PdfBuilder
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->service->config->client->date_format(), $this->service->config->client->locale()) ?: ' '];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->service->config->client->date_format(), $this->service->config->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->service->config->client->date_format(), $this->service->config->locale) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->service->config->client->date_format(), $this->service->config->locale) ?: ' '];
             $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->service->config->client) ?: ' '];
             $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->service->config->client) ?: ' '];
 
@@ -1104,7 +1103,7 @@ class PdfBuilder
      */
     public function statementDetails(): array
     {
-        $s_date = $this->translateDate(now(), $this->service->config->client->date_format(), $this->service->config->client->locale());
+        $s_date = $this->translateDate(now(), $this->service->config->client->date_format(), $this->service->config->locale);
         
         return [
             ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [

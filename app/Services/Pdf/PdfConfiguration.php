@@ -25,12 +25,14 @@ use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Traits\AppSetup;
 
 class PdfConfiguration
 {
-    use MakesHash;
+    use MakesHash, AppSetup;
 
     public ?Client $client;
 
@@ -62,6 +64,10 @@ class PdfConfiguration
     
     public ?VendorContact $vendor_contact;
     
+    public string $date_format;
+
+    public string $locale;
+    
     /**
      * __construct
      *
@@ -80,6 +86,7 @@ class PdfConfiguration
     public function init(): self
     {
         $this->setEntityType()
+             ->setDateFormat()
              ->setPdfVariables()
              ->setDesign()
              ->setCurrencyForPdf()
@@ -102,6 +109,8 @@ class PdfConfiguration
         App::setLocale($this->settings_object->locale());
 
         $t->replace(Ninja::transformTranslations($this->settings));
+
+        $this->locale = $this->settings_object->locale();
 
         return $this;
     }
@@ -163,6 +172,7 @@ class PdfConfiguration
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
+            $this->country = $this->client->country;
         } elseif ($this->service->invitation instanceof QuoteInvitation) {
             $this->entity = $this->service->invitation->quote;
             $this->entity_string = 'quote';
@@ -172,6 +182,7 @@ class PdfConfiguration
             $this->entity_design_id = 'quote_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
+            $this->country = $this->client->country;
         } elseif ($this->service->invitation instanceof CreditInvitation) {
             $this->entity = $this->service->invitation->credit;
             $this->entity_string = 'credit';
@@ -181,6 +192,7 @@ class PdfConfiguration
             $this->entity_design_id = 'credit_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
+            $this->country = $this->client->country;
         } elseif ($this->service->invitation instanceof RecurringInvoiceInvitation) {
             $this->entity = $this->service->invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
@@ -190,6 +202,7 @@ class PdfConfiguration
             $this->entity_design_id = 'invoice_design_id';
             $this->settings = $this->client->getMergedSettings();
             $this->settings_object = $this->client;
+            $this->country = $this->client->country;
         } elseif ($this->service->invitation instanceof PurchaseOrderInvitation) {
             $this->entity = $this->service->invitation->purchase_order;
             $this->entity_string = 'purchase_order';
@@ -201,6 +214,7 @@ class PdfConfiguration
             $this->settings = $this->vendor->company->settings;
             $this->settings_object = $this->vendor;
             $this->client = null;
+            $this->country = $this->vendor->country ?: $this->vendor->company->country();
         } else {
             throw new \Exception('Unable to resolve entity', 500);
         }
@@ -237,7 +251,13 @@ class PdfConfiguration
 
         return $this;
     }
-
+    
+    /**
+     * formatMoney
+     *
+     * @param  float $value
+     * @return string
+     */
     public function formatMoney($value): string
     {
         $value = floatval($value);
@@ -248,7 +268,6 @@ class PdfConfiguration
         $code = $this->currency->code;
         $swapSymbol = $this->currency->swap_currency_symbol;
 
-        /* Country settings override client settings */
         if (isset($this->country->thousand_separator) && strlen($this->country->thousand_separator) >= 1) {
             $thousand = $this->country->thousand_separator;
         }
@@ -283,4 +302,26 @@ class PdfConfiguration
         }
 
     }
+    
+    /**
+     * date_format
+     *
+     * @return self
+     */
+    public function setDateFormat(): self
+    {
+        $date_formats = Cache::get('date_formats');
+
+        if (! $date_formats) {
+            $this->buildCache(true);
+        }
+
+        $this->date_format = $date_formats->filter(function ($item) {
+                                return $item->id == $this->settings->date_format_id;
+                             })->first()->format;
+
+        return $this;
+    }
+
+
 }
