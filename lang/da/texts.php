@@ -1,6 +1,6 @@
 <?php
 
-$LANG = [
+$LANG = array(
     'organization' => 'Organisation',
     'name' => 'Navn',
     'website' => 'Hjemmeside',
@@ -202,7 +202,7 @@ $LANG = [
     'invoice_error' => 'Vælg venligst en kunde og ret eventuelle fejl',
     'limit_clients' => 'Sorry, this will exceed the limit of :count clients. Please upgrade to a paid plan.',
     'payment_error' => 'Det opstod en fejl under din betaling. Venligst prøv igen senere.',
-    'registration_required' => 'Venligst registrer dig for at sende e-mail faktura',
+    'registration_required' => 'Registration Required',
     'confirmation_required' => 'Venligst bekræft e-mail, :link Send bekræftelses e-mail igen.',
     'updated_client' => 'Kunde opdateret',
     'archived_client' => 'Kunde arkiveret',
@@ -1900,6 +1900,7 @@ $LANG = [
     'task' => 'Opgave',
     'contact_name' => 'Kontakt navn',
     'city_state_postal' => 'By/Postnummer',
+    'postal_city' => 'Postal/City',
     'custom_field' => 'Brugerdefineret felt',
     'account_fields' => 'Virksomheds felter',
     'facebook_and_twitter' => 'Facebook og Twitter',
@@ -4906,7 +4907,7 @@ $LANG = [
     'export_company' => 'Create company backup',
     'backup' => 'Backup',
     'notification_purchase_order_created_body' => 'The following purchase_order :purchase_order was created for vendor :vendor for :amount.',
-    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',
+    'notification_purchase_order_created_subject' => 'Purchase Order :purchase_order was created for :vendor',    
     'notification_purchase_order_sent_subject' => 'Purchase Order :purchase_order was sent to :vendor',
     'notification_purchase_order_sent' => 'The following vendor :vendor was emailed Purchase Order :purchase_order for :amount.',
     'subscription_blocked' => 'This product is a restricted item, please contact the vendor for further information.',
@@ -4921,6 +4922,38 @@ $LANG = [
     'matomo_url' => 'Matomo URL',
     'matomo_id' => 'Matomo Id',
     'action_add_to_invoice' => 'Add To Invoice',
-];
+    'danger_zone' => 'Danger Zone',
+    'import_completed' => 'Import completed',
+    'client_statement_body' => 'Your statement from :start_date to :end_date is attached.',
+    'email_queued' => 'Email queued',
+    'clone_to_recurring_invoice' => 'Clone to Recurring Invoice',
+    'inventory_threshold' => 'Inventory Threshold',
+    'emailed_statement' => 'Successfully queued statement to be sent',
+    'show_email_footer' => 'Show Email Footer',
+    'invoice_task_hours' => 'Invoice Task Hours',
+    'invoice_task_hours_help' => 'Add the hours to the invoice line items',
+    'auto_bill_standard_invoices' => 'Auto Bill Standard Invoices',
+    'auto_bill_recurring_invoices' => 'Auto Bill Recurring Invoices',
+    'email_alignment' => 'Email Alignment',
+    'pdf_preview_location' => 'PDF Preview Location',
+    'mailgun' => 'Mailgun',
+    'postmark' => 'Postmark',
+    'microsoft' => 'Microsoft',
+    'click_plus_to_create_record' => 'Click + to create a record',
+    'last365_days' => 'Last 365 Days',
+    'import_design' => 'Import Design',
+    'imported_design' => 'Successfully imported design',
+    'invalid_design' => 'The design is invalid, the :value section is missing',
+    'setup_wizard_logo' => 'Would you like to upload your logo?',
+    'installed_version' => 'Installed Version',
+    'notify_vendor_when_paid' => 'Notify Vendor When Paid',
+    'notify_vendor_when_paid_help' => 'Send an email to the vendor when the expense is marked as paid',
+    'update_payment' => 'Update Payment',
+    'markup' => 'Markup',
+    'unlock_pro' => 'Unlock Pro',
+);
+
 
 return $LANG;
+
+?>

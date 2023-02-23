@@ -463,7 +463,7 @@ class CompanySettings extends BaseSettings
 
     public $accept_client_input_quote_approval = false;
 
-    public $allow_billable_task_items = false;
+    public $allow_billable_task_items = true;
 
     public $show_task_item_description = false;
 

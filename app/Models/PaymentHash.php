@@ -25,6 +25,11 @@ class PaymentHash extends Model
     {
         return $this->data->invoices;
     }
+    
+    public function amount_with_fee()
+    {
+        return $this->data->amount_with_fee;
+    }
 
     public function credits_total()
     {

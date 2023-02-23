@@ -143,7 +143,7 @@ class ACSS
             'setup_future_usage' => 'off_session',
             'payment_method_types' => ['acss_debit'],
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number')),
+            'description' => $this->stripe->getDescription(false),
             'metadata' => [
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::ACSS,
@@ -185,7 +185,7 @@ class ACSS
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-            // $this->storePaymentMethod($gateway_response);
+
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 
