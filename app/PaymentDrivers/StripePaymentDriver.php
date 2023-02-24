@@ -155,7 +155,7 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['USA'])
+            && (in_array($this->client->country->iso_3166_3, ['USA']) || ($this->client->gateway_tokens()->where('gateway_type_id', GatewayType::BANK_TRANSFER)->exists()))
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
@@ -841,15 +841,6 @@ class StripePaymentDriver extends BaseDriver
     public function setClientFromCustomer($customer)
     {
         $this->client = ClientGatewayToken::where('gateway_customer_reference', $customer)->client;
-    }
-
-    /**
-     * Pull all client payment methods and update
-     * the respective tokens in the system.
-     */
-    public function updateAllPaymentMethods()
-    {
-        return (new UpdatePaymentMethods($this))->run();
     }
 
     /**
