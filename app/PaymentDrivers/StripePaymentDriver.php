@@ -52,7 +52,6 @@ use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Laracasts\Presenter\Exceptions\PresenterException;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;

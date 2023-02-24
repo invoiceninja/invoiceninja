@@ -124,6 +124,10 @@ class Request extends FormRequest
             $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
         }
 
+        if (array_key_exists('transaction_id', $input) && is_string($input['transaction_id'])) {
+            $input['transaction_id'] = $this->decodePrimaryKey($input['transaction_id']);
+        }
+
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }
