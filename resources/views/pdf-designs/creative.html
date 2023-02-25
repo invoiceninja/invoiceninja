@@ -61,7 +61,13 @@
         border:1px solid #000;
     }
 
-    #entity-details p { margin-top: 5px; }
+    #entity-details {
+        width: 100%;
+    }
+
+    #entity-details p { 
+        margin-top: 5px; 
+    }
 
     .header-wrapper #client-details,
     .header-wrapper #company-details,
@@ -86,7 +92,7 @@
 
     .entity-label-wrapper {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 3fr 1fr;
         margin-top: 1rem;
     }
 
@@ -119,7 +125,7 @@
     }
 
     [data-ref="table"] {
-        margin-bottom: 50px; 
+        margin-bottom: 5px; 
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -364,7 +370,9 @@
                      <span>$entity_label</span>&nbsp;
                      <span>#$entity_number</span>
                   </h1>
-                  <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                    <div class="entity-details-wrapper">
+                        <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                    </div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
