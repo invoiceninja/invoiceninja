@@ -105,7 +105,6 @@
     }
 
     .company-logo {
-/*        max-width: 65%;*/
         max-width: $company_logo_size;
     }
 
@@ -117,6 +116,14 @@
 
     .entity-details-wrapper > * {
         margin-right: 1.5rem;
+        direction: $dir;
+    }
+
+    .entity-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        direction: $dir;
+        justify-content: space-between;
     }
 
     .entity-details-wrapper .entity-property-label {
@@ -137,7 +144,7 @@
 
     [data-ref="table"] {
         margin-top: 1rem;
-        margin-bottom: 50px;
+        margin-bottom: 5px;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -164,6 +171,12 @@
 
     [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="table"] > thead > tr > th:nth-last-child(2) {
+        text-align: right;
+        padding-right: 1rem;
     }
 
     [data-ref="table"] > tbody > tr > td {
@@ -180,7 +193,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
-        margin-right: .75rem;
+        margin-right: 1rem;
         gap: 80px;
         page-break-inside:auto;
         overflow: visible !important;
@@ -234,16 +247,6 @@
     [data-ref="table"] h3 {
         font-size: 1rem;
         margin-bottom: 0;
-    }
-
-    .entity-details-wrapper > * {
-        direction: $dir;
-    }
-
-    .entity-details-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        direction: $dir;
     }
 
     [data-ref="product_table-product.unit_cost-td"] { text-align: right; }
