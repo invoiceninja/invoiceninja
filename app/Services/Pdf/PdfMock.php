@@ -69,6 +69,8 @@ class PdfMock
 
         $html = $pdf_service->getHtml();
 
+        // nlog($html);
+
         return $pdf_service->resolvePdfEngine($html);
     }
 
@@ -130,6 +132,7 @@ class PdfMock
     {
         return ['values' =>
          [
+    
     '$client.shipping_postal_code' => '46420',
     '$client.billing_postal_code' => '11243',
     '$company.city_state_postal' => '90210',
@@ -170,6 +173,7 @@ class PdfMock
     '$contact.first_name' => 'Benedict',
     '$secondary_font_url' => 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$contact.signature' => '',
+    '$company_logo_size' => $this->settings->company_logo_size ?: 55,
     '$product.tax_name1' => '',
     '$product.tax_name2' => '',
     '$product.tax_name3' => '',
@@ -362,11 +366,11 @@ NON
 0029
 EPD
 ',
-    '$client_name' => 'cypress',
-    '$client.name' => 'cypress',
+    '$client_name' => 'A Client Called Bob',
+    '$client.name' => 'A Client Called Bob',
     '$paymentLink' => 'http://ninja.test:8000/client/pay/UAUY8vIPuno72igmXbbpldwo5BDDKIqs',
     '$payment_url' => 'http://ninja.test:8000/client/pay/UAUY8vIPuno72igmXbbpldwo5BDDKIqs',
-    '$page_layout' => 'portrait',
+    '$page_layout' => $this->settings->page_layout,
     '$task.task1' => '',
     '$task.task2' => '',
     '$task.task3' => '',
@@ -387,9 +391,9 @@ EPD
     '$signature' => '&nbsp;',
     '$id_number' => '&nbsp;',
     '$credit_no' => '0029',
-    '$font_size' => '16px',
+    '$font_size' => $this->settings->font_size,
     '$view_link' => '<a class="button" href="http://ninja.test:8000/client/invoice/UAUY8vIPuno72igmXbbpldwo5BDDKIqs">View Invoice</a>',
-    '$page_size' => 'A4',
+    '$page_size' => $this->settings->page_size,
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
     '$user.name' => 'Derrick Monahan DDS Erna Wunsch',
@@ -496,6 +500,7 @@ EPD
     '$contact.first_name_label' => 'First Name',
     '$secondary_font_url_label' => '',
     '$contact.signature_label' => '',
+    '$company_logo_size_label' => '',
     '$product.tax_name1_label' => 'Tax',
     '$product.tax_name2_label' => 'Tax',
     '$product.tax_name3_label' => 'Tax',
