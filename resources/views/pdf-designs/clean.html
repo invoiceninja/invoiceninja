@@ -119,20 +119,14 @@
         padding-right:30px;
     }
 
+    #client-details > :first-child {
+        font-weight: bold;
+    }
+
     #shipping-details {
         display: $show_shipping_address;
         flex-direction: column;
         line-height: var(--line-height);
-    }
-
-    #client-details {
-        display: flex;
-        flex-direction: column;
-        line-height: var(--line-height);
-    }
-
-    #client-details > :first-child {
-        font-weight: bold;
     }
 
     [data-ref="table"] {
@@ -186,8 +180,9 @@
         margin-top: 0rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
-        padding-top: .5rem;
+        padding-top: 0rem;
         padding-right: 1rem;
+        padding-left: 1rem;
         gap: 80px;
         page-break-inside:avoid;
         overflow: visible !important;
