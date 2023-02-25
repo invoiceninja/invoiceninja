@@ -32,6 +32,7 @@ use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+//@deprecated version
 class StubBuilder
 {
     use PageNumbering;

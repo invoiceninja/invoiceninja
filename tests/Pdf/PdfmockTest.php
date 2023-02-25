@@ -40,7 +40,7 @@ class PdfmockTest extends TestCase
     public function testPdfInstance ()
     {
 
-        $entity = (new \App\Services\Pdf\PdfMock())->build();
+        $entity = (new \App\Services\Pdf\PdfMock(Invoice::class))->build();
 
         $this->assertInstanceOf(Invoice::class, $entity);
         $this->assertNotNull($entity->client);
@@ -59,7 +59,7 @@ class PdfmockTest extends TestCase
 
     public function testHtmlGeneration()
     {
-        $pdf_mock = (new PdfMock());
+        $pdf_mock = (new PdfMock(Invoice::class));
         $mock = $pdf_mock->build();
 
         $pdf_service = new PdfService($mock->invitation);

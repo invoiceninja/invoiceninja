@@ -11,40 +11,62 @@
 
 namespace App\Services\Pdf;
 
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\InvoiceInvitation;
 
 class PdfMock
 {
-
-    public function __construct()
-    {
-
-    }
+    
+    public function __construct(public mixed $entity_type)
+    {}
 
     public function build()
     {
 
-        $mock = Invoice::factory()->make();    
-        $mock->client = Client::factory()->make();
-        $mock->tax_map = $this->getTaxMap();
-        $mock->total_tax_map = $this->getTotalTaxMap();
-        $mock->invitation = InvoiceInvitation::factory()->make();
-        $mock->invitation->company = Company::factory()->make();
-        $mock->invitation->company->account = Account::factory()->make();
+        $mock = $this->initEntity();
+
 
         return $mock;
 
     }
 
+    private function initEntity(): mixed
+    {
+        match ($this->entity_type) {
+            Invoice::class => $entity = Invoice::factory()->make(),
+            Quote::class => $entity = Quote::factory()->make(),
+            Credit::class => $entity = Credit::factory()->make(),
+            PurchaseOrder::class => $entity = PurchaseOrder::factory()->make(),
+            default => $entity = Invoice::factory()->make()
+        };
+
+        if($this->entity_type == PurchaseOrder::class){
+            $entity->vendor = Vendor::factory()->make();
+        }
+        else{
+            $entity->client = Client::factory()->make();
+        }
+    
+        $entity->tax_map = $this->getTaxMap();
+        $entity->total_tax_map = $this->getTotalTaxMap();
+        $entity->invitation = InvoiceInvitation::factory()->make();
+        $entity->invitation->company = Company::factory()->make();
+        $entity->invitation->company->account = Account::factory()->make();
+
+        return $entity;
+    
+    }
+
     private function getTaxMap()
     {
-
         return collect( [['name' => 'GST', 'total' => 10]]);
-
     }
 
     private function getTotalTaxMap()
