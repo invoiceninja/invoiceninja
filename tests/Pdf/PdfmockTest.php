@@ -59,7 +59,8 @@ class PdfmockTest extends TestCase
 
     public function testHtmlGeneration()
     {
-        $mock = (new PdfMock())->build();
+        $pdf_mock = (new PdfMock());
+        $mock = $pdf_mock->build();
 
         $pdf_service = new PdfService($mock->invitation);
 
@@ -83,15 +84,16 @@ class PdfmockTest extends TestCase
         $pdf_designer = (new \App\Services\Pdf\PdfDesigner($pdf_service))->build();
         $pdf_service->designer = $pdf_designer;
 
-        $pdf_service->html_variables = $this->getStubVariables();
+        $pdf_service->html_variables = $pdf_mock->getStubVariables();
 
         $pdf_builder = (new PdfBuilder($pdf_service))->build();
         $pdf_service->builder = $pdf_builder;
         $this->assertNotNull($pdf_config);
+
+        $html = $pdf_service->getHtml();
+
+        nlog($html);
+        $this->assertNotNull($html);
     }
 
-    private function getStubVariables()
-    {
-        return ['values' => [], 'labels' => []];
-    }
 }
