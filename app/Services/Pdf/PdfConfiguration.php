@@ -12,13 +12,18 @@
 namespace App\Services\Pdf;
 
 use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Vendor;
 use App\Models\Country;
+use App\Models\Invoice;
 use App\Models\Currency;
 use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
+use App\Utils\Traits\AppSetup;
 use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
 use App\Models\CreditInvitation;
@@ -28,7 +33,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Utils\Traits\AppSetup;
+use Illuminate\Support\Collection;
 
 class PdfConfiguration
 {
@@ -46,7 +51,7 @@ class PdfConfiguration
     
     public Design $design;
     
-    public $entity;
+    public Invoice | Credit | Quote | PurchaseOrder $entity;
     
     public string $entity_design_id;
     
@@ -68,6 +73,9 @@ class PdfConfiguration
 
     public string $locale;
     
+    public Collection $tax_map;
+
+    public ?array $total_tax_map;
     /**
      * __construct
      *
@@ -219,11 +227,28 @@ class PdfConfiguration
             throw new \Exception('Unable to resolve entity', 500);
         }
 
+        $this->setTaxMap($this->entity->calc()->getTaxMap());
+        $this->setTotalTaxMap($this->entity->calc()->getTotalTaxMap());
+
         $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
 
         return $this;
     }
     
+    public function setTaxMap($map): self
+    {
+        $this->tax_map = $map;
+
+        return $this;
+    }
+
+    public function setTotalTaxMap($map): self
+    {
+        $this->total_tax_map = $map;
+
+        return $this;
+    }
+
     public function setCurrency(Currency $currency): self
     {
         $this->currency = $currency;
