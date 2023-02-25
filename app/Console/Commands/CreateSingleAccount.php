@@ -114,11 +114,32 @@ class CreateSingleAccount extends Command
             'portal_domain' => 'http://ninja.test:8000',
             'track_inventory' => true
         ]);
+        $faker = \Faker\Factory::create();
 
         $settings = $company->settings;
         $settings->invoice_terms = 'Default company invoice terms';
         $settings->quote_terms = 'Default company quote terms';
         $settings->invoice_footer = 'Default invoice footer';
+
+        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->name = $faker->name();
+        $settings->email = $faker->safeEmail();
+        $settings->phone = $faker->phoneNumber();
+        $settings->website = $faker->url();
+
+        $settings->address1 = $faker->streetName();
+        $settings->address2 = $faker->streetAddress();
+        $settings->city = $faker->city();
+        $settings->state = $faker->state();
+        $settings->postal_code = $faker->postcode();
+
+        $settings->country_id = '840';
+        $settings->vat_number = 'vat number';
+        $settings->id_number = 'id number';
+        $settings->use_credits_payment = 'always';
+        $settings->timezone_id = '1';
+        $settings->entity_send_time = 0;
+        $settings->name = $faker->name();
 
         $company->settings = $settings;
         $company->client_registration_fields = ClientRegistrationFields::generate();
