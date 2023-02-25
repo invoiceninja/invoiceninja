@@ -79,7 +79,7 @@ class PdfService
     {
         try {
 
-            $pdf = $this->resolvePdfEngine();
+            $pdf = $this->resolvePdfEngine($this->getHtml());
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
@@ -140,15 +140,15 @@ class PdfService
      *
      * @return mixed
      */
-    private function resolvePdfEngine(): mixed
+    public function resolvePdfEngine(string $html): mixed
     {
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            $pdf = (new Phantom)->convertHtmlToPdf($this->getHtml());
+            $pdf = (new Phantom)->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-            $pdf = (new NinjaPdf())->build($this->getHtml());
+            $pdf = (new NinjaPdf())->build($html);
         } else {
-            $pdf = $this->makePdf(null, null, $this->getHtml());
+            $pdf = $this->makePdf(null, null, $html);
         }
 
         return $pdf;

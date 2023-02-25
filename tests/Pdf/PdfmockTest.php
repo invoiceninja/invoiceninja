@@ -92,7 +92,6 @@ class PdfmockTest extends TestCase
 
         $html = $pdf_service->getHtml();
 
-        nlog($html);
         $this->assertNotNull($html);
     }
 

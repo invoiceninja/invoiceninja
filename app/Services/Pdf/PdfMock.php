@@ -14,26 +14,69 @@ namespace App\Services\Pdf;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Design;
 use App\Models\Vendor;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
+use App\Models\Currency;
 use App\Models\PurchaseOrder;
+use App\Services\Pdf\PdfBuilder;
+use App\Services\Pdf\PdfService;
 use App\Models\InvoiceInvitation;
+use App\Services\Pdf\PdfDesigner;
+use App\Services\Pdf\PdfConfiguration;
 
 class PdfMock
 {
-    
+    private mixed $mock;
+
+
     public function __construct(public mixed $entity_type)
     {}
 
-    public function build()
+    public function getPdf(): mixed
     {
 
-        $mock = $this->initEntity();
+        $pdf_service = new PdfService($this->mock->invitation);
 
+        $pdf_config = (new PdfConfiguration($pdf_service));
+        $pdf_config->entity = $this->mock;
+        $pdf_config->setTaxMap($this->mock->tax_map);
+        $pdf_config->setTotalTaxMap($this->mock->total_tax_map);
+        $pdf_config->setCurrency(Currency::find(1));
+        $pdf_config->setCountry(Country::find(840));
+        $pdf_config->client = $this->mock->client;
+        $pdf_config->entity_design_id = 'invoice_design_id';
+        $pdf_config->settings_object = $this->mock->client;
+        $pdf_config->entity_string = 'invoice';
+        $pdf_config->settings = (object)$pdf_config->service->company->settings;
+        $pdf_config->setPdfVariables();
+        $pdf_config->design = Design::find(2);
+        $pdf_config->currency_entity = $this->mock->client;
+        
+        $pdf_service->config = $pdf_config;
 
-        return $mock;
+        $pdf_designer = (new PdfDesigner($pdf_service))->build();
+        $pdf_service->designer = $pdf_designer;
+
+        $pdf_service->html_variables = $this->getStubVariables();
+
+        $pdf_builder = (new PdfBuilder($pdf_service))->build();
+        $pdf_service->builder = $pdf_builder;
+
+        $html = $pdf_service->getHtml();
+
+        return $pdf_service->resolvePdfEngine($html);
+    }
+
+    public function build(): self
+    {
+
+        $this->mock = $this->initEntity();
+
+        return $this;
 
     }
 

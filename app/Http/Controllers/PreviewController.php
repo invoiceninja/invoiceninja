@@ -32,6 +32,7 @@ use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
+use App\Services\Pdf\PdfMock;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
@@ -182,13 +183,7 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
 
-        $stub = new StubBuilder(auth()->user()->company(), auth()->user());
-        $stub->setEntityType($request->entity_type)
-             ->setSettings($request->settings)
-             ->setSettingsType($request->settings_type)
-             ->build();
-
-        $pdf = $stub->getPdf();
+        $pdf = (new PdfMock(Invoice::class))->build()->getPdf();
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
