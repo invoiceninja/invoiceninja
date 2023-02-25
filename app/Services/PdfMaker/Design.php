@@ -175,10 +175,6 @@ class Design extends BaseDesign
                     $this->sharedFooterElements(),
                 ],
             ],
-            // 'swiss-qr' => [
-            //     'id' => 'swiss-qr',
-            //     'elements' => $this->swissQrCodeElement(),
-            // ]
         ];
     }
 

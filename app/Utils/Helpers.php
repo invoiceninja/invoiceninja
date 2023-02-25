@@ -105,7 +105,7 @@ class Helpers
      * Process reserved keywords on PDF.
      *
      * @param string $value
-     * @param Client|Company $entity
+     * @param Client|Company|Vendor $entity
      * @param null|Carbon $currentDateTime
      * @return null|string
      */

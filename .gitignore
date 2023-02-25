@@ -19,6 +19,7 @@ yarn-error.log
 local_version.txt
 .env
 .phpunit.result.cache
+_ide_helper.php
 
 /resources/assets/bower
 /public/logo
