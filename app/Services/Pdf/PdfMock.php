@@ -12,7 +12,10 @@
 namespace App\Services\Pdf;
 
 use App\Models\Client;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 
 class PdfMock
 {
@@ -27,10 +30,25 @@ class PdfMock
 
         $mock = Invoice::factory()->make();    
         $mock->client = Client::factory()->make();
+        $mock->tax_map = $this->getTaxMap();
+        $mock->total_tax_map = $this->getTotalTaxMap();
+        $mock->invitation = InvoiceInvitation::factory()->make();
+        $mock->invitation->company = Company::factory()->make();
+        $mock->invitation->company->account = Account::factory()->make();
 
-        nlog($mock);
         return $mock;
 
     }
 
+    private function getTaxMap()
+    {
+
+        return collect( ['name' => 'GST', 'total' => 10]);
+
+    }
+
+    private function getTotalTaxMap()
+    {
+        return [['name' => 'GST', 'total' => 10]];
+    }
 }
