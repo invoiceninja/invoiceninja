@@ -44,13 +44,14 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         line-height: var(--line-height);
+        margin-bottom:10px;
     }
 
     .client-wrapper{
         display: grid;
         gap: 10px;
-        grid-template-columns: auto auto;
-        grid-template-areas: "a b";
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas: "a b c ";
         grid-auto-columns: minmax(0, 1fr);
         grid-auto-flow: column;
         justify-content:left;
@@ -66,16 +67,15 @@
         line-height: var(--line-height);
     }
 
-    .header-wrapper #entity-details {
-        margin-top: 0.5rem;
+     #entity-details {
         text-align: left;
         width: 100%;
     }
 
-    .header-wrapper #entity-details>tr,
-    .header-wrapper #entity-details th {
+    #entity-details>tr,
+    #entity-details th {
         font-weight: normal;
-        padding-left: 0.9rem;
+        padding-left: 0rem;
         padding-top: 0.3rem;
         padding-bottom: 0.3rem;
     }
@@ -93,7 +93,7 @@
     }
 
     #shipping-details {
-        display: $show_shipping_address;
+        visibility: $show_shipping_address_visibility;
         flex-direction: column;
         line-height: var(--line-height);
         white-space: nowrap;
@@ -104,7 +104,7 @@
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-bottom: 50px;
+        margin-bottom: 5px;
     }
 
     .task-time-details {
@@ -140,7 +140,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
-        padding-left: 1rem;
+        padding-left: .5rem;
         margin-right: .75rem;
         gap: 80px;
         page-break-inside: auto;
@@ -166,7 +166,7 @@
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
-        padding-right: 7px;
+        padding-right: 0px;
     }
 
     #table-totals>* [data-element='total-table-balance-due-label'],
@@ -331,13 +331,16 @@
                         <div id="company-address"></div>
                         <div>
                             <img class="company-logo" src="$company.logo" alt="$company.name logo" />
-                            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                             
                         </div>
                     </div>
                     <div class="client-wrapper">
                         <div id="client-details"></div>
                         <div id="vendor-details"></div>
                         <div id="shipping-details"></div>
+                        <div>
+                            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                        </div>
                     </div>
                     <table id="product-table" cellspacing="0" data-ref="table"></table>
                     <table id="task-table" cellspacing="0" data-ref="table"></table>

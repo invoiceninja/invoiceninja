@@ -69,7 +69,7 @@ class PdfMock
 
         $html = $pdf_service->getHtml();
 
-        // nlog($html);
+        nlog($html);
 
         return $pdf_service->resolvePdfEngine($html);
     }
@@ -135,8 +135,9 @@ class PdfMock
     
     '$client.shipping_postal_code' => '46420',
     '$client.billing_postal_code' => '11243',
-    '$company.city_state_postal' => '90210',
+    '$company.city_state_postal' => 'Beveley Hills, CA, 90210',
     '$company.postal_city_state' => 'CA',
+    '$company.postal_city' => '90210, CA',
     '$product.gross_line_total' => '100',
     '$client.postal_city_state' => '11243 Aufderharchester, North Carolina',
     '$client.postal_city' => '11243 Aufderharchester, North Carolina',
@@ -200,7 +201,7 @@ class PdfMock
     '$statement_amount' => '',
     '$task.description' => '',
     '$product.discount' => '',
-    '$entity_issued_to' => '',
+    '$entity_issued_to' => 'Bob JOnes',
     '$assigned_to_user' => '',
     '$product.quantity' => '',
     '$total_tax_labels' => '',
@@ -285,7 +286,7 @@ class PdfMock
     '$quote.custom3' => '&nbsp;',
     '$quote.custom4' => '&nbsp;',
     '$company.email' => $this->settings->email,
-    '$client.number' => '&nbsp;',
+    '$client.number' => '12345',
     '$company.phone' => $this->settings->phone,
     '$company.state' => $this->settings->state,
     '$credit.number' => '0029',
@@ -298,9 +299,9 @@ class PdfMock
     '$entity_footer' => 'Default invoice footer',
     '$client.lang_2' => 'en',
     '$product.date' => '',
-    '$client.email' => '',
+    '$client.email' => 'client@gmail.com',
     '$product.item' => '',
-    '$public_notes' => '',
+    '$public_notes' => 'These are very public notes',
     '$task.service' => '',
     '$credit.total' => '$0.00',
     '$net_subtotal' => '$0.00',
@@ -308,7 +309,7 @@ class PdfMock
     '$quote.amount' => '$0.00',
     '$company.city' => $this->settings->city,
     '$payment.date' => '&nbsp;',
-    '$client.phone' => '&nbsp;',
+    '$client.phone' => '555-123-3212',
     '$number_short' => '0029',
     '$quote.number' => '0029',
     '$invoice.date' => '25/Feb/2023',
@@ -438,7 +439,7 @@ EPD
     '$number' => '0029',
     '$footer' => 'Default invoice footer',
     '$client' => 'cypress',
-    '$email' => '',
+    '$email' => 'email@invoiceninja.net',
     '$notes' => '',
     '_rate1' => '',
     '_rate2' => '',
@@ -447,12 +448,12 @@ EPD
     '$total' => '$0.00',
     '$phone' => '&nbsp;',
     '$terms' => 'Default company invoice terms',
-    '$from' => '',
+    '$from' => 'Bob Jones',
     '$item' => '',
     '$date' => '25/Feb/2023',
     '$tax' => '',
     '$dir' => 'ltr',
-    '$to' => '',
+    '$to' => 'Jimmy Giggles',
     '$show_paid_stamp' => $this->settings->show_paid_stamp ? 'flex' : 'none',
     '$status_logo' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>',
     '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
@@ -465,6 +466,7 @@ EPD
     '$client.billing_postal_code_label' => 'Postal Code',
     '$company.city_state_postal_label' => 'City/State/Postal',
     '$company.postal_city_state_label' => 'Postal/City/State',
+    '$company.postal_city_label' => 'Postal/City',
     '$product.gross_line_total_label' => 'Gross line total',
     '$client.postal_city_state_label' => 'Postal/City/State',
     '$client.postal_city_label' => 'Postal/City',
