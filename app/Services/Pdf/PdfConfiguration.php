@@ -11,29 +11,29 @@
 
 namespace App\Services\Pdf;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Models\Vendor;
-use App\Models\Country;
-use App\Models\Invoice;
-use App\Models\Currency;
-use App\Models\ClientContact;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Utils\Traits\AppSetup;
-use App\Models\QuoteInvitation;
-use App\Utils\Traits\MakesHash;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
 use App\DataMapper\CompanySettings;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Country;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
+use App\Models\Currency;
+use App\Models\Design;
+use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\RecurringInvoiceInvitation;
-use Illuminate\Support\Collection;
 
 class PdfConfiguration
 {
@@ -317,7 +317,6 @@ class PdfConfiguration
         } elseif ($this->settings->show_currency_code === false) {
             return "{$symbol}{$value}";
         } else {
-
             $value = floatval($value);
             $thousand = $this->currency->thousand_separator;
             $decimal = $this->currency->decimal_separator;
@@ -325,7 +324,6 @@ class PdfConfiguration
 
             return number_format($value, $precision, $decimal, $thousand);
         }
-
     }
     
     /**
@@ -342,11 +340,9 @@ class PdfConfiguration
         }
 
         $this->date_format = $date_formats->filter(function ($item) {
-                                return $item->id == $this->settings->date_format_id;
-                             })->first()->format;
+            return $item->id == $this->settings->date_format_id;
+        })->first()->format;
 
         return $this;
     }
-
-
 }

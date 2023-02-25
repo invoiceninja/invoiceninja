@@ -13,18 +13,17 @@ namespace App\Services\Pdf;
 
 use App\Models\Account;
 use App\Models\Company;
-use App\Utils\HtmlEngine;
-use App\Models\QuoteInvitation;
-use App\Utils\VendorHtmlEngine;
 use App\Models\CreditInvitation;
-use App\Utils\PhantomJS\Phantom;
 use App\Models\InvoiceInvitation;
-use App\Services\Pdf\PdfDesigner;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\Traits\Pdf\PdfMaker;
 use App\Models\PurchaseOrderInvitation;
-use App\Utils\Traits\Pdf\PageNumbering;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\Pdf\PageNumbering;
+use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
 
 class PdfService
 {
@@ -33,8 +32,6 @@ class PdfService
     public InvoiceInvitation | QuoteInvitation | CreditInvitation | RecurringInvoiceInvitation | PurchaseOrderInvitation $invitation;
 
     public Company $company;
-
-    public Account $account;
 
     public PdfConfiguration $config;
 
@@ -59,12 +56,9 @@ class PdfService
 
         $this->company = $invitation->company;
 
-        $this->account = $this->company->account;
-
         $this->document_type = $document_type;
 
         $this->options = $options;
-
     }
 
     /**
@@ -78,7 +72,6 @@ class PdfService
     public function getPdf()
     {
         try {
-
             $pdf = $this->resolvePdfEngine($this->getHtml());
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
@@ -86,7 +79,6 @@ class PdfService
             if ($numbered_pdf) {
                 $pdf = $numbered_pdf;
             }
-
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
             throw new \Exception($e->getMessage(), $e->getCode());
@@ -119,7 +111,6 @@ class PdfService
      */
     public function init(): self
     {
-
         $this->config = (new PdfConfiguration($this))->init();
 
 
@@ -132,7 +123,6 @@ class PdfService
         $this->builder = (new PdfBuilder($this))->build();
 
         return $this;
-        
     }
 
     /**
@@ -142,7 +132,6 @@ class PdfService
      */
     public function resolvePdfEngine(string $html): mixed
     {
-
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom)->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
@@ -153,5 +142,4 @@ class PdfService
 
         return $pdf;
     }
-
 }

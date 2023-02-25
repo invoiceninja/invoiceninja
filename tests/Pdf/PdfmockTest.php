@@ -12,15 +12,17 @@
 
 namespace Tests\Pdf;
 
+use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 use App\Models\Design;
+use App\Models\Company;
 use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Currency;
-use App\Services\Pdf\PdfBuilder;
 use Tests\MockAccountData;
 use App\Services\Pdf\PdfMock;
 use Beganovich\Snappdf\Snappdf;
+use App\Services\Pdf\PdfBuilder;
 use App\Services\Pdf\PdfService;
 use App\Services\Pdf\PdfConfiguration;
 
@@ -39,12 +41,16 @@ class PdfmockTest extends TestCase
 
     public function testPdfInstance ()
     {
+        $data = [
+            'settings' => CompanySettings::defaults(),
+            'settings_type' => 'company',
+            'entity_type' => 'invoice',
+        ];
 
-        $entity = (new \App\Services\Pdf\PdfMock(Invoice::class))->build();
+        $entity = (new \App\Services\Pdf\PdfMock($data, Company::factory()->make()))->build()->initEntity();
 
         $this->assertInstanceOf(Invoice::class, $entity);
         $this->assertNotNull($entity->client);
-
 
         $pdf_service = new PdfService($entity->invitation);
 
@@ -59,8 +65,14 @@ class PdfmockTest extends TestCase
 
     public function testHtmlGeneration()
     {
-        $pdf_mock = (new PdfMock(Invoice::class));
-        $mock = $pdf_mock->build();
+        $data = [
+            'settings' => CompanySettings::defaults(),
+            'settings_type' => 'company',
+            'entity_type' => 'invoice',
+        ];
+
+        $pdf_mock = (new PdfMock($data, Company::factory()->make()))->build();
+        $mock = $pdf_mock->initEntity();
 
         $pdf_service = new PdfService($mock->invitation);
 
@@ -74,7 +86,8 @@ class PdfmockTest extends TestCase
         $pdf_config->entity_design_id = 'invoice_design_id';
         $pdf_config->settings_object = $mock->client;
         $pdf_config->entity_string = 'invoice';
-        $pdf_config->settings = (object)$pdf_config->service->company->settings;
+        $pdf_config->settings = $pdf_mock->getMergedSettings();
+        $pdf_mock->settings = $pdf_config->settings;
         $pdf_config->setPdfVariables();
         $pdf_config->design = Design::find(2);
         $pdf_config->currency_entity = $mock->client;

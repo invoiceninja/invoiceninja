@@ -11,22 +11,18 @@
 
 namespace App\Services\Pdf;
 
-use App\Models\Quote;
+use App\DataMapper\ClientSettings;
 use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Design;
-use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
-use App\Models\Invoice;
+use App\Models\Credit;
 use App\Models\Currency;
-use App\Models\PurchaseOrder;
-use App\Services\Pdf\PdfBuilder;
-use App\Services\Pdf\PdfService;
+use App\Models\Design;
+use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
-use App\Services\Pdf\PdfDesigner;
-use App\DataMapper\ClientSettings;
-use App\Services\Pdf\PdfConfiguration;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 
 class PdfMock
@@ -35,14 +31,14 @@ class PdfMock
 
     private mixed $mock;
 
-    private object $settings;
+    public object $settings;
 
     public function __construct(public array $request, public Company $company)
-    {}
+    {
+    }
 
     public function getPdf(): mixed
     {
-
         $pdf_service = new PdfService($this->mock->invitation);
 
         $pdf_config = (new PdfConfiguration($pdf_service));
@@ -50,14 +46,14 @@ class PdfMock
         $pdf_config->entity_string = $this->request['entity_type'];
         $pdf_config->setTaxMap($this->mock->tax_map);
         $pdf_config->setTotalTaxMap($this->mock->total_tax_map);
-        $pdf_config->setCurrency(Currency::find(1));
-        $pdf_config->setCountry(Country::find(840));
         $pdf_config->client = $this->mock->client;
         $pdf_config->settings_object = $this->mock->client;
         $pdf_config->settings = $this->getMergedSettings();
         $this->settings = $pdf_config->settings;
         $pdf_config->entity_design_id = $pdf_config->settings->{"{$pdf_config->entity_string}_design_id"};
         $pdf_config->setPdfVariables();
+        $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
+        $pdf_config->setCountry(Country::find($this->settings->country_id));
         $pdf_config->design = Design::find($this->decodePrimaryKey($pdf_config->entity_design_id));
         $pdf_config->currency_entity = $this->mock->client;
         
@@ -72,20 +68,18 @@ class PdfMock
         $pdf_service->builder = $pdf_builder;
 
         $html = $pdf_service->getHtml();
-nlog($html);
+
         return $pdf_service->resolvePdfEngine($html);
     }
 
     public function build(): self
     {
-
         $this->mock = $this->initEntity();
 
         return $this;
-
     }
 
-    private function initEntity(): mixed
+    public function initEntity(): mixed
     {
         match ($this->request['entity_type']) {
             'invoice' => $entity = Invoice::factory()->make(),
@@ -95,10 +89,9 @@ nlog($html);
             default => $entity = Invoice::factory()->make()
         };
 
-        if($this->request['entity_type'] == PurchaseOrder::class){
+        if ($this->request['entity_type'] == PurchaseOrder::class) {
             $entity->vendor = Vendor::factory()->make();
-        }
-        else{
+        } else {
             $entity->client = Client::factory()->make();
         }
     
@@ -106,22 +99,18 @@ nlog($html);
         $entity->total_tax_map = $this->getTotalTaxMap();
         $entity->invitation = InvoiceInvitation::factory()->make();
         $entity->invitation->company = $this->company;
-        // $entity->invitation->company->account = $this->company->account;
 
         return $entity;
-    
     }
 
     public function getMergedSettings() :object
     {
-        match($this->request['settings_type']){
+        match ($this->request['settings_type']) {
             'group' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'client' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'company' => $settings = (object)$this->request['settings'],
             default => $settings = $this->company->settings,
         };
-
-        nlog($settings);
 
         return $settings;
     }
@@ -129,7 +118,7 @@ nlog($html);
 
     private function getTaxMap()
     {
-        return collect( [['name' => 'GST', 'total' => 10]]);
+        return collect([['name' => 'GST', 'total' => 10]]);
     }
 
     private function getTotalTaxMap()
@@ -139,8 +128,8 @@ nlog($html);
 
     public function getStubVariables()
     {
-       return ['values' => 
-        [
+        return ['values' =>
+         [
     '$client.shipping_postal_code' => '46420',
     '$client.billing_postal_code' => '11243',
     '$company.city_state_postal' => '90210',
@@ -222,10 +211,10 @@ nlog($html);
     '$company.address1' => $this->settings->address1,
     '$credit.credit_no' => '0029',
     '$invoice.datetime' => '25/Feb/2023 1:10 am',
-    '$contact.custom1' => NULL,
-    '$contact.custom2' => NULL,
-    '$contact.custom3' => NULL,
-    '$contact.custom4' => NULL,
+    '$contact.custom1' => null,
+    '$contact.custom2' => null,
+    '$contact.custom3' => null,
+    '$contact.custom4' => null,
     '$task.line_total' => '',
     '$line_tax_labels' => '',
     '$line_tax_values' => '',
@@ -324,7 +313,7 @@ nlog($html);
     '$contact.name' => 'Benedict Eichmann',
     '$entity.terms' => 'Default company invoice terms',
     '$client.state' => 'North Carolina',
-    '$company.logo' => $this->settings->company_logo, 
+    '$company.logo' => $this->settings->company_logo,
     '$company_logo' => $this->settings->company_logo,
     '$payment_link' => 'http://ninja.test:8000/client/pay/UAUY8vIPuno72igmXbbpldwo5BDDKIqs',
     '$status_logo' => '',
@@ -465,7 +454,7 @@ EPD
     '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
     '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
   ],
-  'labels' => 
+  'labels' =>
   [
     '$client.shipping_postal_code_label' => 'Shipping Postal Code',
     '$client.billing_postal_code_label' => 'Postal Code',
