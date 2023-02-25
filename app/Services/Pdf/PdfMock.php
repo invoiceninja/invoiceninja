@@ -147,7 +147,7 @@ class PdfMock
     '$company.postal_city_state' => 'CA',
     '$product.gross_line_total' => '100',
     '$client.postal_city_state' => '11243 Aufderharchester, North Carolina',
-    '$client.postal_city' => '11243 Aufderharchester',
+    '$client.postal_city' => '11243 Aufderharchester, North Carolina',
     '$client.shipping_address1' => '453',
     '$client.shipping_address2' => '66327 Waters Trail',
     '$client.city_state_postal' => 'Aufderharchester, North Carolina 11243',
@@ -459,6 +459,11 @@ EPD
     '$tax' => '',
     '$dir' => 'ltr',
     '$to' => '',
+    '$show_paid_stamp' => $this->settings->show_paid_stamp ? 'flex' : 'none',
+    '$status_logo' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>',
+    '$show_shipping_address' => $this->settings->show_shipping_address ? 'flex' : 'none',
+    '$show_shipping_address_block' => $this->settings->show_shipping_address ? 'block' : 'none',
+    '$show_shipping_address_visibility' => $this->settings->show_shipping_address ? 'visible' : 'hidden',
   ],
   'labels' => 
   [
@@ -746,6 +751,11 @@ EPD
     '$tax_label' => 'Tax',
     '$dir_label' => '',
     '$to_label' => 'To',
+    '$show_paid_stamp_label' => '',
+    '$status_logo_label' => '',
+    '$show_shipping_address_label' => '',
+    '$show_shipping_address_block_label' => '',
+    '$show_shipping_address_visibility_label' => '',
   ],
 ];
     }
