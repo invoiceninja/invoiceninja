@@ -72,7 +72,7 @@ class PdfMock
         $pdf_service->builder = $pdf_builder;
 
         $html = $pdf_service->getHtml();
-
+nlog($html);
         return $pdf_service->resolvePdfEngine($html);
     }
 
