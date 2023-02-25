@@ -148,7 +148,7 @@ class HtmlEngine
         $data['$payment_button'] = ['value' => $this->buildViewButton($this->invitation->getPaymentLink(), ctrans('texts.pay_now')), 'label' => ctrans('texts.pay_now')];
         $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
         $data['$payment_qrcode'] = ['value' => $this->invitation->getPaymentQrCode(), 'label' => ctrans('texts.pay_now')];
-
+        $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: '&nbsp;', 'label' => ctrans('texts.exchange_rate')];
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
