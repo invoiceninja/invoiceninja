@@ -1048,6 +1048,10 @@ class PdfBuilder
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
             ],
+            'shipping-details' => [
+                'id' => 'shipping-details',
+                'elements' => $this->shippingDetails(),
+            ],
         ]);
 
         return $this;
@@ -1286,6 +1290,31 @@ class PdfBuilder
 
         return $elements;
     }
+
+    public function shippingDetails(): array
+    {
+        $elements = [];
+
+        if (!$this->service->config->client) {
+            return $elements;
+        }
+
+        $elements = [
+            ['element' => 'p', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
+            ['element' => 'p', 'content' => $this->service->config->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.name']],
+            ['element' => 'p', 'content' => $this->service->config->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
+            ['element' => 'p', 'content' => $this->service->config->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
+            ['element' => 'p', 'show_empty' => false, 'elements' => [
+                ['element' => 'span', 'content' => "{$this->service->config->client->shipping_city} ", 'properties' => ['ref' => 'shipping_address-client.shipping_city']],
+                ['element' => 'span', 'content' => "{$this->service->config->client->shipping_state} ", 'properties' => ['ref' => 'shipping_address-client.shipping_state']],
+                ['element' => 'span', 'content' => "{$this->service->config->client->shipping_postal_code} ", 'properties' => ['ref' => 'shipping_address-client.shipping_postal_code']],
+            ]],
+            ['element' => 'p', 'content' => optional($this->service->config->client->shipping_country)->name, 'show_empty' => false],
+        ];
+
+        return $elements;
+    }
+
 
     /**
      * Generates the delivery note table
