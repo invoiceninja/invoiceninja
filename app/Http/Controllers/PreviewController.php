@@ -183,7 +183,7 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
 
-        $pdf = (new PdfMock(Invoice::class))->build()->getPdf();
+        $pdf = (new PdfMock($request->all(), auth()->user()->company()))->build()->getPdf();
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
