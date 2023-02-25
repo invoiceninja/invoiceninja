@@ -142,7 +142,7 @@ class PdfConfiguration
      *
      * @return self
      */
-    private function setPdfVariables() :self
+    public function setPdfVariables() :self
     {
         $default = (array) CompanySettings::getEntityVariableDefaults();
 

@@ -561,9 +561,9 @@ class PdfBuilder
             $data[$key][$table_type.".{$_table_type}4"] = strlen($item->custom_value4) >= 1 ? $helpers->formatCustomFieldValue($this->service->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->service->config->currency_entity) : '';
 
             if ($item->quantity > 0 || $item->cost > 0) {
-                $data[$key][$table_type.'.quantity'] = Number::formatValueNoTrailingZeroes($item->quantity, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.quantity'] = $this->service->config->formatMoney($item->quantity);
 
-                $data[$key][$table_type.'.unit_cost'] = Number::formatMoneyNoRounding($item->cost, $this->service->config->currency_entity);
+                $data[$key][$table_type.'.unit_cost'] = $this->service->config->formatMoney($item->cost);
 
                 $data[$key][$table_type.'.cost'] = $this->service->config->formatMoney($item->cost);
 

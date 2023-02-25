@@ -43,7 +43,7 @@ class PdfMock
     private function getTaxMap()
     {
 
-        return collect( ['name' => 'GST', 'total' => 10]);
+        return collect( [['name' => 'GST', 'total' => 10]]);
 
     }
 
