@@ -22,7 +22,7 @@
     
     html {
         margin: 0;
-        padding-top: 0rem;
+        padding-top: 1rem;
         padding-left: 4rem;
 	    padding-right: 4rem; 
     }
@@ -39,8 +39,13 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1fr 0.5fr;
-        line-height: var(--line-height);
+        margin-top: 2rem;
+        gap: 20px;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: left;
     }
 
     .header-wrapper2 {
@@ -59,6 +64,15 @@
         max-width: $company_logo_size;
     }
 
+    .logo-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .company-container {
+        display: flex;
+        flex-direction: column;
+    }
     .client-and-entity-wrapper {
         display: flex;
         padding: 1rem;
@@ -369,13 +383,11 @@
          <td>
             <div id="">
                 <div class="header-wrapper">
-                    <div>
+                    <div class="logo-container">
                         <img class="company-logo" src="$company.logo" alt="$company.name logo">
                     </div>
-                    <div style="float:right; width:100%;">
                     <div id="company-details"></div>
-                    <div id="company-address" style="margin-top:10px;"></div>
-                    </div>
+                    <div id="company-address"></div>
                 </div>
                 <div class="header-wrapper2">
                     <div id="client-details"></div>
