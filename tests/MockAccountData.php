@@ -250,8 +250,7 @@ trait MockAccountData
         $settings->use_credits_payment = 'always';
         $settings->timezone_id = '1';
         $settings->entity_send_time = 0;
-        $settings->name = $this->faker->name();
-        
+
         $this->company->track_inventory = true;
         $this->company->settings = $settings;
         $this->company->save();
@@ -844,27 +843,5 @@ trait MockAccountData
         $line_items[] = $item;
 
         return $line_items;
-    }
-
-    private function transformCompanyFakerData($settings)
-    {
-        $settings->name = $this->faker->name();
-        $settings->email = $this->faker->safeEmail();
-        $settings->phone = $this->faker->phoneNumber();
-        $settings->website = $this->faker->url();
-
-        $settings->address1 = $this->faker->streetName();
-        $settings->address2 = $this->faker->streetAddress();
-        $settings->city = $this->faker->city();
-        $settings->state = $this->faker->state();
-        $settings->postal_code = $this->faker->postcode();
-
-        $settings->country_id = '840';
-        $settings->vat_number = 'vat number 123';
-        $settings->id_number = 'id number 123';
-        $settings->use_credits_payment = 'always';
-        $settings->timezone_id = '1';
-
-        return $settings;
     }
 }
