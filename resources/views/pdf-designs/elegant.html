@@ -56,13 +56,14 @@
         margin-top: 1rem;
         gap: 20px;
         margin-left: 0px;
-        line-height: var(--line-height);
+        line-height: var(--line-height) !important;
     }
 
     #entity-details p { 
         margin-right: 0px;
-        margin-top: 5px; 
+        margin-top: 0px; 
         white-space: nowrap;
+        line-height: var(--line-height) !important;
     }
     
     .client-entity-wrapper .wrapper-info-text {
@@ -94,14 +95,12 @@
     .client-entity-wrapper .wrapper-left-side #company-address {
         display: flex;
         flex-direction: column;
-        margin-top: 0.5rem;
         margin-right: 5px;
     }
 
     .client-entity-wrapper .wrapper-left-side #shipping-details {
         display: $show_shipping_address;
         flex-direction: column;
-        margin-top: 0.5rem;
         margin-right: 5px;
     }
 
@@ -112,14 +111,15 @@
 
     .client-entity-wrapper #entity-details {
         text-align: left;
-        margin-top: 0.5rem;
         min-width: 100%;
+        line-height: var(--line-height) !important;
     }
 
     .client-entity-wrapper #entity-details > tr,
     .client-entity-wrapper #entity-details th {
         font-weight: normal;
         padding-right:8px;
+        line-height: var(--line-height) !important;
     }
 
     [data-ref="table"] {
@@ -380,7 +380,7 @@
                      </div>
                     <div class="wrapper-right-side">
                         <h2 class="wrapper-info-text">$details_label</h2>
-                        <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                        <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
                     </div>
                 </div>
                </div>
