@@ -126,17 +126,13 @@ class BankTransfer
 
             /*  Create a pending payment */
             if($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
-
-                $data = [
-                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
-                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'description' => $pi->description,
-                    'gateway'   => $this->stripe->company_gateway,
-
-                ];
+nlog($pi);
+                match($pi->next_action->display_bank_transfer_instructions->currency){
+                    'mxn' => $data = $this->formatDataforMx($pi),
+                    'gbp' => $data = $this->formatDataforUk($pi),
+                    'eur' => $data = $this->formatDataforEur($pi),
+                    'jpy' => $data = $this->formatDataforJp($pi),
+                };
                 
                 return render('gateways.stripe.bank_transfer.bank_details', $data);
 
@@ -169,6 +165,86 @@ class BankTransfer
         }
 
     }
+
+    private function formatDataForUk(PaymentIntent $pi): array
+    {
+
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+
+                ];
+
+    }
+
+    private function formatDataforMx(PaymentIntent $pi): array
+    {
+
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_code,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->clabe,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+
+                ];
+
+
+    }
+
+    private function formatDataforEur(PaymentIntent $pi): array
+    {
+
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+
+                ];
+
+
+    }
+
+    /**
+     *
+     * @param PaymentIntent $pi
+     * @return array
+     */
+    private function formatDataforJp(PaymentIntent $pi): array
+    {
+
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_number,
+                    'account_type' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
+                    'bank_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
+                    'bank_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
+                    'branch_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
+                    'branch_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->sort_code,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+
+                ];
+
+
+    }
+
 
     public function processSuccesfulRedirect($payment_intent)
     {

@@ -5002,6 +5002,7 @@ $LANG = array(
     'gateway_payment_text_no_invoice' => 'Payment with no invoice for amount :amount for client :client',
     'click_to_variables' => 'Client here to see all variables.',
     'ship_to' => 'Ship to',
+    'stripe_direct_debit_details' => 'Please transfer into the nominated bank account above.'
 );
 
 
