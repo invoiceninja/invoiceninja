@@ -86,9 +86,17 @@
         line-height: var(--line-height);
     }
 
+    .header-wrapper #company-details {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
     .header-wrapper #entity-details {
-        margin-top: 0.5rem;
+        padding-right: 0.5rem;
         text-align: left;
+        line-height: var(--line-height);
+
         /* width: 100%; */
     }
 
@@ -395,7 +403,7 @@
                     <div id="shipping-details"></div>
                     <div>
                         <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color; padding-left: 5px;">$entity_label</p>
-                        <table id="entity-details" cellspacing="5" dir="ltr"></table>
+                        <table id="entity-details" cellspacing="0" cellpadding="0" dir="ltr"></table>
                     </div>
                 </div>
             
