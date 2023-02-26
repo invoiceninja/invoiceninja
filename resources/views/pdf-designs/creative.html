@@ -40,7 +40,7 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-rows:1fr;
+        grid-template-rows:0.5fr;
         grid-template-columns: auto auto auto auto;
         grid-template-areas: "a b c d e";
         grid-auto-columns: minmax(0, 1fr);
@@ -74,6 +74,7 @@
     .header-wrapper #company-address {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height) !important;
     }
 
     [data-ref="company_details-company.name"] {
@@ -116,7 +117,7 @@
     #shipping-details {
         display: $show_shipping_address;
         flex-direction: column;
-        line-height: var(--line-height);
+        line-height: var(--line-height) !important;
     }
 
     .entity-label-wrapper #entity-details > tr,
