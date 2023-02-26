@@ -68,7 +68,7 @@ class BankTransfer
         $data['return_url'] = $this->buildReturnUrl();
         $data['gateway'] = $this->stripe;
         $data['client_secret'] = $intent ? $intent->client_secret : false;
-
+        
         return render('gateways.stripe.bank_transfer.pay', $data);
     }
     
@@ -124,31 +124,45 @@ class BankTransfer
             }
 
             /*  Create a pending payment */
-            if($pi->status == 'requires_action') {
+            if($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
 
                 $data = [
-                    'payment_method' => $pi->payment_method,
-                    'payment_type' => PaymentType::DIRECT_DEBIT,
                     'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-                    'transaction_reference' => $pi->id,
-                    'gateway_type_id' => GatewayType::DIRECT_DEBIT,
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->account_number,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'descripton' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
 
                 ];
 
-                $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+                return render('gateways.stripe.bank_transfer.bank_details', $data);
 
-                SystemLogger::dispatch(
-                    ['response' => $this->stripe->payment_hash->data, 'data' => $data],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_STRIPE,
-                    $this->stripe->client,
-                    $this->stripe->client->company,
-                );
+                // $data = [
+                //     'payment_method' => $pi->payment_method,
+                //     'payment_type' => PaymentType::DIRECT_DEBIT,
+                //     'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+                //     'transaction_reference' => $pi->id,
+                //     'gateway_type_id' => GatewayType::DIRECT_DEBIT,
 
-                return redirect($pi->next_action->display_bank_transfer_instructions->hosted_instructions_url);
+                // ];
+
+                // $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+
+                // SystemLogger::dispatch(
+                //     ['response' => $this->stripe->payment_hash->data, 'data' => $data],
+                //     SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                //     SystemLog::EVENT_GATEWAY_SUCCESS,
+                //     SystemLog::TYPE_STRIPE,
+                //     $this->stripe->client,
+                //     $this->stripe->client->company,
+                // );
+
+                // return redirect($pi->next_action->display_bank_transfer_instructions->hosted_instructions_url);
 
             }
+
             return $this->processUnsuccesfulRedirect();
 
         }
