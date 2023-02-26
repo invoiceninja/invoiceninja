@@ -1586,7 +1586,7 @@ class PdfBuilder
         foreach ($children as $key => $child) {
             if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
                 $value = strtr($child['content'], $this->service->html_variables['values']);
-                if ($value === '' || $value === '&nbsp;') {
+                if ($value === '' || $value === '&nbsp;' || $value === ' ') {
                     $child['is_empty'] = true;
                 }
             }
