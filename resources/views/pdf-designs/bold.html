@@ -4,7 +4,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
-        --line-height: 1.6;
+        --line-height: 1.4;
     }
 
     body {
@@ -85,14 +85,14 @@
         padding-right:1rem;
         display: flex;
         flex-direction: column;
-        line-height: var(--line-height);
+        line-height: var(--line-height) !important;
         padding-left: 2rem;
     }
 
     #shipping-details {
         display: $show_shipping_address;
         flex-direction: column;
-        line-height: var(--line-height);
+        line-height: var(--line-height) !important;
     }
 
     #client-details > :first-child {
@@ -123,7 +123,7 @@
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
-        padding-bottom: 0.5rem;
+        line-height: var(--line-height) !important;
     }
 
     [data-ref="table"] {
@@ -407,18 +407,19 @@
                     <div class="client-wrapper-left-side">
                         <div>                    
                             <h4 class="entity-label" style="margin-top:0px; margin-bottom:10px;">$entity_label</h4>
-                            <div id="client-details" cellspacing="0"></div>
-                            <div id="vendor-details" cellspacing="0"></div>
+                            <div id="client-details" cellspacing="0" cellpadding="0" ></div>
+                            <div id="vendor-details" cellspacing="0" cellpadding="0"></div>
                         </div>
                         <div>
                             <h4 class="entity-label" style="opacity: 0; margin-top:0px; margin-bottom:10px;">&</h4>
-                            <div id="shipping-details" cellspacing="0"></div>
+                            <div id="shipping-details" cellspacing="0" cellpadding="0"></div>
                         </div>
                     </div>
 
                     <div class="entity-details-wrapper-right-side">
+                        <h4 class="entity-label" style="margin-top:0px; margin-bottom:10px; color:transparent;">$entity_label</h4>
                         <div class="entity-details-wrapper">
-                            <table id="entity-details" dir="$dir"></table>
+                            <table id="entity-details" dir="$dir" cellspacing="0" cellpadding="0"></table>
                         </div>
                     </div>
                 </div>
