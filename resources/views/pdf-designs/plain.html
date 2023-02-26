@@ -55,6 +55,8 @@
         grid-auto-columns: minmax(0, 1fr);
         grid-auto-flow: column;
         justify-content:left;
+        line-height: var(--line-height);
+
     }
 
     .company-logo {
@@ -70,14 +72,15 @@
      #entity-details {
         text-align: left;
         width: 100%;
+        line-height: var(--line-height) !important;
+        white-space: nowrap;
     }
 
     #entity-details>tr,
     #entity-details th {
         font-weight: normal;
-        padding-left: 0rem;
-        padding-top: 0.3rem;
-        padding-bottom: 0.3rem;
+        padding-right: 3rem;
+        line-height: var(--line-height) !important;
     }
 
     .header-wrapper #entity-details [data-element='entity-balance-due-label'],
@@ -339,7 +342,7 @@
                         <div id="vendor-details"></div>
                         <div id="shipping-details"></div>
                         <div>
-                            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                            <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
                         </div>
                     </div>
                     <table id="product-table" cellspacing="0" data-ref="table"></table>

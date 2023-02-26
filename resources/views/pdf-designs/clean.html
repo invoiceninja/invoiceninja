@@ -101,15 +101,14 @@
         display:flex;
         text-align: left;
         margin-right: 20px;
-
+        line-height: var(--line-height) !important;
     }
 
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
         padding-right: 15px;
-        padding-top: 2.5px;
-        padding-bottom: 2.5px;
+        line-height: var(--line-height) !important;
     }
 
     #client-details {
@@ -372,7 +371,7 @@
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
                   <div>
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                     <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
                   </div>
                   <div id="client-details"></div>
                   <div id="vendor-details"></div>
