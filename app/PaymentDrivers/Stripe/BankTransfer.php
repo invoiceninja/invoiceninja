@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Utils\Number;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use Stripe\PaymentIntent;
@@ -127,16 +128,16 @@ class BankTransfer
             if($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
 
                 $data = [
-                    'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->account_number,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code,
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
                     'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
-                    'descripton' => $pi->description,
+                    'description' => $pi->description,
                     'gateway'   => $this->stripe->company_gateway,
 
                 ];
-
+                
                 return render('gateways.stripe.bank_transfer.bank_details', $data);
 
                 // $data = [
