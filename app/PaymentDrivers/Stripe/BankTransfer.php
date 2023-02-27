@@ -201,17 +201,19 @@ nlog($pi);
 
     }
 
+
     private function formatDataforEur(PaymentIntent $pi): array
     {
 
         return  [
                     'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
-                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
-                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->iban,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->bic,
                     'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
                     'description' => $pi->description,
                     'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
                 ];
 
@@ -235,10 +237,10 @@ nlog($pi);
                     'bank_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
                     'branch_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
                     'branch_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
-                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->sort_code,
                     'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
                     'description' => $pi->description,
                     'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
                 ];
 
