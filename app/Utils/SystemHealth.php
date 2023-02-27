@@ -32,6 +32,7 @@ class SystemHealth
         'mbstring',
         'xml',
         'bcmath',
+        'intl',
     ];
 
     private static $php_version = 8.1;
