@@ -48,6 +48,17 @@ class StoreRecurringExpenseRequest extends Request
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
 
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
         return $this->globalRules($rules);
     }
 
