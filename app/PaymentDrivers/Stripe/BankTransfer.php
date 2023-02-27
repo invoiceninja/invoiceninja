@@ -121,20 +121,23 @@ class BankTransfer
             );
 
             if (in_array($pi->status, ['succeeded', 'processing'])) {
-                return $this->processSuccesfulRedirect($pi);
+                $payment = $this->processSuccesfulRedirect($pi);
+                redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
             }
 
             /*  Create a pending payment */
             if($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
-nlog($pi);
+
                 match($pi->next_action->display_bank_transfer_instructions->currency){
-                    'mxn' => $data = $this->formatDataforMx($pi),
-                    'gbp' => $data = $this->formatDataforUk($pi),
-                    'eur' => $data = $this->formatDataforEur($pi),
-                    'jpy' => $data = $this->formatDataforJp($pi),
+                    'mxn' => $data['bank_details'] = $this->formatDataforMx($pi),
+                    'gbp' => $data['bank_details'] = $this->formatDataforUk($pi),
+                    'eur' => $data['bank_details'] = $this->formatDataforEur($pi),
+                    'jpy' => $data['bank_details'] = $this->formatDataforJp($pi),
                 };
                 
-                return render('gateways.stripe.bank_transfer.bank_details', $data);
+                $payment = $this->processSuccesfulRedirect($pi);
+
+                return render('gateways.stripe.bank_transfer.bank_details_container', $data);
 
                 // $data = [
                 //     'payment_method' => $pi->payment_method,
@@ -166,7 +169,7 @@ nlog($pi);
 
     }
 
-    private function formatDataForUk(PaymentIntent $pi): array
+    public function formatDataForUk(PaymentIntent $pi): array
     {
 
         return  [
@@ -183,7 +186,7 @@ nlog($pi);
 
     }
 
-    private function formatDataforMx(PaymentIntent $pi): array
+    public function formatDataforMx(PaymentIntent $pi): array
     {
 
         return  [
@@ -202,7 +205,7 @@ nlog($pi);
     }
 
 
-    private function formatDataforEur(PaymentIntent $pi): array
+    public function formatDataforEur(PaymentIntent $pi): array
     {
 
         return  [
@@ -225,7 +228,7 @@ nlog($pi);
      * @param PaymentIntent $pi
      * @return array
      */
-    private function formatDataforJp(PaymentIntent $pi): array
+    public function formatDataforJp(PaymentIntent $pi): array
     {
 
         return  [
@@ -261,7 +264,7 @@ nlog($pi);
 
         ];
 
-        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'processing' ? Payment::STATUS_PENDING : Payment::STATUS_COMPLETED);
+        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'succeeded' ?  Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -272,9 +275,9 @@ nlog($pi);
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return  $payment;
     }
-
+        
     public function processUnsuccesfulRedirect()
     {
         $server_response = $this->stripe->payment_hash->data;

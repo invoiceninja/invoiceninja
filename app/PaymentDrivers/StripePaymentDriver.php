@@ -438,6 +438,17 @@ class StripePaymentDriver extends BaseDriver
         return PaymentIntent::create($data, array_merge($meta, ['idempotency_key' => uniqid("st", true)]));
     }
 
+    public function getPaymentIntent($payment_intent_id): ?PaymentIntent
+    {
+        $this->init();
+
+         return PaymentIntent::retrieve(
+                $payment_intent_id,
+                $this->stripe_connect_auth
+            );
+        
+    }
+
     /**
      * Returns a setup intent that allows the user
      * to enter card details without initiating a transaction.

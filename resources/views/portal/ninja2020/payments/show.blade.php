@@ -122,6 +122,12 @@
                     @endforeach
                 </dl>
             </div>
+            
+                <!-- if this is a stripe bank transfer - show the required details here: -->
         </div>
+            @if($bank_details)
+                    @include('portal.ninja2020.gateways.stripe.bank_transfer.bank_details')
+                @endif
+            
     </div>
 @endsection
