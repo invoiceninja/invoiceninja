@@ -5007,7 +5007,7 @@ $LANG = array(
     'bank_name' => 'Bank Name',
     'bank_code' => 'Bank Code',
     'bic' => 'BIC',
-
+    'change_plan_description' => 'Upgrade or downgrade your current plan.',
 );
 
 
