@@ -38,7 +38,7 @@ class PdfServiceTest extends TestCase
 
         $invitation = $this->invoice->invitations->first();
         
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertNotNull($service->getPdf());
 
@@ -49,7 +49,7 @@ class PdfServiceTest extends TestCase
 
         $invitation = $this->invoice->invitations->first();
         
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertIsString($service->getHtml());
         
@@ -60,7 +60,7 @@ class PdfServiceTest extends TestCase
 
         $invitation = $this->invoice->invitations->first();
 
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertInstanceOf(PdfService::class, $service);
 
@@ -71,7 +71,7 @@ class PdfServiceTest extends TestCase
 
         $invitation = $this->invoice->invitations->first();
     
-        $service = (new PdfService($invitation))->init();
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertInstanceOf(PdfConfiguration::class, $service->config);
 
@@ -82,7 +82,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = (new PdfService($invitation))->init();
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertEquals(2, $service->config->design->id);
 
@@ -92,7 +92,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = (new PdfService($invitation))->init();
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertIsArray($service->html_variables);
 
@@ -102,7 +102,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = (new PdfService($invitation))->init();
+        $service = (new PdfService($invitation))->boot();
 
         $this->assertIsString($service->designer->template);
 
