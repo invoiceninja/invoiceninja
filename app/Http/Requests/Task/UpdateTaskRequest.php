@@ -30,7 +30,6 @@ class UpdateTaskRequest extends Request
      */
     public function authorize() : bool
     {
-        nlog("oioi");
         //prevent locked tasks from updating
         if ($this->task->invoice_id && $this->task->company->invoice_task_lock) {
             return false;
@@ -66,6 +65,17 @@ class UpdateTaskRequest extends Request
                 $fail('Please correct overlapping values');
             }
         }];
+
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
 
         return $this->globalRules($rules);
     }

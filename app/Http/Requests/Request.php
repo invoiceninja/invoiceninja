@@ -20,6 +20,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
+    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
     /**
      * Get the validation rules that apply to the request.
      *
@@ -122,6 +123,10 @@ class Request extends FormRequest
 
         if (array_key_exists('company_gateway_id', $input) && is_string($input['company_gateway_id'])) {
             $input['company_gateway_id'] = $this->decodePrimaryKey($input['company_gateway_id']);
+        }
+
+        if (array_key_exists('transaction_id', $input) && is_string($input['transaction_id'])) {
+            $input['transaction_id'] = $this->decodePrimaryKey($input['transaction_id']);
         }
 
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {

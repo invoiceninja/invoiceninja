@@ -32,7 +32,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Scheduler extends BaseModel
 {
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $fillable = [
         'name',
         'frequency_id',

@@ -54,7 +54,31 @@ class SchedulerTest extends TestCase
         );
     }
 
+    public function testSchedulerGet3()
+    {
+        
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        $scheduler->name = "hello";
+        $scheduler->save();
 
+        $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
+        $scheduler->name = "goodbye";
+        $scheduler->save();
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/task_schedulers?filter=hello');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('hello', $arr['data'][0]['name']);
+        $this->assertCount(1, $arr['data']);
+
+    }
 
     public function testSchedulerGet2()
     {

@@ -12,16 +12,17 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Models\Payment;
-use App\Models\SystemLog;
-use Stripe\PaymentIntent;
-use App\Models\GatewayType;
-use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
+use Stripe\PaymentIntent;
 
 class BankTransfer
 {
@@ -68,7 +69,7 @@ class BankTransfer
         $data['return_url'] = $this->buildReturnUrl();
         $data['gateway'] = $this->stripe;
         $data['client_secret'] = $intent ? $intent->client_secret : false;
-
+        
         return render('gateways.stripe.bank_transfer.pay', $data);
     }
     
@@ -79,14 +80,12 @@ class BankTransfer
      */
     private function resolveBankType()
     {
-
-        return match($this->stripe->client->currency()->code){
+        return match ($this->stripe->client->currency()->code) {
             'GBP' =>  ['type' => 'gb_bank_transfer'],
             'EUR' => ['type' => 'eu_bank_transfer', 'eu_bank_transfer' => ['country' => $this->stripe->client->country->iso_3166_2]],
             'JPY' => ['type' => 'jp_bank_transfer'],
             'MXN' => ['type' =>'mx_bank_transfer'],
         };
-
     }
     
     /**
@@ -103,59 +102,145 @@ class BankTransfer
         ]);
     }
 
-
+    
+    /**
+     * paymentResponse
+     *
+     * @param  mixed $request
+     * @return void
+     */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        
         $this->stripe->init();
 
         $this->stripe->setPaymentHash($request->getPaymentHash());
         $this->stripe->client = $this->stripe->payment_hash->fee_invoice->client;
 
-        if($request->payment_intent){
-
+        if ($request->payment_intent) {
             $pi = \Stripe\PaymentIntent::retrieve(
                 $request->payment_intent,
                 $this->stripe->stripe_connect_auth
             );
 
             if (in_array($pi->status, ['succeeded', 'processing'])) {
-                return $this->processSuccesfulRedirect($pi);
+                $payment = $this->processSuccesfulRedirect($pi);
+                redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
             }
 
             /*  Create a pending payment */
-            if($pi->status == 'requires_action') {
+            if ($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
+                match ($pi->next_action->display_bank_transfer_instructions->currency) {
+                    'mxn' => $data['bank_details'] = $this->formatDataforMx($pi),
+                    'gbp' => $data['bank_details'] = $this->formatDataforUk($pi),
+                    'eur' => $data['bank_details'] = $this->formatDataforEur($pi),
+                    'jpy' => $data['bank_details'] = $this->formatDataforJp($pi),
+                };
+                
+                $payment = $this->processSuccesfulRedirect($pi);
 
-                $data = [
-                    'payment_method' => $pi->payment_method,
-                    'payment_type' => PaymentType::DIRECT_DEBIT,
-                    'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-                    'transaction_reference' => $pi->id,
-                    'gateway_type_id' => GatewayType::DIRECT_DEBIT,
+                return render('gateways.stripe.bank_transfer.bank_details_container', $data);
+            }
+
+            return $this->processUnsuccesfulRedirect();
+        }
+    }
+    
+    /**
+     * formatDataForUk
+     *
+     * @param  PaymentIntent $pi
+     * @return array
+     */
+    public function formatDataForUk(PaymentIntent $pi): array
+    {
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->account_number,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->sort_code->sort_code,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
                 ];
+    }
+    
+    /**
+     * formatDataforMx
+     *
+     * @param  PaymentIntent $pi
+     * @return array
+     */
+    public function formatDataforMx(PaymentIntent $pi): array
+    {
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->bank_code,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->spei->clabe,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
 
-                $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
-
-                SystemLogger::dispatch(
-                    ['response' => $this->stripe->payment_hash->data, 'data' => $data],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_STRIPE,
-                    $this->stripe->client,
-                    $this->stripe->client->company,
-                );
-
-                return redirect($pi->next_action->display_bank_transfer_instructions->hosted_instructions_url);
-
-            }
-            return $this->processUnsuccesfulRedirect();
-
-        }
-
+                ];
     }
 
-    public function processSuccesfulRedirect($payment_intent)
+    
+    /**
+     * formatDataforEur
+     *
+     * @param  mixed $pi
+     * @return array
+     */
+    public function formatDataforEur(PaymentIntent $pi): array
+    {
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->iban,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->iban->bic,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+
+                ];
+    }
+
+    /**
+     *
+     * @param PaymentIntent $pi
+     * @return array
+     */
+    public function formatDataforJp(PaymentIntent $pi): array
+    {
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_holder_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_number,
+                    'account_type' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->account_type,
+                    'bank_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_code,
+                    'bank_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
+                    'branch_code' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
+                    'branch_name' =>$pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+
+                ];
+    }
+
+    
+    /**
+     * processSuccesfulRedirect
+     *
+     * @param  PaymentIntent $payment_intent
+     * @return Payment
+     */
+    public function processSuccesfulRedirect(PaymentIntent $payment_intent): Payment
     {
         $this->stripe->init();
 
@@ -168,7 +253,7 @@ class BankTransfer
 
         ];
 
-        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'processing' ? Payment::STATUS_PENDING : Payment::STATUS_COMPLETED);
+        $payment = $this->stripe->createPayment($data, $payment_intent->status == 'succeeded' ?  Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -179,9 +264,14 @@ class BankTransfer
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return  $payment;
     }
-
+            
+    /**
+     * processUnsuccesfulRedirect
+     *
+     * @return void
+     */
     public function processUnsuccesfulRedirect()
     {
         $server_response = $this->stripe->payment_hash->data;
@@ -204,6 +294,4 @@ class BankTransfer
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-
-
 }

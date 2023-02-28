@@ -52,7 +52,6 @@ use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use Laracasts\Presenter\Exceptions\PresenterException;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
@@ -155,7 +154,7 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['USA'])
+            && (in_array($this->client->country->iso_3166_3, ['USA']) || ($this->client->gateway_tokens()->where('gateway_type_id', GatewayType::BANK_TRANSFER)->exists()))
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
@@ -261,7 +260,12 @@ class StripePaymentDriver extends BaseDriver
         if (
             $this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'GB', 'DE', 'ES', 'JP', 'MX'])
+            && (
+                (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR') ||
+                ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY') ||
+                ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN') ||
+                ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP')
+            )
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -432,6 +436,17 @@ class StripePaymentDriver extends BaseDriver
         $meta = $this->stripe_connect_auth;
 
         return PaymentIntent::create($data, array_merge($meta, ['idempotency_key' => uniqid("st", true)]));
+    }
+
+    public function getPaymentIntent($payment_intent_id): ?PaymentIntent
+    {
+        $this->init();
+
+         return PaymentIntent::retrieve(
+                $payment_intent_id,
+                $this->stripe_connect_auth
+            );
+        
     }
 
     /**
@@ -841,15 +856,6 @@ class StripePaymentDriver extends BaseDriver
     public function setClientFromCustomer($customer)
     {
         $this->client = ClientGatewayToken::where('gateway_customer_reference', $customer)->client;
-    }
-
-    /**
-     * Pull all client payment methods and update
-     * the respective tokens in the system.
-     */
-    public function updateAllPaymentMethods()
-    {
-        return (new UpdatePaymentMethods($this))->run();
     }
 
     /**

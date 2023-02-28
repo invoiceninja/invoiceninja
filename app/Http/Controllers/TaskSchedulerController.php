@@ -12,7 +12,8 @@
 namespace App\Http\Controllers;
 
 use App\Factory\SchedulerFactory;
-use App\Http\Requests\Task\DestroySchedulerRequest;
+use App\Filters\SchedulerFilters;
+use App\Http\Requests\TaskScheduler\DestroySchedulerRequest;
 use App\Http\Requests\TaskScheduler\CreateSchedulerRequest;
 use App\Http\Requests\TaskScheduler\ShowSchedulerRequest;
 use App\Http\Requests\TaskScheduler\StoreSchedulerRequest;
@@ -58,9 +59,9 @@ class TaskSchedulerController extends BaseController
      *       ),
      *     )
      */
-    public function index()
+    public function index(SchedulerFilters $filters)
     {
-        $schedulers = Scheduler::where('company_id', auth()->user()->company()->id);
+        $schedulers = Scheduler::filter($filters);
 
         return $this->listResponse($schedulers);
     }

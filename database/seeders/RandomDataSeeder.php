@@ -117,6 +117,62 @@ class RandomDataSeeder extends Seeder
             'settings' => null,
         ]);
 
+        $user = User::firstOrNew([
+            'email' => 'user@example.com',
+        ]);
+
+        $user->password = Hash::make('password');
+        $user->account_id = $account->id;
+        $user->email_verified_at = now();
+        $user->save();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'permissions' => '',
+            'settings' => null,
+        ]);
+
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => \Illuminate\Support\Str::random(64),
+        ]);
+
+
+        $user = User::firstOrNew([
+            'email' => 'permissions@example.com',
+        ]);
+
+        $user->password = Hash::make('password');
+        $user->account_id = $account->id;
+        $user->email_verified_at = now();
+        $user->save();
+
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => \Illuminate\Support\Str::random(64),
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 0,
+            'is_admin' => 0,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'permissions' => '',
+            'settings' => null,
+        ]);
+
+
         $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
