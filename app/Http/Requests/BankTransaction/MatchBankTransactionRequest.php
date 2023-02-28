@@ -25,7 +25,7 @@ class MatchBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin() || auth()->user()->can('create', BankTransaction::class || auth()->user()->hasPermission('edit_bank_transaction'));
+        return auth()->user()->isAdmin() || auth()->user()->can('create', BankTransaction::class) || auth()->user()->hasPermission('edit_bank_transaction');
     }
 
     public function rules()

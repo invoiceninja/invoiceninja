@@ -83,7 +83,7 @@ class BankTransactionController extends BaseController
      *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),zz
+     *       ),
      *     )
      * @param BankTransactionFilters $filter
      * @return Response|mixed
