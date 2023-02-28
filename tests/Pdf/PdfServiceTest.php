@@ -71,7 +71,7 @@ class PdfServiceTest extends TestCase
 
         $invitation = $this->invoice->invitations->first();
     
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->init();
 
         $this->assertInstanceOf(PdfConfiguration::class, $service->config);
 
@@ -82,7 +82,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->init();
 
         $this->assertEquals(2, $service->config->design->id);
 
@@ -92,7 +92,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->init();
 
         $this->assertIsArray($service->html_variables);
 
@@ -102,7 +102,7 @@ class PdfServiceTest extends TestCase
     {
         $invitation = $this->invoice->invitations->first();
         
-        $service = new PdfService($invitation);
+        $service = (new PdfService($invitation))->init();
 
         $this->assertIsString($service->designer->template);
 
