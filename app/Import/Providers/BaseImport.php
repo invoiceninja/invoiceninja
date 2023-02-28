@@ -54,6 +54,14 @@ class BaseImport
 
     public $transformer;
 
+    public ?array $column_map = [];
+
+    public ?string $hash;
+
+    public ?string $import_type;
+
+    public ?bool $skip_header;
+
     public function __construct(array $request, Company $company)
     {
         $this->company = $company;
@@ -78,6 +86,7 @@ class BaseImport
     public function getCsvData($entity_type)
     {
         $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
+
         if (empty($base64_encoded_csv)) {
             return null;
         }
@@ -636,6 +645,14 @@ class BaseImport
         ksort($keys);
 
         $data = array_map(function ($row) use ($keys) {
+
+            $row_count = count($row);
+            $key_count = count($keys);
+            
+            if($key_count > $row_count) {
+                $row = array_pad($row, $key_count, ' ');
+            }
+
             return array_combine($keys, array_intersect_key($row, $keys));
         }, $data);
 
