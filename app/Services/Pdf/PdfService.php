@@ -72,7 +72,7 @@ class PdfService
     public function getPdf()
     {
         try {
-            $pdf = $this->resolvePdfEngine($this->getHtml());
+            $pdf = $this->init()->resolvePdfEngine($this->getHtml());
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
@@ -95,6 +95,8 @@ class PdfService
      */
     public function getHtml(): string
     {
+        $this->init();
+        
         $html = $this->builder->getCompiledHTML();
 
         if (config('ninja.log_pdf_html')) {
