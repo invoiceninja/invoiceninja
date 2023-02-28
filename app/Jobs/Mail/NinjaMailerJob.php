@@ -611,8 +611,9 @@ class NinjaMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-        if($exception)
+        if ($exception) {
             nlog($exception->getMessage());
+        }
 
         config(['queue.failed.driver' => null]);
     }

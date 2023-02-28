@@ -77,7 +77,6 @@ class PaymentNotification implements ShouldQueue
                 (new NinjaMailerJob($nmo))->handle();
 
                 $nmo = null;
-                
             }
         }
 

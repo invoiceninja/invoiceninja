@@ -11,8 +11,8 @@
 namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
-use Illuminate\Validation\Rule;
 use App\Http\ValidationRules\Scheduler\ValidClientIds;
+use Illuminate\Validation\Rule;
 
 class UpdateSchedulerRequest extends Request
 {

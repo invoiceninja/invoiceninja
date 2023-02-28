@@ -100,7 +100,6 @@ class PaymentFilters extends QueryFilters
             if (count($payment_filters) >0) {
                 $query->whereIn('status_id', $payment_filters);
             }
-            
         });
 
         return $this->builder;

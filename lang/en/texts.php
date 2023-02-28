@@ -2189,7 +2189,6 @@ $LANG = array(
     'logo_warning_too_large' => 'The image file is too large.',
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
-
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
@@ -5002,6 +5001,13 @@ $LANG = array(
     'gateway_payment_text_no_invoice' => 'Payment with no invoice for amount :amount for client :client',
     'click_to_variables' => 'Client here to see all variables.',
     'ship_to' => 'Ship to',
+    'stripe_direct_debit_details' => 'Please transfer into the nominated bank account above.',
+    'branch_name' => 'Branch Name',
+    'branch_code' => 'Branch Code',
+    'bank_name' => 'Bank Name',
+    'bank_code' => 'Bank Code',
+    'bic' => 'BIC',
+
 );
 
 

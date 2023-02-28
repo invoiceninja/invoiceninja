@@ -17,7 +17,7 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="payment-form">
         @csrf
     
-    <div id="payment-element">
+    <div id="payment-element" style="padding:40px;">
         <!-- Elements will create form elements here -->
     </div>
 
@@ -46,19 +46,22 @@
 <script>
     const options = {
         clientSecret: '{{ $client_secret }}',
-            style: {
-                base: {
-                    padding: '10px 12px',
-                    color: '#32325d',
-                    fontSize: '16px',
-                    '::placeholder': {
-                        color: '#aab7c4'
-                    },
-                },
-            },
+        appearance : {
+            theme: 'stripe',
+            variables: {
+                colorPrimary: '#0570de',
+                colorBackground: '#ffffff',
+                colorText: '#30313d',
+                colorDanger: '#df1b41',
+                fontFamily: 'Ideal Sans, system-ui, sans-serif',
+                spacingUnit: '2px',
+                borderRadius: '4px',
+                // See all possible variables below
+            }
+        }
     };
 
-
+        
     
     const stripe = Stripe(document.querySelector('meta[name="stripe-publishable-key"]').getAttribute('content'));
     const stripeConnect = document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';

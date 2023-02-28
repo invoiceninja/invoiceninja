@@ -169,6 +169,11 @@ class Vendor extends BaseModel
         return '';
     }
 
+    public function getMergedSettings() :object
+    {
+        return $this->company->settings;
+    }   
+
     public function purchase_order_filepath($invitation)
     {
         $contact_key = $invitation->contact->contact_key;
