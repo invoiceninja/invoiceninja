@@ -197,7 +197,6 @@ class PreviewController extends BaseController
             return response()->json(['message' => 'This server cannot handle this request.'], 400);
         }
         
-        
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);

@@ -102,7 +102,12 @@ class PdfMock
 
         return $entity;
     }
-
+    
+    /**
+     * getMergedSettings
+     *
+     * @return object
+     */
     public function getMergedSettings() :object
     {
         match ($this->request['settings_type']) {
@@ -115,17 +120,32 @@ class PdfMock
         return $settings;
     }
 
-
+    
+    /**
+     * getTaxMap
+     *
+     * @return void
+     */
     private function getTaxMap()
     {
         return collect([['name' => 'GST', 'total' => 10]]);
     }
-
+    
+    /**
+     * getTotalTaxMap
+     *
+     * @return void
+     */
     private function getTotalTaxMap()
     {
         return [['name' => 'GST', 'total' => 10]];
     }
-
+    
+    /**
+     * getStubVariables
+     *
+     * @return void
+     */
     public function getStubVariables()
     {
         return ['values' =>

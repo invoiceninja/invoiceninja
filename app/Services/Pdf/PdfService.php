@@ -61,18 +61,25 @@ class PdfService
         $this->options = $options;
     }
 
+    public function boot(): self
+    {
+        $this->init();
+
+        return $this;
+    }
+
     /**
      * Resolves the PDF generation type and
      * attempts to generate a PDF from the HTML
      * string.
-     *
+     * 
      * @return mixed | Exception
      *
      */
     public function getPdf()
     {
         try {
-            $pdf = $this->init()->resolvePdfEngine($this->getHtml());
+            $pdf = $this->resolvePdfEngine($this->getHtml());
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
@@ -95,7 +102,6 @@ class PdfService
      */
     public function getHtml(): string
     {
-        $this->init();
         
         $html = $this->builder->getCompiledHTML();
 
