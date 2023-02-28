@@ -83,7 +83,7 @@ class BankTransactionController extends BaseController
      *           response="default",
      *           description="Unexpected Error",
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
+     *       ),zz
      *     )
      * @param BankTransactionFilters $filter
      * @return Response|mixed
@@ -531,7 +531,6 @@ class BankTransactionController extends BaseController
      */
     public function match(MatchBankTransactionRequest $request)
     {
-        // MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
         
         $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
 
