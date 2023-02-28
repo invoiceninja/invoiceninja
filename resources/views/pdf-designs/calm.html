@@ -96,8 +96,7 @@
         padding-right: 0.5rem;
         text-align: left;
         line-height: var(--line-height);
-
-        /* width: 100%; */
+        width: 100%;
     }
 
     .header-wrapper #entity-details > tr,
@@ -115,6 +114,17 @@
         background-color: #e6e6e6;
     }
 
+	#entity-details {
+        text-align: left;
+        width: 100%;
+	}
+	
+	#entity-details th {
+        font-weight:normal;
+        line-height: 1.5rem;
+        padding-right: 2rem;
+	}
+	
     #client-details {
         display: flex;
         flex-direction: column;
@@ -200,17 +210,6 @@
         text-align: right;
         padding-right: 0px;
     }
-	
-
-	#entity-details {
-        text-align: left;
-        /* width: 100%; */
-	}
-	
-	#entity-details th {
-        font-weight:normal;
-        line-height: 1.5rem;
-	}
 	
     #table-totals
     > *
@@ -402,7 +401,7 @@
                     <div id="vendor-details"></div>
                     <div id="shipping-details"></div>
                     <div>
-                        <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color; padding-left: 5px;">$entity_label</p>
+                        <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
                         <table id="entity-details" cellspacing="0" cellpadding="0" dir="ltr"></table>
                     </div>
                 </div>
