@@ -26,7 +26,7 @@ class UpdateProductRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Product::class);
+        return auth()->user()->can('edit', $this->product);
     }
 
     public function rules()

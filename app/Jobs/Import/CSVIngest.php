@@ -42,7 +42,7 @@ class CSVIngest implements ShouldQueue
 
     public ?string $skip_header;
 
-    public $column_map;
+    public ?array $column_map = [];
 
     public array $request;
 

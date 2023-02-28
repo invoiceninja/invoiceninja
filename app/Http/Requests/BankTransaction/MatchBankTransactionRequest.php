@@ -12,6 +12,7 @@
 namespace App\Http\Requests\BankTransaction;
 
 use App\Http\Requests\Request;
+use App\Models\BankTransaction;
 use App\Models\Expense;
 use App\Models\Payment;
 
@@ -24,7 +25,7 @@ class MatchBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() || auth()->user()->can('create', BankTransaction::class) || auth()->user()->hasPermission('edit_bank_transaction');
     }
 
     public function rules()

@@ -28,7 +28,7 @@ class PreviewPurchaseOrderRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', PurchaseOrder::class);
+        return auth()->user()->hasIntersectPermissionsOrAdmin(['create_purchase_order', 'edit_purchase_order', 'view_purchase_order']);
     }
 
     public function rules()
