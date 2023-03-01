@@ -11,8 +11,9 @@
 
 namespace App\Export\CSV;
 
-use App\Utils\Traits\MakesHash;
+use App\Models\Client;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
 
 class BaseExport
 {
@@ -28,10 +29,15 @@ class BaseExport
 
     public string $end_date = '';
 
+    public string $client_description = 'All Clients';
+
     protected function filterByClients($query)
     {
         if (array_key_exists('client_id', $this->input) && $this->input['client_id'] != 'all') {
-            return $query->where('client_id', $this->decodePrimaryKey($this->input['client_id']));
+
+            $client = Client::withTrashed()->find($this->input['client_id']);
+            $this->client_description = $client->present()->name;
+            return $query->where('client_id', $this->input['client_id']);
         }
 
         return $query;
