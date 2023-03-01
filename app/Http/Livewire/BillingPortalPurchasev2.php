@@ -271,6 +271,10 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleCoupon()
     {
+
+        $this->resetErrorBag('coupon');
+        $this->resetValidation('coupon');
+
         if ($this->coupon == $this->subscription->promo_code) {
             $this->valid_coupon = true;
             $this->buildBundle();
@@ -278,6 +282,9 @@ class BillingPortalPurchasev2 extends Component
             $this->discount = 0;
             $this->valid_coupon = false;
             $this->buildBundle();
+            $errors = $this->getErrorBag();
+            $errors->add('coupon', ctrans('texts.invalid_coupon'));
+            return $this;
         }
     }
 

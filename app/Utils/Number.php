@@ -201,6 +201,8 @@ class Number
     public static function formatMoneyNoRounding($value, $entity) :string
     {
         $currency = $entity->currency();
+        
+        $_value = $value;
 
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
@@ -247,6 +249,12 @@ class Number
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
         } elseif ($entity->getSetting('show_currency_code') === false) {
+
+            if ($_value < 0) {
+                $value = substr($value, 1);
+                $symbol = "-{$symbol}";
+            }
+
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);
