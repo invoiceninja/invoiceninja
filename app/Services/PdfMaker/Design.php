@@ -13,7 +13,6 @@
 namespace App\Services\PdfMaker;
 
 use App\Models\Credit;
-use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
