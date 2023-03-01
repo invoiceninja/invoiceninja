@@ -28,7 +28,7 @@ class ProductExport extends BaseExport
 
     public $date_key = 'created_at';
 
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'project' => 'project_id',
         'vendor' => 'vendor_id',
         'custom_value1' => 'custom_value1',

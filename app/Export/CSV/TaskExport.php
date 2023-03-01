@@ -32,7 +32,7 @@ class TaskExport extends BaseExport
 
     private string $date_format = 'YYYY-MM-DD';
 
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'start_date' => 'start_date',
         'end_date' => 'end_date',
         'duration' => 'duration',

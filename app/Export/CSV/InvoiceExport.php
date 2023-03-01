@@ -27,7 +27,7 @@ class InvoiceExport extends BaseExport
 
     public string $date_key = 'date';
 
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
