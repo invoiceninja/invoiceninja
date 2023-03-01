@@ -5010,6 +5010,7 @@ $LANG = array(
     'change_plan_description' => 'Upgrade or downgrade your current plan.',
     'add_company_logo' => 'Add Logo',
     'add_stripe' => 'Add Stripe',
+    'invalid_coupon' => 'Invalid Coupon',
 );
 
 

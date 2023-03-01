@@ -253,6 +253,14 @@
                               <span>{{ ctrans('texts.apply') }}</span>
                             </button>
                           </div>
+                          @if($errors && $errors->has('coupon'))
+                                @error("coupon") 
+                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                    <span class="block sm:inline text-sm">{{ $message }} </span>
+                                    <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                </div>
+                                @enderror
+                          @endif
                         </div>
                     </form>
                 @endif
@@ -347,7 +355,6 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                             @enderror
-                            
                         </div>
                     </form>
                     @endif
