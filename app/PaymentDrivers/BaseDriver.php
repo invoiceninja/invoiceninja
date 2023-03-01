@@ -32,6 +32,7 @@ use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\App;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Utils\Traits\SystemLogTrait;
 use App\Events\Invoice\InvoiceWasPaid;
@@ -726,6 +727,11 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getDescription(bool $abbreviated = true)
     {
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+        App::setLocale($this->client->company->locale());
+
         if (! $this->payment_hash || !$this->client) {
             return 'No description';
         }

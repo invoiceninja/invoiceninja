@@ -88,7 +88,6 @@ class SubscriptionService
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
             $recurring_invoice->auto_bill = $this->subscription->auto_bill;
             
-
             /* Start the recurring service */
             $recurring_invoice->service()
                               ->start()
@@ -111,9 +110,10 @@ class SubscriptionService
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
-            $response = $this->triggerWebhook($context);
+                $response = $this->triggerWebhook($context);
 
-            $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+
         } else {
             $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
 
@@ -131,7 +131,7 @@ class SubscriptionService
             /* 06-04-2022 */
             /* We may not be in a state where the user is present */
             if (auth()->guard('contact')) {
-                $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
+                return $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
             }
         }
     }
