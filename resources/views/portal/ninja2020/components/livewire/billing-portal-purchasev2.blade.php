@@ -268,26 +268,27 @@
                 @endif
 
                 <div class="border-gray-200 border-opacity-50 mt-4">
-                    @if($discount)
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
+                        <span>{{ ctrans('texts.one_time_purchases') }}</span>
+                        <span>{{ $non_recurring_total }}</span>
+                    </div>
+                    
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase">
+                        <span>{{ ctrans('texts.recurring_purchases') }}</span>
+                        <span>{{ $recurring_total }}</span>
+                    </div>
+
+
+                    @if($discount)
+                    <!-- <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.subtotal') }}</span>
                         <span>{{ $sub_total }}</span>
-                    </div>
+                    </div> -->
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.discount') }}</span>
                         <span>{{ $discount }}</span>
                     </div>
                     @endif
-
-                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
-                        <span>{{ ctrans('texts.one_time_purchases') }}</span>
-                        <span>{{ $non_recurring_total }}</span>
-                    </div>
-                    
-                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
-                        <span>{{ ctrans('texts.recurring_purchases') }}</span>
-                        <span>{{ $recurring_total }}</span>
-                    </div>
 
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
                         <span>{{ ctrans('texts.total') }}</span>

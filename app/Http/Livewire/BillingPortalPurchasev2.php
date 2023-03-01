@@ -173,6 +173,9 @@ class BillingPortalPurchasev2 extends Component
             $this->authenticated = true;
             $this->payment_started = true;
         }
+        else {
+            $this->bundle = collect();
+        }
 
         $this->discount = 0;
         $this->sub_total = 0;
