@@ -23,8 +23,6 @@ class QuoteExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $quote_transformer;
 
     protected string $date_key = 'date';

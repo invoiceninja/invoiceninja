@@ -23,8 +23,6 @@ class InvoiceExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $invoice_transformer;
 
     protected string $date_key = 'date';

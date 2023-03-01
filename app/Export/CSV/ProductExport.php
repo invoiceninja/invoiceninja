@@ -24,8 +24,6 @@ class ProductExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $entity_transformer;
 
     protected $date_key = 'created_at';

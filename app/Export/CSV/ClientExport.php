@@ -24,15 +24,9 @@ class ClientExport extends BaseExport
 {
     private $company;
 
-    protected $input;
-
     private $client_transformer;
 
     private $contact_transformer;
-
-    private string $start_date;
-
-    private string $end_date;
 
     protected string $date_key = 'created_at';
 

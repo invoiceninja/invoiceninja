@@ -23,8 +23,6 @@ class CreditExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private CreditTransformer $credit_transformer;
 
     protected string $date_key = 'created_at';

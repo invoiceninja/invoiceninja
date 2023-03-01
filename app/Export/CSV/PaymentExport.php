@@ -13,7 +13,6 @@ namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Document;
 use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
@@ -23,8 +22,6 @@ use League\Csv\Writer;
 class PaymentExport extends BaseExport
 {
     private Company $company;
-
-    protected array $input;
 
     private $entity_transformer;
 

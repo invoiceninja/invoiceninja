@@ -25,8 +25,6 @@ class ContactExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private ClientTransformer $client_transformer;
 
     private ClientContactTransformer $contact_transformer;

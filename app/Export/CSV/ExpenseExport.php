@@ -23,8 +23,6 @@ class ExpenseExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $expense_transformer;
 
     protected $date_key = 'date';
