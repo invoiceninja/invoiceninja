@@ -26,7 +26,7 @@ class ProductExport extends BaseExport
 
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public $date_key = 'created_at';
 
     protected array $entity_keys = [
         'project' => 'project_id',

@@ -25,7 +25,7 @@ class CreditExport extends BaseExport
 
     private CreditTransformer $credit_transformer;
 
-    protected string $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
     protected array $entity_keys = [
         'amount' => 'amount',

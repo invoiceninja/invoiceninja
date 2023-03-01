@@ -25,7 +25,7 @@ class QuoteItemExport extends BaseExport
 
     private $quote_transformer;
 
-    protected string $date_key = 'date';
+    public string $date_key = 'date';
 
     protected array $entity_keys = [
         'amount' => 'amount',

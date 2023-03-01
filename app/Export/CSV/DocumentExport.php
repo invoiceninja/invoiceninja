@@ -25,7 +25,7 @@ class DocumentExport extends BaseExport
 
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public $date_key = 'created_at';
 
     protected array $entity_keys = [
         'record_type' => 'record_type',

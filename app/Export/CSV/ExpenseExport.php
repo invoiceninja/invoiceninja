@@ -25,7 +25,7 @@ class ExpenseExport extends BaseExport
 
     private $expense_transformer;
 
-    protected $date_key = 'date';
+    public $date_key = 'date';
 
     protected array $entity_keys = [
         'amount' => 'amount',

@@ -29,7 +29,7 @@ class ContactExport extends BaseExport
 
     private ClientContactTransformer $contact_transformer;
 
-    protected string $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
     protected array $entity_keys = [
         'address1' => 'client.address1',
