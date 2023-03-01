@@ -1,5 +1,5 @@
 <div class="grid grid-cols-12">
-    <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center h-screen">
+    <div class="col-span-8 bg-gray-50 flex flex-col max-h-100px items-center min-h-screen">
         <div class="w-full p-4 md:max-w-3xl">
             <div class="w-full mb-4">
                 <img class="object-scale-down" style="max-height: 100px;"src="{{ $subscription->company->present()->logo }}" alt="{{ $subscription->company->present()->name }}">
@@ -45,7 +45,9 @@
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              {!! nl2br($product->notes) !!}
+                                <article class="prose">
+                                    {!! $product->markdownNotes() !!}
+                                </article>
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                           </div>
@@ -105,7 +107,7 @@
                         <div>
                           <div class="flex justify-between text-base font-medium text-gray-900">
                             <h3>
-                              {!! nl2br($product->notes) !!}
+                              {!! nl2br($product->markdownNotes()) !!}
                             </h3>
                             <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                           </div>
@@ -143,7 +145,7 @@
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <h3>{!! nl2br($product->markdownNotes()) !!}</h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }} / {{ App\Models\RecurringInvoice::frequencyForKey($subscription->frequency_id) }}</p>
                               </div>
                             </div>
@@ -184,7 +186,7 @@
                           <div class="ml-0 flex flex-1 flex-col">
                             <div>
                               <div class="flex justify-between text-base font-medium text-gray-900">
-                                <h3>{!! nl2br($product->notes) !!}</h3>
+                                <h3>{!! nl2br($product->markdownNotes()) !!}</h3>
                                 <p class="ml-0">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</p>
                               </div>
                               <p class="mt-1 text-sm text-gray-500"></p>
@@ -225,7 +227,7 @@
 
     </form>
 
-    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 h-screen" wire:init="buildBundle">
+    <div class="col-span-4 bg-blue-500 flex flex-col item-center p-2 min-h-screen" wire:init="buildBundle">
         <div class="w-full p-4">
             <div id="summary" class="px-4 text-white">
                 <h1 class="font-semibold text-2xl border-b-2 border-gray-200 border-opacity-50 pb-2 text-white">{{ ctrans('texts.order') }}</h1>
@@ -276,6 +278,17 @@
                         <span>{{ $discount }}</span>
                     </div>
                     @endif
+
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
+                        <span>{{ ctrans('texts.one_time_purchases') }}</span>
+                        <span>{{ $non_recurring_total }}</span>
+                    </div>
+                    
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
+                        <span>{{ ctrans('texts.recurring_purchases') }}</span>
+                        <span>{{ $recurring_total }}</span>
+                    </div>
+
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
                         <span>{{ ctrans('texts.total') }}</span>
                         <span>{{ $total }}</span>
@@ -387,8 +400,8 @@
                                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
                             </div>
                         @enderror
-                        <div class="flex w-full place-content-end mb-0 mt-4">
-                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-gray-300 bg-gray-50 px-1 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ ctrans('texts.reset') }}</button>
+                        <div class="flex w-full place-content-end mb-0 mt-6">
+                            <button wire:click="resetEmail" class="relative -ml-px inline-flex items-center space-x-1 rounded border border-red-900 bg-red-500 px-1 py-1 text-sm font-medium text-white-700 hover:bg-red-900 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500">{{ ctrans('texts.reset') }}</button>
                         </div>
                     </div>
                     @endif

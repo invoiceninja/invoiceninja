@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use League\CommonMark\CommonMarkConverter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends BaseModel
@@ -78,5 +79,17 @@ class Product extends BaseModel
     public function translate_entity()
     {
         return ctrans('texts.product');
+    }
+
+    public function markdownNotes()
+    {
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+            'renderer' => [
+                'soft_break' => '<br>',
+            ],
+        ]);
+
+        return $converter->convert($this->notes);
     }
 }
