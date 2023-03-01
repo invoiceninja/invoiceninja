@@ -144,8 +144,9 @@ class ProductSalesExport extends BaseExport
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.clients'), ctrans('texts.type'), ctrans('texts.start_date'), ctrans('texts.end_date')]);
+        $this->csv->insertOne([$this->client_description, ctrans('texts.product_sales'), $this->start_date, $this->end_date]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.summary'),ctrans('texts.product_sales'), $this->start_date, $this->end_date]);
         
 
         if ($grouped->count() >=1) {

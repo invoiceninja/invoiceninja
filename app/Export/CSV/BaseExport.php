@@ -33,7 +33,7 @@ class BaseExport
 
     protected function filterByClients($query)
     {
-        if (array_key_exists('client_id', $this->input) && $this->input['client_id'] != 'all') {
+        if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
 
             $client = Client::withTrashed()->find($this->input['client_id']);
             $this->client_description = $client->present()->name;
