@@ -23,6 +23,8 @@ class SubscriptionPurchaseController extends Controller
 {
     public function index(Subscription $subscription, Request $request)
     {
+        App::setLocale($subscription->company->locale());
+
         /* Make sure the contact is logged into the correct company for this subscription */
         if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id != $subscription->company_id) {
             auth()->guard('contact')->logout();
@@ -42,6 +44,9 @@ class SubscriptionPurchaseController extends Controller
 
     public function upgrade(Subscription $subscription, Request $request)
     {
+
+        App::setLocale($subscription->company->locale());
+
         /* Make sure the contact is logged into the correct company for this subscription */
         if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id != $subscription->company_id) {
             auth()->guard('contact')->logout();
