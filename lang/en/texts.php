@@ -5008,6 +5008,8 @@ $LANG = array(
     'bank_code' => 'Bank Code',
     'bic' => 'BIC',
     'change_plan_description' => 'Upgrade or downgrade your current plan.',
+    'add_company_logo' => 'Add Logo',
+    'add_stripe' => 'Add Stripe',
 );
 
 
