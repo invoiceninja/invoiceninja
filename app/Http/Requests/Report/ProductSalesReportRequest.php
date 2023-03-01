@@ -36,7 +36,7 @@ class ProductSalesReportRequest extends Request
             'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => 'bail|present|array',
             'send_email' => 'bail|required|bool',
-            'client_id' => 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0',
+            'client_id' => 'bail|nullable|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0',
         ];
     }
 
