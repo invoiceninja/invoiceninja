@@ -19,23 +19,24 @@ use App\Models\Product;
 use App\Libraries\MultiDB;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductSalesExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
+    public array $input;
 
-    protected $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
-    protected $products;
+    protected Collection $products;
 
     public Writer $csv;
 
-    private $sales;
+    private \Illuminate\Support\Collection $sales;
 
     //translations => keys
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'date' => 'date',
         'product_key' => 'product_key',
         'notes' => 'notes',
@@ -108,6 +109,8 @@ class ProductSalesExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $query = $this->filterByClients($query);
+
         $query->cursor()
               ->each(function ($invoice) {
                   foreach ($invoice->line_items as $item) {
@@ -137,9 +140,27 @@ class ProductSalesExport extends BaseExport
             return $data;
         });
 
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.summary'),ctrans('texts.product_sales'), $this->start_date, $this->end_date]);
+        
 
-        nlog($grouped);
+        if ($grouped->count() >=1) {
+            $header = [];
 
+            foreach ($grouped->first() as $key => $value) {
+                $header[] = ctrans("texts.{$key}");
+            }
+
+            $this->csv->insertOne($header);
+
+            $grouped->each(function ($item) {
+                $this->csv->insertOne(array_values($item));
+            });
+        }
         return $this->csv->toString();
     }
 
