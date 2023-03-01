@@ -36,10 +36,7 @@ class ProductSalesExport extends BaseExport
 
     //translations => keys
     protected array $entity_keys = [
-        'custom_value1' => 'custom_value1',
-        'custom_value2' => 'custom_value2',
-        'custom_value3' => 'custom_value3',
-        'custom_value4' => 'custom_value4',
+        'date' => 'date',
         'product_key' => 'product_key',
         'notes' => 'notes',
         'quantity' => 'quantity',
@@ -49,6 +46,9 @@ class ProductSalesExport extends BaseExport
         'discount' => 'discount',
         'net_total' => 'net_total',
         'profit' => 'profit',
+        'line_total' => 'line_total',
+        'gross_line_total' => 'gross_line_total',
+        'status' => 'status',
         'tax_name1' => 'tax_name1',
         'tax_name2' => 'tax_name2',
         'tax_name3' => 'tax_name3',
@@ -59,13 +59,12 @@ class ProductSalesExport extends BaseExport
         'tax_amount2' => 'tax_amount2',
         'tax_amount3' => 'tax_amount3',
         'is_amount_discount' => 'is_amount_discount',
-        'line_total' => 'line_total',
-        'gross_line_total' => 'gross_line_total',
-        'status' => 'status',
-        'date' => 'date',
         'currency' => 'currency',
         'client' => 'client',
-
+        'custom_value1' => 'custom_value1',
+        'custom_value2' => 'custom_value2',
+        'custom_value3' => 'custom_value3',
+        'custom_value4' => 'custom_value4',
     ];
 
     private array $decorate_keys = [
