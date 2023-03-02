@@ -112,14 +112,14 @@ class EmailEntity implements ShouldQueue
         $this->entity->service()->markSent()->save();
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
-        $nmo->company = $this->company;
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact->withoutRelations(), $this->invitation->withoutRelations());
+        $nmo->company = $this->company->withoutRelations();
         $nmo->settings = $this->settings;
-        $nmo->to_user = $this->invitation->contact;
+        $nmo->to_user = $this->invitation->contact->withoutRelations();
         $nmo->entity_string = $this->entity_string;
-        $nmo->invitation = $this->invitation;
+        $nmo->invitation = $this->invitation->withoutRelations();
         $nmo->reminder_template = $this->reminder_template;
-        $nmo->entity = $this->entity;
+        $nmo->entity = $this->entity->withoutRelations();
 
         NinjaMailerJob::dispatch($nmo);
 
