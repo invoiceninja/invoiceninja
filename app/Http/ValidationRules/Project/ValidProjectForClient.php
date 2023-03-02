@@ -48,7 +48,7 @@ class ValidProjectForClient implements Rule
         //     $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
         // }
 
-        $project = Project::find($this->input['project_id']);
+        $project = Project::withTrashed()->find($this->input['project_id']);
 
         if (! $project) {
             $this->message = 'Project not found';
