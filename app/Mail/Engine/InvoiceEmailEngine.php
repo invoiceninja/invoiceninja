@@ -114,15 +114,19 @@ class InvoiceEmailEngine extends BaseEmailEngine
             );
         }
 
+        $contact = $this->contact->withoutRelations();
+        $variables = (new HtmlEngine($this->invitation))->makeValues();
+        $invitation = $this->invitation->withoutRelations();
+
         $this->setTemplate($this->client->getSetting('email_style'))
-            ->setContact($this->contact)
-            ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
+            ->setContact($contact)
+            ->setVariables($variables)//move make values into the htmlengine
             ->setSubject($subject_template)
             ->setBody($body_template)
-            ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
-            ->setViewLink($this->invitation->getLink())
+            ->setFooter("<a href='{$invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
+            ->setViewLink($invitation->getLink())
             ->setViewText(ctrans('texts.view_invoice'))
-            ->setInvitation($this->invitation)
+            ->setInvitation($invitation)
             ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
@@ -206,6 +210,15 @@ class InvoiceEmailEngine extends BaseEmailEngine
             }
         }
         
+        $this->invitation = null;
+        $contact = null;
+        $variables = null;
+        $this->invoice = null;
+        $this->client = null;
+        $pdf = null;
+        $expenses = null;
+        $tasks = null;
+
         return $this;
     }
 }
