@@ -422,7 +422,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         foreach($mandates->records as $mandate)
         {
-            if($customer->id != $mandate->links->customer || $mandate->status != 'active') {
+            if($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
                 continue;
             }
 
@@ -504,7 +504,8 @@ class GoCardlessPaymentDriver extends BaseDriver
         $contact->last_name = $customer->family_name ?: '';
         $contact->email = $customer->email ?: '';
         $contact->client_id = $client->id;
-
+        $contact->saveQuietly();
+        
         if (! isset($client->number) || empty($client->number)) {
             $x = 1;
 
