@@ -415,6 +415,42 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     private function updatePaymentMethods($customer, Client $client): void
     {
+        
+        $this->client = $client;
+
+        $mandates = $this->gateway->mandates()->list();
+
+        foreach($mandates->records as $mandate)
+        {
+            if($customer->id != $mandate->links->customer || $mandate->status != 'active') {
+                continue;
+            }
+
+            $payment_meta = new \stdClass;
+
+            if ($mandate->scheme == 'bacs') {
+                $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
+                $payment_meta->type = GatewayType::DIRECT_DEBIT;
+            }
+            elseif($mandate->scheme == 'sepa_core') {
+                $payment_meta->brand = ctrans('texts.sepa');
+                $payment_meta->type = GatewayType::SEPA;
+            }
+            else {
+                continue;
+            }
+            
+            $payment_meta->state = 'authorized';
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $mandate->id,
+                'payment_method_id' => GatewayType::DIRECT_DEBIT,
+            ];
+
+            $payment_method = $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
+        }
+
     }
 
     /*
@@ -444,11 +480,11 @@ class GoCardlessPaymentDriver extends BaseDriver
         $client->address2 = $customer->address_line2 ?: '';
         $client->city = $customer->city ?: '';
         $client->state = $customer->region ?: '';
-        $client->postal_code = $customer->postal_city ?: '';
-        $client->phone = $customer->address->phone ? $customer->phone : '';
+        $client->postal_code = $customer->postal_code ?: '';
+        $client->phone = $customer->phone_number ? $customer->phone_number : '';
         $client->name = $customer->company_name;
 
-        if ($customer->address->country) {
+        if ($customer->country_code) {
             $country = Country::where('iso_3166_2', $customer->country_code)->first();
 
             if ($country) {
@@ -464,8 +500,8 @@ class GoCardlessPaymentDriver extends BaseDriver
         $client->save();
 
         $contact = ClientContactFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
-        $contact->first_name = $customer->first_name ?: '';
-        $contact->last_name = $customer->last_name ?: '';
+        $contact->first_name = $customer->given_name ?: '';
+        $contact->last_name = $customer->family_name ?: '';
         $contact->email = $customer->email ?: '';
         $contact->client_id = $client->id;
 
