@@ -91,18 +91,16 @@ jobs:
       run: |
         cp .env.ci .env
 
-    # - name: Get Composer Cache Directory
-    #   id: composer-cache
-    #   run: |
-    #     echo "::set-output name=dir::$(composer config cache-files-dir)"
-    # - uses: actions/cache@v2
-    #   with:
-    #     path: ${{ steps.composer-cache.outputs.dir }}
-    #     key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-${{ matrix.php }}-composer-
-
-
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.php }}-composer-
 
     - name: Install composer dependencies
       run: |
