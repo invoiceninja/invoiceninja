@@ -13,7 +13,6 @@ namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\Document;
 use App\Models\Payment;
 use App\Transformers\PaymentTransformer;
 use App\Utils\Ninja;
@@ -24,13 +23,11 @@ class PaymentExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'date';
+    public $date_key = 'date';
 
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'amount' => 'amount',
         'applied' => 'applied',
         'client' => 'client_id',

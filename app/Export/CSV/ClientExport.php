@@ -24,19 +24,13 @@ class ClientExport extends BaseExport
 {
     private $company;
 
-    protected $input;
-
     private $client_transformer;
 
     private $contact_transformer;
 
-    private string $start_date;
+    public string $date_key = 'created_at';
 
-    private string $end_date;
-
-    protected string $date_key = 'created_at';
-
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'address1' => 'client.address1',
         'address2' => 'client.address2',
         'balance' => 'client.balance',

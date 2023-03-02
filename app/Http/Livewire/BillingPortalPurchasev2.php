@@ -145,6 +145,8 @@ class BillingPortalPurchasev2 extends Component
     public $optional_recurring_products;
     public $optional_products;
     public $total;
+    public $non_recurring_total;
+    public $recurring_total;
     public $discount;
     public $sub_total;
     public $authenticated = false;
@@ -170,6 +172,9 @@ class BillingPortalPurchasev2 extends Component
             $this->contact = auth()->guard('contact')->user();
             $this->authenticated = true;
             $this->payment_started = true;
+        }
+        else {
+            $this->bundle = collect();
         }
 
         $this->discount = 0;
@@ -381,6 +386,8 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $this->sub_total = Number::formatMoney($this->bundle->sum('total'), $this->subscription->company);
+        $this->recurring_total = Number::formatMoney($this->bundle->where('is_recurring', true)->sum('total'), $this->subscription->company);
+        $this->non_recurring_total = Number::formatMoney($this->bundle->where('is_recurring', false)->sum('total'), $this->subscription->company);
         $this->total = $this->sub_total;
 
         if ($this->valid_coupon) {

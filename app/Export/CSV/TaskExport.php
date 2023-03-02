@@ -26,15 +26,13 @@ class TaskExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public $date_key = 'created_at';
 
     private string $date_format = 'YYYY-MM-DD';
 
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'start_date' => 'start_date',
         'end_date' => 'end_date',
         'duration' => 'duration',
