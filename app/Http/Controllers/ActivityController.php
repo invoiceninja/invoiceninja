@@ -87,7 +87,8 @@ class ActivityController extends BaseController
     {
         $default_activities = $request->has('rows') ? $request->input('rows') : 50;
 
-        $activities = Activity::orderBy('created_at', 'DESC')
+        $activities = Activity::with('user')
+                                ->orderBy('created_at', 'DESC')
                                 ->company()
                                 ->take($default_activities);
 
