@@ -93,7 +93,10 @@ class BaseImport
 
         $csv = base64_decode($base64_encoded_csv);
         $csv = Reader::createFromString($csv);
+        $csvdelimiter = self::detectDelimiter($csv);
+        nlog("delmiter = {$csvdelimiter}");
 
+        $csv->setDelimiter($csvdelimiter);
         $stmt = new Statement();
         $data = iterator_to_array($stmt->process($csv));
 
@@ -116,6 +119,20 @@ class BaseImport
         }
 
         return $data;
+    }
+
+    public function detectDelimiter($csvfile)
+    {
+        $delimiters = [',', '.', ';'];
+        $bestDelimiter = ' ';
+        $count = 0;
+        foreach ($delimiters as $delimiter) {
+            if (substr_count($csvfile, $delimiter) > $count) {
+                $count = substr_count($csvfile, $delimiter);
+                $bestDelimiter = $delimiter;
+            }
+        }
+        return $bestDelimiter;
     }
 
     public function mapCSVHeaderToKeys($csvData)
@@ -619,9 +636,8 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
-        //sort the array by key
-        // $keys = $this->column_map[$entity_type];
 
+        
         $keys = array_shift($data);
         ksort($keys);
 
@@ -643,9 +659,10 @@ class BaseImport
         //sort the array by key
         $keys = $this->column_map[$entity_type];
         ksort($keys);
+nlog($keys);
 
         $data = array_map(function ($row) use ($keys) {
-
+nlog($row);
             $row_count = count($row);
             $key_count = count($keys);
             
