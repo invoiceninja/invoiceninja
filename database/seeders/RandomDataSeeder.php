@@ -121,6 +121,8 @@ class RandomDataSeeder extends Seeder
             'email' => 'user@example.com',
         ]);
 
+        $user->first_name = 'U';
+        $user->last_name = 'ser';
         $user->password = Hash::make('password');
         $user->account_id = $account->id;
         $user->email_verified_at = now();
@@ -149,6 +151,8 @@ class RandomDataSeeder extends Seeder
             'email' => 'permissions@example.com',
         ]);
 
+        $user->first_name = 'per';
+        $user->last_name = 'missions';
         $user->password = Hash::make('password');
         $user->account_id = $account->id;
         $user->email_verified_at = now();

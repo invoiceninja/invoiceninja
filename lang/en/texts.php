@@ -5011,6 +5011,7 @@ $LANG = array(
     'add_company_logo' => 'Add Logo',
     'add_stripe' => 'Add Stripe',
     'invalid_coupon' => 'Invalid Coupon',
+    'no_assigned_tasks' => 'No billable tasks for this project',
 );
 
 

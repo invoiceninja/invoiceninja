@@ -22,8 +22,6 @@ class InvoiceFailedEmailNotification
 {
     use UserNotifies;
 
-    public $delay = 7;
-
     public function __construct()
     {
     }
@@ -51,8 +49,8 @@ class InvoiceFailedEmailNotification
                 unset($methods[$key]);
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation, 'invoice', $event->template, $event->message))->build());
-                $nmo->company = $invoice->company;
+                $nmo->mailable = new NinjaMailer((new EntityFailedSendObject($event->invitation->withoutRelations(), 'invoice', $event->template, $event->message))->build());
+                $nmo->company = $invoice->company->withoutRelations();
                 $nmo->settings = $invoice->company->settings;
                 $nmo->to_user = $user;
 

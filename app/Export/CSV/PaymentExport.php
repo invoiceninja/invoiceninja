@@ -25,7 +25,7 @@ class PaymentExport extends BaseExport
 
     private $entity_transformer;
 
-    public $date_key = 'date';
+    public string $date_key = 'date';
 
     public array $entity_keys = [
         'amount' => 'amount',
