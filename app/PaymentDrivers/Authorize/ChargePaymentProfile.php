@@ -30,7 +30,7 @@ class ChargePaymentProfile
 {
     use MakesHash;
 
-    public function __construct(AuthorizePaymentDriver $authorize)
+    public function __construct(public AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
     }
@@ -49,6 +49,7 @@ class ChargePaymentProfile
         $profileToCharge->setPaymentProfile($paymentProfile);
 
         $invoice_numbers = '';
+        $po_numbers = '';
         $taxAmount = 0;
         $invoiceTotal = 0;
         $invoiceTaxes = 0;
@@ -56,6 +57,8 @@ class ChargePaymentProfile
         if ($this->authorize->payment_hash->data) {
             $invoice_numbers = collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
             $invObj = Invoice::whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+            $po_numbers = $invObj->pluck('po_number')->implode(',');
 
             $invoiceTotal = round($invObj->pluck('amount')->sum(), 2);
             $invoiceTaxes = round($invObj->pluck('total_taxes')->sum(), 2);
@@ -73,6 +76,7 @@ class ChargePaymentProfile
         $order = new OrderType();
         $order->setInvoiceNumber(substr($invoice_numbers, 0, 19));
         $order->setDescription(substr($description, 0, 255));
+        $order->setSupplierOrderReference(substr($po_numbers, 0, 19));// 04-03-2023
 
         $tax = new ExtendedAmountType();
         $tax->setName('tax');
@@ -99,14 +103,9 @@ class ChargePaymentProfile
 
             if ($tresponse != null && $tresponse->getMessages() != null) {
                 nlog(' Transaction Response code : '.$tresponse->getResponseCode());
-                nlog('Charge Customer Profile APPROVED  :');
+                nlog(' Charge Customer Profile APPROVED  :');
                 nlog(' Charge Customer Profile AUTH CODE : '.$tresponse->getAuthCode());
                 nlog(' Charge Customer Profile TRANS ID  : '.$tresponse->getTransId());
-                nlog(' Code : '.$tresponse->getMessages()[0]->getCode());
-                nlog(' Description : '.$tresponse->getMessages()[0]->getDescription());
-                //nlog(" Charge Customer Profile TRANS STATUS  : " . $tresponse->getTransactionStatus() );
-                //nlog(" Charge Customer Profile Amount : " . $tresponse->getAuthAmount());
-
                 nlog(' Code : '.$tresponse->getMessages()[0]->getCode());
                 nlog(' Description : '.$tresponse->getMessages()[0]->getDescription());
                 nlog(print_r($tresponse->getMessages()[0], 1));
