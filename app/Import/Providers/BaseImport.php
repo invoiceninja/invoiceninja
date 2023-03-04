@@ -665,10 +665,9 @@ class BaseImport
         //sort the array by key
         $keys = $this->column_map[$entity_type];
         ksort($keys);
-nlog($keys);
 
         $data = array_map(function ($row) use ($keys) {
-nlog($row);
+
             $row_count = count($row);
             $key_count = count($keys);
             
