@@ -178,6 +178,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['company_users'] = $this->company->company_users()->without(['user','account'])->cursor()->map(function ($company_user) {
             $company_user = $this->transformArrayOfKeys($company_user, ['company_id', 'account_id', 'user_id']);
 
+            // return $company_user->makeHidden(['react_settings']);
             return $company_user;
         })->all();
 

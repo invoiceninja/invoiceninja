@@ -94,6 +94,7 @@ class Client extends BaseModel implements HasLocalePreference
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'last_login' => 'timestamp',
     ];
 
     protected $touches = [];

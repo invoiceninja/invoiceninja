@@ -13,8 +13,10 @@ namespace App\Console\Commands;
 
 use App\Libraries\MultiDB;
 use App\Models\Backup;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Document;
+use App\Models\GroupSetting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -76,41 +78,126 @@ class BackupUpdate extends Command
         //logos
         Company::cursor()
                ->each(function ($company) {
-                   $company_logo = $company->present()->logo();
+                   $company_logo_path = $company->settings->company_logo;
 
-                   if ($company_logo == 'https://invoicing.co/images/new_logo.png') {
+                   if ($company_logo_path == 'https://invoicing.co/images/new_logo.png' || $company_logo_path == '') {
                        return;
                    }
 
-                   $logo = @file_get_contents($company_logo);
-
-                   if ($logo) {
-                       $path = str_replace("https://objects.invoicing.co/", "", $company->present()->logo());
-                       $path = str_replace("https://v5-at-backup.us-southeast-1.linodeobjects.com/", "", $path);
+                   $logo = @file_get_contents($company_logo_path);
+                   $extension = @pathinfo($company->settings->company_logo, PATHINFO_EXTENSION);
+            
+                   if ($logo && $extension) {
+                       $path = "{$company->company_key}/{$company->company_key}.{$extension}";
 
                        Storage::disk($this->option('disk'))->put($path, $logo);
+
+                       $url = Storage::disk($this->option('disk'))->url($path);
+
+                       nlog("Company - Moving {$company_logo_path} logo to {$this->option('disk')} final URL = {$url}}");
+
+                       $settings = $company->settings;
+                       $settings->company_logo = $url;
+                       $company->settings = $settings;
+                       ;
+                       $company->save();
                    }
                });
+
+        Client::withTrashed()
+              ->whereNotNull('settings->company_logo')
+              ->cursor()
+              ->each(function ($client) {
+                  $company_logo_path = $client->settings->company_logo;
+
+                  $logo = @file_get_contents($company_logo_path);
+                  $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
+       
+                  if ($logo && $extension) {
+                      $path = "{$client->company->company_key}/{$client->client_hash}.{$extension}";
+
+                      Storage::disk($this->option('disk'))->put($path, $logo);
+
+                      $url = Storage::disk($this->option('disk'))->url($path);
+
+                      nlog("Client - Moving {$company_logo_path} logo to {$this->option('disk')} final URL = {$url}}");
+
+                      $settings = $client->settings;
+                      $settings->company_logo = $url;
+                      $client->settings = $settings;
+                      ;
+                      $client->saveQuietly();
+                  }
+              });
+
+        GroupSetting::withTrashed()
+              ->whereNotNull('settings->company_logo')
+              ->orWhere('settings->company_logo', '!=', '')
+              ->cursor()
+              ->each(function ($group) {
+                  $company_logo_path = $group->settings->company_logo;
+
+                  if (!$company_logo_path) {
+                      return;
+                  }
+
+                  $logo = @file_get_contents($company_logo_path);
+                  $extension = @pathinfo($company_logo_path, PATHINFO_EXTENSION);
+       
+                  if ($logo && $extension) {
+                      $path = "{$group->company->company_key}/{$group->hashed_id}.{$extension}";
+
+                      Storage::disk($this->option('disk'))->put($path, $logo);
+
+                      $url = Storage::disk($this->option('disk'))->url($path);
+
+                      nlog("Group - Moving {$company_logo_path} logo to {$this->option('disk')} final URL = {$url}}");
+
+                      $settings = $group->settings;
+                      $settings->company_logo = $url;
+                      $group->settings = $settings;
+                      ;
+                      $group->saveQuietly();
+                  }
+              });
+
 
 
         //documents
         Document::cursor()
-                ->each(function ($document) {
-                    $doc_bin = $document->getFile();
+                ->each(function (Document $document) {
+                    $doc_bin = false;
+
+                    try {
+                        $doc_bin = $document->getFile();
+                    } catch(\Exception $e) {
+                        nlog($e->getMessage());
+                    }
 
                     if ($doc_bin) {
                         Storage::disk($this->option('disk'))->put($document->url, $doc_bin);
+
+                        $document->disk = $this->option('disk');
+                        $document->saveQuietly();
+
+                        nlog("Documents - Moving {$document->url} to {$this->option('disk')}");
                     }
                 });
 
 
         //backups
-        Backup::cursor()
+        Backup::whereNotNull('filename')
+                ->where('filename', '!=', '')
+                ->cursor()
                 ->each(function ($backup) {
+                    
                     $backup_bin = Storage::disk('s3')->get($backup->filename);
 
                     if ($backup_bin) {
                         Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
+
+                        nlog("Backups - Moving {$backup->filename} to {$this->option('disk')}");
+
                     }
                 });
     }

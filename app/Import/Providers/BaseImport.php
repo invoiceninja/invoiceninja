@@ -123,14 +123,20 @@ class BaseImport
 
     public function detectDelimiter($csvfile)
     {
-        $delimiters = [',', '.', ';'];
-        $bestDelimiter = ' ';
+        $delimiters = [',', '.', ';', '|'];
+        $bestDelimiter = ',';
         $count = 0;
         foreach ($delimiters as $delimiter) {
-            if (substr_count($csvfile, $delimiter) > $count) {
+            // if (substr_count($csvfile, $delimiter) > $count) {
+            //     $count = substr_count($csvfile, $delimiter);
+            //     $bestDelimiter = $delimiter;
+            // }
+            if (substr_count(strstr($csvfile,"\n",true), $delimiter) > $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
+
+
         }
         return $bestDelimiter;
     }
@@ -659,10 +665,9 @@ class BaseImport
         //sort the array by key
         $keys = $this->column_map[$entity_type];
         ksort($keys);
-nlog($keys);
 
         $data = array_map(function ($row) use ($keys) {
-nlog($row);
+
             $row_count = count($row);
             $key_count = count($keys);
             
