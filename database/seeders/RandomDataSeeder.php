@@ -152,7 +152,7 @@ class RandomDataSeeder extends Seeder
         ]);
 
         $user->first_name = 'Permissions';
-        $user->last_name = 'Test';
+        $user->last_name = 'Example';
         $user->password = Hash::make('password');
         $user->account_id = $account->id;
         $user->email_verified_at = now();
