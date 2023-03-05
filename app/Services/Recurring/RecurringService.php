@@ -50,9 +50,12 @@ class RecurringService
 
     public function start()
     {
-        if ($this->recurring_entity->remaining_cycles == 0) {
+        if ($this->recurring_entity->remaining_cycles == 0 || $this->recurring_entity->is_deleted) {
             return $this;
         }
+    
+        if($this->recurring_entity->trashed())
+            $this->recurring_entity->restore();
 
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
         
