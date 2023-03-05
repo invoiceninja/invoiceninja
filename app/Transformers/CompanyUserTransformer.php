@@ -44,7 +44,7 @@ class CompanyUserTransformer extends EntityTransformer
             'permissions' => $company_user->permissions ?: '',
             'notifications' => $company_user->notifications ? (object) $company_user->notifications : $blank_obj,
             'settings' =>  $company_user->settings ? (object) $company_user->settings : $blank_obj,
-            'react_settings' => $company_user->react_settings ? (object) $company_user->react_settings : $blank_obj,
+            'react_settings' => $company_user->react_settings ? $company_user->react_settings : [],
             'is_owner' => (bool) $company_user->is_owner,
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,
