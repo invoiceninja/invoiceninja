@@ -238,7 +238,9 @@ class Number
             $precision = 2;
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
-        } elseif(is_array($parts) && $parts[0] != 0) {
+        } 
+        
+        if(is_array($parts) && $parts[0] != 0) {
             $precision = 2;
         }
 
