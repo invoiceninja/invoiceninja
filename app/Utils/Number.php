@@ -231,12 +231,15 @@ class Number
 
         /* 08-01-2022 allow increased precision for unit price*/
         $v = rtrim(sprintf('%f', $value), '0');
+        $parts = explode('.', $v);
 
         /* 08-02-2023 special if block to render $0.5 to $0.50*/
         if ($v < 1 && strlen($v) == 3) {
             $precision = 2;
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
+        } elseif(is_array($parts) && $parts[0] != 0) {
+            $precision = 2;
         }
 
         $value = number_format($v, $precision, $decimal, $thousand);
