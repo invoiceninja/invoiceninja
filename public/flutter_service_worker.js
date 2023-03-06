@@ -297,8 +297,8 @@ const RESOURCES = {
 "assets/NOTICES": "b6ef5cf9eac9b8ae3f08bcf37ba466fd",
 "assets/fonts/MaterialIcons-Regular.otf": "e7069dfd19b331be16bed984668fe080",
 "assets/AssetManifest.json": "759f9ef9973f7e26c2a51450b55bb9fa",
-"/": "83122341d97d0de7c7dd682dd3b47d00",
-"main.dart.js": "11cf39dcdfe1f0a98d5f906b5bd5d809",
+"/": "f636830cc0756ba84462e1d77607190c",
+"main.dart.js": "d5c253b91d5b1143823e53e25e248800",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed"
 };
