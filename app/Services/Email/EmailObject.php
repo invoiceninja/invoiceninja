@@ -11,13 +11,20 @@
 
 namespace App\Services\Email;
 
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\User;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Vendor;
+use App\Models\Invoice;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
+use App\Models\QuoteInvitation;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use Illuminate\Mail\Mailables\Address;
+use App\Models\PurchaseOrderInvitation;
 
 /**
  * EmailObject.
@@ -52,15 +59,31 @@ class EmailObject
 
     public ?string $greeting = null;
 
-    public ?Client $client = null;
+    public ?int $invitation_id = null;
 
-    public ?Vendor $vendor = null;
+    public InvoiceInvitation | QuoteInvitation | CreditInvitation | PurchaseOrderInvitation | null $invitation;
+    
+    public ?int $entity_id = null;
 
-    public ?User $user = null;
+    public Invoice | Quote | Credit | PurchaseOrder | null $entity;
+    
+    public ?int $client_id = null;
 
-    public ?ClientContact $client_contact = null;
+    public ?Client $client;
+    
+    public ?int $vendor_id = null;
 
-    public ?VendorContact $vendor_contact = null;
+    public ?Vendor $vendor;
+
+    public ?int $user_id = null;
+
+    public ?User $user;
+
+    public ?int $client_contact_id = null;
+
+    public ClientContact | VendorContact | null  $contact;
+
+    public ?int $vendor_contact_id = null;
 
     public ?string $email_template_body = null;
 
@@ -72,13 +95,11 @@ class EmailObject
 
     public array $headers = [];
 
-    public ?string $invitation_key = null;
-    
-    public ?int $entity_id = null;
-
     public ?string $entity_class = null;
 
     public array $variables = [];
 
-    public ?Company $company = null;
+    public bool $override = false;
+
+    public ?string $invitation_key = null;
 }

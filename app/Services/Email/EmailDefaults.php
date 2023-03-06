@@ -39,10 +39,10 @@ class EmailDefaults
     private string $locale;
 
     /**
-     * @param EmailService $email_service The email service class
-     * @param EmailObject  $email_object  the email object class
+     * @param Email $email job class
+     * @param EmailObject  $email_object the email object class
      */
-    public function __construct(protected EmailService $email_service, public EmailObject $email_object)
+    public function __construct(protected Email $email)
     {
     }
  
@@ -54,9 +54,9 @@ class EmailDefaults
      */
     public function run()
     {
-        $this->settings = $this->email_object->settings;
+        $this->settings = $this->email->email_object->settings;
 
-        $this->setLocale()
+        $this->setLocale() //
              ->setFrom()
              ->setTemplate()
              ->setBody()
@@ -64,26 +64,9 @@ class EmailDefaults
              ->setReplyTo()
              ->setBcc()
              ->setAttachments()
-             ->setMetaData()
              ->setVariables();
         
-        return $this->email_object;
-    }
-
-    /**
-     * Sets the meta data for the Email object
-     */
-    private function setMetaData(): self
-    {
-        $this->email_object->company_key = $this->email_service->company->company_key;
-
-        $this->email_object->logo = $this->email_service->company->present()->logo();
-
-        $this->email_object->signature = $this->email_object->signature ?: $this->settings->email_signature;
-
-        $this->email_object->whitelabel = $this->email_object->company->account->isPaid() ? true : false;
- 
-        return $this;
+        return $this->email->email_object;
     }
 
     /**
@@ -91,12 +74,12 @@ class EmailDefaults
      */
     private function setLocale(): self
     {
-        if ($this->email_object->client) {
-            $this->locale = $this->email_object->client->locale();
-        } elseif ($this->email_object->vendor) {
-            $this->locale = $this->email_object->vendor->locale();
+        if ($this->email->email_object->client) {
+            $this->locale = $this->email->email_object->client->locale();
+        } elseif ($this->email->email_object->vendor) {
+            $this->locale = $this->email->email_object->vendor->locale();
         } else {
-            $this->locale = $this->email_service->company->locale();
+            $this->locale = $this->email->company->locale();
         }
 
         App::setLocale($this->locale);
@@ -112,16 +95,16 @@ class EmailDefaults
      */
     private function setTemplate(): self
     {
-        $this->template = $this->email_object->settings->email_style;
+        $this->template = $this->email->email_object->settings->email_style;
 
-        match ($this->email_object->settings->email_style) {
+        match ($this->email->email_object->settings->email_style) {
             'light' => $this->template = 'email.template.client',
             'dark' => $this->template = 'email.template.client',
             'custom' => $this->template = 'email.template.custom',
             default => $this->template = 'email.template.client',
         };
 
-        $this->email_object->html_template = $this->template;
+        $this->email->email_object->html_template = $this->template;
 
         return $this;
     }
@@ -131,16 +114,16 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default') {
-            $this->email_object->from = new Address(config('mail.from.address'), $this->email_service->company->owner()->name());
+        if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
+            $this->email->email_object->from = new Address(config('mail.from.address'), $this->email->company->owner()->name());
             return $this;
         }
 
-        if ($this->email_object->from) {
+        if ($this->email->email_object->from) {
             return $this;
         }
 
-        $this->email_object->from = new Address($this->email_service->company->owner()->email, $this->email_service->company->owner()->name());
+        $this->email->email_object->from = new Address($this->email->company->owner()->email, $this->email->company->owner()->name());
 
         return $this;
     }
@@ -150,16 +133,16 @@ class EmailDefaults
      */
     private function setBody(): self
     {
-        if ($this->email_object->body) {
-            $this->email_object->body = $this->email_object->body;
-        } elseif (strlen($this->email_object->settings->{$this->email_object->email_template_body}) > 3) {
-            $this->email_object->body = $this->email_object->settings->{$this->email_object->email_template_body};
+        if ($this->email->email_object->body) {
+            $this->email->email_object->body = $this->email->email_object->body;
+        } elseif (strlen($this->email->email_object->settings->{$this->email->email_object->email_template_body}) > 3) {
+            $this->email->email_object->body = $this->email->email_object->settings->{$this->email->email_object->email_template_body};
         } else {
-            $this->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email_object->email_template_body, $this->locale);
+            $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
         
         if ($this->template == 'email.template.custom') {
-            $this->email_object->body = (str_replace('$body', $this->email_object->body, $this->email_object->settings->email_style_custom));
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
         }
 
         return $this;
@@ -170,12 +153,12 @@ class EmailDefaults
      */
     private function setSubject(): self
     {
-        if ($this->email_object->subject) { //where the user updates the subject from the UI
+        if ($this->email->email_object->subject) { //where the user updates the subject from the UI
             return $this;
-        } elseif (strlen($this->email_object->settings->{$this->email_object->email_template_subject}) > 3) {
-            $this->email_object->subject = $this->email_object->settings->{$this->email_object->email_template_subject};
+        } elseif (strlen($this->email->email_object->settings->{$this->email->email_object->email_template_subject}) > 3) {
+            $this->email->email_object->subject = $this->email->email_object->settings->{$this->email->email_object->email_template_subject};
         } else {
-            $this->email_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->email_object->email_template_subject, $this->locale);
+            $this->email->email_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_subject, $this->locale);
         }
 
         return $this;
@@ -186,11 +169,11 @@ class EmailDefaults
      */
     private function setReplyTo(): self
     {
-        $reply_to_email = str_contains($this->email_object->settings->reply_to_email, "@") ? $this->email_object->settings->reply_to_email : $this->email_service->company->owner()->email;
+        $reply_to_email = str_contains($this->email->email_object->settings->reply_to_email, "@") ? $this->email->email_object->settings->reply_to_email : $this->email->company->owner()->email;
 
-        $reply_to_name = strlen($this->email_object->settings->reply_to_name) > 3 ? $this->email_object->settings->reply_to_name : $this->email_service->company->owner()->present()->name();
+        $reply_to_name = strlen($this->email->email_object->settings->reply_to_name) > 3 ? $this->email->email_object->settings->reply_to_name : $this->email->company->owner()->present()->name();
 
-        $this->email_object->reply_to = array_merge($this->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
+        $this->email->email_object->reply_to = array_merge($this->email->email_object->reply_to, [new Address($reply_to_email, $reply_to_name)]);
 
         return $this;
     }
@@ -201,12 +184,12 @@ class EmailDefaults
      */
     public function setVariables(): self
     {
-        $this->email_object->body = strtr($this->email_object->body, $this->email_object->variables);
+        $this->email->email_object->body = strtr($this->email->email_object->body, $this->email->email_object->variables);
         
-        $this->email_object->subject = strtr($this->email_object->subject, $this->email_object->variables);
+        $this->email->email_object->subject = strtr($this->email->email_object->subject, $this->email->email_object->variables);
 
         if ($this->template != 'custom') {
-            $this->email_object->body = $this->parseMarkdownToHtml($this->email_object->body);
+            $this->email->email_object->body = $this->parseMarkdownToHtml($this->email->email_object->body);
         }
 
         return $this;
@@ -220,11 +203,11 @@ class EmailDefaults
         $bccs = [];
         $bcc_array = [];
 
-        if (strlen($this->email_object->settings->bcc_email) > 1) {
-            if (Ninja::isHosted() && $this->email_service->company->account->isPaid()) {
-                $bccs = array_slice(explode(',', str_replace(' ', '', $this->email_object->settings->bcc_email)), 0, 2);
+        if (strlen($this->email->email_object->settings->bcc_email) > 1) {
+            if (Ninja::isHosted() && $this->email->company->account->isPaid()) {
+                $bccs = array_slice(explode(',', str_replace(' ', '', $this->email->email_object->settings->bcc_email)), 0, 2);
             } elseif (Ninja::isSelfHost()) {
-                $bccs = (explode(',', str_replace(' ', '', $this->email_object->settings->bcc_email)));
+                $bccs = (explode(',', str_replace(' ', '', $this->email->email_object->settings->bcc_email)));
             }
         }
 
@@ -232,7 +215,7 @@ class EmailDefaults
             $bcc_array[] = new Address($bcc);
         }
         
-        $this->email_object->bcc = array_merge($this->email_object->bcc, $bcc_array);
+        $this->email->email_object->bcc = array_merge($this->email->email_object->bcc, $bcc_array);
 
         return $this;
     }
@@ -260,13 +243,13 @@ class EmailDefaults
     {
         $attachments = [];
 
-        if ($this->email_object->settings->document_email_attachment && $this->email_service->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
-            foreach ($this->email_service->company->documents as $document) {
+        if ($this->email->email_object->settings->document_email_attachment && $this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+            foreach ($this->email->company->documents as $document) {
                 $attachments[] = ['file' => base64_encode($document->getFile()), 'name' => $document->name];
             }
         }
 
-        $this->email_object->attachments = array_merge($this->email_object->attachments, $attachments);
+        $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, $attachments);
 
         return $this;
     }
@@ -276,8 +259,8 @@ class EmailDefaults
      */
     private function setHeaders(): self
     {
-        if ($this->email_object->invitation_key) {
-            $this->email_object->headers = array_merge($this->email_object->headers, ['x-invitation-key' => $this->email_object->invitation_key]);
+        if ($this->email->email_object->invitation_key) {
+            $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation-key' => $this->email->email_object->invitation_key]);
         }
 
         return $this;

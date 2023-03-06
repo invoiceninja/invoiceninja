@@ -165,9 +165,7 @@ class ClientService
         $email_object = new EmailObject;
         $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
-        $email_object->settings = $this->client->getMergedSettings();
-        $email_object->company = $this->client->company;
-        $email_object->client = $this->client;
+        $email_object->client_id = $this->client->id;
         $email_object->email_template_subject = 'email_subject_statement';
         $email_object->email_template_body = 'email_template_statement';
         $email_object->variables = [
