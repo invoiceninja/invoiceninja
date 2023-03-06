@@ -94,7 +94,6 @@ class BaseImport
         $csv = base64_decode($base64_encoded_csv);
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
-        nlog("delmiter = {$csvdelimiter}");
 
         $csv->setDelimiter($csvdelimiter);
         $stmt = new Statement();
