@@ -36,7 +36,8 @@ class SubdomainController extends BaseController
         'lb',
         'shopify',
         'beta',
-        'prometh'
+        'prometh',
+        'license',
     ];
 
     public function __construct()
