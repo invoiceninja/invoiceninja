@@ -11,26 +11,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Credit\CreditWasEmailed;
-use App\Events\Quote\QuoteWasEmailed;
-use App\Http\Requests\Email\SendEmailRequest;
-use App\Jobs\Entity\EmailEntity;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
+use App\Services\Email\Email;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\RecurringInvoice;
 use App\Services\Email\MailEntity;
 use App\Services\Email\MailObject;
+use App\Services\Email\EmailObject;
+use App\Events\Quote\QuoteWasEmailed;
+use App\Transformers\QuoteTransformer;
+use App\Events\Credit\CreditWasEmailed;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
+use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Transformers\PurchaseOrderTransformer;
-use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
 
 class EmailController extends BaseController
 {
@@ -127,11 +129,12 @@ class EmailController extends BaseController
             'body' => $body,
         ];
 
-        $mo = new MailObject;
+        $mo = new EmailObject;
         $mo->subject = empty($subject) ?  null : $subject;
         $mo->body = empty($body) ? null : $body;
-        $mo->entity_string = $entity;
-        $mo->email_template = $template;
+        $mo->entity_id = $request->input('entity_id');
+        $mo->template = $template;
+        $mo->entity_class = $this->resolveClass($entity);
 
         if (Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -145,8 +148,11 @@ class EmailController extends BaseController
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
+                // EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
 
+                $mo->invitation_id = $invitation->id;
+                
+                Email::dispatch($mo, $invitation->company);
                 // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
             }
         });
@@ -202,5 +208,20 @@ class EmailController extends BaseController
         PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
         
         return $this->itemResponse($entity_obj);
+    }
+
+    private function resolveClass(string $entity): string
+    {
+        match($entity){
+            'invoice' => $class = Invoice::class,
+            'credit' => $class = Credit::class,
+            'quote' => $class = Quote::class,
+            'purchase_order' => $class = PurchaseOrder::class,
+            'purchaseOrder' => $class = PurchaseOrder::class,
+            'App\Models\PurchaseOrder' => $class = PurchaseOrder::class,
+            default => $class = Invoice::class,
+        };
+
+        return $class;
     }
 }

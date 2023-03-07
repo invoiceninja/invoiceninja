@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\SystemLog;
+use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
@@ -24,6 +25,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
 use App\Libraries\Google\Google;
 use Illuminate\Support\Facades\Mail;
 use App\Services\Email\EmailMailable;
@@ -101,9 +103,20 @@ class Email implements ShouldQueue
 
         $this->email_object->invitation_id ? $this->email_object->invitation = $this->email_object->entity->invitations()->where('id', $this->email_object->invitation_id)->first() : $this->email_object->invitation = null;
 
-        $this->email_object->client_id ? $this->email_object->client = Client::withTrashed()->find($this->email_object->client_id) : $this->email_object->client = null;
+        $this->email_object->invitation_id ? $this->email_object->contact = $this->email_object->invitation->contact :  null;
 
+        $this->email_object->client_id ? $this->email_object->client = Client::withTrashed()->find($this->email_object->client_id) : $this->email_object->client = null;
+        
         $this->email_object->vendor_id ? $this->email_object->vendor = Vendor::withTrashed()->find($this->email_object->vendor_id) : $this->email_object->vendor = null;
+   
+        if (!$this->email_object->contact) 
+        {
+
+            $this->email_object->vendor_contact_id ? $this->email_object->contact = VendorContact::withTrashed()->find($this->email_object->vendor_contact_id) :  null;
+
+            $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
+
+        }
         
         $this->email_object->user_id ? $this->email_object->user = User::withTrashed()->find($this->email_object->user_id) :  $this->email_object->user = $this->company->owner();
 
@@ -111,10 +124,6 @@ class Email implements ShouldQueue
 
         $this->email_object->company = $this->company;
 
-        $this->email_object->vendor_contact_id ? $this->email_object->contact = VendorContact::withTrashed()->find($this->email_object->vendor_contact_id) :  null;
-
-        $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
-        
         $this->email_object->client_id ? $this->email_object->settings  = $this->email_object->client->getMergedSettings() : $this->email_object->settings = $this->company->settings;
 
         $this->email_object->whitelabel = $this->company->account->isPaid() ? true : false;
@@ -122,6 +131,21 @@ class Email implements ShouldQueue
         $this->email_object->logo = $this->email_object->settings->company_logo;
 
         $this->email_object->signature = $this->email_object->settings->email_signature;
+
+        $this->resolveVariables();
+
+        return $this;
+    }
+
+    private function resolveVariables(): self
+    {
+        match(get_class($this->email_object->entity)){
+            Invoice::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
+            Quote::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
+            Credit::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
+            PurchaseOrder::class => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
+            default => null
+        };
 
         return $this;
     }

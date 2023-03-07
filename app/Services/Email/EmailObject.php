@@ -108,4 +108,6 @@ class EmailObject
     public ?string $invitation_key = null;
 
     public array $documents = [];
+
+    public ?string $template = null; //invoice //quote //reminder1
 }

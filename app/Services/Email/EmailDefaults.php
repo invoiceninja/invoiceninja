@@ -58,6 +58,7 @@ class EmailDefaults
 
         $this->setLocale() //
              ->setFrom()
+             ->setTo()
              ->setTemplate()
              ->setBody()
              ->setSubject()
@@ -129,13 +130,28 @@ class EmailDefaults
     }
 
     /**
+     * Sets the To address
+     */
+    private function setTo(): self
+    {
+
+        if ($this->email->email_object->to) {
+            return $this;
+        }
+
+        $this->email->email_object->to = [new Address($this->email->email_object->contact->email, $this->email->email_object->contact->present()->name())];
+
+        return $this;
+    }
+
+    /**
      * Sets the body of the email
      */
     private function setBody(): self
     {
         if ($this->email->email_object->body) {
             $this->email->email_object->body = $this->email->email_object->body;
-        } elseif (strlen($this->email->email_object->settings->{$this->email->email_object->email_template_body}) > 3) {
+        } elseif (isset($this->email->email_object->email_template_body) && strlen($this->email->email_object->settings->{$this->email->email_object->email_template_body}) > 3) {
             $this->email->email_object->body = $this->email->email_object->settings->{$this->email->email_object->email_template_body};
         } else {
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
@@ -155,7 +171,7 @@ class EmailDefaults
     {
         if ($this->email->email_object->subject) { //where the user updates the subject from the UI
             return $this;
-        } elseif (strlen($this->email->email_object->settings->{$this->email->email_object->email_template_subject}) > 3) {
+        } elseif (isset($this->email->email_object->email_template_subject) && strlen($this->email->email_object->settings->{$this->email->email_object->email_template_subject}) > 3) {
             $this->email->email_object->subject = $this->email->email_object->settings->{$this->email->email_object->email_template_subject};
         } else {
             $this->email->email_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_subject, $this->locale);
