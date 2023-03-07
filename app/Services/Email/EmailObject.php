@@ -16,7 +16,9 @@ use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
@@ -49,6 +51,8 @@ class EmailObject
 
     public string $company_key;
 
+    public Company $company;
+
     public ?object $settings = null;
 
     public bool $whitelabel = false;
@@ -65,7 +69,7 @@ class EmailObject
     
     public ?int $entity_id = null;
 
-    public Invoice | Quote | Credit | PurchaseOrder | null $entity;
+    public Invoice | Quote | Credit | PurchaseOrder | Payment | null $entity;
     
     public ?int $client_id = null;
 
@@ -102,4 +106,6 @@ class EmailObject
     public bool $override = false;
 
     public ?string $invitation_key = null;
+
+    public array $documents = [];
 }

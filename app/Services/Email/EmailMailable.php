@@ -11,11 +11,12 @@
 
 namespace App\Services\Email;
 
-use Illuminate\Mail\Attachment;
+use App\Models\Document;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Attachment;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Mailables\Envelope;
 
 class EmailMailable extends Mailable
 {
@@ -79,6 +80,13 @@ class EmailMailable extends Mailable
 
         foreach ($this->email_object->attachments as $file) {
             $attachments[] = Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
+        }
+
+        foreach($this->email_object->documents as $doc_id){
+            $document = Document::find($doc_id);
+
+            if($document)
+                $attachments[] = Attachment::fromData(fn () => $document->getFile(), $document->name);
         }
 
         return $attachments;

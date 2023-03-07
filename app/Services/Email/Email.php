@@ -25,13 +25,19 @@ use Illuminate\Mail\Mailable;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Libraries\Google\Google;
+use Illuminate\Support\Facades\Mail;
 use App\Services\Email\EmailMailable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Queue\SerializesModels;
 use Turbo124\Beacon\Facades\LightLogs;
 use Illuminate\Queue\InteractsWithQueue;
+use GuzzleHttp\Exception\ClientException;
 use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 
 class Email implements ShouldQueue
 {
@@ -77,6 +83,8 @@ class Email implements ShouldQueue
 
         $this->email();
 
+        $this->tearDown();
+
     }
 
     public function setOverride(): self
@@ -101,6 +109,8 @@ class Email implements ShouldQueue
 
         $this->email_object->company_key = $this->company->company_key;
 
+        $this->email_object->company = $this->company;
+
         $this->email_object->vendor_contact_id ? $this->email_object->contact = VendorContact::withTrashed()->find($this->email_object->vendor_contact_id) :  null;
 
         $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
@@ -114,6 +124,21 @@ class Email implements ShouldQueue
         $this->email_object->signature = $this->email_object->settings->email_signature;
 
         return $this;
+    }
+
+    private function tearDown(): self
+    {
+
+        $this->email_object->entity = null;
+        $this->email_object->invitation = null;
+        $this->email_object->client = null;
+        $this->email_object->vendor = null;
+        $this->email_object->user = null;
+        $this->email_object->contact = null;
+        $this->email_object->settings = null;
+
+        return $this;
+        
     }
 
     public function setDefaults(): self
@@ -161,6 +186,7 @@ class Email implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
+
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             
@@ -196,7 +222,7 @@ class Email implements ShouldQueue
                 }
             }
 
-
+            $this->tearDown();
             /* Releasing immediately does not add in the backoff */
             $this->release($this->backoff()[$this->attempts()-1]);
 
@@ -613,6 +639,34 @@ class Email implements ShouldQueue
         return $user->oauth_user_token;
     }
 
+    /**
+     * Entity notification when an email fails to send
+     *
+     * @param  string $message
+     * @return void
+     */
+    private function entityEmailFailed($message): void
+    {
+        $class = get_class($this->email_object->entity);
+
+        switch ($class) {
+            case Invoice::class:
+                event(new InvoiceWasEmailedAndFailed($this->email_object->invitation, $this->company, $message, $this->email_object->html_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+                break;
+            case Payment::class:
+                event(new PaymentWasEmailedAndFailed($this->email_object->entity, $this->company, $message, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        if ($this->email_object->client) {
+            $this->logMailError($message, $this->email_object->client);
+        }
+    }
+
+
     public function failed($exception = null)
     {
 
@@ -622,4 +676,6 @@ class Email implements ShouldQueue
         config(['queue.failed.driver' => null]);
 
     }
+
+
 }
