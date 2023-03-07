@@ -1,5 +1,6 @@
 <?php
 
+use App\DataMapper\ClientRegistrationFields;
 use App\Models\Company;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +19,10 @@ return new class extends Migration
 
             $crfs = $company->client_registration_fields;
             
+            if(!$crfs) {
+                $crfs = ClientRegistrationFields::generate();           
+            }
+
             foreach($crfs as $key => $crf)
             {
                 $crfs[$key]['visible'] = $crfs[$key]['required'];
