@@ -117,7 +117,7 @@ class Email implements ShouldQueue
             $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
 
         }
-        
+
         $this->email_object->user_id ? $this->email_object->user = User::withTrashed()->find($this->email_object->user_id) :  $this->email_object->user = $this->company->owner();
 
         $this->email_object->company_key = $this->company->company_key;
@@ -139,12 +139,12 @@ class Email implements ShouldQueue
 
     private function resolveVariables(): self
     {
-        match(get_class($this->email_object->entity)){
-            Invoice::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
-            Quote::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
-            Credit::class => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
-            PurchaseOrder::class => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->generateLabelsAndValues(),
-            default => null
+        match(class_basename($this->email_object->entity)){
+            "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
+            "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
+            "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
+            "PurchaseOrder" => $this->email_object->variables = (new VendorHtmlEngine($this->email_object->invitation))->makeValues(),
+            default => $this->email_object->variables = []
         };
 
         return $this;
