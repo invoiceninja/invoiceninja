@@ -29,7 +29,7 @@
                 <div class="grid grid-cols-12 gap-4 mt-10">
                     @if($register_company->client_registration_fields)
                     @foreach($register_company->client_registration_fields as $field)
-                        @if($field['required'])
+                        @if($field['visible'])
                             <div class="col-span-12 md:col-span-6">
                                 <section class="flex items-center">
                                     <label 

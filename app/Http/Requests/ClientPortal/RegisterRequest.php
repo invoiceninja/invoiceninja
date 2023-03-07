@@ -40,8 +40,8 @@ class RegisterRequest extends FormRequest
         $rules = [];
 
         foreach ($this->company()->client_registration_fields as $field) {
-            if ($field['required']) {
-                $rules[$field['key']] = ['bail','required'];
+            if ($field['visible']) {
+                $rules[$field['key']] = $field['required'] ? ['bail','required'] : ['sometimes'];
             }
         }
 
