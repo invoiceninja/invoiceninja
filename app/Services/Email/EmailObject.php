@@ -111,4 +111,6 @@ class EmailObject
     public array $documents = [];
 
     public ?string $template = null; //invoice //quote //reminder1
+
+    public array $links = [];
 }
