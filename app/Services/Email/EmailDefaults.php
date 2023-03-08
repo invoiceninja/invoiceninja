@@ -134,7 +134,6 @@ class EmailDefaults
      */
     private function setTo(): self
     {
-
         if ($this->email->email_object->to) {
             return $this;
         }
@@ -150,10 +149,13 @@ class EmailDefaults
     private function setBody(): self
     {
         if ($this->email->email_object->body) {
-            $this->email->email_object->body = $this->email->email_object->body;
+            // A Custom Message has been set in the email screen.
+            return $this;
         } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
+            // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
         } else {
+            // Default template to be used
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
         
@@ -207,7 +209,7 @@ class EmailDefaults
         if ($this->template != 'custom') {
             $this->email->email_object->body = $this->parseMarkdownToHtml($this->email->email_object->body);
         }
-nlog($this->email->email_object->subject);
+        nlog($this->email->email_object->subject);
         return $this;
     }
 

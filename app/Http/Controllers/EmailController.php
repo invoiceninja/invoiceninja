@@ -21,8 +21,6 @@ use Illuminate\Http\Response;
 use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\RecurringInvoice;
-use App\Services\Email\MailEntity;
-use App\Services\Email\MailObject;
 use App\Services\Email\EmailObject;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Transformers\QuoteTransformer;
@@ -121,7 +119,6 @@ class EmailController extends BaseController
         $entity_obj = $entity::withTrashed()->with('invitations')->find($request->input('entity_id'));
         $subject = $request->has('subject') ? $request->input('subject') : '';
         $body = $request->has('body') ? $request->input('body') : '';
-        $entity_string = strtolower(class_basename($entity_obj));
         $template = str_replace('email_template_', '', $request->input('template'));
 
         $data = [
@@ -133,10 +130,10 @@ class EmailController extends BaseController
         $mo->subject = strlen($subject) > 3 ? $subject : null;
         $mo->body = strlen($body) > 3 ? $body : null;
         $mo->entity_id = $request->input('entity_id');
-        $mo->template = $template;
+        $mo->template = $template; //full template name in use
         $mo->entity_class = $this->resolveClass($entity);
-        $mo->email_template_body = "email_template_{$template}";
-        $mo->email_template_subject = "email_subject_{$template}";
+        $mo->email_template_body = $template;
+        $mo->email_template_subject = str_replace("template", "subject", $template);
 
         if (Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -146,7 +143,7 @@ class EmailController extends BaseController
             return $this->sendPurchaseOrder($entity_obj, $data, $template);
         }
 
-        $entity_obj->invitations->each(function ($invitation) use ($data, $entity_string, $entity_obj, $template, $mo) {
+        $entity_obj->invitations->each(function ($invitation) use ($data, $entity_obj, $template, $mo) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
 
@@ -155,7 +152,7 @@ class EmailController extends BaseController
                 $mo->invitation_id = $invitation->id;
 
                 Email::dispatch($mo, $invitation->company);
-                // MailEntity::dispatch($invitation, $invitation->company->db, $mo);
+
             }
         });
 
@@ -214,10 +211,14 @@ class EmailController extends BaseController
 
     private function resolveClass(string $entity): string
     {
+
         match($entity){
             'invoice' => $class = Invoice::class,
+            'App\Models\Invoice' => $class = Invoice::class,
             'credit' => $class = Credit::class,
+            'App\Models\Credit' => $class = Credit::class,
             'quote' => $class = Quote::class,
+            'App\Models\Quote' => $class = Quote::class,
             'purchase_order' => $class = PurchaseOrder::class,
             'purchaseOrder' => $class = PurchaseOrder::class,
             'App\Models\PurchaseOrder' => $class = PurchaseOrder::class,
@@ -225,5 +226,6 @@ class EmailController extends BaseController
         };
 
         return $class;
+
     }
 }
