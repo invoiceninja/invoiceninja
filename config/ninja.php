@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.5.82',
-    'app_tag' => '5.5.82',
+    'app_version' => '5.5.83',
+    'app_tag' => '5.5.83',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -213,4 +213,5 @@ return [
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
     'licenses' => env('LICENSES',false),
+    'google_service_account' => env('GOOGLE_APPLICATION_CREDENTIALS', false),
 ];

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc1556128221db2e30f3d3b21f4f276e",
+    "content-hash": "440f7b49dc043f645d8ab14c097589ac",
     "packages": [
         {
             "name": "afosto/yaac",
@@ -380,16 +380,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.261.4",
+            "version": "3.261.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "31bc1e2a528c0f0881e4366d8ee0fa729cd42b00"
+                "reference": "63b03ec821473861af58439f1a35173e904d0f8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/31bc1e2a528c0f0881e4366d8ee0fa729cd42b00",
-                "reference": "31bc1e2a528c0f0881e4366d8ee0fa729cd42b00",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/63b03ec821473861af58439f1a35173e904d0f8c",
+                "reference": "63b03ec821473861af58439f1a35173e904d0f8c",
                 "shasum": ""
             },
             "require": {
@@ -468,9 +468,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.261.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.261.6"
             },
-            "time": "2023-03-03T19:22:53+00:00"
+            "time": "2023-03-07T19:21:12+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3046,29 +3046,34 @@
         },
         {
             "name": "imdhemy/appstore-iap",
-            "version": "0.3.11",
+            "version": "1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/appstore-iap.git",
-                "reference": "f1400b7df2e003f8be0ef2f3fa267f7fbb2b69a5"
+                "reference": "319253eecb8844fef07848917383d9b4aa9ba2c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/appstore-iap/zipball/f1400b7df2e003f8be0ef2f3fa267f7fbb2b69a5",
-                "reference": "f1400b7df2e003f8be0ef2f3fa267f7fbb2b69a5",
+                "url": "https://api.github.com/repos/imdhemy/appstore-iap/zipball/319253eecb8844fef07848917383d9b4aa9ba2c6",
+                "reference": "319253eecb8844fef07848917383d9b4aa9ba2c6",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/guzzle": "^6.0|^7.0",
-                "nesbot/carbon": "^2.41"
+                "ext-openssl": "*",
+                "ext-sodium": "*",
+                "guzzlehttp/guzzle": "^6.5|^7.4",
+                "lcobucci/jwt": "^4.2",
+                "nesbot/carbon": "^2.64",
+                "php": ">=7.4"
             },
             "require-dev": {
-                "fakerphp/faker": "^1.14",
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpunit/phpunit": "^8.5",
-                "symfony/var-dumper": "^5.1",
-                "vimeo/psalm": "^3.17"
+                "fakerphp/faker": "^1.15",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpunit/phpunit": "^9.5",
+                "roave/security-advisories": "dev-latest",
+                "symfony/var-dumper": "^5.3",
+                "vimeo/psalm": "^5.1"
             },
             "type": "library",
             "autoload": {
@@ -3078,7 +3083,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "BSD-3-Clause"
+                "MIT"
             ],
             "authors": [
                 {
@@ -3089,37 +3094,38 @@
             "description": "PHP Appstore In-App Purchase implementation",
             "support": {
                 "issues": "https://github.com/imdhemy/appstore-iap/issues",
-                "source": "https://github.com/imdhemy/appstore-iap/tree/0.3.11"
+                "source": "https://github.com/imdhemy/appstore-iap/tree/1.5.4"
             },
-            "time": "2021-05-15T06:44:10+00:00"
+            "time": "2022-12-11T10:53:59+00:00"
         },
         {
             "name": "imdhemy/google-play-billing",
-            "version": "0.6.4",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/google-play-billing.git",
-                "reference": "957ec1a17db844ee74b1ad71252d2fbd489ab033"
+                "reference": "803b3357dfa31f89d062dbe757e10a482e262a35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/957ec1a17db844ee74b1ad71252d2fbd489ab033",
-                "reference": "957ec1a17db844ee74b1ad71252d2fbd489ab033",
+                "url": "https://api.github.com/repos/imdhemy/google-play-billing/zipball/803b3357dfa31f89d062dbe757e10a482e262a35",
+                "reference": "803b3357dfa31f89d062dbe757e10a482e262a35",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "google/auth": "^1.15",
-                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "guzzlehttp/guzzle": "^6.5|^7.4",
                 "nesbot/carbon": "^2.41",
-                "php": ">=7.1"
+                "php": ">=7.4"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "fzaninotto/faker": "^1.9",
-                "phpunit/phpunit": "^8.5",
-                "symfony/var-dumper": "^5.1",
-                "vimeo/psalm": "^3.17"
+                "fakerphp/faker": "^1.16",
+                "friendsofphp/php-cs-fixer": "^3.2",
+                "phpunit/phpunit": "^9.5",
+                "roave/security-advisories": "dev-latest",
+                "symfony/var-dumper": "^5.3",
+                "vimeo/psalm": "^4.12"
             },
             "type": "library",
             "autoload": {
@@ -3128,6 +3134,9 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
             "authors": [
                 {
                     "name": "imdhemy",
@@ -3137,43 +3146,44 @@
             "description": "Google Play Billing",
             "support": {
                 "issues": "https://github.com/imdhemy/google-play-billing/issues",
-                "source": "https://github.com/imdhemy/google-play-billing/tree/0.6.4"
+                "source": "https://github.com/imdhemy/google-play-billing/tree/1.3.1"
             },
-            "time": "2021-10-16T09:50:02+00:00"
+            "time": "2022-12-09T09:08:03+00:00"
         },
         {
             "name": "imdhemy/laravel-purchases",
-            "version": "0.10.4",
+            "version": "1.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imdhemy/laravel-in-app-purchases.git",
-                "reference": "eb9a4d248a626cb6b7a59c9626726fd8534aec78"
+                "reference": "bc70dfdec89f000c4048ef3fb3527d2d2eee9cb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/eb9a4d248a626cb6b7a59c9626726fd8534aec78",
-                "reference": "eb9a4d248a626cb6b7a59c9626726fd8534aec78",
+                "url": "https://api.github.com/repos/imdhemy/laravel-in-app-purchases/zipball/bc70dfdec89f000c4048ef3fb3527d2d2eee9cb3",
+                "reference": "bc70dfdec89f000c4048ef3fb3527d2d2eee9cb3",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "imdhemy/appstore-iap": "^0.3",
-                "imdhemy/google-play-billing": "^0.6",
-                "nesbot/carbon": "^2.41",
-                "php": ">=7.1"
+                "ext-openssl": "*",
+                "imdhemy/appstore-iap": "^1.5",
+                "imdhemy/google-play-billing": "^1.2",
+                "laravel/framework": ">=8.0",
+                "php": ">=7.4"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.17",
-                "orchestra/testbench": "^5.0",
-                "phpunit/phpunit": "^8.5",
-                "psalm/plugin-laravel": "^1.2",
-                "vimeo/psalm": "^4.3"
+                "friendsofphp/php-cs-fixer": "^3.14",
+                "orchestra/testbench": "^6.24",
+                "psalm/plugin-laravel": "^1.5",
+                "roave/security-advisories": "dev-latest",
+                "vimeo/psalm": "^4.30"
             },
             "type": "library",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Imdhemy\\Purchases\\PurchaseServiceProvider"
+                        "Imdhemy\\Purchases\\ServiceProviders\\LiapServiceProvider"
                     ],
                     "aliases": {
                         "Product": "\\Imdhemy\\Purchases\\Facades\\Product",
@@ -3193,14 +3203,13 @@
             "authors": [
                 {
                     "name": "imdhemy",
-                    "email": "imdhemy@gmail.com",
-                    "homepage": "http://dhemy.studio",
-                    "role": "Developer"
+                    "email": "imdhemy@gmail.com"
                 }
             ],
-            "description": "Laravel receipt validator for Google Play",
-            "homepage": "https://github.com/imdhemy/laravel-in-app-purchases",
+            "description": "The top-notch Laravel receipt validator.",
+            "homepage": "https://imdhemy.com/laravel-iap-docs",
             "keywords": [
+                "app_store",
                 "google_play",
                 "in_app_purchases",
                 "laravel",
@@ -3208,7 +3217,7 @@
             ],
             "support": {
                 "issues": "https://github.com/imdhemy/laravel-in-app-purchases/issues",
-                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/0.10.4"
+                "source": "https://github.com/imdhemy/laravel-in-app-purchases/tree/1.7.2"
             },
             "funding": [
                 {
@@ -3216,7 +3225,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-08-20T04:59:54+00:00"
+            "time": "2023-03-06T15:16:39+00:00"
         },
         {
             "name": "intervention/image",
@@ -8190,16 +8199,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.13.1",
+            "version": "3.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "71c86fe4699a7f1a40c7d985f3dc7667045152f0"
+                "reference": "60dd3f74ab21cc2bf53f39bf7c342798bc185c23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/71c86fe4699a7f1a40c7d985f3dc7667045152f0",
-                "reference": "71c86fe4699a7f1a40c7d985f3dc7667045152f0",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/60dd3f74ab21cc2bf53f39bf7c342798bc185c23",
+                "reference": "60dd3f74ab21cc2bf53f39bf7c342798bc185c23",
                 "shasum": ""
             },
             "require": {
@@ -8257,7 +8266,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "BSD-3-Clause"
+                "MIT"
             ],
             "authors": [
                 {
@@ -8278,7 +8287,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/3.13.1"
+                "source": "https://github.com/getsentry/sentry-php/tree/3.14.0"
             },
             "funding": [
                 {
@@ -8290,7 +8299,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2023-02-10T10:17:57+00:00"
+            "time": "2023-03-05T21:31:25+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
@@ -12167,16 +12176,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v1.4.3",
+            "version": "v1.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "4df55a8f7373fc9dfeed9abf8753e739398b8efc"
+                "reference": "b300e2d900b0affa8d95e697925e6053fdd884b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/4df55a8f7373fc9dfeed9abf8753e739398b8efc",
-                "reference": "4df55a8f7373fc9dfeed9abf8753e739398b8efc",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/b300e2d900b0affa8d95e697925e6053fdd884b0",
+                "reference": "b300e2d900b0affa8d95e697925e6053fdd884b0",
                 "shasum": ""
             },
             "require": {
@@ -12223,9 +12232,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v1.4.3"
+                "source": "https://github.com/turbo124/beacon/tree/v1.4.4"
             },
-            "time": "2023-03-06T06:00:33+00:00"
+            "time": "2023-03-07T08:03:27+00:00"
         },
         {
             "name": "turbo124/predis",
@@ -14016,16 +14025,16 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.15.0",
+            "version": "2.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "3e8aebbca9f0ae6f618962c4ad514077fd365ab3"
+                "reference": "e864ac957acd66e1565f25efda61e37791a5db0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/3e8aebbca9f0ae6f618962c4ad514077fd365ab3",
-                "reference": "3e8aebbca9f0ae6f618962c4ad514077fd365ab3",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/e864ac957acd66e1565f25efda61e37791a5db0b",
+                "reference": "e864ac957acd66e1565f25efda61e37791a5db0b",
                 "shasum": ""
             },
             "require": {
@@ -14075,7 +14084,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.15.0"
+                "source": "https://github.com/filp/whoops/tree/2.15.1"
             },
             "funding": [
                 {
@@ -14083,7 +14092,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-03T12:00:00+00:00"
+            "time": "2023-03-06T18:09:13+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
@@ -15091,16 +15100,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.3",
+            "version": "1.10.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "5419375b5891add97dc74be71e6c1c34baaddf64"
+                "reference": "1fb6f494d82455151ecf15c5c191923f5d84324e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/5419375b5891add97dc74be71e6c1c34baaddf64",
-                "reference": "5419375b5891add97dc74be71e6c1c34baaddf64",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1fb6f494d82455151ecf15c5c191923f5d84324e",
+                "reference": "1fb6f494d82455151ecf15c5c191923f5d84324e",
                 "shasum": ""
             },
             "require": {
@@ -15130,7 +15139,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.10.3"
+                "source": "https://github.com/phpstan/phpstan/tree/1.10.5"
             },
             "funding": [
                 {
@@ -15146,20 +15155,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-25T14:47:13+00:00"
+            "time": "2023-03-07T16:48:45+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.25",
+            "version": "9.2.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "0e2b40518197a8c0d4b08bc34dfff1c99c508954"
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/0e2b40518197a8c0d4b08bc34dfff1c99c508954",
-                "reference": "0e2b40518197a8c0d4b08bc34dfff1c99c508954",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
                 "shasum": ""
             },
             "require": {
@@ -15181,8 +15190,8 @@
                 "phpunit/phpunit": "^9.3"
             },
             "suggest": {
-                "ext-pcov": "*",
-                "ext-xdebug": "*"
+                "ext-pcov": "PHP extension that provides line coverage",
+                "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
             "type": "library",
             "extra": {
@@ -15215,7 +15224,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.25"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.26"
             },
             "funding": [
                 {
@@ -15223,7 +15232,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-25T05:32:00+00:00"
+            "time": "2023-03-06T12:58:08+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",

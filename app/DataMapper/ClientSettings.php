@@ -89,6 +89,9 @@ class ClientSettings extends BaseSettings
             return $company_settings;
         }
 
+        if(is_array($client_settings))
+            $client_settings = (object)$client_settings;
+
         foreach ($company_settings as $key => $value) {
             /* pseudo code
                 if the property exists and is a string BUT has no length, treat it as TRUE
