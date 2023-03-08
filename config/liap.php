@@ -39,7 +39,7 @@ return [
      | @see https://imdhemy.com/laravel-iap-docs/docs/credentials/google-play
      |
      */
-    'google_application_credentials' => env('GOOGLE_APPLICATION_CREDENTIALS'),
+    'google_application_credentials' => env('GOOGLE_APPLICATION_CREDENTIALS',false),
 
     /*
      |--------------------------------------------------------------------------
