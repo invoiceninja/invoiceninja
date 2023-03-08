@@ -107,7 +107,7 @@ class EmailObject
 
     public ?string $invitation_key = null;
 
-    // @phpstan-ignore-next-line
+    // @phpstan-ignore-next-line    
     public array $documents = [];
 
     public ?string $template = null; //invoice //quote //reminder1

@@ -11,15 +11,20 @@
 
 namespace App\Services\Email;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Models\Account;
+use App\Models\Task;
 use App\Utils\Ninja;
-use Illuminate\Mail\Mailables\Address;
+use App\Models\Account;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
+use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 
 class EmailDefaults
 {
+    use MakesHash;
     /**
      * The settings object for this email
      * @var CompanySettings $settings
@@ -147,7 +152,8 @@ class EmailDefaults
      * Sets the body of the email
      */
     private function setBody(): self
-    {nlog($this->email->email_object->email_template_body);
+    {
+       
         if ($this->email->email_object->body) {
             // A Custom Message has been set in the email screen.
             return $this;
@@ -209,7 +215,7 @@ class EmailDefaults
         if ($this->template != 'custom') {
             $this->email->email_object->body = $this->parseMarkdownToHtml($this->email->email_object->body);
         }
-        nlog($this->email->email_object->subject);
+
         return $this;
     }
 
@@ -261,14 +267,59 @@ class EmailDefaults
     {
         $documents = [];
 
-        if ($this->email->email_object->settings->document_email_attachment && $this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->email->email_object->settings->document_email_attachment || $this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) 
+            return $this;
 
-            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
+        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
+
+        if ($this->email->email_object->entity?->documents) {
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents->pluck('id')->toArray());
         }
 
-        
+        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->entity->recurring_id != null){
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents->pluck('id')->toArray());
+        }
+
+        if ($this->email->email_object->entity instanceof Invoice) {
+
+            $expense_ids = [];
+            $task_ids = [];
+            
+            foreach ($this->email->email_object->entity->line_items as $item) 
+            {
+
+                if (property_exists($item, 'expense_id')) {
+                    $expense_ids[] = $item->expense_id;
+                }
+
+                if (property_exists($item, 'task_id')) {
+                    $task_ids[] = $item->task_id;
+                }
+
+            }
+
+            if (count($expense_ids) > 0) {
+
+                Expense::whereIn('id', $this->transformKeys($expense_ids))
+                        ->where('invoice_documents', 1)
+                        ->cursor()
+                        ->each(function ($expense) {
+                            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $expense->documents->pluck('id')->toArray());
+                        });
+            }
+
+            if (count($task_ids) > 0 && $this->email->company->invoice_task_documents) {
+                Task::whereIn('id', $this->transformKeys($task_ids))
+                    ->cursor()
+                    ->each(function ($task) {
+                    $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
+                    });
+            }
+            
+        }
 
         return $this;
+
     }
 
     /**
