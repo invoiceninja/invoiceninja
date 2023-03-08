@@ -103,7 +103,7 @@ class Email implements ShouldQueue
 
         $this->email_object->invitation_id ? $this->email_object->invitation = $this->email_object->entity->invitations()->where('id', $this->email_object->invitation_id)->first() : $this->email_object->invitation = null;
 
-        $this->email_object->invitation_id ? $this->email_object->contact = $this->email_object->invitation->contact :  null;
+        $this->email_object->invitation_id ? $this->email_object->contact = $this->email_object->invitation->contact :  $this->email_object->contact = null;
 
         $this->email_object->client_id ? $this->email_object->client = Client::withTrashed()->find($this->email_object->client_id) : $this->email_object->client = null;
         
