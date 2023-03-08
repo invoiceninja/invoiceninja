@@ -28,7 +28,7 @@ class TaskExport extends BaseExport
 
     private $entity_transformer;
 
-    public $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
     private string $date_format = 'YYYY-MM-DD';
 

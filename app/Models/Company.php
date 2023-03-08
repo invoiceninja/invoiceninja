@@ -368,9 +368,6 @@ class Company extends BaseModel
         return $this->hasMany(Product::class)->withTrashed();
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function country()
     {
         $companies = Cache::get('countries');
@@ -429,9 +426,6 @@ class Company extends BaseModel
         return $this->hasMany(PaymentTerm::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function language()
     {
         $languages = Cache::get('languages');
