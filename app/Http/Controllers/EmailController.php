@@ -190,6 +190,12 @@ class EmailController extends BaseController
             $this->entity_transformer = RecurringInvoiceTransformer::class;
         }
 
+        if($entity_obj instanceof PurchaseOrder){
+            $this->entity_type = PurchaseOrder::class;
+            $this->entity_transformer = PurchaseOrderTransformer::class;
+        }
+
+        // @phpstan-ignore-next-line
         return $this->itemResponse($entity_obj->fresh());
     }
 

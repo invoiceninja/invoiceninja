@@ -259,15 +259,14 @@ class EmailDefaults
      */
     private function setAttachments(): self
     {
-        $attachments = [];
+        $documents = [];
 
         if ($this->email->email_object->settings->document_email_attachment && $this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
-            foreach ($this->email->company->documents as $document) {
-                $attachments[] = ['file' => base64_encode($document->getFile()), 'name' => $document->name];
-            }
+
+            $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
         }
 
-        $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, $attachments);
+        
 
         return $this;
     }

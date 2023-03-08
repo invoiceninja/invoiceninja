@@ -83,7 +83,7 @@ class SendEmailRequest extends Request
         $input = $this->all();
         
         
-        if (Ninja::isHosted() && !auth()->user()->company()->account->account_sms_verified) {
+        if (Ninja::isHosted() && !auth()->user()->account->account_sms_verified) {
             $this->error_message = ctrans('texts.authorization_sms_failure');
 
             return false;
