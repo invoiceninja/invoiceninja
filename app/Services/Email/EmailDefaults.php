@@ -13,12 +13,16 @@ namespace App\Services\Email;
 
 use App\Models\Task;
 use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Credit;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Mail\Attachment;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use App\DataMapper\EmailTemplateDefaults;
@@ -269,9 +273,24 @@ class EmailDefaults
     {
         $documents = [];
 
+        /* Return early if the user cannot attach documents */
         if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) 
             return $this;
 
+        if($this->email->email_object->entity instanceof PurchaseOrder) {
+
+        }
+        else if($this->email->email_object->settings->pdf_email_attachment && 
+        ($this->email->email_object->entity instanceof Invoice ||
+         $this->email->email_object->entity instanceof Quote ||
+         $this->email->email_object->entity instanceof Credit)) {
+            
+            $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
+
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+
+         }
+        /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
 
         if ($this->email->email_object->entity?->documents) {
@@ -325,8 +344,7 @@ class EmailDefaults
             $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
 
             if ($ubl_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [Attachment::fromData(fn () => $ubl_string, $this->email->email_object->entity->getFileName('xml'))]);
-
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
             }
         }
 
