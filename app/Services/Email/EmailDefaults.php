@@ -147,7 +147,7 @@ class EmailDefaults
      * Sets the body of the email
      */
     private function setBody(): self
-    {
+    {nlog($this->email->email_object->email_template_body);
         if ($this->email->email_object->body) {
             // A Custom Message has been set in the email screen.
             return $this;

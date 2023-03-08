@@ -130,18 +130,15 @@ class EmailController extends BaseController
         $mo->subject = strlen($subject) > 3 ? $subject : null;
         $mo->body = strlen($body) > 3 ? $body : null;
         $mo->entity_id = $request->input('entity_id');
-        $mo->template = $template; //full template name in use
+        $mo->template = $request->input('template'); //full template name in use
         $mo->entity_class = $this->resolveClass($entity);
-        $mo->email_template_body = $template;
-        $mo->email_template_subject = str_replace("template", "subject", $template);
+        $mo->email_template_body = $request->input('template');
+        $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
-        if (Ninja::isHosted() && !$entity_obj->company->account->account_sms_verified) {
-            return response(['message' => 'Please verify your account to send emails.'], 400);
-        }
-        
-        if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
-            return $this->sendPurchaseOrder($entity_obj, $data, $template);
-        }
+
+        // if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
+        //     return $this->sendPurchaseOrder($entity_obj, $data, $template);
+        // }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_obj, $template, $mo) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
