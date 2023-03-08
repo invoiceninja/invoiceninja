@@ -56,8 +56,8 @@ class GenericReportRequest extends Request
             $input['start_date'] = null;
             $input['end_date'] = null;
         }
-        nlog($input);
 
         $this->replace($input);
+        
     }
 }

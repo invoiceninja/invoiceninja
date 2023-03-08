@@ -28,6 +28,8 @@ class ProductExport extends BaseExport
 
     public string $date_key = 'created_at';
 
+    public Writer $csv;
+
     public array $entity_keys = [
         'project' => 'project_id',
         'vendor' => 'vendor_id',

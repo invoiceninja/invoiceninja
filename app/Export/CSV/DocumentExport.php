@@ -27,6 +27,8 @@ class DocumentExport extends BaseExport
 
     public string $date_key = 'created_at';
 
+    public Writer $csv;
+
     public array $entity_keys = [
         'record_type' => 'record_type',
         // 'record_name' => 'record_name',

@@ -27,6 +27,8 @@ class ExpenseExport extends BaseExport
 
     public string $date_key = 'date';
 
+    public Writer $csv;
+
     public array $entity_keys = [
         'amount' => 'amount',
         'category' => 'category_id',
