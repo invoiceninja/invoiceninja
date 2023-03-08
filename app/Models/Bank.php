@@ -13,6 +13,23 @@ namespace App\Models;
 
 /**
  * Class Bank.
+ *
+ * @property int $id
+ * @property string|null $name
+ * @property string|null $remote_id
+ * @property int $bank_library_id
+ * @property string|null $config
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankLibraryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereConfig($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereRemoteId($value)
+ * @mixin \Eloquent
  */
 class Bank extends StaticModel
 {

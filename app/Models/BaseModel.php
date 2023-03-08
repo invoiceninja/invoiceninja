@@ -26,8 +26,14 @@ use Illuminate\Support\Str;
  * Class BaseModel
  *
  * @method scope() static
- *
  * @package App\Models
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
+ * @mixin \Eloquent
  */
 class BaseModel extends Model
 {

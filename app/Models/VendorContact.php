@@ -23,6 +23,95 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\VendorContact
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $user_id
+ * @property int $vendor_id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property int $is_primary
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $email
+ * @property string|null $phone
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property int $send_email
+ * @property string|null $email_verified_at
+ * @property string|null $confirmation_code
+ * @property int $confirmed
+ * @property string|null $last_login
+ * @property int|null $failed_logins
+ * @property string|null $oauth_user_id
+ * @property int|null $oauth_provider_id
+ * @property string|null $google_2fa_secret
+ * @property string|null $accepted_terms_version
+ * @property string|null $avatar
+ * @property string|null $avatar_type
+ * @property string|null $avatar_size
+ * @property string $password
+ * @property string|null $token
+ * @property int $is_locked
+ * @property string|null $contact_key
+ * @property string|null $remember_token
+ * @property-read \App\Models\Company $company
+ * @property-read mixed $contact_id
+ * @property-read mixed $hashed_id
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
+ * @property-read int|null $purchase_order_invitations_count
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor $vendor
+ * @method static \Database\Factories\VendorContactFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact query()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAcceptedTermsVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatarSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereAvatarType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereConfirmed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereContactKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereFailedLogins($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereGoogle2faSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereIsLocked($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereIsPrimary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereLastLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereOauthProviderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereOauthUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereSendEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withoutTrashed()
+ * @mixin \Eloquent
+ */
 class VendorContact extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;

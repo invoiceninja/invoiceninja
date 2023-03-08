@@ -19,6 +19,93 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\Vendor
+ *
+ * @property int $id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property string|null $currency_id
+ * @property string|null $name
+ * @property string|null $address1
+ * @property string|null $address2
+ * @property string|null $city
+ * @property string|null $state
+ * @property string|null $postal_code
+ * @property string|null $country_id
+ * @property string|null $phone
+ * @property string|null $private_notes
+ * @property string|null $website
+ * @property bool $is_deleted
+ * @property string|null $vat_number
+ * @property string|null $transaction_name
+ * @property string|null $number
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $vendor_hash
+ * @property string|null $public_notes
+ * @property string|null $id_number
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read int|null $contacts_count
+ * @property-read \App\Models\Country|null $country
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $hashed_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read int|null $primary_contact_count
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\VendorFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAddress2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCountryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIdNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePostalCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTransactionName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereVatNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereVendorHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereWebsite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Vendor extends BaseModel
 {
     use SoftDeletes;

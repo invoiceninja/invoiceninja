@@ -18,6 +18,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class BankAccount.
+ *
+ * @property-read \App\Models\Bank|null $bank
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankSubaccount> $bank_subaccounts
+ * @property-read int|null $bank_subaccounts_count
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankAccount withoutTrashed()
+ * @mixin \Eloquent
  */
 class BankAccount extends BaseModel
 {

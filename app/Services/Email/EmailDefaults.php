@@ -173,7 +173,7 @@ class EmailDefaults
     {
         if ($this->email->email_object->subject) { //where the user updates the subject from the UI
             return $this;
-        } elseif (strlen($this->email->email_object?->settings->{$this->email->email_object->email_template_subject}) > 3) {
+        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_subject}) > 3) {
             $this->email->email_object->subject = $this->email->email_object->settings?->{$this->email->email_object->email_template_subject};
         } else {
             $this->email->email_object->subject = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_subject, $this->locale);

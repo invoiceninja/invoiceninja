@@ -26,6 +26,163 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\Quote
+ *
+ * @property int $id
+ * @property int $client_id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property int $status_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $recurring_id
+ * @property int|null $design_id
+ * @property int|null $invoice_id
+ * @property string|null $number
+ * @property float $discount
+ * @property bool $is_amount_discount
+ * @property string|null $po_number
+ * @property string|null $date
+ * @property string|null $last_sent_date
+ * @property string|null $due_date
+ * @property string|null $next_send_date
+ * @property bool $is_deleted
+ * @property object|null $line_items
+ * @property object|null $backup
+ * @property string|null $footer
+ * @property string|null $public_notes
+ * @property string|null $private_notes
+ * @property string|null $terms
+ * @property string|null $tax_name1
+ * @property string $tax_rate1
+ * @property string|null $tax_name2
+ * @property string $tax_rate2
+ * @property string|null $tax_name3
+ * @property string $tax_rate3
+ * @property string $total_taxes
+ * @property int $uses_inclusive_taxes
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $custom_surcharge1
+ * @property string|null $custom_surcharge2
+ * @property string|null $custom_surcharge3
+ * @property string|null $custom_surcharge4
+ * @property int $custom_surcharge_tax1
+ * @property int $custom_surcharge_tax2
+ * @property int $custom_surcharge_tax3
+ * @property int $custom_surcharge_tax4
+ * @property string $exchange_rate
+ * @property string $amount
+ * @property string $balance
+ * @property string|null $partial
+ * @property string|null $partial_due_date
+ * @property string|null $last_viewed
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $reminder1_sent
+ * @property string|null $reminder2_sent
+ * @property string|null $reminder3_sent
+ * @property string|null $reminder_last_sent
+ * @property string $paid_to_date
+ * @property int|null $subscription_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\Client $client
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $balance_due
+ * @property-read mixed $hashed_id
+ * @property-read mixed $total
+ * @property-read mixed $valid_until
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read int|null $history_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\QuoteInvitation> $invitations
+ * @property-read int|null $invitations_count
+ * @property-read \App\Models\Invoice|null $invoice
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\QuoteFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereBackup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurcharge1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurcharge2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurcharge3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurcharge4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurchargeTax1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurchargeTax2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurchargeTax3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomSurchargeTax4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereDesignId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereIsAmountDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereLastSentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereLastViewed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereLineItems($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereNextSendDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePaidToDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePartial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePartialDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePoNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereRecurringId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereReminder1Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereReminder2Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereReminder3Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereReminderLastSent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereSubscriptionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxName3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTaxRate3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereTotalTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereUsesInclusiveTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Quote withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Quote extends BaseModel
 {
     use MakesHash;

@@ -27,6 +27,111 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\Account
+ *
+ * @property int $id
+ * @property string|null $plan
+ * @property string|null $plan_term
+ * @property string|null $plan_started
+ * @property string|null $plan_paid
+ * @property string|null $plan_expires
+ * @property string|null $user_agent
+ * @property string|null $key
+ * @property int|null $payment_id
+ * @property int $default_company_id
+ * @property string|null $trial_started
+ * @property string|null $trial_plan
+ * @property string|null $plan_price
+ * @property int $num_users
+ * @property string|null $utm_source
+ * @property string|null $utm_medium
+ * @property string|null $utm_campaign
+ * @property string|null $utm_term
+ * @property string|null $utm_content
+ * @property string $latest_version
+ * @property int $report_errors
+ * @property string|null $referral_code
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int $is_scheduler_running
+ * @property int|null $trial_duration
+ * @property int $is_onboarding
+ * @property object|null $onboarding
+ * @property int $is_migrated
+ * @property string|null $platform
+ * @property int|null $hosted_client_count
+ * @property int|null $hosted_company_count
+ * @property string|null $inapp_transaction_id
+ * @property bool $set_react_as_default_ap
+ * @property int $is_flagged
+ * @property int $is_verified_account
+ * @property string|null $account_sms_verification_code
+ * @property string|null $account_sms_verification_number
+ * @property int $account_sms_verified
+ * @property string|null $bank_integration_account_id
+ * @property int $is_trial
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
+ * @property-read int|null $bank_integrations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property-read int|null $companies_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
+ * @property-read int|null $company_users_count
+ * @property-read \App\Models\Company|null $default_company
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\Payment|null $payment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccountSmsVerificationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccountSmsVerificationNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereAccountSmsVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereBankIntegrationAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereDefaultCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereHostedClientCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereHostedCompanyCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereInappTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsFlagged($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsMigrated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsOnboarding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsSchedulerRunning($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsTrial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereIsVerifiedAccount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereLatestVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereNumUsers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereOnboarding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlanExpires($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlanPaid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlanPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlanStarted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlanTerm($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account wherePlatform($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereReportErrors($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereSetReactAsDefaultAp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTrialDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTrialPlan($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereTrialStarted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmCampaign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmMedium($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmTerm($value)
+ * @mixin \Eloquent
+ */
 class Account extends BaseModel
 {
     use PresentableTrait;
