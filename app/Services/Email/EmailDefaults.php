@@ -21,19 +21,19 @@ use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Attachment;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class EmailDefaults
 {
     use MakesHash;
     /**
      * The settings object for this email
-     * @var CompanySettings $settings
+     * @var \App\DataMapper\CompanySettings $settings
      */
     protected $settings;
 
@@ -51,7 +51,6 @@ class EmailDefaults
 
     /**
      * @param Email $email job class
-     * @param EmailObject  $email_object the email object class
      */
     public function __construct(protected Email $email)
     {
@@ -67,7 +66,7 @@ class EmailDefaults
     {
         $this->settings = $this->email->email_object->settings;
 
-        $this->setLocale() //
+        $this->setLocale() 
              ->setFrom()
              ->setTo()
              ->setTemplate()
@@ -159,7 +158,6 @@ class EmailDefaults
      */
     private function setBody(): self
     {
-       
         if ($this->email->email_object->body) {
             // A Custom Message has been set in the email screen.
             return $this;
@@ -274,41 +272,43 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) 
+        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return $this;
-
-        if($this->email->email_object->entity instanceof PurchaseOrder) {
-
         }
-        else if($this->email->email_object->settings->pdf_email_attachment && 
+
+        /** Purchase Order / Invoice / Credit / Quote PDF  */
+        if ($this->email->email_object->entity instanceof PurchaseOrder) {
+            $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
+
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+        } elseif ($this->email->email_object->settings->pdf_email_attachment &&
         ($this->email->email_object->entity instanceof Invoice ||
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
-            
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+        }
 
-         }
         /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
 
+        /** Entity Documents */
         if ($this->email->email_object->entity?->documents) {
             $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->documents->pluck('id')->toArray());
         }
 
-        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->entity->recurring_id != null){
+        /** Recurring Invoice Documents */
+        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->entity->recurring_id != null) {
             $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->email_object->entity->recurring_invoice->documents->pluck('id')->toArray());
         }
 
+        /** Task / Expense Documents */
         if ($this->email->email_object->entity instanceof Invoice) {
-
             $expense_ids = [];
             $task_ids = [];
             
-            foreach ($this->email->email_object->entity->line_items as $item) 
-            {
-
+            foreach ($this->email->email_object->entity->line_items as $item) {
                 if (property_exists($item, 'expense_id')) {
                     $expense_ids[] = $item->expense_id;
                 }
@@ -316,11 +316,9 @@ class EmailDefaults
                 if (property_exists($item, 'task_id')) {
                     $task_ids[] = $item->task_id;
                 }
-
             }
 
             if (count($expense_ids) > 0) {
-
                 Expense::whereIn('id', $this->transformKeys($expense_ids))
                         ->where('invoice_documents', 1)
                         ->cursor()
@@ -333,13 +331,12 @@ class EmailDefaults
                 Task::whereIn('id', $this->transformKeys($task_ids))
                     ->cursor()
                     ->each(function ($task) {
-                    $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
+                        $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
                     });
             }
-            
         }
 
-
+        /** UBL xml file */
         if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->settings->ubl_email_attachment) {
             $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
 
@@ -349,7 +346,6 @@ class EmailDefaults
         }
 
         return $this;
-
     }
 
     /**

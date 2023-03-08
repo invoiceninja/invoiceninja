@@ -64,7 +64,12 @@ class Email implements ShouldQueue
     public function __construct(public EmailObject $email_object, public Company $company)
     {
     }
-
+    
+    /**
+     * The backoff time between retries.
+     *
+     * @return array
+     */
     public function backoff()
     {
         return [10, 30, 60, 240];
@@ -88,14 +93,24 @@ class Email implements ShouldQueue
         $this->tearDown();
 
     }
-
+    
+    /**
+     * Sets the override flag
+     *
+     * @return self
+     */
     public function setOverride(): self
     {
         $this->override = $this->email_object->override;
 
         return $this;
     }
-
+    
+    /**
+     * Initilializes the models
+     *
+     * @return self
+     */
     public function initModels(): self
     {
 
@@ -136,9 +151,16 @@ class Email implements ShouldQueue
 
         return $this;
     }
-
+    
+    /**
+     * Generates the correct set of variables
+     *
+     * @return self
+     */
     private function resolveVariables(): self
     {
+        $_variables = $this->email_object->variables;
+        
         match(class_basename($this->email_object->entity)){
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
@@ -147,9 +169,20 @@ class Email implements ShouldQueue
             default => $this->email_object->variables = []
         };
 
+        /** If we have passed some variable overrides we insert them here */
+        foreach($_variables as $key => $value)
+        {
+            $this->email_object->variables[$key] = $value;
+        }
+
         return $this;
     }
-
+    
+    /**
+     * tearDown
+     *
+     * @return self
+     */
     private function tearDown(): self
     {
 
@@ -164,7 +197,12 @@ class Email implements ShouldQueue
         return $this;
         
     }
-
+    
+    /**
+     * Builds the email defaults
+     *
+     * @return self
+     */
     public function setDefaults(): self
     {
 
@@ -173,7 +211,12 @@ class Email implements ShouldQueue
         return $this;
 
     }
-
+    
+    /**
+     * Populates the mailable
+     *
+     * @return self
+     */
     public function buildMailable(): self
     {
         
@@ -182,7 +225,12 @@ class Email implements ShouldQueue
         return $this;
         
     }
-
+    
+    /**
+     * Attempts to send the email
+     *
+     * @return void
+     */
     public function email()
     {
 
@@ -600,7 +648,7 @@ class Email implements ShouldQueue
      * Logs any errors to the SystemLog
      *
      * @param  string $errors
-     * @param  null | App\Models\Client $recipient_object
+     * @param  null | \App\Models\Client $recipient_object
      * @return void
      */
     private function logMailError($errors, $recipient_object) :void
@@ -627,7 +675,7 @@ class Email implements ShouldQueue
     /**
      * Attempts to refresh the Microsoft refreshToken
      *
-     * @param  App\Models\User
+     * @param \App\Models\User $user
      * @return mixed
      */
     private function refreshOfficeToken(User $user): mixed
