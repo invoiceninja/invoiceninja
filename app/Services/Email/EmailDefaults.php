@@ -16,7 +16,9 @@ use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Mail\Attachment;
 use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
 use App\DataMapper\EmailTemplateDefaults;
@@ -267,7 +269,7 @@ class EmailDefaults
     {
         $documents = [];
 
-        if (!$this->email->email_object->settings->document_email_attachment || $this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) 
+        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) 
             return $this;
 
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
@@ -316,6 +318,16 @@ class EmailDefaults
                     });
             }
             
+        }
+
+
+        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->settings->ubl_email_attachment) {
+            $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
+
+            if ($ubl_string) {
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [Attachment::fromData(fn () => $ubl_string, $this->email->email_object->entity->getFileName('xml'))]);
+
+            }
         }
 
         return $this;
