@@ -16,6 +16,8 @@ use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
