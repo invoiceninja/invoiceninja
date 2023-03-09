@@ -100,9 +100,15 @@
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                             <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
+                            @if (substr($payment_method->token, 0, 2) === 'pm') 
+                                <a href="{{ $payment_method->meta?->next_action }}" class="button button-primary bg-primary">
+                                    {{ ctrans('texts.complete_verification') }}
+                                </a>
+                            @else
                                 <a href="{{ route('client.payment_methods.verification', ['payment_method' => $payment_method->hashed_id, 'method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">
                                     {{ ctrans('texts.complete_verification') }}
                                 </a>
+                            @endif
                             </div>
                         </div>
                     </div>

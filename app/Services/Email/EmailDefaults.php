@@ -134,7 +134,7 @@ class EmailDefaults
             return $this;
         }
 
-        $this->email->email_object->from = new Address($this->email->company->owner()->email, $this->email->company->owner()->name());
+        $this->email->email_object->from = new Address(config('mail.from.address'), config('mail.from.name'));
 
         return $this;
     }

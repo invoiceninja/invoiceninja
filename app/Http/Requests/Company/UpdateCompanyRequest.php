@@ -93,7 +93,7 @@ class UpdateCompanyRequest extends Request
      * are saveable
      *
      * @param  object $settings
-     * @return stdClass $settings
+     * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)
     {

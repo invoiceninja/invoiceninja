@@ -85,7 +85,8 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-        if ($invitation->{$entity}->is_deleted) {
+        //09-03-2023 do not show entity if the invitation has been trashed.
+        if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
             return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
         }
 

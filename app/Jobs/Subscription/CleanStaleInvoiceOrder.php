@@ -26,8 +26,6 @@ class CleanStaleInvoiceOrder implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param int invoice_id
-     * @param string $db
      */
     public function __construct()
     {

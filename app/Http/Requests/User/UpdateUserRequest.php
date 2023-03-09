@@ -73,6 +73,11 @@ class UpdateUserRequest extends Request
             $input['oauth_user_id'] = '';
         }
 
+        if (array_key_exists('oauth_user_token', $input) && $input['oauth_user_token'] == '***') {
+            unset($input['oauth_user_token']);
+        }
+
+
         $this->replace($input);
     }
 }
