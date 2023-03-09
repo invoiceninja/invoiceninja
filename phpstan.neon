@@ -1,5 +1,5 @@
 parameters:
-    level: 6
+    level: 2
     paths:
-	- app
-	- tests
+        - app
+        - tests

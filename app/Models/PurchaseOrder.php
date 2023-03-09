@@ -21,6 +21,167 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * App\Models\PurchaseOrder
+ *
+ * @property int $id
+ * @property int|null $client_id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property int $status_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $recurring_id
+ * @property int|null $design_id
+ * @property int|null $invoice_id
+ * @property string|null $number
+ * @property float $discount
+ * @property bool $is_amount_discount
+ * @property string|null $po_number
+ * @property string|null $date
+ * @property string|null $last_sent_date
+ * @property string|null $due_date
+ * @property int $is_deleted
+ * @property object|null $line_items
+ * @property object|null $backup
+ * @property string|null $footer
+ * @property string|null $public_notes
+ * @property string|null $private_notes
+ * @property string|null $terms
+ * @property string|null $tax_name1
+ * @property string $tax_rate1
+ * @property string|null $tax_name2
+ * @property string $tax_rate2
+ * @property string|null $tax_name3
+ * @property string $tax_rate3
+ * @property string $total_taxes
+ * @property int $uses_inclusive_taxes
+ * @property string|null $reminder1_sent
+ * @property string|null $reminder2_sent
+ * @property string|null $reminder3_sent
+ * @property string|null $reminder_last_sent
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $next_send_date
+ * @property string|null $custom_surcharge1
+ * @property string|null $custom_surcharge2
+ * @property string|null $custom_surcharge3
+ * @property string|null $custom_surcharge4
+ * @property int $custom_surcharge_tax1
+ * @property int $custom_surcharge_tax2
+ * @property int $custom_surcharge_tax3
+ * @property int $custom_surcharge_tax4
+ * @property string $exchange_rate
+ * @property string $balance
+ * @property string|null $partial
+ * @property string $amount
+ * @property string $paid_to_date
+ * @property string|null $partial_due_date
+ * @property string|null $last_viewed
+ * @property int|null $deleted_at
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $expense_id
+ * @property int|null $currency_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read int|null $activities_count
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\Client|null $client
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read \App\Models\Expense|null $expense
+ * @property-read mixed $hashed_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read int|null $history_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
+ * @property-read int|null $invitations_count
+ * @property-read \App\Models\Invoice|null $invoice
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read int|null $invoices_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read int|null $payments_count
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\PurchaseOrderFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereBackup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurcharge4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomSurchargeTax4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDesignId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereFooter($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereIsAmountDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLastSentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLastViewed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereLineItems($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereNextSendDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePaidToDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePartial($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePartialDueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePoNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereRecurringId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder1Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder2Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminder3Sent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereReminderLastSent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxName3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTaxRate3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTerms($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereTotalTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereUsesInclusiveTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrder withoutTrashed()
+ * @mixin \Eloquent
+ */
 class PurchaseOrder extends BaseModel
 {
     use Filterable;

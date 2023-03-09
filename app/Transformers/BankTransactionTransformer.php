@@ -11,7 +11,6 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
 use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\Expense;
@@ -35,7 +34,6 @@ class BankTransactionTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'company',
-        'account',
         'expense',
         'payment',
         'vendor',
@@ -74,13 +72,6 @@ class BankTransactionTransformer extends EntityTransformer
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,
         ];
-    }
-
-    public function includeAccount(BankTransaction $bank_transaction)
-    {
-        $transformer = new AccountTransformer($this->serializer);
-
-        return $this->includeItem($bank_transaction->account, $transformer, Account::class);
     }
 
     public function includeCompany(BankTransaction $bank_transaction)

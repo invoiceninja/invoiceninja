@@ -28,9 +28,11 @@ class TaskExport extends BaseExport
 
     private $entity_transformer;
 
-    public $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
     private string $date_format = 'YYYY-MM-DD';
+
+    public Writer $csv;
 
     public array $entity_keys = [
         'start_date' => 'start_date',

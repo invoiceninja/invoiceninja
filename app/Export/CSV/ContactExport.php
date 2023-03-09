@@ -29,6 +29,8 @@ class ContactExport extends BaseExport
 
     private ClientContactTransformer $contact_transformer;
 
+    public Writer $csv;
+
     public string $date_key = 'created_at';
 
     public array $entity_keys = [

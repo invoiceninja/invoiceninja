@@ -48,10 +48,8 @@ class CreateUbl implements ShouldQueue
     }
 
     /**
-     * Execute the job.
-     *
-     *
-     * @return void
+     * Execute the job
+     * @return ?string
      */
     public function handle()
     {

@@ -14,6 +14,61 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\CompanyUser
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $account_id
+ * @property int $user_id
+ * @property string|null $permissions
+ * @property object|null $notifications
+ * @property object|null $settings
+ * @property string $slack_webhook_url
+ * @property int $is_owner
+ * @property int $is_admin
+ * @property int $is_locked
+ * @property int|null $deleted_at
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int $permissions_updated_at
+ * @property string $ninja_portal_url
+ * @property string|null $react_settings
+ * @property-read \App\Models\Account $account
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $token
+ * @property-read int|null $token_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @property-read int|null $tokens_count
+ * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read int|null $users_count
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser authCompany()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsAdmin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsLocked($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereIsOwner($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereNinjaPortalUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereNotifications($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser wherePermissions($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser wherePermissionsUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereReactSettings($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereSettings($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereSlackWebhookUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyUser withoutTrashed()
+ * @mixin \Eloquent
+ */
 class CompanyUser extends Pivot
 {
     use SoftDeletes;
@@ -74,7 +129,7 @@ class CompanyUser extends Pivot
     {
         return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');
     }
-
+    
     public function company_pivot()
     {
         return $this->hasOne(Company::class)->withPivot('permissions', 'settings', 'react_settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url', 'migrating');

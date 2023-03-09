@@ -18,6 +18,62 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * App\Models\PurchaseOrderInvitation
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $user_id
+ * @property int $vendor_contact_id
+ * @property int $purchase_order_id
+ * @property string $key
+ * @property string|null $transaction_reference
+ * @property string|null $message_id
+ * @property string|null $email_error
+ * @property string|null $signature_base64
+ * @property string|null $signature_date
+ * @property string|null $sent_date
+ * @property string|null $viewed_date
+ * @property string|null $opened_date
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $email_status
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\VendorContact $contact
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\PurchaseOrder $purchase_order
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\PurchaseOrderInvitationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereEmailError($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereEmailStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereMessageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereOpenedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation wherePurchaseOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereSentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereSignatureBase64($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereSignatureDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereVendorContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation whereViewedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|PurchaseOrderInvitation withoutTrashed()
+ * @mixin \Eloquent
+ */
 class PurchaseOrderInvitation extends BaseModel
 {
     use MakesDates;

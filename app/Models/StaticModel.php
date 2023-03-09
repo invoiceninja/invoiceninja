@@ -16,6 +16,17 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
+/**
+ * App\Models\StaticModel
+ *
+ * @property-read mixed $id
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query()
+ * @mixin \Eloquent
+ */
 class StaticModel extends Model
 {
     use MakesHash;

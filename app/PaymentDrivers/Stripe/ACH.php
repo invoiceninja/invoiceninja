@@ -262,6 +262,7 @@ class ACH
     {
         $this->stripe->init();
 
+        $response = false;
         try {
             $data = [
                 'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),

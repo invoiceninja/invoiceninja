@@ -5012,6 +5012,8 @@ $LANG = array(
     'add_stripe' => 'Add Stripe',
     'invalid_coupon' => 'Invalid Coupon',
     'no_assigned_tasks' => 'No billable tasks for this project',
+    'authorization_failure' => 'Insufficient permissions to perform this action',
+    'authorization_sms_failure' => 'Please verify your account to send emails.',
 );
 
 

@@ -11,14 +11,15 @@
 
 namespace App\Services\Client;
 
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Services\Email\Email;
+use App\Utils\Traits\MakesDates;
+use Illuminate\Support\Facades\DB;
 use App\Services\Email\EmailObject;
 use App\Services\Email\EmailService;
-use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
 use Illuminate\Mail\Mailables\Address;
-use Illuminate\Support\Facades\DB;
 
 class ClientService
 {
@@ -149,9 +150,12 @@ class ClientService
         $this->client_start_date = $this->translateDate($options['start_date'], $this->client->date_format(), $this->client->locale());
         $this->client_end_date = $this->translateDate($options['end_date'], $this->client->date_format(), $this->client->locale());
 
-        $email_service = new EmailService($this->buildStatementMailableData($pdf), $this->client->company);
+        // $email_service = new EmailService($this->buildStatementMailableData($pdf), $this->client->company);
+        // $email_service->send();
+        
+        $email_object = $this->buildStatementMailableData($pdf);
+        Email::dispatch($email_object, $this->client->company);
 
-        $email_service->send();
     }
 
     /**
@@ -165,9 +169,7 @@ class ClientService
         $email_object = new EmailObject;
         $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
-        $email_object->settings = $this->client->getMergedSettings();
-        $email_object->company = $this->client->company;
-        $email_object->client = $this->client;
+        $email_object->client_id = $this->client->id;
         $email_object->email_template_subject = 'email_subject_statement';
         $email_object->email_template_body = 'email_template_statement';
         $email_object->variables = [
