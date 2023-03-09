@@ -24,7 +24,7 @@ class RouteServiceProvider extends ServiceProvider
 {
     use MakesHash;
 
-    private int $default_rate_limit = 1000;
+    private int $default_rate_limit = 5000;
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -47,9 +47,9 @@ class RouteServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', function () {
 
-            if(Ninja::isSelfHost())
-                return Limit::perMinute($this->default_rate_limit);
-            else {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
                 return Limit::perMinute(50);
             }
 
@@ -57,9 +57,9 @@ class RouteServiceProvider extends ServiceProvider
 
         RateLimiter::for('api', function () {
 
-            if(Ninja::isSelfHost())
-                return Limit::perMinute($this->default_rate_limit);
-            else {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
                 return Limit::perMinute(300);
             }
 
@@ -67,9 +67,9 @@ class RouteServiceProvider extends ServiceProvider
 
         RateLimiter::for('refresh', function () {
 
-            if(Ninja::isSelfHost())
-                return Limit::perMinute($this->default_rate_limit);
-            else {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
                 return Limit::perMinute(200);
             }
 
