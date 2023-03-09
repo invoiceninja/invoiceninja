@@ -339,7 +339,8 @@ class Account extends BaseModel
             return false;
         }
 
-        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now())) {
+        // 09-03-2023 - winds forward expiry checks to ensure we don't cut off users prior to billing cycle being commenced
+        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(12))) {
             return false;
         }
 
@@ -352,7 +353,7 @@ class Account extends BaseModel
             return false;
         }
 
-        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now())) {
+        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(12))) {
             return true;
         }
 
@@ -526,12 +527,12 @@ class Account extends BaseModel
 
     public function emailQuotaExceeded() :bool
     {
-        if (is_null(Cache::get($this->key))) {
+        if (is_null(Cache::get("email_quota".$this->key))) {
             return false;
         }
 
         try {
-            if (Cache::get($this->key) > $this->getDailyEmailLimit()) {
+            if (Cache::get("email_quota".$this->key) > $this->getDailyEmailLimit()) {
                 if (is_null(Cache::get("throttle_notified:{$this->key}"))) {
                     App::forgetInstance('translator');
                     $t = app('translator');
