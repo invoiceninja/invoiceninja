@@ -114,6 +114,7 @@ class ClientTransformer extends EntityTransformer
             'balance' => (float) $client->balance,
             'group_settings_id' => isset($client->group_settings_id) ? (string) $this->encodePrimaryKey($client->group_settings_id) : '',
             'paid_to_date' => (float) $client->paid_to_date,
+            'payment_balance' => (float) $client->payment_balance,
             'credit_balance' => (float) $client->credit_balance,
             'last_login' => (int) $client->last_login,
             'size_id' => (string) $client->size_id,
