@@ -22,7 +22,7 @@ use Livewire\Component;
 class SubscriptionPlanSwitch extends Component
 {
     /**
-     * @var RecurringInvoice
+     * @var \App\Models\RecurringInvoice
      */
     public $recurring_invoice;
 

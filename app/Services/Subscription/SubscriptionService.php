@@ -355,7 +355,7 @@ class SubscriptionService
      * @param  Invoice $invoice
      * @return float
      */
-    private function calculateProRataRefund($invoice) :float
+    private function calculateProRataRefund($invoice, $subscription = null) :float
     {
         if (!$invoice || !$invoice->date) {
             return 0;
@@ -367,7 +367,10 @@ class SubscriptionService
 
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
-        $days_in_frequency = $this->getDaysInFrequency();
+        if($subscription)
+            $days_in_frequency = $subscription->service()->getDaysInFrequency();
+        else
+            $days_in_frequency = $this->getDaysInFrequency();
 
         if ($days_of_subscription_used >= $days_in_frequency) {
             return 0;
