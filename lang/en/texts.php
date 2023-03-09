@@ -5014,6 +5014,8 @@ $LANG = array(
     'no_assigned_tasks' => 'No billable tasks for this project',
     'authorization_failure' => 'Insufficient permissions to perform this action',
     'authorization_sms_failure' => 'Please verify your account to send emails.',
+    'white_label_body' => 'Thank you for purchasing a white label license. Your license key is :license_key.',
+
 );
 
 

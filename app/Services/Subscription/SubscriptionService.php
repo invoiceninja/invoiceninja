@@ -11,38 +11,42 @@
 
 namespace App\Services\Subscription;
 
-use App\DataMapper\InvoiceItem;
-use App\Factory\CreditFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\PaymentFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\MultiDB;
-use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
+use Carbon\Carbon;
 use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\License;
+use App\Models\Product;
+use App\Models\SystemLog;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\Product;
-use App\Models\RecurringInvoice;
+use Illuminate\Support\Str;
 use App\Models\Subscription;
-use App\Models\SystemLog;
+use App\Models\ClientContact;
+use App\Services\Email\Email;
+use App\Factory\CreditFactory;
+use App\Jobs\Mail\NinjaMailer;
+use App\DataMapper\InvoiceItem;
+use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Services\Email\EmailObject;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Utils\Traits\CleanLineItems;
 use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
-use App\Repositories\RecurringInvoiceRepository;
-use App\Repositories\SubscriptionRepository;
-use App\Utils\Traits\CleanLineItems;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Notifications\UserNotifies;
+use App\Factory\RecurringInvoiceFactory;
 use App\Utils\Traits\SubscriptionHooker;
-use Carbon\Carbon;
+use App\Repositories\SubscriptionRepository;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
 
 class SubscriptionService
 {
@@ -53,6 +57,8 @@ class SubscriptionService
 
     /** @var subscription */
     private $subscription;
+
+    private const WHITE_LABEL = 4316;
 
     private float $credit_payments = 0;
 
@@ -74,6 +80,11 @@ class SubscriptionService
         if ($payment_hash->data->billing_context->context == 'change_plan') {
             return $this->handlePlanChange($payment_hash);
         }
+
+        if ($payment_hash->data->billing_context->context == 'whitelabel') {
+            return $this->handleWhiteLabelPurchase($payment_hash);
+        }
+
 
         // if we have a recurring product - then generate a recurring invoice
         if (strlen($this->subscription->recurring_product_ids) >=1) {
@@ -151,6 +162,45 @@ class SubscriptionService
         $response = $this->triggerWebhook($context);
 
         return $response;
+    }
+
+    private function handleWhiteLabelPurchase(PaymentHash $payment_hash): bool
+    {
+        //send license to the user.
+        $invoice = $payment_hash->fee_invoice;
+        $license_key = Str::uuid()->toString();
+        $invoice->public_notes = $license_key;
+        $invoice->save();
+        $invoice->service()->touchPdf();
+
+        $contact = $invoice->client->contacts()->whereNotNull('email')->first();
+
+        $license = new License;
+        $license->license_key = $license_key;
+        $license->email = $contact ? $contact->email : ' ';
+        $license->first_name = $contact ? $contact->first_name : ' ';
+        $license->last_name = $contact ? $contact->last_name : ' ';
+        $license->is_claimed = 1;
+        $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' ';
+        $license->product_id = self::WHITE_LABEL;
+
+        $license->save();
+
+        $email_object = new EmailObject;
+        $email_object->to = $contact->email;
+        $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');
+        $email_object->body = ctrans('texts.white_label_body',['license_key' => $license_key]);
+        $email_object->client_id = $invoice->client_id;
+        $email_object->client_contact_id = $contact->id;
+        $email_object->invitation_key = $invoice->invitations()->first()->invitation_key;
+        $email_object->entity_id = $invoice->id;
+        $email_object->entity_class = Invoice::class;
+        $email_object->user_id = $invoice->user_id;
+
+        Email::dispatch($email_object, $invoice->company);
+
+        return true;
+
     }
 
     /* Starts the process to create a trial
