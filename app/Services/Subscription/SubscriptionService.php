@@ -169,9 +169,24 @@ class SubscriptionService
         //send license to the user.
         $invoice = $payment_hash->fee_invoice;
         $license_key = Str::uuid()->toString();
-        $invoice->public_notes = $license_key;
-        $invoice->save();
+        $invoice->footer = ctrans('texts.white_label_body',['license_key' => $license_key]);
+
+        $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
+        
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+        $recurring_invoice->auto_bill = $this->subscription->auto_bill;
+        
+        /* Start the recurring service */
+        $recurring_invoice->service()
+                            ->start()
+                            ->save();
+
+        //update the invoice and attach to the recurring invoice!!!!!
+        $invoice->recurring_id = $recurring_invoice->id;
+        $invoice->is_proforma = false;
         $invoice->service()->touchPdf();
+        $invoice->save();
 
         $contact = $invoice->client->contacts()->whereNotNull('email')->first();
 
@@ -183,16 +198,20 @@ class SubscriptionService
         $license->is_claimed = 1;
         $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' ';
         $license->product_id = self::WHITE_LABEL;
+        $license->recurring_invoice_id = $recurring_invoice->id;
 
         $license->save();
 
+        $invitation = $invoice->invitations()->first();
+        
         $email_object = new EmailObject;
-        $email_object->to = $contact->email;
+        $email_object->to = [$contact->email];
         $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');
         $email_object->body = ctrans('texts.white_label_body',['license_key' => $license_key]);
         $email_object->client_id = $invoice->client_id;
         $email_object->client_contact_id = $contact->id;
-        $email_object->invitation_key = $invoice->invitations()->first()->invitation_key;
+        $email_object->invitation_key = $invitation->invitation_key;
+        $email_object->invitation_id = $invitation->id;
         $email_object->entity_id = $invoice->id;
         $email_object->entity_class = Invoice::class;
         $email_object->user_id = $invoice->user_id;
