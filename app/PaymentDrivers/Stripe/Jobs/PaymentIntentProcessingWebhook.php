@@ -79,8 +79,6 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
                 $this->payment_completed = true;
             }
         
-            nlog($transaction);
-
             if(isset($transaction['payment_method']))
             {
                 $cgt = ClientGatewayToken::where('token', $transaction['payment_method'])->first();
