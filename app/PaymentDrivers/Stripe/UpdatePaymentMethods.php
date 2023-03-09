@@ -90,15 +90,21 @@ class UpdatePaymentMethods
         );
 
         foreach ($bank_methods->data as $method) {
-            $token_exists = ClientGatewayToken::where([
+            $token = ClientGatewayToken::where([
                 'gateway_customer_reference' => $customer->id,
                 'token' => $method->id,
                 'client_id' => $client->id,
                 'company_id' => $client->company_id,
-            ])->exists();
+            ])->first();
 
             /* Already exists return */
-            if ($token_exists) {
+            if ($token) {
+            
+                $meta = $token->meta;
+                $meta->state = 'authorized';
+                $token->meta = $meta;
+                $token->save();
+
                 continue;
             }
 
