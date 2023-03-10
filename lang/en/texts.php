@@ -4852,7 +4852,6 @@ $LANG = array(
     'cash_vs_accrual_help' => 'Turn on for accrual reporting, turn off for cash basis reporting.',
     'expense_paid_report' => 'Expensed reporting',
     'expense_paid_report_help' => 'Turn on for reporting all expenses, turn off for reporting only paid expenses',
-    'payment_type_Klarna' => 'Klarna',
     'online_payment_email_help' => 'Send an email when an online payment is made',
     'manual_payment_email_help' => 'Send an email when manually entering a payment',
     'mark_paid_payment_email_help' => 'Send an email when marking an invoice as paid',
@@ -5015,6 +5014,8 @@ $LANG = array(
     'authorization_failure' => 'Insufficient permissions to perform this action',
     'authorization_sms_failure' => 'Please verify your account to send emails.',
     'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key',
+    'payment_type_Klarna' => 'Klarna',
+    'payment_type_Interac E Transfer' => 'Interac E Transfer',
 
 );
 
