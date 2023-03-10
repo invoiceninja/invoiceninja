@@ -148,4 +148,12 @@ class PaymentType extends StaticModel
             return self::CREDIT_CARD_OTHER;
         }
     }
+
+    public function name($id)
+    {
+        if(isset($this->type_names[$id]))
+            return ctrans("texts.".$this->type_names[$id]);
+
+        return ctrans('texts.manual_entry');
+    }
 }

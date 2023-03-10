@@ -299,11 +299,14 @@ class Payment extends BaseModel
 
     public function translatedType()
     {
-        if (! $this->type) {
+        if (! $this->type_id) {
             return '';
         }
 
-        return ctrans('texts.payment_type_'.$this->type->name);
+        $pt = new PaymentType();
+
+        return $pt->name($this->type_id);
+
     }
 
     public function gateway_type()
