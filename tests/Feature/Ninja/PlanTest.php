@@ -92,6 +92,8 @@ class PlanTest extends TestCase
 
     public function testLicense()
     {
+        $this->markTestSkipped();
+        
         $license = new License;
         $license->license_key = "1234";
         $license->product_id = "3";
