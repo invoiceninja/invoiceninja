@@ -14,6 +14,7 @@ namespace App\Services\Client;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Payment;
 use App\Services\Email\Email;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +75,23 @@ class ClientService
 
         return $this;
     }
+
+    public function updatePaymentBalance()
+    {
+        $amount = Payment::where('client_id', $this->client->id)
+                        ->where('is_deleted', 0)
+                        ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                        ->sum(DB::Raw('amount - refunded - applied'));
+
+        DB::connection(config('database.default'))->transaction(function () use ($amount) {
+            $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
+            $this->client->payment_balance = $amount;
+            $this->client->saveQuietly();
+        }, 2);
+
+        return $this;
+    }
+
 
     public function adjustCreditBalance(float $amount)
     {
