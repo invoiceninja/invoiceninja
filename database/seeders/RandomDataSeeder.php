@@ -121,7 +121,6 @@ class RandomDataSeeder extends Seeder
             'settings' => null,
         ]);
 
-
         $permission_users = [
             'permissions',
             'products',
