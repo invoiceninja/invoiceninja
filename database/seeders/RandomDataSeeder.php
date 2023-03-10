@@ -138,7 +138,7 @@ class RandomDataSeeder extends Seeder
         ];
 
         foreach ($permission_users as $p_user) {
-            nlog($p_user);
+
             $user = User::firstOrNew([
                 'email' => "{$p_user}@example.com",
             ]);

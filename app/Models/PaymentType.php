@@ -74,6 +74,48 @@ class PaymentType extends StaticModel
     const KLARNA = 47;
     const Interac_E_Transfer = 48;
 
+    public array $type_names = [
+        self::CREDIT => 'payment_type_Credit',
+        self::ACH => 'payment_type_ACH',
+        self::VISA => 'payment_type_Visa Card',
+        self::MASTERCARD => 'payment_type_MasterCard',
+        self::AMERICAN_EXPRESS => 'payment_type_American Express',
+        self::DISCOVER => 'payment_type_Discover Card',
+        self::DINERS => 'payment_type_Diners Card',
+        self::EUROCARD => 'payment_type_EuroCard',
+        self::NOVA => 'payment_type_Nova',
+        self::CREDIT_CARD_OTHER => 'payment_type_Credit Card Other',
+        self::PAYPAL => 'payment_type_PayPal',
+        self::CHECK => 'payment_type_Check',
+        self::CARTE_BLANCHE => 'payment_type_Carte Blanche',
+        self::UNIONPAY => 'payment_type_UnionPay',
+        self::JCB => 'payment_type_JCB',
+        self::LASER => 'payment_type_Laser',
+        self::MAESTRO => 'payment_type_Maestro',
+        self::SOLO => 'payment_type_Solo',
+        self::SWITCH => 'payment_type_Switch',
+        self::ALIPAY => 'payment_type_Alipay',
+        self::SOFORT => 'payment_type_Sofort',
+        self::SEPA => 'payment_type_SEPA',
+        self::GOCARDLESS => 'payment_type_GoCardless',
+        self::CRYPTO => 'payment_type_Crypto',
+        self::MOLLIE_BANK_TRANSFER => 'payment_type_Mollie Bank Transfer',
+        self::KBC => 'payment_type_KBC/CBC',
+        self::BANCONTACT => 'payment_type_Bancontact',
+        self::IDEAL => 'payment_type_iDEAL',
+        self::HOSTED_PAGE => 'payment_type_Hosted Page',
+        self::GIROPAY => 'payment_type_GiroPay',
+        self::PRZELEWY24 => 'payment_type_Przelewy24',
+        self::EPS => 'payment_type_EPS',
+        self::DIRECT_DEBIT => 'payment_type_Direct Debit',
+        self::BECS => 'payment_type_BECS',
+        self::ACSS => 'payment_type_ACSS',
+        self::INSTANT_BANK_PAY => 'payment_type_Instant Bank Pay',
+        self::FPX => 'fpx',
+        self::KLARNA => 'payment_type_Klarna',
+        self::Interac_E_Transfer => 'payment_type_Interac E Transfer',
+    ];
+
     public static function parseCardType($cardName)
     {
         $cardTypes = [
