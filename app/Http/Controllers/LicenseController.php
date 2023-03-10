@@ -149,14 +149,15 @@ class LicenseController extends BaseController
         return response()->json($error, 400);
     }
 
-    public function index(Request $request)
+    public function v5ClaimLicense(Request $request)
     {
         $this->checkLicense();
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
         
-            $response = Http::get( config('ninja.license_url')."/claim_license", [
+            $response = Http::get( "http://ninja.test:8000/claim_license", [
+            // $response = Http::get( "https://invoicing.co/claim_license", [
                 'license_key' => $request->input('license_key'),
                 'product_id' => 3,
             ]);
@@ -168,7 +169,7 @@ class LicenseController extends BaseController
                 $account = auth()->user()->account;
 
                 $account->plan_term = Account::PLAN_TERM_YEARLY;
-                $account->plan_expires = Carbon::parse($payload?->expires)->format('Y-m-d');
+                $account->plan_expires = Carbon::parse($payload['expires'])->addYear()->format('Y-m-d');
                 $account->plan = Account::PLAN_WHITE_LABEL;
                 $account->save();
 
