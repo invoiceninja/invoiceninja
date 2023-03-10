@@ -58,7 +58,7 @@ class SubscriptionService
     /** @var subscription */
     private $subscription;
 
-    private const WHITE_LABEL = 4316;
+    public const WHITE_LABEL = 4316;
 
     private float $credit_payments = 0;
 
@@ -203,7 +203,7 @@ class SubscriptionService
         $license->save();
 
         $invitation = $invoice->invitations()->first();
-        
+
         $email_object = new EmailObject;
         $email_object->to = [$contact->email];
         $email_object->subject = ctrans('texts.white_label_link') . " " .ctrans('texts.payment_subject');

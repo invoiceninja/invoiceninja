@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Mail\ContactPasswordlessLogin;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientContactRepository;
+use App\Services\Subscription\SubscriptionService;
 
 class BillingPortalPurchase extends Component
 {
@@ -399,8 +400,8 @@ class BillingPortalPurchase extends Component
 
         $context = 'purchase';
 
-        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()->product_key == 'whitelabel') {
-        if($this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
+        if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
             $context = 'whitelabel';
         }
 
