@@ -2251,7 +2251,7 @@ $LANG = array(
     'invalid_file' => 'Invalid file type',
     'add_documents_to_invoice' => 'Add Documents to Invoice',
     'mark_expense_paid' => 'Mark paid',
-    'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'white_label_license_error' => 'Failed to validate the license, either expired or excessive activations. Email contact@invoiceninja.com for more information.',
     'plan_price' => 'Plan Price',
     'wrong_confirmation' => 'Incorrect confirmation code',
     'oauth_taken' => 'The account is already registered',
@@ -4853,7 +4853,6 @@ $LANG = array(
     'cash_vs_accrual_help' => 'Turn on for accrual reporting, turn off for cash basis reporting.',
     'expense_paid_report' => 'Expensed reporting',
     'expense_paid_report_help' => 'Turn on for reporting all expenses, turn off for reporting only paid expenses',
-    'payment_type_Klarna' => 'Klarna',
     'online_payment_email_help' => 'Send an email when an online payment is made',
     'manual_payment_email_help' => 'Send an email when manually entering a payment',
     'mark_paid_payment_email_help' => 'Send an email when marking an invoice as paid',
@@ -5015,7 +5014,9 @@ $LANG = array(
     'no_assigned_tasks' => 'No billable tasks for this project',
     'authorization_failure' => 'Insufficient permissions to perform this action',
     'authorization_sms_failure' => 'Please verify your account to send emails.',
-    'white_label_body' => 'Thank you for purchasing a white label license. Your license key is :license_key.',
+    'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key',
+    'payment_type_Klarna' => 'Klarna',
+    'payment_type_Interac E Transfer' => 'Interac E Transfer',
 
 );
 

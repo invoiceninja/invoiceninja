@@ -11,22 +11,24 @@
 
 namespace App\Http\Livewire;
 
-use App\DataMapper\ClientSettings;
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Invoice;
+use Livewire\Component;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
+use App\Models\Subscription;
+use App\Models\ClientContact;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
+use App\DataMapper\ClientSettings;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Libraries\MultiDB;
-use App\Mail\ContactPasswordlessLogin;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\Subscription;
-use App\Repositories\ClientContactRepository;
-use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Livewire\Component;
+use App\Mail\ContactPasswordlessLogin;
+use App\Repositories\ClientRepository;
+use App\Repositories\ClientContactRepository;
+use App\Services\Subscription\SubscriptionService;
 
 class BillingPortalPurchase extends Component
 {
@@ -168,7 +170,7 @@ class BillingPortalPurchase extends Component
     /**
      * Instance of company.
      *
-     * @var Company
+     * @var \App\Models\Company
      */
     public $company;
 
@@ -396,12 +398,19 @@ class BillingPortalPurchase extends Component
             ->adjustInventory()
             ->save();
 
+        $context = 'purchase';
+
+        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
+        if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+            $context = 'whitelabel';
+        }
+
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->hashed_id,
             'invoice_id' => $this->invoice->hashed_id,
-            'context' => 'purchase',
+            'context' => $context,
             'campaign' => $this->campaign,
         ], now()->addMinutes(60));
 

@@ -12,14 +12,13 @@
 namespace App\Listeners\Payment;
 
 use App\Libraries\MultiDB;
-use App\Utils\Traits\Notifications\UserNotifies;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
-class PaymentEmailedActivity implements ShouldQueue
+class PaymentBalanceActivity implements ShouldQueue
 {
-
-    use UserNotifies;
-
+    use InteractsWithQueue;
     /**
      * Create the event listener.
      *
@@ -33,11 +32,18 @@ class PaymentEmailedActivity implements ShouldQueue
      * Handle the event.
      *
      * @param object $event
-     * @return bool
      */
     public function handle($event)
     {
+
         MultiDB::setDb($event->company->db);
-        $payment = $event->payment;
+
+        $event->payment->client->service()->updatePaymentBalance();
+
+    }
+
+    public function middleware($event): array
+    {
+        return [(new WithoutOverlapping($event->payment->client->id))];
     }
 }

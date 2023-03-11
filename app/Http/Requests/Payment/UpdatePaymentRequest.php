@@ -36,7 +36,7 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule($this->all())],
+            'invoices' => ['array', new PaymentAppliedValidAmount($this->all()), new ValidCreditsPresentRule($this->all())],
             'invoices.*.invoice_id' => 'distinct',
         ];
 
@@ -87,6 +87,7 @@ class UpdatePaymentRequest extends Request
                 }
             }
         }
+
         $this->replace($input);
     }
 
