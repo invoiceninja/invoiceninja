@@ -79,6 +79,9 @@ class Charge
             if ($cgt->gateway_type_id == GatewayType::SEPA) {
                 $data['payment_method_types'] = ['sepa_debit'];
             }
+            if ($cgt->gateway_type_id == GatewayType::BACS) {
+                $data['payment_method_types'] = ['bacs_debit'];
+            }
 
             /* Should improve token billing with client not present */
             if (!auth()->guard('contact')->check()) {
@@ -135,8 +138,15 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
-        } else {
-            if (isset($response->latest_charge)) {
+
+        } elseif ($cgt->gateway_type_id == GatewayType::BACS){
+            $payment_method_type = PaymentType::BACS;
+            $status = Payment::STATUS_PENDING;
+        }
+        else {
+
+            if(isset($response->latest_charge)) {
+
                 $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
                 $payment_method_type = $charge->payment_method_details->card->brand;
             } elseif (isset($response->charges->data[0]->payment_method_details->card->brand)) {
@@ -147,9 +157,11 @@ class Charge
 
             $status = Payment::STATUS_COMPLETED;
         }
-        
-        if (!in_array($response?->status, ['succeeded', 'processing'])) {
-            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.', 400));
+
+
+        if(!in_array($response?->status, ['succeeded', 'processing'])){
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
+
         }
 
         $data = [
@@ -195,6 +207,8 @@ class Charge
                 break;
             case PaymentType::SEPA:
                 return PaymentType::SEPA;
+            case PaymentType::BACS:
+                return PaymentType::BACS;
             default:
                 return PaymentType::CREDIT_CARD_OTHER;
                 break;

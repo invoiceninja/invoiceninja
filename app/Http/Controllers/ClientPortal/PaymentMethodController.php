@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\PaymentMethod\CreatePaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -56,7 +57,6 @@ class PaymentMethodController extends Controller
 
         $data['gateway'] = $gateway;
         $data['client'] = auth()->user()->client;
-
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
@@ -146,6 +146,9 @@ class PaymentMethodController extends Controller
     {
         if (request()->query('method') == GatewayType::CREDIT_CARD) {
             return auth()->user()->client->getCreditCardGateway();
+        }
+        if (request()->query('method') == GatewayType::BACS) {
+            return auth()->user()->client->getBACSGateway();
         }
 
         if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA])) {
