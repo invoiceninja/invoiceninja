@@ -40,8 +40,8 @@ class EntityCreatedObject
     }
 
     /**
-     * @return stdClass 
-     * @throws BindingResolutionException 
+     * @return stdClass
+     * @throws BindingResolutionException
      */
     public function build() :stdClass
     {
@@ -55,32 +55,32 @@ class EntityCreatedObject
         $this->setTemplate();
         $this->company = $this->entity->company;
 
-        if($this->entity_type == 'purchase_order')
-        {
-
+        if ($this->entity_type == 'purchase_order') {
             $this->entity->load('vendor.company');
 
             $mail_obj = new stdClass;
             $mail_obj->amount = Number::formatMoney($this->entity->amount, $this->entity->vendor);
             
-            $mail_obj->subject = ctrans($this->template_subject,
-                                [
-                                    'vendor' => $this->entity->vendor->present()->name(),
-                                    'purchase_order' => $this->entity->number,
-                                ]
-                            );
+            $mail_obj->subject = ctrans(
+                $this->template_subject,
+                [
+                    'vendor' => $this->entity->vendor->present()->name(),
+                    'purchase_order' => $this->entity->number,
+                ]
+            );
 
             $mail_obj->markdown = 'email.admin.generic';
-            $mail_obj->tag = $this->company->company_key;
+            // $mail_obj->tag = $this->company->company_key;
             $mail_obj->data = [
                                 'title' => $mail_obj->subject,
-                                'message' => ctrans($this->template_body,
-                                            [
-                                                'amount' => $mail_obj->amount,
-                                                'vendor' => $this->entity->vendor->present()->name(),
-                                                'purchase_order' => $this->entity->number,
-                                            ]
-                                        ),
+                                'message' => ctrans(
+                                    $this->template_body,
+                                    [
+                                        'amount' => $mail_obj->amount,
+                                        'vendor' => $this->entity->vendor->present()->name(),
+                                        'purchase_order' => $this->entity->number,
+                                    ]
+                                ),
                                 'url' => $this->entity->invitations()->first()->getAdminLink(),
                                 'button' => ctrans("texts.view_{$this->entity_type}"),
                                 'signature' => $this->company->settings->email_signature,
@@ -88,11 +88,7 @@ class EntityCreatedObject
                                 'settings' => $this->company->settings,
                                 'whitelabel' => $this->company->account->isPaid() ? true : false,
                             ];
-
-
-        }
-        else {
-
+        } else {
             $this->entity->load('client.country', 'client.company');
             $this->client = $this->entity->client;
 
@@ -101,8 +97,7 @@ class EntityCreatedObject
             $mail_obj->subject = $this->getSubject();
             $mail_obj->data = $this->getData();
             $mail_obj->markdown = 'email.admin.generic';
-            $mail_obj->tag = $this->entity->company->company_key;
-
+            // $mail_obj->tag = $this->entity->company->company_key;
         }
         
         return $mail_obj;
@@ -110,7 +105,6 @@ class EntityCreatedObject
 
     private function setTemplate()
     {
-
         switch ($this->entity_type) {
             case 'invoice':
                 $this->template_subject = 'texts.notification_invoice_created_subject';
@@ -135,7 +129,7 @@ class EntityCreatedObject
         }
     }
 
-    private function getAmount() 
+    private function getAmount()
     {
         return Number::formatMoney($this->entity->amount, $this->entity->client);
     }
@@ -155,13 +149,13 @@ class EntityCreatedObject
     private function getMessage()
     {
         return ctrans(
-                $this->template_body,
-                [
-                    'amount' => $this->getAmount(),
-                    'client' => $this->client->present()->name(),
-                    'invoice' => $this->entity->number,
-                ]
-            );
+            $this->template_body,
+            [
+                'amount' => $this->getAmount(),
+                'client' => $this->client->present()->name(),
+                'invoice' => $this->entity->number,
+            ]
+        );
     }
 
     private function getData()

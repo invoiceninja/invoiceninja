@@ -53,19 +53,15 @@ class CompareCollectionTest extends TestCase
 
         $invoices = explode(",", $invoice_ids);
 
-        if(count($invoices) >= 1) 
-        {
-
-            foreach($invoices as $invoice){
-
-                if(is_string($invoice) && strlen($invoice) > 1)
+        if (count($invoices) >= 1) {
+            foreach ($invoices as $invoice) {
+                if (is_string($invoice) && strlen($invoice) > 1) {
                     $collection->push($this->decodePrimaryKey($invoice));
+                }
             }
-        
         }
 
         $this->assertEquals(0, $collection->count());
-
     }
 
     public function testCompareResultOfComparison()

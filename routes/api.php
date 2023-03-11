@@ -14,10 +14,10 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\BankTransactionRuleController;
-use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\ClientController;
@@ -98,17 +98,17 @@ use App\Http\Controllers\WebCronController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function () {
+Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
-Route::group(['middleware' => ['throttle:50,1','api_secret_check','email_db']], function () {
-    Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit')->middleware('throttle:20,1');
+Route::group(['middleware' => ['throttle:login','api_secret_check','email_db']], function () {
+    Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
-Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
     Route::resource('bank_integrations', BankIntegrationController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::post('bank_integrations/refresh_accounts', [BankIntegrationController::class, 'refreshAccounts'])->name('bank_integrations.refresh_accounts')->middleware('throttle:30,1');
@@ -136,9 +136,9 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('charts/chart_summary', [ChartController::class, 'chart_summary'])->name('chart.chart_summary');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
+    Route::post('v5_claim_license', [LicenseController::class, 'v5ClaimLicense'])->name('license.v5_claim_license');
 
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
-    Route::put('clients/{client}/adjust_ledger', [ClientController::class, 'adjustLedger'])->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');
     Route::post('clients/{client}/purge', [ClientController::class, 'purge'])->name('clients.purge')->middleware('password_protected');
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
@@ -266,7 +266,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', [RecurringQuoteController::class, 'bulk'])->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', [RecurringQuoteController::class, 'upload']);
 
-    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:300,2');
+    Route::post('refresh', [LoginController::class, 'refresh'])->middleware('throttle:refresh');
 
     Route::post('reports/clients', ClientReportController::class);
     Route::post('reports/contacts', ClientContactReportController::class);
@@ -351,7 +351,6 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
     Route::get('statics', StaticController::class);
     // Route::post('apple_pay/upload_file','ApplyPayController::class, 'upload');
-
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:10,1');
@@ -366,7 +365,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
     ->name('payment_notification_webhook');
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
-Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:100,1');
+Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
 Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
 Route::post('api/v1/confirm_forwarding', [HostedMigrationController::class, 'confirmForwarding'])->middleware('guest')->middleware('throttle:100,1');

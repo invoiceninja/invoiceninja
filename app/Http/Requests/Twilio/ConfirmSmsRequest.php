@@ -13,10 +13,8 @@ namespace App\Http\Requests\Twilio;
 
 use App\Http\Requests\Request;
 
-
 class ConfirmSmsRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,10 +27,8 @@ class ConfirmSmsRequest extends Request
 
     public function rules()
     {
-
         return [
             'code' => 'required',
         ];
     }
-
 }

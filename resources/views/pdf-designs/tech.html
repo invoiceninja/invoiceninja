@@ -15,11 +15,15 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
         margin: 0;
     }
 
+    table tr td, table tr, th {
+        font-size: $font_size !important;
+    }
+    
     @page {
         margin: 0;
         size: $page_size $page_layout;
@@ -39,36 +43,30 @@
 
     /** End of global, standard CSS */
     .header-wrapper {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: space-between;
     }
 
     .top-right-side-section {
-        display: flex;
-        flex-direction: row;
+        display: inline-block;
+        flex-direction: column;
         justify-content: flex-end;
-    }
-
-    .top-right-side-section > * {
-        margin-left: 1.5rem;
+        white-space: nowrap;
+        vertical-align: top;
     }
 
     .logo-and-partial-entity-info {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: space-between;
-        align-items: center;
-        height: 120px;
-    }
-
-    .company-logo-wrapper {
-        padding-bottom: 60px;
-        height: 5rem;
     }
 
     .company-logo {
-        max-width: 65%;
-/*        max-width: $company_logo_size;*/
+        max-width: $company_logo_size;
     }
 
     .header-invoice-number {
@@ -85,7 +83,7 @@
     }
 
     .hero-section {
-        margin-top: 50px;
+        margin-top: 5px;
         min-width: 100% !important;
         background: url('$tech_hero_image'); /** If you want to replace the image, this is the place to do it. */
         -webkit-background-size: cover;
@@ -110,6 +108,10 @@
         justify-items: start;
     }
 
+    .spacer {
+        display: flex;
+    }
+
     .client-details-to-label {
         text-transform: uppercase;
         font-weight: bold;
@@ -117,11 +119,30 @@
         margin-right: 10px;
     }
 
+    .shipping-to-label {
+        text-transform: uppercase;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-right: 10px;
+        display: $show_shipping_address;
+    }
+
+    #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        white-space: nowrap;
+    }
+
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
     #client-details,
     #company-details,
     #company-address {
         display: flex;
         flex-direction: column;
+        white-space: nowrap;
     }
 
     .company-details-wrapper {
@@ -216,7 +237,8 @@
     }
 
     [data-ref="total_table-footer"] {
-        padding-left: 1rem
+        padding-left: 1.5rem;
+        padding-right: 2rem;
     }
 
     [data-ref="totals_table-outstanding-label"],
@@ -288,6 +310,8 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
+
     } 
 
     .project-header {
@@ -346,27 +370,33 @@
       <tr>
          <td>
             <div id="body">
-               <div class="header-wrapper">
-                  <div class="top-right-side-section">
-                     <span class="header-invoice-number">$entity_number_label: $entity_number</span>
-                     <span>$date_label: $date</span>
-                  </div>
-                  <div class="logo-and-partial-entity-info">
-                     <div class="company-logo-wrapper">
-                        <img class="company-logo" src="$company.logo"
-                           alt="$company.name logo">
-                     </div>
-                     <div class="top-right-side-section">
-                        <div dir="$dir">
-                           <span class="header-payment-due-label">$payment_due_label:</span>
-                           <span>$payment_due</span>
+                <div class="header-wrapper">
+                    <div class="logo-and-partial-entity-info">
+                        <div class="company-logo-wrapper">
+                            <img class="company-logo" src="$company.logo" alt="$company.name logo">
                         </div>
-                        <div dir="$dir">
-                           <span class="header-amount-due-label">$amount_due_label:</span>
-                           <span class="header-amount-due-value">$amount_due</span>
-                        </div>
-                     </div>
-                  </div>
+                    </div>
+                    <div class="spacer"></div>
+                    <div class="top-right-side-section">
+                        <table style="white-space: nowrap;" cellspacing="10">
+                            <tr>
+                                <td>$entity_number_label:</td>
+                                <td class="header-invoice-number">$entity_number</td>
+                            </tr>
+                            <tr>
+                                <td>$date_label:</td>
+                                <td>$date</td>
+                            </tr>
+                            <tr class="header-payment-due-label">
+                                <td>$payment_due_label:</td>
+                                <td>$payment_due</td>
+                            </tr>
+                            <tr>
+                                <td class="header-amount-due-label">$amount_due_label:</td>
+                                <td class="header-amount-due-value">$amount_due</td>
+                            </tr>
+                        </table>
+                    </div>
                </div>
                <div class="hero-section">
                   <div class="hero-contact-section">
@@ -374,6 +404,8 @@
                         <span class="client-details-to-label">$to_label:</span>
                         <div id="client-details"></div>
                         <div id="vendor-details"></div>
+                        <span class="shipping-to-label">$shipping_label:</span>
+                        <div id="shipping-details"></div>
                      </div>
                      <div class="company-details">
                         <span class="client-details-to-label">$from_label:</span>
@@ -394,7 +426,7 @@
                   <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                   <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                   <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                  <div id="table-totals" cellspacing="0"></div>
+                  <div id="table-totals" cellspacing="0">$status_logo</div>
                </div>
             </div>
          </td>

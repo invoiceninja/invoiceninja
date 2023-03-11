@@ -13,7 +13,6 @@ namespace Tests\Feature;
 
 use App\Models\CompanyGateway;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\URL;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

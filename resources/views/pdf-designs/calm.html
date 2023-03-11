@@ -11,10 +11,15 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
     }
 
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
+    }
+    
     html {
         margin: 0;
         padding-top: 1rem;
@@ -34,22 +39,40 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1fr 0.5fr;
-        line-height: var(--line-height);
+        margin-top: 2rem;
+        gap: 20px;
+        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: left;
     }
 
     .header-wrapper2 {
         display: grid;
-        grid-template-columns: 1fr 0.5fr;
         margin-top: 2rem;
-        min-width: 100%;
+        gap: 20px;
+        grid-template-columns: 2fr 2fr auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: left;
     }
     
     .company-logo {
-        max-width: 65%;
-        /*        max-width: $company_logo_size;*/
+/*        max-width: 65%;*/
+        max-width: $company_logo_size;
     }
 
+    .logo-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .company-container {
+        display: flex;
+        flex-direction: column;
+    }
     .client-and-entity-wrapper {
         display: flex;
         padding: 1rem;
@@ -63,18 +86,23 @@
         line-height: var(--line-height);
     }
 
+    .header-wrapper #company-details {
+        display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
     .header-wrapper #entity-details {
-        margin-top: 0.5rem;
+        padding-right: 0.5rem;
         text-align: left;
+        line-height: var(--line-height);
         width: 100%;
     }
 
     .header-wrapper #entity-details > tr,
     .header-wrapper #entity-details th {
         font-weight: normal;
-        padding-left: 0.9rem;
-        padding-top: 0.3rem;
-        padding-bottom: 0.3rem;
+        white-space: nowrap;
     }
 	
     .header-wrapper
@@ -86,8 +114,25 @@
         background-color: #e6e6e6;
     }
 
+	#entity-details {
+        text-align: left;
+        width: 100%;
+	}
+	
+	#entity-details th {
+        font-weight:normal;
+        line-height: 1.5rem;
+        padding-right: 2rem;
+	}
+	
     #client-details {
         display: flex;
+        flex-direction: column;
+        line-height: var(--line-height);
+    }
+
+    #shipping-details {
+        visibility: $show_shipping_address_visibility;
         flex-direction: column;
         line-height: var(--line-height);
     }
@@ -165,17 +210,6 @@
         text-align: right;
         padding-right: 0px;
     }
-	
-
-	#entity-details {
-        text-align: left;
-        width: 100%;
-	}
-	
-	#entity-details th {
-        font-weight:normal;
-        line-height: 1.5rem;
-	}
 	
     #table-totals
     > *
@@ -265,6 +299,10 @@
     [data-ref="total_table-public_notes"] { font-weight: normal; } 
     [data-ref="total_table-terms"] { font-weight: normal; } 
 
+    /* [data-ref="shipping_address-label"] {
+        display: none;
+    } */
+
     .stamp {
       transform: rotate(12deg);
         color: #555;
@@ -293,6 +331,7 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
     } 
 
     .project-header {
@@ -350,24 +389,22 @@
       <tr>
          <td>
             <div id="">
-               <div class="header-wrapper">
-                  <div>
-                     <img class="company-logo" src="$company.logo" alt="$company.name logo">
-                  </div>
-                  <div style="float:right; width:100%;">
-                  <div id="company-details"></div>
-                  <div id="company-address" style="margin-top:10px;"></div>
-                  </div>
-               </div>
-               <div class="header-wrapper2">
-               <div id="client-details"></div>
-               <div id="vendor-details"></div>
-
-               <div>
-               <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
-               <table id="entity-details" cellspacing="0" dir="ltr"></table>
-               </div>
-               </div>
+                <div class="header-wrapper">
+                    <div class="logo-container">
+                        <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                    </div>
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                </div>
+                <div class="header-wrapper2">
+                    <div id="client-details"></div>
+                    <div id="vendor-details"></div>
+                    <div id="shipping-details"></div>
+                    <div>
+                        <p class="entity-label" style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
+                        <table id="entity-details" cellspacing="0" cellpadding="0" dir="ltr"></table>
+                    </div>
+                </div>
             
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
@@ -378,7 +415,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
+               <div id="table-totals" cellspacing="0">$status_logo</div>
             </div>
          </td>
       </tr>

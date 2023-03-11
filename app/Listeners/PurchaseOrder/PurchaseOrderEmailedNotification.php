@@ -46,14 +46,8 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
         $purchase_order->last_sent_date = now();
         $purchase_order->saveQuietly();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'purchase_order', 'purchase_order'))->build());
-        $nmo->company = $purchase_order->company;
-        $nmo->settings = $purchase_order->company->settings;
-
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->invitation->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -67,9 +61,15 @@ class PurchaseOrderEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'purchase_order', 'purchase_order'))->build());
+                $nmo->company = $purchase_order->company;
+                $nmo->settings = $purchase_order->company->settings;
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
+
+                $nmo = null;
 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;

@@ -61,8 +61,9 @@ class ProjectFilters extends QueryFilters
             return $this->builder;
         }
 
-        if(is_array($sort_col))
+        if (is_array($sort_col)) {
             return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        }
     }
 
     /**

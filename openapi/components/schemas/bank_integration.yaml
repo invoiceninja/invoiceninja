@@ -1,0 +1,47 @@
+    BankIntegration:
+      properties:
+        id:
+          description: 'The bank integration hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: AS3df3A
+        provider_bank_name:
+          description: 'The providers bank name'
+          type: string
+          example: 'Chase Bank'
+        bank_account_id:
+          description: 'The bank account id'
+          type: integer
+          example: '1233434'
+        bank_account_name:
+          description: 'The name of the account'
+          type: string
+          example: 'My Checking Acc'
+        bank_account_number:
+          description: 'The account number'
+          type: string
+          example: '111 234 2332'
+        bank_account_status:
+          description: 'The status of the bank account'
+          type: string
+          example: ACTIVE
+        bank_account_type:
+          description: 'The type of account'
+          type: string
+          example: CREDITCARD
+        balance:
+          description: 'The current bank balance if available'
+          type: number
+          example: '1000000'
+        currency:
+          description: 'iso_3166_3 code'
+          type: string
+          example: USD
+      type: object

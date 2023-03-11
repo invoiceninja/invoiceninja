@@ -33,7 +33,6 @@ class UploadController extends Controller
      */
     public function upload(StoreUploadRequest $request, PurchaseOrder $purchase_order)
     {
-
         $this->saveDocuments($request->getFile(), $purchase_order, true);
 
         return response([], 200);

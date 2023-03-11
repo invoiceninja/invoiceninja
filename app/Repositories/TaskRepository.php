@@ -251,30 +251,22 @@ class TaskRepository extends BaseRepository
 
     private function trySaving(Task $task)
     {
-
         $x=1;
 
-        do{
-
-            try{
-
+        do {
+            try {
                 $task->number = $this->getNextTaskNumber($task);
                 $task->saveQuietly();
                 $this->completed = false;
-
-            }
-            catch(QueryException $e){
-
+            } catch(QueryException $e) {
                 $x++;
 
-                if($x>50)
+                if ($x>50) {
                     $this->completed = false;
+                }
             }
-        
-        }
-        while($this->completed);
+        } while ($this->completed);
 
         return $task->number;
-
     }
 }

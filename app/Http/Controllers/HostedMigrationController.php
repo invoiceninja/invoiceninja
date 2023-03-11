@@ -13,12 +13,9 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 
 class HostedMigrationController extends Controller
 {

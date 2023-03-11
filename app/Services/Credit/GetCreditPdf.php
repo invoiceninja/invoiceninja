@@ -13,8 +13,6 @@ namespace App\Services\Credit;
 
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Services\AbstractService;
-use App\Utils\TempFile;
-use Illuminate\Support\Facades\Storage;
 
 class GetCreditPdf extends AbstractService
 {

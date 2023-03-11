@@ -104,7 +104,6 @@ class RecurringInvoicesCron
                 nlog(now()->format('Y-m-d').' Sending Recurring Invoices. Count = '.$recurring_invoices->count());
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-
                     nlog("Trying to send {$recurring_invoice->number}");
 
                     if ($recurring_invoice->company->stop_on_unpaid_recurring) {
@@ -123,6 +122,5 @@ class RecurringInvoicesCron
         }
 
         nlog("Recurring invoice send duration " . $start . " - " . Carbon::now()->format('Y-m-d h:i:s'));
-        
     }
 }

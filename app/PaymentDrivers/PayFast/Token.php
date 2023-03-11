@@ -12,19 +12,10 @@
 
 namespace App\PaymentDrivers\PayFast;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class Token
 {
@@ -62,7 +53,6 @@ class Token
 
     protected function generate_parameter_string($api_data, $sort_data_before_merge = true, $skip_empty_values = true)
     {
-
         // if sorting is required the passphrase should be added in before sort.
         if (! empty($this->payfast->company_gateway->getConfigField('passphrase')) && $sort_data_before_merge) {
             $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passphrase');
@@ -118,9 +108,10 @@ class Token
     private function send($headers, $body, $token)
     {
         $client = new \GuzzleHttp\Client(
-        [
-            'headers' => $headers,
-        ]);
+            [
+                'headers' => $headers,
+            ]
+        );
 
         try {
             $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true", [

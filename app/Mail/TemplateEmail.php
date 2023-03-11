@@ -11,20 +11,13 @@
 
 namespace App\Mail;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Invoice\CreateUbl;
 use App\Models\Account;
-use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\User;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\TemplateEngine;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 
 class TemplateEmail extends Mailable
 {
@@ -51,6 +44,31 @@ class TemplateEmail extends Mailable
         $this->invitation = $invitation;
     }
 
+    /**
+     * Supports inline attachments for large
+     * attachments in custom designs
+     *
+     * @return string
+     */
+    private function buildLinksForCustomDesign(): string
+    {
+        $links = $this->build_email->getAttachmentLinks();
+
+        if (count($links) == 0) {
+            return '';
+        }
+
+        $link_string = '<ul>';
+
+        foreach ($this->build_email->getAttachmentLinks() as $link) {
+            $link_string .= "<li>{$link}</li>";
+        }
+
+        $link_string .= '</ul>';
+
+        return $link_string;
+    }
+
     public function build()
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
@@ -60,7 +78,7 @@ class TemplateEmail extends Mailable
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
-            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody().$this->buildLinksForCustomDesign(), $this->client->getSetting('email_style_custom')));
         }
 
         $settings = $this->client->getMergedSettings();
@@ -92,7 +110,7 @@ class TemplateEmail extends Mailable
             if (Ninja::isHosted()) {
                 $bccs = explode(',', str_replace(' ', '', $settings->bcc_email));
                 $this->bcc(array_slice($bccs, 0, 2));
-                //$this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
+            //$this->bcc(reset($bccs)); //remove whitespace if any has been inserted.
             } else {
                 $this->bcc(explode(',', str_replace(' ', '', $settings->bcc_email)));
             }//remove whitespace if any has been inserted.
@@ -120,10 +138,11 @@ class TemplateEmail extends Mailable
             ]);
 
         foreach ($this->build_email->getAttachments() as $file) {
-            if(array_key_exists('file', $file))
+            if (array_key_exists('file', $file)) {
                 $this->attachData(base64_decode($file['file']), $file['name']);
-            else
+            } else {
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
+            }
         }
 
         if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {

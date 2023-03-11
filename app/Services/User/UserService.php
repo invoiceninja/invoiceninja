@@ -15,7 +15,6 @@ use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\VerifyUserObject;
-use App\Models\Company;
 use App\Models\User;
 use App\Utils\Ninja;
 

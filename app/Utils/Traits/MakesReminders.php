@@ -21,7 +21,6 @@ trait MakesReminders
 {
     public function inReminderWindow($schedule_reminder, $num_days_reminder)
     {
-
         switch ($schedule_reminder) {
             case 'after_invoice_date':
                 return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
@@ -93,7 +92,7 @@ trait MakesReminders
         switch ($endless_reminder_frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:
                 return Carbon::parse($date)->addDay()->startOfDay();
-           case RecurringInvoice::FREQUENCY_WEEKLY:
+            case RecurringInvoice::FREQUENCY_WEEKLY:
                 return Carbon::parse($date)->addWeek()->startOfDay();
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
                 return Carbon::parse($date)->addWeeks(2)->startOfDay();

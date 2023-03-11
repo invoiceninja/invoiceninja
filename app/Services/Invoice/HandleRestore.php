@@ -46,10 +46,9 @@ class HandleRestore extends AbstractService
 
         //cannot restore an invoice with a deleted payment
         foreach ($this->invoice->payments as $payment) {
-            
-            if(($this->invoice->paid_to_date == 0) && $payment->is_deleted)
+            if (($this->invoice->paid_to_date == 0) && $payment->is_deleted) {
                 return $this->invoice;
-
+            }
         }
 
         //adjust ledger balance
@@ -57,7 +56,7 @@ class HandleRestore extends AbstractService
 
         $this->invoice->client
                       ->service()
-                      ->updateBalanceAndPaidToDate($this->invoice->balance,$this->invoice->paid_to_date)
+                      ->updateBalanceAndPaidToDate($this->invoice->balance, $this->invoice->paid_to_date)
                       ->save();
 
         $this->windBackInvoiceNumber();
@@ -81,14 +80,12 @@ class HandleRestore extends AbstractService
     private function restorePaymentables()
     {
         $this->invoice->payments->each(function ($payment) {
-
             Paymentable::query()
             ->withTrashed()
             ->where('payment_id', $payment->id)
             ->where('paymentable_type', '=', 'invoices')
             ->where('paymentable_id', $this->invoice->id)
             ->update(['deleted_at' => null]);
-
         });
 
         return $this;
@@ -112,7 +109,7 @@ class HandleRestore extends AbstractService
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
 
         return $this;
-    }    
+    }
 
     private function adjustPayments()
     {
@@ -120,27 +117,27 @@ class HandleRestore extends AbstractService
 
         if ($this->adjustment_amount == $this->total_payments) {
             $this->invoice->payments()->update(['payments.deleted_at' => null, 'payments.is_deleted' => false]);
-        } 
+        }
 
-            //adjust payments down by the amount applied to the invoice payment.
+        //adjust payments down by the amount applied to the invoice payment.
 
-            $this->invoice->payments->fresh()->each(function ($payment) {
-                $payment_adjustment = $payment->paymentables
-                                                ->where('paymentable_type', '=', 'invoices')
-                                                ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('amount'));
+        $this->invoice->payments->fresh()->each(function ($payment) {
+            $payment_adjustment = $payment->paymentables
+                                            ->where('paymentable_type', '=', 'invoices')
+                                            ->where('paymentable_id', $this->invoice->id)
+                                            ->sum(DB::raw('amount'));
 
-                $payment_adjustment -= $payment->paymentables
-                                                ->where('paymentable_type', '=', 'invoices')
-                                                ->where('paymentable_id', $this->invoice->id)
-                                                ->sum(DB::raw('refunded'));
+            $payment_adjustment -= $payment->paymentables
+                                            ->where('paymentable_type', '=', 'invoices')
+                                            ->where('paymentable_id', $this->invoice->id)
+                                            ->sum(DB::raw('refunded'));
 
-                $payment->amount += $payment_adjustment;
-                $payment->applied += $payment_adjustment;
-                $payment->is_deleted = false;
-                $payment->restore();
-                $payment->saveQuietly();
-            });
+            $payment->amount += $payment_adjustment;
+            $payment->applied += $payment_adjustment;
+            $payment->is_deleted = false;
+            $payment->restore();
+            $payment->saveQuietly();
+        });
         
         return $this;
     }

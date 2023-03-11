@@ -17,7 +17,6 @@ use App\Models\Webhook;
 
 class QuoteObserver
 {
-
     public $afterCommit = true;
 
     /**
@@ -28,14 +27,13 @@ class QuoteObserver
      */
     public function created(Quote $quote)
     {
-
         $subscriptions = Webhook::where('company_id', $quote->company_id)
                         ->where('event_id', Webhook::EVENT_CREATE_QUOTE)
                         ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(0);
-        
+        }
     }
 
     /**
@@ -45,24 +43,25 @@ class QuoteObserver
      * @return void
      */
     public function updated(Quote $quote)
-    {nlog("updated");
-
+    {
         $event = Webhook::EVENT_UPDATE_QUOTE;
 
-        if($quote->getOriginal('deleted_at') && !$quote->deleted_at)
+        if ($quote->getOriginal('deleted_at') && !$quote->deleted_at) {
             $event = Webhook::EVENT_RESTORE_QUOTE;
+        }
         
-        if($quote->is_deleted)
-            $event = Webhook::EVENT_DELETE_QUOTE; 
+        if ($quote->is_deleted) {
+            $event = Webhook::EVENT_DELETE_QUOTE;
+        }
         
         
         $subscriptions = Webhook::where('company_id', $quote->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $quote, $quote->company, 'client')->delay(0);
-
+        }
     }
 
     /**
@@ -73,16 +72,17 @@ class QuoteObserver
      */
     public function deleted(Quote $quote)
     {
-        if($quote->is_deleted)
+        if ($quote->is_deleted) {
             return;
+        }
 
         $subscriptions = Webhook::where('company_id', $quote->company_id)
                         ->where('event_id', Webhook::EVENT_ARCHIVE_QUOTE)
                         ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_QUOTE, $quote, $quote->company, 'client')->delay(0);
-        
+        }
     }
 
     /**

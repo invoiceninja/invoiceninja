@@ -11,12 +11,12 @@
 
 namespace App\Services\Scheduler;
 
+use App\DataMapper\Schedule\EmailStatement;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
 
 class SchedulerService
 {
@@ -27,48 +27,49 @@ class SchedulerService
 
     private Client $client;
 
-    public function __construct(public Scheduler $scheduler) {}
+    public function __construct(public Scheduler $scheduler)
+    {
+    }
 
     /**
      * Called from the TaskScheduler Cron
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function runTask(): void
     {
-        $this->{$this->scheduler->template}();
+        if(method_exists($this, $this->scheduler->template))
+            $this->{$this->scheduler->template}();
     }
 
-    private function client_statement()
-    {   
+    private function email_statement()
+    {
         $query = Client::query()
                         ->where('company_id', $this->scheduler->company_id)
-                        ->where('is_deleted',0);
+                        ->where('is_deleted', 0);
 
         //Email only the selected clients
-        if(count($this->scheduler->parameters['clients']) >= 1)
+        if (count($this->scheduler->parameters['clients']) >= 1) {
             $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
+        }
      
         $query->cursor()
-            ->each(function ($_client){
+            ->each(function ($_client) {
+                $this->client = $_client;
 
-            $this->client = $_client;
+                //work out the date range
+                $statement_properties = $this->calculateStatementProperties();
 
-           //work out the date range 
-            $statement_properties = $this->calculateStatementProperties();
-
-            $_client->service()->statement($statement_properties,true);
-
-        });
+                $_client->service()->statement($statement_properties, true);
+            });
 
         //calculate next run dates;
         $this->calculateNextRun();
-    
     }
 
     /**
      * Hydrates the array needed to generate the statement
-     * 
+     *
      * @return array The statement options array
      */
     private function calculateStatementProperties(): array
@@ -76,38 +77,39 @@ class SchedulerService
         $start_end = $this->calculateStartAndEndDates();
 
         return [
-            'start_date' =>$start_end[0], 
-            'end_date' =>$start_end[1], 
-            'show_payments_table' => $this->scheduler->parameters['show_payments_table'], 
-            'show_aging_table' => $this->scheduler->parameters['show_aging_table'], 
+            'start_date' =>$start_end[0],
+            'end_date' =>$start_end[1],
+            'show_payments_table' => $this->scheduler->parameters['show_payments_table'],
+            'show_aging_table' => $this->scheduler->parameters['show_aging_table'],
             'status' => $this->scheduler->parameters['status']
         ];
-
     }
-
+    
     /**
      * Start and end date of the statement
-     * 
+     *
      * @return array [$start_date, $end_date];
      */
     private function calculateStartAndEndDates(): array
     {
         return match ($this->scheduler->parameters['date_range']) {
-            'this_month' => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
-            'this_quarter' => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
-            'this_year' => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
-            'previous_month' => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            'previous_quarter' => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
-            'previous_year' => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
-            'custom_range' => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
-             default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST365 => [now()->startOfDay()->subDays(365)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
+            EmailStatement::THIS_MONTH => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::LAST_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::THIS_QUARTER => [now()->startOfDay()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->lastOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->firstOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->lastOfQuarter()->format('Y-m-d')],
+            EmailStatement::THIS_YEAR => [now()->startOfDay()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::LAST_YEAR => [now()->startOfDay()->subYearNoOverflow()->firstOfYear()->format('Y-m-d'), now()->startOfDay()->subYearNoOverflow()->lastOfYear()->format('Y-m-d')],
+            EmailStatement::CUSTOM_RANGE => [$this->scheduler->parameters['start_date'], $this->scheduler->parameters['end_date']],
+            default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
     }
 
-
     /**
      * Sets the next run date of the scheduled task
-     * 
+     *
      */
     private function calculateNextRun()
     {
@@ -159,13 +161,10 @@ class SchedulerService
         }
 
 
-        $this->scheduler->next_run_client = $next_run ?: null; 
+        $this->scheduler->next_run_client = $next_run ?: null;
         $this->scheduler->next_run = $next_run ? $next_run->copy()->addSeconds($offset) : null;
         $this->scheduler->save();
-
     }
 
     //handle when the scheduler has been paused.
-
-
 }

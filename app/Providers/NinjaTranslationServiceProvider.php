@@ -18,7 +18,6 @@ class NinjaTranslationServiceProvider extends TranslationServiceProvider
 {
     public function boot()
     {
-
         /*
          * To reset the translator instance we call
          *

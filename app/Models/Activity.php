@@ -12,8 +12,92 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
+/**
+ * App\Models\Activity
+ *
+ * @property int $id
+ * @property int|null $user_id
+ * @property int $company_id
+ * @property int|null $client_id
+ * @property int|null $client_contact_id
+ * @property int|null $account_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $payment_id
+ * @property int|null $invoice_id
+ * @property int|null $credit_id
+ * @property int|null $invitation_id
+ * @property int|null $task_id
+ * @property int|null $expense_id
+ * @property int|null $activity_type_id
+ * @property string $ip
+ * @property bool $is_system
+ * @property string $notes
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $token_id
+ * @property int|null $quote_id
+ * @property int|null $subscription_id
+ * @property int|null $recurring_invoice_id
+ * @property int|null $recurring_expense_id
+ * @property int|null $recurring_quote_id
+ * @property int|null $purchase_order_id
+ * @property int|null $vendor_contact_id
+ * @property-read \App\Models\Backup|null $backup
+ * @property-read \App\Models\Client|null $client
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\ClientContact|null $contact
+ * @property-read \App\Models\Credit|null $credit
+ * @property-read \App\Models\Expense|null $expense
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\Backup|null $history
+ * @property-read \App\Models\Invoice|null $invoice
+ * @property-read \App\Models\Payment|null $payment
+ * @property-read \App\Models\PurchaseOrder|null $purchase_order
+ * @property-read \App\Models\Quote|null $quote
+ * @property-read \App\Models\RecurringExpense|null $recurring_expense
+ * @property-read \App\Models\RecurringInvoice|null $recurring_invoice
+ * @property-read \App\Models\Subscription|null $subscription
+ * @property-read \App\Models\Task|null $task
+ * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @property-read \App\Models\VendorContact|null $vendor_contact
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereActivityTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereCreditId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvitationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereIsSystem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePaymentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity wherePurchaseOrderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereQuoteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereRecurringQuoteId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereSubscriptionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTaskId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereTokenId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Activity whereVendorId($value)
+ * @mixin \Eloquent
+ */
 class Activity extends StaticModel
 {
     use MakesHash;
@@ -374,5 +458,4 @@ class Activity extends StaticModel
     {
         return $this->belongsTo(Company::class);
     }
-
 }

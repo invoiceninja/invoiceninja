@@ -13,5 +13,4 @@ namespace App\Helpers\Bank;
 
 interface BankExpenseInterface
 {
-
 }

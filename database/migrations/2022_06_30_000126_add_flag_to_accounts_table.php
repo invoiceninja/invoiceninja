@@ -34,6 +34,5 @@ class AddFlagToAccountsTable extends Migration
      */
     public function down()
     {
-        
     }
 }

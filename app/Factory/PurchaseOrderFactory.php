@@ -13,7 +13,6 @@ namespace App\Factory;
 
 use App\Models\Client;
 use App\Models\PurchaseOrder;
-use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderFactory
 {

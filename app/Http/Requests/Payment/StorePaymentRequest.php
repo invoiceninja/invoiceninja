@@ -43,7 +43,7 @@ class StorePaymentRequest extends Request
         $invoices_total = 0;
         $credits_total = 0;
 
-        if (isset($input['client_id']) && is_string($input['client_id']) ) {
+        if (isset($input['client_id']) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
@@ -53,9 +53,9 @@ class StorePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-
-                if(is_string($value['invoice_id']))
+                if (is_string($value['invoice_id'])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
+                }
 
                 if (array_key_exists('amount', $value)) {
                     $invoices_total += $value['amount'];
@@ -70,7 +70,6 @@ class StorePaymentRequest extends Request
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
                 if (array_key_exists('credit_id', $input['credits'][$key])) {
-                    // $input['credits'][$key]['credit_id'] = $value['credit_id'];
                     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
 
                     $credits_total += $value['amount'];
@@ -113,16 +112,17 @@ class StorePaymentRequest extends Request
 
         ];
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
-
+        
         return $rules;
     }
 }

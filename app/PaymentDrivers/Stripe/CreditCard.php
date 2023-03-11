@@ -19,11 +19,11 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
+use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Number;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
-use App\Utils\Number;
 
 class CreditCard
 {
@@ -60,10 +60,8 @@ class CreditCard
 
     public function paymentView(array $data)
     {
-
-        $invoice_numbers = collect($data['invoices'])->pluck('invoice_number')->implode(',');
-        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($data['total']['amount_with_fee'], $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-
+        $description = $this->stripe->getDescription(false);
+        
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
@@ -82,19 +80,6 @@ class CreditCard
         return render('gateways.stripe.credit_card.pay', $data);
     }
 
-    private function decodeUnicodeString($string)
-    {
-        return html_entity_decode($string, ENT_QUOTES, 'UTF-8');
-        // return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
-    }
-
-    private function decode_encoded_utf8($string)
-    {
-        return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function ($matches) {
-            return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UCS-2BE');
-        }, $string);
-    }
-
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $this->stripe->init();
@@ -111,7 +96,7 @@ class CreditCard
             $state['store_card'] = false;
         }
 
-        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
         $state['customer'] = $state['payment_intent']->customer;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
@@ -167,16 +152,13 @@ class CreditCard
             $this->stripe->client->company,
         );
 
-        //If the user has come from a subscription double check here if we need to redirect.
-        //08-08-2022
-        if($payment->invoices()->whereHas('subscription')->exists()){
+        if ($payment->invoices()->whereHas('subscription')->exists()) {
             $subscription = $payment->invoices()->first()->subscription;
 
-            if($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1)
-            return redirect($subscription->webhook_configuration['return_url']);
-
+            if ($subscription && array_key_exists('return_url', $subscription->webhook_configuration) && strlen($subscription->webhook_configuration['return_url']) >=1) {
+                return redirect($subscription->webhook_configuration['return_url']);
+            }
         }
-        //08-08-2022
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }

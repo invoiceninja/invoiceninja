@@ -17,7 +17,6 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -41,6 +40,11 @@ class CustomPaymentDriver extends BaseDriver
         ];
 
         return $types;
+    }
+
+    public function init()
+    {
+        return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -100,5 +104,10 @@ class CustomPaymentDriver extends BaseDriver
     public function detach(ClientGatewayToken $token)
     {
         // Driver doesn't support this feature.
+    }
+
+    public function getClientRequiredFields(): array
+    {
+        return [];
     }
 }

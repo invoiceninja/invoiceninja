@@ -50,13 +50,11 @@ use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
-use Database\Factories\BankTransactionRuleFactory;
 use Faker\Factory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use stdClass;
 
 class CreateSingleAccount extends Command
@@ -80,9 +78,9 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
-
-        if (Ninja::isHosted() || config('ninja.is_docker') || !$this->confirm('Are you sure you want to inject dummy data?'))
+        if (Ninja::isHosted() || config('ninja.is_docker') || !$this->confirm('Are you sure you want to inject dummy data?')) {
             return;
+        }
 
         $this->invoice_repo = new InvoiceRepository();
 
@@ -103,8 +101,7 @@ class CreateSingleAccount extends Command
     {
         $this->info('Creating Small Account and Company');
 
-        if($user = User::where('email','small@example.com')->first())
-        {
+        if ($user = User::where('email', 'small@example.com')->first()) {
             $user->account->delete();
         }
 
@@ -117,11 +114,32 @@ class CreateSingleAccount extends Command
             'portal_domain' => 'http://ninja.test:8000',
             'track_inventory' => true
         ]);
+        $faker = \Faker\Factory::create();
 
         $settings = $company->settings;
         $settings->invoice_terms = 'Default company invoice terms';
         $settings->quote_terms = 'Default company quote terms';
         $settings->invoice_footer = 'Default invoice footer';
+
+        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->name = $faker->name();
+        $settings->email = $faker->safeEmail();
+        $settings->phone = $faker->phoneNumber();
+        $settings->website = $faker->url();
+
+        $settings->address1 = $faker->streetName();
+        $settings->address2 = $faker->streetAddress();
+        $settings->city = $faker->city();
+        $settings->state = $faker->state();
+        $settings->postal_code = $faker->postcode();
+
+        $settings->country_id = '840';
+        $settings->vat_number = 'vat number';
+        $settings->id_number = 'id number';
+        $settings->use_credits_payment = 'always';
+        $settings->timezone_id = '1';
+        $settings->entity_send_time = 0;
+        $settings->name = $faker->name();
 
         $company->settings = $settings;
         $company->client_registration_fields = ClientRegistrationFields::generate();
@@ -201,7 +219,7 @@ class CreateSingleAccount extends Command
         $btr = BankTransactionRule::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
-            'applies_to' => (bool)rand(0,1) ? 'CREDIT' : 'DEBIT',
+            'applies_to' => (bool)rand(0, 1) ? 'CREDIT' : 'DEBIT',
         ]);
 
         $client = Client::factory()->create([
@@ -359,7 +377,6 @@ class CreateSingleAccount extends Command
 
     private function createClient($company, $user)
     {
-
         // dispatch(function () use ($company, $user) {
 
         // });
@@ -630,30 +647,29 @@ class CreateSingleAccount extends Command
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
-                if ($name == 'payment_terms') {
-                    $orderBy = 'num_days';
-                } elseif ($name == 'fonts') {
-                    $orderBy = 'sort_order';
-                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if ($tableData->count()) {
-                    Cache::forever($name, $tableData);
-                }
+            // check that the table exists in case the migration is pending
+            if (! Schema::hasTable((new $class())->getTable())) {
+                continue;
+            }
+            if ($name == 'payment_terms') {
+                $orderBy = 'num_days';
+            } elseif ($name == 'fonts') {
+                $orderBy = 'sort_order';
+            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
+                $orderBy = 'name';
+            } else {
+                $orderBy = 'id';
+            }
+            $tableData = $class::orderBy($orderBy)->get();
+            if ($tableData->count()) {
+                Cache::forever($name, $tableData);
+            }
         }
     }
 
     private function createGateways($company, $user)
     {
         if (config('ninja.testvars.stripe') && ($this->gateway == 'all' || $this->gateway == 'stripe')) {
-
             $cg = new CompanyGateway;
             $cg->company_id = $company->id;
             $cg->user_id = $user->id;
@@ -672,8 +688,6 @@ class CreateSingleAccount extends Command
 
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
-
-
         }
 
         if (config('ninja.testvars.paypal') && ($this->gateway == 'all' || $this->gateway == 'paypal')) {

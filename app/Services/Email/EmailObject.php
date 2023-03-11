@@ -11,74 +11,106 @@
 
 namespace App\Services\Email;
 
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
 use App\Models\User;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Vendor;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
 use App\Models\VendorContact;
+use App\Models\QuoteInvitation;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use Illuminate\Mail\Mailables\Address;
+use App\Models\PurchaseOrderInvitation;
 
 /**
  * EmailObject.
  */
 class EmailObject
 {
+    public array $to = [];
 
-	public array $to = [];
+    public ?Address $from = null;
 
-	public ?Address $from = null;
+    public array $reply_to = [];
 
-	public array $reply_to = [];
+    public array $cc = [];
 
-	public array $cc = [];
+    public array $bcc = [];
 
-	public array $bcc = [];
+    public ?string $subject = null;
 
-	public ?string $subject = null;
+    public ?string $body = null;
 
-	public ?string $body = null;
+    public array $attachments = [];
 
-	public array $attachments = [];
+    public string $company_key;
 
-	public string $company_key;
+    public Company $company;
 
-	public ?object $settings = null;
+    public ?object $settings = null;
 
-	public bool $whitelabel = false;
+    public bool $whitelabel = false;
 
-	public ?string $logo = null;
+    public ?string $logo = null;
 
-	public ?string $signature = null;
+    public ?string $signature = null;
 
-	public ?string $greeting = null;
+    public ?string $greeting = null;
 
-	public ?Client $client = null;
+    public ?int $invitation_id = null;
 
-	public ?Vendor $vendor = null;
+    public InvoiceInvitation | QuoteInvitation | CreditInvitation | PurchaseOrderInvitation | null $invitation;
+    
+    public ?int $entity_id = null;
 
-	public ?User $user = null;
+    public Invoice | Quote | Credit | PurchaseOrder | Payment | null $entity;
+    
+    public ?int $client_id = null;
 
-	public ?ClientContact $client_contact = null;
+    public ?Client $client;
+    
+    public ?int $vendor_id = null;
 
-	public ?VendorContact $vendor_contact = null;
+    public ?Vendor $vendor;
 
-	public ?string $email_template_body = null;
+    public ?int $user_id = null;
 
-	public ?string $email_template_subject = null;
+    public ?User $user;
 
-	public ?string $html_template = null;
+    public ?int $client_contact_id = null;
 
-	public ?string $text_template = 'email.template.text';
+    public ClientContact | VendorContact | null  $contact;
 
-	public array $headers = [];
+    public ?int $vendor_contact_id = null;
 
-	public ?string $invitation_key = null;
-	
-	public ?int $entity_id = null;
+    public ?string $email_template_body = null;
 
-	public ?string $entity_class = null;
+    public ?string $email_template_subject = null;
 
-	public array $variables = [];
-	
+    public ?string $html_template = null;
+
+    public ?string $text_template = 'email.template.text';
+
+    public array $headers = [];
+
+    public ?string $entity_class = null;
+
+    public array $variables = [];
+
+    public bool $override = false;
+
+    public ?string $invitation_key = null;
+
+    // @phpstan-ignore-next-line    
+    public array $documents = [];
+
+    public ?string $template = null; //invoice //quote //reminder1
+
+    public array $links = [];
 }

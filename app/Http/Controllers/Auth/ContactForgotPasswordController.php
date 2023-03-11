@@ -112,7 +112,6 @@ class ContactForgotPasswordController extends Controller
         $response = false;
 
         if ($contact) {
-
             /* Update all instances of the client */
             $token = Str::random(60);
             ClientContact::where('email', $contact->email)->update(['token' => $token]);

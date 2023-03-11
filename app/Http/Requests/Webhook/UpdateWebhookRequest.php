@@ -44,7 +44,11 @@ class UpdateWebhookRequest extends Request
     {
         $input = $this->all();
 
-            // if(isset($input['headers']) && count($input['headers']) == 0)
+        if (!isset($input['rest_method'])) {
+            $input['rest_method'] = 'post';
+        }
+        
+        // if(isset($input['headers']) && count($input['headers']) == 0)
             //     $input['headers'] = null;
 
         $this->replace($input);

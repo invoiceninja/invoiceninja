@@ -16,8 +16,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
+    }
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
     }
 
     @page {
@@ -51,9 +55,12 @@
         gap: 20px;
     }
 
+    .company-logo-container {
+        display: inline-block;
+    }
+
     .company-logo {
-        max-width: 65%;
-        /*        max-width: $company_logo_size;*/
+        max-width: $company_logo_size;
     }
 
     #company-details {
@@ -82,33 +89,43 @@
     }
 
     .client-and-entity-wrapper {
-        display: flex;
+/*        display: flex;*/
         padding: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
     }
 
     #entity-details {
+        display:flex;
         text-align: left;
         margin-right: 20px;
+        line-height: var(--line-height) !important;
     }
 
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
         padding-right: 15px;
-        padding-top: 2.5px;
-        padding-bottom: 2.5px;
+        line-height: var(--line-height) !important;
     }
 
     #client-details {
         display: flex;
         flex-direction: column;
         line-height: var(--line-height);
+        padding-right:30px;
     }
 
     #client-details > :first-child {
         font-weight: bold;
+    }
+
+    #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        line-height: var(--line-height);
     }
 
     [data-ref="table"] {
@@ -162,8 +179,9 @@
         margin-top: 0rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
-        padding-top: .5rem;
+        padding-top: 0rem;
         padding-right: 1rem;
+        padding-left: 1rem;
         gap: 80px;
         page-break-inside:avoid;
         overflow: visible !important;
@@ -206,11 +224,12 @@
 
     #table-totals > * > :last-child {
         text-align: right;
-        padding-right: 1rem;
+        padding-right: 0.5rem;
     }
 
     #footer {
         margin-top: 10px;
+        margin-left: 1rem;
     }
 
     /** Markdown-specific styles. **/
@@ -219,12 +238,6 @@
     #delivery-note-table h3 {
         font-size: 1rem;
         margin-bottom: 0;
-    }
-
-    .company-logo-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
     }
 
     [data-ref="statement-totals"] {
@@ -273,6 +286,8 @@
         z-index:200 !important;
         position:  fixed;
         text-align: center;
+        float:right;
+
     }
 
     .is-paid {
@@ -286,6 +301,7 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
     } 
 
     .project-header {
@@ -355,10 +371,11 @@
                <p class="entity-label">$entity_label</p>
                <div class="client-and-entity-wrapper">
                   <div>
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                     <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
                   </div>
                   <div id="client-details"></div>
                   <div id="vendor-details"></div>
+                  <div id="shipping-details"></div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
@@ -369,7 +386,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
+               <div id="table-totals" cellspacing="0">$status_logo</div>
             </div>
          </td>
       </tr>
@@ -398,7 +415,7 @@ $entity_images
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
                     'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
-                    'client-details','vendor-details', 'swiss-qr'
+                    'client-details','vendor-details', 'swiss-qr','shipping-details'
                 ];
 
                 tables.forEach((tableIdentifier) => {

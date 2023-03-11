@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: 'Invoice Ninja API Reference - Where self host invoicing lives.'
+  description: |
+        ---
+        <br>
+        <div style="color: white; background-color:SlateBlue; padding: 12px; border-radius:2px">
+          The Invoice Ninja API is organized around REST and returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
+        </div>  
+        <br>
+
+  termsOfService: 'https://invoiceninja.github.io/docs/legal/terms_of_service/#page-content'
+  contact:
+    email: contact@invoiceninja.com
+  license:
+    name: 'Elastic License'
+    url: 'https://www.elastic.co/licensing/elastic-license'
+  version: 5.5.70
+servers:
+  -
+    url: 'https://demo.invoiceninja.com'
+    description: |
+          ## Demo API Server InvoiceNinja. 
+          You can use the demo API key `TOKEN` to test the endpoints from within this API spec

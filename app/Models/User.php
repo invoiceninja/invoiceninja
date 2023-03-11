@@ -29,11 +29,118 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * App\Models\User
+ *
+ * @property int $id
+ * @property int $account_id
+ * @property string|null $first_name
+ * @property string|null $last_name
+ * @property string|null $phone
+ * @property string|null $ip
+ * @property string|null $device_token
+ * @property string $email
+ * @property string|null $email_verified_at
+ * @property string|null $confirmation_code
+ * @property int|null $theme_id
+ * @property int|null $failed_logins
+ * @property string|null $referral_code
+ * @property string|null $oauth_user_id
+ * @property object|null $oauth_user_token
+ * @property string|null $oauth_provider_id
+ * @property string|null $google_2fa_secret
+ * @property string|null $accepted_terms_version
+ * @property string|null $avatar
+ * @property int|null $avatar_width
+ * @property int|null $avatar_height
+ * @property int|null $avatar_size
+ * @property int $is_deleted
+ * @property string|null $last_login
+ * @property string|null $signature
+ * @property string $password
+ * @property string|null $remember_token
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $oauth_user_refresh_token
+ * @property string|null $last_confirmed_email_address
+ * @property int $has_password
+ * @property Carbon|null $oauth_user_token_expiry
+ * @property string|null $sms_verification_code
+ * @property int $verified_phone_number
+ * @property-read \App\Models\Account $account
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
+ * @property-read int|null $clients_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
+ * @property-read int|null $companies_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
+ * @property-read int|null $company_users_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read int|null $contacts_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $hashed_id
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @property-read int|null $tokens_count
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|User filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAcceptedTermsVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAccountId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarHeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereAvatarWidth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereDeviceToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFailedLogins($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereGoogle2faSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereHasPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIp($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLastConfirmedEmailAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLastLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthProviderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserRefreshToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereOauthUserTokenExpiry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereReferralCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSignature($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereSmsVerificationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereThemeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereVerifiedPhoneNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|User withoutTrashed()
+ * @mixin \Eloquent
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
@@ -319,7 +426,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Returns true is user is an admin _or_ owner
-     * 
+     *
      * @return boolean
      */
     public function isSuperUser() :bool
@@ -367,18 +474,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasPermission($permission) : bool
     {
-
-       /**
-        * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
-        *
-        * For example view_recurring_invoice without the limit would split to view bank recurring invoice
-        *
-        * Using only part 0 and 1 would search for permission view_recurring / edit_recurring so this would
-        * leak permissions for other recurring_* entities
-        *
-        * The solution here will split the word - consistently - into view _ {entity} and edit _ {entity}
-        * 
-        */
+        /**
+         * We use the limit parameter here to ensure we don't split on permissions that have multiple underscores.
+         *
+         * For example view_recurring_invoice without the limit would split to view bank recurring invoice
+         *
+         * Using only part 0 and 1 would search for permission view_recurring / edit_recurring so this would
+         * leak permissions for other recurring_* entities
+         *
+         * The solution here will split the word - consistently - into view _ {entity} and edit _ {entity}
+         *
+         */
         $parts = explode('_', $permission, 2);
         $all_permission = '____';
         $edit_all = '____';
@@ -389,20 +495,17 @@ class User extends Authenticatable implements MustVerifyEmail
             $all_permission = $parts[0].'_all';
 
             /*If this is a view search, make sure we add in the edit_{entity} AND edit_all permission into the checks*/
-            if($parts[0] == 'view') {
+            if ($parts[0] == 'view') {
                 $edit_all = 'edit_all';
                 $edit_entity = "edit_{$parts[1]}";
             }
-
         }
 
-        return  $this->isOwner() ||
-                $this->isAdmin() ||
+        return  $this->isSuperUser() ||
                 (stripos($this->token()->cu->permissions, $permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
                 (stripos($this->token()->cu->permissions, $edit_entity) !== false);
-
     }
 
     /**
@@ -411,13 +514,12 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
+     *
      * @param  string  $permission '["view_all"]'
-     * @return boolean             
+     * @return boolean
      */
-    public function hasExactPermission(string $permission = '___'): bool
+    public function hasExactPermissionAndAll(string $permission = '___'): bool
     {
-
         $parts = explode('_', $permission);
         $all_permission = '__';
 
@@ -427,7 +529,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
                 (stripos($this->token()->cu->permissions, $permission) !== false);
-
     }
 
     /**
@@ -436,24 +537,36 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
-     * @param  array  $permissions 
-     * @return boolean             
+     *
+     * @param  array  $permissions
+     * @return boolean
      */
     public function hasIntersectPermissions(array $permissions = []): bool
     {
-
-        foreach($permissions as $permission)
-        {
-
-            if($this->hasExactPermission($permission))
+        foreach ($permissions as $permission) {
+            if ($this->hasExactPermissionAndAll($permission)) {
                 return true;
-
+            }
         }
 
         return false;
-        
     }
+
+    /**
+     * Used when we need to match exactly what permission
+     * the user has, and not aggregate owner and admins.
+     *
+     * This method is used when we need to scope down the query
+     * and display a limited subset.
+     *
+     * @param  string  $permission '["view_all"]'
+     * @return boolean
+     */
+    public function hasExactPermission(string $permission = '___'): bool
+    {
+        return  (stripos($this->token()->cu->permissions, $permission) !== false);
+    }
+
 
     /**
      * Used when we need to match a range of permissions
@@ -461,28 +574,62 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * This method is used when we need to scope down the query
      * and display a limited subset.
-     * 
-     * @param  array  $permissions 
-     * @return boolean             
+     *
+     * @param  array  $permissions
+     * @return boolean
      */
     public function hasIntersectPermissionsOrAdmin(array $permissions = []): bool
     {
-        
-        if($this->isSuperUser())
+        if ($this->isSuperUser()) {
             return true;
+        }
 
-        foreach($permissions as $permission)
-        {
-
-            if($this->hasExactPermission($permission))
+        foreach ($permissions as $permission) {
+            if ($this->hasExactPermissionAndAll($permission)) {
                 return true;
-
+            }
         }
 
         return false;
-        
     }
+    
+    /**
+     * Used when we need to filter permissions carefully.
+     *
+     * For instance, users that have view_client permissions should not
+     * see the client balance, however if they also have
+     * view_invoice or view_all etc, then they should be able to see the balance.
+     *
+     * First we pass over the excluded permissions and return false if we find a match.
+     *
+     * If those permissions are not hit, then we can iterate through the matched_permissions and search for a hit.
+     *
+     * Note, returning FALSE here means the user does NOT have the permission we want to exclude
+     *
+     * @param  array $matched_permission
+     * @param  array $excluded_permissions
+     * @return bool
+     */
+    public function hasExcludedPermissions(array $matched_permission = [], array $excluded_permissions = []): bool
+    {
+        if ($this->isSuperUser()) {
+            return false;
+        }
+        
+        foreach ($excluded_permissions as $permission) {
+            if ($this->hasExactPermission($permission)) {
+                return false;
+            }
+        }
 
+        foreach ($matched_permission as $permission) {
+            if ($this->hasExactPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public function documents()
     {

@@ -15,20 +15,16 @@ namespace App\PaymentDrivers\Stripe;
 use App\Exceptions\StripeConnectFailure;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
-use App\Factory\ClientGatewayTokenFactory;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\Country;
 use App\Models\Currency;
-use App\Models\GatewayType;
-use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\QueryException;
 use Stripe\Customer;
-use Stripe\PaymentMethod;
 
 class ImportCustomers
 {
@@ -66,7 +62,7 @@ class ImportCustomers
                 $this->addCustomer($customer);
             }
 
-            //handle 
+            //handle
             // if(is_array($customers->data) && end($customers->data) && array_key_exists('id', end($customers->data)))
             //     $starting_after = end($customers->data)['id'];
             // else
@@ -74,9 +70,9 @@ class ImportCustomers
 
             $starting_after = isset(end($customers->data)['id']) ? end($customers->data)['id'] : false;
 
-            if(!$starting_after)
+            if (!$starting_after) {
                 break;
-
+            }
         } while ($customers->has_more);
     }
 
@@ -140,7 +136,6 @@ class ImportCustomers
         $client->name = $customer->name ? $customer->name : $customer->email;
 
         if (! isset($client->number) || empty($client->number)) {
-
             $x = 1;
 
             do {
@@ -157,11 +152,7 @@ class ImportCustomers
                     }
                 }
             } while ($this->completed);
-
-
-
-        }
-        else{
+        } else {
             $client->save();
         }
 

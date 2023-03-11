@@ -383,7 +383,7 @@ class CompanySettings extends BaseSettings
 
     public $page_layout = 'portrait';
 
-    public $font_size = 7; //@implemented
+    public $font_size = 16; //@implemented
 
     public $primary_font = 'Roboto';
 
@@ -463,7 +463,13 @@ class CompanySettings extends BaseSettings
 
     public $accept_client_input_quote_approval = false;
 
+    public $allow_billable_task_items = true;
+
+    public $show_task_item_description = false;
+
     public static $casts = [
+        'show_task_item_description'         => 'bool',
+        'allow_billable_task_items'          => 'bool',
         'accept_client_input_quote_approval' => 'bool',
         'custom_sending_email'               => 'string',
         'show_paid_stamp'                    => 'bool',
@@ -762,7 +768,6 @@ class CompanySettings extends BaseSettings
      */
     public static function defaults(): stdClass
     {
-
         $data = (object) get_class_vars(self::class);
 
         unset($data->casts);
@@ -834,7 +839,6 @@ class CompanySettings extends BaseSettings
                 '$client.address1',
                 '$client.address2',
                 '$client.city_state_postal',
-                '$client.postal_city',
                 '$client.country',
                 '$client.phone',
                 '$contact.email',
@@ -846,7 +850,6 @@ class CompanySettings extends BaseSettings
                 '$vendor.address1',
                 '$vendor.address2',
                 '$vendor.city_state_postal',
-                '$vendor.postal_city',
                 '$vendor.country',
                 '$vendor.phone',
                 '$contact.email',
@@ -871,7 +874,6 @@ class CompanySettings extends BaseSettings
                 '$company.address1',
                 '$company.address2',
                 '$company.city_state_postal',
-                '$company.postal_city',
                 '$company.country',
             ],
             'invoice_details' => [

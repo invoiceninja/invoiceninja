@@ -13,6 +13,125 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\Expense
+ *
+ * @property int $id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property int $company_id
+ * @property int|null $vendor_id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int|null $invoice_id
+ * @property int|null $client_id
+ * @property int|null $bank_id
+ * @property int|null $invoice_currency_id
+ * @property int|null $currency_id
+ * @property int|null $category_id
+ * @property int|null $payment_type_id
+ * @property int|null $recurring_expense_id
+ * @property bool $is_deleted
+ * @property string $amount
+ * @property string $foreign_amount
+ * @property string $exchange_rate
+ * @property string|null $tax_name1
+ * @property string $tax_rate1
+ * @property string|null $tax_name2
+ * @property string $tax_rate2
+ * @property string|null $tax_name3
+ * @property string $tax_rate3
+ * @property string|null $date
+ * @property string|null $payment_date
+ * @property string|null $private_notes
+ * @property string|null $public_notes
+ * @property string|null $transaction_reference
+ * @property int $should_be_invoiced
+ * @property int $invoice_documents
+ * @property int|null $transaction_id
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property string|null $number
+ * @property int|null $project_id
+ * @property string $tax_amount1
+ * @property string $tax_amount2
+ * @property string $tax_amount3
+ * @property int $uses_inclusive_taxes
+ * @property int $calculate_tax_by_amount
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\ExpenseCategory|null $category
+ * @property-read \App\Models\Client|null $client
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Currency|null $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\PaymentType|null $payment_type
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\PurchaseOrder|null $purchase_order
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\ExpenseFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereBankId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCalculateTaxByAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereForeignAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceDocuments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePaymentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense wherePublicNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereRecurringExpenseId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereShouldBeInvoiced($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxAmount3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxName3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTaxRate3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereUsesInclusiveTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Expense withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Expense extends BaseModel
 {
     use SoftDeletes;

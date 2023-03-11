@@ -105,7 +105,6 @@ class SquarePaymentDriver extends BaseDriver
 
         /** @var ApiResponse */
         $response = $this->square->getRefundsApi()->refund($body);
-
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)

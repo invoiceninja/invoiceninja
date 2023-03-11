@@ -12,7 +12,6 @@
 namespace Database\Factories;
 
 use App\DataMapper\ClientSettings;
-use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClientFactory extends Factory
@@ -31,11 +30,11 @@ class ClientFactory extends Factory
             'balance' => 0,
             'paid_to_date' => 0,
             'vat_number' => $this->faker->numberBetween(123456789, 987654321),
-            'id_number' => '',
-            'custom_value1' => '',
-            'custom_value2' => '',
-            'custom_value3' => '',
-            'custom_value4' => '',
+            'id_number' => $this->faker->iban(),
+            'custom_value1' => $this->faker->dateTime(),
+            'custom_value2' => $this->faker->colorName(),
+            'custom_value3' => $this->faker->word(),
+            'custom_value4' => $this->faker->email(),
             'address1' => $this->faker->buildingNumber(),
             'address2' => $this->faker->streetAddress(),
             'city' => $this->faker->city(),

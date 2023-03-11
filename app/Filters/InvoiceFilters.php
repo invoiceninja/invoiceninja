@@ -50,8 +50,7 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where(function ($query) use($status_parameters){
-
+        $this->builder->where(function ($query) use ($status_parameters) {
             $invoice_filters = [];
 
             if (in_array('paid', $status_parameters)) {
@@ -63,7 +62,7 @@ class InvoiceFilters extends QueryFilters
                 $invoice_filters[] = Invoice::STATUS_PARTIAL;
             }
 
-            if(count($invoice_filters) >0){
+            if (count($invoice_filters) >0) {
                 $query->whereIn('status_id', $invoice_filters);
             }
             
@@ -79,8 +78,9 @@ class InvoiceFilters extends QueryFilters
 
     public function number(string $number = ''): Builder
     {
-        if(strlen($number) == 0)
+        if (strlen($number) == 0) {
             return $this->builder;
+        }
         
         return $this->builder->where('number', $number);
     }
@@ -112,20 +112,19 @@ class InvoiceFilters extends QueryFilters
     }
 
     /**
-     * @return Builder 
-     * @throws RuntimeException 
+     * @return Builder
+     * @throws RuntimeException
      */
     public function without_deleted_clients(): Builder
     {
-
         return $this->builder->whereHas('client', function ($query) {
-                        $query->where('is_deleted',0);
-                       });
+            $query->where('is_deleted', 0);
+        });
     }
 
     /**
-     * @return Builder 
-     * @throws InvalidArgumentException 
+     * @return Builder
+     * @throws InvalidArgumentException
      */
     public function upcoming(): Builder
     {
@@ -138,8 +137,8 @@ class InvoiceFilters extends QueryFilters
     }
 
     /**
-     * @return void 
-     * @throws InvalidArgumentException 
+     * @return void
+     * @throws InvalidArgumentException
      */
     public function overdue(): Builder
     {
@@ -153,9 +152,9 @@ class InvoiceFilters extends QueryFilters
     }
 
     /**
-     * @param string $client_id 
-     * @return Builder 
-     * @throws InvalidArgumentException 
+     * @param string $client_id
+     * @return Builder
+     * @throws InvalidArgumentException
      */
     public function payable(string $client_id = ''): Builder
     {
@@ -198,15 +197,15 @@ class InvoiceFilters extends QueryFilters
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
-        } else {            
+        } else {
             return $this->builder->company()->with(['invitations.company'], ['documents.company']);
         }
     }
 
     /**
-     * @param string $filter 
-     * @return Builder 
-     * @throws InvalidArgumentException 
+     * @param string $filter
+     * @return Builder
+     * @throws InvalidArgumentException
      */
     public function private_notes($filter = '') :Builder
     {

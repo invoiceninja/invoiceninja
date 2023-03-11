@@ -4,16 +4,21 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
-        --line-height: 1.6;
+        --line-height: 1.4;
     }
 
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
     }
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
+    }
+
 
     body, html {
         margin: 0;
@@ -53,13 +58,13 @@
 
     #header, #header-spacer {
         height: 160px;
-        padding: 3rem;
+        padding: 2rem;
         margin-bottom: 1rem;
     }
     .company-logo {
-        height: 100%;
-        max-width: 100%;
-        /*        max-width: $company_logo_size;*/
+/*        height: 100%;*/
+/*        max-width: 100%;*/
+        max-width: $company_logo_size;
         object-fit: contain;
         object-position: left center;
     }
@@ -77,10 +82,17 @@
     }
 
     #client-details {
-        margin: 2rem;
+        padding-right:1rem;
         display: flex;
         flex-direction: column;
-        line-height: var(--line-height);
+        line-height: var(--line-height) !important;
+        padding-left: 2rem;
+    }
+
+    #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        line-height: var(--line-height) !important;
     }
 
     #client-details > :first-child {
@@ -89,8 +101,12 @@
 
     .client-entity-wrapper {
         display: grid;
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 2fr 1fr;
         padding-left: 1rem;
+    }
+    
+    .client-wrapper-left-side {
+        display: flex;
     }
 
     .entity-details-wrapper {
@@ -107,14 +123,14 @@
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
-        padding-bottom: 0.5rem;
+        line-height: var(--line-height) !important;
     }
 
     [data-ref="table"] {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-top: 3rem;
+        margin-top: 0rem;
         margin-bottom: 0px;
     }
 
@@ -320,6 +336,7 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
     } 
 
     .project-header {
@@ -388,14 +405,21 @@
             <td>
                 <div class="client-entity-wrapper">
                     <div class="client-wrapper-left-side">
-                        <h4 class="entity-label">$entity_label</h4>
-                        <div id="client-details" cellspacing="0"></div>
-                        <div id="vendor-details" cellspacing="0"></div>
+                        <div>                    
+                            <h4 class="entity-label" style="margin-top:0px; margin-bottom:10px;">$entity_label</h4>
+                            <div id="client-details" cellspacing="0" cellpadding="0" ></div>
+                            <div id="vendor-details" cellspacing="0" cellpadding="0"></div>
+                        </div>
+                        <div>
+                            <h4 class="entity-label" style="opacity: 0; margin-top:0px; margin-bottom:10px;">&</h4>
+                            <div id="shipping-details" cellspacing="0" cellpadding="0"></div>
+                        </div>
                     </div>
 
                     <div class="entity-details-wrapper-right-side">
+                        <h4 class="entity-label" style="margin-top:0px; margin-bottom:10px; color:transparent;">$entity_label</h4>
                         <div class="entity-details-wrapper">
-                            <table id="entity-details" dir="$dir"></table>
+                            <table id="entity-details" dir="$dir" cellspacing="0" cellpadding="0"></table>
                         </div>
                     </div>
                 </div>
@@ -414,7 +438,7 @@
 
                 <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                 <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                <div id="table-totals" cellspacing="0"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
             </td>
         </tr>
         </tbody>

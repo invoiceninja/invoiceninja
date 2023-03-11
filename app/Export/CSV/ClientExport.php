@@ -17,7 +17,6 @@ use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
@@ -25,19 +24,15 @@ class ClientExport extends BaseExport
 {
     private $company;
 
-    protected $input;
-
     private $client_transformer;
 
     private $contact_transformer;
 
-    private string $start_date;
+    public Writer $csv;
 
-    private string $end_date;
+    public string $date_key = 'created_at';
 
-    protected string $date_key = 'created_at';
-
-    protected array $entity_keys = [
+    public array $entity_keys = [
         'address1' => 'client.address1',
         'address2' => 'client.address2',
         'balance' => 'client.balance',
@@ -181,11 +176,13 @@ class ClientExport extends BaseExport
 
     private function calculateStatus($client)
     {
-        if($client->is_deleted)
+        if ($client->is_deleted) {
             return ctrans('texts.deleted');
+        }
 
-        if($client->deleted_at)
+        if ($client->deleted_at) {
             return ctrans('texts.arcvived');
+        }
 
         return ctrans('texts.active');
     }

@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\Project;
 
+use App\Models\Project;
 use App\Http\Requests\Request;
 
 class CreateProjectRequest extends Request
@@ -22,6 +23,7 @@ class CreateProjectRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->can('create', Project::class);
+
     }
 }

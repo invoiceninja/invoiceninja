@@ -14,9 +14,7 @@ namespace App\Mail\Import;
 
 use App\Models\Company;
 use App\Utils\Ninja;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
 class CsvImportCompleted extends Mailable
@@ -34,7 +32,7 @@ class CsvImportCompleted extends Mailable
      *       'company' => Company $company,
      *       'entity_count' => (array) $entity_count
      *   ];
-     */    
+     */
     public $data;
 
     /**

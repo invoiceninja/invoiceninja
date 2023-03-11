@@ -33,7 +33,6 @@ use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -75,7 +74,7 @@ class TaskController extends BaseController
      *      description="Lists tasks, search and filters allow fine grained lists to be generated.
      *
      *   Query parameters can be added to performed more fine grained filtering of the tasks, these are handled by the TaskFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -122,7 +121,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Shows a client",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -176,7 +175,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Shows a client for editting",
      *      description="Displays a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -231,7 +230,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Updates a client",
      *      description="Handles the updating of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -302,7 +301,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Gets a new blank client object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -347,7 +346,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Adds a client",
      *      description="Adds an client to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -399,7 +398,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Deletes a client",
      *      description="Handles the deletion of a client by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -453,7 +452,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Performs bulk actions on an array of tasks",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -532,7 +531,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Uploads a document to a task",
      *      description="Handles the uploading of a document to a task",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -594,7 +593,7 @@ class TaskController extends BaseController
      *      tags={"tasks"},
      *      summary="Sort tasks on KanBan",
      *      description="Sorts tasks after drag and drop on the KanBan.",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(

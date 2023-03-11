@@ -11,14 +11,10 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\Util\WebhookHandler;
-use App\Repositories\ClientContactRepository;
-use App\Repositories\ClientRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Queue;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -49,33 +45,6 @@ class WebhookAPITest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    // public function testClientWebhooks()
-    // {
-    //     // client archived = 37
-    //     $data = [
-    //         'target_url' => 'http://hook.com',
-    //         'event_id' => 37,
-    //         'rest_method' => 'post',
-    //         'format' => 'JSON',
-    //     ];
-
-    //     $response = $this->withHeaders([
-    //         'X-API-SECRET' => config('ninja.api_secret'),
-    //         'X-API-TOKEN' => $this->token,
-    //     ])->post('/api/v1/webhooks', $data);
-
-    //     $repo = new ClientRepository(new ClientContactRepository());
-
-    //     $repo->archive($this->client);
-        
-    //     \Illuminate\Support\Facades\Queue::after(function (WebhookHandler $event) {
-    //         $this->assertTrue($event->job->isReleased());
-    //     });
-
-    //     \Illuminate\Support\Facades\Queue::assertPushed(WebhookHandler::class);
-
-    // }
-
     public function testWebhookGetFilter()
     {
         $response = $this->withHeaders([
@@ -101,6 +70,19 @@ class WebhookAPITest extends TestCase
         $data = [
             'target_url' => 'http://hook.com',
             'event_id' => 1,
+            'format' => 'JSON',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/webhooks', $data);
+
+        $response->assertStatus(200);
+
+        $data = [
+            'target_url' => 'http://hook.com',
+            'event_id' => 1,
             'rest_method' => 'post',
             'format' => 'JSON',
         ];
@@ -115,6 +97,20 @@ class WebhookAPITest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(1, $arr['data']['event_id']);
+
+        $data = [
+            'target_url' => 'http://hook.com',
+            'event_id' => 2,
+            'format' => 'JSON',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/webhooks/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
 
         $data = [
             'target_url' => 'http://hook.com',

@@ -12,8 +12,8 @@
 namespace App\Models\Presenters;
 
 use App\Models\Country;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Class CompanyPresenter.
@@ -28,7 +28,6 @@ class CompanyPresenter extends EntityPresenter
         $settings = $this->entity->settings;
 
         return $this->settings->name ?: ctrans('texts.untitled_account');
-
     }
 
 
@@ -38,20 +37,17 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
+        if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
             return $settings->company_logo;
-        else if(strlen($settings->company_logo) >= 1)
+        } elseif (strlen($settings->company_logo) >= 1) {
             return url('') . $settings->company_logo;
-        else{
-            return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            //return asset('images/new_logo.png');
+        } else {
+            return asset('images/blank.png');
         }
-
     }
 
     public function logoDocker($settings = null)
     {
-        
         if (! $settings) {
             $settings = $this->entity->settings;
         }
@@ -60,11 +56,11 @@ class CompanyPresenter extends EntityPresenter
 
         $logo = Storage::get("{$this->company_key}/{$basename}");
 
-        if(!$logo)
+        if (!$logo) {
             return $this->logo($settings);
+        }
 
         return "data:image/png;base64, ". base64_encode($logo);
-
     }
 
     /**
@@ -76,25 +72,25 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        if(config('ninja.is_docker') || config('ninja.local_download'))
+        if (config('ninja.is_docker') || config('ninja.local_download')) {
             return $this->logoDocker($settings);
+        }
 
-        $context_options =array(
-            "ssl"=>array(
+        $context_options =[
+            "ssl"=>[
                "verify_peer"=>false,
                "verify_peer_name"=>false,
-            ),
-        ); 
+            ],
+        ];
 
-        if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
+        if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
             return "data:image/png;base64, ". base64_encode(@file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
-        else if(strlen($settings->company_logo) >= 1)
+        } elseif (strlen($settings->company_logo) >= 1) {
             return "data:image/png;base64, ". base64_encode(@file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
-        else{
+        } else {
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
             //return "data:image/png;base64, ". base64_encode(@file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
         }
-
     }
 
     public function address($settings = null)
@@ -185,8 +181,8 @@ class CompanyPresenter extends EntityPresenter
 
     /**
      * Return company website URL.
-     * 
-     * @return string 
+     *
+     * @return string
      */
     public function website(): string
     {

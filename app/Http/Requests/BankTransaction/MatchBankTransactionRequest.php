@@ -25,12 +25,11 @@ class MatchBankTransactionRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin();
+        return auth()->user()->isAdmin() || auth()->user()->can('create', BankTransaction::class) || auth()->user()->hasPermission('edit_bank_transaction');
     }
 
     public function rules()
     {
-
         $rules = [
             'transactions' => 'bail|array',
             'transactions.*.invoice_ids' => 'nullable|string|sometimes',
@@ -43,49 +42,46 @@ class MatchBankTransactionRequest extends Request
         $rules['transactions.*.expense_id'] = 'bail|sometimes|nullable|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
-
     }
 
     public function prepareForValidation()
     {
         $inputs = $this->all();
         
-        foreach($inputs['transactions'] as $key => $input)
-        {
-        
-            if(array_key_exists('id', $inputs['transactions'][$key]))
+        foreach ($inputs['transactions'] as $key => $input) {
+            if (array_key_exists('id', $inputs['transactions'][$key])) {
                 $inputs['transactions'][$key]['id'] = $this->decodePrimaryKey($input['id']);
+            }
 
-            if(array_key_exists('ninja_category_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['ninja_category_id']) >= 1)
+            if (array_key_exists('ninja_category_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['ninja_category_id']) >= 1) {
                 $inputs['transactions'][$key]['ninja_category_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['ninja_category_id']);
+            }
 
-            if(array_key_exists('vendor_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['vendor_id']) >= 1)
+            if (array_key_exists('vendor_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['vendor_id']) >= 1) {
                 $inputs['transactions'][$key]['vendor_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['vendor_id']);
+            }
 
-            if(array_key_exists('payment_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['payment_id']) >= 1){
+            if (array_key_exists('payment_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['payment_id']) >= 1) {
                 $inputs['transactions'][$key]['payment_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['payment_id']);
                 $p = Payment::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['payment_id'])->first();
 
                 /*Ensure we don't relink an existing payment*/
-                if(!$p || is_numeric($p->transaction_id)){
+                if (!$p || is_numeric($p->transaction_id)) {
                     unset($inputs['transactions'][$key]);
                 }
-
             }
 
-            if(array_key_exists('expense_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['expense_id']) >= 1){
+            if (array_key_exists('expense_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['expense_id']) >= 1) {
                 $inputs['transactions'][$key]['expense_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['expense_id']);
                 $e = Expense::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['expense_id'])->first();
 
                 /*Ensure we don't relink an existing expense*/
-                if(!$e || is_numeric($e->transaction_id))
+                if (!$e || is_numeric($e->transaction_id)) {
                     unset($inputs['transactions'][$key]['expense_id']);
-
+                }
             }
-
         }
 
         $this->replace($inputs);
-
     }
 }

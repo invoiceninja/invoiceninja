@@ -13,27 +13,19 @@ namespace App\Http\Controllers;
 
 use App\Factory\BankTransactionFactory;
 use App\Filters\BankTransactionFilters;
-use App\Helpers\Bank\Yodlee\Yodlee;
-use App\Http\Requests\BankTransaction\AdminBankTransactionRequest;
 use App\Http\Requests\BankTransaction\BulkBankTransactionRequest;
 use App\Http\Requests\BankTransaction\CreateBankTransactionRequest;
 use App\Http\Requests\BankTransaction\DestroyBankTransactionRequest;
 use App\Http\Requests\BankTransaction\EditBankTransactionRequest;
-use App\Http\Requests\BankTransaction\ImportBankTransactionsRequest;
 use App\Http\Requests\BankTransaction\MatchBankTransactionRequest;
 use App\Http\Requests\BankTransaction\ShowBankTransactionRequest;
 use App\Http\Requests\BankTransaction\StoreBankTransactionRequest;
 use App\Http\Requests\BankTransaction\UpdateBankTransactionRequest;
-use App\Http\Requests\Import\PreImportRequest;
 use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Repositories\BankTransactionRepository;
-use App\Services\Bank\BankMatchingService;
 use App\Transformers\BankTransactionTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class BankTransactionController extends BaseController
 {
@@ -59,7 +51,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a list of bank_transactions",
      *      description="Lists all bank integrations",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -98,11 +90,9 @@ class BankTransactionController extends BaseController
      */
     public function index(BankTransactionFilters $filters)
     {
-
         $bank_transactions = BankTransaction::filter($filters);
 
         return $this->listResponse($bank_transactions);
-
     }
 
     /**
@@ -119,7 +109,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -174,7 +164,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Shows a bank_transaction for editing",
      *      description="Displays a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -229,7 +219,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Updates a bank_transaction",
      *      description="Handles the updating of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -266,7 +256,6 @@ class BankTransactionController extends BaseController
      */
     public function update(UpdateBankTransactionRequest $request, BankTransaction $bank_transaction)
     {
-
         //stubs for updating the model
         $bank_transaction = $this->bank_transaction_repo->save($request->all(), $bank_transaction);
 
@@ -287,7 +276,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Gets a new blank bank_transaction object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -332,7 +321,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Adds a bank_transaction",
      *      description="Adds an bank_transaction to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -379,7 +368,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Deletes a bank_transaction",
      *      description="Handles the deletion of a bank_transaction by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -432,7 +421,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs bulk actions on an array of bank_transations",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -478,18 +467,12 @@ class BankTransactionController extends BaseController
             
         $bank_transactions = BankTransaction::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if($action == 'convert_matched') //catch this action
-        {
-
+        if ($action == 'convert_matched') { //catch this action
             $this->bank_transaction_repo->convert_matched($bank_transactions);
-
-        }
-        else {
-
+        } else {
             $bank_transactions->each(function ($bank_transaction, $key) use ($action) {
-                    $this->bank_transaction_repo->{$action}($bank_transaction);
+                $this->bank_transaction_repo->{$action}($bank_transaction);
             });
-
         }
         
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
@@ -508,7 +491,7 @@ class BankTransactionController extends BaseController
      *      tags={"bank_transactions"},
      *      summary="Performs match actions on an array of bank_transactions",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -548,14 +531,9 @@ class BankTransactionController extends BaseController
      */
     public function match(MatchBankTransactionRequest $request)
     {
-
-        // MatchBankTransactions::dispatch(auth()->user()->company()->id, auth()->user()->company()->db, $request->all());
         
         $bts = (new MatchBankTransactions(auth()->user()->company()->id, auth()->user()->company()->db, $request->all()))->handle();
 
         return $this->listResponse($bts);
- 
     }
-
-
 }

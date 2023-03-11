@@ -19,7 +19,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Login\LoginRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
@@ -28,7 +27,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
-use App\Models\SystemLog;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
@@ -41,12 +39,10 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Microsoft\Graph\Model;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Support\Facades\Http;
 
 class LoginController extends BaseController
 {
@@ -114,8 +110,8 @@ class LoginController extends BaseController
      *      tags={"login"},
      *      summary="Attempts authentication",
      *      description="Returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-SECRET"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/include_static"),
@@ -249,7 +245,7 @@ class LoginController extends BaseController
      *      tags={"refresh"},
      *      summary="Refreshes the dataset",
      *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/include_static"),
@@ -291,11 +287,11 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        // $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
-        //     if ($company->tokens()->where('is_system', true)->count() == 0) {
-        //         (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
-        //     }
-        // });
+        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
+                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+            }
+        });
 
         if ($request->has('current_company') && $request->input('current_company') == 'true') {
             $cu->where('company_id', $company_token->company_id);
@@ -418,7 +414,7 @@ class LoginController extends BaseController
 
         $name = OAuth::splitName($user->name);
 
-        if($provider == 'apple') {
+        if ($provider == 'apple') {
             $name[0] = request()->has('first_name') ? request()->input('first_name') : $name[0];
             $name[1] = request()->has('last_name') ? request()->input('last_name') : $name[1];
         }
@@ -480,13 +476,13 @@ class LoginController extends BaseController
             return $cu;
         }
 
-        // if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
-        //     auth()->user()->companies->each(function ($company) {
-        //         if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
-        //             (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
-        //         }
-        //     });
-        // }
+        if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
+            auth()->user()->companies->each(function ($company) {
+                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+                    (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
+                }
+            });
+        }
 
         $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
 
@@ -495,12 +491,13 @@ class LoginController extends BaseController
 
     private function handleMicrosoftOauth()
     {
-        if (request()->has('accessToken')) 
+        if (request()->has('accessToken')) {
             $accessToken = request()->input('accessToken');
-        elseif(request()->has('access_token'))
+        } elseif (request()->has('access_token')) {
             $accessToken = request()->input('access_token');
-        else
+        } else {
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
+        }
 
 
         $graph = new \Microsoft\Graph\Graph();
@@ -554,7 +551,6 @@ class LoginController extends BaseController
 
 
         return response()->json(['message' => 'Unable to authenticate this user'], 400);
-
     }
 
     private function existingOauthUser($existing_user)
@@ -600,10 +596,11 @@ class LoginController extends BaseController
 
         $google = new Google();
 
-        if(request()->has('id_token'))
+        if (request()->has('id_token')) {
             $user = $google->getTokenResponse(request()->input('id_token'));
-        else
+        } else {
             return response()->json(['message' => 'Illegal request'], 403);
+        }
 
         if (is_array($user)) {
             $query = [
@@ -632,7 +629,6 @@ class LoginController extends BaseController
         }
 
         if ($user) {
-
             //check the user doesn't already exist in some form
             if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
                 if (!$existing_login_user->account) {
@@ -702,7 +698,7 @@ class LoginController extends BaseController
             $parameters = ['access_type' => 'offline', 'prompt' => 'consent select_account', 'redirect_uri' => config('ninja.app_url') . '/auth/google'];
         }
 
-        if($provider == 'microsoft'){
+        if ($provider == 'microsoft') {
             $scopes = ['email', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
         }
@@ -766,8 +762,7 @@ class LoginController extends BaseController
 
         $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
 
-        if($user = OAuth::handleAuth($socialite_user, $provider))
-        {
+        if ($user = OAuth::handleAuth($socialite_user, $provider)) {
             nlog('found user and updating their user record');
             $name = OAuth::splitName($socialite_user->getName());
 

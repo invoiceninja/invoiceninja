@@ -11,25 +11,27 @@
 
 namespace App\Services\Email;
 
-use App\Services\Email\EmailObject;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Attachment;
+use App\Models\Document;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Attachment;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Mailables\Envelope;
 
 class EmailMailable extends Mailable
 {
+    
+    public int $max_attachment_size = 3000000;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(public EmailObject $email_object){}
+    public function __construct(public EmailObject $email_object)
+    {
+    }
 
     /**
      * Get the message envelope.
@@ -55,6 +57,16 @@ class EmailMailable extends Mailable
      */
     public function content()
     {
+
+        $links = Document::whereIn('id',$this->email_object->documents)
+                ->where('size', '>', $this->max_attachment_size)
+                ->cursor()
+                ->map(function ($document){
+
+                return "<a class='doc_links' href='" . URL::signedRoute('documents.public_download', ['document_hash' => $document->hash]) ."'>". $document->name ."</a>";
+
+        });
+
         return new Content(
             view: $this->email_object->html_template,
             text: $this->email_object->text_template,
@@ -66,7 +78,8 @@ class EmailMailable extends Mailable
                 'logo' => $this->email_object->logo,
                 'signature' => $this->email_object->signature,
                 'company' => $this->email_object->company,
-                'greeting' => ''
+                'greeting' => '',
+                'links' => array_merge($this->email_object->links, $links->toArray()),
             ]
         );
     }
@@ -78,16 +91,22 @@ class EmailMailable extends Mailable
      */
     public function attachments()
     {
-
         $attachments  = [];
 
-        foreach($this->email_object->attachments as $file)
-        {
-            $attachments[] = Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
-        }
+        $attachments = collect($this->email_object->attachments)->map(function ($file){
+            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
+        });
 
-        return $attachments;
-        
+        $documents = Document::whereIn('id',$this->email_object->documents)
+                ->where('size', '<', $this->max_attachment_size)
+                ->cursor()
+                ->map(function ($document){
+
+                return Attachment::fromData(fn () => $document->getFile(), $document->name);
+
+        });
+
+        return $attachments->merge($documents)->toArray();
     }
  
     /**
@@ -97,13 +116,10 @@ class EmailMailable extends Mailable
      */
     public function headers()
     {
-
         return new Headers(
             messageId: null,
             references: [],
             text: $this->email_object->headers,
         );
-
     }
-
 }

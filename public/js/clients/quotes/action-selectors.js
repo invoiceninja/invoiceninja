@@ -1,2 +1,136 @@
-/*! For license information please see action-selectors.js.LICENSE.txt */
-(()=>{function e(e,n){var r="undefined"!=typeof Symbol&&e[Symbol.iterator]||e["@@iterator"];if(!r){if(Array.isArray(e)||(r=function(e,n){if(!e)return;if("string"==typeof e)return t(e,n);var r=Object.prototype.toString.call(e).slice(8,-1);"Object"===r&&e.constructor&&(r=e.constructor.name);if("Map"===r||"Set"===r)return Array.from(e);if("Arguments"===r||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(r))return t(e,n)}(e))||n&&e&&"number"==typeof e.length){r&&(e=r);var o=0,c=function(){};return{s:c,n:function(){return o>=e.length?{done:!0}:{done:!1,value:e[o++]}},e:function(e){throw e},f:c}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var i,a=!0,l=!1;return{s:function(){r=r.call(e)},n:function(){var e=r.next();return a=e.done,e},e:function(e){l=!0,i=e},f:function(){try{a||null==r.return||r.return()}finally{if(l)throw i}}}}function t(e,t){(null==t||t>e.length)&&(t=e.length);for(var n=0,r=new Array(t);n<t;n++)r[n]=e[n];return r}function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}(new(function(){function t(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,t),this.parentElement=document.querySelector(".form-check-parent"),this.parentForm=document.getElementById("bulkActions")}var r,o,c;return r=t,o=[{key:"watchCheckboxes",value:function(e){var t=this;document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})),document.querySelectorAll(".form-check-child").forEach((function(n){e.checked?(n.checked=e.checked,t.processChildItem(n,document.getElementById("bulkActions"))):(n.checked=!1,document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})))}))}},{key:"processChildItem",value:function(t,n){var r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};if(r.hasOwnProperty("single")&&document.querySelectorAll(".child-hidden-input").forEach((function(e){return e.remove()})),!1!==t.checked){var o=document.createElement("INPUT");o.setAttribute("name","quotes[]"),o.setAttribute("value",t.dataset.value),o.setAttribute("class","child-hidden-input"),o.hidden=!0,n.append(o)}else{var c,i=document.querySelectorAll("input.child-hidden-input"),a=e(i);try{for(a.s();!(c=a.n()).done;){var l=c.value;l.value==t.dataset.value&&l.remove()}}catch(e){a.e(e)}finally{a.f()}}}},{key:"handle",value:function(){var t=this;this.parentElement.addEventListener("click",(function(){t.watchCheckboxes(t.parentElement)}));var n,r=e(document.querySelectorAll(".form-check-child"));try{var o=function(){var e=n.value;e.addEventListener("click",(function(){t.processChildItem(e,t.parentForm)}))};for(r.s();!(n=r.n()).done;)o()}catch(e){r.e(e)}finally{r.f()}}}],o&&n(r.prototype,o),c&&n(r,c),Object.defineProperty(r,"prototype",{writable:!1}),t}())).handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*********************************************************!*\
+  !*** ./resources/js/clients/quotes/action-selectors.js ***!
+  \*********************************************************/
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */
+var ActionSelectors = /*#__PURE__*/function () {
+  function ActionSelectors() {
+    _classCallCheck(this, ActionSelectors);
+
+    this.parentElement = document.querySelector('.form-check-parent');
+    this.parentForm = document.getElementById('bulkActions');
+  }
+
+  _createClass(ActionSelectors, [{
+    key: "watchCheckboxes",
+    value: function watchCheckboxes(parentElement) {
+      var _this = this;
+
+      document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+        return element.remove();
+      });
+      document.querySelectorAll('.form-check-child').forEach(function (child) {
+        if (parentElement.checked) {
+          child.checked = parentElement.checked;
+
+          _this.processChildItem(child, document.getElementById('bulkActions'));
+        } else {
+          child.checked = false;
+          document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+            return element.remove();
+          });
+        }
+      });
+    }
+  }, {
+    key: "processChildItem",
+    value: function processChildItem(element, parent) {
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+      if (options.hasOwnProperty('single')) {
+        document.querySelectorAll('.child-hidden-input').forEach(function (element) {
+          return element.remove();
+        });
+      }
+
+      if (element.checked === false) {
+        var inputs = document.querySelectorAll('input.child-hidden-input');
+
+        var _iterator = _createForOfIteratorHelper(inputs),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var i = _step.value;
+            if (i.value == element.dataset.value) i.remove();
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        return;
+      }
+
+      var _temp = document.createElement('INPUT');
+
+      _temp.setAttribute('name', 'quotes[]');
+
+      _temp.setAttribute('value', element.dataset.value);
+
+      _temp.setAttribute('class', 'child-hidden-input');
+
+      _temp.hidden = true;
+      parent.append(_temp);
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      var _this2 = this;
+
+      this.parentElement.addEventListener('click', function () {
+        _this2.watchCheckboxes(_this2.parentElement);
+      });
+
+      var _iterator2 = _createForOfIteratorHelper(document.querySelectorAll('.form-check-child')),
+          _step2;
+
+      try {
+        var _loop = function _loop() {
+          var child = _step2.value;
+          child.addEventListener('click', function () {
+            _this2.processChildItem(child, _this2.parentForm);
+          });
+        };
+
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          _loop();
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+    }
+  }]);
+
+  return ActionSelectors;
+}();
+/** @handle **/
+
+
+new ActionSelectors().handle();
+/******/ })()
+;

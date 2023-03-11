@@ -12,10 +12,8 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Invoice\InvoiceBalanceSanity;
 use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
-use App\Models\Invoice;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -41,14 +39,15 @@ class UpdateInvoiceRequest extends Request
     {
         $rules = [];
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);

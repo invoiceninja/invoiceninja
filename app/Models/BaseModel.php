@@ -12,6 +12,8 @@
 namespace App\Models;
 
 use App\DataMapper\ClientSettings;
+use App\Jobs\Util\WebhookHandler;
+use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,19 +22,25 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-
 /**
  * Class BaseModel
  *
  * @method scope() static
- *
  * @package App\Models
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
+ * @mixin \Eloquent
  */
 class BaseModel extends Model
 {
     use MakesHash;
     use UserSessionAttributes;
     use HasFactory;
+    use Excludable;
 
     protected $appends = [
         'hashed_id',
@@ -138,7 +146,7 @@ class BaseModel extends Model
                 $this->company->settings = $settings;
                 $this->company->save();
                 break;
-            //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
+                //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
             default:
                 $this->client->settings = $settings;
                 $this->client->save();
@@ -167,7 +175,6 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
@@ -189,12 +196,12 @@ class BaseModel extends Model
 
     public function numberFormatter()
     {
-        $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5); 
+        $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
 
         $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
-        
+
         $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
-        
+
         $formatted_number = preg_replace('/\s+/', '_', $formatted_number);
 
         return $formatted_number;
@@ -205,4 +212,22 @@ class BaseModel extends Model
         return ctrans('texts.item');
     }
 
+    /**
+     * Model helper to send events for webhooks
+     *
+     * @param  int    $event_id
+     * @param  string $additional_data optional includes
+     *
+     * @return void
+     */
+    public function sendEvent(int $event_id, string $additional_data = ""): void
+    {
+        $subscriptions = Webhook::where('company_id', $this->company_id)
+                                 ->where('event_id', $event_id)
+                                 ->exists();
+                            
+        if ($subscriptions) {
+            WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
+        }
+    }
 }

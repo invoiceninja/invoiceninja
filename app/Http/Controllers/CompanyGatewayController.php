@@ -29,7 +29,6 @@ use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -76,7 +75,7 @@ class CompanyGatewayController extends BaseController
      *      description="Lists company_gateways, search and filters allow fine grained lists to be generated.
 
         Query parameters can be added to performed more fine grained filtering of the company_gateways, these are handled by the CompanyGatewayFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -121,7 +120,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Gets a new blank CompanyGateway object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -166,7 +165,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Adds a CompanyGateway",
      *      description="Adds an CompanyGateway to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -230,7 +229,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Shows an CompanyGateway",
      *      description="Displays an CompanyGateway by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -284,7 +283,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Shows an CompanyGateway for editting",
      *      description="Displays an CompanyGateway by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -338,7 +337,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Updates an CompanyGateway",
      *      description="Handles the updating of an CompanyGateway by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -403,7 +402,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Deletes a CompanyGateway",
      *      description="Handles the deletion of an CompanyGateway by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -459,7 +458,7 @@ class CompanyGatewayController extends BaseController
      *      tags={"company_gateways"},
      *      summary="Performs bulk actions on an array of company_gateways",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -506,8 +505,8 @@ class CompanyGatewayController extends BaseController
                                           ->company()
                                           ->cursor()
                                           ->each(function ($company_gateway, $key) use ($action) {
-                                                    $this->company_repo->{$action}($company_gateway);
-                                            });
+                                              $this->company_repo->{$action}($company_gateway);
+                                          });
 
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }

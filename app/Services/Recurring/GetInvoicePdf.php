@@ -13,9 +13,7 @@ namespace App\Services\Recurring;
 
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
-use App\Models\Invoice;
 use App\Services\AbstractService;
-use App\Utils\TempFile;
 use Illuminate\Support\Facades\Storage;
 
 class GetInvoicePdf extends AbstractService

@@ -15,8 +15,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "7px";
+        font-size: $font_size !important;
         zoom: 80%;
+      }
+
+      table tr td, table tr, th {
+          font-size: $font_size !important;
       }
 
       body, html {
@@ -60,6 +64,7 @@
 
       .company-name {
         text-align: left;
+        margin-left: 1rem;
       }
 
       #header .company-name {
@@ -69,28 +74,39 @@
       #entity-details {
         text-align: left;
         color: #fff4e9 !important;
+        line-height: 1.6;
       }
 
       #entity-details > tr,
       #entity-details th {
         font-weight: normal;
-        padding-bottom: 0.5rem;
       }
 
       .logo-client-wrapper {
-        margin: 0 2rem 0rem;
+        margin-left: 2rem;
         display: grid;
-        grid-template-columns: 1.5fr 1fr;
+        grid-template-columns: 1fr auto auto;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
       }
 
       .company-logo {
-        max-width: 55%;
-        /*        max-width: $company_logo_size;*/
+          max-width: $company_logo_size;
       }
 
       #client-details {
         display: flex;
         flex-direction: column;
+        margin-left: 10px;
+        margin-right: 10px;
+
+      }
+
+      #shipping-details {
+          display: $show_shipping_address;
+          flex-direction: column;
+          margin-left: 10px;
+          margin-right: 10px;
       }
 
       #client-details > * {
@@ -134,7 +150,7 @@
 
       [data-ref="table"] > tbody > tr > td {
         border-bottom: 1px solid var(--secondary-color);
-        padding: 1rem;
+        padding: 0.8rem;
       }
 
       [data-ref="table"] > tbody > tr > td:first-child {
@@ -150,6 +166,7 @@
           width: 100%;
           position: fixed;
           bottom: 0;
+          padding-left: 1rem;
       }
 
 
@@ -198,7 +215,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
-        padding-left: 3rem;
+        padding-left: 2.5rem;
         padding-right: 3rem;
         gap: 80px;
       }
@@ -307,6 +324,8 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
+
     } 
 
     .project-header {
@@ -354,7 +373,7 @@
 </style>
 <div id="header">
     <h1 class="company-name">$company.name</h1>
-    <table id="entity-details" cellspacing="0" dir="$dir"></table>
+    <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
 </div>
 <div id="body">
     <table id="spacer-table" cellspacing="0">
@@ -372,6 +391,7 @@
                     <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
                     <div id="client-details"></div>
                     <div id="vendor-details"></div>
+                    <div id="shipping-details"></div>
                 </div>
                 <div class="table-wrapper">
                     <table id="product-table" cellspacing="0" data-ref="table"></table>
@@ -389,7 +409,7 @@
                     <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                     <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
                 </div>
-                <div id="table-totals" cellspacing="0"></div>
+                <div id="table-totals" cellspacing="0">$status_logo</div>
             </td>
         </tr>
         </tbody>
@@ -407,7 +427,7 @@ $entity_images
 
 <div id="footer">
     <div class="footer-content">
-        <div style="width: 70%">
+        <div style="width: 70%; margin-left: 2rem;">
             <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>

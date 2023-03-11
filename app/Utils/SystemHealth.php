@@ -13,7 +13,6 @@ namespace App\Utils;
 
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
-use App\Models\Company;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +32,7 @@ class SystemHealth
         'mbstring',
         'xml',
         'bcmath',
+        'iconv',
     ];
 
     private static $php_version = 8.1;
@@ -89,33 +89,30 @@ class SystemHealth
 
     private static function checkCurrencySanity()
     {
-
-        if(!self::simpleDbCheck())
+        if (!self::simpleDbCheck()) {
             return true;
-
-        if(strlen(config('ninja.currency_converter_api_key')) == 0){
-    
-        try{
-            $cs = DB::table('clients')
-                  ->select('settings->currency_id as id')
-                            ->get();
-        }
-        catch(\Exception $e){
-            return true; //fresh installs, there may be no DB connection, nor migrations could have run yet.
         }
 
-            $currency_count = $cs->unique('id')->filter(function ($value){
-                return !is_null($value->id);
-            })->count();
+        if (strlen(config('ninja.currency_converter_api_key')) == 0) {
+            try {
+                $cs = DB::table('clients')
+                      ->select('settings->currency_id as id')
+                                ->get();
+            } catch(\Exception $e) {
+                return true; //fresh installs, there may be no DB connection, nor migrations could have run yet.
+            }
+
+                $currency_count = $cs->unique('id')->filter(function ($value) {
+                    return !is_null($value->id);
+                })->count();
 
 
-            if($currency_count > 1)
+            if ($currency_count > 1) {
                 return true;
-
+            }
         }
 
         return false;
-
     }
 
     private static function checkQueueSize()
@@ -217,8 +214,9 @@ class SystemHealth
 
     private static function checkPhpCli()
     {
-        if(!function_exists('exec'))
+        if (!function_exists('exec')) {
             return "Unable to check CLI version";
+        }
         
         try {
             exec('php -v', $foo, $exitCode);
@@ -278,7 +276,7 @@ class SystemHealth
                     $x = DB::connection()->getDatabaseName();
                     $result['success'] = true;
                 } catch (Exception $e) {
-                   // $x = [config('database.connections.'.config('database.default').'.database') => false];
+                    // $x = [config('database.connections.'.config('database.default').'.database') => false];
                     $result['success'] = false;
                     $result['message'] = $e->getMessage();
                 }

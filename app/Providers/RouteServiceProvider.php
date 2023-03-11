@@ -11,16 +11,20 @@
 
 namespace App\Providers;
 
+use App\Utils\Ninja;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
     use MakesHash;
 
+    private int $default_rate_limit = 5000;
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -31,7 +35,6 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('task_scheduler', function ($value) {
-
             if (is_numeric($value)) {
                 throw new ModelNotFoundException("Record with value {$value} not found");
             }
@@ -40,9 +43,37 @@ class RouteServiceProvider extends ServiceProvider
                 ->withTrashed()
                 ->company()
                 ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+        });
+
+        RateLimiter::for('login', function () {
+
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
+                return Limit::perMinute(50);
+            }
 
         });
 
+        RateLimiter::for('api', function () {
+
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
+                return Limit::perMinute(300);
+            }
+
+        });
+
+        RateLimiter::for('refresh', function () {
+
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            }else {
+                return Limit::perMinute(200);
+            }
+
+        });
 
     }
 

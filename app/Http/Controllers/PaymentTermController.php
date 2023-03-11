@@ -48,7 +48,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Gets a list of payment terms",
      *      description="Lists payment terms",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
@@ -95,7 +95,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Gets a new blank PaymentTerm object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -141,7 +141,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Adds a Payment",
      *      description="Adds a Payment Term to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -186,7 +186,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Shows a Payment Term",
      *      description="Displays an Payment Term by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -236,7 +236,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Shows an Payment Term for editting",
      *      description="Displays an Payment Term by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -294,7 +294,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Updates a Payment Term",
      *      description="Handles the updating of an Payment Termby id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -353,7 +353,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_termss"},
      *      summary="Deletes a Payment Term",
      *      description="Handles the deletion of an PaymentTerm by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -406,7 +406,7 @@ class PaymentTermController extends BaseController
      *      tags={"payment_terms"},
      *      summary="Performs bulk actions on an array of payment terms",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

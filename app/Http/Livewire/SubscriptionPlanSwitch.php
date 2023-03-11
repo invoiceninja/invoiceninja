@@ -22,7 +22,7 @@ use Livewire\Component;
 class SubscriptionPlanSwitch extends Component
 {
     /**
-     * @var RecurringInvoice
+     * @var \App\Models\RecurringInvoice
      */
     public $recurring_invoice;
 
@@ -105,7 +105,9 @@ class SubscriptionPlanSwitch extends Component
                 'hash' => $this->hash,
             ]);
 
-            Cache::put($this->hash, [
+            Cache::put(
+                $this->hash,
+                [
                 'subscription_id' => $this->target->hashed_id,
                 'target_id' => $this->target->hashed_id,
                 'recurring_invoice' => $this->recurring_invoice->hashed_id,
@@ -113,7 +115,7 @@ class SubscriptionPlanSwitch extends Component
                 'invoice_id' => $this->state['invoice']->hashed_id,
                 'context' => 'change_plan',
                 now()->addMinutes(60), ]
-                );
+            );
 
             $this->state['payment_initialised'] = true;
         } else {

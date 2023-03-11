@@ -29,7 +29,9 @@ class CheckGatewayFee implements ShouldQueue
      * @param $invoice_id
      * @param string $db
      */
-    public function __construct(public int $invoice_id, public string $db){}
+    public function __construct(public int $invoice_id, public string $db)
+    {
+    }
 
     /**
      * Execute the job.
@@ -42,13 +44,12 @@ class CheckGatewayFee implements ShouldQueue
 
         $i = Invoice::withTrashed()->find($this->invoice_id);
 
-        if(!$i)
+        if (!$i) {
             return;
-
-        if($i->status_id == Invoice::STATUS_SENT)
-        {
-            $i->service()->removeUnpaidGatewayFees();
         }
 
+        if ($i->status_id == Invoice::STATUS_SENT) {
+            $i->service()->removeUnpaidGatewayFees();
+        }
     }
 }

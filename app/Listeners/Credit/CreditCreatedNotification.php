@@ -24,6 +24,8 @@ class CreditCreatedNotification implements ShouldQueue
 {
     use UserNotifies;
 
+    public $delay = 10;
+
     public function __construct()
     {
     }
@@ -42,14 +44,8 @@ class CreditCreatedNotification implements ShouldQueue
 
         $credit = $event->credit;
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
-        $nmo->company = $credit->company;
-        $nmo->settings = $credit->company->settings;
-
         /* We loop through each user and determine whether they need to be notified */
         foreach ($event->company->company_users as $company_user) {
-
             /* The User */
             $user = $company_user->user;
 
@@ -63,12 +59,15 @@ class CreditCreatedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityCreatedObject($credit, 'credit'))->build());
+                $nmo->company = $credit->company;
+                $nmo->settings = $credit->company->settings;
                 $nmo->to_user = $user;
 
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
 
-                /* This prevents more than one notification being sent */
-                // $first_notification_sent = false;
+                $nmo = null;
             }
 
             /* Override the methods in the Notification Class */

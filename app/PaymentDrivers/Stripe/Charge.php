@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -22,17 +21,13 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\PaymentDrivers\Stripe\ACH;
-use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
-use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\AuthenticationException;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
-use Stripe\StripeClient;
-use App\Utils\Number;
 
 class Charge
 {
@@ -60,13 +55,8 @@ class Charge
         }
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
-        if ($invoice) {
-            $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice->number, 'amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        } else {
-            $description = ctrans('texts.stripe_payment_text_without_invoice', ['amount' => Number::formatMoney($amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()], $this->stripe->client->company->locale());
-        }
+        $description = $this->stripe->getDescription(false);
 
         $this->stripe->init();
 
@@ -98,7 +88,7 @@ class Charge
                 $data['off_session'] = true;
             }
 
-            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st",true)]));
+            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
@@ -117,23 +107,23 @@ class Charge
                     $data['error_code'] = $e->getError()->code;
                     $data['param'] = $e->getError()->param;
                     $data['message'] = $e->getError()->message;
-                break;
+                    break;
                 case $e instanceof RateLimitException:
                     $data['message'] = 'Too many requests made to the API too quickly';
-                break;
+                    break;
                 case $e instanceof InvalidRequestException:
                     $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
-                break;
+                    break;
                 case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';
-                break;
+                    break;
                 case $e instanceof ApiErrorException:
                     $data['message'] = 'Network communication with Stripe failed';
-                break;
+                    break;
 
                 default:
                     $data['message'] = $e->getMessage();
-                break;
+                    break;
             }
 
             $this->stripe->processInternallyFailedPayment($this->stripe, $e);
@@ -148,6 +138,7 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
+
         } elseif ($cgt->gateway_type_id == GatewayType::BACS){
             $payment_method_type = PaymentType::BACS;
             $status = Payment::STATUS_PENDING;
@@ -155,19 +146,22 @@ class Charge
         else {
 
             if(isset($response->latest_charge)) {
+
                 $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
                 $payment_method_type = $charge->payment_method_details->card->brand;
-            }
-            elseif(isset($response->charges->data[0]->payment_method_details->card->brand))
+            } elseif (isset($response->charges->data[0]->payment_method_details->card->brand)) {
                 $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
-            else
+            } else {
                 $payment_method_type = 'visa';
+            }
 
             $status = Payment::STATUS_COMPLETED;
         }
 
+
         if(!in_array($response?->status, ['succeeded', 'processing'])){
             $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
+
         }
 
         $data = [

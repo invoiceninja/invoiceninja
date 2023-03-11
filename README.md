@@ -10,9 +10,7 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-Join us on [Slack](http://slack.invoiceninja.com), [Discord](https://discord.com/channels/1071654583870435439/1071654584390537279) [Discourse](https://forum.invoiceninja.com) -
-or [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/) if you like,
-just make sure to add the `invoice-ninja` tag to your question.
+Join us on [Slack](http://slack.invoiceninja.com), [Discord](https://discord.gg/ZwEdtfCwXA), [Support Forum](https://forum.invoiceninja.com)
 
 ## Introduction
 
@@ -24,16 +22,16 @@ All Pro and Enterprise features from the hosted app are included in the open cod
 We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
 * [Videos](https://www.youtube.com/@appinvoiceninja)
-* [API Documentation](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
+* [API Documentation](https://api-docs.invoicing.co/)
 * [APP Documentation](https://invoiceninja.github.io/)
 * [Support Forum](https://forum.invoiceninja.com)
-* [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
 ## Setup
 
 ### Mobile Apps
 * [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
 * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
+* [F-Droid](https://f-droid.org/en/packages/com.invoiceninja.app)
 
 ### Desktop Apps
 * [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
@@ -55,7 +53,7 @@ We offer a $30 per year white-label license to remove the Invoice Ninja branding
 git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v5-stable
 cp .env.example .env
-composer update
+composer i -o --no-dev
 php artisan key:generate
 ```
 

@@ -50,7 +50,8 @@ class CompanyDocumentsTest extends TestCase
             UploadFile::IMAGE,
             $this->user,
             $this->company,
-            $this->invoice))->handle();
+            $this->invoice
+        ))->handle();
 
         $this->assertNotNull($document);
 

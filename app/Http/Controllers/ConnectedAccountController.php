@@ -13,15 +13,12 @@ namespace App\Http\Controllers;
 
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
-use App\Models\CompanyUser;
 use App\Models\User;
-use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
 use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Microsoft\Graph\Model;
 
 class ConnectedAccountController extends BaseController
@@ -50,7 +47,7 @@ class ConnectedAccountController extends BaseController
      *      tags={"connected_account"},
      *      summary="Connect an oauth user to an existing user",
      *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(ref="#/components/parameters/include_static"),
@@ -95,8 +92,9 @@ class ConnectedAccountController extends BaseController
     {
         nlog($request->all());
 
-        if(!$request->has('access_token'))
+        if (!$request->has('access_token')) {
             return response()->json(['message' => 'No access_token parameter found!'], 400);
+        }
 
         $graph = new \Microsoft\Graph\Graph();
         $graph->setAccessToken($request->input('access_token'));
@@ -105,15 +103,15 @@ class ConnectedAccountController extends BaseController
                       ->setReturnType(Model\User::class)
                       ->execute();
 
-        if($user){
-
+        if ($user) {
             $email = $user->getMail() ?: $user->getUserPrincipalName();
 
             nlog("microsoft");
             nlog($email);
 
-            if(auth()->user()->email != $email && MultiDB::checkUserEmailExists($email))
+            if (auth()->user()->email != $email && MultiDB::checkUserEmailExists($email)) {
                 return response()->json(['message' => ctrans('texts.email_already_register')], 400);
+            }
 
             $connected_account = [
                 'email' => $email,
@@ -129,14 +127,12 @@ class ConnectedAccountController extends BaseController
             $this->setLoginCache(auth()->user());
             
             return $this->itemResponse(auth()->user());
-
         }
 
         return response()
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
-
     }
 
     private function handleGoogleOauth()

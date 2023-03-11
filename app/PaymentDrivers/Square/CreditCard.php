@@ -203,7 +203,6 @@ class CreditCard implements MethodInterface
 
     private function createClient()
     {
-
         $country = $this->square_driver->client->country ? $this->square_driver->client->country->iso_3166_2 : $this->square_driver->client->company->country()->iso_3166_2;
 
         /* Step two - create the customer */

@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TwoFactor\EnableTwoFactorRequest;
 use App\Models\User;
 use App\Transformers\UserTransformer;
-use Crypt;
 use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorController extends BaseController

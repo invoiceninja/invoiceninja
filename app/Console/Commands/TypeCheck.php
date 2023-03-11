@@ -11,17 +11,11 @@
 
 namespace App\Console\Commands;
 
-use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Libraries\MultiDB;
-use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Design;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
-use stdClass;
 
 class TypeCheck extends Command
 {

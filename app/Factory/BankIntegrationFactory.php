@@ -12,7 +12,6 @@
 namespace App\Factory;
 
 use App\Models\BankIntegration;
-use Illuminate\Support\Str;
 
 class BankIntegrationFactory
 {

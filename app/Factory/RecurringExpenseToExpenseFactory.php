@@ -13,7 +13,6 @@ namespace App\Factory;
 
 use App\Models\Expense;
 use App\Models\RecurringExpense;
-use App\Utils\Helpers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -175,7 +174,10 @@ class RecurringExpenseToExpenseFactory
                 $replacement = sprintf('%s to %s', $_left, $_right);
 
                 $value = preg_replace(
-                    sprintf('/%s/', preg_quote($match)), $replacement, $value, 1
+                    sprintf('/%s/', preg_quote($match)),
+                    $replacement,
+                    $value,
+                    1
                 );
             }
         }
@@ -196,7 +198,10 @@ class RecurringExpenseToExpenseFactory
 
             if (! Str::contains($match, ['-', '+', '/', '*'])) {
                 $value = preg_replace(
-                    sprintf('/%s/', $matches->keys()->first()), $replacements['literal'][$matches->keys()->first()], $value, 1
+                    sprintf('/%s/', $matches->keys()->first()),
+                    $replacements['literal'][$matches->keys()->first()],
+                    $value,
+                    1
                 );
             }
 
@@ -236,7 +241,10 @@ class RecurringExpenseToExpenseFactory
                 }
 
                 $value = preg_replace(
-                    $target, $output, $value, 1
+                    $target,
+                    $output,
+                    $value,
+                    1
                 );
             }
         }

@@ -12,21 +12,16 @@
 namespace App\Jobs\Util;
 
 use App\Jobs\Entity\CreateEntityPdf;
-use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
-use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class RefreshPdfs implements ShouldQueue
 {

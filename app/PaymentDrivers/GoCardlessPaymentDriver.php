@@ -11,21 +11,27 @@
 
 namespace App\PaymentDrivers;
 
-use App\Events\Payment\PaymentFailed;
+use App\Factory\ClientContactFactory;
+use App\Factory\ClientFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
+use App\Models\Country;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\QueryException;
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
     use MakesHash;
+    use GeneratesCounter;
 
     public $refundable = true;
 
@@ -36,6 +42,8 @@ class GoCardlessPaymentDriver extends BaseDriver
     public \GoCardlessPro\Client $gateway;
 
     public $payment_method;
+
+    private bool $completed = true;
 
     public static $methods = [
         GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
@@ -282,11 +290,10 @@ class GoCardlessPaymentDriver extends BaseDriver
             //after i resolve the payment hash, ensure the invoice has not been marked as paid and the payment does not already exist.
             //if it does exist, ensure it is completed and not pending.
 
-            if($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
-
+            if ($event['action'] == 'fulfilled' && array_key_exists('billing_request', $event['links'])) {
                 $hash = PaymentHash::whereJsonContains('data->billing_request', $event['links']['billing_request'])->first();
 
-                if(!$hash){
+                if (!$hash) {
                     nlog("GoCardless: couldn't find a hash, need to abort => Billing Request => " . $event['links']['billing_request']);
                     return response()->json([], 200);
                 }
@@ -302,40 +309,34 @@ class GoCardlessPaymentDriver extends BaseDriver
                 );
 
                 if ($billing_request->status === 'fulfilled') {
-
                     $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
                     $this->client = $invoices->first()->client;
 
-                    $invoices->each(function ($invoice){
-
+                    $invoices->each(function ($invoice) {
                         //if payments exist already, they just need to be confirmed.
-                        if($invoice->payments()->exists()){
-                            
-                            $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment){
+                        if ($invoice->payments()->exists()) {
+                            $invoice->payments()->where('status_id', 1)->cursor()->each(function ($payment) {
                                 $payment->status_id = 4;
                                 $payment->save();
                             });
-
                         }
                     });
 
                     // remove all paid invoices
-                    $invoices->filter(function ($invoice){
+                    $invoices->filter(function ($invoice) {
                         return $invoice->isPayable();
                     });
 
                     //return early if nothing to do
-                    if($invoices->count() == 0){
+                    if ($invoices->count() == 0) {
                         nlog("GoCardless: Could not harvest any invoices - probably all paid!!");
                         return response()->json([], 200);
                     }
 
                     $this->processSuccessfulPayment($payment);
                 }
-
             }
-
         }
 
         return response()->json([], 200);
@@ -364,7 +365,6 @@ class GoCardlessPaymentDriver extends BaseDriver
             $this->client,
             $this->client->company,
         );
-
     }
 
 
@@ -382,5 +382,151 @@ class GoCardlessPaymentDriver extends BaseDriver
         } catch (\Exception $exception) {
             throw new \App\Exceptions\PaymentFailed($exception->getMessage());
         }
+    }
+
+    public function importCustomers()
+    {
+        $this->init();
+
+        $customers = $this->gateway->customers()->list();
+
+        foreach ($customers->records as $customer) {
+            $existing_customer_token = $this->company_gateway
+                            ->client_gateway_tokens()
+                            ->where('gateway_customer_reference', $customer->id)
+                            ->first();
+
+            if ($existing_customer_token) {
+                nlog("Skipping - Customer exists: {$customer->email} just updating payment methods");
+                $this->updatePaymentMethods($customer, $existing_customer_token->client);
+            } elseif ($customer->email && $this->company_gateway->company->client_contacts()->where('email', $customer->email)->exists()) {
+                nlog("Customer exists: {$customer->email} just updating payment methods");
+    
+                $this->company_gateway->company->client_contacts()->where('email', $customer->email)->each(function ($contact) use ($customer) {
+                    $this->updatePaymentMethods($customer, $contact->client);
+                });
+            } else {
+                nlog("Creating new customer: {$customer->email}");
+                $client = $this->createNinjaClient($customer);
+                $this->updatePaymentMethods($customer, $client);
+            }
+        }
+    }
+
+    private function updatePaymentMethods($customer, Client $client): void
+    {
+        
+        $this->client = $client;
+
+        $mandates = $this->gateway->mandates()->list();
+
+        foreach($mandates->records as $mandate)
+        {
+            if($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+                continue;
+            }
+
+            $payment_meta = new \stdClass;
+
+            if ($mandate->scheme == 'bacs') {
+                $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
+                $payment_meta->type = GatewayType::DIRECT_DEBIT;
+            }
+            elseif($mandate->scheme == 'sepa_core') {
+                $payment_meta->brand = ctrans('texts.sepa');
+                $payment_meta->type = GatewayType::SEPA;
+            }
+            else {
+                continue;
+            }
+            
+            $payment_meta->state = 'authorized';
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $mandate->id,
+                'payment_method_id' => GatewayType::DIRECT_DEBIT,
+            ];
+
+            $payment_method = $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
+        }
+
+    }
+
+    /*
+            [id] => CU0021PHBG5J6G
+            [created_at] => 2022-12-02T11:24:15.739Z
+            [email] => test@test.com
+            [given_name] => Test
+            [family_name] => Red
+            [company_name] =>
+            [address_line1] =>
+            [address_line2] =>
+            [address_line3] =>
+            [city] =>
+            [region] =>
+            [postal_code] =>
+            [country_code] =>
+            [language] => en
+            [swedish_identity_number] =>
+            [danish_identity_number] =>
+            [phone_number] =>
+    */
+    private function createNinjaClient($customer): Client
+    {
+        $client = ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
+
+        $client->address1 = $customer->address_line1 ?: '';
+        $client->address2 = $customer->address_line2 ?: '';
+        $client->city = $customer->city ?: '';
+        $client->state = $customer->region ?: '';
+        $client->postal_code = $customer->postal_code ?: '';
+        $client->phone = $customer->phone_number ? $customer->phone_number : '';
+        $client->name = $customer->company_name;
+
+        if ($customer->country_code) {
+            $country = Country::where('iso_3166_2', $customer->country_code)->first();
+
+            if ($country) {
+                $client->country_id = $country->id;
+            } else {
+                $client->country_id = $this->company_gateway->company->settings->country_id;
+            }
+        }
+
+        $settings = $client->settings;
+        $settings->currency_id = (string) $this->company_gateway->company->settings->currency_id;
+        $client->settings = $settings;
+        $client->save();
+
+        $contact = ClientContactFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
+        $contact->first_name = $customer->given_name ?: '';
+        $contact->last_name = $customer->family_name ?: '';
+        $contact->email = $customer->email ?: '';
+        $contact->client_id = $client->id;
+        $contact->saveQuietly();
+        
+        if (! isset($client->number) || empty($client->number)) {
+            $x = 1;
+
+            do {
+                try {
+                    $client->number = $this->getNextClientNumber($client);
+                    $client->saveQuietly();
+
+                    $this->completed = false;
+                } catch (QueryException $e) {
+                    $x++;
+
+                    if ($x > 10) {
+                        $this->completed = false;
+                    }
+                }
+            } while ($this->completed);
+        } else {
+            $client->saveQuietly();
+        }
+
+        return $client;
     }
 }

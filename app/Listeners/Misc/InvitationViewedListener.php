@@ -16,12 +16,10 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityViewedObject;
-use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Notification;
 
 class InvitationViewedListener implements ShouldQueue
 {
@@ -60,11 +58,6 @@ class InvitationViewedListener implements ShouldQueue
             $entity_name = 'purchase_order';
         }
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new EntityViewedObject($invitation, $entity_name))->build());
-        $nmo->company = $invitation->company;
-        $nmo->settings = $invitation->company->settings;
-
         foreach ($invitation->company->company_users as $company_user) {
             $entity_viewed = "{$entity_name}_viewed";
             $entity_viewed_all = "{$entity_name}_viewed_all";
@@ -75,8 +68,16 @@ class InvitationViewedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer((new EntityViewedObject($invitation, $entity_name))->build());
+                $nmo->company = $invitation->company;
+                $nmo->settings = $invitation->company->settings;
+
                 $nmo->to_user = $company_user->user;
-                NinjaMailerJob::dispatch($nmo);
+                (new NinjaMailerJob($nmo))->handle();
+
+                $nmo = null;
             }
         }
     }

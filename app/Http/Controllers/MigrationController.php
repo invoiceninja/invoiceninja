@@ -46,7 +46,7 @@ class MigrationController extends BaseController
      *      tags={"migration"},
      *      summary="Attempts to purge a company record and all its child records",
      *      description="Attempts to purge a company record and all its child records",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="company",
@@ -136,7 +136,7 @@ class MigrationController extends BaseController
      *      tags={"migration"},
      *      summary="Attempts to purge a companies child records but save the company record and its settings",
      *      description="Attempts to purge a companies child records but save the company record and its settings",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="company",
@@ -220,9 +220,9 @@ class MigrationController extends BaseController
      *      tags={"migration"},
      *      summary="Starts the migration from previous version of Invoice Ninja",
      *      description="Starts the migration from previous version of Invoice Ninja",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Password"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-PASSWORD"),
      *      @OA\Parameter(
      *          name="migration",
      *          in="query",

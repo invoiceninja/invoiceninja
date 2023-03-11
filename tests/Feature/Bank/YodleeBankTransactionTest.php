@@ -20,7 +20,6 @@ use Tests\TestCase;
 
 class YodleeBankTransactionTest extends TestCase
 {
-
     use DatabaseTransactions;
     use MockAccountData;
 
@@ -28,8 +27,9 @@ class YodleeBankTransactionTest extends TestCase
     {
         parent::setUp();
 
-        if(!config('ninja.yodlee.client_id'))
+        if (!config('ninja.yodlee.client_id')) {
             $this->markTestSkipped('Skip test no Yodlee API credentials found');
+        }
 
         $this->makeTestData();
 
@@ -40,7 +40,6 @@ class YodleeBankTransactionTest extends TestCase
 
     public function testDataMatching1()
     {
-
         $this->invoice->number = "super-funk-1234";
         $this->invoice->save();
 
@@ -56,32 +55,25 @@ class YodleeBankTransactionTest extends TestCase
         BankTransaction::where('company_id', $this->company->id)
                        ->where('status_id', BankTransaction::STATUS_UNMATCHED)
                        ->cursor()
-                       ->each(function ($bt) use($invoices){
-                        
-                            $invoice = $invoices->first(function ($value, $key) use ($bt){
+                       ->each(function ($bt) use ($invoices) {
+                           $invoice = $invoices->first(function ($value, $key) use ($bt) {
+                               return str_contains($value->number, $bt->description);
+                           });
 
-                                    return str_contains($value->number, $bt->description);
-                                    
-                                });
-
-                            if($invoice)
-                            {
-                                $bt->invoice_ids = $invoice->hashed_id;
-                                $bt->status_id = BankTransaction::STATUS_MATCHED;
-                                $bt->save();   
-                            }
-
+                           if ($invoice) {
+                               $bt->invoice_ids = $invoice->hashed_id;
+                               $bt->status_id = BankTransaction::STATUS_MATCHED;
+                               $bt->save();
+                           }
                        });
 
 
         $this->assertTrue(BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->exists());
-
     }
 
 
     public function testDataMatching2()
     {
-
         $this->invoice->number = "super-funk-1234";
         $this->invoice->save();
 
@@ -97,28 +89,19 @@ class YodleeBankTransactionTest extends TestCase
         BankTransaction::where('company_id', $this->company->id)
                        ->where('status_id', BankTransaction::STATUS_UNMATCHED)
                        ->cursor()
-                       ->each(function ($bt) use($invoices){
-                        
-                            $invoice = $invoices->first(function ($value, $key) use ($bt){
+                       ->each(function ($bt) use ($invoices) {
+                           $invoice = $invoices->first(function ($value, $key) use ($bt) {
+                               return str_contains($value->number, $bt->description);
+                           });
 
-                                    return str_contains($value->number, $bt->description);
-                                    
-                                });
-
-                            if($invoice)
-                            {
-                                $bt->invoice_ids = $invoice->hashed_id;
-                                $bt->status_id = BankTransaction::STATUS_MATCHED;
-                                $bt->save();   
-                            }
-
+                           if ($invoice) {
+                               $bt->invoice_ids = $invoice->hashed_id;
+                               $bt->status_id = BankTransaction::STATUS_MATCHED;
+                               $bt->save();
+                           }
                        });
 
 
         $this->assertTrue(BankTransaction::where('invoice_ids', $this->invoice->hashed_id)->exists());
-
     }
-
-
-
 }

@@ -18,7 +18,6 @@ use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 
 class StoreRecurringInvoiceRequest extends Request
 {
@@ -39,14 +38,15 @@ class StoreRecurringInvoiceRequest extends Request
     {
         $rules = [];
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
@@ -74,7 +74,7 @@ class StoreRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])){
+        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
         }
 

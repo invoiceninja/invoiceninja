@@ -15,14 +15,11 @@ use App\Models\Backup;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
-use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
 
 class SystemMaintenance implements ShouldQueue
 {

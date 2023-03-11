@@ -11,12 +11,12 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Factory\PurchaseOrderFactory;
 use App\Filters\PurchaseOrderFilters;
 use App\Http\Requests\PurchaseOrder\ActionPurchaseOrderRequest;
+use App\Http\Requests\PurchaseOrder\BulkPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\CreatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\DestroyPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\EditPurchaseOrderRequest;
@@ -24,16 +24,13 @@ use App\Http\Requests\PurchaseOrder\ShowPurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
-use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use App\Models\Account;
 use App\Models\Client;
-use App\Models\Expense;
 use App\Models\PurchaseOrder;
 use App\Repositories\PurchaseOrderRepository;
 use App\Services\PdfMaker\PdfMerge;
-use App\Transformers\ExpenseTransformer;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -71,7 +68,7 @@ class PurchaseOrderController extends BaseController
      *      description="Lists purchase orders, search and filters allow fine grained lists to be generated.
      *
      *      Query parameters can be added to performed more fine grained filtering of the purchase orders, these are handled by the PurchaseOrderFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -115,7 +112,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Gets a new blank purchase order object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -159,7 +156,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purhcase_orders"},
      *      summary="Adds a purchase order",
      *      description="Adds an purchase order to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -185,7 +182,6 @@ class PurchaseOrderController extends BaseController
      */
     public function store(StorePurchaseOrderRequest $request)
     {
-
         $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $purchase_order = $purchase_order->service()
@@ -212,7 +208,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purcase orders",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -265,7 +261,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Shows an purchase order for editting",
      *      description="Displays an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -319,7 +315,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Updates an purchase order",
      *      description="Handles the updating of an purchase order by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -385,7 +381,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Deletes a purchase order",
      *      description="Handles the deletion of an purchase orders by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -437,7 +433,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Performs bulk actions on an array of purchase_orders",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -475,15 +471,15 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkPurchaseOrderRequest $request)
     {
-        
-        $action = request()->input('action');
+        $action = $request->input('action');
 
-        $ids = request()->input('ids');
+        $ids = $request->input('ids');
 
-        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
 
         $purchase_orders = PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
@@ -497,7 +493,6 @@ class PurchaseOrderController extends BaseController
         if ($action == 'bulk_download' && $purchase_orders->count() >= 1) {
             $purchase_orders->each(function ($purchase_order) {
                 if (auth()->user()->cannot('view', $purchase_order)) {
-                    nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
@@ -507,18 +502,16 @@ class PurchaseOrderController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'bulk_print' && auth()->user()->can('view', $purchase_orders->first())){
-
-            $paths = $purchase_orders->map(function ($purchase_order){
+        if ($action == 'bulk_print' && auth()->user()->can('view', $purchase_orders->first())) {
+            $paths = $purchase_orders->map(function ($purchase_order) {
                 return $purchase_order->service()->getPurchaseOrderPdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
 
-                return response()->streamDownload(function () use ($merge) {
-                    echo ($merge);
-                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
+            return response()->streamDownload(function () use ($merge) {
+                echo($merge);
+            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         /*
@@ -549,7 +542,7 @@ class PurchaseOrderController extends BaseController
      *        - archive
      *        - delete
      *        - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -605,7 +598,7 @@ class PurchaseOrderController extends BaseController
     }
 
     private function performAction(PurchaseOrder $purchase_order, $action, $bulk = false)
-    {   
+    {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'mark_sent':
@@ -619,9 +612,9 @@ class PurchaseOrderController extends BaseController
 
                 $file = $purchase_order->service()->getPurchaseOrderPdf();
 
-                return response()->streamDownload(function () use($file) {
-                        echo Storage::get($file);
-                },  basename($file), ['Content-Type' => 'application/pdf']);
+                return response()->streamDownload(function () use ($file) {
+                    echo Storage::get($file);
+                }, basename($file), ['Content-Type' => 'application/pdf']);
 
                 break;
             case 'restore':
@@ -673,8 +666,9 @@ class PurchaseOrderController extends BaseController
 
             case 'expense':
 
-                if($purchase_order->expense()->exists())
+                if ($purchase_order->expense()->exists()) {
                     return response()->json(['message' => ctrans('texts.purchase_order_already_expensed')], 400);
+                }
                     
                 $expense = $purchase_order->service()->expense();
 
@@ -682,8 +676,7 @@ class PurchaseOrderController extends BaseController
 
             case 'cancel':
 
-                if($purchase_order->status_id <= PurchaseOrder::STATUS_SENT)
-                {
+                if ($purchase_order->status_id <= PurchaseOrder::STATUS_SENT) {
                     $purchase_order->status_id = PurchaseOrder::STATUS_CANCELLED;
                     $purchase_order->save();
                 }
@@ -714,7 +707,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Uploads a document to a purchase_orders",
      *      description="Handles the uploading of a document to a purchase_order",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -751,16 +744,16 @@ class PurchaseOrderController extends BaseController
      */
     public function upload(UploadPurchaseOrderRequest $request, PurchaseOrder $purchase_order)
     {
-
-        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+        if (!$this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
+        }
         
-        if ($request->has('documents')) 
+        if ($request->has('documents')) {
             $this->saveDocuments($request->file('documents'), $purchase_order);
+        }
 
         return $this->itemResponse($purchase_order->fresh());
-
-    } 
+    }
 
 
     /**
@@ -770,7 +763,7 @@ class PurchaseOrderController extends BaseController
      *      tags={"purchase_orders"},
      *      summary="Download a specific purchase order by invitation key",
      *      description="Downloads a specific purchase order",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -828,8 +821,4 @@ class PurchaseOrderController extends BaseController
             echo Storage::get($file);
         }, basename($file), $headers);
     }
-
-
-
-
 }

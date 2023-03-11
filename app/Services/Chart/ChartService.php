@@ -14,8 +14,6 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\Payment;
-use App\Services\Chart\ChartQueries;
 use Illuminate\Support\Facades\Cache;
 
 class ChartService

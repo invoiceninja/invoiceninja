@@ -14,14 +14,10 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Jobs\Invoice\InvoiceWorkflowSettings;
-use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Services\Client\ClientService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -30,14 +26,8 @@ class ApplyPaymentAmount extends AbstractService
 {
     use GeneratesCounter;
 
-    private $invoice;
-
-    private $amount;
-
-    public function __construct(Invoice $invoice, $amount)
+    public function __construct(private Invoice $invoice, private float $amount, private ?string $reference)
     {
-        $this->invoice = $invoice;
-        $this->amount = $amount;
     }
 
     public function run()
@@ -63,7 +53,7 @@ class ApplyPaymentAmount extends AbstractService
         $payment->number = $this->getNextPaymentNumber($this->invoice->client, $payment);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
-        $payment->transaction_reference = ctrans('texts.manual_entry');
+        $payment->transaction_reference = $this->reference ?: ctrans('texts.manual_entry');
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
         /* Create a payment relationship to the invoice entity */
@@ -124,7 +114,7 @@ class ApplyPaymentAmount extends AbstractService
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
-            //$payment->exchange_currency_id = $client_currency; // 23/06/2021
+
             $payment->exchange_currency_id = $company_currency;
 
             $payment->saveQuietly();

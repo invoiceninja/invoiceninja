@@ -12,17 +12,16 @@
 
 namespace App\PaymentDrivers\Forte;
 
-use App\Models\Payment;
-use App\Models\GatewayType;
-use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
-use App\PaymentDrivers\FortePaymentDriver;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\FortePaymentDriver;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Validator;
 
 class CreditCard
 {
@@ -42,9 +41,9 @@ class CreditCard
         $this->forte = $forte;
 
         $this->forte_base_uri = "https://sandbox.forte.net/api/v3/";
-            if($this->forte->company_gateway->getConfigField('testMode') == false){
-                $this->forte_base_uri = "https://api.forte.net/v3/";
-            }
+        if ($this->forte->company_gateway->getConfigField('testMode') == false) {
+            $this->forte_base_uri = "https://api.forte.net/v3/";
+        }
         $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
         $this->forte_secure_key = $this->forte->company_gateway->getConfigField('secureKey');
         $this->forte_auth_organization_id = $this->forte->company_gateway->getConfigField('authOrganizationId');
@@ -96,15 +95,14 @@ class CreditCard
 
         $fees_and_limits = $this->forte->company_gateway->getFeesAndLimits(GatewayType::CREDIT_CARD);
 
-        if(property_exists($fees_and_limits, 'fee_percent') && $fees_and_limits->fee_percent > 0)
-        {
+        if (property_exists($fees_and_limits, 'fee_percent') && $fees_and_limits->fee_percent > 0) {
             $fee_total = 0;
 
-            for ($i = ($invoice_totals * 100) ; $i < ($amount_with_fee * 100); $i++) { 
-                $calculated_fee = ( 3 * $i) / 100;
-                $calculated_amount_with_fee = round(($i + $calculated_fee) / 100,2);
+            for ($i = ($invoice_totals * 100) ; $i < ($amount_with_fee * 100); $i++) {
+                $calculated_fee = (3 * $i) / 100;
+                $calculated_amount_with_fee = round(($i + $calculated_fee) / 100, 2);
                 if ($calculated_amount_with_fee == $amount_with_fee) {
-                    $fee_total = round($calculated_fee / 100,2);
+                    $fee_total = round($calculated_fee / 100, 2);
                     $amount_with_fee = $calculated_amount_with_fee;
                     break;
                 }
@@ -114,7 +112,7 @@ class CreditCard
         try {
             $curl = curl_init();
 
-            curl_setopt_array($curl, array(
+            curl_setopt_array($curl, [
                 CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
@@ -135,12 +133,12 @@ class CreditCard
                         "one_time_token":"'.$request->payment_token.'"
                      }
               }',
-                CURLOPT_HTTPHEADER => array(
+                CURLOPT_HTTPHEADER => [
                   'Content-Type: application/json',
                   'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                   'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key)
-                ),
-              ));
+                ],
+              ]);
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

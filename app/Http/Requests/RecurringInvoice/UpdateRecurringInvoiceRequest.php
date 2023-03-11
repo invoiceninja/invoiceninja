@@ -16,7 +16,6 @@ use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 class UpdateRecurringInvoiceRequest extends Request
@@ -39,14 +38,15 @@ class UpdateRecurringInvoiceRequest extends Request
     {
         $rules = [];
 
-        if ($this->input('documents') && is_array($this->input('documents'))) {
-            $documents = count($this->input('documents'));
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
 
-            foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
-            }
-        } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
         }
 
         if ($this->number) {
@@ -68,7 +68,7 @@ class UpdateRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])){
+        if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
         }
 

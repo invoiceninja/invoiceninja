@@ -41,10 +41,20 @@ class ContactHashLoginController extends Controller
     {
         return redirect($this->setRedirectPath());
     }
-
+    
+    /**
+     * Generic error page for client portal.
+     *
+     * @return void
+     */
     public function errorPage()
     {
-        return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
+        return render('generic.error', [
+            'title' => session()->get('title'),
+            'notification' => session()->get('notification'),
+            'account' => auth()->guard('contact')?->user()?->user?->account,
+            'company' => auth()->guard('contact')?->user()?->user?->company
+        ]);
     }
 
     private function setRedirectPath()

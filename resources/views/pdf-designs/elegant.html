@@ -16,8 +16,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
+    }
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
     }
 
     @page {
@@ -31,8 +35,8 @@
     }
 
     .company-logo {
-        max-width: 55%;
-        /*        max-width: $company_logo_size;*/
+/*        max-width: 55%;*/
+        max-width: $company_logo_size;
         margin-left: auto;
         margin-right: auto;
         display: block;
@@ -51,31 +55,53 @@
         display: flex;
         margin-top: 1rem;
         gap: 20px;
-        margin-left: 10px;
-        line-height: var(--line-height);
+        margin-left: 0px;
+        line-height: var(--line-height) !important;
     }
 
-    #entity-details p { margin-right: 20px; margin-top: 5px; }
-
+    #entity-details p { 
+        margin-right: 0px;
+        margin-top: 0px; 
+        white-space: nowrap;
+        line-height: var(--line-height) !important;
+    }
+    
     .client-entity-wrapper .wrapper-info-text {
         display: block;
         font-size: 1.5rem;
         font-weight: normal;
     }
+    
+    .client-entity-wrapper .shipping-info-text {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: normal;
+        display: $show_shipping_address;
+    }
 
     .client-entity-wrapper .wrapper-left-side {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: auto auto ;
+        grid-template-areas: "a b c d";
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        justify-content:left;
     }
 
-     .text-with-client  { margin-right: 15px; }
+     .text-with-client  { margin-right: 1px; }
 
     .client-entity-wrapper .wrapper-left-side #client-details,
     .client-entity-wrapper .wrapper-left-side #company-details,
     .client-entity-wrapper .wrapper-left-side #company-address {
         display: flex;
         flex-direction: column;
-        margin-top: 0.5rem;
+        margin-right: 5px;
+    }
+
+    .client-entity-wrapper .wrapper-left-side #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        margin-right: 5px;
     }
 
     .client-entity-wrapper .wrapper-left-side .company-info {
@@ -85,18 +111,21 @@
 
     .client-entity-wrapper #entity-details {
         text-align: left;
-        margin-top: 0.5rem;
         min-width: 100%;
+        line-height: var(--line-height) !important;
     }
 
     .client-entity-wrapper #entity-details > tr,
     .client-entity-wrapper #entity-details th {
         font-weight: normal;
+        padding-right:8px;
+        line-height: var(--line-height) !important;
     }
 
     [data-ref="table"] {
         margin-top: 3rem;
-        margin-bottom: 50px;
+        margin-bottom: 5
+        px;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -122,6 +151,7 @@
 
     [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
+        padding-right: 1rem;
     }
 
     [data-ref="table"] > tbody > tr > td {
@@ -136,6 +166,11 @@
 
     [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="shipping_address-label"] {
+        display: none;
     }
 
     #table-totals {
@@ -263,6 +298,8 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
+
     } 
 
     .project-header {
@@ -325,23 +362,27 @@
                   <img class="company-logo" src="$company.logo" alt="$company.name logo">
                </div>
                <hr class="double-border">
-               <div class="client-entity-wrapper">
+               <div class="client-entity-wrapper" style="">
                   <div class="wrapper-left-side">
                      <div class="text-with-client">
                         <h2 class="wrapper-info-text">$to_label</h2>
                         <div id="client-details"></div>
                         <div id="vendor-details"></div>
                      </div>
-                     <div class="company-info">
+                     <div class="shipping-info" style="">
+                        <h2 class="shipping-info-text">$shipping_label</h2>
+                        <div id="shipping-details"></div>
+                     </div>
+                     <div class="company-info" style="">
                         <h2 class="wrapper-info-text">$from_label</h2>
                         <div id="company-details"></div>
                         <div id="company-address"></div>
                      </div>
-                  </div>
-                  <div class="wrapper-right-side">
-                     <h2 class="wrapper-info-text">$details_label</h2>
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
-                  </div>
+                    <div class="wrapper-right-side">
+                        <h2 class="wrapper-info-text">$details_label</h2>
+                        <table id="entity-details" cellspacing="0" cellpadding="0" dir="$dir"></table>
+                    </div>
+                </div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
@@ -352,7 +393,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
+               <div id="table-totals" cellspacing="0">$status_logo</div>
             </div>
          </td>
       </tr>

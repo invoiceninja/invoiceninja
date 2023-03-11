@@ -11,6 +11,43 @@
 
 namespace App\Models;
 
+/**
+ * App\Models\Gateway
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $key
+ * @property string $provider
+ * @property bool $visible
+ * @property int $sort_order
+ * @property string|null $site_url
+ * @property bool $is_offsite
+ * @property bool $is_secure
+ * @property object|null $fields
+ * @property string $default_gateway_type_id
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property-read mixed $options
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereDefaultGatewayTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereFields($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereIsOffsite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereIsSecure($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereProvider($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereSiteUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Gateway whereVisible($value)
+ * @mixin \Eloquent
+ */
 class Gateway extends StaticModel
 {
     protected $casts = [
@@ -104,6 +141,7 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'customer.source.updated','payment_intent.processing']],
+                    GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing','payment_intent.succeeded','payment_intent.partially_funded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::BACS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
@@ -142,6 +180,7 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'customer.source.updated','payment_intent.processing']],
+                    GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing','payment_intent.succeeded','payment_intent.partially_funded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded', 'payment_intent.succeeded']],

@@ -53,8 +53,7 @@ class ValidCreditsRules implements Rule
         
         $total_credit_amount = array_sum(array_column($this->input['credits'], 'amount'));
 
-        if($total_credit_amount <= 0){
-
+        if ($total_credit_amount <= 0) {
             $this->error_msg = "Total of credits must be more than zero.";
 
             return false;

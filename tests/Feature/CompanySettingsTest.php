@@ -6,18 +6,21 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
+use Tests\TestCase;
+use App\Models\Company;
+use App\Models\Activity;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\CompanySettings;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -28,6 +31,7 @@ class CompanySettingsTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+    // use RefreshDatabase;
 
     public function setUp() :void
     {
@@ -81,10 +85,10 @@ class CompanySettingsTest extends TestCase
         $response = false;
         
         try {
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-Token' => $this->token,
-            ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
+            $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-Token' => $this->token,
+                ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $this->company->toArray());
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
@@ -179,6 +183,7 @@ class CompanySettingsTest extends TestCase
 
     public function testCompanyNullValueMatrixPOST()
     {
+
         $settings = CompanySettings::defaults();
         $settings->reset_counter_date = null;
 

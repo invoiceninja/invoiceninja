@@ -23,7 +23,6 @@ use App\Models\TaxRate;
 use App\Repositories\BaseRepository;
 use App\Transformers\TaxRateTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -101,7 +100,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Gets a new blank Tax Rate object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Response(
      *          response=200,
@@ -160,7 +159,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Shows a Tax Rate",
      *      description="Displays an TaxRate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -213,7 +212,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Shows a Tax Rate for editting",
      *      description="Displays a Tax Rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -267,7 +266,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Updates a tax rate",
      *      description="Handles the updating of a tax rate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -324,7 +323,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Deletes a TaxRate",
      *      description="Handles the deletion of an TaxRate by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(
      *          name="id",
@@ -378,7 +377,7 @@ class TaxRateController extends BaseController
      *      tags={"tax_rates"},
      *      summary="Performs bulk actions on an array of TaxRates",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(

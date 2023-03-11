@@ -29,13 +29,11 @@ use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Cron\AutoBill;
-use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\UpdateReminders;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Ninja\TransactionLog;
-use App\Jobs\Util\UnlinkFile;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -46,12 +44,10 @@ use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -98,7 +94,7 @@ class InvoiceController extends BaseController
      *      description="Lists invoices, search and filters allow fine grained lists to be generated.
      *
      *		Query parameters can be added to performed more fine grained filtering of the invoices, these are handled by the InvoiceFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -144,7 +140,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Gets a new blank invoice object",
      *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
@@ -189,7 +185,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Adds a invoice",
      *      description="Adds an invoice to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
@@ -257,7 +253,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Shows an invoice",
      *      description="Displays an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -311,7 +307,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Shows an invoice for editting",
      *      description="Displays an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -366,7 +362,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Updates an invoice",
      *      description="Handles the updating of an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -440,7 +436,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Deletes a invoice",
      *      description="Handles the deletion of an invoice by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -492,7 +488,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Performs bulk actions on an array of invoices",
      *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/index"),
      *      @OA\RequestBody(
@@ -536,8 +532,9 @@ class InvoiceController extends BaseController
 
         $ids = $request->input('ids');
 
-        if(Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified)
+        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !auth()->user()->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
+        }
             
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
@@ -563,28 +560,24 @@ class InvoiceController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if($action == 'download' && $invoices->count() >=1 && auth()->user()->can('view', $invoices->first())) {
+        if ($action == 'download' && $invoices->count() >=1 && auth()->user()->can('view', $invoices->first())) {
+            $file = $invoices->first()->service()->getInvoicePdf();
 
-                $file = $invoices->first()->service()->getInvoicePdf();
-
-                return response()->streamDownload(function () use ($file) {
-                    echo Storage::get($file);
-                }, basename($file), ['Content-Type' => 'application/pdf']);
-
+            return response()->streamDownload(function () use ($file) {
+                echo Storage::get($file);
+            }, basename($file), ['Content-Type' => 'application/pdf']);
         }
 
-        if($action == 'bulk_print' && auth()->user()->can('view', $invoices->first())){
-
-            $paths = $invoices->map(function ($invoice){
+        if ($action == 'bulk_print' && auth()->user()->can('view', $invoices->first())) {
+            $paths = $invoices->map(function ($invoice) {
                 return $invoice->service()->getInvoicePdf();
             });
 
             $merge = (new PdfMerge($paths->toArray()))->run();
 
-                return response()->streamDownload(function () use ($merge) {
-                    echo ($merge);
-                }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
+            return response()->streamDownload(function () use ($merge) {
+                echo($merge);
+            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         /*
@@ -619,7 +612,7 @@ class InvoiceController extends BaseController
      *        - archive
      *        - delete
      *        - email",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -807,7 +800,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Download a specific invoice by invitation key",
      *      description="Downloads a specific invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -874,7 +867,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Download a specific invoice delivery notes",
      *      description="Downloads a specific invoice delivery notes",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(
@@ -934,7 +927,7 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Uploads a document to a invoice",
      *      description="Handles the uploading of a document to a invoice",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Parameter(

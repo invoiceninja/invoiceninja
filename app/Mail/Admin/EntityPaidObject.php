@@ -12,6 +12,7 @@
 namespace App\Mail\Admin;
 
 use App\Mail\Engine\PaymentEmailEngine;
+use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Illuminate\Support\Facades\App;
@@ -29,7 +30,7 @@ class EntityPaidObject
 
     public $settings;
 
-    public function __construct($payment)
+    public function __construct(public Payment $payment)
     {
         $this->payment = $payment;
         $this->company = $payment->company;

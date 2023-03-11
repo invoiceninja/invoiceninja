@@ -11,8 +11,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
+    }
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
     }
 
     html {
@@ -48,6 +52,9 @@
     #entity-details p { 
         margin-right: 20px; 
         white-space: nowrap;
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.5rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.5rem * var(--tw-space-y-reverse));
     }
 
     .header-wrapper #entity-details {
@@ -62,15 +69,20 @@
     }
 
     .company-logo {
-        max-width: 65%;
-        /*        max-width: $company_logo_size;*/
+/*        max-width: 65%;*/
+        max-width: $company_logo_size;
     }
 
     .contacts-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 40px;
+        gap: 20px;
         padding: 1rem 0rem 0rem 2rem;
+        grid-template-columns: 1fr 1fr auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 5fr);
+        grid-auto-flow: column;
+        justify-content: space-between;
+
     }
 
     .contacts-wrapper .contact-label {
@@ -79,10 +91,23 @@
         margin-left: 1rem;
     }
 
+    .contacts-wrapper .shipping-label {
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-left: 1rem;
+        display: $show_shipping_address;
+    }
+
     .contacts-wrapper #company-address,
     .contacts-wrapper #company-details,
     .contacts-wrapper #client-details {
         display: flex;
+        flex-direction: column;
+        margin-bottom: 0.5rem;
+    }
+
+    .contacts-wrapper #shipping-details {
+        display: $show_shipping_address;
         flex-direction: column;
         margin-bottom: 0.5rem;
     }
@@ -102,16 +127,28 @@
         border-top: 1px solid var(--primary-color);
     }
 
+    .contacts-wrapper #shipping-details {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-top: 1px solid var(--primary-color);
+    }
+
+
     .contact-wrapper-left-side,
     .contact-wrapper-right-side {
         border-bottom: 1px solid var(--primary-color);
+    }
+
+    .shipping-wrapper-right-side {
+        border-bottom: 1px solid var(--primary-color);
+        display: $show_shipping_address_block;
     }
 
     [data-ref="table"] {
         padding-left: 2rem;
         padding-right: 0rem;
         margin-top: 1rem;
-        margin-bottom: 50px;
+        margin-bottom: 5px;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -295,6 +332,10 @@
         overflow-wrap: break-word; 
     }
 
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
     .stamp {
       transform: rotate(12deg);
         color: #555;
@@ -323,6 +364,8 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
+
     } 
 
     .project-header {
@@ -381,38 +424,43 @@
    <tbody>
       <tr>
          <td>
-               <div class="header-wrapper">
-                  <div>
-                     <img class="company-logo" src="$company.logo" alt="$company.name logo">
-                  </div>
-                  <div class="entity-details-wrapper">
-                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
-                  </div>
-               </div>
-               <div class="contacts-wrapper">
-                  <div class="contact-wrapper-left-side">
-                     <p class="contact-label">$from_label:</p>
-                     <div class="company-info">
-                        <div id="company-details"></div>
-                        <div id="company-address"></div>
-                     </div>
-                  </div>
-                  <div class="contact-wrapper-right-side">
-                     <p class="contact-label">$to_label:</p>
-                     <div id="client-details"></div>
-                     <div id="vendor-details"></div>
-                  </div>
-               </div>
-               <table id="product-table" cellspacing="0" data-ref="table"></table>
-               <table id="task-table" cellspacing="0" data-ref="table"></table>
-               <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-               <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-               <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-               <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-               <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>      
+            <div class="header-wrapper">
+                <div>
+                    <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                </div>
+                <div class="entity-details-wrapper">
+                    <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                </div>
+            </div>
+            <div class="contacts-wrapper">
+                <div class="contact-wrapper-left-side">
+                    <p class="contact-label">$from_label:</p>
+                    <div class="company-info">
+                    <div id="company-details"></div>
+                    <div id="company-address"></div>
+                    </div>
+                </div>
+                <div class="contact-wrapper-right-side">
+                    <p class="contact-label">$to_label:</p>
+                    <div id="client-details"></div>
+                    <div id="vendor-details"></div>
+                </div>
+
+                <div class="shipping-wrapper-right-side">
+                    <p class="shipping-label">$shipping_label:</p>
+                    <div id="shipping-details"></div>
+                </div>
+            </div>
+            <table id="product-table" cellspacing="0" data-ref="table"></table>
+            <table id="task-table" cellspacing="0" data-ref="table"></table>
+            <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+            <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+            <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+            <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+            <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+            <div id="table-totals" cellspacing="0">$status_logo</div>      
          </td>
       </tr>
    </tbody>

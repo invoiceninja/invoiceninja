@@ -13,6 +13,48 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\Webhook
+ *
+ * @property int $id
+ * @property int|null $company_id
+ * @property int|null $user_id
+ * @property int|null $event_id
+ * @property int $is_deleted
+ * @property string $target_url
+ * @property string $format
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property string|null $rest_method
+ * @property array|null $headers
+ * @property-read \App\Models\Company|null $company
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereFormat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereHeaders($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereRestMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereTargetUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Webhook extends BaseModel
 {
     use SoftDeletes;
@@ -136,6 +178,14 @@ class Webhook extends BaseModel
 
     const EVENT_ARCHIVE_PURCHASE_ORDER = 59; //tested
 
+    const EVENT_SENT_INVOICE = 60;
+
+    const EVENT_SENT_QUOTE = 61;
+
+    const EVENT_SENT_CREDIT = 62;
+
+    const EVENT_SENT_PURCHASE_ORDER = 63;
+
     public static $valid_events = [
         self::EVENT_CREATE_PURCHASE_ORDER,
         self::EVENT_UPDATE_PURCHASE_ORDER,
@@ -194,7 +244,11 @@ class Webhook extends BaseModel
         self::EVENT_RESTORE_QUOTE,
         self::EVENT_RESTORE_INVOICE,
         self::EVENT_RESTORE_PAYMENT,
-        self::EVENT_RESTORE_VENDOR
+        self::EVENT_RESTORE_VENDOR,
+        self::EVENT_SENT_INVOICE,
+        self::EVENT_SENT_QUOTE,
+        self::EVENT_SENT_CREDIT,
+        self::EVENT_SENT_PURCHASE_ORDER
 
     ];
 

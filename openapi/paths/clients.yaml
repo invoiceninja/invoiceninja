@@ -1,0 +1,559 @@
+  /api/v1/clients:
+    get:
+      tags:
+        - clients
+      summary: 'List clients'
+      description: |
+            Lists clients. Fine grained filtering is also available using query parameters.  
+      operationId: getClients
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - $ref: '#/components/parameters/index'
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: name
+          in: query
+          description: Filter by client name
+          required: false
+          schema:
+            type: string
+          example: bob
+        - name: balance
+          in: query
+          description: Filter by client balance, format uses an operator and value separated by a colon. lt,lte, gt, gte, eq
+          required: false
+          schema:
+            type: string
+          example: lt:10
+        - name: between_balance
+          in: query
+          description: Filter between client balances, format uses two values separated by a colon
+          required: false
+          schema:
+            type: string
+          example: 10:100
+        - name: email
+          in: query
+          description: Filter by client email
+          required: false
+          schema:
+            type: string
+          example: bob@gmail.com
+        - name: id_number
+          in: query
+          description: Filter by client id_number
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        - name: number
+          in: query
+          description: Filter by client number
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        - name: filter
+          in: query
+          description: Filters clients on columns - name, id_number, contact.first_name contact.last_name, contact.email, custom_value1-4
+          required: false
+          schema:
+            type: string
+          example: a1039883
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc name|desc balance|asc 
+
+      responses:
+        200:
+          description: 'A list of clients'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    post:
+      tags:
+        - clients
+      summary: 'Create client'
+      description: 'Adds a client to a company'
+      operationId: storeClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+      responses:
+        200:
+          description: 'Returns the saved client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/clients/{id}':
+    get:
+      tags:
+        - clients
+      summary: 'Show client'
+      description: 'Displays a client by id'
+      operationId: showClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    put:
+      tags:
+        - clients
+      summary: 'Update client'
+      description: 'Handles the updating of a client by id'
+      operationId: updateClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+    delete:
+      tags:
+        - clients
+      summary: 'Delete client'
+      description: 'Handles the deletion of a client by id'
+      operationId: deleteClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns a HTTP status'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/clients/{id}/edit':
+    get:
+      tags:
+        - clients
+      summary: 'Edit Client'
+      description: 'Displays a client by id'
+      operationId: editClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/clients/create:
+    get:
+      tags:
+        - clients
+      summary: 'Blank Client'
+      description: 'Returns a blank object with default values'
+      operationId: getClientsCreate
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+      responses:
+        200:
+          description: 'A blank client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/clients/bulk:
+    post:
+      tags:
+        - clients
+      summary: 'Bulk client actions'
+      description: 'Archive / Restore / Delete in bulk'
+      operationId: bulkClients
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/index'
+      requestBody:
+        description: 'User credentials'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                description: 'Array of hashed IDs to be bulk ''actioned'
+                type: integer
+                example: '[0,1,2,3]'
+      responses:
+        200:
+          description: 'The Client User response'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/clients/{id}/upload':
+    put:
+      tags:
+        - clients
+      summary: 'Add client document'
+      description: 'Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST'
+      operationId: uploadClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      produces:
+        - application/json
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: POST
+                documents:
+                  type: array
+                  format: binary
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/clients/{id}/purge':
+    post:
+      tags:
+        - clients
+      summary: 'Purge client'
+      description: 'Handles purging a client'
+      operationId: purgeClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  '/api/v1/clients/{id}/{mergeable_client_hashed_id}/merge':
+    post:
+      tags:
+        - clients
+      summary: 'Merge client'
+      description: 'Handles merging 2 clients'
+      operationId: mergeClient
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/client_include'
+        - name: id
+          in: path
+          description: 'The Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+        - name: mergeable_client_hashed_id
+          in: path
+          description: 'The Mergeable Client Hashed ID'
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'
+  /api/v1/client_statement:
+    post:
+      tags:
+        - clients
+      summary: 'Client statement PDF'
+      description: 'Return a PDF of the client statement'
+      operationId: clientStatement
+      parameters:
+        - $ref: '#/components/parameters/X-API-TOKEN'
+        - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/include'
+      requestBody:
+        description: 'Statment Options'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                start_date:
+                  description: 'The start date of the statement period - format Y-m-d'
+                  type: string
+                end_date:
+                  description: 'The start date of the statement period - format Y-m-d'
+                  type: string
+                client_id:
+                  description: 'The hashed ID of the client'
+                  type: string
+                show_payments_table:
+                  description: 'Flag which determines if the payments table is shown'
+                  type: boolean
+                show_aging_table:
+                  description: 'Flag which determines if the aging table is shown'
+                  type: boolean
+              type: object
+      responses:
+        200:
+          description: 'Returns the client object'
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        401:
+          $ref: '#/components/responses/401'
+        403:
+          $ref: '#/components/responses/403'
+        422:
+          $ref: '#/components/responses/422'
+        default:
+          $ref: '#/components/responses/default'

@@ -63,17 +63,72 @@ class ClientTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testClientMergeContactDrop()
+    {
+
+        $c = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+            ]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c->id,
+                'company_id' => $this->company->id,
+            ]);
+
+
+        $c1 = Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c1->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+            ]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c1->id,
+                'company_id' => $this->company->id,
+            ]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c1->id,
+                'company_id' => $this->company->id,
+                'email' => ''
+            ]);
+          
+
+        $this->assertEquals(2, $c->contacts->count());
+        $this->assertEquals(3, $c1->contacts->count());
+
+        $c->service()->merge($c1);
+
+        $c = $c->fresh();
+
+        nlog($c->contacts->pluck('email'));
+
+        $this->assertEquals(4, $c->contacts->count());
+
+    }
+
     private function buildLineItems($number = 2)
     {
         $line_items = [];
 
-        for($x=0; $x<$number; $x++)
-        {
+        for ($x=0; $x<$number; $x++) {
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             $item->cost = 10;
 
-            $line_items[] = $item;  
+            $line_items[] = $item;
         }
 
         return $line_items;

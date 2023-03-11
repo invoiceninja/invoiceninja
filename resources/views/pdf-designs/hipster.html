@@ -16,8 +16,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: $font_size !important;
         zoom: 80%;
+    }
+
+    table tr td, table tr, th {
+        font-size: $font_size !important;
     }
 
     @page {
@@ -32,7 +36,7 @@
 
     .header-wrapper {
         display: grid;
-        grid-template-columns: 1.2fr 1.8fr;
+        grid-template-columns: 0.5fr 1.5fr;
         gap: 20px;
         line-height: var(--line-height);
     }
@@ -63,10 +67,17 @@
 
     .header-wrapper .header-right-side-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        /* grid-template-columns: 1fr 1fr; */
         gap: 10px;
         border-left: 1px solid #303030;
         padding-left: 1rem;
+
+        grid-template-columns: auto auto auto;
+        grid-template-areas: "a b c";
+        grid-auto-columns: minmax(0, 1fr);
+        grid-auto-flow: column;
+        justify-content:left;
+
     }
 
     .header-wrapper .header-right-side-wrapper #client-details {
@@ -75,13 +86,26 @@
         margin-top: 0.8rem;
     }
 
+    .header-wrapper .header-right-side-wrapper #shipping-details {
+        display: $show_shipping_address;
+        flex-direction: column;
+        margin-top: 0.8rem;
+    }
+
+    .shipping-text-label {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: bold;
+        display: $show_shipping_address;
+    }
+
     .header-wrapper {
         margin-left: auto;
     }
 
     .company-logo {
-        max-width: 65%;
-        /*        max-width: $company_logo_size;*/
+        max-width: $company_logo_size;
     }
 
     .entity-label {
@@ -92,6 +116,14 @@
 
     .entity-details-wrapper > * {
         margin-right: 1.5rem;
+        direction: $dir;
+    }
+
+    .entity-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        direction: $dir;
+        justify-content: space-between;
     }
 
     .entity-details-wrapper .entity-property-label {
@@ -106,9 +138,13 @@
         font-weight: bold;
     }
 
+    [data-ref="shipping_address-label"] {
+        display: none;
+    }
+
     [data-ref="table"] {
         margin-top: 1rem;
-        margin-bottom: 50px;
+        margin-bottom: 5px;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -135,6 +171,12 @@
 
     [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
+        padding-right: 1rem;
+    }
+
+    [data-ref="table"] > thead > tr > th:nth-last-child(2) {
+        text-align: right;
+        padding-right: 1rem;
     }
 
     [data-ref="table"] > tbody > tr > td {
@@ -151,7 +193,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
-        margin-right: .75rem;
+        margin-right: 1rem;
         gap: 80px;
         page-break-inside:auto;
         overflow: visible !important;
@@ -205,16 +247,6 @@
     [data-ref="table"] h3 {
         font-size: 1rem;
         margin-bottom: 0;
-    }
-
-    .entity-details-wrapper > * {
-        direction: $dir;
-    }
-
-    .entity-details-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        direction: $dir;
     }
 
     [data-ref="product_table-product.unit_cost-td"] { text-align: right; }
@@ -280,6 +312,7 @@
         opacity: 0.2;
         z-index:200 !important;
         position:  fixed;
+        display: $show_paid_stamp;
     } 
 
     .project-header {
@@ -350,6 +383,10 @@
                         <div id="client-details"></div>
                         <div id="vendor-details"></div>
                      </div>
+                    <div class="header-right-side-wrapper-left">
+                        <p class="shipping-text-label">$shipping_label:</p>
+                        <div id="shipping-details"></div>
+                    </div>
                      <div class="header-right-side-wrapper-right">
                         <img
                            class="company-logo"
@@ -393,7 +430,7 @@
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-               <div id="table-totals" cellspacing="0"></div>
+               <div id="table-totals" cellspacing="0">$status_logo</div>
             </div>
          </td>
       </tr>

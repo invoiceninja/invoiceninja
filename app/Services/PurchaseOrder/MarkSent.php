@@ -12,7 +12,7 @@
 namespace App\Services\PurchaseOrder;
 
 use App\Models\PurchaseOrder;
-use App\Utils\Ninja;
+use App\Models\Webhook;
 
 class MarkSent
 {
@@ -28,7 +28,6 @@ class MarkSent
 
     public function run()
     {
-
         /* Return immediately if status is not draft */
         if ($this->purchase_order->status_id != PurchaseOrder::STATUS_DRAFT) {
             return $this->purchase_order;
@@ -42,6 +41,8 @@ class MarkSent
             ->applyNumber()
             ->adjustBalance($this->purchase_order->amount) //why was this commented out previously?
             ->save();
+
+        $this->purchase_order->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
 
         return $this->purchase_order;
     }

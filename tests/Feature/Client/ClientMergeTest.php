@@ -12,19 +12,14 @@
 
 namespace Tests\Feature\Client;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Http\Livewire\CreditsTable;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
-use App\Models\Credit;
 use App\Models\User;
 use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Livewire\Livewire;
 use Tests\TestCase;
 
 class ClientMergeTest extends TestCase

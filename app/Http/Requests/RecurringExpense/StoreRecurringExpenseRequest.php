@@ -12,7 +12,6 @@
 namespace App\Http\Requests\RecurringExpense;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\RecurringExpense\UniqueRecurringExpenseNumberRule;
 use App\Models\RecurringExpense;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -48,6 +47,17 @@ class StoreRecurringExpenseRequest extends Request
         $rules['tax_amount1'] = 'numeric';
         $rules['tax_amount2'] = 'numeric';
         $rules['tax_amount3'] = 'numeric';
+
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
 
         return $this->globalRules($rules);
     }

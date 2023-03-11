@@ -12,16 +12,10 @@
 namespace App\PaymentDrivers\Stripe\Jobs;
 
 use App\Jobs\Mail\PaymentFailedMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -99,11 +93,11 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                 }
 
                 PaymentFailedMailer::dispatch(
-                        $payment_hash,
-                        $client->company,
-                        $client,
-                        $error
-                    );
+                    $payment_hash,
+                    $client->company,
+                    $client,
+                    $error
+                );
             }
         }
     }

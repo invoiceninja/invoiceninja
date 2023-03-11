@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 namespace Tests\Integration;
 
@@ -31,15 +31,15 @@ use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasRestored;
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Events\Payment\PaymentWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
-use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
-use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
-use App\Events\PurchaseOrder\PurchaseOrderWasRestored;            
-use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
+use App\Events\PurchaseOrder\PurchaseOrderWasArchived;
+use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
+use App\Events\PurchaseOrder\PurchaseOrderWasDeleted;
+use App\Events\PurchaseOrder\PurchaseOrderWasRestored;
+use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -167,7 +167,6 @@ class EventTest extends TestCase
 
     public function testVendorEvents()
     {
-        
         $this->expectsEvents([
             VendorWasCreated::class,
             VendorWasUpdated::class,
@@ -227,7 +226,6 @@ class EventTest extends TestCase
 
     public function testTaskEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
@@ -288,7 +286,6 @@ class EventTest extends TestCase
 
     public function testCreditEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
@@ -349,7 +346,6 @@ class EventTest extends TestCase
 
     public function testQuoteEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
@@ -812,75 +808,72 @@ class EventTest extends TestCase
 
 
 public function PurchaseOrderEvents()
-    {
+{
+    /* Test fire new invoice */
+    $data = [
+        'client_id' => $this->vendor->hashed_id,
+        'number' => 'dude',
+    ];
 
-        /* Test fire new invoice */
-        $data = [
-            'client_id' => $this->vendor->hashed_id,
-            'number' => 'dude',
-        ];
+    $this->expectsEvents([
+        PurchaseOrderWasCreated::class,
+        PurchaseOrderWasUpdated::class,
+        PurchaseOrderWasArchived::class,
+        PurchaseOrderWasRestored::class,
+        PurchaseOrderWasDeleted::class,
+    ]);
 
-        $this->expectsEvents([
-            PurchaseOrderWasCreated::class,
-            PurchaseOrderWasUpdated::class,
-            PurchaseOrderWasArchived::class,
-            PurchaseOrderWasRestored::class,
-            PurchaseOrderWasDeleted::class,
-        ]);
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/', $data)
-        ->assertStatus(200);
-
-
-        $arr = $response->json();
-
-        $data = [
-            'client_id' => $this->vendor->hashed_id,
-            'number' => 'dude2',
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
-        ->assertStatus(200);
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->postJson('/api/v1/purchase_orders/', $data)
+    ->assertStatus(200);
 
 
-        $data = [
-            'ids' => [$arr['data']['id']],
-        ];
+    $arr = $response->json();
 
-        $quote = PurchaseOrder::find($this->decodePrimaryKey($arr['data']['id']));
-        $quote->status_id = PurchaseOrder::STATUS_SENT;
-        $quote->save();
+    $data = [
+        'client_id' => $this->vendor->hashed_id,
+        'number' => 'dude2',
+    ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=archive', $data)
-        ->assertStatus(200);
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=restore', $data)
-        ->assertStatus(200);
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=approve', $data)
-        ->assertStatus(200);
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/purchase_orders/bulk?action=delete', $data)
-        ->assertStatus(200);
-    }
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->putJson('/api/v1/purchase_orders/' . $arr['data']['id'], $data)
+    ->assertStatus(200);
 
 
+    $data = [
+        'ids' => [$arr['data']['id']],
+    ];
+
+    $quote = PurchaseOrder::find($this->decodePrimaryKey($arr['data']['id']));
+    $quote->status_id = PurchaseOrder::STATUS_SENT;
+    $quote->save();
+
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->postJson('/api/v1/purchase_orders/bulk?action=archive', $data)
+    ->assertStatus(200);
+
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->postJson('/api/v1/purchase_orders/bulk?action=restore', $data)
+    ->assertStatus(200);
+
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->postJson('/api/v1/purchase_orders/bulk?action=approve', $data)
+    ->assertStatus(200);
+
+    $response = $this->withHeaders([
+        'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-TOKEN' => $this->token,
+    ])->postJson('/api/v1/purchase_orders/bulk?action=delete', $data)
+    ->assertStatus(200);
+}
 }

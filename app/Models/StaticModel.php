@@ -11,13 +11,26 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
+/**
+ * App\Models\StaticModel
+ *
+ * @property-read mixed $id
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel query()
+ * @mixin \Eloquent
+ */
 class StaticModel extends Model
 {
     use MakesHash;
+    use Excludable;
     
     protected $casts = [
         'updated_at' => 'timestamp',
@@ -51,13 +64,11 @@ class StaticModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-            
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
 
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-
     }
 }
