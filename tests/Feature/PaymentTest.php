@@ -1392,8 +1392,6 @@ class PaymentTest extends TestCase
 
             $payment = Payment::find($this->decodePrimaryKey($payment_id));
 
-            // nlog($payment);
-
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
             $this->assertEquals(1, $payment->invoices()->count());

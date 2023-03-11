@@ -83,7 +83,6 @@ class PaymentAppliedValidAmount implements Rule
                 $invoice_amounts += $invoice['amount'];
 
                 $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);
-                nlog($inv);
 
                 if($inv->balance < $invoice['amount']) {
 
