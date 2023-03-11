@@ -20,7 +20,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 var ProcessSEPA = /*#__PURE__*/function () {
   function ProcessSEPA(key, stripeConnect) {
@@ -163,10 +163,6 @@ var ProcessSEPA = /*#__PURE__*/function () {
 
       if (tokenBillingCheckbox) {
         document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
-      }
-
-      if (document.querySelector('input[name=token]').value.length > 2) {
-        document.querySelector('input[name="store_card"]').value = false;
       }
 
       document.getElementById('server-response').submit();
