@@ -25,6 +25,10 @@ class PaymentAppliedValidAmount implements Rule
 
     private $message;
 
+    public function __construct(private array $input)
+    {
+        $this->input = $input;
+    }
     /**
      * @param string $attribute
      * @param mixed $value
@@ -48,8 +52,8 @@ class PaymentAppliedValidAmount implements Rule
     private function calculateAmounts() :bool
     {
         $payment = Payment::withTrashed()->whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
-        $inv_collection = Invoice::withTrashed()->whereIn('id', array_column(request()->input('invoices'), 'invoice_id'))->get();
-
+        $inv_collection = Invoice::withTrashed()->whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->get();
+        
         if (! $payment) {
             return false;
         }
@@ -74,15 +78,15 @@ class PaymentAppliedValidAmount implements Rule
             }
         }
 
-        if (request()->input('invoices') && is_array(request()->input('invoices'))) {
-            foreach (request()->input('invoices') as $invoice) {
+        if (isset($this->input['invoices']) && is_array($this->input['invoices'])) {
+            foreach ($this->input['invoices'] as $invoice) {
                 $invoice_amounts += $invoice['amount'];
 
                 $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);
+                nlog($inv);
 
                 if($inv->balance < $invoice['amount']) {
 
-                    // $this->message = ctrans('texts.insufficient_applied_amount_remaining');
                     $this->message = 'Amount cannot be greater than invoice balance';
 
                     return false;
