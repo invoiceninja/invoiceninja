@@ -240,7 +240,7 @@ class Design extends BaseDesign
     {
         $elements = [];
 
-        if (!$this->client) {
+        if (!$this->client || $this->type == self::DELIVERY_NOTE) {
             return $elements;
         }
 
