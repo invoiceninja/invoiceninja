@@ -273,23 +273,40 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return $this;
         }
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
-        if ($this->email->email_object->entity instanceof PurchaseOrder) {
+        if ($this->email->email_object->settings->pdf_email_attachment && $this->email->email_object->entity instanceof PurchaseOrder) {
+
             $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+
         } elseif ($this->email->email_object->settings->pdf_email_attachment &&
         ($this->email->email_object->entity instanceof Invoice ||
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
+
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+
         }
+
+        /** UBL xml file */
+        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->settings->ubl_email_attachment) {
+            $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
+
+            if ($ubl_string) {
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
+            }
+        }
+
+        if(!$this->email->email_object->settings->document_email_attachment)
+            return $this;
+
 
         /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
@@ -334,15 +351,6 @@ class EmailDefaults
                     ->each(function ($task) {
                         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $task->documents->pluck('id')->toArray());
                     });
-            }
-        }
-
-        /** UBL xml file */
-        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->settings->ubl_email_attachment) {
-            $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
-
-            if ($ubl_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
             }
         }
 
