@@ -11,11 +11,17 @@ use CleverIt\UBL\Invoice\TaxTotal;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 
 class CreateXRechnung implements ShouldQueue
 {
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     public Invoice $invoice;
 
     public function __construct(Invoice $invoice)
@@ -41,14 +47,17 @@ class CreateXRechnung implements ShouldQueue
             ->addDocumentNote($invoice->public_notes)
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
             ->setDocumentSeller($company->name)
-            //->addDocumentSellerGlobalId("4000001123452", "0088")
-            //->addDocumentSellerTaxRegistration("FC", "201/113/40209")
-            ->addDocumentSellerTaxRegistration("VA", $company->vat_number)
             ->setDocumentSellerAddress($company->address1, "", "", $company->postal_code, $company->city, $company->country->country->iso_3166_2)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->country->iso_3166_2);
             //->addDocumentPaymentTerm("Zahlbar innerhalb 30 Tagen netto bis 04.04.2018, 3% Skonto innerhalb 10 Tagen bis 15.03.2018")
 
+        if (str_contains($company->vat_number, "/")){
+            $xrechnung->addDocumentSellerTaxRegistration("FC", $company->vat_number);
+         }
+        else {
+            $xrechnung->addDocumentSellerTaxRegistration("VA", $company->vat_number);
+        }
         // Create line items and calculate taxes
         $taxamount_1 = $taxAmount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
         $netprice = 0.0;
@@ -57,14 +66,18 @@ class CreateXRechnung implements ShouldQueue
 
         foreach ($invoice->line_items as $index => $item){
             $xrechnung->addNewPosition($index)
-                ->setDocumentPositionProductDetails($item->notes, "", "TB100A4", null, "0160", "4012345001235")
+                ->setDocumentPositionProductDetails($item->notes)
                 ->setDocumentPositionGrossPrice($item->gross_line_total)
-                ->setDocumentPositionNetPrice($item->line_total)
-                ->setDocumentPositionQuantity($item->quantity, "H87")
-                ->addDocumentPositionTax('S', 'VAT', 19);
+                ->setDocumentPositionNetPrice($item->line_total);
+            if (isset($item->task_id)){
+                $xrechnung->setDocumentPositionQuantity($item->quantity, "HUR");
+            }
+            else{
+                $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
+            }
             $netprice += $this->getItemTaxable($item, $taxable);
 
-            // TODO: add tax rate
+            $xrechnung->addDocumentPositionTax('S', 'VAT', 19);
 
             if ($item->discount > 0){
                 if ($invoice->is_amount_discount){
