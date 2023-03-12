@@ -30,10 +30,6 @@ describe('Test Invoices', () => {
         cy.contains('Continue').click();
 
         cy.get('#cardholder-name').type('Cypress Test');
-        // cy.contains('Card number').type('4242424242424242');
-        // cy.contains('MM / YY').type('1024');
-        // cy.contains('CVC').type('100');
-
 
         cy.get("iframe").then($iframe => {
             const $body = $iframe.contents().find("body");
@@ -49,6 +45,9 @@ describe('Test Invoices', () => {
         });
 
         cy.get('#pay-now').click();
+        cy.url().should('include', '/payments');
+
+        
     });
 
   
