@@ -212,4 +212,5 @@ return [
         'dev_mode' => env("YODLEE_DEV_MODE", false),
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
+    'reset_all_counter' => env('RESET_ALL_COUNTER', false),
 ];

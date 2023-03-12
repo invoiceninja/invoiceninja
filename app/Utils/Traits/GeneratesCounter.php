@@ -125,7 +125,7 @@ trait GeneratesCounter
         switch ($entity) {
             case Invoice::class:
                 return 'invoice_number_counter';
-                
+
             case Quote::class:
 
                 if ($this->hasSharedCounter($client, 'quote')) {
@@ -133,29 +133,29 @@ trait GeneratesCounter
                 }
 
                 return 'quote_number_counter';
-                
+
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
-                
+
             case RecurringQuote::class:
                 return 'recurring_quote_number_counter';
-                
+
             case RecurringExpense::class:
                 return 'recurring_expense_number_counter';
-                
+
             case Payment::class:
                 return 'payment_number_counter';
-                
+
             case Credit::class:
                 if ($this->hasSharedCounter($client, 'credit')) {
                     return 'invoice_number_counter';
                 }
 
                 return 'credit_number_counter';
-                
+
             case Project::class:
                 return 'project_number_counter';
-                
+
             case PurchaseOrder::class:
                 return 'purchase_order_number_counter';
 
@@ -400,7 +400,7 @@ trait GeneratesCounter
         }
 
         //credit
-        return (bool) $client->getSetting('shared_invoice_credit_counter');    
+        return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -420,8 +420,29 @@ trait GeneratesCounter
         $check = false;
         $check_counter = 1;
 
+        /*
+         * Optimization for getting the next number without iterating the first 100 items & after that returning random number (if numbers already exists)
+         *
+         * See also:
+         * https://github.com/invoiceninja/invoiceninja/pull/8231
+         *
+        $number_placeholder = '{number}';
+        $latest = $class::where('company_id', $entity->company_id)->where('number', '<>', '', 'and')->orderBy('created_at', 'desc')->first();
+        $generic_number = $this->applyNumberPattern($entity, $number_placeholder, $pattern);
+        $regex = sprintf('/^%s$/', preg_quote($generic_number));
+        $regex = str_replace(preg_quote($number_placeholder), '([0-9]+)', $regex);
+
+        if ($latest && preg_match($regex, $latest->number, $matches)) {
+            $latest_counter = $matches[1] ?? null;
+
+            if (is_string($latest_counter) && ctype_digit($latest_counter) && intval($latest_counter) > $counter) {
+                $counter = intval($latest_counter) + 1;
+            }
+        }
+        */
+
         do {
-            
+
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
@@ -434,7 +455,7 @@ trait GeneratesCounter
             $check_counter++;
 
             if ($check_counter > 100) {
-                
+
                 $this->update_counter = $counter--;
 
                 return $number.'_'.Str::random(5);
@@ -519,14 +540,14 @@ trait GeneratesCounter
 
         if ($reset_counter_frequency == 0) {
 
-                if($client->getSetting('reset_counter_date')){
+            if($client->getSetting('reset_counter_date')){
 
-                    $settings = $client->company->settings;
-                    $settings->reset_counter_date = "";
-                    $client->company->settings = $settings;
-                    $client->company->save();
-                    
-                }
+                $settings = $client->company->settings;
+                $settings->reset_counter_date = "";
+                $client->company->settings = $settings;
+                $client->company->save();
+
+            }
 
             return;
         }
@@ -574,7 +595,7 @@ trait GeneratesCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }
@@ -592,8 +613,16 @@ trait GeneratesCounter
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
+        if( config('ninja.reset_all_counter') ) {
+            $settings->client_number_counter = 1;
+        }
+
         $client->company->settings = $settings;
         $client->company->save();
+
+        if ($new_reset_date->lte(now())) {
+            return $this->resetCounters($client);
+        }
     }
 
     private function resetCompanyCounters($company)
@@ -612,13 +641,13 @@ trait GeneratesCounter
 
         if ($reset_counter_frequency == 0) {
 
-                if($settings->reset_counter_date){
+            if($settings->reset_counter_date){
 
-                    $settings->reset_counter_date = "";
-                    $company->settings = $settings;
-                    $company->save();
-                    
-                }
+                $settings->reset_counter_date = "";
+                $company->settings = $settings;
+                $company->save();
+
+            }
 
             return;
         }
@@ -658,7 +687,7 @@ trait GeneratesCounter
                 $new_reset_date = $reset_date->addYears(2);
                 break;
 
-                default:
+            default:
                 $new_reset_date = $reset_date->addYear();
                 break;
         }
@@ -675,8 +704,16 @@ trait GeneratesCounter
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
+        if( config('ninja.reset_all_counter') ) {
+            $settings->vendor_number_counter = 1;
+        }
+
         $company->settings = $settings;
         $company->save();
+
+        if ($new_reset_date->lte(now())) {
+            return $this->resetCompanyCounters($company);
+        }
     }
 
     /**
