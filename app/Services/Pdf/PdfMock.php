@@ -182,7 +182,7 @@ class PdfMock
     '$client.public_notes' => '&nbsp;',
     '$company.postal_code' => $this->settings->postal_code,
     '$client.billing_city' => 'Aufderharchester',
-    '$secondary_font_name' => $this->settings->primary_font,
+    '$secondary_font_name' => $this->settings?->primary_font ?: 'Roboto',
     '$product.line_total' => '',
     '$product.tax_amount' => '',
     '$company.vat_number' => $this->settings->vat_number,
