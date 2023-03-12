@@ -11,19 +11,26 @@
 
 namespace App\Services\Pdf;
 
-use App\DataMapper\ClientSettings;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Design;
+use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
-use App\Models\Credit;
-use App\Models\Currency;
-use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
+use App\Models\Currency;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\Vendor;
+use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
+use App\Services\Pdf\PdfBuilder;
+use App\Services\Pdf\PdfService;
+use App\Models\InvoiceInvitation;
+use App\Services\Pdf\PdfDesigner;
+use App\DataMapper\ClientSettings;
+use App\Services\Pdf\PdfConfiguration;
+use App\Models\PurchaseOrderInvitation;
 
 class PdfMock
 {
@@ -81,23 +88,46 @@ class PdfMock
 
     public function initEntity(): mixed
     {
-        match ($this->request['entity_type']) {
-            'invoice' => $entity = Invoice::factory()->make(),
-            'quote' => $entity = Quote::factory()->make(),
-            'credit' => $entity = Credit::factory()->make(),
-            'purchase_order' => $entity = PurchaseOrder::factory()->make(),
-            default => $entity = Invoice::factory()->make()
-        };
+        $settings = new \stdClass;
+        $settings->entity = Client::class;
+        $settings->currency_id = '1';
+        $settings->industry_id = '';
+        $settings->size_id = '';
 
-        if ($this->request['entity_type'] == PurchaseOrder::class) {
-            $entity->vendor = Vendor::factory()->make();
-        } else {
-            $entity->client = Client::factory()->make();
+        switch ($this->request['entity_type']) {
+            case 'invoice':
+                $entity = Invoice::factory()->make();
+                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->invitation = InvoiceInvitation::factory()->make();
+                break;
+            case 'quote':
+                $entity = Quote::factory()->make();
+                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->invitation = QuoteInvitation::factory()->make();
+                break;
+            case 'credit':
+                $entity = Credit::factory()->make();
+                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->invitation = CreditInvitation::factory()->make();
+                break;
+            case 'purchase_order':
+                $entity = PurchaseOrder::factory()->make();
+                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->invitation = PurchaseOrderInvitation::factory()->make();
+                break;
+            case PurchaseOrder::class:
+                $entity = PurchaseOrder::factory()->make();
+                $entity->invitation = PurchaseOrderInvitation::factory()->make();
+                $entity->vendor = Vendor::factory()->make();
+                break;
+            default:
+                # code...
+                break;
         }
+
     
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
-        $entity->invitation = InvoiceInvitation::factory()->make();
         $entity->invitation->company = $this->company;
 
         return $entity;
@@ -182,7 +212,7 @@ class PdfMock
     '$client.public_notes' => '&nbsp;',
     '$company.postal_code' => $this->settings->postal_code,
     '$client.billing_city' => 'Aufderharchester',
-    '$secondary_font_name' => $this->settings->primary_font,
+    '$secondary_font_name' => isset($this->settings?->secondary_font) ? $this->settings->secondary_font : 'Roboto',
     '$product.line_total' => '',
     '$product.tax_amount' => '',
     '$company.vat_number' => $this->settings->vat_number,
@@ -417,7 +447,7 @@ EPD
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
     '$user.name' => 'Derrick Monahan DDS Erna Wunsch',
-    '$font_name' => 'Roboto',
+    '$font_name' => $this->settings?->primary_font ?: 'Roboto',
     '$auto_bill' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     '$payments' => '',
     '$task.tax' => '',
