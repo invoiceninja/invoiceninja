@@ -48,7 +48,6 @@ class PaymentNotification implements ShouldQueue
      */
     public function handle()
     {
-
         //notification for the payment.
         //
         //could mean a email, sms, slack, push

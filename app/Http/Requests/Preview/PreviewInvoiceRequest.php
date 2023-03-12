@@ -12,14 +12,12 @@
 namespace App\Http\Requests\Preview;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Validation\Rule;
 
 class PreviewInvoiceRequest extends Request
 {
@@ -33,7 +31,7 @@ class PreviewInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->can('create', Invoice::class) || auth()->user()->can('create', Quote::class) || auth()->user()->can('create', RecurringInvoice::class) || auth()->user()->can('create', Credit::class);
+        return auth()->user()->hasIntersectPermissionsOrAdmin(['view_invoice', 'view_quote', 'view_recurring_invoice', 'view_credit', 'create_invoice', 'create_quote', 'create_recurring_invoice', 'create_credit','edit_invoice', 'edit_quote', 'edit_recurring_invoice', 'edit_credit']);
     }
 
     public function rules()

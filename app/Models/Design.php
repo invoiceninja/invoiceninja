@@ -13,6 +13,45 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * App\Models\Design
+ *
+ * @property int $id
+ * @property int|null $user_id
+ * @property int|null $company_id
+ * @property string $name
+ * @property int $is_custom
+ * @property int $is_active
+ * @property object|null $design
+ * @property int $is_deleted
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property-read \App\Models\Company|null $company
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Design newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Design onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Design query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereDesign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereIsCustom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Design withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Design withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Design extends BaseModel
 {
     use Filterable;

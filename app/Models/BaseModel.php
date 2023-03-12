@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\Jobs\Util\WebhookHandler;
+use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,19 +22,25 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-
 /**
  * Class BaseModel
  *
  * @method scope() static
- *
  * @package App\Models
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
+ * @mixin \Eloquent
  */
 class BaseModel extends Model
 {
     use MakesHash;
     use UserSessionAttributes;
     use HasFactory;
+    use Excludable;
 
     protected $appends = [
         'hashed_id',
@@ -139,7 +146,7 @@ class BaseModel extends Model
                 $this->company->settings = $settings;
                 $this->company->save();
                 break;
-            //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
+                //todo check that saving any other entity (Invoice:: RecurringInvoice::) settings is valid using the default:
             default:
                 $this->client->settings = $settings;
                 $this->client->save();
@@ -168,7 +175,6 @@ class BaseModel extends Model
      */
     public function resolveRouteBinding($value, $field = null)
     {
-
         if (is_numeric($value)) {
             throw new ModelNotFoundException("Record with value {$value} not found");
         }
@@ -208,11 +214,11 @@ class BaseModel extends Model
 
     /**
      * Model helper to send events for webhooks
-     * 
-     * @param  int    $event_id        
+     *
+     * @param  int    $event_id
      * @param  string $additional_data optional includes
-     * 
-     * @return void                  
+     *
+     * @return void
      */
     public function sendEvent(int $event_id, string $additional_data = ""): void
     {
@@ -224,6 +230,4 @@ class BaseModel extends Model
             WebhookHandler::dispatch($event_id, $this, $this->company, $additional_data);
         }
     }
-
-
 }

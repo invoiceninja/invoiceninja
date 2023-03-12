@@ -42,7 +42,7 @@ class ExpenseTransformer extends BaseTransformer
             'client_id' => isset($data['expense.client'])
                 ? $this->getClientId($data['expense.client'])
                 : null,
-            'date' => strlen($this->getString($data, 'expense.date') > 1) ? date('Y-m-d', strtotime(str_replace("/","-",$data['expense.date']))) : now()->format('Y-m-d'),
+            'date' => strlen($this->getString($data, 'expense.date') > 1) ? date('Y-m-d', strtotime(str_replace("/", "-", $data['expense.date']))) : now()->format('Y-m-d'),
             'public_notes' => $this->getString($data, 'expense.public_notes'),
             'private_notes' => $this->getString($data, 'expense.private_notes'),
             'category_id' => isset($data['expense.category'])
@@ -55,7 +55,7 @@ class ExpenseTransformer extends BaseTransformer
                 ? $this->getPaymentTypeId($data['expense.payment_type'])
                 : null,
             'payment_date' => isset($data['expense.payment_date'])
-                ? date('Y-m-d', strtotime(str_replace("/","-",$data['expense.payment_date'])))
+                ? date('Y-m-d', strtotime(str_replace("/", "-", $data['expense.payment_date'])))
                 : null,
             'custom_value1' => $this->getString($data, 'expense.custom_value1'),
             'custom_value2' => $this->getString($data, 'expense.custom_value2'),

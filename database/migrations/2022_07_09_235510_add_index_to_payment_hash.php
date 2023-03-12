@@ -25,7 +25,7 @@ class AddIndexToPaymentHash extends Migration
         });
 
         Schema::table('products', function (Blueprint $table) {
-            $table->index(['company_id', 'user_id', 'assigned_user_id', 'updated_at'],'pro_co_us_up_index');
+            $table->index(['company_id', 'user_id', 'assigned_user_id', 'updated_at'], 'pro_co_us_up_index');
         });
     }
 

@@ -11,17 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\NonExistingMigrationFile;
 use App\Http\Requests\Import\ImportJsonRequest;
-use App\Jobs\Company\CompanyExport;
 use App\Jobs\Company\CompanyImport;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use ZipArchive;
 
 class ImportJsonController extends BaseController
 {

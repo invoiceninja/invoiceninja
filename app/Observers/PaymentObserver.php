@@ -17,7 +17,6 @@ use App\Models\Webhook;
 
 class PaymentObserver
 {
-
     public $afterCommit = true;
 
     /**
@@ -32,9 +31,9 @@ class PaymentObserver
                             ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
                             ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company, 'invoices,client')->delay(20);
-        
+        }
     }
 
     /**
@@ -47,19 +46,22 @@ class PaymentObserver
     {
         $event = Webhook::EVENT_UPDATE_PAYMENT;
 
-        if($payment->getOriginal('deleted_at') && !$payment->deleted_at)
+        if ($payment->getOriginal('deleted_at') && !$payment->deleted_at) {
             $event = Webhook::EVENT_RESTORE_PAYMENT;
+        }
         
-        if($payment->is_deleted)
-            $event = Webhook::EVENT_DELETE_PAYMENT; 
+        if ($payment->is_deleted) {
+            $event = Webhook::EVENT_DELETE_PAYMENT;
+        }
         
         
         $subscriptions = Webhook::where('company_id', $payment->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $payment, $payment->company, 'invoices,client')->delay(25);
+        }
     }
 
     /**
@@ -70,8 +72,9 @@ class PaymentObserver
      */
     public function deleted(Payment $payment)
     {
-        if($payment->is_deleted)
+        if ($payment->is_deleted) {
             return;
+        }
 
         $subscriptions = Webhook::where('company_id', $payment->company_id)
                         ->where('event_id', Webhook::EVENT_ARCHIVE_PAYMENT)

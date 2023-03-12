@@ -42,7 +42,6 @@ class VersionCheck implements ShouldQueue
         }
 
         if (Ninja::isSelfHost()) {
-
             nlog("latest version = {$version_file}");
 
             $account = Account::first();

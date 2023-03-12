@@ -23,7 +23,6 @@ use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
-use PDO;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -73,8 +72,9 @@ class AutoBillInvoice extends AbstractService
         }
 
         //If this returns true, it means a partial invoice amount was paid as a credit and there is no further balance payable
-        if($this->is_partial_amount && $this->invoice->partial == 0)
+        if ($this->is_partial_amount && $this->invoice->partial == 0) {
             return;
+        }
 
         $amount = 0;
 
@@ -121,7 +121,7 @@ class AutoBillInvoice extends AbstractService
 
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(64),
-            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount, 'invoice_number' => $this->invoice->number]]],
+            'data' => ['amount_with_fee' => $amount + $fee, 'invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount, 'invoice_number' => $this->invoice->number]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
@@ -251,7 +251,6 @@ class AutoBillInvoice extends AbstractService
 
         foreach ($available_credits as $key => $credit) {
             if ($this->is_partial_amount) {
-
                 //more credit than needed
                 if ($credit->balance > $this->invoice->partial) {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
@@ -266,10 +265,8 @@ class AutoBillInvoice extends AbstractService
                     $this->invoice->partial -= $credit->balance;
                     $this->invoice->balance -= $credit->balance;
                     $this->invoice->paid_to_date += $credit->balance;
-
                 }
             } else {
-
                 //more credit than needed
                 if ($credit->balance > $this->invoice->balance) {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
@@ -283,7 +280,6 @@ class AutoBillInvoice extends AbstractService
                     $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->balance -= $credit->balance;
                     $this->invoice->paid_to_date += $credit->balance;
-
                 }
             }
         }
@@ -322,7 +318,6 @@ class AutoBillInvoice extends AbstractService
      */
     public function getGateway($amount)
     {
-
         //get all client gateway tokens and set the is_default one to the first record
         $gateway_tokens = $this->client
                                ->gateway_tokens()
@@ -363,8 +358,7 @@ class AutoBillInvoice extends AbstractService
      */
     private function addFeeToInvoice(float $fee)
     {
-
-    //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
+        //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
         $starting_amount = $this->invoice->amount;
 
         $item = new InvoiceItem;

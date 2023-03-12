@@ -14,8 +14,6 @@ namespace App\Http\Controllers;
 use App\Models\CompanyToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use stdClass;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LogoutController extends BaseController
 {

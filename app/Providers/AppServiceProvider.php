@@ -40,7 +40,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
         // DB::listen(function($query) {
         //     nlog(
         //         $query->sql,
@@ -94,18 +93,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Mailer::macro('postmark_config', function (string $postmark_key) {
-     
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'postmark',
                 'token' => $postmark_key
             ]));
      
             return $this;
-
         });
         
-        Mailer::macro('mailgun_config', function ($secret, $domain) {
-
+        Mailer::macro('mailgun_config', function (string $secret, string $domain) {
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'mailgun',
                 'secret' => $secret,
@@ -124,7 +120,5 @@ class AppServiceProvider extends ServiceProvider
         ParallelTesting::setUpTestDatabase(function ($database, $token) {
             Artisan::call('db:seed');
         });
-
     }
-
 }

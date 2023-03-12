@@ -11,7 +11,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\ViewComposers\PortalComposer;
 use App\Libraries\MultiDB;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -148,8 +147,6 @@ class VendorContactKeyLogin
 
     private function setRedirectPath()
     {
-
         return 'vendor/purchase_orders';
-
     }
 }

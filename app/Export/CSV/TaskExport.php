@@ -12,7 +12,6 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\DateFormat;
 use App\Models\Task;
@@ -27,15 +26,15 @@ class TaskExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
     private string $date_format = 'YYYY-MM-DD';
 
-    protected array $entity_keys = [
+    public Writer $csv;
+
+    public array $entity_keys = [
         'start_date' => 'start_date',
         'end_date' => 'end_date',
         'duration' => 'duration',

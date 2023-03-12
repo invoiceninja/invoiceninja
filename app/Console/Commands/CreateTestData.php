@@ -380,7 +380,6 @@ class CreateTestData extends Command
 
     private function createClient($company, $user)
     {
-
         // dispatch(function () use ($company, $user) {
 
         // });

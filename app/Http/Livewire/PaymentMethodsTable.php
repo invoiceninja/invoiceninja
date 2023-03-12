@@ -15,7 +15,7 @@ class PaymentMethodsTable extends Component
     use WithPagination;
     use WithSorting;
 
-    public int $per_page = 10;
+    public $per_page = 10;
 
     public Client $client;
 

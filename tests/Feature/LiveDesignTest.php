@@ -38,17 +38,15 @@ class LiveDesignTest extends TestCase
         if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test for Travis');
         }
-
     }
 
     public function testDesignRoute200()
     {
-    	$data = [
-    		'entity' => 'invoice',
-    		'entity_id' => $this->invoice->hashed_id,
-    		'settings_type' => 'company',
-    		'settings' => (array)$this->company->settings,
-    	];
+        $data = [
+            'entity_type' => 'invoice',
+            'settings_type' => 'company',
+            'settings' => (array)$this->company->settings,
+        ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -57,6 +55,4 @@ class LiveDesignTest extends TestCase
 
         $response->assertStatus(200);
     }
-
-
 }

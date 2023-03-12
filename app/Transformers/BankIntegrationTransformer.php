@@ -88,5 +88,4 @@ class BankIntegrationTransformer extends EntityTransformer
 
         return $this->includeCollection($bank_integration->transactions, $transformer, BankTransaction::class);
     }
-
 }

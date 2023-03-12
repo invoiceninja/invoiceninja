@@ -26,7 +26,6 @@ use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class ProductController extends BaseController
@@ -59,7 +58,7 @@ class ProductController extends BaseController
      *      summary="Gets a list of products",
      *      description="Lists products, search and filters allow fine grained lists to be generated.
 
-    Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available",
+     *  Query parameters can be added to performed more fine grained filtering of the products, these are handled by the ProductFilters class which defines the methods available",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),

@@ -12,7 +12,6 @@
 namespace App\Jobs\Payment;
 
 use App\Events\Payment\PaymentWasEmailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
@@ -27,7 +26,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class EmailPayment implements ShouldQueue
 {
@@ -51,7 +49,7 @@ class EmailPayment implements ShouldQueue
      * @param $contact
      * @param $company
      */
-    public function __construct(Payment $payment, Company $company, ClientContact $contact)
+    public function __construct(Payment $payment, Company $company, ?ClientContact $contact)
     {
         $this->payment = $payment;
         $this->contact = $contact;
@@ -61,7 +59,6 @@ class EmailPayment implements ShouldQueue
 
     /**
      * Execute the job.
-     *
      *
      * @return void
      */
@@ -75,6 +72,10 @@ class EmailPayment implements ShouldQueue
             MultiDB::setDb($this->company->db);
 
             $this->payment->load('invoices');
+
+            if(!$this->contact)
+                $this->contact = $this->payment->client->contacts()->first();
+                
             $this->contact->load('client');
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
@@ -92,7 +93,7 @@ class EmailPayment implements ShouldQueue
             $nmo->company = $this->company;
             $nmo->entity = $this->payment;
 
-            NinjaMailerJob::dispatch($nmo);
+            (new NinjaMailerJob($nmo))->handle();
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }

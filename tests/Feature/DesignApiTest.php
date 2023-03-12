@@ -46,7 +46,6 @@ class DesignApiTest extends TestCase
 
     public function testDesignPost()
     {
-        
         $design = [
             'body' => 'body',
             'includes' => 'includes',

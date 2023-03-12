@@ -12,7 +12,6 @@
 
 namespace Tests\Browser\ClientPortal;
 
-use App\Models\Quote;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;

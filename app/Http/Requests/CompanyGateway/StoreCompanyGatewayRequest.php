@@ -34,7 +34,7 @@ class StoreCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [
-            'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways','key')],
+            'gateway_key' => ['bail', 'required','alpha_num',Rule::exists('gateways', 'key')],
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
 
@@ -68,5 +68,4 @@ class StoreCompanyGatewayRequest extends Request
 
         $this->replace($input);
     }
-
 }

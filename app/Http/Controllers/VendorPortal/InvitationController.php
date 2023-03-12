@@ -11,28 +11,14 @@
 
 namespace App\Http\Controllers\VendorPortal;
 
-use App\Events\Credit\CreditWasViewed;
-use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\PurchaseOrder\PurchaseOrderWasViewed;
-use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
-use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Services\ClientPortal\InstantPayment;
-use App\Utils\CurlUtils;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -46,33 +32,34 @@ class InvitationController extends Controller
 
     public function purchaseOrder(string $invitation_key)
     {
-
         Auth::logout();
 
         $invitation = PurchaseOrderInvitation::withTrashed()
                                     ->where('key', $invitation_key)
                                     ->whereHas('purchase_order', function ($query) {
-                                         $query->where('is_deleted',0);
+                                        $query->where('is_deleted', 0);
                                     })
                                     ->with('contact.vendor')
                                     ->first();
 
-        if(!$invitation)
-            return abort(404,'The resource is no longer available.');
+        if (!$invitation) {
+            return abort(404, 'The resource is no longer available.');
+        }
 
-        if($invitation->contact->trashed())
+        if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
+        }
 
         $vendor_contact = $invitation->contact;
         $entity = 'purchase_order';
 
-        if(empty($vendor_contact->email))
-            $vendor_contact->email = Str::random(15) . "@example.com"; $vendor_contact->save();
+        if (empty($vendor_contact->email)) {
+            $vendor_contact->email = Str::random(15) . "@example.com";
+        } $vendor_contact->save();
 
         if (request()->has('vendor_hash') && request()->input('vendor_hash') == $invitation->contact->vendor->vendor_hash) {
             request()->session()->invalidate();
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
-
         } else {
             request()->session()->invalidate();
             auth()->guard('vendor')->loginUsingId($vendor_contact->id, true);
@@ -81,21 +68,14 @@ class InvitationController extends Controller
         session()->put('is_silent', request()->has('silent'));
 
         if (auth()->guard('vendor')->user() && ! session()->get('is_silent') && ! $invitation->viewed_date) {
-
             $invitation->markViewed();
             event(new InvitationWasViewed($invitation->purchase_order, $invitation, $invitation->company, Ninja::eventVars()));
             event(new PurchaseOrderWasViewed($invitation, $invitation->company, Ninja::eventVars()));
-
-        }
-        else{
-
+        } else {
             return redirect()->route('vendor.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->purchase_order_id), 'silent' => session()->get('is_silent')]);
-
         }
 
         return redirect()->route('vendor.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->purchase_order_id)]);
-
-
     }
 
     public function download(string $invitation_key)
@@ -105,8 +85,9 @@ class InvitationController extends Controller
                             ->with('contact.vendor')
                             ->firstOrFail();
 
-        if(!$invitation)
+        if (!$invitation) {
             return response()->json(["message" => "no record found"], 400);
+        }
 
         $file_name = $invitation->purchase_order->numberFormatter().'.pdf';
 
@@ -114,15 +95,12 @@ class InvitationController extends Controller
 
         $headers = ['Content-Type' => 'application/pdf'];
 
-        if(request()->input('inline') == 'true')
+        if (request()->input('inline') == 'true') {
             $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
 
-        return response()->streamDownload(function () use($file) {
-                echo $file;
-        },  $file_name, $headers);
+        return response()->streamDownload(function () use ($file) {
+            echo $file;
+        }, $file_name, $headers);
     }
-
-
-
-
 }

@@ -11,7 +11,6 @@
 
 namespace App\Import\Transformer\Wave;
 
-use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
 
 /**

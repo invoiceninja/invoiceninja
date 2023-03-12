@@ -11,7 +11,6 @@
 
 namespace App\Utils\Traits\Pdf;
 
-use App\Utils\Traits\Pdf\PDF;
 use setasign\Fpdi\PdfParser\StreamReader;
 
 trait PageNumbering

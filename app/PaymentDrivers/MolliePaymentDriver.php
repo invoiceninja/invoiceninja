@@ -218,6 +218,7 @@ class MolliePaymentDriver extends BaseDriver
                 'customerId' => $cgt->gateway_customer_reference,
                 'sequenceType' => 'recurring',
                 'description' => $description,
+                'idempotencyKey' => uniqid("st", true),
                 'webhookUrl'  => $this->company_gateway->webhookUrl(),
             ]);
 
@@ -321,7 +322,6 @@ class MolliePaymentDriver extends BaseDriver
                 // record from the meta data in the payment hash.
 
                 if ($payment && property_exists($payment->metadata, 'hash') && $payment->metadata->hash) {
-
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
 

@@ -12,9 +12,7 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
-use App\Models\Credit;
 use App\Models\Document;
 use App\Transformers\DocumentTransformer;
 use App\Utils\Ninja;
@@ -25,13 +23,13 @@ class DocumentExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $entity_transformer;
 
-    protected $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
-    protected array $entity_keys = [
+    public Writer $csv;
+
+    public array $entity_keys = [
         'record_type' => 'record_type',
         // 'record_name' => 'record_name',
         'name' => 'name',

@@ -64,7 +64,7 @@ class Ninja
             'license' => config('ninja.license'),
         ];
 
-        $data = trim(CurlUtils::post('https://license.invoiceninja.com/api/check', $data));
+        $data = trim(CurlUtils::post('https://license.invoicing.co/api/check', $data));
         $data = json_decode($data);
 
         if ($data && property_exists($data, 'message') && $data->message == sha1(config('ninja.license'))) {
@@ -193,8 +193,7 @@ class Ninja
      */
     public static function isBase64Encoded(string $s) : bool
     {
-
-    // Check if there are valid base64 characters
+        // Check if there are valid base64 characters
         if (! preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) {
             return false;
         }

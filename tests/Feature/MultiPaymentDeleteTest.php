@@ -11,7 +11,6 @@
 
 namespace Tests\Feature;
 
-use App\Factory\CompanyTokenFactory;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
@@ -25,7 +24,6 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**

@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 
 class BulkInvoiceRequest extends Request
 {
-
     public function authorize() : bool
     {
         return true;
@@ -28,5 +27,4 @@ class BulkInvoiceRequest extends Request
             'ids' => 'required'
         ];
     }
-
 }

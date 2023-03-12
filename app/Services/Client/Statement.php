@@ -40,7 +40,9 @@ class Statement
 
     protected bool $rollback = false;
 
-    public function __construct(protected Client $client, public array $options){}
+    public function __construct(protected Client $client, public array $options)
+    {
+    }
 
     public function run() :?string
     {

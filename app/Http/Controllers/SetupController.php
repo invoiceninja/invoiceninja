@@ -20,20 +20,16 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
-use Beganovich\Snappdf\Snappdf;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -212,31 +208,7 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-
-            // if (config('ninja.pdf_generator') == 'phantom') {
-            //     return $this->testPhantom();
-            // }
-
-            // $pdf = new Snappdf();
-
-            // if (config('ninja.snappdf_chromium_path')) {
-            //     $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
-            // }
-
-            // if (config('ninja.snappdf_chromium_arguments')) {
-            //     $pdf->clearChromiumArguments();
-            //     $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
-            // }
-
-            // $pdf = $pdf
-            //     ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
-            //     ->generate();
-
-            // Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
-            // Storage::disk('local')->put('test.pdf', $pdf);
             return response(['url' => ''], 200);
-
-            // return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
         } catch (Exception $e) {
             nlog($e->getMessage());
 

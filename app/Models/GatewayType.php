@@ -11,6 +11,25 @@
 
 namespace App\Models;
 
+/**
+ * App\Models\GatewayType
+ *
+ * @property int $id
+ * @property string|null $alias
+ * @property string|null $name
+ * @property-read \App\Models\Gateway|null $gateway
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read int|null $payment_methods_count
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereAlias($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereName($value)
+ * @mixin \Eloquent
+ */
 class GatewayType extends StaticModel
 {
     public $timestamps = false;
@@ -61,6 +80,8 @@ class GatewayType extends StaticModel
 
     const KLARNA = 23;
 
+    const BACS = 24;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -108,6 +129,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.eps');
             case self::BECS:
                 return ctrans('texts.becs');
+            case self::BACS:
+                return ctrans('texts.bacs');
             case self::ACSS:
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:

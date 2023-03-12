@@ -11,11 +11,9 @@
 
 namespace App\Transformers;
 
-
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\Vendor;
-use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderTransformer extends EntityTransformer
@@ -135,5 +133,4 @@ class PurchaseOrderTransformer extends EntityTransformer
             'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
         ];
     }
-
 }

@@ -31,7 +31,6 @@ class CanAddUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-
         /* If the user is active then we can add them to the company */
         if (User::where('email', request()->input('email'))->where('account_id', auth()->user()->account_id)->where('is_deleted', 0)->exists()) {
             return true;

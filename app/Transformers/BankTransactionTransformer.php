@@ -11,12 +11,9 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
 use App\Models\BankTransaction;
 use App\Models\Company;
 use App\Models\Expense;
-use App\Models\Invoice;
-use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -37,7 +34,6 @@ class BankTransactionTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'company',
-        'account',
         'expense',
         'payment',
         'vendor',
@@ -52,6 +48,7 @@ class BankTransactionTransformer extends EntityTransformer
     {
         return [
             'id' => (string) $this->encodePrimaryKey($bank_transaction->id),
+            'user_id' => (string) $this->encodePrimaryKey($bank_transaction->user_id),
             'bank_integration_id' => (string) $this->encodePrimaryKey($bank_transaction->bank_integration_id),
             'transaction_id' => (int) $bank_transaction->transaction_id,
             'amount' => (float) $bank_transaction->amount ?: 0,
@@ -75,13 +72,6 @@ class BankTransactionTransformer extends EntityTransformer
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,
         ];
-    }
-
-    public function includeAccount(BankTransaction $bank_transaction)
-    {
-        $transformer = new AccountTransformer($this->serializer);
-
-        return $this->includeItem($bank_transaction->account, $transformer, Account::class);
     }
 
     public function includeCompany(BankTransaction $bank_transaction)
@@ -111,5 +101,4 @@ class BankTransactionTransformer extends EntityTransformer
 
         return $this->includeItem($bank_transaction->payment, $transformer, Payment::class);
     }
-
 }

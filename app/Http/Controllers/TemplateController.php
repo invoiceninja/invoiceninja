@@ -11,14 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
 use App\Utils\TemplateEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 
 class TemplateController extends BaseController
 {

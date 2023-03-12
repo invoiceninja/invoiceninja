@@ -74,7 +74,6 @@ class TaskFilters extends QueryFilters
 
     public function project_tasks($project): Builder
     {
-
         if (strlen($project) == 0) {
             return $this->builder;
         }

@@ -14,21 +14,19 @@ namespace App\Import\Transformer;
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ProjectFactory;
 use App\Factory\VendorFactory;
+use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Country;
-use App\Models\ExpenseCategory;
-use App\Models\PaymentType;
-use App\Models\User;
 use App\Models\Expense;
-use App\Models\Project;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
-use App\Models\Quote;
-use App\Models\Client;
-use App\Models\TaxRate;
+use App\Models\PaymentType;
 use App\Models\Product;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Number;
-use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -46,26 +44,19 @@ class BaseTransformer
 
     public function parseDate($date)
     {
-        
-        try{
-
+        try {
             $parsed_date = Carbon::parse($date);
 
             return $parsed_date->format('Y-m-d');
-
-        }
-        catch(\Exception $e){
-
+        } catch(\Exception $e) {
             $parsed_date = date('Y-m-d', strtotime($date));
 
-            if($parsed_date == '1970-01-01')
+            if ($parsed_date == '1970-01-01') {
                 return now()->format('Y-m-d');
+            }
 
             return $parsed_date;
-
         }
-
-
     }
 
     public function getInvoiceTypeId($data, $field)
@@ -107,7 +98,6 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
-        
         if (! empty($client_name)) {
             $client_id_search = Client::where('company_id', $this->company->id)
                 ->where('is_deleted', false)

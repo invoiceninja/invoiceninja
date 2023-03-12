@@ -12,14 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Statements\CreateStatementRequest;
-use App\Models\Design;
-use App\Models\InvoiceInvitation;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker as PdfMakerService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
 
@@ -110,15 +102,18 @@ class ClientStatementController extends BaseController
     {
         $send_email = false;
 
-        if($request->has('send_email') && $request->send_email == 'true')
+        if ($request->has('send_email') && $request->send_email == 'true') {
             $send_email = true;
+        }
 
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status']), $send_email
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status']),
+            $send_email
         );
 
-        if($send_email)
+        if ($send_email) {
             return response()->json(['message' => ctrans('texts.email_queued')], 200);
+        }
 
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {

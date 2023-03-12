@@ -11,26 +11,21 @@
 
 namespace App\Notifications\Ninja;
 
-use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class ClientAccountNotFound extends Notification 
+class ClientAccountNotFound extends Notification
 {
-
     /**
      * Create a new notification instance.
      *
      * @return void
      */
 
-    public function __construct(protected string $account_key, protected string $email){}
+    public function __construct(protected string $account_key, protected string $email)
+    {
+    }
 
     /**
      * Get the notification's delivery channels.
@@ -68,7 +63,6 @@ class ClientAccountNotFound extends Notification
 
     public function toSlack($notifiable)
     {
-
         $content = "Client not found, unable to remove account\n";
         $content .= "Account: {$this->account_key }\n";
         $content .= "Email: {$this->email}\n";

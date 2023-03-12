@@ -85,20 +85,18 @@ class UpdateOrCreateProduct implements ShouldQueue
 
             $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
 
-                /* If a user is using placeholders in their descriptions, do not update the products */
-                $string_hit = false;
+            /* If a user is using placeholders in their descriptions, do not update the products */
+            $string_hit = false;
 
-                foreach ( [':MONTH',':YEAR',':QUARTER',':WEEK'] as $string ) 
-                {
-                
-                    if(stripos($product->notes, $string) !== FALSE) {
-                        $string_hit = true; 
-                    }
-                    
+            foreach ([':MONTH',':YEAR',':QUARTER',':WEEK'] as $string) {
+                if (stripos($product->notes, $string) !== false) {
+                    $string_hit = true;
                 }
+            }
 
-                if($string_hit)
-                    continue;
+            if ($string_hit) {
+                continue;
+            }
 
             $product->product_key = $item->product_key;
             $product->notes = isset($item->notes) ? $item->notes : '';
@@ -115,17 +113,21 @@ class UpdateOrCreateProduct implements ShouldQueue
             $product->tax_name3 = isset($item->tax_name3) ? $item->tax_name3 : '';
             $product->tax_rate3 = isset($item->tax_rate3) ? $item->tax_rate3 : 0;
 
-            if(isset($item->custom_value1) && strlen($item->custom_value1) >=1)
+            if (isset($item->custom_value1) && strlen($item->custom_value1) >=1) {
                 $product->custom_value1 = $item->custom_value1;
+            }
 
-            if(isset($item->custom_value2) && strlen($item->custom_value1) >=1)
+            if (isset($item->custom_value2) && strlen($item->custom_value1) >=1) {
                 $product->custom_value2 = $item->custom_value2;
+            }
             
-            if(isset($item->custom_value3) && strlen($item->custom_value1) >=1)
+            if (isset($item->custom_value3) && strlen($item->custom_value1) >=1) {
                 $product->custom_value3 = $item->custom_value3;
+            }
             
-            if(isset($item->custom_value4) && strlen($item->custom_value1) >=1)
+            if (isset($item->custom_value4) && strlen($item->custom_value1) >=1) {
                 $product->custom_value4 = $item->custom_value4;
+            }
                        
             $product->user_id = $this->invoice->user_id;
             $product->company_id = $this->invoice->company_id;

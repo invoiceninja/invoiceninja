@@ -257,7 +257,6 @@ class DemoMode extends Command
 
     private function createClient($company, $user, $assigned_user_id = null)
     {
-
         // dispatch(function () use ($company, $user) {
 
         // });

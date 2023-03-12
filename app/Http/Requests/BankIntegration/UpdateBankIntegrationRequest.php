@@ -32,6 +32,7 @@ class UpdateBankIntegrationRequest extends Request
     {
         /* Ensure we have a client name, and that all emails are unique*/
         $rules = [
+            'bank_account_name' => 'bail|sometimes|min:3',
             'auto_sync' => 'sometimes|bool'
         ];
 
@@ -49,5 +50,4 @@ class UpdateBankIntegrationRequest extends Request
 
         $this->replace($input);
     }
-
 }

@@ -29,7 +29,6 @@ use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
@@ -506,8 +505,8 @@ class CompanyGatewayController extends BaseController
                                           ->company()
                                           ->cursor()
                                           ->each(function ($company_gateway, $key) use ($action) {
-                                                    $this->company_repo->{$action}($company_gateway);
-                                            });
+                                              $this->company_repo->{$action}($company_gateway);
+                                          });
 
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }

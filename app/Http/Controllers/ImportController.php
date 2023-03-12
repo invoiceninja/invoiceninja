@@ -159,14 +159,24 @@ class ImportController extends Controller
 
     public function detectDelimiter($csvfile)
     {
-        $delimiters = array(',', '.', ';');
+        $delimiters = [',', '.', ';'];
         $bestDelimiter = ' ';
         $count = 0;
-        foreach ($delimiters as $delimiter)
-            if (substr_count($csvfile, $delimiter) > $count) {
+        foreach ($delimiters as $delimiter) {
+
+            // if (substr_count($csvfile, $delimiter) > $count) {
+            //     $count = substr_count($csvfile, $delimiter);
+            //     $bestDelimiter = $delimiter;
+            // }
+            
+            if (substr_count(strstr($csvfile,"\n",true), $delimiter) > $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
+
+            
+
+        }
         return $bestDelimiter;
     }
 }

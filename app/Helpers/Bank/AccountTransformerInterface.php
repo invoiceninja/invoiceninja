@@ -13,5 +13,5 @@ namespace App\Helpers\Bank;
 
 interface AccountTransformerInterface
 {
-    public function transform($accounts); 
+    public function transform($accounts);
 }

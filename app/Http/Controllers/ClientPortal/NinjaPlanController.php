@@ -15,7 +15,6 @@ namespace App\Http\Controllers\ClientPortal;
 use App\DataMapper\Analytics\TrialStarted;
 use App\Factory\RecurringInvoiceFactory;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
@@ -28,11 +27,8 @@ use App\Models\Subscription;
 use App\Notifications\Ninja\NewAccountNotification;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -184,7 +180,7 @@ class NinjaPlanController extends Controller
 
         $old_recurring = RecurringInvoice::where('company_id', config('ninja.ninja_default_company_id'))->where('client_id', $client->id)->first();
 
-        if($old_recurring) {
+        if ($old_recurring) {
             $old_recurring->service()->stop()->save();
             $old_recurring_repo = new RecurringInvoiceRepository();
             $old_recurring_repo->archive($old_recurring);
@@ -207,7 +203,6 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
-
         // return $this->trial();
         //harvest the current plan
         $data = [];

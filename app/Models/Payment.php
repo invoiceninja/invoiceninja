@@ -13,7 +13,6 @@ namespace App\Models;
 
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
-use App\Models\GatewayType;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
@@ -23,8 +22,118 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 
+/**
+ * App\Models\Payment
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $client_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property int|null $user_id
+ * @property int|null $assigned_user_id
+ * @property int|null $client_contact_id
+ * @property int|null $invitation_id
+ * @property int|null $company_gateway_id
+ * @property int|null $gateway_type_id
+ * @property int|null $type_id
+ * @property int $status_id
+ * @property string $amount
+ * @property string $refunded
+ * @property string $applied
+ * @property string|null $date
+ * @property string|null $transaction_reference
+ * @property string|null $payer_id
+ * @property string|null $number
+ * @property string|null $private_notes
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int|null $deleted_at
+ * @property bool $is_deleted
+ * @property int $is_manual
+ * @property float $exchange_rate
+ * @property int $currency_id
+ * @property int|null $exchange_currency_id
+ * @property object|null $meta
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property int|null $transaction_id
+ * @property string|null $idempotency_key
+ * @property-read \App\Models\User|null $assigned_user
+ * @property-read \App\Models\Client $client
+ * @property-read \App\Models\Company $company
+ * @property-read \App\Models\CompanyGateway|null $company_gateway
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read int|null $company_ledger_count
+ * @property-read \App\Models\ClientContact|null $contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read int|null $credits_count
+ * @property-read \App\Models\Currency|null $currency
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read int|null $documents_count
+ * @property-read \App\Models\Currency|null $exchange_currency
+ * @property-read \App\Models\GatewayType|null $gateway_type
+ * @property-read mixed $hashed_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read int|null $invoices_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
+ * @property-read int|null $paymentables_count
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\PaymentType|null $type
+ * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\Vendor|null $vendor
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\PaymentFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereApplied($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereClientContactId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCompanyGatewayId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereExchangeCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereExchangeRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereGatewayTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereIdempotencyKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereInvitationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereIsDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereIsManual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePayerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment wherePrivateNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereRefunded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereStatusId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereTransactionReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Payment extends BaseModel
 {
     use MakesHash;
@@ -190,11 +299,14 @@ class Payment extends BaseModel
 
     public function translatedType()
     {
-        if (! $this->type) {
+        if (! $this->type_id) {
             return '';
         }
 
-        return ctrans('texts.payment_type_'.$this->type->name);
+        $pt = new PaymentType();
+
+        return $pt->name($this->type_id);
+
     }
 
     public function gateway_type()

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,20 +12,15 @@ return new class extends Migration
      */
     public function up()
     {
-        
-        Schema::table('accounts', function (Blueprint $table)
-        {
+        Schema::table('accounts', function (Blueprint $table) {
             $table->boolean('is_trial')->default(false);
         });
 
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->boolean('invoice_task_hours')->default(false);
         });
 
-        Schema::table('schedulers', function (Blueprint $table)
-        {
-            
+        Schema::table('schedulers', function (Blueprint $table) {
             $table->dropColumn('repeat_every');
             $table->dropColumn('start_from');
             $table->dropColumn('scheduled_run');
@@ -34,13 +28,10 @@ return new class extends Migration
             $table->dropColumn('action_class');
             $table->dropColumn('paused');
             $table->dropColumn('company_id');
-
         });
 
 
-        Schema::table('schedulers', function (Blueprint $table)
-        {
-            
+        Schema::table('schedulers', function (Blueprint $table) {
             $table->unsignedInteger('company_id');
             $table->boolean('is_paused')->default(false);
             $table->unsignedInteger('frequency_id')->nullable();
@@ -54,9 +45,7 @@ return new class extends Migration
 
             $table->unique(['company_id', 'name']);
             $table->index(['company_id', 'deleted_at']);
-
         });
-
     }
 
     /**

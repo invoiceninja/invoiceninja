@@ -11,8 +11,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Client;
-use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;

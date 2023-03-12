@@ -56,7 +56,6 @@ class ProcessEPSPay {
             if (!document.getElementById('eps-name').value) {
                 errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
-                console.log("name");
                 return ;
             }
             document.getElementById('pay-now').disabled = true;
@@ -69,7 +68,7 @@ class ProcessEPSPay {
                     payment_method: {
                         eps: this.eps,
                         billing_details: {
-                            name: document.getElementById("ideal-name").value,
+                            name: document.getElementById("eps-name").value,
                         },
                     },
                     return_url: document.querySelector(

@@ -15,7 +15,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -51,7 +50,7 @@ $rules = [
     'applies_to' => 'bail|sometimes|bool',
 ];
 
-if(isset($this->category_id)) 
+if(isset($this->category_id))
     $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,'.auth()->user()->company()->id.',is_deleted,0';
 
 if(isset($this->vendor_id))
@@ -66,8 +65,8 @@ if(isset($this->client_id))
            'name' => 'The First Rule',
            'rules' => [
             [
-                "operator" => "contains", 
-                "search_key" => "description", 
+                "operator" => "contains",
+                "search_key" => "description",
                 "value" => "mobile"
             ],
            ],
@@ -105,7 +104,6 @@ if(isset($this->client_id))
 
     public function testBankRulePost()
     {
-
         $data = [
            'name' => 'The First Rule',
            'rules' => [],
@@ -124,12 +122,10 @@ if(isset($this->client_id))
         $response->assertStatus(200);
 
         $this->assertEquals('The First Rule', $arr['data']['name']);
-
     }
 
     public function testBankRulePut()
     {
-
         $data = [
            'name' => 'The First Rule',
            'rules' => [],
@@ -167,7 +163,6 @@ if(isset($this->client_id))
         $response->assertStatus(200);
 
         $this->assertEquals('A New Name For The First Rule', $arr['data']['name']);
-
     }
 
     public function testBankTransactionRuleGet()

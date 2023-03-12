@@ -12,7 +12,6 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasMarkedSent;
-use App\Jobs\Util\WebhookHandler;
 use App\Models\Quote;
 use App\Models\Webhook;
 use App\Utils\Ninja;
@@ -32,7 +31,6 @@ class MarkSent
 
     public function run()
     {
-
         /* Return immediately if status is not draft */
         if ($this->quote->status_id != Quote::STATUS_DRAFT) {
             return $this->quote;

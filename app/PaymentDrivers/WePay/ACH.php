@@ -19,11 +19,9 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Notifications\Ninja\WePayFailureNotification;
-use App\PaymentDrivers\WePay\WePayCommon;
 use App\PaymentDrivers\WePayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Support\Str;
 
 class ACH

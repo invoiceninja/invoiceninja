@@ -32,6 +32,11 @@ class OpenApiYaml extends Command
      */
     protected $description = 'Build OpenApi YAML';
 
+    private array $directories = [
+        '/components/schemas',
+        '/paths/'
+    ];
+
     /**
      * Create a new command instance.
      *
@@ -58,17 +63,58 @@ class OpenApiYaml extends Command
         $this->info($directory);
 
         foreach ($directory as $file) {
-
-        $this->info($file);
-
+            $this->info($file);
+        }
+     
         Storage::disk('base')->delete('/openapi/api-docs.yaml');
         Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/info.yaml'));
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/paths/paths.yaml'));
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/components.yaml'));
-        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/misc/misc.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/paths.yaml'));
 
+        //iterate paths
+        $directory = new DirectoryIterator($path . '/paths/');
 
+        foreach ($directory as $file) {
+            if ($file->isFile() && ! $file->isDot()) {
+                Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/paths/{$file->getFilename()}"));
+            }
         }
-    }
 
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components.yaml'));
+
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/responses.yaml'));
+
+        $directory = new DirectoryIterator($path . '/components/responses/');
+
+        foreach ($directory as $file) {
+            if ($file->isFile() && ! $file->isDot()) {
+                Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/components/responses/{$file->getFilename()}"));
+            }
+        }
+
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/parameters.yaml'));
+
+        $directory = new DirectoryIterator($path . '/components/parameters/');
+
+        foreach ($directory as $file) {
+            if ($file->isFile() && ! $file->isDot()) {
+                Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/components/parameters/{$file->getFilename()}"));
+            }
+        }
+
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas.yaml'));
+
+        //iterate schemas
+        
+        $directory = new DirectoryIterator($path . '/components/schemas/');
+
+        foreach ($directory as $file) {
+            if ($file->isFile() && ! $file->isDot()) {
+                Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents("{$path}/components/schemas/{$file->getFilename()}"));
+            }
+        }
+
+
+        // Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/components/schemas/account.yaml'));
+        Storage::disk('base')->append('/openapi/api-docs.yaml', file_get_contents($path.'/misc/misc.yaml'));
+    }
 }

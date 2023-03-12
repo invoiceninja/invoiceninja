@@ -13,7 +13,6 @@ namespace App\Mail\Admin;
 
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Utils\Ninja;
 use App\Utils\Number;
@@ -110,7 +109,8 @@ class PaymentFailureObject
                     'client' => $this->client->present()->name(),
                     'invoice' => $this->getDescription(),
                     'amount' => Number::formatMoney($this->amount, $this->client),
-                ]),
+                ]
+            ),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),

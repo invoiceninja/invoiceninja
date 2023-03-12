@@ -23,7 +23,7 @@ class DesignFilters extends QueryFilters
      *
      * @param string query filter
      * @return Builder
-     * 
+     *
      * @deprecated
      */
     public function filter(string $filter = ''): Builder
@@ -41,7 +41,7 @@ class DesignFilters extends QueryFilters
      * Sorts the list based on $sort.
      *
      * @param string sort formatted as column|asc
-     * 
+     *
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -62,6 +62,6 @@ class DesignFilters extends QueryFilters
      */
     public function entityFilter(): Builder
     {
-        return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id','asc');
+        return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
     }
 }

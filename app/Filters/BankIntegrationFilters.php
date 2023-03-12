@@ -49,7 +49,6 @@ class BankIntegrationFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('bank_account_name', 'like', '%'.$filter.'%');
         });
-
     }
 
     /**
@@ -68,7 +67,6 @@ class BankIntegrationFilters extends QueryFilters
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters) {
-         
             if (in_array(parent::STATUS_ACTIVE, $filters)) {
                 $query->orWhereNull('deleted_at');
             }

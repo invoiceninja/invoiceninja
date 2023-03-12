@@ -17,8 +17,8 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Expense;
 use App\Utils\Traits\GeneratesCounter;
 use Carbon\Exceptions\InvalidFormatException;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Carbon;
 
 /**
  * ExpenseRepository.
@@ -35,7 +35,7 @@ class ExpenseRepository extends BaseRepository
      * @param      array                     $data     The data
      * @param      \App\Models\Expense       $expense  The expense
      *
-     * @return     \App\Models\Expense 
+     * @return     \App\Models\Expense
      */
     public function save(array $data, Expense $expense): Expense
     {
@@ -45,8 +45,9 @@ class ExpenseRepository extends BaseRepository
             $expense = $this->processExchangeRates($data, $expense);
         }
 
-        if (empty($expense->number))
+        if (empty($expense->number)) {
             $expense = $this->findAndSaveNumber($expense);
+        }
 
         $expense->saveQuietly();
 
@@ -73,10 +74,10 @@ class ExpenseRepository extends BaseRepository
     }
 
     /**
-     * @param mixed $data 
-     * @param mixed $expense 
-     * @return Expense 
-     * @throws InvalidFormatException 
+     * @param mixed $data
+     * @param mixed $expense
+     * @return Expense
+     * @throws InvalidFormatException
      */
     public function processExchangeRates($data, $expense): Expense
     {
@@ -106,23 +107,20 @@ class ExpenseRepository extends BaseRepository
      */
     private function findAndSaveNumber($expense): Expense
     {
-
         $x = 1;
 
         do {
-
             try {
-
                 $expense->number = $this->getNextExpenseNumber($expense);
                 $expense->saveQuietly();
 
                 $this->completed = false;
             } catch (QueryException $e) {
-
                 $x++;
 
-                if ($x > 50)
+                if ($x > 50) {
                     $this->completed = false;
+                }
             }
         } while ($this->completed);
 

@@ -11,6 +11,7 @@
 
 namespace App\Filters;
 
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -41,22 +42,82 @@ class PaymentFilters extends QueryFilters
         });
     }
 
+
+ /**
+     * Filter based on client status.
+     *
+     * Statuses we need to handle
+     * - all
+     * - pending
+     * - cancelled
+     * - failed
+     * - completed
+     * - partially refunded
+     * - refunded
+     *
+     * @param string client_status The payment status as seen by the client
+     * @return Builder
+     */
+    public function client_status(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $status_parameters = explode(',', $value);
+
+        if (in_array('all', $status_parameters)) {
+            return $this->builder;
+        }
+
+        $this->builder->where(function ($query) use ($status_parameters) {
+            $payment_filters = [];
+
+            if (in_array('pending', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_PENDING;
+            }
+
+            if (in_array('cancelled', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_CANCELLED;
+            }
+
+            if (in_array('failed', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_FAILED;
+            }
+
+            if (in_array('completed', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_COMPLETED;
+            }
+
+            if (in_array('partially_refunded', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_PARTIALLY_REFUNDED;
+            }
+
+            if (in_array('refunded', $status_parameters)) {
+                $payment_filters[] = Payment::STATUS_REFUNDED;
+            }
+
+            if (count($payment_filters) >0) {
+                $query->whereIn('status_id', $payment_filters);
+            }
+        });
+
+        return $this->builder;
+    }
+
     /**
      * Returns a list of payments that can be matched to bank transactions
      */
     public function match_transactions($value = 'true'): Builder
     {
-
-        if($value == 'true'){
-
+        if ($value == 'true') {
             return $this->builder
-                        ->where('is_deleted',0)
-                        ->where(function ($query){
+                        ->where('is_deleted', 0)
+                        ->where(function ($query) {
                             $query->whereNull('transaction_id')
-                            ->orWhere("transaction_id","")
+                            ->orWhere("transaction_id", "")
                             ->company();
                         });
-                        
         }
 
         return $this->builder;
@@ -74,7 +135,9 @@ class PaymentFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     *  formatted as column|asc
+     *  
+     * @param string $sort
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -91,7 +154,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
     public function entityFilter(): Builder
     {

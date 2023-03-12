@@ -11,9 +11,9 @@
 
 namespace App\Helpers\Mail;
 
+use Google\Client;
 use Google\Service\Gmail;
 use Google\Service\Gmail\Message;
-use Google\Client;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\MessageConverter;
@@ -23,7 +23,6 @@ use Symfony\Component\Mime\MessageConverter;
  */
 class GmailTransport extends AbstractTransport
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -50,34 +49,26 @@ class GmailTransport extends AbstractTransport
 
         $bcc_list = '';
 
-        if($bccs)
-        {
+        if ($bccs) {
             $bcc_list = 'Bcc: ';
 
-            foreach($bccs->getAddresses() as $address){
-
+            foreach ($bccs->getAddresses() as $address) {
                 $bcc_list .= $address->getAddress() .',';
-
             }
 
             $bcc_list = rtrim($bcc_list, ",") . "\r\n";
-        }  
+        }
 
         $body->setRaw($this->base64_encode($bcc_list.$message->toString()));
 
-        try{
+        try {
             $service->users_messages->send('me', $body, []);
-        }
-        catch(\Google\Service\Exception $e) {
-
+        } catch(\Google\Service\Exception $e) {
             /* Need to slow down */
-            if($e->getCode() == '429') {
-
+            if ($e->getCode() == '429') {
                 nlog("429 google - retrying ");
                 $service->users_messages->send('me', $body, []);
-
             }
-
         }
     }
  
@@ -90,5 +81,4 @@ class GmailTransport extends AbstractTransport
     {
         return 'gmail';
     }
-
 }

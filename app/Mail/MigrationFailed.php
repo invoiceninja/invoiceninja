@@ -51,8 +51,9 @@ class MigrationFailed extends Mailable
         
         $special_message = '';
 
-        if($this->exception instanceof ClientHostedMigrationException)
+        if ($this->exception instanceof ClientHostedMigrationException) {
             $special_message = $this->content;
+        }
 
         return $this
             ->from(config('mail.from.address'), config('mail.from.name'))

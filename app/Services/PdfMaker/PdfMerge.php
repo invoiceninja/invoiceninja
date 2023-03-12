@@ -12,18 +12,18 @@
 
 namespace App\Services\PdfMaker;
 
-use Illuminate\Support\Facades\Storage;
 use \setasign\Fpdi\Fpdi;
+use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\PdfParser\StreamReader;
 
 class PdfMerge
 {
-
-    public function __construct(private array $file_paths) {}
+    public function __construct(private array $file_paths)
+    {
+    }
 
     public function run()
     {
-
         $pdf = new FPDI();
 
         foreach ($this->file_paths as $file) {
@@ -36,7 +36,5 @@ class PdfMerge
         }
 
         return $pdf->Output('S');
-
     }
-
 }

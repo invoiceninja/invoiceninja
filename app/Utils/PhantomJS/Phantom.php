@@ -27,7 +27,6 @@ use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -112,8 +111,9 @@ class Phantom
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
-        if($return_pdf)
+        if ($return_pdf) {
             return $pdf;
+        }
 
         return $file_path;
     }

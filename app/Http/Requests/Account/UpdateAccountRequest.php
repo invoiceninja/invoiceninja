@@ -12,10 +12,6 @@
 namespace App\Http\Requests\Account;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Account\BlackListRule;
-use App\Http\ValidationRules\Account\EmailBlackListRule;
-use App\Http\ValidationRules\NewUniqueUserRule;
-use App\Utils\Ninja;
 
 class UpdateAccountRequest extends Request
 {

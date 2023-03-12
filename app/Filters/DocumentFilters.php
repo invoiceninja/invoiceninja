@@ -39,10 +39,10 @@ class DocumentFilters extends QueryFilters
      * Overriding method as client_id does
      * not exist on this model, just pass
      * back the builder
-     * 
+     *
      * @param  string $client_id The client hashed id.
-     * 
-     * @return Builder           
+     *
+     * @return Builder
      */
     public function client_id(string $client_id = ''): Builder
     {
@@ -69,8 +69,9 @@ class DocumentFilters extends QueryFilters
 
     public function company_documents($value = 'false')
     {
-        if($value == 'true')
+        if ($value == 'true') {
             return $this->builder->where('documentable_type', Company::class);
+        }
     
         return $this->builder;
     }

@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Util;
 
-use App\Jobs\Util\WebhookSingle;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Webhook;
@@ -21,7 +20,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 
 class WebhookHandler implements ShouldQueue
 {
@@ -38,7 +36,9 @@ class WebhookHandler implements ShouldQueue
      * @param $event_id
      * @param $entity
      */
-    public function __construct(private int $event_id, private $entity, private Company $company, private string $includes = ''){}
+    public function __construct(private int $event_id, private $entity, private Company $company, private string $includes = '')
+    {
+    }
 
     /**
      * Execute the job.
@@ -47,7 +47,6 @@ class WebhookHandler implements ShouldQueue
      */
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
         //If the company is disabled, or if on hosted, the user is not a paid hosted user return early
@@ -59,15 +58,11 @@ class WebhookHandler implements ShouldQueue
                 ->where('event_id', $this->event_id)
                 ->cursor()
                 ->each(function ($subscription) {
-
-            WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
-
-        });
-
+                    WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
+                });
     }
 
     public function failed($exception = null)
     {
-
     }
 }

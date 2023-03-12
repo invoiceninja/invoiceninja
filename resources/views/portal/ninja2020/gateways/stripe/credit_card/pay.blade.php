@@ -8,7 +8,6 @@
         $token_billing_string = 'false';
     }
     
-    
 @endphp
 
 @section('gateway_head')

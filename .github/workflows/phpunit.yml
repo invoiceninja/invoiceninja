@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - v5-develop
+      - v5-stable
   pull_request:
     branches:
       - v5-develop
@@ -100,12 +101,6 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-${{ matrix.php }}-composer-
-
-    # - name: Cache dependencies actions/cache@v3
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: ~/.composer/cache/files
-    #     key: dependencies-${{ matrix.dependency-version }}-laravel-${{ matrix.laravel }}-php-${{ matrix.php-versions }}-composer-${{ hashFiles('composer.json') }}
 
     - name: Install composer dependencies
       run: |

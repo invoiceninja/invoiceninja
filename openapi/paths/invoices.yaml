@@ -1,0 +1,627 @@
+  /api/v1/invoices:
+    get:
+      tags:
+        - invoices
+      summary: "List invoices"
+      description: |
+        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
+        
+      operationId: getInvoices
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/status"
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/created_at"
+        - $ref: "#/components/parameters/updated_at"
+        - $ref: "#/components/parameters/is_deleted"
+        - $ref: "#/components/parameters/filter_deleted_clients"
+        - $ref: "#/components/parameters/vendor_id"
+        - name: client_status
+          in: query
+          description: |
+            A comma separated list of invoice status strings. Valid options include:  
+            - all
+            - paid  
+            - unpaid  
+            - overdue   
+          required: false
+          schema:
+            type: string
+          example: ?client_status=paid,unpaid
+        - name: number
+          in: query
+          description: |
+            Search invoices by invoice number 
+          required: false
+          schema:
+            type: string
+          example: ?number=INV-001
+        - name: filter
+          in: query
+          description: |
+            Searches across a range of columns including:  
+            - number  
+            - po_number  
+            - date  
+            - amount  
+            - balance  
+            - custom_value1  
+            - custom_value2  
+            - custom_value3  
+            - custom_value4
+          required: false
+          schema:
+            type: string
+          example: ?filter=bob
+        - name: without_deleted_clients
+          in: query
+          description: |
+            Returns the invoice list without the invoices of deleted clients.
+          required: false
+          schema:
+            type: string
+          example: ?without_deleted_clients=
+        - name: overdue
+          in: query
+          description: |
+            Returns the list of invoices that are overdue
+          required: false
+          schema:
+            type: string
+          example: ?over_due=
+        - name: payable
+          in: query
+          description: |
+            Returns the invoice list that are payable for a defined client. Please note, you must pass the client_id as the value for this query parameter
+          required: false
+          schema:
+            type: string
+          example: ?payable={client_id}
+        - name: sort
+          in: query
+          description: Returns the list sorted by column in ascending or descending order.
+          required: false
+          schema:
+            type: string
+          example: id|desc number|desc balance|asc 
+        - name: private_notes
+          in: query
+          description: |
+            Searches on the private_notes field of the invoices
+          required: false
+          schema:
+            type: string
+          example: ?private_notes=super secret
+      responses:
+        200:
+          description: "A list of invoices"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+    post:
+      tags:
+        - invoices
+      summary: "Create invoice"
+      description: "Adds a invoice to a company"
+      operationId: storeInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FillableInvoice"
+      responses:
+        200:
+          description: "Returns the saved invoice entity"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  "/api/v1/invoices/{id}":
+    get:
+      tags:
+        - invoices
+      summary: "Show invoice"
+      description: "Displays an invoice by id"
+      operationId: showInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+    put:
+      tags:
+        - invoices
+      summary: "Update invoice"
+      description: "Handles the updating of an invoice by id"
+      operationId: updateInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"  
+    delete:
+      tags:
+        - invoices
+      summary: "Delete invoice"
+      description: "Handles the deletion of an invoice by id"
+      operationId: deleteInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns a HTTP status"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/edit":
+    get:
+      tags:
+        - invoices
+      summary: "Edit invoice"
+      description: "Displays an invoice by id for editting"
+      operationId: editInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/invoices/create:
+    get:
+      tags:
+        - invoices
+      summary: "Blank invoice"
+      description: "Returns a blank object with default values"
+      operationId: getInvoicesCreate
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+      responses:
+        200:
+          description: "A blank invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/invoices/bulk:
+    post:
+      tags:
+        - invoices
+      summary: "Bulk invoice actions"
+      description: |
+        There are multiple actions that are available including:  
+
+      operationId: bulkInvoices
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/index"
+      requestBody:
+        description: "Bulk action details"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: |
+                    The action to be performed, options include:  
+                    - `bulk_download`  
+                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)  
+                    - `download`  
+                      Download a single PDF. (Returns a single PDF object)  
+                    - `bulk_print`  
+                      Merges an array of Invoice PDFs for easy one click printing.  
+                    - `auto_bill`  
+                      Attempts to automatically bill the invoices with the payment method on file.  
+                    - `clone_to_invoice`  
+                      Returns a clone of the invoice.  
+                    - `clone_to_quote`  
+                      Returns a quote cloned using the properties of the given invoice.  
+                    - `mark_paid`  
+                      Marks an array of invoices as paid.  
+                    - `mark_sent`  
+                      Marks an array of invoices as sent.  
+                    - `restore`  
+                      Restores an array of invoices  
+                    - `delete`  
+                      Deletes an array of invoices  
+                    - `archive`  
+                      Archives an array of invoices  
+                    - `cancel`  
+                      Cancels an array of invoices  
+                    - `email`  
+                      Emails an array of invoices  
+                    - `send_email`  
+                      Emails an array of invoices. Requires additional properties to be sent. `email_type`  
+                  required: true
+                ids:
+                  required: true
+                  type: array
+                  items:
+                    description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
+                    type: string
+              example:
+                action: bulk_download
+                ids: "['D2J234DFA','D2J234DFA','D2J234DFA']"
+              
+      responses:
+        200:
+          description: "The Bulk Action response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  "/api/v1/invoices/{id}/{action}":
+    get:
+      deprecated: true
+      tags:
+        - invoices
+      summary: "Custom invoice action"
+      description: |
+        Performs a custom action on an invoice.  
+        The current range of actions are as follows  
+        - clone_to_invoice  
+        - clone_to_quote  
+        - history  
+        - delivery_note  
+        - mark_paid  
+        - download  
+        - archive  
+        - delete  
+        - email  
+      operationId: actionInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+        - name: action
+          in: path
+          description: "The action string to be performed"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: clone_to_quote
+      responses:
+        200:
+          description: "Returns the invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoice/{invitation_key}/download":
+    get:
+      tags:
+        - invoices
+      summary: "Download invoice PDF"
+      description: "Downloads a specific invoice"
+      operationId: downloadInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: invitation_key
+          in: path
+          description: "The Invoice Invitation Key"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice pdf"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/delivery_note":
+    get:
+      tags:
+        - invoices
+      summary: "Download delivery note"
+      description: "Downloads a specific invoice delivery notes"
+      operationId: deliveryNote
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hahsed Id"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the invoice delivery note pdf"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/invoices/{id}/upload":
+    post:
+      tags:
+        - invoices
+      summary: "Add invoice document"
+      description: "Handles the uploading of a document to a invoice"
+      operationId: uploadInvoice
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
+        - name: id
+          in: path
+          description: "The Invoice Hashed ID"
+          required: true
+          schema:
+            type: string
+            format: string
+          example: D2J234DFA
+      requestBody:
+        description: "File Upload Body"
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  example: PUT
+                documents:
+                  type: array
+                  items:
+                    description: "Array of binary documents for upload"
+                    type: string
+                    format: binary
+      responses:
+        200:
+          description: "Returns the Invoice object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"

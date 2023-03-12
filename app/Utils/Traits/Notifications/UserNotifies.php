@@ -162,12 +162,12 @@ trait UserNotifies
     /**
      * Underrated method right here, last ones
      * are always the best
-     * 
-     * @param  CompanyUser $company_user          
+     *
+     * @param  CompanyUser $company_user
      * @param  Invoice | Quote | Credit | PurchaseOrder | Product $entity
-     * @param  array $required_notification 
-     * 
-     * @return bool                        
+     * @param  array $required_notification
+     *
+     * @return bool
      */
     private function checkNotificationExists($company_user, $entity, $required_notification): bool
     {

@@ -46,5 +46,4 @@ class LoginRequest extends Request
             'password' => 'required|max:1000',
         ];
     }
-
 }

@@ -11,7 +11,6 @@
 
 namespace App\Http\Requests\PurchaseOrder;
 
-
 use App\Http\Requests\Request;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\CleanLineItems;
@@ -48,6 +47,17 @@ class StorePurchaseOrderRequest extends Request
         $rules['is_amount_discount'] = ['boolean'];
         $rules['line_items'] = 'array';
 
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
         return $rules;
     }
 
@@ -57,13 +67,13 @@ class StorePurchaseOrderRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        if (isset($input['line_items']) && is_array($input['line_items'])) 
+        if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         $input['amount'] = 0;
         $input['balance'] = 0;
 
         $this->replace($input);
     }
-
 }

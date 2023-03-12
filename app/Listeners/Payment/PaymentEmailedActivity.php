@@ -17,7 +17,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PaymentEmailedActivity implements ShouldQueue
 {
-    public $delay = 5;
 
     use UserNotifies;
 
@@ -39,7 +38,6 @@ class PaymentEmailedActivity implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-
         $payment = $event->payment;
     }
 }

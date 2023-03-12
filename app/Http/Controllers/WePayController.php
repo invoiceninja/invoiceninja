@@ -17,7 +17,6 @@ use App\Models\CompanyGateway;
 use App\Models\User;
 use App\PaymentDrivers\WePayPaymentDriver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class WePayController extends BaseController

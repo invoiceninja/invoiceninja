@@ -12,7 +12,6 @@
 namespace App\Jobs\Ledger;
 
 use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Models\CompanyLedger;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

@@ -11,37 +11,41 @@
 
 namespace Database\Seeders;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
-use App\Events\Payment\PaymentWasCreated;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Models\Account;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyToken;
 use App\Models\Credit;
-use App\Models\GroupSetting;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\Product;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\User;
-use App\Repositories\CreditRepository;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\QuoteRepository;
-use App\Utils\Ninja;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\GroupSetting;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use App\Models\CompanyGateway;
+use Illuminate\Database\Seeder;
+use App\Models\RecurringInvoice;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\Helpers\Invoice\InvoiceSum;
+use Illuminate\Support\Facades\Hash;
+use App\Repositories\QuoteRepository;
+use Illuminate\Support\Facades\Cache;
+use App\Repositories\CreditRepository;
+use Illuminate\Support\Facades\Schema;
+use App\Repositories\InvoiceRepository;
+use Illuminate\Database\Eloquent\Model;
+use App\Events\Payment\PaymentWasCreated;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 
 class RandomDataSeeder extends Seeder
 {
@@ -54,7 +58,6 @@ class RandomDataSeeder extends Seeder
      */
     public function run()
     {
-
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
 
@@ -118,6 +121,88 @@ class RandomDataSeeder extends Seeder
             'settings' => null,
         ]);
 
+        $permission_users = [
+            'permissions',
+            'products',
+            'invoices',
+            'quotes',
+            'clients',
+            'vendors',
+            'tasks',
+            'expenses',
+            'projects',
+            'credits',
+            'payments',
+            'bank_transactions',
+            'purchase_orders',
+        ];
+
+        foreach ($permission_users as $p_user) {
+
+            $user = User::firstOrNew([
+                'email' => "{$p_user}@example.com",
+            ]);
+
+            $user->first_name = ucfirst($p_user);
+            $user->last_name = 'Example';
+            $user->password = Hash::make('password');
+            $user->account_id = $account->id;
+            $user->email_verified_at = now();
+            $user->save();
+
+            $company_token = CompanyToken::create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'account_id' => $account->id,
+                'name' => 'test token',
+                'token' => \Illuminate\Support\Str::random(64),
+            ]);
+
+            $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 0,
+                'is_admin' => 0,
+                'is_locked' => 0,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => null,
+            ]);
+
+            $user = null;
+        }
+
+
+        $user = User::firstOrNew([
+            'email' => 'user@example.com',
+        ]);
+
+        $user->first_name = 'U';
+        $user->last_name = 'ser';
+        $user->password = Hash::make('password');
+        $user->account_id = $account->id;
+        $user->email_verified_at = now();
+        $user->save();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'permissions' => '',
+            'settings' => null,
+        ]);
+
+        $company_token = CompanyToken::create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'account_id' => $account->id,
+            'name' => 'test token',
+            'token' => \Illuminate\Support\Str::random(64),
+        ]);
+
+
+
         $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,
@@ -135,6 +220,28 @@ class RandomDataSeeder extends Seeder
                     'email' => 'cypress@example.com',
                     'password' => Hash::make('password'),
                 ]);
+
+
+
+        $vendor = Vendor::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'name' => 'cypress'
+            ]);
+
+        $vendor->number = $vendor->getNextVendorNumber($vendor);
+        $vendor->save();
+        
+        VendorContact::factory()->create([
+                    'user_id' => $user->id,
+                    'vendor_id' => $vendor->id,
+                    'company_id' => $company->id,
+                    'is_primary' => 1,
+                    'email' => 'cypress_vendor@example.com',
+                    'password' => Hash::make('password'),
+                ]);
+
+
 
         /* Product Factory */
         Product::factory()->count(2)->create(['user_id' => $user->id, 'company_id' => $company->id]);
@@ -209,7 +316,6 @@ class RandomDataSeeder extends Seeder
             $credit->save();
 
             $credit->service()->createInvitations()->markSent()->save();
-
         });
 
         /* Recurring Invoice Factory */
@@ -244,6 +350,18 @@ class RandomDataSeeder extends Seeder
             'user_id' => $user->id,
             'settings' =>  ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults()),
             'name' => 'Default Client Settings',
+        ]);
+
+        $bi = BankIntegration::factory()->create([
+            'account_id' => $account->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+        ]);
+
+        BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
         ]);
 
         if (config('ninja.testvars.stripe')) {

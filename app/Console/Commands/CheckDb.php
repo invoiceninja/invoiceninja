@@ -11,8 +11,6 @@
 
 namespace App\Console\Commands;
 
-use App;
-use App\Factory\ClientContactFactory;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Backup;
@@ -24,7 +22,6 @@ use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
-use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -53,13 +50,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Models\Webhook;
-use App\Utils\Ninja;
-use DB;
-use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
-use Mail;
-use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class CheckDb.
