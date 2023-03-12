@@ -423,6 +423,9 @@ trait GeneratesCounter
         /*
          * Optimization for getting the next number without iterating the first 100 items & after that returning random number (if numbers already exists)
          *
+         * See also:
+         * https://github.com/invoiceninja/invoiceninja/pull/8231
+         *
         $number_placeholder = '{number}';
         $latest = $class::where('company_id', $entity->company_id)->where('number', '<>', '', 'and')->orderBy('created_at', 'desc')->first();
         $generic_number = $this->applyNumberPattern($entity, $number_placeholder, $pattern);
