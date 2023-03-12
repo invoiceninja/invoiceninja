@@ -198,6 +198,8 @@ class StripeCreditCard {
             document
                 .getElementById('pay-now')
                 .addEventListener('click', () => {
+
+                try {
                     let tokenInput = document.querySelector('input[name=token]');
 
                     if (tokenInput.value) {
@@ -205,6 +207,10 @@ class StripeCreditCard {
                     }
 
                     return this.completePaymentWithoutToken();
+                }catch(error){
+                    console.log(error.message);
+                }
+
                 });
         }
     }

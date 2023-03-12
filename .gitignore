@@ -24,6 +24,7 @@ _ide_helper.php
 /resources/assets/bower
 /public/logo
 .env.dusk.local
+.env.cypress
 /public/vendors/*
 *.log
 
