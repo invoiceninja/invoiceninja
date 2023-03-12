@@ -26,7 +26,9 @@ before(() => {
     cy.artisan("migrate:fresh", {
         '--seed': true,
     });
-    cy.seed('RandomDataSeeder');
+    cy.artisan("db:seed", {
+        '--class': 'RandomDataSeeder',
+    });
 });
 
 after(() => {
