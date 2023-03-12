@@ -35,12 +35,10 @@ use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
-use App\PaymentDrivers\Stripe\ApplePay;
 use App\PaymentDrivers\Stripe\BACS;
 use App\PaymentDrivers\Stripe\BECS;
 use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\iDeal;
-use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Klarna;
 use App\PaymentDrivers\Stripe\SOFORT;
@@ -244,7 +242,6 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && in_array($this->client->currency()->code, ['GBP'])
             && isset($this->client->country)
-            && in_array($this->client->company->country()->getID(), ['826'])
             && in_array($this->client->country->iso_3166_3, ['GBR'])) {
             $types[] = GatewayType::BACS;
         }
@@ -259,7 +256,6 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && in_array($this->client->currency()->code, ['EUR', 'DKK', 'GBP', 'NOK', 'SEK', 'AUD', 'NZD', 'CAD', 'PLN', 'CHF', 'USD'])
             && isset($this->client->country)
-            && in_array($this->client->company->country()->id, ['840'])
             && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
@@ -292,30 +288,22 @@ class StripePaymentDriver extends BaseDriver
         switch ($gateway_type_id) {
             case GatewayType::CREDIT_CARD:
                 return 'gateways.stripe.credit_card';
-                break;
             case GatewayType::SOFORT:
                 return 'gateways.stripe.sofort';
-                break;
             case GatewayType::BANK_TRANSFER:
                 return 'gateways.stripe.ach';
-                break;
             case GatewayType::SEPA:
                 return 'gateways.stripe.sepa';
-                break;
             case GatewayType::PRZELEWY24:
                 return 'gateways.stripe.przelewy24';
-                break;
             case GatewayType::CRYPTO:
             case GatewayType::ALIPAY:
             case GatewayType::APPLE_PAY:
                 return 'gateways.stripe.other';
-                break;
             case GatewayType::GIROPAY:
                 return 'gateways.stripe.giropay';
-                break;
             case GatewayType::KLARNA:
                 return 'gateways.stripe.klarna';
-                break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
             case GatewayType::EPS:
@@ -769,58 +757,38 @@ class StripePaymentDriver extends BaseDriver
         } elseif ($request->type === "payment_method.automatically_updated"){
             // Will notify customer on updated information
             return response()->json([], 200);
-        } elseif ($request->type === "checkout.session.completed"){
-            // Store payment token for Stripe BACS
-            $this->init();
-            $setup_intent = $this->stripe->setupIntents->retrieve($request->data['object']['setup_intent'], []);
-            $clientpayment_token = ClientGatewayToken::where('gateway_customer_reference', $request->data['object']['customer'])->first();
-            if ($clientpayment_token){
-                $this->client = Client::where('id', $clientpayment_token->client_id)->first();
-                $customer = $this->findOrCreateCustomer();
-                $this->attach($setup_intent->payment_method, $customer);
-                $payment_method =  $this->getStripePaymentMethod($setup_intent->payment_method);
-                $payment_meta = new \stdClass;
-                $payment_meta->brand = (string) $payment_method->bacs_debit->sort_code;
-                $payment_meta->last4 = (string) $payment_method->bacs_debit->last4;
-                $payment_meta->state = 'unauthorized';
-                $payment_meta->type = GatewayType::BACS;
-
-                $data = [
-                    'payment_meta' => $payment_meta,
-                    'token' => $payment_method->id,
-                    'payment_method_id' => GatewayType::BACS,
-                ];
-                $clientgateway = ClientGatewayToken::query()
-                    ->where('token', $payment_method)
-                    ->first();
-                if (!$clientgateway){
-                    $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
-                }
-            }
-            return response()->json([], 200);
         } elseif ($request->type === "mandate.updated"){
-            // Check if payment method BACS is still valid
-            if ($request->data['object']['status'] === "active"){
-                // Check if payment method exists
+
+            if ($request->data['object']['status'] == "active"){
+                // Check if payment method existsn
                 $payment_method = (string) $request->data['object']['payment_method'];
+
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $payment_method)
                     ->first();
+
                 if ($clientgateway){
-                    $clientgateway->meta->state = 'authorized';
-                    $clientgateway->update();
-                };
+
+                    $meta = $clientgateway->meta;
+                    $meta->state = 'authorized';
+                    $clientgateway->meta = $meta;
+                    $clientgateway->save();
+
+                }
+
                 return response()->json([], 200);
             }
-            elseif ($request->data['object']['status'] === "inactive" && $request->data['object']['payment_method']){
+            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']){
                 // Delete payment method
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
+
                 $clientgateway->delete();
+                
                 return response()->json([], 200);
             }
-            elseif ($request->data['object']['status'] === "pending"){
+            elseif ($request->data['object']['status'] == "pending"){
                 return response()->json([], 200);
             }
         }

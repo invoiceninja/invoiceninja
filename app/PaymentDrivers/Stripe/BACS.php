@@ -82,7 +82,9 @@ class BACS
     {
         $this->stripe->init();
         $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number')->implode(',');
-        $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($request->amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        // $description = ctrans('texts.stripe_payment_text', ['invoicenumber' => $invoice_numbers, 'amount' => Number::formatMoney($request->amount, $this->stripe->client), 'client' => $this->stripe->client->present()->name()]);
+        $description = $this->stripe->getDescription(false);
+
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
@@ -130,14 +132,14 @@ class BACS
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
-        SystemLogger::dispatch(
+        (new SystemLogger(
             ['response' => $payment_intent, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
             $this->stripe->client,
             $this->stripe->client->company,
-        );
+        ))->handle();
 
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
@@ -152,14 +154,14 @@ class BACS
             'data' => $this->stripe->payment_hash->data,
         ];
 
-        SystemLogger::dispatch(
+        (new SystemLogger(
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_STRIPE,
             $this->stripe->client,
             $this->stripe->client->company,
-        );
+        ))->handle();
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }

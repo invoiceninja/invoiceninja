@@ -30,8 +30,11 @@ use App\Models\GroupSetting;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
 use App\Models\CompanyGateway;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use Illuminate\Database\Seeder;
 use App\Models\RecurringInvoice;
+use App\DataMapper\FeesAndLimits;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Helpers\Invoice\InvoiceSum;
@@ -44,8 +47,6 @@ use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Eloquent\Model;
 use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
 
 class RandomDataSeeder extends Seeder
 {
@@ -374,6 +375,13 @@ class RandomDataSeeder extends Seeder
             $cg->require_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.stripe'));
+
+            $gateway_types = $cg->driver()->gatewayTypes();
+
+            $fees_and_limits = new \stdClass;
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+            $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
 
             $cg = new CompanyGateway;

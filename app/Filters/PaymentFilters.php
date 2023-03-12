@@ -135,7 +135,9 @@ class PaymentFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     *  formatted as column|asc
+     *  
+     * @param string $sort
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -152,7 +154,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
     public function entityFilter(): Builder
     {
