@@ -20,15 +20,35 @@ describe('Test Invoices', () => {
         cy.get('input[name=client_address_line_1]').clear().type('5 Wallaby Way');
         cy.get('input[name=client_city]').clear().type('Perth');
         cy.get('input[name=client_state]').clear().type('WA');
-        cy.get('select#client_country_id]').select("840");
+        cy.get('#client_country').select("840");
         
         cy.get('input[name=client_shipping_address_line_1]').clear().type('5 Wallaby Way');
         cy.get('input[name=client_shipping_city]').clear().type('Perth');
         cy.get('input[name=client_shipping_state]').clear().type('WA');
-        cy.get('select#client_shipping_country_id]').select("840");
+        cy.get('#client_country').select("840");
         
         cy.contains('Continue').click();
 
+        cy.get('#cardholder-name').type('Cypress Test');
+        // cy.contains('Card number').type('4242424242424242');
+        // cy.contains('MM / YY').type('1024');
+        // cy.contains('CVC').type('100');
+
+
+        cy.get("iframe").then($iframe => {
+            const $body = $iframe.contents().find("body");
+            cy.wrap($body)
+                .find("input[placeholder='Card number']")
+                .type("4242424242424242");
+            cy.wrap($body)
+                .find("input[placeholder='MM / YY']")
+                .type("1225");
+            cy.wrap($body)
+                .find("input[placeholder='CVC']")
+                .type("100");
+        });
+
+        cy.get('#pay-now').click();
     });
 
   
