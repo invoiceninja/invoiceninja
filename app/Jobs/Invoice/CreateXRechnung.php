@@ -11,13 +11,12 @@ use CleverIt\UBL\Invoice\TaxTotal;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 
 class CreateXRechnung implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public $invoice;
+    public Invoice $invoice;
 
     public function __construct(Invoice $invoice)
     {
@@ -30,7 +29,7 @@ class CreateXRechnung implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $invoice = $this->invoice;
         $company = $invoice->company;
