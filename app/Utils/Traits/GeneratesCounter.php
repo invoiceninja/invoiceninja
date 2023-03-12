@@ -420,6 +420,9 @@ trait GeneratesCounter
         $check = false;
         $check_counter = 1;
 
+        /*
+         * Optimization for getting the next number without iterating the first 100 items & after that returning random number (if numbers already exists)
+         *
         $number_placeholder = '{number}';
         $latest = $class::where('company_id', $entity->company_id)->where('number', '<>', '', 'and')->orderBy('created_at', 'desc')->first();
         $generic_number = $this->applyNumberPattern($entity, $number_placeholder, $pattern);
@@ -433,6 +436,7 @@ trait GeneratesCounter
                 $counter = intval($latest_counter) + 1;
             }
         }
+        */
 
         do {
 
@@ -595,7 +599,6 @@ trait GeneratesCounter
 
         $settings = $client->company->settings;
         $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
-        $settings->client_number_counter = 1;
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
@@ -606,6 +609,10 @@ trait GeneratesCounter
         $settings->expense_number_counter = 1;
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
+
+        if( config('ninja.reset_all_counter') ) {
+            $settings->client_number_counter = 1;
+        }
 
         $client->company->settings = $settings;
         $client->company->save();
@@ -683,7 +690,6 @@ trait GeneratesCounter
         }
 
         $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
-        $settings->vendor_number_counter = 1;
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
@@ -694,6 +700,10 @@ trait GeneratesCounter
         $settings->expense_number_counter = 1;
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
+
+        if( config('ninja.reset_all_counter') ) {
+            $settings->vendor_number_counter = 1;
+        }
 
         $company->settings = $settings;
         $company->save();
