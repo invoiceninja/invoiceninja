@@ -33,20 +33,24 @@ use App\Models\PurchaseOrderInvitation;
  */
 class EmailObject
 {
+    /** @var array[string] $args */
     public array $to = [];
 
     public ?Address $from = null;
 
     public array $reply_to = [];
 
+    /** @var array[Address] $args */
     public array $cc = [];
 
+    /** @var array[Address] $args */
     public array $bcc = [];
 
     public ?string $subject = null;
 
     public ?string $body = null;
 
+    /** @var array{key: value} $args */
     public array $attachments = [];
 
     public string $company_key;
@@ -97,17 +101,19 @@ class EmailObject
 
     public ?string $text_template = 'email.template.text';
 
+    /** @var array{key: value} $args */
     public array $headers = [];
 
     public ?string $entity_class = null;
 
+    /** @var array{key: value} $args */
     public array $variables = [];
 
     public bool $override = false;
 
     public ?string $invitation_key = null;
 
-    // @phpstan-ignore-next-line    
+    /** @var array[int] $args */
     public array $documents = [];
 
     public ?string $template = null; //invoice //quote //reminder1

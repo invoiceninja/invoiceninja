@@ -281,7 +281,7 @@ class ACH
                 $data['payment_method_types'] = ['us_bank_account'];
             }
 
-            $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
+            $response = $this->stripe->createPaymentIntent($data);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
