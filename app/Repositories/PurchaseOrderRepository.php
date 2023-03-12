@@ -44,7 +44,6 @@ class PurchaseOrderRepository extends BaseRepository
             });
 
             foreach ($data['invitations'] as $invitation) {
-
                 //if no invitations are present - create one.
                 if (! $this->getInvitation($invitation)) {
                     if (isset($invitation['id'])) {

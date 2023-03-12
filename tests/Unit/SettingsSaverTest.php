@@ -11,7 +11,6 @@
 
 namespace Tests\Unit;
 
-use App\DataMapper\CompanySettings;
 use App\Utils\Traits\SettingsSaver;
 use Tests\TestCase;
 

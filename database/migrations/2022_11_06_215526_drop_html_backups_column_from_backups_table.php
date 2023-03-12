@@ -1,13 +1,10 @@
 <?php
 
-use App\Models\Gateway;
-use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -15,11 +12,8 @@ return new class extends Migration
      */
     public function up()
     {
-
-        if (Schema::hasColumn('backups', 'html_backup'))
-        {
-            Schema::table('backups', function (Blueprint $table)
-            {
+        if (Schema::hasColumn('backups', 'html_backup')) {
+            Schema::table('backups', function (Blueprint $table) {
                 $table->dropColumn('html_backup');
             });
         }
@@ -31,8 +25,6 @@ return new class extends Migration
         Schema::table('bank_integrations', function (Blueprint $table) {
             $table->boolean('auto_sync')->default(false);
         });
-
-
     }
 
     /**

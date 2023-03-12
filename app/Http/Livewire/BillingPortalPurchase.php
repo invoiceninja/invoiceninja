@@ -11,24 +11,24 @@
 
 namespace App\Http\Livewire;
 
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Invoice;
+use Livewire\Component;
+use App\Libraries\MultiDB;
+use Illuminate\Support\Str;
+use App\Models\Subscription;
+use App\Models\ClientContact;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
+use App\DataMapper\ClientSettings;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Libraries\MultiDB;
-use App\Mail\ContactPasswordlessLogin;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\Subscription;
-use App\Repositories\ClientContactRepository;
-use App\Repositories\ClientRepository;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\DataMapper\ClientSettings;
-use Livewire\Component;
+use App\Mail\ContactPasswordlessLogin;
+use App\Repositories\ClientRepository;
+use App\Repositories\ClientContactRepository;
+use App\Services\Subscription\SubscriptionService;
 
 class BillingPortalPurchase extends Component
 {
@@ -170,7 +170,7 @@ class BillingPortalPurchase extends Component
     /**
      * Instance of company.
      *
-     * @var Company
+     * @var \App\Models\Company
      */
     public $company;
 
@@ -198,16 +198,14 @@ class BillingPortalPurchase extends Component
         if (request()->query('coupon')) {
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
-        }
-        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+        } elseif (strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
             $this->price = $this->subscription->promo_price;
         }
 
         /* Leave this here, otherwise a logged in user will need to reauth... painfully */
-        if(Auth::guard('contact')->check()){
+        if (Auth::guard('contact')->check()) {
             return $this->getPaymentMethods(auth()->guard('contact')->user());
         }
-        
     }
 
     /**
@@ -277,25 +275,22 @@ class BillingPortalPurchase extends Component
             }
         }
 
-        if(array_key_exists('currency_id', $this->request_data)) {
-
-            $currency = Cache::get('currencies')->filter(function ($item){
+        if (array_key_exists('currency_id', $this->request_data)) {
+            $currency = Cache::get('currencies')->filter(function ($item) {
                 return $item->id == $this->request_data['currency_id'];
             })->first();
 
-            if($currency)
+            if ($currency) {
                 $data['settings']->currency_id = $currency->id;
-
-        }
-        elseif($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
-
-            $currency = Cache::get('currencies')->filter(function ($item){
+            }
+        } elseif ($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
+            $currency = Cache::get('currencies')->filter(function ($item) {
                 return $item->id == $this->subscription->group_settings->settings->currency_id;
             })->first();
 
-            if($currency)
+            if ($currency) {
                 $data['settings']->currency_id = $currency->id;
-
+            }
         }
 
         if (array_key_exists('locale', $this->request_data)) {
@@ -334,10 +329,11 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((int)$this->price == 0)
+        if ((int)$this->price == 0) {
             $this->steps['payment_required'] = false;
-        else
+        } else {
             $this->steps['fetched_payment_methods'] = true;
+        }
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
@@ -402,12 +398,19 @@ class BillingPortalPurchase extends Component
             ->adjustInventory()
             ->save();
 
+        $context = 'purchase';
+
+        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
+        if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
+            $context = 'whitelabel';
+        }
+
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->hashed_id,
             'invoice_id' => $this->invoice->hashed_id,
-            'context' => 'purchase',
+            'context' => $context,
             'campaign' => $this->campaign,
         ], now()->addMinutes(60));
 
@@ -431,7 +434,6 @@ class BillingPortalPurchase extends Component
 
     public function handlePaymentNotRequired()
     {
-
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
         
         if ($is_eligible['status_code'] != 200) {
@@ -478,16 +480,15 @@ class BillingPortalPurchase extends Component
             return $this->quantity;
         }
 
-            $this->quantity--;
-            $this->price = $this->price * $this->quantity;
+        $this->quantity--;
+        $this->price = $this->price * $this->quantity;
 
-            return $this->quantity;
+        return $this->quantity;
     }
 
     public function handleCoupon()
     {
-
-        if($this->steps['discount_applied']){
+        if ($this->steps['discount_applied']) {
             $this->price = $this->subscription->promo_price;
             return;
         }
@@ -496,9 +497,9 @@ class BillingPortalPurchase extends Component
             $this->price = $this->subscription->promo_price;
             $this->quantity = 1;
             $this->steps['discount_applied'] = true;
-        }
-        else
+        } else {
             $this->price = $this->subscription->price;
+        }
     }
 
     public function passwordlessLogin()

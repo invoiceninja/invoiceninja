@@ -11,9 +11,37 @@
 
 namespace App\Models;
 
-use App\Models\Client;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * App\Models\Backup
+ *
+ * @property int $id
+ * @property int $activity_id
+ * @property string|null $json_backup
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property string $amount
+ * @property string|null $filename
+ * @property string|null $disk
+ * @property-read \App\Models\Activity $activity
+ * @property-read mixed $hashed_id
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereActivityId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereDisk($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereFilename($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereJsonBackup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Backup whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Backup extends BaseModel
 {
     public function getEntityType()
@@ -38,17 +66,17 @@ class Backup extends BaseModel
 
         Storage::disk(config('filesystems.default'))->put($file_path, $html);
 
-            $this->filename = $file_path;
-            $this->save();
-        
+        $this->filename = $file_path;
+        $this->save();
     }
 
     public function deleteFile()
     {
         nlog('deleting => '.$this->filename);
 
-        if(!$this->filename)
+        if (!$this->filename) {
             return;
+        }
 
         try {
             Storage::disk(config('filesystems.default'))->delete($this->filename);

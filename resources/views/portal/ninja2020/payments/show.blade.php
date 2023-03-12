@@ -49,16 +49,16 @@
                         </div>
                     @endif
 
-                    @if(!empty($payment->type?->name) && !is_null($payment->type?->name))
+                    
                         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.method') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ $payment->type?->name }}
+                                {{ $payment->translatedType() }}
                             </dd>
                         </div>
-                    @endif
+                    
 
                     @if(!empty($payment->formattedAmount()) && !is_null($payment->formattedAmount()))
                         <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -122,6 +122,12 @@
                     @endforeach
                 </dl>
             </div>
+            
+                <!-- if this is a stripe bank transfer - show the required details here: -->
         </div>
+            @if($bank_details)
+                    @include('portal.ninja2020.gateways.stripe.bank_transfer.bank_details')
+                @endif
+            
     </div>
 @endsection

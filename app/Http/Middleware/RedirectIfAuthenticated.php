@@ -42,7 +42,7 @@ class RedirectIfAuthenticated
             case 'vendor':
                 if (Auth::guard($guard)->check()) {
                     //TODO create routes for vendor
-                  //  return redirect()->route('vendor.dashboard');
+                    //  return redirect()->route('vendor.dashboard');
                 }
                 break;
             default:

@@ -14,14 +14,8 @@ namespace App\Services\Client;
 use App\Factory\CompanyLedgerFactory;
 use App\Models\Activity;
 use App\Models\Client;
-use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
-use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Services\AbstractService;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
 
 class Merge extends AbstractService
 {
@@ -59,7 +53,7 @@ class Merge extends AbstractService
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact) {
             $exist = $this->client->contacts->contains(function ($client_contact) use ($contact) {
-                return $client_contact->email == $contact->email;
+                return $client_contact->email == $contact->email || empty($contact->email) || $contact->email == ' ';
             });
 
             if ($exist) {

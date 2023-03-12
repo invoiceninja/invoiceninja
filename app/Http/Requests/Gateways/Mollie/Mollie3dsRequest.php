@@ -13,7 +13,6 @@
 namespace App\Http\Requests\Gateways\Mollie;
 
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\PaymentHash;

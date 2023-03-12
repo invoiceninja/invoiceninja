@@ -20,7 +20,6 @@ class EmailTemplateDefaults
         App::setLocale($locale);
 
         switch ($template) {
-
             /* Template */
 
             case 'email_template_invoice':
@@ -65,7 +64,7 @@ class EmailTemplateDefaults
                 return self::emailPurchaseOrderTemplate();
                 break;
 
-            /* Subject */
+                /* Subject */
             case 'email_subject_purchase_order':
                 return self::emailPurchaseOrderSubject();
             case 'email_subject_invoice':
@@ -240,7 +239,6 @@ class EmailTemplateDefaults
 
     public static function emailStatementTemplate()
     {
-
         $statement_message = '<p>$client<br><br>'.self::transformText('client_statement_body').'<br></p>';
 
         return $statement_message;

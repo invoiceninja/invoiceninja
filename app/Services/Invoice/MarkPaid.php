@@ -28,11 +28,12 @@ class MarkPaid extends AbstractService
 
     private $payable_balance;
 
-    public function __construct(private Invoice $invoice, private ?string $reference){}
+    public function __construct(private Invoice $invoice, private ?string $reference)
+    {
+    }
 
     public function run()
     {
-
         /*Don't double pay*/
         if ($this->invoice->status_id == Invoice::STATUS_PAID) {
             return $this->invoice;
@@ -43,11 +44,9 @@ class MarkPaid extends AbstractService
         }
 
         \DB::connection(config('database.default'))->transaction(function () {
-
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
 
-            if($this->invoice)
-            {
+            if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
 
                 $this->invoice
@@ -58,7 +57,6 @@ class MarkPaid extends AbstractService
                     ->setStatus(Invoice::STATUS_PAID)
                     ->save();
             }
-
         }, 1);
 
         /* Create Payment */
@@ -91,8 +89,9 @@ class MarkPaid extends AbstractService
             'amount' => $this->payable_balance,
         ]);
 
-        if($payment->company->getSetting('send_email_on_mark_paid'))
+        if ($payment->company->getSetting('send_email_on_mark_paid')) {
             $payment->service()->sendEmail();
+        }
 
         $this->setExchangeRate($payment);
 

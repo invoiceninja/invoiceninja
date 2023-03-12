@@ -24,7 +24,6 @@ use App\Models\Webhook;
 use App\Repositories\BaseRepository;
 use App\Transformers\WebhookTransformer;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class WebhookController extends BaseController

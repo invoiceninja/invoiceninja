@@ -149,8 +149,7 @@ class RequiredClientInfo extends Component
 
         $this->client = $this->contact->client;
 
-        if($this->company->settings->show_accept_invoice_terms && request()->query('hash'))
-        {
+        if ($this->company->settings->show_accept_invoice_terms && request()->query('hash')) {
             $this->show_terms = true;
             $this->terms_accepted = false;
             $this->show_form = true;
@@ -158,19 +157,16 @@ class RequiredClientInfo extends Component
             $hash = Cache::get(request()->input('hash'));
 
             $this->invoice = Invoice::find($this->decodePrimaryKey($hash['invoice_id']));
-
         }
 
         count($this->fields) > 0 || $this->show_terms
             ? $this->checkFields()
             : $this->show_form = false;
-
     }
 
     public function toggleTermsAccepted()
     {
         $this->terms_accepted = !$this->terms_accepted;
-
     }
 
     public function handleSubmit(array $data): bool
@@ -209,7 +205,6 @@ class RequiredClientInfo extends Component
 
     private function updateClientDetails(array $data): bool
     {
-
         $client = [];
         $contact = [];
 
@@ -232,14 +227,13 @@ class RequiredClientInfo extends Component
             ->push();
 
         if ($contact_update && $client_update) {
-
             $cg = CompanyGateway::find($this->company_gateway_id);
 
-            if($cg && $cg->update_details){
+            if ($cg && $cg->update_details) {
                 $payment_gateway = $cg->driver($this->client)->init();
 
-            if(method_exists($payment_gateway, "updateCustomer"))
-                $payment_gateway->updateCustomer();
+                // if(method_exists($payment_gateway, "updateCustomer"))
+            //     $payment_gateway->updateCustomer();
             }
 
             return true;
@@ -269,7 +263,6 @@ class RequiredClientInfo extends Component
                 }
             }
         }
-        
     }
 
     public function showCopyBillingCheckbox(): bool

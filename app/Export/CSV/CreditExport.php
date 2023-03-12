@@ -12,7 +12,6 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Transformers\CreditTransformer;
@@ -24,13 +23,13 @@ class CreditExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private CreditTransformer $credit_transformer;
 
-    protected string $date_key = 'created_at';
+    public string $date_key = 'created_at';
 
-    protected array $entity_keys = [
+    public Writer $csv;
+
+    public array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',

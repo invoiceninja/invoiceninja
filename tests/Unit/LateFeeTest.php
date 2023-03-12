@@ -34,7 +34,6 @@ class LateFeeTest extends TestCase
 
     public function testLateFeeBalances()
     {
-
         $this->assertEquals(10, $this->client->balance);
         $this->assertEquals(10, $this->invoice->balance);
 
@@ -42,12 +41,10 @@ class LateFeeTest extends TestCase
 
         $this->assertEquals(15, $this->client->fresh()->balance);
         $this->assertEquals(15, $this->invoice->fresh()->balance);
-
     }
 
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
-
         $temp_invoice_balance = $invoice->balance;
 
         if ($amount <= 0 && $percent <= 0) {
@@ -82,5 +79,4 @@ class LateFeeTest extends TestCase
 
         return $invoice;
     }
-
 }

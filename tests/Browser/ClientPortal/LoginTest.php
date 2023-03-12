@@ -12,7 +12,6 @@
 
 namespace Tests\Browser\ClientPortal;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 

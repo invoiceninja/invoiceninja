@@ -80,7 +80,6 @@ class InvoiceTest extends TestCase
         // $this->invoice->save();
 
         $this->assertEquals($invoice_calc->getTotalTaxes(), 15.96);
-
     }
 
     private function buildLineItems()

@@ -203,7 +203,8 @@ trait MakesTemplateData
         $data['$task.tax_name3'] = ['value' => 'CA Sales Tax', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '$100.00', 'label' => ctrans('texts.line_total')];
 
-        $data['$vendor_name'] = ['value' => 'Joey Diaz Denkins', 'label' => ctrans('texts.vendor_name')];;
+        $data['$vendor_name'] = ['value' => 'Joey Diaz Denkins', 'label' => ctrans('texts.vendor_name')];
+        ;
         $data['$vendor.name'] = &$data['$vendor_name'];
         $data['$vendor'] = &$data['$vendor_name'];
 

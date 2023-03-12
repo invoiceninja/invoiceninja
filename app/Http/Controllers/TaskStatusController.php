@@ -461,10 +461,8 @@ class TaskStatusController extends BaseController
                 ->whereIn('id', $this->transformKeys($ids))
                 ->cursor()
                 ->each(function ($task_status, $key) use ($action) {
-
-                $this->task_status_repo->{$action}($task_status);
-            
-        });
+                    $this->task_status_repo->{$action}($task_status);
+                });
 
         return $this->listResponse(TaskStatus::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }

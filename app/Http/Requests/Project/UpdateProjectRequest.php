@@ -37,6 +37,17 @@ class UpdateProjectRequest extends Request
             $rules['number'] = Rule::unique('projects')->where('company_id', auth()->user()->company()->id)->ignore($this->project->id);
         }
 
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+
         return $this->globalRules($rules);
     }
 

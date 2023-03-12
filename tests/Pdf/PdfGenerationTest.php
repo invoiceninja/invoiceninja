@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 /**
  * @test
- //@covers  App\DataMapper\BaseSettings
+ * @covers  App\DataMapper\BaseSettings
  */
 class PdfGenerationTest extends TestCase
 {

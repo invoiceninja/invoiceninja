@@ -46,7 +46,6 @@ trait CleanLineItems
         unset($invoice_item->casts);
 
         foreach ($invoice_item as $key => $value) {
-
             //if the key has not been set, we set it to a default value
             if (! array_key_exists($key, $item) || ! isset($item[$key])) {
                 $item[$key] = $value;

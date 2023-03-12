@@ -24,11 +24,8 @@ class UpdateReminders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public Company $company;
-
-    public function __construct(Company $company)
+    public function __construct(public Company $company)
     {
-        $this->company = $company;
     }
 
     /**

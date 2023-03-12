@@ -11,25 +11,20 @@
 
 namespace App\Jobs\PurchaseOrder;
 
-use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Libraries\MultiDB;
-use App\Mail\DownloadInvoices;
 use App\Mail\DownloadPurchaseOrders;
 use App\Models\Company;
 use App\Models\User;
-use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use ZipArchive;
 
 class ZipPurchaseOrders implements ShouldQueue
 {
@@ -77,7 +72,7 @@ class ZipPurchaseOrders implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.purchase_orders')).'.zip';
         $invitation = $this->purchase_orders->first()->invitations->first();
         $path = $this->purchase_orders->first()->vendor->purchase_order_filepath($invitation);
 

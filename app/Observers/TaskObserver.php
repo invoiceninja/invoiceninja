@@ -17,7 +17,6 @@ use App\Models\Webhook;
 
 class TaskObserver
 {
-
     public $afterCommit = true;
 
     /**
@@ -32,9 +31,9 @@ class TaskObserver
                         ->where('event_id', Webhook::EVENT_CREATE_TASK)
                         ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company)->delay(0);
-        
+        }
     }
 
     /**
@@ -47,19 +46,22 @@ class TaskObserver
     {
         $event = Webhook::EVENT_UPDATE_TASK;
 
-        if($task->getOriginal('deleted_at') && !$task->deleted_at)
+        if ($task->getOriginal('deleted_at') && !$task->deleted_at) {
             $event = Webhook::EVENT_RESTORE_TASK;
+        }
         
-        if($task->is_deleted)
-            $event = Webhook::EVENT_DELETE_TASK; 
+        if ($task->is_deleted) {
+            $event = Webhook::EVENT_DELETE_TASK;
+        }
         
         
         $subscriptions = Webhook::where('company_id', $task->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $task, $task->company)->delay(0);
+        }
     }
 
     /**
@@ -70,16 +72,17 @@ class TaskObserver
      */
     public function deleted(Task $task)
     {
-        if($task->is_deleted)
+        if ($task->is_deleted) {
             return;
+        }
         
         $subscriptions = Webhook::where('company_id', $task->company_id)
                         ->where('event_id', Webhook::EVENT_ARCHIVE_TASK)
                         ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $task, $task->company)->delay(0);
-        
+        }
     }
 
     /**

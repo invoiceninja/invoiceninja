@@ -12,7 +12,6 @@
 
 namespace Tests\Feature\ClientPortal;
 
-use App\DataMapper\ClientSettings;
 use App\Http\Livewire\InvoicesTable;
 use App\Models\Account;
 use App\Models\Client;

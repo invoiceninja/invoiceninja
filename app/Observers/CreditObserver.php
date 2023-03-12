@@ -11,7 +11,6 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Credit;
@@ -19,7 +18,6 @@ use App\Models\Webhook;
 
 class CreditObserver
 {
-
     public $afterCommit = true;
 
     /**
@@ -49,19 +47,21 @@ class CreditObserver
     {
         $event = Webhook::EVENT_UPDATE_CREDIT;
 
-        if($credit->getOriginal('deleted_at') && !$credit->deleted_at)
+        if ($credit->getOriginal('deleted_at') && !$credit->deleted_at) {
             $event = Webhook::EVENT_RESTORE_CREDIT;
+        }
         
-        if($credit->is_deleted)
-            $event = Webhook::EVENT_DELETE_CREDIT; 
+        if ($credit->is_deleted) {
+            $event = Webhook::EVENT_DELETE_CREDIT;
+        }
 
         $subscriptions = Webhook::where('company_id', $credit->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $credit, $credit->company)->delay(0);
-        
+        }
     }
 
     /**
@@ -72,16 +72,17 @@ class CreditObserver
      */
     public function deleted(Credit $credit)
     {
-        if($credit->is_deleted)
+        if ($credit->is_deleted) {
             return;
+        }
         
         $subscriptions = Webhook::where('company_id', $credit->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_CREDIT)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CREDIT, $credit, $credit->company)->delay(0);
-        
+        }
     }
 
     /**

@@ -12,8 +12,6 @@
 namespace App\Http\Controllers\VendorPortal;
 
 use App\Http\Controllers\Controller;
-use App\Http\ViewComposers\PortalComposer;
-use App\Models\RecurringInvoice;
 use Auth;
 
 class VendorContactHashLoginController extends Controller
@@ -37,6 +35,4 @@ class VendorContactHashLoginController extends Controller
     {
         return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
     }
-
-
 }

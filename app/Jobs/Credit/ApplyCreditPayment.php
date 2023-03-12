@@ -51,7 +51,6 @@ class ApplyCreditPayment implements ShouldQueue
      */
     public function handle()
     {
-
         /* Update Pivot Record amount */
         $this->payment->credits->each(function ($cred) {
             if ($cred->id == $this->credit->id) {
@@ -66,7 +65,6 @@ class ApplyCreditPayment implements ShouldQueue
         $credit_balance = $this->credit->balance;
 
         if ($this->amount == $credit_balance) { //total credit applied.
-
             $this->credit
                 ->service()
                 ->markSent()
@@ -75,7 +73,6 @@ class ApplyCreditPayment implements ShouldQueue
                 ->updatePaidToDate($this->amount)
                 ->save();
         } elseif ($this->amount < $credit_balance) { //compare number appropriately
-
             $this->credit
                 ->service()
                 ->markSent()

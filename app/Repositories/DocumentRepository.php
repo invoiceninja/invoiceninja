@@ -12,7 +12,6 @@
 namespace App\Repositories;
 
 use App\Models\Document;
-use App\Utils\Ninja;
 
 /**
  * Class for document repository.
@@ -27,7 +26,6 @@ class DocumentRepository extends BaseRepository
 
     public function restore($document)
     {
-
         // if (! $document->trashed()) {
         //     return;
         // }

@@ -10,7 +10,7 @@
  */
 
 namespace App\Helpers\Bank\Yodlee\Transformer;
- 
+
 /**
 "date": "string",
 "sourceId": "string",
@@ -74,7 +74,4 @@ namespace App\Helpers\Bank\Yodlee\Transformer;
 
 class ExpenseTransformer
 {
-
 }
-
-

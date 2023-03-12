@@ -1,0 +1,55 @@
+    BankTransaction:
+      properties:
+        id:
+          description: 'The bank integration hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: AS3df3A
+        transaction_id:
+          description: 'The id of the transaction rule'
+          type: integer
+          example: 343434
+        amount:
+          description: 'The transaction amount'
+          type: number
+          example: 10
+        currency_id:
+          description: 'The currency ID of the currency'
+          type: string
+          example: '1'
+        account_type:
+          description: 'The account type'
+          type: string
+          example: creditCard
+        description:
+          description: 'The description of the transaction'
+          type: string
+          example: 'Potato purchases for kevin'
+        category_id:
+          description: 'The category id'
+          type: integer
+          example: 1
+        category_type:
+          description: 'The category description'
+          type: string
+          example: Expenses
+        base_type:
+          description: 'Either CREDIT or DEBIT'
+          type: string
+          example: CREDIT
+        date:
+          description: 'The date of the transaction'
+          type: string
+          example: '2022-09-01'
+        bank_account_id:
+          description: 'The ID number of the bank account'
+          type: integer
+          example: '1'
+      type: object

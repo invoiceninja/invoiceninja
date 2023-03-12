@@ -11,19 +11,14 @@
 
 namespace App\Jobs\Entity;
 
-use App\Events\Invoice\InvoiceReminderWasEmailed;
-use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Jobs\Mail\EntityFailedSendMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
-use App\Models\Activity;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Utils\HtmlEngine;
@@ -34,7 +29,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 /*Multi Mailer implemented*/
@@ -89,7 +83,6 @@ class EmailEntity implements ShouldQueue
         $this->html_engine = new HtmlEngine($invitation);
 
         $this->template_data = $template_data;
-
     }
 
     /**
@@ -119,14 +112,14 @@ class EmailEntity implements ShouldQueue
         $this->entity->service()->markSent()->save();
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
-        $nmo->company = $this->company;
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact->withoutRelations(), $this->invitation->withoutRelations());
+        $nmo->company = $this->company->withoutRelations();
         $nmo->settings = $this->settings;
-        $nmo->to_user = $this->invitation->contact;
+        $nmo->to_user = $this->invitation->contact->withoutRelations();
         $nmo->entity_string = $this->entity_string;
-        $nmo->invitation = $this->invitation;
+        $nmo->invitation = $this->invitation->withoutRelations();
         $nmo->reminder_template = $this->reminder_template;
-        $nmo->entity = $this->entity;
+        $nmo->entity = $this->entity->withoutRelations();
 
         NinjaMailerJob::dispatch($nmo);
 
@@ -179,6 +172,7 @@ class EmailEntity implements ShouldQueue
 
     public function failed($e)
     {
-        // nlog($e->getMessage());
+        nlog("EmailEntity");
+        nlog($e->getMessage());
     }
 }

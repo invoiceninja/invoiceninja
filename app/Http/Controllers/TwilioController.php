@@ -17,13 +17,10 @@ use App\Http\Requests\Twilio\Generate2faRequest;
 use App\Http\Requests\Twilio\GenerateSmsRequest;
 use App\Libraries\MultiDB;
 use App\Models\User;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
 use Twilio\Rest\Client;
 
 class TwilioController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -38,8 +35,9 @@ class TwilioController extends BaseController
     {
         $account = auth()->user()->company()->account;
 
-        if(MultiDB::hasPhoneNumber($request->phone))
+        if (MultiDB::hasPhoneNumber($request->phone)) {
             return response()->json(['message' => 'This phone number has already been verified with another account'], 400);
+        }
 
         $sid = config('ninja.twilio_account_sid');
         $token = config('ninja.twilio_auth_token');
@@ -53,11 +51,8 @@ class TwilioController extends BaseController
                                    ->services(config('ninja.twilio_verify_sid'))
                                    ->verifications
                                    ->create($request->phone, "sms");
-        }
-        catch(\Exception $e) {
-
+        } catch(\Exception $e) {
             return response()->json(['message' => 'Invalid phone number please use + country code + number ie. +15552343334'], 400);
-
         }
 
         $account->account_sms_verification_code = $verification->sid;
@@ -74,7 +69,6 @@ class TwilioController extends BaseController
      */
     public function confirm(ConfirmSmsRequest $request)
     {
-
         $account = auth()->user()->company()->account;
 
         $sid = config('ninja.twilio_account_sid');
@@ -92,8 +86,7 @@ class TwilioController extends BaseController
                                        ]);
         
 
-        if($verification_check->status == 'approved'){
-
+        if ($verification_check->status == 'approved') {
             $account->account_sms_verified = true;
             $account->save();
 
@@ -108,15 +101,15 @@ class TwilioController extends BaseController
 
 
         return response()->json(['message' => 'SMS not verified'], 400);
-
     }
 
     public function generate2faResetCode(Generate2faRequest $request)
     {
         $user = User::where('email', $request->email)->first();
 
-        if(!$user)
+        if (!$user) {
             return response()->json(['message' => 'Unable to retrieve user.'], 400);
+        }
 
         $sid = config('ninja.twilio_account_sid');
         $token = config('ninja.twilio_auth_token');
@@ -129,11 +122,8 @@ class TwilioController extends BaseController
                                    ->services(config('ninja.twilio_verify_sid'))
                                    ->verifications
                                    ->create($user->phone, "sms");
-        }
-        catch(\Exception $e) {
-
+        } catch(\Exception $e) {
             return response()->json(['message' => 'Invalid phone number on file, we are unable to reset. Please contact support.'], 400);
-
         }
 
         $user->sms_verification_code = $verification->sid;
@@ -146,8 +136,9 @@ class TwilioController extends BaseController
     {
         $user = User::where('email', $request->email)->first();
 
-        if(!$user)
+        if (!$user) {
             return response()->json(['message' => 'Unable to retrieve user.'], 400);
+        }
 
         $sid = config('ninja.twilio_account_sid');
         $token = config('ninja.twilio_auth_token');
@@ -163,9 +154,8 @@ class TwilioController extends BaseController
                                              "code" => $request->code
                                        ]);
         
-        if($verification_check->status == 'approved'){
-
-            if($request->query('validate_only') == 'true'){
+        if ($verification_check->status == 'approved') {
+            if ($request->query('validate_only') == 'true') {
                 $user->verified_phone_number = true;
                 $user->save();
                 return response()->json(['message' => 'SMS verified'], 200);
@@ -179,12 +169,10 @@ class TwilioController extends BaseController
         }
 
         return response()->json(['message' => 'SMS not verified.'], 400);
-
-    }    
+    }
 
     public function validatePhoneNumber()
     {
-
         $sid = config('ninja.twilio_account_sid');
         $token = config('ninja.twilio_auth_token');
 
@@ -194,7 +182,5 @@ class TwilioController extends BaseController
                                             ->fetch(["countryCode" => "AU"]);
 
         print($phone_number);
-
     }
-
 }

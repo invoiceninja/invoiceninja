@@ -11,11 +11,8 @@
 
 namespace App\Jobs\Cron;
 
-use App\Jobs\Cron\AutoBill;
-use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
-use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 
@@ -63,14 +60,11 @@ class AutoBillCron
             nlog($auto_bill_partial_invoices->count().' partial invoices to auto bill');
 
             $auto_bill_partial_invoices->chunk(400, function ($invoices) {
-
-                foreach($invoices as $invoice)
-                {
+                foreach ($invoices as $invoice) {
                     AutoBill::dispatch($invoice->id, false);
                 }
 
                 sleep(2);
-
             });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
@@ -87,14 +81,11 @@ class AutoBillCron
             nlog($auto_bill_invoices->count().' full invoices to auto bill');
 
             $auto_bill_invoices->chunk(400, function ($invoices) {
-
-                foreach($invoices as $invoice)
-                {
+                foreach ($invoices as $invoice) {
                     AutoBill::dispatch($invoice->id, false);
                 }
 
                 sleep(2);
-
             });
         } else {
             //multiDB environment, need to
@@ -114,10 +105,8 @@ class AutoBillCron
 
                 nlog($auto_bill_partial_invoices->count()." partial invoices to auto bill db = {$db}");
 
-                $auto_bill_partial_invoices->chunk(400, function ($invoices) use($db){
-
-                    foreach($invoices as $invoice)
-                    {
+                $auto_bill_partial_invoices->chunk(400, function ($invoices) use ($db) {
+                    foreach ($invoices as $invoice) {
                         AutoBill::dispatch($invoice->id, $db);
                     }
 
@@ -137,15 +126,12 @@ class AutoBillCron
 
                 nlog($auto_bill_invoices->count()." full invoices to auto bill db = {$db}");
 
-                $auto_bill_invoices->chunk(400, function ($invoices) use($db){
-
-                    foreach($invoices as $invoice)
-                    {
+                $auto_bill_invoices->chunk(400, function ($invoices) use ($db) {
+                    foreach ($invoices as $invoice) {
                         AutoBill::dispatch($invoice->id, $db);
                     }
 
                     sleep(2);
-
                 });
             }
 

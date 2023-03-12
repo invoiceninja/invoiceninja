@@ -16,7 +16,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ShowPlanSwitchRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -41,8 +40,6 @@ class ShowPlanSwitchRequest extends FormRequest
 
     protected function failedAuthorization()
     {
-
         throw new ClientPortalAuthorizationException('Unable to change plans due to a restriction on this product.', 400);
-
     }
 }

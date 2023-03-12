@@ -56,9 +56,5 @@ class QuoteWorkflowSettings implements ShouldQueue
                 $this->quote->service()->sendEmail($invitation->contact);
             });
         }
-
-        // if ($this->client->getSetting('auto_archive_quote')) {
-        //     $this->base_repository->archive($this->quote);
-        // }
     }
 }

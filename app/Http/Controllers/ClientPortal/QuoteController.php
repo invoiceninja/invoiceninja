@@ -13,7 +13,6 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Events\Misc\InvitationWasViewed;
-use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
@@ -22,11 +21,9 @@ use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
 use App\Jobs\Invoice\InjectSignature;
 use App\Models\Quote;
 use App\Utils\Ninja;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -81,7 +78,7 @@ class QuoteController extends Controller
     public function bulk(ProcessQuotesInBulkRequest $request)
     {
         $transformed_ids = $this->transformKeys($request->quotes);
-nlog(request()->all());
+        nlog(request()->all());
 
         if ($request->action == 'download') {
             return $this->downloadQuotes((array) $transformed_ids);
@@ -145,7 +142,6 @@ nlog(request()->all());
         $zipFile = new \PhpZip\ZipFile();
         try {
             foreach ($quotes as $quote) {
-
                 //add it to the zip
                 $zipFile->addFromString(basename($quote->pdf_file_path()), file_get_contents($quote->pdf_file_path(null, 'url', true)));
             }
@@ -156,7 +152,7 @@ nlog(request()->all());
             $zipFile->saveAsFile($filepath) // save the archive to a file
                    ->close(); // close archive
 
-           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+            return response()->download($filepath, $filename)->deleteFileAfterSend(true);
         } catch (\PhpZip\Exception\ZipException $e) {
             // handle exception
         } finally {
@@ -181,12 +177,9 @@ nlog(request()->all());
 
         if ($process) {
             foreach ($quotes as $quote) {
-
-
-                if(request()->has('user_input') && strlen(request()->input('user_input')) > 2) {
-
+                if (request()->has('user_input') && strlen(request()->input('user_input')) > 2) {
                     $quote->public_notes .= $quote->public_notes . "\n" . request()->input('user_input');
-                    $quote->saveQuietly();    
+                    $quote->saveQuietly();
                 }
 
                 $quote->service()->approve(auth()->user())->save();
@@ -197,8 +190,7 @@ nlog(request()->all());
             }
 
             if (count($ids) == 1) {
-
-            //forward client to the invoice if it exists
+                //forward client to the invoice if it exists
                 if ($quote->invoice()->exists()) {
                     return redirect()->route('client.invoice.show', $quote->invoice->hashed_id);
                 }

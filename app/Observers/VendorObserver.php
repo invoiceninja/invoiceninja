@@ -17,7 +17,6 @@ use App\Models\Webhook;
 
 class VendorObserver
 {
-
     public $afterCommit = true;
 
     /**
@@ -32,9 +31,9 @@ class VendorObserver
                                     ->where('event_id', Webhook::EVENT_CREATE_VENDOR)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_VENDOR, $vendor, $vendor->company)->delay(0);
-        
+        }
     }
 
     /**
@@ -47,19 +46,22 @@ class VendorObserver
     {
         $event = Webhook::EVENT_UPDATE_VENDOR;
 
-        if($vendor->getOriginal('deleted_at') && !$vendor->deleted_at)
+        if ($vendor->getOriginal('deleted_at') && !$vendor->deleted_at) {
             $event = Webhook::EVENT_RESTORE_VENDOR;
+        }
         
-        if($vendor->is_deleted)
-            $event = Webhook::EVENT_DELETE_VENDOR; 
+        if ($vendor->is_deleted) {
+            $event = Webhook::EVENT_DELETE_VENDOR;
+        }
         
         
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
 
-        if ($subscriptions) 
+        if ($subscriptions) {
             WebhookHandler::dispatch($event, $vendor, $vendor->company)->delay(0);
+        }
     }
 
     /**
@@ -70,8 +72,9 @@ class VendorObserver
      */
     public function deleted(Vendor $vendor)
     {
-        if($vendor->is_deleted)
+        if ($vendor->is_deleted) {
             return;
+        }
         
         $subscriptions = Webhook::where('company_id', $vendor->company_id)
                                     ->where('event_id', Webhook::EVENT_ARCHIVE_VENDOR)
@@ -103,5 +106,4 @@ class VendorObserver
     {
         //
     }
-
 }

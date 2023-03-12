@@ -22,6 +22,8 @@ return [
      */
     'batch'     => true,
 
+    'cache_connection' => 'sentinel-cache',
+
     /*
      * The default key used to store
      * metrics for batching

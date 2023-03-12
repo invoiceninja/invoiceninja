@@ -28,9 +28,7 @@ class ValidClientIds implements Rule
      */
     public function passes($attribute, $value)
     {
-
         return Client::where('company_id', auth()->user()->company()->id)->whereIn('id', $this->transformKeys($value))->count() == count($value);
-
     }
 
     /**

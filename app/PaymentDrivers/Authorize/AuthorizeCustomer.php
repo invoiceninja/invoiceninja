@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Authorize;
 
-use App\Exceptions\GenericPaymentDriverFailure;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Models\Client;
@@ -21,11 +20,8 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use Illuminate\Support\Facades\Cache;
-use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
-use net\authorize\api\contract\v1\CustomerProfileType;
 use net\authorize\api\contract\v1\GetCustomerProfileIdsRequest;
 use net\authorize\api\contract\v1\GetCustomerProfileRequest;
-use net\authorize\api\controller\CreateCustomerProfileController;
 use net\authorize\api\controller\GetCustomerProfileController;
 use net\authorize\api\controller\GetCustomerProfileIdsController;
 
@@ -43,7 +39,6 @@ class AuthorizeCustomer
 
     private function getCustomerProfileIds()
     {
-
         // Get all existing customer profile ID's
         $request = new GetCustomerProfileIdsRequest();
         $request->setMerchantAuthentication($this->authorize->merchant_authentication);

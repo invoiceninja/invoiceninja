@@ -11,17 +11,11 @@
 
 namespace App\Services\PurchaseOrder;
 
-use App\Factory\ExpenseFactory;
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Admin\InventoryNotificationObject;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 
 class PurchaseOrderInventory
 {
-
     private PurchaseOrder $purchase_order;
 
     public function __construct(PurchaseOrder $purchase_order)
@@ -31,27 +25,22 @@ class PurchaseOrderInventory
 
     public function run()
     {
-
         $line_items = $this->purchase_order->line_items;
 
-        foreach($line_items as $item)
-        {
-
+        foreach ($line_items as $item) {
             $p = Product::where('product_key', $item->product_key)->where('company_id', $this->purchase_order->company_id)->first();
 
-            if(!$p)
+            if (!$p) {
                 continue;
+            }
 
             $p->in_stock_quantity += $item->quantity;
             $p->saveQuietly();
-
         }
 
         $this->purchase_order->status_id = PurchaseOrder::STATUS_RECEIVED;
         $this->purchase_order->save();
 
         return $this->purchase_order;
-
     }
-
 }

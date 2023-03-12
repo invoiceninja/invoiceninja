@@ -27,13 +27,19 @@ class UploadPurchaseOrderRequest extends Request
 
     public function rules()
     {
+        $rules = [];
 
-    	$rules = [];
+        if($this->file('documents') && is_array($this->file('documents')))
+            $rules['documents.*'] = $this->file_validation;
+        elseif($this->file('documents'))
+            $rules['documents'] = $this->file_validation;
 
-		if($this->input('documents'))
-            $rules['documents'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
-
-    	return $rules;
-
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->file_validation;
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->file_validation;
+        }
+        
+        return $rules;
     }
 }

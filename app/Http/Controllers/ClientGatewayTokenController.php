@@ -11,8 +11,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ClientGatewayToken\ClientGatewayTokenWasCreated;
-use App\Events\ClientGatewayToken\ClientGatewayTokenWasUpdated;
 use App\Factory\ClientGatewayTokenFactory;
 use App\Filters\ClientGatewayTokenFilters;
 use App\Http\Requests\ClientGatewayToken\CreateClientGatewayTokenRequest;
@@ -22,19 +20,15 @@ use App\Http\Requests\ClientGatewayToken\ListClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\ShowClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\StoreClientGatewayTokenRequest;
 use App\Http\Requests\ClientGatewayToken\UpdateClientGatewayTokenRequest;
-use App\Http\Requests\ClientGatewayToken\UploadClientGatewayTokenRequest;
 use App\Jobs\ClientGatewayToken\StoreClientGatewayToken;
 use App\Jobs\ClientGatewayToken\UpdateClientGatewayToken;
-use App\Models\Account;
 use App\Models\ClientGatewayToken;
 use App\Repositories\ClientGatewayTokenRepository;
 use App\Transformers\ClientGatewayTokenTransformer;
-use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**

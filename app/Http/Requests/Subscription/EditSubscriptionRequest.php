@@ -12,7 +12,6 @@
 namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
-use Illuminate\Foundation\Http\FormRequest;
 
 class EditSubscriptionRequest extends Request
 {

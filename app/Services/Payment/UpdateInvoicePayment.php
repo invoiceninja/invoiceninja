@@ -12,13 +12,9 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
-use App\Jobs\Invoice\InvoiceWorkflowSettings;
-use App\Jobs\Ninja\TransactionLog;
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -44,17 +40,18 @@ class UpdateInvoicePayment
         
         $client = $this->payment->client;
 
-        if($client->trashed())
+        if ($client->trashed()) {
             $client->restore();
+        }
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices, $client) {
-
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
 
-            if($invoice->trashed())
+            if ($invoice->trashed()) {
                 $invoice->restore();
+            }
 
             if ($invoice->id == $this->payment_hash->fee_invoice_id) {
                 $paid_amount = $paid_invoice->amount + $this->payment_hash->fee_total;
@@ -65,8 +62,9 @@ class UpdateInvoicePayment
             $client->service()->updatePaidToDate($paid_amount); //always use the payment->amount
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
-            if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
+            if ($paid_amount > $invoice->partial && $paid_amount > $invoice->balance) {
                 $paid_amount = $invoice->balance;
+            }
 
             $client->service()->updateBalance($paid_amount*-1); //only ever use the amount applied to the invoice
 
@@ -76,18 +74,17 @@ class UpdateInvoicePayment
             $invoice->paid_to_date += $paid_amount;
             $invoice->save();
 
-            $invoice =  $invoice->service() 
+            $invoice =  $invoice->service()
                                 ->clearPartial()
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->workFlow()
                                 ->save();
             
-            if($invoice->is_proforma)
-            {
-
-                if(strlen($invoice->number) > 1 && str_starts_with($invoice->number,"####"))
-                    $invoice->number = ''; 
+            if ($invoice->is_proforma) {
+                if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####")) {
+                    $invoice->number = '';
+                }
                 
 
                 $invoice->is_proforma = false;
@@ -112,7 +109,6 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->save();
 
             $this->payment->applied += $paid_amount;
-
         });
         
         /* Remove the event updater from within the loop to prevent race conditions */
@@ -120,9 +116,7 @@ class UpdateInvoicePayment
         $this->payment->saveQuietly();
 
         $invoices->each(function ($invoice) {
-            
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        
         });
 
         return $this->payment->fresh();

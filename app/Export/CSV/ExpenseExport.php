@@ -12,7 +12,6 @@
 namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
-use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Transformers\ExpenseTransformer;
@@ -24,13 +23,13 @@ class ExpenseExport extends BaseExport
 {
     private Company $company;
 
-    protected array $input;
-
     private $expense_transformer;
 
-    protected $date_key = 'date';
+    public string $date_key = 'date';
 
-    protected array $entity_keys = [
+    public Writer $csv;
+
+    public array $entity_keys = [
         'amount' => 'amount',
         'category' => 'category_id',
         'client' => 'client_id',

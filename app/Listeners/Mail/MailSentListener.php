@@ -20,7 +20,6 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Events\MessageSent;
-use Illuminate\Support\Facades\Notification;
 use Symfony\Component\Mime\MessageConverter;
 
 class MailSentListener implements ShouldQueue
@@ -42,55 +41,50 @@ class MailSentListener implements ShouldQueue
      */
     public function handle(MessageSent $event)
     {
-        if(!Ninja::isHosted())
+        if (!Ninja::isHosted()) {
             return;
+        }
             
         $message_id = $event->sent->getMessageId();
 
         $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
 
-        if(!$message->getHeaders()->get('x-invitation'))
+        if (!$message->getHeaders()->get('x-invitation')) {
             return;
+        }
 
         $invitation_key = $message->getHeaders()->get('x-invitation')->getValue();
 
-        if($message_id && $invitation_key)
-        {
-
+        if ($message_id && $invitation_key) {
             $invitation = $this->discoverInvitation($invitation_key);
 
-            if(!$invitation)
+            if (!$invitation) {
                 return;
+            }
 
             $invitation->message_id = $message_id;
-            $invitation->save();   
+            $invitation->save();
         }
-
     }
 
     private function discoverInvitation($key)
     {
-        
         $invitation = false;
 
-        foreach (MultiDB::$dbs as $db) 
-        {
-
-            if($invitation = InvoiceInvitation::on($db)->where('key', $key)->first())
+        foreach (MultiDB::$dbs as $db) {
+            if ($invitation = InvoiceInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
-            elseif($invitation = QuoteInvitation::on($db)->where('key', $key)->first())
+            } elseif ($invitation = QuoteInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
-            elseif($invitation = RecurringInvoiceInvitation::on($db)->where('key', $key)->first())
+            } elseif ($invitation = RecurringInvoiceInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
-            elseif($invitation = CreditInvitation::on($db)->where('key', $key)->first())
+            } elseif ($invitation = CreditInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
-            elseif($invitation = PurchaseOrderInvitation::on($db)->where('key', $key)->first())
+            } elseif ($invitation = PurchaseOrderInvitation::on($db)->where('key', $key)->first()) {
                 return $invitation;
-
+            }
         }
 
         return $invitation;
-
     }
-
 }

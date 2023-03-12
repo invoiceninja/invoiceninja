@@ -51,7 +51,6 @@ class CreateInvoicePdf implements ShouldQueue
         if (isset($event->credit)) {
             $event->credit->invitations->each(function ($invitation) {
                 (new CreateEntityPdf($invitation->load('credit', 'contact.client.company')))->handle();
-
             });
         }
     }

@@ -62,16 +62,23 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testPatymentGetClientStatus()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/payments?client_status=completed');
+
+        $response->assertStatus(200);
+    }
+
     public function testGetPaymentMatchList()
     {
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/payments?match_transactions=true')
           ->assertStatus(200);
-
-        
     }
 
     public function testStorePaymentIdempotencyKeyIllegalLength()
@@ -114,12 +121,9 @@ class PaymentTest extends TestCase
             ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             // $message = json_decode($e->validator->getMessageBag(), 1);
-
-
         }
 
         $this->assertFalse($response);
-        
     }
 
 
@@ -226,8 +230,13 @@ class PaymentTest extends TestCase
 
     public function testStorePaymentWithClientId()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -285,8 +294,14 @@ class PaymentTest extends TestCase
 
     public function testStorePaymentWithNoInvoiecs()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -332,15 +347,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
-
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
         ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $client->id,
-            'company_id' =>$this->company->id,
-            'is_primary' => true,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
         ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -622,8 +636,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -682,8 +702,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -735,8 +761,13 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -795,8 +826,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -894,8 +931,13 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -940,59 +982,18 @@ class PaymentTest extends TestCase
         $this->assertEquals($payment->amount, 20);
         $this->assertEquals($payment->applied, 10);
 
-        // $invoice = null;
-        // $invoice = InvoiceFactory::create($this->company->id, $this->user->id);//stub the company and user_id
-        // $invoice->client_id = $client->id;
-
-        // $invoice->line_items = $this->buildLineItems();
-        // $invoice->uses_inclusive_taxes = false;
-
-        // $invoice->save();
-
-        // $invoice_calc = new InvoiceSum($invoice);
-        // $invoice_calc->build();
-
-        // $invoice = $invoice_calc->getInvoice();
-        // $invoice->save();
-        // $invoice->service()->markSent()->createInvitations()->save();
-
-        // $data = [
-        //     'amount' => 20.0,
-        //     'client_id' => $this->encodePrimaryKey($client->id),
-        //     'invoices' => [
-        //             [
-        //                 'invoice_id' => $this->encodePrimaryKey($invoice->id),
-        //                 'amount' => 10,
-        //             ]
-        //         ],
-        //     'date' => '2019/12/12',
-        // ];
-
-        // $response = false;
-
-        // try {
-        //     $response = $this->withHeaders([
-        //         'X-API-SECRET' => config('ninja.api_secret'),
-        //         'X-API-TOKEN' => $this->token,
-        //     ])->put('/api/v1/payments/'.$this->encodePrimaryKey($payment->id), $data);
-        // } catch (ValidationException $e) {
-        //     $message = json_decode($e->validator->getMessageBag(), 1);
-        //     \Log::error(print_r($e->validator->getMessageBag(), 1));
-
-        //     $this->assertTrue(array_key_exists('invoices', $message));
-        // }
-
-        // $response->assertStatus(200);
-
-        // $arr = $response->json();
-
-        // $this->assertEquals(20, $arr['data']['applied']);
     }
 
     public function testStorePaymentWithNoAmountField()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -1051,8 +1052,13 @@ class PaymentTest extends TestCase
 
     public function testStorePaymentWithZeroAmountField()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -1105,11 +1111,22 @@ class PaymentTest extends TestCase
 
     public function testPaymentForInvoicesFromDifferentClients()
     {
-        $client1 = ClientFactory::create($this->company->id, $this->user->id);
-        $client1->save();
+        $client1 = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client1->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
-        $client2 = ClientFactory::create($this->company->id, $this->user->id);
-        $client2->save();
+
+        $client2 = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client2->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice1->client_id = $client1->id;
@@ -1171,8 +1188,13 @@ class PaymentTest extends TestCase
 
     public function testPaymentWithSameInvoiceMultipleTimes()
     {
-        $client1 = ClientFactory::create($this->company->id, $this->user->id);
-        $client1->save();
+        $client1 = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client1->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice1 = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice1->client_id = $client1->id;
@@ -1223,8 +1245,13 @@ class PaymentTest extends TestCase
 
     public function testStorePaymentWithCredits()
     {
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -1306,7 +1333,14 @@ class PaymentTest extends TestCase
         $settings = ClientSettings::defaults();
         $settings->currency_id = '2';
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
         $client->settings = $settings;
         $client->save();
 
@@ -1358,8 +1392,6 @@ class PaymentTest extends TestCase
 
             $payment = Payment::find($this->decodePrimaryKey($payment_id));
 
-            // nlog($payment);
-
             $this->assertNotNull($payment);
             $this->assertNotNull($payment->invoices());
             $this->assertEquals(1, $payment->invoices()->count());
@@ -1370,8 +1402,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;
@@ -1449,8 +1487,14 @@ class PaymentTest extends TestCase
     {
         $invoice = null;
 
-        $client = ClientFactory::create($this->company->id, $this->user->id);
-        $client->save();
+        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id]);
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $invoice->client_id = $client->id;

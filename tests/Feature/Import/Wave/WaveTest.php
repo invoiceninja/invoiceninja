@@ -11,7 +11,6 @@
 
 namespace Tests\Feature\Import\Wave;
 
-use App\Import\Providers\BaseImport;
 use App\Import\Providers\Wave;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;

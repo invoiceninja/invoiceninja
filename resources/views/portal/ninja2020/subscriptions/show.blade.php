@@ -6,7 +6,7 @@
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                   {{ $subscription->name }}.
+                   {{ $subscription->name }}
                 </h3>
             </div>
             <div>
@@ -95,7 +95,7 @@
         @if($invoice->subscription && $invoice->subscription->allow_plan_changes)
             <div class="bg-white shadow overflow-hidden px-4 py-5 lg:rounded-lg mt-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">{{ ctrans('texts.change_plan') }}</h3>
-                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">Upgrade or downgrade your current plan.</p>
+                <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">{{ ctrans('texts.change_plan_description') }}</p>
 
                 <div class="flex mt-4 space-x-2">
                     @foreach($invoice->subscription->service()->getPlans() as $subscription)

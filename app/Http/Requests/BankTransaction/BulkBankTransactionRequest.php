@@ -27,11 +27,9 @@ class BulkBankTransactionRequest extends Request
 
     public function rules()
     {
-
         return [
             'ids' => 'required|bail|array',
             'action' => 'in:archive,restore,delete,convert_matched'
         ];
-
     }
 }

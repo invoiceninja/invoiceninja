@@ -11,7 +11,6 @@
 
 namespace Database\Factories;
 
-use App\Models\QuoteInvitation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

@@ -22,9 +22,7 @@ trait Uploadable
 {
     public function removeLogo($company)
     {
-        //if (Storage::disk(config('filesystems.default'))->exists($company->settings->company_logo)) {
-            (new UnlinkFile(config('filesystems.default'), $company->settings->company_logo))->handle();
-        //}
+        (new UnlinkFile(config('filesystems.default'), $company?->settings?->company_logo))->handle();
     }
 
     public function uploadLogo($file, $company, $entity)

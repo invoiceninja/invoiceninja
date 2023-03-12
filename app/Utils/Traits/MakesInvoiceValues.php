@@ -11,10 +11,7 @@
 
 namespace App\Utils\Traits;
 
-use App\Models\Country;
-use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\Quote;
 use App\Utils\Helpers;
 use App\Utils\Number;
 use Carbon\Carbon;
@@ -263,7 +260,6 @@ trait MakesInvoiceValues
      */
     public function transformLineItems($items, $table_type = '$product') :array
     {   //$start = microtime(true);
-
         $entity = $this->client ? $this->client : $this->vendor;
 
         $data = [];
@@ -284,7 +280,7 @@ trait MakesInvoiceValues
 
             if ($table_type == '$task' && $item->type_id != 2) {
                 // if ($item->type_id != 4 && $item->type_id != 5) {
-                    continue;
+                continue;
                 // }
             }
 

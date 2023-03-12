@@ -20,11 +20,9 @@ use Illuminate\Http\Request;
 
 class YodleeController extends BaseController
 {
-
     public function auth(YodleeAuthRequest $request)
     {
-
-        // create a user at this point 
+        // create a user at this point
         // use the one time token here to pull in the actual user
         // store the user_account_id on the accounts table
 
@@ -35,15 +33,11 @@ class YodleeController extends BaseController
 
         //ensure user is enterprise!!
 
-        if($company->account->bank_integration_account_id){
-
+        if ($company->account->bank_integration_account_id) {
             $flow = 'edit';
 
             $token = $company->account->bank_integration_account_id;
-
-        }
-        else{
-
+        } else {
             $flow = 'add';
 
             $response = $yodlee->createUser($company);
@@ -53,13 +47,13 @@ class YodleeController extends BaseController
             $company->account->bank_integration_account_id = $token;
 
             $company->push();
-            
         }
         
         $yodlee = new Yodlee($token);
 
-        if($request->has('window_closed') && $request->input("window_closed") == "true")
+        if ($request->has('window_closed') && $request->input("window_closed") == "true") {
             $this->getAccounts($company, $token);
+        }
 
         $data = [
             'access_token' => $yodlee->getAccessToken(),
@@ -72,20 +66,16 @@ class YodleeController extends BaseController
         ];
 
         return view('bank.yodlee.auth', $data);
-
     }
 
     private function getAccounts($company, $token)
     {
         $yodlee = new Yodlee($token);
 
-        $accounts = $yodlee->getAccounts(); 
+        $accounts = $yodlee->getAccounts();
 
-        foreach($accounts as $account)
-        {
-
-            if(!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->exists())
-            {
+        foreach ($accounts as $account) {
+            if (!BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->exists()) {
                 $bank_integration = new BankIntegration();
                 $bank_integration->company_id = $company->id;
                 $bank_integration->account_id = $company->account_id;
@@ -104,16 +94,12 @@ class YodleeController extends BaseController
                 
                 $bank_integration->save();
             }
-
         }
 
 
-        $company->account->bank_integrations->each(function ($bank_integration) use ($company){
-            
+        $company->account->bank_integrations->each(function ($bank_integration) use ($company) {
             ProcessBankTransactions::dispatch($company->account->bank_integration_account_id, $bank_integration);
-
         });
-
     }
 
 
@@ -183,7 +169,7 @@ class YodleeController extends BaseController
 }*/
     public function refreshWebhook(Request $request)
     {
-//we should ignore this one
+        //we should ignore this one
         nlog("yodlee refresh");
         nlog($request->all());
 
@@ -218,7 +204,6 @@ class YodleeController extends BaseController
 */
     public function balanceWebhook(Request $request)
     {
-
         nlog("yodlee refresh");
         nlog($request->all());
 
@@ -230,15 +215,15 @@ class YodleeController extends BaseController
     }
     
 /*
-{  
-   "event":{  
-      "data":[  
-         {  
-            "autoRefresh":{  
+{
+   "event":{
+      "data":[
+         {
+            "autoRefresh":{
                "additionalStatus":"SCHEDULED",
                "status":"ENABLED"
             },
-            "accountIds":[  
+            "accountIds":[
                1112645899,
                1112645898
             ],
@@ -254,7 +239,7 @@ class YodleeController extends BaseController
 */
     public function refreshUpdatesWebhook(Request $request)
     {
-//notifies a user if there are problems with yodlee accessing the data
+        //notifies a user if there are problems with yodlee accessing the data
         nlog("update refresh");
         nlog($request->all());
 
@@ -289,7 +274,7 @@ class YodleeController extends BaseController
 */
     public function dataUpdatesWebhook(Request $request)
     {
-//this is the main hook we use for notifications
+        //this is the main hook we use for notifications
 
         nlog("data refresh");
         nlog($request->all());
@@ -300,5 +285,4 @@ class YodleeController extends BaseController
 
         // return response()->json(['message' => 'Unauthorized'], 403);
     }
-
 }

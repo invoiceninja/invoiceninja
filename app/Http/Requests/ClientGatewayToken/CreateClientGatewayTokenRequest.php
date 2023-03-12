@@ -12,7 +12,6 @@
 namespace App\Http\Requests\ClientGatewayToken;
 
 use App\Http\Requests\Request;
-use App\Models\ClientGatewayToken;
 
 class CreateClientGatewayTokenRequest extends Request
 {

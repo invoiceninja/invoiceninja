@@ -25,25 +25,20 @@ use App\Export\CSV\QuoteItemExport;
 use App\Export\CSV\RecurringInvoiceExport;
 use App\Export\CSV\TaskExport;
 use App\Http\Requests\Report\GenericReportRequest;
-use App\Http\Requests\Report\ProfitLossRequest;
 use App\Http\Requests\TaskScheduler\CreateScheduledTaskRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduledJobRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduleRequest;
 use App\Jobs\Report\ProfitAndLoss;
-use App\Models\Company;
 use App\Models\Scheduler;
-use App\Utils\Ninja;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\Request;
-
 
 //@deprecated - never used....
 class TaskSchedulerService
 {
-    
-    public function __construct(public Scheduler $scheduler) {}
+    public function __construct(public Scheduler $scheduler)
+    {
+    }
 
     public function store(Scheduler $scheduler, CreateScheduledTaskRequest $request)
     {
@@ -152,7 +147,6 @@ class TaskSchedulerService
                 $scheduler->action_class = $this->getClassPath(TaskExport::class);
                 $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-
         }
 
         return $scheduler;

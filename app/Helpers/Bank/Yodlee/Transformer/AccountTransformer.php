@@ -12,7 +12,7 @@
 namespace App\Helpers\Bank\Yodlee\Transformer;
 
 use App\Helpers\Bank\AccountTransformerInterface;
- 
+
 /**
 [0] => stdClass Object
 (
@@ -33,7 +33,7 @@ use App\Helpers\Bank\AccountTransformerInterface;
     [includeInNetWorth] => 1
     [providerId] => 18769
     [providerName] => Dag Site Captcha
-    [isManual] => 
+    [isManual] =>
     [currentBalance] => stdClass Object
         (
             [currency] => USD
@@ -64,17 +64,15 @@ use App\Helpers\Bank\AccountTransformerInterface;
 
 class AccountTransformer implements AccountTransformerInterface
 {
-
     public function transform($yodlee_account)
     {
-
         $data = [];
 
-        if(!property_exists($yodlee_account, 'account'))
+        if (!property_exists($yodlee_account, 'account')) {
             return $data;
+        }
 
-        foreach($yodlee_account->account as $account)
-        {
+        foreach ($yodlee_account->account as $account) {
             $data[] = $this->transformAccount($account);
         }
 
@@ -83,7 +81,6 @@ class AccountTransformer implements AccountTransformerInterface
 
     public function transformAccount($account)
     {
-    
         return [
             'id' => $account->id,
             'account_type' => $account->CONTAINER,
@@ -100,5 +97,3 @@ class AccountTransformer implements AccountTransformerInterface
         ];
     }
 }
-
-

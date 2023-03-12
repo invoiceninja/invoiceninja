@@ -11,18 +11,10 @@
 
 namespace App\PaymentDrivers\Stripe\Jobs;
 
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
-use App\Models\GatewayType;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\Utilities;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -53,7 +45,6 @@ class UpdateCustomer implements ShouldQueue
 
     public function handle()
     {
-
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();
@@ -61,8 +52,9 @@ class UpdateCustomer implements ShouldQueue
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
         $client = Client::withTrashed()->find($this->client_id);
 
-        if(!$company_gateway->update_details)
+        if (!$company_gateway->update_details) {
             return;
+        }
 
         $stripe = $company_gateway->driver($client)->init();
 
@@ -87,6 +79,5 @@ class UpdateCustomer implements ShouldQueue
         $data['shipping']['address']['country'] = $client->shipping_country ? $client->shipping_country->iso_3166_2 : '';
 
         \Stripe\Customer::update($customer->id, $data, $stripe->stripe_connect_auth);
-
     }
 }

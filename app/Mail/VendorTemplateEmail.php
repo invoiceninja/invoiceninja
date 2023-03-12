@@ -11,21 +11,10 @@
 
 namespace App\Mail;
 
-use App\Jobs\Invoice\CreateUbl;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\User;
 use App\Models\VendorContact;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\TemplateEngine;
 use App\Utils\VendorHtmlEngine;
-use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 
 class VendorTemplateEmail extends Mailable
 {
@@ -53,29 +42,28 @@ class VendorTemplateEmail extends Mailable
     }
 
     /**
-     * Supports inline attachments for large 
+     * Supports inline attachments for large
      * attachments in custom designs
-     *     
+     *
      * @return string
      */
     private function buildLinksForCustomDesign(): string
     {
         $links = $this->build_email->getAttachmentLinks();
 
-        if(count($links) == 0)
+        if (count($links) == 0) {
             return '';
+        }
 
         $link_string = '<ul>';
 
-        foreach($this->build_email->getAttachmentLinks() as $link)
-        {
+        foreach ($this->build_email->getAttachmentLinks() as $link) {
             $link_string .= "<li>{$link}</li>";
         }
 
         $link_string .= '</ul>';
 
         return $link_string;
-
     }
     
     public function build()
@@ -140,12 +128,11 @@ class VendorTemplateEmail extends Mailable
 
 
         foreach ($this->build_email->getAttachments() as $file) {
-
-            if(array_key_exists('file', $file))
+            if (array_key_exists('file', $file)) {
                 $this->attachData(base64_decode($file['file']), $file['name']);
-            else
+            } else {
                 $this->attach($file['path'], ['as' => $file['name'], 'mime' => null]);
-
+            }
         }
 
         return $this;

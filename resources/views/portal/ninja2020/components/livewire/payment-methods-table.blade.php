@@ -25,6 +25,11 @@
                                 {{ ctrans('texts.bank_account') }}
                             </a>
                         @endif
+                        @if($client->getBACSGateway())
+                            <a data-cy="add-bacs-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::BACS]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                                {{ ctrans('texts.bacs') }}
+                            </a>
+                        @endif
                     </div>
                 </div>
             @endif

@@ -1,0 +1,93 @@
+    Activity:
+      properties:
+        id:
+          description: 'The id field of the activity'
+          type: string
+          example: Opnel5aKBz
+        activity_type_id:
+          description: 'The activity type id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The invoice hashed id'
+          type: string
+          example: Opnel5aKBz
+        payment_id:
+          description: 'The payment hashed id'
+          type: string
+          example: Opnel5aKBz
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: Opnel5aKBz
+        updated_at:
+          description: 'Unixtimestamp the last time the record was updated'
+          type: integer
+          example: '343421434'
+        expense_id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        is_system:
+          description: 'Defines is the activity was performed by the system'
+          type: boolean
+          example: true
+        contact_id:
+          description: 'The contact hashed id'
+          type: string
+          example: Opnel5aKBz
+        task_id:
+          description: 'The task hashed id'
+          type: string
+          example: Opnel5aKBz
+        notes:
+          description: 'Activity Notes'
+          type: string
+          example: Opnel5aKBz
+        token_id:
+          description: 'The hashed ID of the token who performed the action'
+          type: string
+          example: Opnel5aKBz
+        ip:
+          description: 'The IP Address of the user who performed the action'
+          type: string
+          example: 192.168.1.252
+        user:
+          $ref: '#/components/schemas/User'
+        client:
+          $ref: '#/components/schemas/Client'
+        contact:
+          $ref: '#/components/schemas/ClientContact'
+        recurring_invoice:
+          $ref: '#/components/schemas/RecurringInvoice'
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+        credit:
+          $ref: '#/components/schemas/Credit'
+        quote:
+          $ref: '#/components/schemas/Quote'
+        payment:
+          $ref: '#/components/schemas/Payment'
+        expense:
+          $ref: '#/components/schemas/Expense'
+        task:
+          $ref: '#/components/schemas/Task'
+        purchase_order:
+          $ref: '#/components/schemas/PurchaseOrder'
+        vendor:
+          $ref: '#/components/schemas/Vendor'
+        vendor_contact:
+          $ref: '#/components/schemas/VendorContact'
+      type: object

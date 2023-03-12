@@ -11,39 +11,36 @@
 
 namespace App\PaymentDrivers;
 
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
-use App\Exceptions\PaymentFailed;
-use App\Factory\PaymentFactory;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\NinjaMailer;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\Jobs\Ninja\TransactionLog;
-use App\Jobs\Util\SystemLogger;
-use App\Mail\Admin\ClientPaymentFailureObject;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\ClientGatewayToken;
-use App\Models\CompanyGateway;
-use App\Models\GatewayType;
+use App\Utils\Helpers;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Models\TransactionEvent;
-use App\Services\Subscription\SubscriptionService;
-use App\Utils\Helpers;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SystemLogTrait;
-use Checkout\Library\Exceptions\CheckoutHttpException;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\ClientContact;
+use App\Jobs\Mail\NinjaMailer;
+use App\Models\CompanyGateway;
+use Illuminate\Support\Carbon;
+use App\Factory\PaymentFactory;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\App;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Utils\Traits\SystemLogTrait;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Events\Payment\PaymentWasCreated;
+use App\Mail\Admin\ClientPaymentFailureObject;
+use App\Services\Subscription\SubscriptionService;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 /**
  * Class BaseDriver.
@@ -59,6 +56,9 @@ class BaseDriver extends AbstractPaymentDriver
     /* The Invitation */
     public $invitation;
 
+    /* The client */
+    public $client;
+
     /* Gateway capabilities */
     public $refundable = false;
 
@@ -68,15 +68,17 @@ class BaseDriver extends AbstractPaymentDriver
     /* Authorise payment methods */
     public $can_authorise_credit_card = false;
 
-    /* The client */
-    public $client;
-
     /* The initialized gateway driver class*/
     public $payment_method;
 
-    /* PaymentHash */
+    /**
+     * @var PaymentHash
+     */
     public $payment_hash;
 
+    /**
+     * @var Helpers`
+     */
     public $helpers;
     
     /* Array of payment methods */
@@ -85,7 +87,7 @@ class BaseDriver extends AbstractPaymentDriver
     /** @var array */
     public $required_fields = [];
 
-    public function __construct(CompanyGateway $company_gateway, Client $client = null, $invitation = false)
+    public function __construct(CompanyGateway $company_gateway, ?Client $client = null, $invitation = null)
     {
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
@@ -93,12 +95,21 @@ class BaseDriver extends AbstractPaymentDriver
         $this->helpers = new Helpers();
     }
 
+    public function init()
+    {
+        return $this;
+    }
+
+    public function updateCustomer()
+    {
+        return $this;
+    }
+
     /**
      * Required fields for client to fill, to proceed with gateway actions.
      *
      * @return array[]
      */
-
     public function getClientRequiredFields(): array
     {
         $fields = [];
@@ -140,33 +151,24 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         if ($this->company_gateway->require_custom_value1) {
-
             $fields[] = ['name' => 'client_custom_value1', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client1'), 'type' => 'text', 'validation' => 'required'];
-
         }
         
         if ($this->company_gateway->require_custom_value2) {
-
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
 
         if ($this->company_gateway->require_custom_value3) {
-
             $fields[] = ['name' => 'client_custom_value3', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client3'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
 
         if ($this->company_gateway->require_custom_value4) {
-
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
-
         }
 
         return $fields;
-
     }
 
     /**
@@ -359,11 +361,11 @@ class BaseDriver extends AbstractPaymentDriver
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         if (property_exists($this->payment_hash->data, 'billing_context') && $status == Payment::STATUS_COMPLETED) {
-
-            if(is_int($this->payment_hash->data->billing_context->subscription_id))
+            if (is_int($this->payment_hash->data->billing_context->subscription_id)) {
                 $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->subscription_id);
-            else
+            } else {
                 $billing_subscription = \App\Models\Subscription::find($this->decodePrimaryKey($this->payment_hash->data->billing_context->subscription_id));
+            }
 
             // To access campaign hash => $this->payment_hash->data->billing_context->campaign;
             // To access campaign data => Cache::get(CAMPAIGN_HASH)
@@ -384,7 +386,6 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function confirmGatewayFee() :void
     {
-
         /*Payment invoices*/
         $payment_invoices = $this->payment_hash->invoices();
 
@@ -398,7 +399,6 @@ class BaseDriver extends AbstractPaymentDriver
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
             }
-
         });
     }
 
@@ -496,7 +496,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function sendFailureMail($error)
     {
-        if(is_object($error)){
+        if (is_object($error)) {
             $error = 'Payment Aborted';
         }
 
@@ -727,17 +727,40 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getDescription(bool $abbreviated = true)
     {
-        if (! $this->payment_hash) {
-            return '';
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+        App::setLocale($this->client->company->locale());
+
+        if (! $this->payment_hash || !$this->client) {
+            return 'No description';
         }
 
-        if ($abbreviated) {
-            return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
+        $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
+        $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?: 0, $this->client);
+
+        if ($abbreviated || ! $invoices_string) {
+            return ctrans('texts.gateway_payment_text_no_invoice', [
+                'amount' => $amount,
+                'client' => $this->client->present()->name(),
+            ]);
         }
+
+        return ctrans('texts.gateway_payment_text', [
+            'invoices' => $invoices_string,
+            'amount' => $amount,
+            'client' => $this->client->present()->name(), 
+        ]);
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
-    }
 
+    }
+    
+    /**
+     * Stub for disconnecting from the gateway.
+     *
+     * @return void
+     */
     public function disconnect()
     {
         return true;

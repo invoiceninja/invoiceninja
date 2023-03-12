@@ -33,15 +33,12 @@ class AddPurchaseOrderToExpense extends Migration
 
         $language = Language::find(36);
 
-        if(!$language){
-
+        if (!$language) {
             Language::unguard();
             Language::create(['id' => 36, 'name' => 'Bulgarian', 'locale' => 'bg']);
 
             $this->buildCache(true);
-
         }
-
     }
 
     /**

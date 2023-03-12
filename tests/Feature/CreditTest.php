@@ -53,13 +53,11 @@ class CreditTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
-
     }
 
 
     public function testBulkActions()
     {
-
         $data = [
             'action' => 'archive',
             'ids' => [$this->credit->hashed_id]
@@ -92,7 +90,6 @@ class CreditTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/credits/bulk', $data)
           ->assertStatus(200);
-
     }
 
 

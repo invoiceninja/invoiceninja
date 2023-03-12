@@ -13,7 +13,6 @@ namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
-use App\Factory\QuoteFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\Company;

@@ -17,9 +17,6 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\ExpenseCategory;
 use App\Models\Vendor;
-use App\Transformers\ExpenseCategoryTransformer;
-use App\Transformers\ExpenseCateogryTransformer;
-use App\Transformers\VendorTransformer;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -77,9 +74,9 @@ class BankTransactionRuleTransformer extends EntityTransformer
 
     public function includeClient(BankTransactionRule $bank_transaction_rule)
     {
-
-        if(!$bank_transaction_rule->client)
+        if (!$bank_transaction_rule->client) {
             return null;
+        }
 
         $transformer = new ClientTransformer($this->serializer);
         
@@ -88,9 +85,9 @@ class BankTransactionRuleTransformer extends EntityTransformer
 
     public function includeVendor(BankTransactionRule $bank_transaction_rule)
     {
-
-        if(!$bank_transaction_rule->vendor)
+        if (!$bank_transaction_rule->vendor) {
             return null;
+        }
 
         $transformer = new VendorTransformer($this->serializer);
 
@@ -99,13 +96,12 @@ class BankTransactionRuleTransformer extends EntityTransformer
 
     public function includeExpenseCategory(BankTransactionRule $bank_transaction_rule)
     {
-
-        if(!$bank_transaction_rule->expense_category)
+        if (!$bank_transaction_rule->expense_category) {
             return null;
+        }
 
         $transformer = new ExpenseCategoryTransformer($this->serializer);
 
         return $this->includeItem($bank_transaction_rule->expense_category, $transformer, ExpenseCategory::class);
     }
-
 }

@@ -12,10 +12,80 @@
 namespace App\Models;
 
 use App\Helpers\Document\WithTypeHelpers;
-use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * App\Models\Document
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int|null $assigned_user_id
+ * @property int $company_id
+ * @property int|null $project_id
+ * @property int|null $vendor_id
+ * @property string|null $url
+ * @property string|null $preview
+ * @property string|null $name
+ * @property string|null $type
+ * @property string|null $disk
+ * @property string|null $hash
+ * @property int|null $size
+ * @property int|null $width
+ * @property int|null $height
+ * @property int $is_default
+ * @property string|null $custom_value1
+ * @property string|null $custom_value2
+ * @property string|null $custom_value3
+ * @property string|null $custom_value4
+ * @property int|null $deleted_at
+ * @property int $documentable_id
+ * @property string $documentable_type
+ * @property int|null $created_at
+ * @property int|null $updated_at
+ * @property int $is_public
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $documentable
+ * @property-read mixed $hashed_id
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
+ * @method static \Database\Factories\DocumentFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Document filter(\App\Filters\QueryFilters $filters)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereAssignedUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCustomValue1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCustomValue2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCustomValue3($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereCustomValue4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDisk($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDocumentableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereDocumentableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereHeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsDefault($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereIsPublic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document wherePreview($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereVendorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document whereWidth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Document withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Document withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Document extends BaseModel
 {
     use SoftDeletes;

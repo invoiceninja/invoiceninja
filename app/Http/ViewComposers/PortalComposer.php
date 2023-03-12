@@ -14,7 +14,6 @@ namespace App\Http\ViewComposers;
 use App\Utils\Ninja;
 use App\Utils\TranslationHelper;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\View\View;
 
 /**

@@ -12,7 +12,6 @@
 namespace App\Helpers\Invoice;
 
 use App\Models\Invoice;
-use App\Models\TaxRate;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
 
@@ -101,7 +100,6 @@ class InvoiceSum
 
     private function calculateCustomValues()
     {
-
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
@@ -151,7 +149,6 @@ class InvoiceSum
      */
     private function calculateBalance()
     {
-
         $this->setCalculatedAttributes();
 
         return $this;

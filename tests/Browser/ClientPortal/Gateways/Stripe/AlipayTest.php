@@ -16,7 +16,6 @@ use App\DataMapper\FeesAndLimits;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;

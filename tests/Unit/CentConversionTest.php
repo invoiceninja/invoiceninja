@@ -11,7 +11,6 @@
 
 namespace Tests\Unit;
 
-use App\DataMapper\ClientSettings;
 use Tests\TestCase;
 
 /**

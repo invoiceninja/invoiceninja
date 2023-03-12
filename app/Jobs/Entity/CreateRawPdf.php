@@ -13,7 +13,6 @@ namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
 use App\Libraries\MultiDB;
-use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -41,8 +40,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Storage;
 
 class CreateRawPdf implements ShouldQueue
 {
@@ -90,7 +87,6 @@ class CreateRawPdf implements ShouldQueue
 
     public function handle()
     {
-
         /* Forget the singleton*/
         App::forgetInstance('translator');
 

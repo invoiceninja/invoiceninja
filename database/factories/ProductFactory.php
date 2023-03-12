@@ -11,7 +11,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
@@ -30,7 +29,7 @@ class ProductFactory extends Factory
             'price' => $this->faker->numberBetween(1, 1000),
             'quantity' => $this->faker->numberBetween(1, 100),
             'custom_value1' => 'https://picsum.photos/200',
-            'custom_value2' => rand(0,100),
+            'custom_value2' => rand(0, 100),
             'custom_value3' => $this->faker->text(20),
             'custom_value4' => $this->faker->text(20),
             'is_deleted' => false,

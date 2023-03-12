@@ -13,7 +13,6 @@ namespace App\Import\Transformer\Csv;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
-use App\Import\Transformer\Csv\ClientTransformer;
 use App\Models\Invoice;
 
 /**
@@ -222,7 +221,7 @@ class InvoiceTransformer extends BaseTransformer
                     $record,
                     'item.custom_value4'
                 ),
-                'type_id' => $this->getInvoiceTypeId( $record, 'item.type_id' ),
+                'type_id' => $this->getInvoiceTypeId($record, 'item.type_id'),
             ];
         }
 

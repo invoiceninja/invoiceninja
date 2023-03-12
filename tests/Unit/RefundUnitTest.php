@@ -13,7 +13,6 @@ namespace Tests\Unit;
 
 use App\Helpers\Invoice\ProRata;
 use App\Models\RecurringInvoice;
-use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 

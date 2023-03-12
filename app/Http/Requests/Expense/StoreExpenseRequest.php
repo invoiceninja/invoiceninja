@@ -12,10 +12,8 @@
 namespace App\Http\Requests\Expense;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Expense\UniqueExpenseNumberRule;
 use App\Models\Expense;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
@@ -68,14 +66,11 @@ class StoreExpenseRequest extends Request
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
 
-            if($project){
+            if ($project) {
                 $input['client_id'] = $project->client_id;
-            }
-            else
-            {
+            } else {
                 unset($input['project_id']);
             }
-
         }
 
 

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      *
@@ -13,7 +12,6 @@ return new class extends Migration
      */
     public function up()
     {
-        
         Schema::create('bank_transaction_rules', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('company_id');
@@ -21,7 +19,7 @@ return new class extends Migration
         
             $table->string('name'); //name of rule
             $table->mediumText('rules')->nullable(); //array of rule objects
-            $table->boolean('auto_convert')->default(false); //auto convert to match 
+            $table->boolean('auto_convert')->default(false); //auto convert to match
             $table->boolean('matches_on_all')->default(false); //match on all rules or just one
             $table->string('applies_to')->default('CREDIT'); //CREDIT/DEBIT
         
@@ -36,8 +34,6 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
-     
-
     }
 
     /**

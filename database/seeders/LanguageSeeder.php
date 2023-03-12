@@ -69,39 +69,29 @@ class LanguageSeeder extends Seeder
             }
         }
 
-        if(!Language::find(33)) {
-            
+        if (!Language::find(33)) {
             $serbian = ['id' => 33, 'name' => 'Serbian', 'locale' => 'sr'];
             Language::create($serbian);
-
         }
 
-        if(!Language::find(34)) {
-            
+        if (!Language::find(34)) {
             $slovak = ['id' => 34, 'name' => 'Slovak', 'locale' => 'sk'];
             Language::create($slovak);
-
         }
 
-        if(!Language::find(35)) {
-            
+        if (!Language::find(35)) {
             $estonia = ['id' => 35, 'name' => 'Estonian', 'locale' => 'et'];
             Language::create($estonia);
-
         }
 
-        if(!Language::find(36)) {
-            
+        if (!Language::find(36)) {
             $bulgarian = ['id' => 36, 'name' => 'Bulgarian', 'locale' => 'bg'];
             Language::create($bulgarian);
-
         }
 
-        if(!Language::find(37)) {
-            
+        if (!Language::find(37)) {
             $hebrew = ['id' => 37, 'name' => 'Hebrew', 'locale' => 'he'];
             Language::create($hebrew);
-
         }
     }
 }

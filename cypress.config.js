@@ -3,6 +3,7 @@ const { defineConfig } = require('cypress')
 module.exports = defineConfig({
     chromeWebSecurity: false,
     retries: 2,
+    video: false,
     defaultCommandTimeout: 5000,
     watchForFileChanges: false,
     videosFolder: 'tests/cypress/videos',

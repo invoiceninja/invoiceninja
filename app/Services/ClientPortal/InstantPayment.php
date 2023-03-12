@@ -13,9 +13,6 @@
 namespace App\Services\ClientPortal;
 
 use App\Exceptions\PaymentFailed;
-use App\Factory\PaymentFactory;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Invoice\CheckGatewayFee;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
@@ -24,17 +21,13 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 
 class InstantPayment
 {
@@ -50,7 +43,6 @@ class InstantPayment
 
     public function run()
     {
-
         $is_credit_payment = false;
 
         $tokens = [];
@@ -96,7 +88,6 @@ class InstantPayment
         /* This loop checks for under / over payments and returns the user if a check fails */
 
         foreach ($payable_invoices as $payable_invoice) {
-
             /*Match the payable invoice to the Model Invoice*/
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -197,8 +188,9 @@ class InstantPayment
         $starting_invoice_amount = $first_invoice->balance;
 
         /* Schedule a job to check the gateway fees for this invoice*/
-        if(Ninja::isHosted())
+        if (Ninja::isHosted()) {
             CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(600);
+        }
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
@@ -226,17 +218,12 @@ class InstantPayment
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
-        }
-        elseif($this->request->hash){
+        } elseif ($this->request->hash) {
             $hash_data['billing_context'] = Cache::get($this->request->hash);
-        }
-        elseif($old_hash = PaymentHash::where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->first()) {
-
-            if(isset($old_hash->data->billing_context))
-            {
+        } elseif ($old_hash = PaymentHash::where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->first()) {
+            if (isset($old_hash->data->billing_context)) {
                 $hash_data['billing_context'] = $old_hash->data->billing_context;
             }
-
         }
 
         $payment_hash = new PaymentHash;
@@ -297,7 +284,7 @@ class InstantPayment
     }
 
     public function processCreditPayment(Request $request, array $data)
-    {  
+    {
         return render('gateways.credit.index', $data);
     }
 }

@@ -60,7 +60,7 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-       $this->createBackup($entity, $activity);
+        $this->createBackup($entity, $activity);
     }
 
     /**
