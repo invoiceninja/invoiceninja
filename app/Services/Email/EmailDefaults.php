@@ -296,7 +296,7 @@ class EmailDefaults
         }
 
         /** UBL xml file */
-        if ($this->email->email_object->entity instanceof Invoice && $this->email->email_object->settings->ubl_email_attachment) {
+        if ($this->email->email_object->settings->ubl_email_attachment && $this->email->email_object->entity instanceof Invoice) {
             $ubl_string = (new CreateUbl($this->email->email_object->entity))->handle();
 
             if ($ubl_string) {
@@ -306,7 +306,6 @@ class EmailDefaults
 
         if(!$this->email->email_object->settings->document_email_attachment)
             return $this;
-
 
         /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());
