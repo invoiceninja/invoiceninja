@@ -109,6 +109,7 @@ class EmailDefaults
         $this->template = $this->email->email_object->settings->email_style;
 
         match ($this->email->email_object->settings->email_style) {
+            'plain' => $this->template = 'email.template.plain',
             'light' => $this->template = 'email.template.client',
             'dark' => $this->template = 'email.template.client',
             'custom' => $this->template = 'email.template.custom',
