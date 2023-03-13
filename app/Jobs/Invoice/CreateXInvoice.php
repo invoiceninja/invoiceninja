@@ -3,11 +3,6 @@
 namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
-use CleverIt\UBL\Invoice\Generator;
-use CleverIt\UBL\Invoice\InvoiceLine;
-use CleverIt\UBL\Invoice\Item;
-use CleverIt\UBL\Invoice\LegalMonetaryTotal;
-use CleverIt\UBL\Invoice\TaxTotal;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -18,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 
-class CreateXRechnung implements ShouldQueue
+class CreateXInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -133,13 +128,13 @@ class CreateXRechnung implements ShouldQueue
         }
         if (strlen($invoice->tax_name3) > 1) {
             $xrechnung->addDocumentTax("S", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
-        };
-        $xrechnung->writeFile(getcwd() . "/factur-x.xml");
+        }
+        $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
 
         // TODO: Inject XML into PDF
-        $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, "/tmp/original.pdf");
+        $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $client->invoice_filepath($invoice->invitations->first()));
         $pdfBuilder->generateDocument();
-        $pdfBuilder->saveDocument("/tmp/new.pdf");
+        $pdfBuilder->saveDocument($client->invoice_filepath($invoice->invitations->first()));
     }
     private function getItemTaxable($item, $invoice_total): float
     {
