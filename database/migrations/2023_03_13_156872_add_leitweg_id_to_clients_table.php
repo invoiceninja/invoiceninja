@@ -17,6 +17,10 @@ return new class extends Migration
         Schema::table('clients', function (Blueprint $table) {
             $table->string('leitweg_idf')->default(null);
         });
+        Schema::table('companies', function (Blueprint $table) {
+            $table->boolean('use_xinvoice')->default(false);
+            $table->string('xinvoice_type')->default("EN16931");
+        });
     }
 
     /**

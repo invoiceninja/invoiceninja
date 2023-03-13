@@ -36,7 +36,34 @@ class CreateXInvoice implements ShouldQueue
         $invoice = $this->invoice;
         $company = $invoice->company;
         $client = $invoice->client;
-        $xrechnung =  ZugferdDocumentBuilder::CreateNew(ZugferdProfiles::PROFILE_EN16931);
+        $profile = "";
+        switch ($company->xinvoice_type){
+            case "EN16931":
+                $profile = ZugferdProfiles::PROFILE_EN16931;
+                break;
+            case "XInvoice_2_2":
+                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2_2;
+                break;
+            case "XInvoice_2_1":
+                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2_1;
+                break;
+            case "XInvoice_2_0":
+                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2;
+                break;
+            case "XInvoice_1_0":
+                $profile = ZugferdProfiles::PROFILE_XRECHNUNG;
+                break;
+            case "XInvoice-Extended":
+                $profile = ZugferdProfiles::PROFILE_EXTENDED;
+                break;
+            case "XInvoice-BasicWL":
+                $profile = ZugferdProfiles::PROFILE_BASICWL;
+                break;
+            case "XInvoice-Basic":
+                $profile = ZugferdProfiles::PROFILE_BASIC;
+                break;
+        }
+        $xrechnung =  ZugferdDocumentBuilder::CreateNew($profile);
 
         $xrechnung
             ->setDocumentInformation($invoice->number, "380", date_create($invoice->date), $invoice->client->getCurrencyCode())

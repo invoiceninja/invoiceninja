@@ -97,6 +97,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $stock_notification
  * @property string|null $matomo_url
  * @property int|null $matomo_id
+ * @property bool $use_xinvoice
+ * @property string $xinvoice_type
  * @property int $enabled_expense_tax_rates
  * @property int $invoice_task_project
  * @property int $report_include_deleted
@@ -354,6 +356,8 @@ class Company extends BaseModel
         'google_analytics_key',
         'matomo_url',
         'matomo_id',
+        'use_xinvoice',
+        'xinvoice_type',
         'client_can_register',
         'enable_shop_api',
         'invoice_task_timelog',
