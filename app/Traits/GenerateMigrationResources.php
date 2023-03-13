@@ -2042,6 +2042,7 @@ trait GenerateMigrationResources
                 'company_id' => $vendor->account_id,
                 'user_id' => $vendor->user_id,
                 'name' => $vendor->name,
+                'currency_id' => $vendor->currency_id ? (string) $vendor->currency_id : (string) $this->account->currency_id,
                 //'balance' => $vendor->balance ?: 0,
                 //'paid_to_date' => $vendor->paid_to_date ?: 0,
                 'address1' => $vendor->address1,
