@@ -13,8 +13,7 @@ namespace App\Services\Quote;
 
 use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
-use App\Services\Email\MailEntity;
-use App\Services\Email\MailObject;
+
 
 class SendEmail
 {
@@ -46,7 +45,7 @@ class SendEmail
             $this->reminder_template = $this->quote->calculateTemplate('quote');
         }
 
-        $mo = new MailObject();
+        // $mo = new MailObject();
 
         $this->quote->service()->markSent()->save();
 
