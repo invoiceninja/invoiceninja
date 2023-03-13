@@ -353,7 +353,7 @@ trait GenerateMigrationResources
                 'city' => $client->city,
                 'state' => $client->state,
                 'postal_code' => $client->postal_code,
-                'country_id' => $client->country_id,
+                'country_id' => $client->country_id ? (string) $client->country_id : (string) $this->account->country_id,
                 'phone' => $client->work_phone,
                 'private_notes' => $client->private_notes,
                 'website' => $client->website,
