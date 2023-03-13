@@ -214,12 +214,10 @@ class SendReminders implements ShouldQueue
                 nlog('firing email');
 
                 EmailEntity::dispatch($invitation, $invitation->company, $template)->delay(10);
+                event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
+
             }
         });
-
-        if ($this->checkSendSetting($invoice, $template)) {
-            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
-        }
 
         $invoice->last_sent_date = now();
         $invoice->next_send_date = $this->calculateNextSendDate($invoice);
