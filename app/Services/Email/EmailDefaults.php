@@ -281,7 +281,7 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             return $this;
         }
 
@@ -312,7 +312,7 @@ class EmailDefaults
             }
         }
 
-        if(!$this->email->email_object->settings->document_email_attachment)
+        if(!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS))
             return $this;
 
         /* Company Documents */
