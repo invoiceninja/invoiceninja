@@ -49,8 +49,11 @@ class CreateXRechnung implements ShouldQueue
             ->setDocumentSeller($company->name)
             ->setDocumentSellerAddress($company->address1, "", "", $company->postal_code, $company->city, $company->country->country->iso_3166_2)
             ->setDocumentBuyer($client->name, $client->number)
-            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->country->iso_3166_2);
-            //->addDocumentPaymentTerm("Zahlbar innerhalb 30 Tagen netto bis 04.04.2018, 3% Skonto innerhalb 10 Tagen bis 15.03.2018")
+            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->country->iso_3166_2)
+            ->setDocumentBuyerReference($client->leitweg_id)
+            ->setDocumentBuyerContact($client->primary_contact->first_name." ".$client->primary_contact->last_name, "", $client->primary_contact->phone, "", $client->primary_contact->email)
+            ->setDocumentBuyerOrderReferencedDocument($invoice->po_number)
+            ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
 
         if (str_contains($company->vat_number, "/")){
             $xrechnung->addDocumentSellerTaxRegistration("FC", $company->vat_number);

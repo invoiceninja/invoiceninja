@@ -41,6 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $client_hash
  * @property string|null $logo
  * @property string|null $phone
+ * @property string|null leitweg_id
  * @property string $balance
  * @property string $paid_to_date
  * @property string $credit_balance
@@ -220,6 +221,7 @@ class Client extends BaseModel implements HasLocalePreference
         'public_notes',
         'phone',
         'number',
+        'leitweg_id',
     ];
 
     protected $with = [
@@ -268,6 +270,7 @@ class Client extends BaseModel implements HasLocalePreference
         'id_number',
         'public_notes',
         'phone',
+        'leitweg_id',
     ];
 
     // public function scopeExclude($query)
