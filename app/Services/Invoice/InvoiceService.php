@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
+use App\Jobs\Invoice\CreateXInvoice;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
@@ -184,6 +185,11 @@ class InvoiceService
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
 
+    public function getXInvoice($contact = null)
+    {
+        return (new GetInvoiceXInvoice($this->invoice))->run();
+    }
+
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
@@ -293,7 +299,7 @@ class InvoiceService
         } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
-        
+
         return $this;
     }
 
@@ -342,6 +348,27 @@ class InvoiceService
 
                 if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
                     Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
+    }
+
+    public function deleteXInvoice()
+    {
+        $this->invoice->load('invitations');
+
+        $this->invoice->invitations->each(function ($invitation) {
+            try {
+                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml')) {
+                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml');
+                }
+
+                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml')) {
+                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml');
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -421,6 +448,7 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
+                    // Add XInvoice
                 });
 
                 return $this;
@@ -428,6 +456,7 @@ class InvoiceService
 
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
+                // Add XInvoice
             });
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');

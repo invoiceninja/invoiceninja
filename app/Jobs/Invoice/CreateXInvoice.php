@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 
 class CreateXInvoice implements ShouldQueue
@@ -28,9 +29,9 @@ class CreateXInvoice implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return void
+     * @return string
      */
-    public function handle(): void
+    public function handle(): string
     {
         $invoice = $this->invoice;
         $company = $invoice->company;
@@ -127,14 +128,20 @@ class CreateXInvoice implements ShouldQueue
         $xrechnung->addDocumentTax("S", "VAT", $taxnet_2, $taxAmount_2, $invoice->tax_rate2);
         }
         if (strlen($invoice->tax_name3) > 1) {
-            $xrechnung->addDocumentTax("S", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
+            $xrechnung->addDocumentTax("CS", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
         $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
 
-        // TODO: Inject XML into PDF
-        $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $client->invoice_filepath($invoice->invitations->first()));
-        $pdfBuilder->generateDocument();
-        $pdfBuilder->saveDocument($client->invoice_filepath($invoice->invitations->first()));
+        $filepath_pdf = $client->invoice_filepath($invoice->invitations->first());
+        $disk = config('filesystems.default');
+
+        $file = Storage::disk($disk)->exists($filepath_pdf);
+        if ($file) {
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $filepath_pdf);
+            $pdfBuilder->generateDocument();
+            $pdfBuilder->saveDocument($client->invoice_filepath($invoice->invitations->first()));
+        }
+        return explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml";
     }
     private function getItemTaxable($item, $invoice_total): float
     {
