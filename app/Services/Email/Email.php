@@ -11,43 +11,42 @@
 
 namespace App\Services\Email;
 
-use App\Models\User;
-use App\Utils\Ninja;
+use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
+use App\Jobs\Util\SystemLogger;
+use App\Libraries\Google\Google;
+use App\Libraries\MultiDB;
 use App\Models\Client;
-use App\Models\Vendor;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Utils\HtmlEngine;
-use App\Libraries\MultiDB;
-use App\Models\ClientContact;
+use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorContact;
-use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
-use App\Jobs\Util\SystemLogger;
+use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
-use App\Libraries\Google\Google;
-use Illuminate\Support\Facades\Mail;
-use App\Services\Email\EmailMailable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
-use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
-use App\DataMapper\Analytics\EmailFailure;
-use App\DataMapper\Analytics\EmailSuccess;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class Email implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 4; 
+    public $tries = 4;
 
     public $deleteWhenMissingModels = true;
 
@@ -79,7 +78,6 @@ class Email implements ShouldQueue
 
     public function handle()
     {
-
         MultiDB::setDb($this->company->db);
 
         $this->setOverride()
@@ -87,13 +85,13 @@ class Email implements ShouldQueue
              ->setDefaults()
              ->buildMailable();
 
-        if($this->preFlightChecksFail())
+        if ($this->preFlightChecksFail()) {
             return;
+        }
 
         $this->email();
 
         $this->tearDown();
-
     }
     
     /**
@@ -115,7 +113,6 @@ class Email implements ShouldQueue
      */
     public function initModels(): self
     {
-
         $this->email_object->entity_id ? $this->email_object->entity = $this->email_object->entity_class::withTrashed()->with('invitations')->find($this->email_object->entity_id) : $this->email_object->entity = null;
 
         $this->email_object->invitation_id ? $this->email_object->invitation = $this->email_object->entity->invitations()->where('id', $this->email_object->invitation_id)->first() : $this->email_object->invitation = null;
@@ -126,13 +123,10 @@ class Email implements ShouldQueue
         
         $this->email_object->vendor_id ? $this->email_object->vendor = Vendor::withTrashed()->find($this->email_object->vendor_id) : $this->email_object->vendor = null;
    
-        if (!$this->email_object->contact) 
-        {
-
+        if (!$this->email_object->contact) {
             $this->email_object->vendor_contact_id ? $this->email_object->contact = VendorContact::withTrashed()->find($this->email_object->vendor_contact_id) :  null;
 
             $this->email_object->client_contact_id ? $this->email_object->contact = ClientContact::withTrashed()->find($this->email_object->client_contact_id) :  null;
-
         }
 
         $this->email_object->user_id ? $this->email_object->user = User::withTrashed()->find($this->email_object->user_id) :  $this->email_object->user = $this->company->owner();
@@ -163,7 +157,7 @@ class Email implements ShouldQueue
     {
         $_variables = $this->email_object->variables;
         
-        match(class_basename($this->email_object->entity)){
+        match (class_basename($this->email_object->entity)) {
             "Invoice" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Quote" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
             "Credit" => $this->email_object->variables = (new HtmlEngine($this->email_object->invitation))->makeValues(),
@@ -172,8 +166,7 @@ class Email implements ShouldQueue
         };
 
         /** If we have passed some variable overrides we insert them here */
-        foreach($_variables as $key => $value)
-        {
+        foreach ($_variables as $key => $value) {
             $this->email_object->variables[$key] = $value;
         }
 
@@ -187,7 +180,6 @@ class Email implements ShouldQueue
      */
     private function tearDown(): self
     {
-
         $this->email_object->entity = null;
         $this->email_object->invitation = null;
         $this->email_object->client = null;
@@ -197,7 +189,6 @@ class Email implements ShouldQueue
         $this->email_object->settings = null;
 
         return $this;
-        
     }
     
     /**
@@ -207,11 +198,9 @@ class Email implements ShouldQueue
      */
     public function setDefaults(): self
     {
-
         (new EmailDefaults($this))->run();
 
         return $this;
-
     }
     
     /**
@@ -221,11 +210,9 @@ class Email implements ShouldQueue
      */
     public function buildMailable(): self
     {
-        
         $this->mailable = new EmailMailable($this->email_object);
         
         return $this;
-        
     }
     
     /**
@@ -235,7 +222,6 @@ class Email implements ShouldQueue
      */
     public function email()
     {
-
         $this->setMailDriver();
 
         /* Init the mailer*/
@@ -260,11 +246,21 @@ class Email implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
-
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             
             $message = $e->getMessage();
+
+            if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+                $message = "Either Attachment too large, or recipient has been suppressed.";
+
+                $this->fail();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->cleanUpMailers();
+
+                return;
+            }
+
 
             /**
              * Post mark buries the proper message in a a guzzle response
@@ -304,7 +300,6 @@ class Email implements ShouldQueue
         }
 
         $this->cleanUpMailers();
-
     }
 
    /**
@@ -743,13 +738,10 @@ class Email implements ShouldQueue
 
     public function failed($exception = null)
     {
-
-        if($exception)
+        if ($exception) {
             nlog($exception->getMessage());
+        }
 
         config(['queue.failed.driver' => null]);
-
     }
-
-
 }
