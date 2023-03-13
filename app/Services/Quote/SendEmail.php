@@ -45,7 +45,6 @@ class SendEmail
             $this->reminder_template = $this->quote->calculateTemplate('quote');
         }
 
-        // $mo = new MailObject();
 
         $this->quote->service()->markSent()->save();
 

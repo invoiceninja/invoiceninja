@@ -160,7 +160,9 @@ class CheckData extends Command
 
     private function checkCompanyTokens()
     {
-        CompanyUser::doesnthave('token')->cursor()->each(function ($cu) {
+        CompanyUser::whereDoesntHave('token', function ($query){
+          return $query->where('is_system', 1);
+        })->cursor()->each(function ($cu){
             if ($cu->user) {
                 $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
                 (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
@@ -169,7 +171,12 @@ class CheckData extends Command
             }
         });
     }
-
+    
+    /**
+     * checkOauthSanity
+     * 
+     * @return void
+     */
     private function checkOauthSanity()
     {
         User::where('oauth_provider_id', '1')->cursor()->each(function ($user) {

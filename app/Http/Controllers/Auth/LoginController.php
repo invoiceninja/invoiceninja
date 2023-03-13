@@ -377,7 +377,7 @@ class LoginController extends BaseController
 
         if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
             auth()->user()->companies->each(function ($company) {
-                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->where('is_system',true)->exists()) {
                     (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
                 }
             });
