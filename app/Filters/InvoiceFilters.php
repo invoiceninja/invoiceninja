@@ -69,6 +69,7 @@ class InvoiceFilters extends QueryFilters
             if (in_array('overdue', $status_parameters)) {
                 $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                 ->where('due_date', '<', Carbon::now())
+                                ->orWhere('due_date', null)
                                 ->orWhere('partial_due_date', '<', Carbon::now());
             }
         });
