@@ -232,8 +232,8 @@ class RequiredClientInfo extends Component
             if ($cg && $cg->update_details) {
                 $payment_gateway = $cg->driver($this->client)->init();
 
-                // if(method_exists($payment_gateway, "updateCustomer"))
-            //     $payment_gateway->updateCustomer();
+                if(method_exists($payment_gateway, "updateCustomer"))
+                    $payment_gateway->updateCustomer();
             }
 
             return true;

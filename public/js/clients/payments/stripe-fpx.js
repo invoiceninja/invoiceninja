@@ -1,2 +1,107 @@
-/*! For license information please see stripe-fpx.js.LICENSE.txt */
-(()=>{var e,t,n,r;function o(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function i(e,t,n){return t in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var a=function(){function e(t,n){var r=this;!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),i(this,"setupStripe",(function(){r.stripeConnect?r.stripe=Stripe(r.key,{stripeAccount:r.stripeConnect}):r.stripe=Stripe(r.key);var e=r.stripe.elements();return r.fpx=e.create("fpxBank",{style:{base:{padding:"10px 12px",color:"#32325d",fontSize:"16px"}},accountHolderType:"individual"}),r.fpx.mount("#fpx-bank-element"),r})),i(this,"handle",(function(){document.getElementById("pay-now").addEventListener("click",(function(e){document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),r.stripe.confirmFpxPayment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:{fpx:r.fpx},return_url:document.querySelector('meta[name="return-url"]').content}).then((function(e){e.error&&r.handleFailure(e.error.message)}))}))})),this.key=t,this.errors=document.getElementById("errors"),this.stripeConnect=n}var t,n,r;return t=e,(n=[{key:"handleFailure",value:function(e){var t=document.getElementById("errors");t.textContent="",t.textContent=e,t.hidden=!1,document.getElementById("pay-now").disabled=!1,document.querySelector("#pay-now > svg").classList.add("hidden"),document.querySelector("#pay-now > span").classList.remove("hidden")}}])&&o(t.prototype,n),r&&o(t,r),Object.defineProperty(t,"prototype",{writable:!1}),e}();new a(null!==(e=null===(t=document.querySelector('meta[name="stripe-publishable-key"]'))||void 0===t?void 0:t.content)&&void 0!==e?e:"",null!==(n=null===(r=document.querySelector('meta[name="stripe-account-id"]'))||void 0===r?void 0:r.content)&&void 0!==n?n:"").setupStripe().handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*****************************************************!*\
+  !*** ./resources/js/clients/payments/stripe-fpx.js ***!
+  \*****************************************************/
+var _document$querySelect, _document$querySelect2, _document$querySelect3, _document$querySelect4;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license 
+ */
+var ProcessFPXPay = /*#__PURE__*/function () {
+  function ProcessFPXPay(key, stripeConnect) {
+    var _this = this;
+
+    _classCallCheck(this, ProcessFPXPay);
+
+    _defineProperty(this, "setupStripe", function () {
+      if (_this.stripeConnect) {
+        // this.stripe.stripeAccount = this.stripeConnect;
+        _this.stripe = Stripe(_this.key, {
+          stripeAccount: _this.stripeConnect
+        });
+      } else {
+        _this.stripe = Stripe(_this.key);
+      }
+
+      var elements = _this.stripe.elements();
+
+      var style = {
+        base: {
+          // Add your base input styles here. For example:
+          padding: '10px 12px',
+          color: '#32325d',
+          fontSize: '16px'
+        }
+      };
+      _this.fpx = elements.create('fpxBank', {
+        style: style,
+        accountHolderType: 'individual'
+      });
+
+      _this.fpx.mount("#fpx-bank-element");
+
+      return _this;
+    });
+
+    _defineProperty(this, "handle", function () {
+      document.getElementById('pay-now').addEventListener('click', function (e) {
+        document.getElementById('pay-now').disabled = true;
+        document.querySelector('#pay-now > svg').classList.remove('hidden');
+        document.querySelector('#pay-now > span').classList.add('hidden');
+
+        _this.stripe.confirmFpxPayment(document.querySelector('meta[name=pi-client-secret').content, {
+          payment_method: {
+            fpx: _this.fpx
+          },
+          return_url: document.querySelector('meta[name="return-url"]').content
+        }).then(function (result) {
+          if (result.error) {
+            _this.handleFailure(result.error.message);
+          }
+        });
+
+        ;
+      });
+    });
+
+    this.key = key;
+    this.errors = document.getElementById('errors');
+    this.stripeConnect = stripeConnect;
+  }
+
+  _createClass(ProcessFPXPay, [{
+    key: "handleFailure",
+    value: function handleFailure(message) {
+      var errors = document.getElementById('errors');
+      errors.textContent = '';
+      errors.textContent = message;
+      errors.hidden = false;
+      document.getElementById('pay-now').disabled = false;
+      document.querySelector('#pay-now > svg').classList.add('hidden');
+      document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
+  }]);
+
+  return ProcessFPXPay;
+}();
+
+var publishableKey = (_document$querySelect = (_document$querySelect2 = document.querySelector('meta[name="stripe-publishable-key"]')) === null || _document$querySelect2 === void 0 ? void 0 : _document$querySelect2.content) !== null && _document$querySelect !== void 0 ? _document$querySelect : '';
+var stripeConnect = (_document$querySelect3 = (_document$querySelect4 = document.querySelector('meta[name="stripe-account-id"]')) === null || _document$querySelect4 === void 0 ? void 0 : _document$querySelect4.content) !== null && _document$querySelect3 !== void 0 ? _document$querySelect3 : '';
+new ProcessFPXPay(publishableKey, stripeConnect).setupStripe().handle();
+/******/ })()
+;

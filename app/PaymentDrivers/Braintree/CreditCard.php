@@ -100,8 +100,8 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        // nlog($request->all());
-        
+        $this->braintree->client->fresh();
+
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'payment_hash' => $request->payment_hash,
@@ -124,13 +124,14 @@ class CreditCard
             'options' => [
                 'submitForSettlement' => true,
             ],
+            'billing' => [
+                'streetAddress' => $this->braintree->client->address1 ?: '',
+                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'locality' => $this->braintree->client->city ?: '',
+                'postalCode' => $this->braintree->client->postal_code ?: '',
+                'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
+            ]
         ];
-
-        // uses the same auth id twice when this is enabled.
-        
-        // if($state['server_response']?->threeDSecureInfo){
-        //     $data['threeDSecureAuthenticationId'] = $state['server_response']?->threeDSecureInfo?->threeDSecureAuthenticationId;
-        // }
 
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
             /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
@@ -139,6 +140,7 @@ class CreditCard
 
         try {
             $result = $this->braintree->gateway->transaction()->sale($data);
+
         } catch (\Exception $e) {
             if ($e instanceof \Braintree\Exception\Authorization) {
                 $this->braintree->sendFailureMail(ctrans('texts.generic_gateway_error'));
@@ -182,6 +184,13 @@ class CreditCard
             'options' => [
                 'verifyCard' => true,
             ],
+            'billingAddress' => [
+                'streetAddress' => $this->braintree->client->address1 ?: '',
+                'extendedAddress' =>$this->braintree->client->address2 ?: '',
+                'locality' => $this->braintree->client->city ?: '',
+                'postalCode' => $this->braintree->client->postal_code ?: '',
+                'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
+            ]
         ];
 
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
