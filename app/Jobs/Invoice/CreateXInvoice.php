@@ -85,7 +85,7 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentSellerTaxRegistration("VA", $company->vat_number);
         }
         // Create line items and calculate taxes
-        $taxamount_1 = $taxAmount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
+        $taxamount_1 = $taxamount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
         $netprice = 0.0;
         $chargetotalamount = $discount = 0.0;
         $taxable = $this->getTaxable();
@@ -102,15 +102,54 @@ class CreateXInvoice implements ShouldQueue
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
             }
             $netprice += $this->getItemTaxable($item, $taxable);
-
-            $xrechnung->addDocumentPositionTax('S', 'VAT', 19);
-
+            $discountamount = 0.0;
             if ($item->discount > 0){
                 if ($invoice->is_amount_discount){
+                    $discountamount = $item->discount;
                     $discount += $item->discount;
                 }
                 else {
+                    $discountamount = $item->line_total * ($item->discount / 100);
                     $discount += $item->line_total * ($item->discount / 100);
+                }
+            }
+
+            // According to european law, each artical can only have one tax percentage
+            if ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
+                if ($invoice->tax_name1 != null && $invoice->tax_name2 == null && $invoice->tax_name3 == null){
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate1);
+                    $taxnet_1 += $item->line_total - $discountamount;
+                    $taxamount_1 += $item->tax_amount;
+                }
+                elseif ($invoice->tax_name1 == null && $invoice->tax_name2 != null && $invoice->tax_name3 == null){
+                    $taxnet_2 += $item->line_total - $discountamount;
+                    $taxamount_2 += $item->tax_amount;
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate2);
+                }
+                elseif ($invoice->tax_name1 == null && $invoice->tax_name2 == null && $invoice->tax_name3 != null){
+                    $taxnet_3 += $item->line_total - $discountamount;
+                    $taxamount_3 += $item->tax_amount;
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate3);
+                }
+                else{
+                    nlog("Can't add correct tax position");
+                }
+            }
+            else {
+                if ($item->tax_name1 != "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
+                    $taxnet_1 += $item->line_total - $discountamount;
+                    $taxamount_1 += $item->tax_amount;
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate1);
+                }
+                elseif ($item->tax_name1 == "" && $item->tax_name2 != "" && $item->tax_name3 == ""){
+                    $taxnet_2 += $item->line_total - $discountamount;
+                    $taxamount_2 += $item->tax_amount;
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate2);
+                }
+                elseif ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 != ""){
+                    $taxnet_3 += $item->line_total - $discountamount;
+                    $taxamount_3 += $item->tax_amount;
+                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate3);
                 }
             }
         }
@@ -148,13 +187,13 @@ class CreateXInvoice implements ShouldQueue
         else {
             $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $netprice, $chargetotalamount, $discount, $taxable, $invoice->total_taxes, null, 0.0);
         }
-        if (strlen($invoice->tax_name1) > 1) {
+        if ($taxnet_1 > 0){
         $xrechnung->addDocumentTax("S", "VAT", $taxnet_1, $taxamount_1, $invoice->tax_rate1);
         }
-        if (strlen($invoice->tax_name2) > 1) {
-        $xrechnung->addDocumentTax("S", "VAT", $taxnet_2, $taxAmount_2, $invoice->tax_rate2);
+        if ($taxnet_2 > 0) {
+        $xrechnung->addDocumentTax("S", "VAT", $taxnet_2, $taxamount_2, $invoice->tax_rate2);
         }
-        if (strlen($invoice->tax_name3) > 1) {
+        if ($taxnet_3 > 0) {
             $xrechnung->addDocumentTax("CS", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
         $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
