@@ -194,7 +194,7 @@ class CreateXInvoice implements ShouldQueue
         $xrechnung->addDocumentTax("S", "VAT", $taxnet_2, $taxamount_2, $invoice->tax_rate2);
         }
         if ($taxnet_3 > 0) {
-            $xrechnung->addDocumentTax("CS", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
+            $xrechnung->addDocumentTax("S", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
         $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
 
