@@ -12,6 +12,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use function Symfony\Component\String\b;
 
 
 class CreateXInvoice implements ShouldQueue
@@ -85,6 +86,96 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentSellerTaxRegistration("VA", $company->vat_number);
         }
         // Create line items and calculate taxes
+        $taxtype1 = "";
+        switch ($company->tax_type1){
+            case "Sales Tax":
+                $taxtype1 = "S";
+                break;
+            case "ZeroRate":
+                $taxtype1 = "Z";
+                break;
+            case "Tax Exempt":
+                $taxtype1 = "E";
+                break;
+            case "Reversal of tax liabilty":
+                $taxtype1 = "AE";
+                break;
+            case "intra-community delivery":
+                $taxtype1 = "K";
+                break;
+            case "Out of EU":
+                $taxtype1 = "G";
+                break;
+            case "Outside the tax scope":
+                $taxtype1 = "O";
+                break;
+            case "Canary Islands":
+                $taxtype1 = "L";
+                break;
+            case "Ceuta / Melila":
+                $taxtype1 = "M";
+                break;
+        }
+        $taxtype2 = "";
+        switch ($company->tax_type2){
+            case "Sales Tax":
+                $taxtype2 = "S";
+                break;
+            case "ZeroRate":
+                $taxtype2 = "Z";
+                break;
+            case "Tax Exempt":
+                $taxtype2 = "E";
+                break;
+            case "Reversal of tax liabilty":
+                $taxtype2 = "AE";
+                break;
+            case "intra-community delivery":
+                $taxtype2 = "K";
+                break;
+            case "Out of EU":
+                $taxtype2 = "G";
+                break;
+            case "Outside the tax scope":
+                $taxtype2 = "O";
+                break;
+            case "Canary Islands":
+                $taxtype2 = "L";
+                break;
+            case "Ceuta / Melila":
+                $taxtype2 = "M";
+                break;
+        }
+        $taxtype3 = "";
+        switch ($company->tax_type3){
+            case "Sales Tax":
+                $taxtype3 = "S";
+                break;
+            case "ZeroRate":
+                $taxtype3 = "Z";
+                break;
+            case "Tax Exempt":
+                $taxtype3 = "E";
+                break;
+            case "Reversal of tax liabilty":
+                $taxtype3 = "AE";
+                break;
+            case "intra-community delivery":
+                $taxtype3 = "K";
+                break;
+            case "Out of EU":
+                $taxtype3 = "G";
+                break;
+            case "Outside the tax scope":
+                $taxtype3 = "O";
+                break;
+            case "Canary Islands":
+                $taxtype3 = "L";
+                break;
+            case "Ceuta / Melila":
+                $taxtype3 = "M";
+                break;
+        }
         $taxamount_1 = $taxamount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
         $netprice = 0.0;
         $chargetotalamount = $discount = 0.0;
@@ -117,19 +208,19 @@ class CreateXInvoice implements ShouldQueue
             // According to european law, each artical can only have one tax percentage
             if ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
                 if ($invoice->tax_name1 != null && $invoice->tax_name2 == null && $invoice->tax_name3 == null){
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $invoice->tax_rate1);
                     $taxnet_1 += $item->line_total - $discountamount;
                     $taxamount_1 += $item->tax_amount;
                 }
                 elseif ($invoice->tax_name1 == null && $invoice->tax_name2 != null && $invoice->tax_name3 == null){
                     $taxnet_2 += $item->line_total - $discountamount;
                     $taxamount_2 += $item->tax_amount;
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate2);
+                    $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $invoice->tax_rate2);
                 }
                 elseif ($invoice->tax_name1 == null && $invoice->tax_name2 == null && $invoice->tax_name3 != null){
                     $taxnet_3 += $item->line_total - $discountamount;
                     $taxamount_3 += $item->tax_amount;
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $invoice->tax_rate3);
+                    $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $invoice->tax_rate3);
                 }
                 else{
                     nlog("Can't add correct tax position");
@@ -139,17 +230,17 @@ class CreateXInvoice implements ShouldQueue
                 if ($item->tax_name1 != "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
                     $taxnet_1 += $item->line_total - $discountamount;
                     $taxamount_1 += $item->tax_amount;
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $item->tax_rate1);
                 }
                 elseif ($item->tax_name1 == "" && $item->tax_name2 != "" && $item->tax_name3 == ""){
                     $taxnet_2 += $item->line_total - $discountamount;
                     $taxamount_2 += $item->tax_amount;
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate2);
+                    $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $item->tax_rate2);
                 }
                 elseif ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 != ""){
                     $taxnet_3 += $item->line_total - $discountamount;
                     $taxamount_3 += $item->tax_amount;
-                    $xrechnung->addDocumentPositionTax('S', 'VAT', $item->tax_rate3);
+                    $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $item->tax_rate3);
                 }
             }
         }
@@ -188,13 +279,13 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $netprice, $chargetotalamount, $discount, $taxable, $invoice->total_taxes, null, 0.0);
         }
         if ($taxnet_1 > 0){
-        $xrechnung->addDocumentTax("S", "VAT", $taxnet_1, $taxamount_1, $invoice->tax_rate1);
+        $xrechnung->addDocumentTax($taxtype1, "VAT", $taxnet_1, $taxamount_1, $invoice->tax_rate1);
         }
         if ($taxnet_2 > 0) {
-        $xrechnung->addDocumentTax("S", "VAT", $taxnet_2, $taxamount_2, $invoice->tax_rate2);
+        $xrechnung->addDocumentTax($taxtype2, "VAT", $taxnet_2, $taxamount_2, $invoice->tax_rate2);
         }
         if ($taxnet_3 > 0) {
-            $xrechnung->addDocumentTax("S", "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
+            $xrechnung->addDocumentTax($taxtype3, "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
         $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
 
