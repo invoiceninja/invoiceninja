@@ -31,6 +31,7 @@ use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
+use Illuminate\Mail\Mailables\Address;
 
 class EmailController extends BaseController
 {
@@ -135,6 +136,8 @@ class EmailController extends BaseController
         $mo->email_template_body = $request->input('template');
         $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
+        if($request->has('cc_email'))
+            $mo->cc[] = new Address($request->cc_email);
 
         // if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
         //     return $this->sendPurchaseOrder($entity_obj, $data, $template);

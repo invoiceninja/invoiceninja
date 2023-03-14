@@ -69,6 +69,7 @@ class EmailDefaults
         $this->setLocale() 
              ->setFrom()
              ->setTo()
+             ->setCc()
              ->setTemplate()
              ->setBody()
              ->setSubject()
@@ -259,13 +260,14 @@ class EmailDefaults
 
     /**
      * Sets the CC of the email
-     * @todo at some point....
      */
-    private function buildCc()
+    private function setCc(): self
     {
-        return [
+        return $this;
+        // return $this->email->email_object->cc;
+        // return [
         
-        ];
+        // ];
     }
 
     /**
