@@ -118,6 +118,9 @@
             background-color: {{ $primary_color }};
         }
 
+        .logo {
+
+        }
     </style>
 
     <!--[if gte mso 9]>
@@ -148,7 +151,7 @@
                     <td align="center" cellpadding="20">
                         <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
                             @if($logo && strpos($logo, 'blank.png') === false)
-                             <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; display: block;">
+                             <img class="logo" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; display: block;">
                             @endif
                         </div>
                     </td>
