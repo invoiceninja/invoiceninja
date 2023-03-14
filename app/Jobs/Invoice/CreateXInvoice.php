@@ -88,9 +88,6 @@ class CreateXInvoice implements ShouldQueue
         // Create line items and calculate taxes
         $taxtype1 = "";
         switch ($company->tax_type1){
-            case "Sales Tax":
-                $taxtype1 = "S";
-                break;
             case "ZeroRate":
                 $taxtype1 = "Z";
                 break;
@@ -115,12 +112,12 @@ class CreateXInvoice implements ShouldQueue
             case "Ceuta / Melila":
                 $taxtype1 = "M";
                 break;
+            default:
+                $taxtype1 = "S";
+                break;
         }
         $taxtype2 = "";
         switch ($company->tax_type2){
-            case "Sales Tax":
-                $taxtype2 = "S";
-                break;
             case "ZeroRate":
                 $taxtype2 = "Z";
                 break;
@@ -145,12 +142,12 @@ class CreateXInvoice implements ShouldQueue
             case "Ceuta / Melila":
                 $taxtype2 = "M";
                 break;
+            default:
+                $taxtype2 = "S";
+                break;
         }
         $taxtype3 = "";
         switch ($company->tax_type3){
-            case "Sales Tax":
-                $taxtype3 = "S";
-                break;
             case "ZeroRate":
                 $taxtype3 = "Z";
                 break;
@@ -174,6 +171,9 @@ class CreateXInvoice implements ShouldQueue
                 break;
             case "Ceuta / Melila":
                 $taxtype3 = "M";
+                break;
+            default:
+                $taxtype3 = "S";
                 break;
         }
         $taxamount_1 = $taxamount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
