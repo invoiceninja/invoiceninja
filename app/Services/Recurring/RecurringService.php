@@ -11,18 +11,22 @@
 
 namespace App\Services\Recurring;
 
-use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Jobs\Util\UnlinkFile;
-use App\Models\RecurringInvoice;
 use Illuminate\Support\Carbon;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
+use App\Services\Recurring\ApplyNumber;
+use App\Services\Recurring\UpdatePrices;
+use App\Services\Recurring\GetInvoicePdf;
+use App\Services\Recurring\IncreasePrices;
+use App\Jobs\RecurringInvoice\SendRecurring;
+use App\Services\Recurring\CreateRecurringInvitations;
 
 class RecurringService
 {
-    protected $recurring_entity;
 
-    public function __construct($recurring_entity)
+    public function __construct(public RecurringInvoice | RecurringExpense $recurring_entity)
     {
-        $this->recurring_entity = $recurring_entity;
     }
 
     //set schedules - update next_send_dates
@@ -134,6 +138,21 @@ class RecurringService
     public function fillDefaults()
     {
         return $this;
+    }
+
+    public function increasePrices(array $ids, float $percentage)
+    {
+        (new IncreasePrices($ids, $percentage))->run();
+        
+        return $ids;
+
+    }
+
+    public function updatePrices(array $ids)
+    {
+        (new UpdatePrices($ids))->run();
+
+        return $ids;
     }
     
     public function save()
