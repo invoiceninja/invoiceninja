@@ -483,7 +483,7 @@ class Client extends BaseModel implements HasLocalePreference
 
             return ClientSettings::buildClientSettings($this->company->settings, $group_settings);
         }
-nlog(CompanySettings::setProperties(ClientSettings::buildClientSettings($this->company->settings, $this->settings)));
+
         return CompanySettings::setProperties(ClientSettings::buildClientSettings($this->company->settings, $this->settings));
     }
 
