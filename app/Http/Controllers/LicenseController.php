@@ -80,7 +80,7 @@ class LicenseController extends BaseController
      *       ),
      *     )
      */
-    public function indexx()
+    public function index()
     {
         $this->checkLicense();
 
