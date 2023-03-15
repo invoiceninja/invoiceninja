@@ -102,6 +102,83 @@ class RecurringInvoiceTest extends TestCase
 
     }
 
+    public function testBulkUpdateMultiPrices()
+    {
+        $p1 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 10,
+            'product_key' => 'pink',
+        ]);
+
+         $p2 = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'product_key' => 'floyd',
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'floyd',
+            'notes' => 'test',
+            'cost' => 20,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+
+        $this->assertEquals(30, $recurring_invoice->amount);
+
+        $p1->cost = 20;
+        $p1->save();
+
+        $p2->cost = 40;
+        $p2->save();
+
+        $recurring_invoice->service()->updatePrices([$recurring_invoice->id]);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(60, $recurring_invoice->amount);
+
+        $recurring_invoice->service()->increasePrices([$recurring_invoice->id], 10);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(66, $recurring_invoice->amount);
+
+        $recurring_invoice->service()->increasePrices([$recurring_invoice->id], 1);
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(66.66, $recurring_invoice->amount);
+
+    }
+
+
     public function testRecurringGetStatus()
     {
         $response = $this->withHeaders([
