@@ -87,7 +87,7 @@ class PaymentController extends Controller
         return $this->render('payments.show', [
             'payment' => $payment,
             'bank_details' => $payment_intent ? $data : false,
-            'currency' => strtolower($payment->currency->code),
+            'currency' => $payment->currency ? strtolower($payment->currency->code) : strtolower($payment->client->currency()->code),
         ]);
     }
 

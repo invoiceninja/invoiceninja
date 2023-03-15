@@ -5020,7 +5020,7 @@ $LANG = array(
     'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key',
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
-
+    'pre_payment' => 'Pre Payment',
 );
 
 

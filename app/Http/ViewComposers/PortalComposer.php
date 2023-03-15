@@ -138,6 +138,12 @@ class PortalComposer
             $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
         }
 
+        /*
+        if($this->settings->client_initiated_payments) {
+            $data[] = ['title' => ctrans('texts.pre_payment'), 'url' => 'client.pre_payments.index', 'icon' => 'dollar-sign'];
+        }
+        */
+
         return $data;
     }
 }
