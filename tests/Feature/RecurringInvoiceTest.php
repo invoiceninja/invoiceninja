@@ -15,6 +15,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
+use App\Jobs\RecurringInvoice\UpdateRecurring;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
@@ -55,6 +56,70 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testBulkIncreasePriceWithJob()
+    {
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+    
+        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'increase_prices', 10))->handle();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(11, $recurring_invoice->amount);
+
+    }
+
+    public function testBulkUpdateWithJob()
+    {
+        $p = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'cost' => 20,
+            'product_key' => 'pink',
+        ]);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
+        $recurring_invoice->client_id = $this->client->id;
+        $line_items[] = [
+            'product_key' => 'pink',
+            'notes' => 'test',
+            'cost' => 10,
+            'quantity' => 1,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+        ];
+        $recurring_invoice->line_items = $line_items;
+
+        $recurring_invoice->calc()->getInvoice()->service()->start()->save()->fresh();
+    
+        (new UpdateRecurring([$recurring_invoice->id], $this->company, $this->user, 'update_prices'))->handle();
+
+        $recurring_invoice->refresh();
+
+        $this->assertEquals(20, $recurring_invoice->amount);
+
+    }
+
     public function testBulkUpdatePrices()
     {
         $p = Product::factory()->create([
@@ -87,13 +152,13 @@ class RecurringInvoiceTest extends TestCase
         $p->cost = 20;
         $p->save();
 
-        $recurring_invoice->service()->updatePrices([$recurring_invoice->id]);
+        $recurring_invoice->service()->updatePrice();
 
         $recurring_invoice->refresh();
 
         $this->assertEquals(20, $recurring_invoice->amount);
 
-        $recurring_invoice->service()->increasePrices([$recurring_invoice->id], 10);
+        $recurring_invoice->service()->increasePrice(10);
 
         $recurring_invoice->refresh();
 
@@ -158,19 +223,19 @@ class RecurringInvoiceTest extends TestCase
         $p2->cost = 40;
         $p2->save();
 
-        $recurring_invoice->service()->updatePrices([$recurring_invoice->id]);
+        $recurring_invoice->service()->updatePrice();
 
         $recurring_invoice->refresh();
 
         $this->assertEquals(60, $recurring_invoice->amount);
 
-        $recurring_invoice->service()->increasePrices([$recurring_invoice->id], 10);
+        $recurring_invoice->service()->increasePrice(10);
 
         $recurring_invoice->refresh();
 
         $this->assertEquals(66, $recurring_invoice->amount);
 
-        $recurring_invoice->service()->increasePrices([$recurring_invoice->id], 1);
+        $recurring_invoice->service()->increasePrice(1);
 
         $recurring_invoice->refresh();
 

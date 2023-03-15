@@ -16,9 +16,9 @@ use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Services\Recurring\ApplyNumber;
-use App\Services\Recurring\UpdatePrices;
+use App\Services\Recurring\UpdatePrice;
 use App\Services\Recurring\GetInvoicePdf;
-use App\Services\Recurring\IncreasePrices;
+use App\Services\Recurring\IncreasePrice;
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Services\Recurring\CreateRecurringInvitations;
 
@@ -140,19 +140,19 @@ class RecurringService
         return $this;
     }
 
-    public function increasePrices(array $ids, float $percentage)
+    public function increasePrice(float $percentage)
     {
-        (new IncreasePrices($ids, $percentage))->run();
+        (new IncreasePrice($this->recurring_entity, $percentage))->run();
         
-        return $ids;
+        return $this;
 
     }
 
-    public function updatePrices(array $ids)
+    public function updatePrice()
     {
-        (new UpdatePrices($ids))->run();
+        (new UpdatePrice($this->recurring_entity))->run();
 
-        return $ids;
+        return $this;
     }
     
     public function save()
