@@ -681,8 +681,6 @@ class Design extends BaseDesign
 
         $table_type = "{$type}_columns";
 
-        nlog($table_type);
-
         if($type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns'))
             $table_type = "product_quote_columns";
             
