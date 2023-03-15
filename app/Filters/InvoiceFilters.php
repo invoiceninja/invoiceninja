@@ -69,6 +69,7 @@ class InvoiceFilters extends QueryFilters
             if (in_array('overdue', $status_parameters)) {
                 $query->orWhereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                 ->where('due_date', '<', Carbon::now())
+                                ->orWhere('due_date', null)
                                 ->orWhere('partial_due_date', '<', Carbon::now());
             }
         });
@@ -107,7 +108,10 @@ class InvoiceFilters extends QueryFilters
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                          ->orWhereHas('client', function ($q) use ($filter){
+                            $q->where('name', 'like', '%'.$filter.'%');
+                          });
         });
     }
 

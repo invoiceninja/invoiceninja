@@ -735,7 +735,9 @@ class RecurringInvoice extends BaseModel
     }
 
     /**
-     * Service entry points.
+     * service
+     *
+     * @return RecurringService
      */
     public function service() :RecurringService
     {

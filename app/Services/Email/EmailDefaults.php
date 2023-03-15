@@ -69,6 +69,7 @@ class EmailDefaults
         $this->setLocale() 
              ->setFrom()
              ->setTo()
+             ->setCc()
              ->setTemplate()
              ->setBody()
              ->setSubject()
@@ -127,7 +128,15 @@ class EmailDefaults
     private function setFrom(): self
     {
         if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
-            $this->email->email_object->from = new Address(config('mail.from.address'), $this->email->company->owner()->name());
+
+            if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
+                $email_from_name = $this->email->email_object->settings->email_from_name;
+            } else {
+                $email_from_name = $this->email->company->present()->name();
+            }
+
+            $this->email->email_object->from = new Address(config('mail.from.address'), $email_from_name);
+
             return $this;
         }
 
@@ -251,13 +260,14 @@ class EmailDefaults
 
     /**
      * Sets the CC of the email
-     * @todo at some point....
      */
-    private function buildCc()
+    private function setCc(): self
     {
-        return [
+        return $this;
+        // return $this->email->email_object->cc;
+        // return [
         
-        ];
+        // ];
     }
 
     /**
@@ -273,7 +283,7 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             return $this;
         }
 
@@ -304,7 +314,7 @@ class EmailDefaults
             }
         }
 
-        if(!$this->email->email_object->settings->document_email_attachment)
+        if(!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS))
             return $this;
 
         /* Company Documents */

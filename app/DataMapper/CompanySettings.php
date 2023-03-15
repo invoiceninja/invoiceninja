@@ -467,7 +467,16 @@ class CompanySettings extends BaseSettings
 
     public $show_task_item_description = false;
 
+    public $client_initiated_payments = false;
+
+    public $client_initiated_payments_minimum = 0;
+
+    public $sync_invoice_quote_columns = true;
+
     public static $casts = [
+        'client_initiated_payments'          => 'bool',
+        'client_initiated_payments_minimum'  => 'float',
+        'sync_invoice_quote_columns'         => 'bool',
         'show_task_item_description'         => 'bool',
         'allow_billable_task_items'          => 'bool',
         'accept_client_input_quote_approval' => 'bool',
@@ -899,6 +908,15 @@ class CompanySettings extends BaseSettings
                 '$credit.total',
             ],
             'product_columns' => [
+                '$product.item',
+                '$product.description',
+                '$product.unit_cost',
+                '$product.quantity',
+                '$product.discount',
+                '$product.tax',
+                '$product.line_total',
+            ],
+            'product_quote_columns' => [
                 '$product.item',
                 '$product.description',
                 '$product.unit_cost',

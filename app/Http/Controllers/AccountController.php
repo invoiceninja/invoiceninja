@@ -154,7 +154,7 @@ class AccountController extends BaseController
         $truth->setUser(auth()->user());
         $truth->setCompany($ct->first()->company);
 
-        return $this->listResponse($ct);
+        return $this->listResponse($ct->fresh());
     }
 
     public function update(UpdateAccountRequest $request, Account $account)

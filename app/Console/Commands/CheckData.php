@@ -12,35 +12,36 @@
 namespace App\Console\Commands;
 
 use App;
+use Exception;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\CompanyUser;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\CompanyLedger;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Models\QuoteInvitation;
+use Illuminate\Console\Command;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use App\DataMapper\ClientSettings;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyLedger;
-use App\Models\CompanyUser;
-use App\Models\Contact;
-use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Utils\Ninja;
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -160,16 +161,33 @@ class CheckData extends Command
 
     private function checkCompanyTokens()
     {
-        CompanyUser::doesnthave('token')->cursor()->each(function ($cu) {
-            if ($cu->user) {
+        // CompanyUser::whereDoesntHave('token', function ($query){
+        //   return $query->where('is_system', 1);
+        // })->cursor()->each(function ($cu){
+        //     if ($cu->user) {
+        //         $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
+        //         (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+        //     } else {
+        //         $this->logMessage("Dangling User ID # {$cu->id}");
+        //     }
+        // });
+
+        CompanyUser::query()->cursor()->each(function ($cu) {
+            if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
                 $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
-                (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-            } else {
-                $this->logMessage("Dangling User ID # {$cu->id}");
+               (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
             }
         });
-    }
 
+
+
+    }
+    
+    /**
+     * checkOauthSanity
+     * 
+     * @return void
+     */
     private function checkOauthSanity()
     {
         User::where('oauth_provider_id', '1')->cursor()->each(function ($user) {

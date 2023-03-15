@@ -679,7 +679,12 @@ class Design extends BaseDesign
             '$task.rate' => '$task.cost',
         ];
 
-        foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
+        $table_type = "{$type}_columns";
+
+        if($type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns'))
+            $table_type = "product_quote_columns";
+            
+        foreach ($this->context['pdf_variables'][$table_type] as $column) {
             if (array_key_exists($column, $aliases)) {
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
             } elseif ($column == '$product.discount' && !$this->company->enable_product_discount) {
@@ -748,6 +753,14 @@ class Design extends BaseDesign
             return $elements;
         }
 
+        $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
+        $table_type = "{$_type}_columns";
+        
+        if ($_type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns')) {
+            $table_type = "product_quote_columns";
+        }
+
+
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'elements' => []];
 
@@ -775,9 +788,8 @@ class Design extends BaseDesign
                     }
                 }
             } else {
-                $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
 
-                foreach ($this->context['pdf_variables']["{$_type}_columns"] as $key => $cell) {
+                foreach ($this->context['pdf_variables'][$table_type] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours

@@ -261,10 +261,32 @@ class Email implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
 
+        } catch(\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+            $this->fail();
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            return;
+        } catch(\Symfony\Component\Mime\Exception\LogicException $e) {
+            nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
+            $this->fail();
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+            return;
         } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
-            nlog("Mailer failed with {$e->getMessage()}");
-            
+         
+            nlog("Mailer failed with {$e->getMessage()}");   
             $message = $e->getMessage();
+
+            if (stripos($e->getMessage(), 'code 406') || stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+                $message = "Either Attachment too large, or recipient has been suppressed.";
+
+                $this->fail();
+                $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                $this->cleanUpMailers();
+
+                return;
+            }
 
             /**
              * Post mark buries the proper message in a a guzzle response

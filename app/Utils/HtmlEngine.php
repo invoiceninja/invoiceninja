@@ -683,6 +683,8 @@ class HtmlEngine
             $data['labels'][$key.'_label'] = $value['label'];
         }
 
+        // nlog($data);
+
         return $data;
     }
 
@@ -762,9 +764,6 @@ class HtmlEngine
         if ($country) {
             return $country->iso_3166_2;
         }
-        // if ($country) {
-        //     return ctrans('texts.country_' . $country->iso_3166_2);
-        // }
 
         return ' ';
     }
