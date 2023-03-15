@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GetQuotePdf extends AbstractService
 {
-    public function __construct(public Quote $quote, public ClientContact $contact = null)
+    public function __construct(public Quote $quote, public ?ClientContact $contact = null)
     {
         $this->quote = $quote;
 
