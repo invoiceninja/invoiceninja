@@ -168,6 +168,11 @@ class EmailDefaults
      */
     private function setBody(): self
     {
+
+        if ($this->template == 'email.template.custom') {
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
+        }
+
         if ($this->email->email_object->body) {
             // A Custom Message has been set in the email screen.
             return $this;
@@ -179,10 +184,6 @@ class EmailDefaults
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
         
-        if ($this->template == 'email.template.custom') {
-            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
-        }
-
         return $this;
     }
 
