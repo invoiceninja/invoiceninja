@@ -32,7 +32,7 @@ class PlayStoreRenewSubscription implements ShouldQueue
 
         $expirationTime = $event->getSubscription()->getExpiryTime();
 
-        $account = Account::where('inapp_transaction_id', $in_app_identifier)->first();
+        $account = Account::where('inapp_transaction_id', 'like', $in_app_identifier."%")->first();
 
         if ($account) {
             $account->update(['plan_expires' => Carbon::parse($expirationTime)]);
