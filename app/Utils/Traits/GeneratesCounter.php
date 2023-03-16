@@ -124,7 +124,7 @@ trait GeneratesCounter
         switch ($entity) {
             case Invoice::class:
                 return 'invoice_number_counter';
-                
+
             case Quote::class:
 
                 if ($this->hasSharedCounter($client, 'quote')) {
@@ -132,29 +132,29 @@ trait GeneratesCounter
                 }
 
                 return 'quote_number_counter';
-                
+
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
-                
+
             case RecurringQuote::class:
                 return 'recurring_quote_number_counter';
-                
+
             case RecurringExpense::class:
                 return 'recurring_expense_number_counter';
-                
+
             case Payment::class:
                 return 'payment_number_counter';
-                
+
             case Credit::class:
                 if ($this->hasSharedCounter($client, 'credit')) {
                     return 'invoice_number_counter';
                 }
 
                 return 'credit_number_counter';
-                
+
             case Project::class:
                 return 'project_number_counter';
-                
+
             case PurchaseOrder::class:
                 return 'purchase_order_number_counter';
 
@@ -583,8 +583,16 @@ trait GeneratesCounter
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
+        if( config('ninja.reset_all_counter') ) {
+            $settings->client_number_counter = 1;
+        }
+
         $client->company->settings = $settings;
         $client->company->save();
+
+        if ($new_reset_date->lte(now())) {
+            return $this->resetCounters($client);
+        }
     }
 
     private function resetCompanyCounters($company)
@@ -663,8 +671,16 @@ trait GeneratesCounter
         $settings->recurring_expense_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
 
+        if( config('ninja.reset_all_counter') ) {
+            $settings->vendor_number_counter = 1;
+        }
+
         $company->settings = $settings;
         $company->save();
+
+        if ($new_reset_date->lte(now())) {
+            return $this->resetCompanyCounters($company);
+        }
     }
 
     /**

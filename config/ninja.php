@@ -213,4 +213,5 @@ return [
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
     'licenses' => env('LICENSES',false),
+    'reset_all_counter' => env('RESET_ALL_COUNTER', false),
 ];
