@@ -16,13 +16,14 @@ use App\Models\Company;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Class ClientWasArchived.
  */
-class ClientWasArchived
+class ClientWasArchived implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -55,7 +56,7 @@ class ClientWasArchived
      * @return Channel|array
      */
     public function broadcastOn()
-    {
+    {nlog("broadcasting");
         return new PrivateChannel('channel-name');
     }
 }

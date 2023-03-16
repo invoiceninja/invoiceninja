@@ -38,8 +38,13 @@ class PrePaymentController extends Controller
      */
     public function index()
     {
-        $data['minimum_amount'] = auth()->guard('contact')->user()->client->getSetting('client_initiated_payments_minimum');
-        $data['title'] = ctrans('texts.amount'). " " .auth()->guard('contact')->user()->client->currency()->code." (".auth()->guard('contact')->user()->client->currency()->symbol . ")";
+        
+        $data = [
+            'title' => ctrans('texts.amount'). " " .auth()->guard('contact')->user()->client->currency()->code." (".auth()->guard('contact')->user()->client->currency()->symbol . ")",
+            'allows_recurring' => auth()->guard('contact')->user()->client->getSetting('client_initiated_payments_recurring'),
+            'allows_recurring' => true,
+            'minimum_amount' => auth()->guard('contact')->user()->client->getSetting('client_initiated_payments_minimum'),
+        ];
 
         return $this->render('pre_payments.index', $data);
     }

@@ -1,6 +1,11 @@
 @extends('portal.ninja2020.layout.app')
 @section('meta_title', ctrans('texts.pre_payment'))
 
+@push('head')
+<style>
+    [x-cloak] { display: none; }
+</style>
+@endpush
 @section('body')
     <form action="{{ route('client.pre_payments.process') }}" method="post" id="payment-form" onkeypress="return event.keyCode != 13;">
     @csrf
@@ -12,9 +17,7 @@
         <div class="grid grid-cols-6 gap-4">
             <div class="col-span-6 md:col-start-2 md:col-span-4">
                 <div class="flex justify-end">
-
                 </div>
-
 
                 <div class="mb-4 overflow-hidden bg-white shadow sm:rounded-lg">
                     <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
@@ -45,6 +48,46 @@
                         @endif
                         
                     @endcomponent
+
+                    @if($allows_recurring)
+                    <div x-data="{ show: false }">
+                    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.enable_recurring')])
+                        <input x-on:click="show = !show" id="is_recurring" aria-describedby="recurring-description" name="is_recurring" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                    @endcomponent
+
+                        <div x-cloak x-show="show">
+                            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.cycles_remaining')])
+                                <select name="remaining_cycles" class="form-select input w-full bg-white">
+                                    <option value="-1" selected>{{ ctrans('texts.freq_indefinitely')}}</option>
+                                    @for($i = 1; $i < 60; $i++)
+                                    <option value={{$i}}>{{$i}}</option>
+                                    @endfor
+                                </select>
+                                <span class="py-2">
+                                <label for="remaining_cycles" class="col-form-label text-center col-lg-3 text-gray-900">{{ ctrans ('texts.client_remaining_cycles_helper')}}</label>
+                                </span>
+                            @endcomponent
+                            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.frequency')])
+                                <select name="frequency_id" class="form-select input w-full bg-white">
+                                    <option value="1">{{ ctrans('texts.freq_daily') }}</option>
+                                    <option value="2">{{ ctrans('texts.freq_weekly') }}</option>
+                                    <option value="3">{{ ctrans('texts.freq_two_weeks') }}</option>
+                                    <option value="4">{{ ctrans('texts.freq_four_weeks') }}</option>
+                                    <option value="5">{{ ctrans('texts.freq_monthly') }}</option>
+                                    <option value="6">{{ ctrans('texts.freq_two_months') }}</option>
+                                    <option value="7">{{ ctrans('texts.freq_three_months') }}</option>
+                                    <option value="8">{{ ctrans('texts.') }}</option>
+                                    <option value="9">{{ ctrans('texts.') }}</option>
+                                    <option value="10">{{ ctrans('texts.') }}</option>
+                                    <option value="11">{{ ctrans('texts.') }}</option>
+                                    <option value="12">{{ ctrans('texts.') }}</option>
+                                </select>
+                            @endcomponent
+                        </div>
+
+                    </div>
+
+                    @endif
 
                     <div class="px-4 py-3 bg-gray-50 text-right sm:px-6" x-data="{ buttonDisabled: false }">
                         <button class="button button-primary bg-primary"x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled">{{ ctrans('texts.pay_now') }}</button>
