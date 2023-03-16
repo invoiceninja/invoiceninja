@@ -46,10 +46,8 @@
                         
                     @endcomponent
 
-                    
-
-                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                        <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
+                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6" x-data="{ buttonDisabled: false }">
+                        <button class="button button-primary bg-primary"x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled">{{ ctrans('texts.pay_now') }}</button>
                     </div>
                 </div>
 
