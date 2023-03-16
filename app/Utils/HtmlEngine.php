@@ -683,8 +683,6 @@ class HtmlEngine
             $data['labels'][$key.'_label'] = $value['label'];
         }
 
-        // nlog($data);
-
         return $data;
     }
 
