@@ -65,10 +65,10 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::post('payments/credit_response', [App\Http\Controllers\ClientPortal\PaymentController::class, 'credit_response'])->name('payments.credit_response');
 
     Route::get('payments', [App\Http\Controllers\ClientPortal\PaymentController::class, 'index'])->name('payments.index')->middleware('portal_enabled');
-    Route::post('payments/{payment}', [App\Http\Controllers\ClientPortal\PaymentController::class, 'show'])->name('payments.show');
+    Route::get('payments/{payment}', [App\Http\Controllers\ClientPortal\PaymentController::class, 'show'])->name('payments.show');
 
     Route::get('pre_payments', [PrePaymentController::class, 'index'])->name('pre_payments.index')->middleware('portal_enabled');
-    Route::get('pre_payments/process', [PrePaymentController::class, 'process'])->name('pre_payments.process')->middleware('portal_enabled');
+    Route::post('pre_payments/process', [PrePaymentController::class, 'process'])->name('pre_payments.process')->middleware('portal_enabled');
 
     Route::get('profile/{client_contact}/edit', [App\Http\Controllers\ClientPortal\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile/{client_contact}/edit', [App\Http\Controllers\ClientPortal\ProfileController::class, 'update'])->name('profile.update');
