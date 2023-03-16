@@ -23,7 +23,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class ClientWasArchived.
  */
-class ClientWasArchived implements ShouldBroadcast
+class ClientWasArchived
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -56,7 +56,7 @@ class ClientWasArchived implements ShouldBroadcast
      * @return Channel|array
      */
     public function broadcastOn()
-    {nlog("broadcasting");
+    {
         return new PrivateChannel('channel-name');
     }
 }
