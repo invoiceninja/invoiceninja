@@ -28,11 +28,13 @@ class PlayStoreRenewSubscription implements ShouldQueue
         nlog($notification);
         $in_app_identifier = $event->getSubscriptionIdentifier();
 
-        MultiDB::findAndSetDbByInappTransactionId($in_app_identifier);
+        $parts = explode("..", $in_app_identifier);
+
+        MultiDB::findAndSetDbByInappTransactionId($parts[0]);
 
         $expirationTime = $event->getSubscription()->getExpiryTime();
 
-        $account = Account::where('inapp_transaction_id', 'like', $in_app_identifier."%")->first();
+        $account = Account::where('inapp_transaction_id', 'like', $parts[0]."%")->first();
 
         if ($account) {
             $account->update(['plan_expires' => Carbon::parse($expirationTime)]);

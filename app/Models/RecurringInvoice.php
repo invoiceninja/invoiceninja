@@ -177,6 +177,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringInvoice whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringInvoice withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringInvoice withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @mixin \Eloquent
  */
 class RecurringInvoice extends BaseModel

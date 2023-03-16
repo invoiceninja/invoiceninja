@@ -171,6 +171,7 @@ class EmailDefaults
 
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
+            return $this;
         }
 
         if ($this->email->email_object->body) {

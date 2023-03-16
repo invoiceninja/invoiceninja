@@ -110,6 +110,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|VendorContact withoutTrashed()
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $purchase_order_invitations
  * @mixin \Eloquent
  */
 class VendorContact extends Authenticatable implements HasLocalePreference
