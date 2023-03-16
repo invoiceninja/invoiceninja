@@ -214,7 +214,7 @@ class InstantPayment
             $credit_totals = 0;
         }
 
-        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals))];
+        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)), 'pre_payment' => $this->request->pre_payment];
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));

@@ -174,8 +174,10 @@ class CheckData extends Command
 
         CompanyUser::query()->cursor()->each(function ($cu) {
             if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
-                $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
-               (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+                $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
+
+                if($cu->company && $cu->user)
+                    (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
             }
         });
 

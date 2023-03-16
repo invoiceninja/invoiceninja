@@ -46,8 +46,6 @@ class PrePaymentController extends Controller
 
     public function process(StorePrePaymentRequest $request)
     {
-
-        $invoices = collect();
         
         $invoice = InvoiceFactory::create(auth()->guard('contact')->user()->company_id, auth()->guard('contact')->user()->user_id);
         $invoice->due_date = now()->format('Y-m-d');
@@ -55,11 +53,11 @@ class PrePaymentController extends Controller
         $invoice->client_id = auth()->guard('contact')->user()->client_id;
 
         $line_item = new InvoiceItem();
-        $line_item->cost = $request->amount;
+        $line_item->cost = (float)$request->amount;
         $line_item->quantity = 1;
         $line_item->product_key = ctrans('texts.pre_payment');
         $line_item->notes = $request->notes;
-        $line_item->type_id = 1;
+        $line_item->type_id = '1';
 
         $items = [];
         $items[] = $line_item;
@@ -80,14 +78,21 @@ class PrePaymentController extends Controller
                                 ->fillDefaults()
                                 ->save();
 
+        $total = $invoice->balance;
+
         //format totals
-        $formatted_total = Number::formatMoney($request->amount, auth()->guard('contact')->user()->client);
+        $formatted_total = Number::formatMoney($invoice->amount, auth()->guard('contact')->user()->client);
 
         $payment_methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($request->amount);
 
         //if there is only one payment method -> lets return straight to the payment page
-
+        $invoices = collect();
         $invoices->push($invoice);
+
+        $invoices->map(function ($invoice) {
+            $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
+            return $invoice;
+        });
 
         $data = [
             'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),
@@ -95,10 +100,11 @@ class PrePaymentController extends Controller
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
             'hashed_ids' => $invoices->pluck('hashed_id'),
-            'total' =>  $request->amount,
+            'total' =>  $total,
             'pre_payment' => true,
         ];
-nlog($data);
+        
+
         return $this->render('invoices.payment', $data);
 
     }

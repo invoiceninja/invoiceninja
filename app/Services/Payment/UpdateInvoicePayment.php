@@ -82,10 +82,22 @@ class UpdateInvoicePayment
                                 ->save();
             
             if ($invoice->is_proforma) {
-                if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####")) {
-                    $invoice->number = '';
+
+                //keep proforma's hidden
+                if(property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1"){
+
+                    $invoice->payments()->each(function ($p) {
+                        $p->pivot->forceDelete();
+                    });
+
+                    $invoice->is_deleted = true;
+                    $invoice->deleted_at = now();
+                    $invoice->saveQuietly();
+                    return;
                 }
-                
+
+                if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####"))
+                    $invoice->number = '';                
 
                 $invoice->is_proforma = false;
                 

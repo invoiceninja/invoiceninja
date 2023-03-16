@@ -13,6 +13,7 @@
     <input type="hidden" name="company_gateway_id" id="company_gateway_id">
     <input type="hidden" name="payment_method_id" id="payment_method_id">
     <input type="hidden" name="signature">
+    <input type="hidden" name="pre_payment" value="{{ isset($pre_payment) ? $pre_payment : false }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">
