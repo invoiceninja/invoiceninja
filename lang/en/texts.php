@@ -5021,6 +5021,7 @@ $LANG = array(
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'pre_payment' => 'Pre Payment',
+    'client_remaining_cycles_helper' => 'The number of times this invoice will be generated',
 );
 
 

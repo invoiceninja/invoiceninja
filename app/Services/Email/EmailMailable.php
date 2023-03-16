@@ -39,7 +39,7 @@ class EmailMailable extends Mailable
      * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope()
-    {nlog($this->email_object->cc);
+    {
         return new Envelope(
             subject: $this->email_object->subject,
             tags: [$this->email_object->company_key],

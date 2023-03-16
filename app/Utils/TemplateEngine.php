@@ -12,27 +12,28 @@
 
 namespace App\Utils;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Mail\Engine\PaymentEmailEngine;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\Quote;
-use App\Models\QuoteInvitation;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\MakesTemplateData;
 use DB;
-use Illuminate\Support\Facades\App;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Vendor;
+use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Support\Str;
+use App\Models\ClientContact;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Services\Pdf\PdfMock;
+use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
+use App\Models\InvoiceInvitation;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\MakesInvoiceHtml;
+use App\Mail\Engine\PaymentEmailEngine;
+use App\Models\PurchaseOrderInvitation;
+use App\Utils\Traits\MakesTemplateData;
+use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 
 class TemplateEngine
 {
@@ -96,7 +97,19 @@ class TemplateEngine
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\' . ucfirst(Str::camel($this->entity));
             $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
-        } else {
+        }
+        elseif(stripos($this->template, 'quote') !== false && $quote = Quote::whereHas('invitations')->withTrashed()->company()->first()){
+            $this->entity = 'quote';
+            $this->entity_obj = $quote;
+        } 
+        elseif(stripos($this->template, 'purchase') !== false && $purchase_order = PurchaseOrder::whereHas('invitations')->withTrashed()->company()->first()){
+            $this->entity = 'purchase_order';
+            $this->entity_obj = $purchase_order;
+        }
+        elseif ($invoice = Invoice::whereHas('invitations')->withTrashed()->company()->first()){
+            $this->entity_obj = $invoice;
+        }
+        else {
             $this->mockEntity();
         }
 
@@ -183,6 +196,7 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
+
         if (in_array($this->entity, ['purchaseOrder', 'purchase_order'])) {
             $this->labels_and_values = (new VendorHtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
         } elseif ($this->entity == 'payment') {
@@ -323,6 +337,8 @@ class TemplateEngine
                 'user_id' => auth()->user()->id,
                 'company_id' => auth()->user()->company()->id,
                 'client_id' => $client->id,
+                'amount' => '10',
+                'balance' => '10',
             ]);
 
             $invitation = InvoiceInvitation::factory()->create([
@@ -391,6 +407,7 @@ class TemplateEngine
             $this->entity_obj->load('client');
             $client->setRelation('company', auth()->user()->company());
             $client->load('company');
+
         }
     }
 

@@ -75,6 +75,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankIntegration whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BankIntegration withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankIntegration withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransaction> $transactions
  * @mixin \Eloquent
  */
 class BankIntegration extends BaseModel

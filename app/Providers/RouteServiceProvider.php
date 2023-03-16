@@ -24,7 +24,6 @@ class RouteServiceProvider extends ServiceProvider
 {
     use MakesHash;
 
-    private int $default_rate_limit = 5000;
     /**
      * Define your route model bindings, pattern filters, etc.
      *

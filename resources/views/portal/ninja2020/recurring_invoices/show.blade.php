@@ -76,6 +76,40 @@
             </div>
         @endif
 
+        <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                {{ ctrans('texts.invoices') }}
+            </h3>
+        </div>
+        <div>
+            <dl>
+                @foreach($invoice->invoices as $inv)
+                    <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium leading-5 text-gray-500">
+                            {{ ctrans('texts.invoice_number') }}
+                        </dt>
+                        <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                            <a class="button-link text-primary"
+                                href="{{ route('client.invoice.show', ['invoice' => $inv->hashed_id])}}">
+                                {{ $inv->number }}
+                            </a>
+                            - {{ \App\Utils\Number::formatMoney($inv->amount, $invoice->client) }}
+                        </div>
+                    </div>
+                @endforeach
+            </dl>
+        </div>
+
+
+
+
+
+
+
+
+
+
         @if($invoice->subscription && $invoice->subscription?->allow_cancellation)
         {{-- INV2-591 --}}
         {{-- @if(false) --}}
