@@ -11,9 +11,11 @@
 
 namespace App\Services\Payment;
 
+use App\Utils\Ninja;
 use App\Models\Payment;
 use App\Models\ClientContact;
 use App\Jobs\Payment\EmailPayment;
+use App\Events\Payment\PaymentWasEmailed;
 
 class SendEmail
 {
@@ -36,6 +38,8 @@ class SendEmail
         //     $invoice->invitations->each(function ($invitation) {
         //         if (!$invitation->contact->trashed() && $invitation->contact->email) {
                     EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
+                    
+                    event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         //         }
         //     });
         // });

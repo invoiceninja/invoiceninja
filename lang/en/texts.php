@@ -5024,6 +5024,8 @@ $LANG = array(
     'number_of_payments' => 'Number of payments',
     'number_of_payments_helper' => 'The number of times this payment will be made',
     'pre_payment_indefinitely' => 'Continue until cancelled',
+    'notification_payment_emailed' => 'Payment :payment was emailed to :client',
+    'notification_payment_emailed_subject' => 'Payment :payment was emailed',
 );
 
 
