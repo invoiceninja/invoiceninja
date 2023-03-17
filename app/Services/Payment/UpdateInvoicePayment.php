@@ -116,7 +116,8 @@ class UpdateInvoicePayment
                         $recurring_invoice->saveQuietly();
                         $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
                         $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
-                        $recurring_invoice->saveQuietly();
+                        $recurring_invoice->service()->applyNumber()->save();
+                        
                     }
 
                     return;
