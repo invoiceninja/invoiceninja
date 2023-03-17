@@ -42,17 +42,17 @@ class ClientPresenter extends EntityPresenter
 
     public function first_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name : $this->entity->contacts()->first()->first_name;
+        return $this->entity->primary_contact()->first()?->first_name ?: ($this->entity->contacts()->first()->first_name ?: '');
     }
 
     public function last_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->last_name : $this->entity->contacts()->first()->last_name;
+        return $this->entity->primary_contact()->first()?->last_name ?: ($this->entity->contacts()->first()->last_name ?: '');
     }
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name.' '.$this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity?->primary_contact()?->first() ? $this->entity->primary_contact()->first()->first_name.' '.$this->entity->primary_contact()->first()->last_name : 'No primary contact set';
     }
 
     public function email()
