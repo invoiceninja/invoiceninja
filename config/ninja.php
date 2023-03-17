@@ -213,4 +213,5 @@ return [
         'config_name' => env("YODLEE_CONFIG_NAME", false),
     ],
     'licenses' => env('LICENSES',false),
+    'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
 ];

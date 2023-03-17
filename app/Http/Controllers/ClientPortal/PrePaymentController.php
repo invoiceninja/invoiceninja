@@ -110,9 +110,8 @@ class PrePaymentController extends Controller
             'pre_payment' => true,
             'frequency_id' => $request->frequency_id,
             'remaining_cycles' => $request->remaining_cycles,
-            'is_recurring' => $request->is_recurring,
+            'is_recurring' => $request->is_recurring == 'on' ? true : false,
         ];
-        
 
         return $this->render('invoices.payment', $data);
 

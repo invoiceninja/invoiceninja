@@ -2,7 +2,6 @@
 
 use Imdhemy\Purchases\Events\AppStore\DidRenew;
 use App\Listeners\Subscription\AppStoreRenewSubscription;
-use App\Listeners\Subscription\PlayStoreRenewSubscription;
 use Imdhemy\Purchases\Events\GooglePlay\SubscriptionRenewed;
 
 return [
@@ -97,8 +96,9 @@ return [
         /* \Imdhemy\Purchases\Events\GooglePlay\SubscriptionRecovered::class => [
              \App\Listeners\GooglePlay\SubscriptionRecovered::class,
          ],*/
-        SubscriptionRenewed::class => [PlayStoreRenewSubscription::class],
-        DidRenew::class => [AppStoreRenewSubscription::class],
+        
+        DidRenew::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleAutoRenew::class) ? [\Modules\Admin\Listeners\Subscription\AppleAutoRenew::class] : [],
+        SubscriptionRenewed::class => class_exists(\Modules\Admin\Listeners\Subscription\GoogleAutoRenew::class) ? [\Modules\Admin\Listeners\Subscription\GoogleAutoRenew::class] : [],
 
     ],
 
