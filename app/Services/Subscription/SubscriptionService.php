@@ -1087,7 +1087,7 @@ class SubscriptionService
     }
 
 
-    private function setAutoBillFlag($auto_bill)
+    private function setAutoBillFlag($auto_bill): bool
     {
         if ($auto_bill == 'always' || $auto_bill == 'optout') {
             return true;

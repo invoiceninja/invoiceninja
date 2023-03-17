@@ -80,6 +80,7 @@ class PrePaymentController extends Controller
         $invoice =  $invoice_repo->save($data, $invoice)
                                 ->service()
                                 ->markSent()
+                                ->applyNumber()
                                 ->fillDefaults()
                                 ->save();
 
@@ -107,6 +108,9 @@ class PrePaymentController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
             'pre_payment' => true,
+            'frequency_id' => $request->frequency_id,
+            'remaining_cycles' => $request->remaining_cycles,
+            'is_recurring' => $request->is_recurring,
         ];
         
 

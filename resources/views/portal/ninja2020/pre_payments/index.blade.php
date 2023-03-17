@@ -56,15 +56,15 @@
                     @endcomponent
 
                         <div x-cloak x-show="show">
-                            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.cycles_remaining')])
+                            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.number_of_payments')])
                                 <select name="remaining_cycles" class="form-select input w-full bg-white">
-                                    <option value="-1" selected>{{ ctrans('texts.freq_indefinitely')}}</option>
+                                    <option value="-1" selected>{{ ctrans('texts.pre_payment_indefinitely')}}</option>
                                     @for($i = 1; $i < 60; $i++)
                                     <option value={{$i}}>{{$i}}</option>
                                     @endfor
                                 </select>
                                 <span class="py-2">
-                                <label for="remaining_cycles" class="col-form-label text-center col-lg-3 text-gray-900">{{ ctrans ('texts.client_remaining_cycles_helper')}}</label>
+                                <label for="remaining_cycles" class="col-form-label text-center col-lg-3 text-gray-900">{{ ctrans ('texts.number_of_payments_helper')}}</label>
                                 </span>
                             @endcomponent
                             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.frequency')])
@@ -73,14 +73,14 @@
                                     <option value="2">{{ ctrans('texts.freq_weekly') }}</option>
                                     <option value="3">{{ ctrans('texts.freq_two_weeks') }}</option>
                                     <option value="4">{{ ctrans('texts.freq_four_weeks') }}</option>
-                                    <option value="5">{{ ctrans('texts.freq_monthly') }}</option>
+                                    <option value="5" selected>{{ ctrans('texts.freq_monthly') }}</option>
                                     <option value="6">{{ ctrans('texts.freq_two_months') }}</option>
                                     <option value="7">{{ ctrans('texts.freq_three_months') }}</option>
-                                    <option value="8">{{ ctrans('texts.') }}</option>
-                                    <option value="9">{{ ctrans('texts.') }}</option>
-                                    <option value="10">{{ ctrans('texts.') }}</option>
-                                    <option value="11">{{ ctrans('texts.') }}</option>
-                                    <option value="12">{{ ctrans('texts.') }}</option>
+                                    <option value="8">{{ ctrans('texts.freq_four_months') }}</option>
+                                    <option value="9">{{ ctrans('texts.freq_six_months') }}</option>
+                                    <option value="10">{{ ctrans('texts.freq_annually') }}</option>
+                                    <option value="11">{{ ctrans('texts.freq_two_years') }}</option>
+                                    <option value="12">{{ ctrans('texts.freq_three_years') }}</option>
                                 </select>
                             @endcomponent
                         </div>
