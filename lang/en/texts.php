@@ -5026,6 +5026,7 @@ $LANG = array(
     'pre_payment_indefinitely' => 'Continue until cancelled',
     'notification_payment_emailed' => 'Payment :payment was emailed to :client',
     'notification_payment_emailed_subject' => 'Payment :payment was emailed',
+    'record_not_found' => 'Record not found',
 );
 
 

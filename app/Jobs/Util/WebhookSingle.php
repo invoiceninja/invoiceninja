@@ -104,8 +104,10 @@ class WebhookSingle implements ShouldQueue
 
         $resource = new Item($this->entity, $transformer, $this->entity->getEntityType());
         $data = $manager->createData($resource)->toArray();
+        
+        $headers = is_array($subscription->headers) ? $subscription->headers : [];
 
-        $this->postData($subscription, $data, $subscription->headers);
+        $this->postData($subscription, $data, $headers);
     }
 
     private function postData($subscription, $data, $headers = [])
