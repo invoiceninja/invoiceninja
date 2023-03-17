@@ -83,7 +83,7 @@ class GoCardlessPaymentDriver extends BaseDriver
             $types[] = GatewayType::DIRECT_DEBIT;
         }
 
-        if ($this->client->currency()->code === 'EUR') {
+        if (in_array($this->client->currency()->code, ['EUR'])) {
             $types[] = GatewayType::SEPA;
         }
 

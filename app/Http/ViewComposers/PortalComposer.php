@@ -138,9 +138,9 @@ class PortalComposer
             $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
         }
 
-        // if(property_exists($this->settings, 'client_initiated_payments') && $this->settings->client_initiated_payments) {
+        if(property_exists($this->settings, 'client_initiated_payments') && $this->settings->client_initiated_payments) {
             $data[] = ['title' => ctrans('texts.pre_payment'), 'url' => 'client.pre_payments.index', 'icon' => 'dollar-sign'];
-        // }
+        }
         
         return $data;
     }
