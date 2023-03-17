@@ -14,6 +14,9 @@
     <input type="hidden" name="payment_method_id" id="payment_method_id">
     <input type="hidden" name="signature">
     <input type="hidden" name="pre_payment" value="{{ isset($pre_payment) ? $pre_payment : false }}">
+    <input type="hidden" name="is_recurring" value="{{ isset($is_recurring) ? $is_recurring : false }}">
+    <input type="hidden" name="frequency_id" value="{{ isset($frequency_id) ? $frequency_id : false }}">
+    <input type="hidden" name="remaining_cycles" value="{{ isset($remaining_cycles) ? $remaining_cycles : false }}">
 
     <div class="container mx-auto">
         <div class="grid grid-cols-6 gap-4">

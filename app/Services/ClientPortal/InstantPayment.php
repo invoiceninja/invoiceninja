@@ -34,6 +34,7 @@ class InstantPayment
     use MakesHash;
     use MakesDates;
 
+    /** $request mixed */
     public Request $request;
 
     public function __construct(Request $request)
@@ -214,7 +215,16 @@ class InstantPayment
             $credit_totals = 0;
         }
 
-        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)), 'pre_payment' => $this->request->pre_payment];
+        /** $hash_data = mixed[] */
+        $hash_data = [
+            'invoices' => $payable_invoices->toArray(), 
+            'credits' => $credit_totals, 
+            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)), 
+            'pre_payment' => $this->request->pre_payment,
+            'frequency_id' => $this->request->frequency_id,
+            'remaining_cycles' => $this->request->remaining_cycles,
+            'is_recurring' => $this->request->is_recurring,
+        ];
 
         if ($this->request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
@@ -256,6 +266,8 @@ class InstantPayment
             'payment_method_id' => $payment_method_id,
             'amount_with_fee' => $invoice_totals + $fee_totals,
             'client' => $client,
+            'pre_payment' => $this->request->pre_payment,
+            'is_recurring' => $this->request->is_recurring,
         ];
 
         if ($is_credit_payment || $totals <= 0) {

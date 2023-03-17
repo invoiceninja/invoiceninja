@@ -171,6 +171,7 @@ use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Payment\PaymentBalanceActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
@@ -454,7 +455,7 @@ class EventServiceProvider extends ServiceProvider
             InvitationViewedListener::class,
         ],
         PaymentWasEmailed::class => [
-            // PaymentEmailedActivity::class,
+            PaymentEmailedActivity::class,
         ],
         PaymentWasEmailedAndFailed::class => [
             // PaymentEmailFailureActivity::class,

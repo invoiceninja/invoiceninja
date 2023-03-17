@@ -41,7 +41,7 @@ class EmailMailable extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: $this->email_object->subject,
+            subject: str_replace("<br>","",$this->email_object->subject),
             tags: [$this->email_object->company_key],
             replyTo: $this->email_object->reply_to,
             from: $this->email_object->from,

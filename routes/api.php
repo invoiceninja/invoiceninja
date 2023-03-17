@@ -336,6 +336,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::resource('webhooks', WebhookController::class);
     Route::post('webhooks/bulk', [WebhookController::class, 'bulk'])->name('webhooks.bulk');
+    Route::post('webhooks/{webhook}/retry', [WebhookController::class, 'retry'])->name('webhooks.retry');
 
     /*Subscription and Webhook routes */
     // Route::post('hooks', [SubscriptionController::class, 'subscribe'])->name('hooks.subscribe');
