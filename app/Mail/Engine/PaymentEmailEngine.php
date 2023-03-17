@@ -388,6 +388,13 @@ class PaymentEmailEngine extends BaseEmailEngine
      */
     private function buildViewButton(string $link, string $text): string
     {
+
+
+    if ($this->settings->email_style == 'plain') {
+        return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+    }
+
+
         return '
 <div>
 <!--[if (gte mso 9)|(IE)]>
