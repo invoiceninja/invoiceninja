@@ -421,7 +421,7 @@ class PdfMock
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
     '$user.name' => 'Derrick Monahan DDS Erna Wunsch',
-    '$font_name' => $this->settings?->primary_font ?: 'Roboto',
+    '$font_name' => isset($this->settings?->primary_font) ? $this->settings?->primary_font : 'Roboto',
     '$auto_bill' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     '$payments' => '',
     '$task.tax' => '',
