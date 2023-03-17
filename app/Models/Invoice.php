@@ -721,7 +721,7 @@ class Invoice extends BaseModel
         return 0;
     }
 
-    public function entityEmailEvent($invitation, $reminder_template, $template)
+    public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
         switch ($reminder_template) {
             case 'invoice':
@@ -737,6 +737,7 @@ class Invoice extends BaseModel
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER3_SENT));
                 break;
             case 'reminder_endless':
+            case 'endless_reminder':
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
                 break;
             default:
