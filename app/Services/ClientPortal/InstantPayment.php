@@ -267,6 +267,7 @@ class InstantPayment
             'amount_with_fee' => $invoice_totals + $fee_totals,
             'client' => $client,
             'pre_payment' => $this->request->pre_payment,
+            'is_recurring' => $this->request->is_recurring,
         ];
 
         if ($is_credit_payment || $totals <= 0) {
