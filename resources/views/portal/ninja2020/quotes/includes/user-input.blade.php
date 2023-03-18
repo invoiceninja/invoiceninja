@@ -7,11 +7,11 @@
         <div class="sm:flex sm:items-start">
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                 <h3 class="text-xl leading-6 font-medium text-gray-900">
-                    {{ ctrans('texts.notes') }}
+                    {{ ctrans('texts.po_number') }}
                 </h3>
 
-                <div class="mx-auto max-w-xs space-y-5">
-                  <textarea name="user_input" id="user_input" class="block w-full rounded-md border-transparent bg-gray-100 focus:border-primary-300 focus:bg-white focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50" col="10" rows="3" placeholder=""></textarea>
+                <div class="mx-auto max-w-xs space-y-5 py-5">
+                  <input name="user_input" id="user_input" class="block w-full rounded-md border-transparent bg-gray-100 focus:border-primary-300 focus:bg-white focus:ring focus:ring-primary-200 focus:ring-opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50" placeholder="{{ctrans('texts.po_number') }}" type="text">
                 </div>
 
             </div>
