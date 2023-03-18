@@ -122,12 +122,12 @@ class AutoBillInvoice extends AbstractService
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(64),
             'data' => [
-                'amount_with_fee' => $amount + $fee, 
+                'amount_with_fee' => $amount + $fee,
                 'invoices' => [
                     [
-                        'invoice_id' => $this->invoice->hashed_id, 
-                        'amount' => $amount, 
-                        'invoice_number' => $this->invoice->number, 
+                        'invoice_id' => $this->invoice->hashed_id,
+                        'amount' => $amount,
+                        'invoice_number' => $this->invoice->number,
                         'pre_payment' => $this->invoice->is_proforma,
                     ],
                 ],

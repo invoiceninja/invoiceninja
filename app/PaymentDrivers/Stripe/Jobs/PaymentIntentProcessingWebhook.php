@@ -79,11 +79,10 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
                 $this->payment_completed = true;
             }
         
-            if(isset($transaction['payment_method']))
-            {
+            if (isset($transaction['payment_method'])) {
                 $cgt = ClientGatewayToken::where('token', $transaction['payment_method'])->first();
 
-                if($cgt && $cgt->meta?->state == 'unauthorized'){
+                if ($cgt && $cgt->meta?->state == 'unauthorized') {
                     $meta = $cgt->meta;
                     $meta->state = 'authorized';
                     $cgt->meta = $meta;

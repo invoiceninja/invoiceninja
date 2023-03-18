@@ -362,7 +362,7 @@ class PaymentEmailEngine extends BaseEmailEngine
     
     /**
      * generateLabelsAndValues
-     * 
+     *
      * @return array
      */
     public function generateLabelsAndValues(): array
@@ -388,11 +388,9 @@ class PaymentEmailEngine extends BaseEmailEngine
      */
     private function buildViewButton(string $link, string $text): string
     {
-
-
-    if ($this->settings->email_style == 'plain') {
-        return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
-    }
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
 
 
         return '

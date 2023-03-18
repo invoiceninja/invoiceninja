@@ -11,26 +11,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Quote;
+use App\Events\Credit\CreditWasEmailed;
+use App\Events\Quote\QuoteWasEmailed;
+use App\Http\Requests\Email\SendEmailRequest;
+use App\Jobs\Entity\EmailEntity;
+use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Services\Email\Email;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\EmailEntity;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
-use App\Events\Quote\QuoteWasEmailed;
-use App\Transformers\QuoteTransformer;
-use App\Events\Credit\CreditWasEmailed;
 use App\Transformers\CreditTransformer;
 use App\Transformers\InvoiceTransformer;
-use App\Http\Requests\Email\SendEmailRequest;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Transformers\PurchaseOrderTransformer;
+use App\Transformers\QuoteTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
 use Illuminate\Mail\Mailables\Address;
 
 class EmailController extends BaseController
@@ -136,8 +136,9 @@ class EmailController extends BaseController
         $mo->email_template_body = $request->input('template');
         $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
-        if($request->has('cc_email'))
+        if ($request->has('cc_email')) {
             $mo->cc[] = new Address($request->cc_email);
+        }
 
         // if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
         //     return $this->sendPurchaseOrder($entity_obj, $data, $template);
@@ -152,7 +153,6 @@ class EmailController extends BaseController
                 $mo->invitation_id = $invitation->id;
 
                 Email::dispatch($mo, $invitation->company);
-
             }
         });
 
@@ -193,7 +193,7 @@ class EmailController extends BaseController
             $this->entity_transformer = RecurringInvoiceTransformer::class;
         }
 
-        if($entity_obj instanceof PurchaseOrder){
+        if ($entity_obj instanceof PurchaseOrder) {
             $this->entity_type = PurchaseOrder::class;
             $this->entity_transformer = PurchaseOrderTransformer::class;
         }
@@ -217,8 +217,7 @@ class EmailController extends BaseController
 
     private function resolveClass(string $entity): string
     {
-
-        match($entity){
+        match ($entity) {
             'invoice' => $class = Invoice::class,
             'App\Models\Invoice' => $class = Invoice::class,
             'credit' => $class = Credit::class,
@@ -232,6 +231,5 @@ class EmailController extends BaseController
         };
 
         return $class;
-
     }
 }

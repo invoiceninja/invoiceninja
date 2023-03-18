@@ -416,14 +416,12 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     private function updatePaymentMethods($customer, Client $client): void
     {
-        
         $this->client = $client;
 
         $mandates = $this->gateway->mandates()->list();
 
-        foreach($mandates->records as $mandate)
-        {
-            if($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+        foreach ($mandates->records as $mandate) {
+            if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
                 continue;
             }
 
@@ -432,12 +430,10 @@ class GoCardlessPaymentDriver extends BaseDriver
             if ($mandate->scheme == 'bacs') {
                 $payment_meta->brand = ctrans('texts.payment_type_direct_debit');
                 $payment_meta->type = GatewayType::DIRECT_DEBIT;
-            }
-            elseif($mandate->scheme == 'sepa_core') {
+            } elseif ($mandate->scheme == 'sepa_core') {
                 $payment_meta->brand = ctrans('texts.sepa');
                 $payment_meta->type = GatewayType::SEPA;
-            }
-            else {
+            } else {
                 continue;
             }
             
@@ -451,7 +447,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
             $payment_method = $this->storeGatewayToken($data, ['gateway_customer_reference' => $mandate->links->customer]);
         }
-
     }
 
     /*

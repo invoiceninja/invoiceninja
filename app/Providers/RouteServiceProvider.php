@@ -11,14 +11,14 @@
 
 namespace App\Providers;
 
-use App\Utils\Ninja;
 use App\Models\Scheduler;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -45,35 +45,28 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('login', function () {
-
             if (Ninja::isSelfHost()) {
                 return Limit::none();
-            }else {
+            } else {
                 return Limit::perMinute(50);
             }
-
         });
 
         RateLimiter::for('api', function () {
-
             if (Ninja::isSelfHost()) {
                 return Limit::none();
-            }else {
+            } else {
                 return Limit::perMinute(300);
             }
-
         });
 
         RateLimiter::for('refresh', function () {
-
             if (Ninja::isSelfHost()) {
                 return Limit::none();
-            }else {
+            } else {
                 return Limit::perMinute(200);
             }
-
         });
-
     }
 
     /**

@@ -68,22 +68,17 @@ class AdjustProductInventory implements ShouldQueue
         //     $p->saveQuietly();
         // }
 
-        collect($this->invoice->line_items)->filter(function ($item){
+        collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
-        })->each(function ($i){
-
+        })->each(function ($i) {
             $p = Product::where('product_key', $i->product_key)->where('company_id', $this->company->id)->first();
 
             if ($p) {
-                
                 $p->in_stock_quantity += $i->quantity;
 
                 $p->saveQuietly();
-
             }
-
         });
-
     }
 
     public function handleRestoredInvoice()
@@ -112,8 +107,6 @@ class AdjustProductInventory implements ShouldQueue
                 $p->saveQuietly();
             }
         });
-
-
     }
 
     public function middleware()
@@ -157,12 +150,8 @@ class AdjustProductInventory implements ShouldQueue
                 } elseif ($this->company->stock_notification && $p->stock_notification && $this->company->inventory_notification_threshold && $p->in_stock_quantity <= $this->company->inventory_notification_threshold) {
                     $this->notifyStocklevels($p, 'company');
                 }
-
             }
         });
-
-
-
     }
 
     private function existingInventoryAdjustment()
@@ -189,8 +178,6 @@ class AdjustProductInventory implements ShouldQueue
                 $p->saveQuietly();
             }
         });
-
-
     }
 
     private function notifyStocklevels(Product $product, string $notification_level)

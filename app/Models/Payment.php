@@ -311,7 +311,6 @@ class Payment extends BaseModel
         $pt = new PaymentType();
 
         return $pt->name($this->type_id);
-
     }
 
     public function gateway_type()

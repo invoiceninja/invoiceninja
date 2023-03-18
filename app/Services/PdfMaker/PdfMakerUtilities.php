@@ -178,7 +178,7 @@ trait PdfMakerUtilities
         foreach ($children as $key => &$child) {
             if (isset($child['content']) && isset($child['show_empty']) && $child['show_empty'] === false) {
                 $value = strtr($child['content'], $variables['values']);
-                if ($value === '' || $value === '&nbsp;' || $value === ' '){
+                if ($value === '' || $value === '&nbsp;' || $value === ' ') {
                     $child['is_empty'] = true;
                 }
             }

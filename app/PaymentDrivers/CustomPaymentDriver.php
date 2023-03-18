@@ -12,16 +12,16 @@
 
 namespace App\PaymentDrivers;
 
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Utils\HtmlEngine;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
+use App\Models\SystemLog;
+use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
-use App\Models\ClientGatewayToken;
 
 /**
  * Class CustomPaymentDriver.
@@ -97,9 +97,7 @@ class CustomPaymentDriver extends BaseDriver
      */
     public function processPaymentResponse($request)
     {
-                
         if ($request->has('gateway_response')) {
-
             $this->client = auth()->guard('contact')->user()->client;
 
             $state = [
@@ -109,8 +107,7 @@ class CustomPaymentDriver extends BaseDriver
 
             $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
 
-            if($payment_hash)
-            {
+            if ($payment_hash) {
                 $this->payment_hash = $payment_hash;
 
                 $payment_hash->data = array_merge((array) $payment_hash->data, $state);
@@ -122,27 +119,26 @@ class CustomPaymentDriver extends BaseDriver
             if ($gateway_response->status == 'COMPLETED') {
                 $this->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $payment_hash], SystemLog::TYPE_CUSTOM);
 
-            $data = [
-                'payment_method' => '',
-                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                'amount' => $payment_hash->amount_with_fee(),
-                'transaction_reference' => $gateway_response?->purchase_units[0]?->payments?->captures[0]?->id,
-                'gateway_type_id' => GatewayType::PAYPAL,
-            ];
+                $data = [
+                    'payment_method' => '',
+                    'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                    'amount' => $payment_hash->amount_with_fee(),
+                    'transaction_reference' => $gateway_response?->purchase_units[0]?->payments?->captures[0]?->id,
+                    'gateway_type_id' => GatewayType::PAYPAL,
+                ];
 
-            $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
-            SystemLogger::dispatch(
-                ['response' => $payment_hash->data->server_response, 'data' => $data],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_STRIPE,
-                $this->client,
-                $this->client->company,
-            );
+                SystemLogger::dispatch(
+                    ['response' => $payment_hash->data->server_response, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_STRIPE,
+                    $this->client,
+                    $this->client->company,
+                );
 
-            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-
+                return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
             }
         }
 

@@ -172,8 +172,7 @@ class BillingPortalPurchasev2 extends Component
             $this->contact = auth()->guard('contact')->user();
             $this->authenticated = true;
             $this->payment_started = true;
-        }
-        else {
+        } else {
             $this->bundle = collect();
         }
 
@@ -276,7 +275,6 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleCoupon()
     {
-
         $this->resetErrorBag('coupon');
         $this->resetValidation('coupon');
 

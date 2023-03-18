@@ -11,13 +11,13 @@
 
 namespace App\Http\Controllers;
 
-use stdClass;
-use Carbon\Carbon;
 use App\Models\Account;
 use App\Utils\CurlUtils;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
+use stdClass;
 
 class LicenseController extends BaseController
 {
@@ -155,15 +155,13 @@ class LicenseController extends BaseController
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
-        
             // $response = Http::get( "http://ninja.test:8000/claim_license", [
-            $response = Http::get( "https://invoicing.co/claim_license", [
+            $response = Http::get("https://invoicing.co/claim_license", [
                 'license_key' => $request->input('license_key'),
                 'product_id' => 3,
             ]);
 
-            if($response->successful()) {
-                    
+            if ($response->successful()) {
                 $payload = $response->json();
 
                 $account = auth()->user()->account;
@@ -179,8 +177,7 @@ class LicenseController extends BaseController
                 ];
 
                 return response()->json($error, 200);
-            }else {
-                
+            } else {
                 $error = [
                     'message' => trans('texts.white_label_license_error'),
                     'errors' => new stdClass,
@@ -188,7 +185,6 @@ class LicenseController extends BaseController
 
                 return response()->json($error, 400);
             }
-
         }
 
         $error = [
@@ -197,7 +193,6 @@ class LicenseController extends BaseController
         ];
 
         return response()->json($error, 400);
-
     }
 
 
@@ -210,6 +205,5 @@ class LicenseController extends BaseController
             $account->plan_expires = null;
             $account->save();
         }
-        
     }
 }

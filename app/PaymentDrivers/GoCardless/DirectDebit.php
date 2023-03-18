@@ -138,7 +138,7 @@ class DirectDebit implements MethodInterface
 
     private function resolveScheme(string $scheme): int
     {
-        match($scheme){
+        match ($scheme) {
             'sepa_core' => $type = GatewayType::SEPA,
             default => $type = GatewayType::DIRECT_DEBIT,
         };

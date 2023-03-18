@@ -217,9 +217,9 @@ class InstantPayment
 
         /** $hash_data = mixed[] */
         $hash_data = [
-            'invoices' => $payable_invoices->toArray(), 
-            'credits' => $credit_totals, 
-            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)), 
+            'invoices' => $payable_invoices->toArray(),
+            'credits' => $credit_totals,
+            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)),
             'pre_payment' => $this->request->pre_payment,
             'frequency_id' => $this->request->frequency_id,
             'remaining_cycles' => $this->request->remaining_cycles,

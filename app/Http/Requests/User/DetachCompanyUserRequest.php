@@ -12,11 +12,9 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
 
 class DetachCompanyUserRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *

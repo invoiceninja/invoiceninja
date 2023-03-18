@@ -12,8 +12,8 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
-use League\CommonMark\CommonMarkConverter;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use League\CommonMark\CommonMarkConverter;
 
 /**
  * App\Models\Product

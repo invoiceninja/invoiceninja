@@ -33,5 +33,4 @@ class ScheduleInvoice
      * @var string
      */
     public string $entity_id = '';
-    
 }

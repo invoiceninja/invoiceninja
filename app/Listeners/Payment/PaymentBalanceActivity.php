@@ -12,8 +12,8 @@
 namespace App\Listeners\Payment;
 
 use App\Libraries\MultiDB;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class PaymentBalanceActivity implements ShouldQueue
@@ -35,11 +35,9 @@ class PaymentBalanceActivity implements ShouldQueue
      */
     public function handle($event)
     {
-
         MultiDB::setDb($event->company->db);
 
         $event->payment->client->service()->updatePaymentBalance();
-
     }
 
     public function middleware($event): array

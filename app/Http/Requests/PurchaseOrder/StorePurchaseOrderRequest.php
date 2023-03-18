@@ -47,10 +47,11 @@ class StorePurchaseOrderRequest extends Request
         $rules['is_amount_discount'] = ['boolean'];
         $rules['line_items'] = 'array';
 
-        if($this->file('documents') && is_array($this->file('documents')))
+        if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
-        elseif($this->file('documents'))
+        } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }
 
         if ($this->file('file') && is_array($this->file('file'))) {
             $rules['file.*'] = $this->file_validation;

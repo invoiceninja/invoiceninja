@@ -185,7 +185,6 @@ class ACSS
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 

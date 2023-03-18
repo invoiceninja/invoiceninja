@@ -38,8 +38,9 @@ class SchedulerService
      */
     public function runTask(): void
     {
-        if(method_exists($this, $this->scheduler->template))
+        if (method_exists($this, $this->scheduler->template)) {
             $this->{$this->scheduler->template}();
+        }
     }
 
     private function email_statement()

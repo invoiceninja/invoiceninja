@@ -12,24 +12,24 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Factory\PaymentFactory;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use Illuminate\View\View;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use Illuminate\Http\Request;
-use App\Models\CompanyGateway;
-use App\Factory\PaymentFactory;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Contracts\View\Factory;
 use App\PaymentDrivers\Stripe\BankTransfer;
 use App\Services\ClientPortal\InstantPayment;
 use App\Services\Subscription\SubscriptionService;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Class PaymentController.
@@ -64,15 +64,14 @@ class PaymentController extends Controller
         $data = false;
         $gateway = false;
 
-        if($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT){
-           
+        if ($payment->gateway_type_id == GatewayType::DIRECT_DEBIT && $payment->type_id == PaymentType::DIRECT_DEBIT) {
             if (method_exists($payment->company_gateway->driver($payment->client), 'getPaymentIntent')) {
                 $stripe = $payment->company_gateway->driver($payment->client);
                 $payment_intent = $stripe->getPaymentIntent($payment->transaction_reference);
 
                 $bt = new BankTransfer($stripe);
 
-                match($payment->currency->code){
+                match ($payment->currency->code) {
                     'MXN' => $data = $bt->formatDataforMx($payment_intent),
                     'EUR' => $data = $bt->formatDataforEur($payment_intent),
                     'JPY' => $data = $bt->formatDataforJp($payment_intent),
