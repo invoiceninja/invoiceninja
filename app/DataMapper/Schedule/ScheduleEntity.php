@@ -11,21 +11,21 @@
 
 namespace App\DataMapper\Schedule;
 
-class ScheduleInvoice
+class ScheduleEntity
 {
     /**
      * Defines the template name
      *
      * @var string
      */
-    public string $template = 'schedule_invoice';
+    public string $template = 'schedule_entity';
 
     /**
      * Defines the template name
      *
      * @var string
      */
-    public string $entity = '';
+    public string $entity = ''; // invoice, credit, quote, purchase_order
 
     /**
      * Defines the template name
