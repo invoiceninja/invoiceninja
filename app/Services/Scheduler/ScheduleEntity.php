@@ -12,6 +12,7 @@
 namespace App\Services\Scheduler;
 
 use App\Models\Scheduler;
+use Illuminate\Support\Str;
 use App\Utils\Traits\MakesHash;
 
 class ScheduleEntity
@@ -23,7 +24,11 @@ class ScheduleEntity
     }
 
     public function run()
-    {
+    {nlog("here");
+        $class = 'App\\Models\\' . Str::camel($this->scheduler->parameters['entity']);
+     nlog($class);
+        $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']))->service()->sendEmail();
 
+        $this->scheduler->forceDelete();
     }
 }

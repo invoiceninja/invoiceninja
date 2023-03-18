@@ -11,9 +11,6 @@
 
 namespace App\Services\Scheduler;
 
-use App\DataMapper\Schedule\EmailStatement;
-use App\Models\Client;
-use App\Models\RecurringInvoice;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
