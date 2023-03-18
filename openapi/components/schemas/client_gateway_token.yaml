@@ -1,0 +1,31 @@
+    ClientGatewayToken:
+      properties:
+        id:
+          description: 'The hashed id of the client gateway token'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: '2'
+        client_id:
+          description: 'The hashed_id of the client'
+          type: string
+          example: '2'
+        token:
+          description: 'The payment token'
+          type: string
+          example: '2'
+        routing_number:
+          description: 'THe bank account routing number'
+          type: string
+          example: '2'
+        company_gateway_id:
+          description: 'The hashed id of the company gateway'
+          type: string
+          example: '2'
+        is_default:
+          description: 'Flag determining if the token is the default payment method'
+          type: boolean
+          example: 'true'
+      type: object
