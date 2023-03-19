@@ -32,9 +32,9 @@ class SumTaxTest extends TestCase
                 "geoCounty" => "RIVERSIDE",
                 "geoState" => "CA",
                 "taxSales" => 0.0875,
-                "taxUse" => 0.0875,
-                "txbService" => "N",
-                "txbFreight" => "N",
+                "taxUse" => 0.0875, // tax amount where destination does not charge sales tax, but origin does
+                "txbService" => "N", // whether services are taxed in this locale
+                "txbFreight" => "N", // whether freight is taxes in this locale
                 "stateSalesTax" => 0.06,
                 "stateUseTax" => 0.06,
                 "citySalesTax" => 0.01,
@@ -59,8 +59,8 @@ class SumTaxTest extends TestCase
                 "district4UseTax" => 0.01,
                 "district5Code" => "",
                 "district5SalesTax" => 0,
-                "district5UseTax" => 0,
-                "originDestination" => "D",
+                "district5UseTax" => 0, //district1-5 portion of the district tax
+                "originDestination" => "D", //location where this is taxed origin/destination/null
                 ],
             ]
         ];
