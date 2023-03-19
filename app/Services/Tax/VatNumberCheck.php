@@ -13,6 +13,7 @@ namespace App\Services\Tax;
 
 class VatNumberCheck
 {
+    private array $response = [];
 
     public function __construct(protected string $vat_number, protected string $country_code)
     {
@@ -23,9 +24,10 @@ class VatNumberCheck
         return $this->checkvat_number();
     }
 
-    private function checkvat_number(): array
+    private function checkvat_number(): self
     {
         $wsdl = "https://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl";
+
         try {
             $client = new \SoapClient($wsdl);
             $params = [
@@ -35,18 +37,30 @@ class VatNumberCheck
             $response = $client->checkVat($params);
 
             if ($response->valid) {
-                return [
+
+                $this->response = [
                     'valid' => true,
                     'name' => $response->name,
                     'address' => $response->address
                 ];
             } else {
-                return ['valid' => false];
+                $this->response = ['valid' => false];
             }
         } catch (\SoapFault $e) {
-            // Handle error, e.g., log or display an error message
-            return ['error' => $e->getMessage()];
+
+             $this->response = ['valid' => false, 'error' => $e->getMessage()];
         }
+
+        return $this;
     }
 
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    public function isValid(): bool
+    {
+        return $this->response['valid'];
+    }
 }

@@ -9,10 +9,10 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\Unit;
+namespace Tests\Unit\Tax;
 
-use Tests\TestCase;
 use App\Services\Tax\VatNumberCheck;
+use Tests\TestCase;
 
 /**
  * @test App\Services\Tax\VatNumberCheck
@@ -24,11 +24,8 @@ class VatNumberTest extends TestCase
         parent::setUp();
     }
 
-
-
     public function testVatNumber()
     {
-
         // Usage example
         $country_code = "IE"; // Ireland
         $vat_number = "1234567L"; // Example VAT number
@@ -37,22 +34,10 @@ class VatNumberTest extends TestCase
         $vat_checker = new VatNumberCheck($vat_number, $country_code);
         $result = $vat_checker->run();
 
-            if (isset($result['valid'])) {
-                if ($result['valid']) {
-                    echo "The VAT number is valid.\n";
-                    echo "Name: " . $result['name'] . "\n";
-                    echo "Address: " . $result['address'] . "\n";
-                } else {
-                    echo "The VAT number is invalid.\n";
-                }
-            } else {
-                echo "Error: " . $result['error'] . "\n";
-            }
-
-            $this->assertFalse($result['valid']);
+        $this->assertFalse($result->isValid());
     }
 
-    private function testValidVatNumber()
+    public function testValidVatNumber()
     {
         // Usage example
         $country_code = "AT"; // Ireland
@@ -62,21 +47,6 @@ class VatNumberTest extends TestCase
         $vat_checker = new VatNumberCheck($vat_number, $country_code);
         $result = $vat_checker->run();
 
-        if (isset($result['valid'])) {
-            if ($result['valid']) {
-                echo "The VAT number is valid.\n";
-                echo "Name: " . $result['name'] . "\n";
-                echo "Address: " . $result['address'] . "\n";
-            } else {
-                echo "The VAT number is invalid.\n";
-            }
-        } else {
-            echo "Error: " . $result['error'] . "\n";
-        }
-
-        $this->assertFalse($result['valid']);
-
+        $this->assertFalse($result->isValid());
     }
-
 }
-

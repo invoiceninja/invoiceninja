@@ -11,13 +11,15 @@
 
 namespace App\DataMapper\Tax\de;
 
-class Rule
+use App\DataMapper\Tax\RuleInterface;
+
+class Rule implements RuleInterface
 {
-    public float $vat = 19;
+    public float $vat_rate = 19;
 
     public float $vat_threshold = 10000;
 
-    public float $vat_reduced = 7;
+    public float $vat_reduced_rate = 7;
 
     public float $vat_reduced_threshold = 10000;
 
@@ -77,11 +79,18 @@ class Rule
     
     public float $gb_vat_rate = 20; // United Kingdom
 
-    public bool $de_consumer_tax_exempt = false;
+    public bool $consumer_tax_exempt = false;
 
-    public bool $de_business_tax_exempt = true;
+    public bool $business_tax_exempt = true;
 
     public bool $eu_business_tax_exempt = true;
 
     public bool $foreign_business_tax_exempt = true;
+
+    public bool $foreign_consumer_tax_exempt = true;
+
+    public function run()
+    {
+        return $this;
+    }
 }
