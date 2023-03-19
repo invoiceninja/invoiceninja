@@ -82,5 +82,9 @@
           type: array
           items:
             $ref: '#/components/schemas/CreditPaymentable'
+        number:
+          description: 'The payment number - is a unique alpha numeric number per payment per company'
+          type: string
+          example: PAY_101
       type: object
     

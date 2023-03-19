@@ -72,36 +72,9 @@
     
     
 
-    Product:
-      properties:
-        id:
-          description: 'The product hashed id'
-          type: string
-          example: Opnel5aKBz
-      type: object
-    Project:
-      properties:
-        id:
-          description: 'The project hashed id'
-          type: string
-          example: Opnel5aKBz
-        name:
-          description: 'The project name'
-          type: string
-          example: 'New Project'
-      type: object
-    PurchaseOrder:
-      properties:
-        id:
-          description: 'The purchase order hashed id'
-          type: string
-          example: Opnel5aKBz
-      type: object
-    
-    
-    
-    
-    
+
+
+
     TaskSchedulerSchema:
       properties:
         paused:

@@ -1,53 +1,53 @@
-    Quote:
+    PurchaseOrder:
       properties:
         id:
-          description: 'The unique hashed identifier for the quote'
+          description: 'The unique hashed identifier for the purchase order'
           type: string
           example: Opnel5aKBz
         user_id:
-          description: 'The unique hashed identifier for the user who created the quote'
+          description: 'The unique hashed identifier for the user who created the purchase order'
           type: string
           example: ''
         assigned_user_id:
-          description: 'The unique hashed identifier for the user assigned to the quote'
+          description: 'The unique hashed identifier for the user assigned to the purchase order'
           type: string
           example: ''
         company_id:
-          description: 'The unique hashed identifier for the company associated with the quote'
+          description: 'The unique hashed identifier for the company associated with the purchase order'
           type: string
           example: ''
-        client_id:
-          description: 'The unique hashed identifier for the client associated with the quote'
+        vendor_id:
+          description: 'The unique hashed identifier for the vendor associated with the purchase order'
           type: string
           example: ''
         status_id:
-          description: 'The status of the quote represented by a unique identifier'
+          description: 'The status of the purchase order represented by a unique identifier'
           type: string
           example: ''
         number:
-          description: 'The unique alpha-numeric quote number for the quote per company'
+          description: 'The unique alpha-numeric purchase order number per company'
+          type: string
+          example: PO_101
+        quote_number:
+          description: 'The quote number associated with this purchase order'
           type: string
           example: QUOTE_101
-        po_number:
-          description: 'The purchase order number associated with the quote'
-          type: string
-          example: PO-1234
         terms:
-          description: 'The terms and conditions for the quote'
+          description: 'The terms and conditions for the purchase order'
           type: string
-          example: 'These are some quote terms. Valid for 14 days.'
+          example: 'These are some purchase order terms. Valid for 14 days.'
         public_notes:
-          description: 'Publicly visible notes associated with the quote'
+          description: 'Publicly visible notes associated with the purchase order'
           type: string
-          example: 'These are public notes which the client may see'
+          example: 'These are public notes which the vendor may see'
         private_notes:
-          description: 'Privately visible notes associated with the quote, not disclosed to the client'
+          description: 'Privately visible notes associated with the purchase order, not disclosed to the vendor'
           type: string
-          example: 'These are private notes, not to be disclosed to the client'
+          example: 'These are private notes, not to be disclosed to the vendor'
         footer:
-          description: 'The footer text of the quote'
+          description: 'The footer text of the purchase order'
           type: string
-          example: 'The text goes in the footer of the quote'
+          example: 'The text goes in the footer of the purchase order'
         custom_value1:
           description: 'First custom value field for additional information'
           type: string
@@ -65,64 +65,64 @@
           type: string
           example: 'A custom value'
         tax_name1:
-          description: 'The name of the first tax applied to the quote'
+          description: 'The name of the first tax applied to the purchase order'
           type: string
           example: GST
         tax_name2:
-          description: 'The name of the second tax applied to the quote'
+          description: 'The name of the second tax applied to the purchase order'
           type: string
           example: VAT
         tax_rate1:
-          description: 'The rate of the first tax applied to the quote'
+          description: 'The rate of the first tax applied to the purchase order'
           type: number
           format: float
           example: 10.00
         tax_rate2:
-          description: 'The rate of the second tax applied to the quote'
+          description: 'The rate of the second tax applied to the purchase order'
           type: number
           format: float
           example: 10.00
         tax_name3:
-          description: 'The name of the third tax applied to the quote'
+          description: 'The name of the third tax applied to the purchase order'
           type: string
           example: ''
         tax_rate3:
-          description: 'The rate of the third tax applied to the quote'
+          description: 'The rate of the third tax applied to the purchase order'
           type: number
           format: float
           example: 10.00
         total_taxes:
-          description: 'The total amount of taxes for the quote'
+          description: 'The total amount of taxes applied to the purchase order'
           type: number
           format: float
           example: 10.00
         line_items:
           type: array
-          description: 'An array of objects which define the line items of the quote'
+          description: 'An array of objects which define the line items of the purchase order'
           items:
             $ref: '#/components/schemas/InvoiceItem'
         amount:
-          description: 'The total amount of the quote before taxes and discounts'
+          description: 'The total amount of the purchase order before taxes and discounts'
           type: number
           format: float
           example: 10.00
         balance:
-          description: 'The balance due for the quote after accounting for payments'
+          description: 'The balance due for the purchase order after accounting for payments'
           type: number
           format: float
           example: 10.00
         paid_to_date:
-          description: 'The total amount paid on the quote so far'
+          description: 'The total amount paid on the purchase order so far'
           type: number
           format: float
           example: 10.00
         discount:
-          description: 'The discount amount or percentage applied to the quote'
+          description: 'The discount amount or percentage applied to the purchase order'
           type: number
           format: float
           example: 10.00
         partial:
-          description: 'The partial or deposit amount for the quote'
+          description: 'The partial or deposit amount for the purchase order'
           type: number
           format: float
           example: 10.00
@@ -131,7 +131,7 @@
           type: boolean
           example: true
         is_deleted:
-          description: 'Boolean flag indicating if the quote has been deleted'
+          description: 'Boolean flag indicating if the purchase order has been deleted'
           type: boolean
           example: false
         uses_inclusive_taxes:
@@ -139,17 +139,17 @@
           type: boolean
           example: true
         date:
-          description: 'The date the quote was created'
+          description: 'The date the purchase order was created'
           type: string
           format: date
           example: '1994-07-30'
         last_sent_date:
-          description: 'The last date the quote was sent to the client'
+          description: 'The last date the purchase order was sent to the vendor'
           type: string
           format: date
           example: '1994-07-30'
         next_send_date:
-          description: 'The next scheduled date for sending a reminder for the quote'
+          description: 'The next scheduled date for sending a reminder for the purchase order'
           type: string
           format: date
           example: '1994-07-30'
@@ -159,44 +159,44 @@
           format: date
           example: '1994-07-30'
         due_date:
-          description: 'The due date for the total amount of the quote'
+          description: 'The due date for the total amount of the purchase order'
           type: string
           format: date
           example: '1994-07-30'
         settings:
           $ref: '#/components/schemas/CompanySettings'
         last_viewed:
-          description: 'The timestamp of the last time the quote was viewed'
+          description: Timestamp
           type: number
           format: integer
           example: 1434342123
         updated_at:
-          description: 'The timestamp of the last update to the quote'
+          description: Timestamp
           type: number
           format: integer
           example: 1434342123
         archived_at:
-          description: 'The timestamp of when the quote was archived'
+          description: Timestamp
           type: number
           format: integer
           example: 1434342123
         custom_surcharge1:
-          description: 'First custom surcharge amount for the quote'
+          description: 'First custom surcharge amount for the purchase order'
           type: number
           format: float
           example: 10.00
         custom_surcharge2:
-          description: 'Second custom surcharge amount for the quote'
+          description: 'Second custom surcharge amount for the purchase order'
           type: number
           format: float
           example: 10.00
         custom_surcharge3:
-          description: 'Third custom surcharge amount for the quote'
+          description: 'Third custom surcharge amount for the purchase order'
           type: number
           format: float
           example: 10.00
         custom_surcharge4:
-          description: 'Fourth custom surcharge amount for the quote'
+          description: 'Fourth custom surcharge amount for the purchase order'
           type: number
           format: float
           example: 10.00
@@ -217,3 +217,4 @@
           type: boolean
           example: true
       type: object
+

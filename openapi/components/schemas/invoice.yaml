@@ -97,9 +97,11 @@
           format: float
           example: '10.00'
         line_items:
+          type: array
           description: 'An array of objects which define the line items of the invoice'
-          type: object
-          example: ''
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        
         amount:
           description: 'The invoice amount'
           type: number

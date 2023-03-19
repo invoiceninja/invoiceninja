@@ -101,9 +101,10 @@
           format: float
           example: 23.00
         line_items:
-          description: "The array of line items included in the credit"
-          type: object
-          example: "[{item1}, {item2}]"
+          type: array
+          description: 'An array of objects which define the line items of the credit'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         amount:
           description: "The total amount of the credit"
           type: number
