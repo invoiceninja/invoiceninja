@@ -31,7 +31,7 @@ class ClientPresenter extends EntityPresenter
 
         $contact_name = 'No Contact Set';
 
-        if ($contact && (strlen($contact->first_name) >= 1 || strlen($contact->last_name) >= 1)) {
+        if ($contact && ((is_string($contact->first_name) && strlen($contact->first_name) >= 1) || (is_string($contact->last_name) && strlen($contact->last_name) >= 1))) {
             $contact_name = $contact->first_name.' '.$contact->last_name;
         } elseif ($contact && (strlen($contact->email))) {
             $contact_name = $contact->email;

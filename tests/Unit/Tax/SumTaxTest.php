@@ -24,23 +24,7 @@ class SumTaxTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     
-    protected function setUp() :void
-    {
-        parent::setUp();
-
-        $this->withoutMiddleware(
-            ThrottleRequests::class
-        );
-
-        $this->withoutExceptionHandling();
-
-        // $this->makeTestData();
-    }
-
-    public function testSumOfInvoice()
-    {
-
-        $response = 
+    public array   $response =
             ["results" => [
                 [
                 "geoPostalCode" => "92582",
@@ -81,6 +65,50 @@ class SumTaxTest extends TestCase
             ]
         ];
 
-        nlog($response);
+
+    protected function setUp() :void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+
+        $this->withoutExceptionHandling();
+
+        // $this->makeTestData();
     }
+
+    public function testSumOfInvoice()
+    {
+
+        $this->assertEquals("CA", $this->response['results'][0]['geoState']);
+
+    }
+
+    public function testSumOfTaxes()
+    {
+        $sum = 
+            $this->response['results'][0]['stateSalesTax'] +
+            // $this->response['results'][0]['stateUseTax'] +
+            $this->response['results'][0]['citySalesTax'] +
+            // $this->response['results'][0]['cityUseTax'] +
+            $this->response['results'][0]['countySalesTax'] +
+            // $this->response['results'][0]['countyUseTax'] +
+            $this->response['results'][0]['districtSalesTax'];
+            // // $this->response['results'][0]['districtUseTax'] +
+            // $this->response['results'][0]['district1SalesTax'] +
+            // // $this->response['results'][0]['district1UseTax'] +
+            // $this->response['results'][0]['district2SalesTax'] +
+            // // $this->response['results'][0]['district2UseTax'] +
+            // $this->response['results'][0]['district3SalesTax'] +
+            // // $this->response['results'][0]['district3UseTax'] +
+            // $this->response['results'][0]['district4SalesTax'] +
+            // // $this->response['results'][0]['district4UseTax'] +
+            // $this->response['results'][0]['district5SalesTax'];
+            // $this->response['results'][0]['district5UseTax'];
+
+        $this->assertEquals(0.0875, $sum);
+    }
+
 }
