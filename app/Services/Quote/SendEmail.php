@@ -14,7 +14,6 @@ namespace App\Services\Quote;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\ClientContact;
 
-
 class SendEmail
 {
     public $quote;
@@ -48,7 +47,7 @@ class SendEmail
 
         $this->quote->service()->markSent()->save();
 
-        $this->quote->invitations->each(function ($invitation)  {
+        $this->quote->invitations->each(function ($invitation) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company, $this->reminder_template);
 

@@ -1,0 +1,58 @@
+
+    FeesAndLimits:
+      properties:
+        min_limit:
+          description: 'The minimum amount accepted for this gateway'
+          type: string
+          example: '2'
+        max_limit:
+          description: 'The maximum amount accepted for this gateway'
+          type: string
+          example: '2'
+        fee_amount:
+          description: 'The gateway fee amount'
+          type: number
+          format: float
+          example: '2.0'
+        fee_percent:
+          description: 'The gateway fee percentage'
+          type: number
+          format: float
+          example: '2.0'
+        fee_tax_name1:
+          description: 'Fee tax name'
+          type: string
+          example: GST
+        fee_tax_name2:
+          description: 'Fee tax name'
+          type: string
+          example: VAT
+        fee_tax_name3:
+          description: 'Fee tax name'
+          type: string
+          example: 'CA Sales Tax'
+        fee_tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.0'
+        fee_tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '17.5'
+        fee_tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '25.0'
+        fee_cap:
+          description: 'If set the fee amount will be no higher than this amount'
+          type: number
+          format: float
+          example: '2.0'
+        adjust_fee_percent:
+          description: 'Adjusts the fee to match the exact gateway fee.'
+          type: boolean
+          example: true
+      type: object

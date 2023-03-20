@@ -139,6 +139,7 @@ use Illuminate\Support\Carbon;
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringExpense withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class RecurringExpense extends BaseModel

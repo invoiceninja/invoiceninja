@@ -120,9 +120,8 @@ class PaymentIntentWebhook implements ShouldQueue
                          ->where('transaction_reference', $charge['id'])
                          ->first();
 
-         //return early
-        if($payment && $payment->status_id == Payment::STATUS_COMPLETED){
-
+        //return early
+        if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
             nlog(" payment found and status correct - returning ");
             return;
         } elseif ($payment) {
@@ -188,11 +187,9 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $this->updateAchPayment($payment_hash, $client, $meta);
-        } elseif(isset($pi['payment_method_types']) && in_array('bacs_debit', $pi['payment_method_types'])){
+        } elseif (isset($pi['payment_method_types']) && in_array('bacs_debit', $pi['payment_method_types'])) {
             return;
         }
-
-
     }
 
     private function updateAchPayment($payment_hash, $client, $meta)
@@ -260,9 +257,7 @@ class PaymentIntentWebhook implements ShouldQueue
             }
 
             $driver->storeGatewayToken($data, $additional_data);
-
         } catch(\Exception $e) {
-
             nlog("failed to import payment methods");
             nlog($e->getMessage());
         }
@@ -297,5 +292,4 @@ class PaymentIntentWebhook implements ShouldQueue
             $client->company,
         );
     }
-
 }

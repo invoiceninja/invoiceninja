@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\Auth\ContactForgotPasswordController;
-use App\Http\Controllers\Auth\ContactLoginController;
-use App\Http\Controllers\Auth\ContactRegisterController;
-use App\Http\Controllers\Auth\ContactResetPasswordController;
-use App\Http\Controllers\BaseController;
-use App\Http\Controllers\ClientPortal\PaymentMethodController;
-use App\Http\Controllers\ClientPortal\SubscriptionController;
-use App\Http\Controllers\ClientPortal\TaskController;
-use App\Http\Controllers\CreditController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\QuoteController;
-use App\Http\Controllers\RecurringInvoiceController;
 use App\Utils\PhantomJS\Phantom;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BaseController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\CreditController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\RecurringInvoiceController;
+use App\Http\Controllers\Auth\ContactLoginController;
+use App\Http\Controllers\ClientPortal\TaskController;
+use App\Http\Controllers\Auth\ContactRegisterController;
+use App\Http\Controllers\ClientPortal\PrePaymentController;
+use App\Http\Controllers\Auth\ContactResetPasswordController;
+use App\Http\Controllers\ClientPortal\SubscriptionController;
+use App\Http\Controllers\Auth\ContactForgotPasswordController;
+use App\Http\Controllers\ClientPortal\PaymentMethodController;
 
 Route::get('client', [ContactLoginController::class, 'showLoginForm'])->name('client.catchall')->middleware(['domain_db', 'contact_account','locale']); //catch all
 
@@ -65,6 +66,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::get('payments', [App\Http\Controllers\ClientPortal\PaymentController::class, 'index'])->name('payments.index')->middleware('portal_enabled');
     Route::get('payments/{payment}', [App\Http\Controllers\ClientPortal\PaymentController::class, 'show'])->name('payments.show');
+
+    Route::get('pre_payments', [PrePaymentController::class, 'index'])->name('pre_payments.index')->middleware('portal_enabled');
+    Route::post('pre_payments/process', [PrePaymentController::class, 'process'])->name('pre_payments.process')->middleware('portal_enabled');
 
     Route::get('profile/{client_contact}/edit', [App\Http\Controllers\ClientPortal\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile/{client_contact}/edit', [App\Http\Controllers\ClientPortal\ProfileController::class, 'update'])->name('profile.update');

@@ -74,7 +74,6 @@ class DeletePayment
         
         if ($this->payment->invoices()->exists()) {
             $this->payment->invoices()->each(function ($paymentable_invoice) {
-            
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
 
                 $this->_paid_to_date_deleted += $net_deletable;
@@ -105,7 +104,6 @@ class DeletePayment
                     } else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
-
                 } else {
                     $paymentable_invoice->restore();
                     $paymentable_invoice->service()

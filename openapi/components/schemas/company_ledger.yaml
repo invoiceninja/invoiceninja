@@ -1,0 +1,31 @@
+    CompanyLedger:
+      properties:
+        entity_id:
+          description: 'This field will reference one of the following entity hashed ID payment_id, invoice_id or credit_id'
+          type: string
+          example: AS3df3A
+        notes:
+          description: 'The notes which reference this entry of the ledger'
+          type: string
+          example: 'Credit note for invoice #3212'
+        balance:
+          description: 'The client balance'
+          type: number
+          format: float
+          example: '10.00'
+        adjustment:
+          description: 'The amount the client balance is adjusted by'
+          type: number
+          format: float
+          example: '10.00'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object

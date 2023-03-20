@@ -1,0 +1,171 @@
+    RecurringExpense:
+      properties:
+        id:
+          description: 'The hashed id of the recurring expense'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The hashed id of the user who created the recurring expense'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The hashed id of the user assigned to this recurring expense'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The hashed id of the company'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The hashed id of the client'
+          type: string
+          example: Opnel5aKBz
+        invoice_id:
+          description: 'The hashed id of the invoice'
+          type: string
+          example: Opnel5aKBz
+        bank_id:
+          description: 'The id of the bank associated with this recurring expense'
+          type: string
+          example: '22'
+        invoice_currency_id:
+          description: 'The currency id of the invoice associated with this recurring expense'
+          type: string
+          example: '1'
+        expense_currency_id:
+          description: 'The currency id of the expense associated with this recurring expense'
+          type: string
+          example: '1'
+        invoice_category_id:
+          description: 'The category id of the invoice'
+          type: string
+          example: '1'
+        payment_type_id:
+          description: 'The payment type id'
+          type: string
+          example: '1'
+        private_notes:
+          description: 'The recurring expense private notes'
+          type: string
+          example: 'Private and confidential'
+        public_notes:
+          description: 'The recurring expense public notes'
+          type: string
+          example: 'This is the best client in the world'
+        transaction_reference:
+          description: 'The recurring expense transaction reference'
+          type: string
+          example: EXP-1223-2333
+        transcation_id:
+          description: 'The transaction id of the recurring expense'
+          type: string
+          example: '1233312312'
+        custom_value1:
+          description: 'Custom value field'
+          type: string
+          example: $1000
+        custom_value2:
+          description: 'Custom value field'
+          type: string
+          example: '2022-10-10'
+        custom_value3:
+          description: 'Custom value field'
+          type: string
+          example: 'short text'
+        custom_value4:
+          description: 'Custom value field'
+          type: string
+          example: 'very long text'
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: GST
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: VAT
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The total amount of the recurring expense'
+          type: number
+          format: float
+          example: '10.00'
+        frequency_id:
+          description: 'The frequency this recurring expense fires'
+          type: number
+          format: int
+          example: '1'
+        remaining_cycles:
+          description: 'The number of remaining cycles for this recurring expense'
+          type: number
+          format: int
+          example: '1'
+        foreign_amount:
+          description: 'The foreign currency amount of the recurring expense'
+          type: number
+          format: float
+          example: '10.00'
+        exchange_rate:
+          description: 'The exchange rate for the expernse'
+          type: number
+          format: float
+          example: '0.80'
+        date:
+          description: 'The date of the expense'
+          type: string
+          example: ''
+        payment_date:
+          description: 'The date the expense was paid'
+          type: string
+          example: ''
+        should_be_invoiced:
+          description: 'Boolean flag determining if the expense should be invoiced'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean flag determining if the recurring expense is deleted'
+          type: boolean
+          example: true
+        last_sent_date:
+          description: 'The Date it was sent last'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The next send date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        invoice_documents:
+          description: 'Boolean flag determining if the documents associated with this expense should be passed onto the invoice if it is converted to an invoice'
+          type: boolean
+          example: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object

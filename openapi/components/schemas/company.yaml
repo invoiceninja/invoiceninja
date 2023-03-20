@@ -1,0 +1,91 @@
+    Company:
+      properties:
+        id:
+          description: "The unique hashed identifier for the company"
+          type: string
+          example: WJxbojagwO
+        size_id:
+          description: "The unique identifier representing the company's size category"
+          type: string
+          example: '2'
+        industry_id:
+          description: "The unique identifier representing the company's industry category"
+          type: string
+          example: '5'
+        slack_webhook_url:
+          description: "The URL for the company's Slack webhook notifications"
+          type: string
+          example: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
+        google_analytics_key:
+          description: "The company's Google Analytics tracking ID"
+          type: string
+          example: 'UA-123456789-1'
+        portal_mode:
+          description: "The mode determining how client-facing URLs are structured (e.g., subdomain, domain, or iframe)"
+          type: string
+          example: subdomain
+        subdomain:
+          description: "The subdomain prefix for the company's domain (e.g., 'acme' in acme.domain.com)"
+          type: string
+          example: acme
+        portal_domain:
+          description: "The fully qualified domain used for client-facing URLs"
+          type: string
+          example: 'https://subdomain.invoicing.co'
+        enabled_tax_rates:
+          description: "The number of tax rates used per entity"
+          type: integer
+          example: '2'
+        fill_products:
+          description: "A flag determining whether to auto-fill product descriptions based on the product key"
+          type: boolean
+          example: true
+        convert_products:
+          description: "A flag determining whether to convert products between different types or units"
+          type: boolean
+          example: true
+        update_products:
+          description: "A flag determining whether to update product descriptions when the description changes"
+          type: boolean
+          example: true
+        show_product_details:
+          description: "A flag determining whether to display product details in the user interface"
+          type: boolean
+          example: true
+        custom_fields:
+          description: "A mapping of custom fields for various objects within the company"
+          type: object
+        enable_product_cost:
+          description: "A flag determining whether to show or hide the product cost field in the user interface"
+          type: boolean
+          example: true
+        enable_product_quantity:
+          description: "A flag determining whether to show or hide the product quantity field in the user interface"
+          type: boolean
+          example: true
+        default_quantity:
+          description: "A flag determining whether to use a default quantity for products"
+          type: boolean
+          example: true
+        custom_surcharge_taxes1:
+          description: "A flag determining whether to apply taxes on custom surcharge amounts for the first custom surcharge field"
+          type: boolean
+          example: true
+        custom_surcharge_taxes2:
+          description: "A flag determining whether to apply taxes on custom surcharge amounts for the second custom surcharge field"
+          type: boolean
+          example: true
+        custom_surcharge_taxes3:
+          description: "A flag determining whether to apply taxes on custom surcharge amounts for the third custom surcharge field"
+          type: boolean
+          example: true
+        custom_surcharge_taxes4:
+          description: "A flag determining whether to apply taxes on custom surcharge amounts for the fourth custom"
+        logo:
+          description: "The company logo file in binary format"
+          type: string
+          format: binary
+          example: logo.png
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+      type: object

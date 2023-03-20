@@ -27,7 +27,6 @@ use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
-use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;

@@ -63,8 +63,8 @@ class PurchaseOrderFilters extends QueryFilters
                 $po_status[] = PurchaseOrder::STATUS_CANCELLED;
             }
 
-            if (count($status_parameters) >=1) {
-                $query->whereIn('status_id', $status_parameters);
+            if (count($po_status) >=1) {
+                $query->whereIn('status_id', $po_status);
             }
         });
 
@@ -94,7 +94,7 @@ class PurchaseOrderFilters extends QueryFilters
                 ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value3', 'like', '%'.$filter.'%')
                 ->orWhere('custom_value4', 'like', '%'.$filter.'%')
-                ->orWhereHas('vendor', function ($q) use ($filter){
+                ->orWhereHas('vendor', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
                 });
         });

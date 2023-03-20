@@ -11,22 +11,22 @@
 
 namespace App\Services\Email;
 
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Models\Quote;
-use App\Models\Credit;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Invoice\CreateUbl;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\Account;
+use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Jobs\Invoice\CreateUbl;
+use App\Models\Quote;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use Illuminate\Support\Facades\App;
 use Illuminate\Mail\Mailables\Address;
-use App\DataMapper\EmailTemplateDefaults;
+use Illuminate\Support\Facades\App;
 use League\CommonMark\CommonMarkConverter;
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class EmailDefaults
 {
@@ -66,7 +66,7 @@ class EmailDefaults
     {
         $this->settings = $this->email->email_object->settings;
 
-        $this->setLocale() 
+        $this->setLocale()
              ->setFrom()
              ->setTo()
              ->setCc()
@@ -128,7 +128,6 @@ class EmailDefaults
     private function setFrom(): self
     {
         if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
-
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
@@ -168,6 +167,11 @@ class EmailDefaults
      */
     private function setBody(): self
     {
+        if ($this->template == 'email.template.custom') {
+            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
+            return $this;
+        }
+
         if ($this->email->email_object->body) {
             // A Custom Message has been set in the email screen.
             return $this;
@@ -179,10 +183,6 @@ class EmailDefaults
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
         
-        if ($this->template == 'email.template.custom') {
-            $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, $this->email->email_object->settings->email_style_custom));
-        }
-
         return $this;
     }
 
@@ -289,20 +289,16 @@ class EmailDefaults
 
         /** Purchase Order / Invoice / Credit / Quote PDF  */
         if ($this->email->email_object->settings->pdf_email_attachment && $this->email->email_object->entity instanceof PurchaseOrder) {
-
             $pdf = (new CreatePurchaseOrderPdf($this->email->email_object->invitation))->rawPdf();
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-
         } elseif ($this->email->email_object->settings->pdf_email_attachment &&
         ($this->email->email_object->entity instanceof Invoice ||
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
-
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
-
         }
 
         /** UBL xml file */
@@ -314,8 +310,9 @@ class EmailDefaults
             }
         }
 
-        if(!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS))
+        if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             return $this;
+        }
 
         /* Company Documents */
         $this->email->email_object->documents = array_merge($this->email->email_object->documents, $this->email->company->documents->pluck('id')->toArray());

@@ -83,6 +83,10 @@ class InvoiceRepository extends BaseRepository
      */
     public function restore($invoice) :Invoice
     {
+        if ($invoice->is_proforma) {
+            return $invoice;
+        }
+            
         //if we have just archived, only perform a soft restore
         if (! $invoice->is_deleted) {
             parent::restore($invoice);

@@ -203,6 +203,15 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Invoice whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Invoice withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Invoice withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @mixin \Eloquent
  */
 class Invoice extends BaseModel
@@ -712,7 +721,7 @@ class Invoice extends BaseModel
         return 0;
     }
 
-    public function entityEmailEvent($invitation, $reminder_template, $template)
+    public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
         switch ($reminder_template) {
             case 'invoice':
@@ -728,6 +737,7 @@ class Invoice extends BaseModel
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER3_SENT));
                 break;
             case 'reminder_endless':
+            case 'endless_reminder':
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
                 break;
             default:

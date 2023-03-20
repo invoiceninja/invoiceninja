@@ -276,8 +276,6 @@ class YodleeController extends BaseController
     {
         //this is the main hook we use for notifications
 
-        nlog("data refresh");
-        nlog($request->all());
 
         return response()->json(['message' => 'Success'], 200);
     

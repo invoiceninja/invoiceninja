@@ -38,10 +38,11 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
-        if($this->file('documents') && is_array($this->file('documents')))
+        if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->file_validation;
-        elseif($this->file('documents'))
+        } elseif ($this->file('documents')) {
             $rules['documents'] = $this->file_validation;
+        }
 
         if ($this->file('file') && is_array($this->file('file'))) {
             $rules['file.*'] = $this->file_validation;

@@ -11,54 +11,55 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\ApiSecretCheck;
+use App\Utils\Ninja;
+use App\Http\Middleware\Cors;
+use App\Http\Middleware\SetDb;
+use App\Http\Middleware\Locale;
+use App\Http\Middleware\SetWebDb;
+use App\Http\Middleware\UrlSetDb;
+use App\Http\Middleware\TokenAuth;
+use App\Http\Middleware\SetEmailDb;
+use App\Http\Middleware\VerifyHash;
+use App\Http\Middleware\SetInviteDb;
+use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\CheckClientExistence;
-use App\Http\Middleware\CheckForMaintenanceMode;
-use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\ContactSetDb;
+use App\Http\Middleware\QueryLogging;
+use App\Http\Middleware\TrustProxies;
+use App\Http\Middleware\UserVerified;
+use App\Http\Middleware\VendorLocale;
+use App\Http\Middleware\PhantomSecret;
+use App\Http\Middleware\SetDocumentDb;
+use App\Http\Middleware\ApiSecretCheck;
 use App\Http\Middleware\ContactAccount;
+use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\SessionDomains;
 use App\Http\Middleware\ContactKeyLogin;
 use App\Http\Middleware\ContactRegister;
-use App\Http\Middleware\ContactSetDb;
-use App\Http\Middleware\ContactTokenAuth;
-use App\Http\Middleware\Cors;
-use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\Locale;
-use App\Http\Middleware\PasswordProtection;
-use App\Http\Middleware\PhantomSecret;
-use App\Http\Middleware\QueryLogging;
-use App\Http\Middleware\RedirectIfAuthenticated;
-use App\Http\Middleware\SessionDomains;
-use App\Http\Middleware\SetDb;
-use App\Http\Middleware\SetDbByCompanyKey;
-use App\Http\Middleware\SetDocumentDb;
 use App\Http\Middleware\SetDomainNameDb;
-use App\Http\Middleware\SetEmailDb;
-use App\Http\Middleware\SetInviteDb;
-use App\Http\Middleware\SetWebDb;
-use App\Http\Middleware\Shop\ShopTokenAuth;
-use App\Http\Middleware\TokenAuth;
-use App\Http\Middleware\TrimStrings;
-use App\Http\Middleware\TrustProxies;
-use App\Http\Middleware\UrlSetDb;
-use App\Http\Middleware\UserVerified;
-use App\Http\Middleware\VendorContactKeyLogin;
-use App\Http\Middleware\VendorLocale;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Http\Middleware\VerifyHash;
-use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Auth\Middleware\Authorize;
-use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
-use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\PasswordProtection;
+use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\CheckClientExistence;
+use App\Http\Middleware\VendorContactKeyLogin;
 use Illuminate\Http\Middleware\SetCacheHeaders;
-use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
+use App\Http\Middleware\CheckForMaintenanceMode;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 
 class Kernel extends HttpKernel
 {
@@ -75,9 +76,7 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
-        // \Illuminate\Http\Middleware\HandleCors::class,
         Cors::class,
-
     ];
 
     /**
@@ -140,7 +139,6 @@ class Kernel extends HttpKernel
         'cors' => Cors::class,
         'guest' => RedirectIfAuthenticated::class,
         'signed' => ValidateSignature::class,
-        'throttle' => ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
         'query_logging' => QueryLogging::class,
         'token_auth' => TokenAuth::class,
@@ -152,7 +150,6 @@ class Kernel extends HttpKernel
         'email_db' => SetEmailDb::class,
         'invite_db' => SetInviteDb::class,
         'password_protected' => PasswordProtection::class,
-        'signed' => ValidateSignature::class,
         'portal_enabled' => ClientPortalEnabled::class,
         'url_db' =>  UrlSetDb::class,
         'web_db' => SetWebDb::class,
@@ -162,7 +159,6 @@ class Kernel extends HttpKernel
         'vendor_locale' => VendorLocale::class,
         'contact_register' => ContactRegister::class,
         'verify_hash' => VerifyHash::class,
-        'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,
         'vendor_contact_key_login' => VendorContactKeyLogin::class,
@@ -170,6 +166,7 @@ class Kernel extends HttpKernel
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,
+        //we dyanamically add the throttle middleware in RouteServiceProvider
     ];
 
     protected $middlewarePriority = [
@@ -189,7 +186,6 @@ class Kernel extends HttpKernel
         ContactTokenAuth::class,
         ContactKeyLogin::class,
         Authenticate::class,
-        ShopTokenAuth::class,
         ContactRegister::class,
         PhantomSecret::class,
         CheckClientExistence::class,
@@ -199,4 +195,5 @@ class Kernel extends HttpKernel
         SubstituteBindings::class,
         ContactAccount::class,
     ];
+
 }

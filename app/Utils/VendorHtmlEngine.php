@@ -511,7 +511,7 @@ class VendorHtmlEngine
             $data['values'][$key] = $value['value'];
             $data['labels'][$key.'_label'] = $value['label'];
         }
-nlog($data);
+
         return $data;
     }
 
@@ -808,6 +808,11 @@ html {
      */
     private function buildViewButton(string $link, string $text): string
     {
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
+
+
         return '
 <div>
 <!--[if (gte mso 9)|(IE)]>

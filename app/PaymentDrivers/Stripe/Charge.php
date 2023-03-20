@@ -136,15 +136,11 @@ class Charge
         if ($cgt->gateway_type_id == GatewayType::SEPA) {
             $payment_method_type = PaymentType::SEPA;
             $status = Payment::STATUS_PENDING;
-
-        } elseif ($cgt->gateway_type_id == GatewayType::BACS){
+        } elseif ($cgt->gateway_type_id == GatewayType::BACS) {
             $payment_method_type = PaymentType::BACS;
             $status = Payment::STATUS_PENDING;
-        }
-        else {
-
-            if(isset($response->latest_charge)) {
-
+        } else {
+            if (isset($response->latest_charge)) {
                 $charge = \Stripe\Charge::retrieve($response->latest_charge, $this->stripe->stripe_connect_auth);
                 $payment_method_type = $charge->payment_method_details->card->brand;
             } elseif (isset($response->charges->data[0]->payment_method_details->card->brand)) {
@@ -157,9 +153,8 @@ class Charge
         }
 
 
-        if(!in_array($response?->status, ['succeeded', 'processing'])){
-            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.',400));
-
+        if (!in_array($response?->status, ['succeeded', 'processing'])) {
+            $this->stripe->processInternallyFailedPayment($this->stripe, new \Exception('Auto billing failed.', 400));
         }
 
         $data = [

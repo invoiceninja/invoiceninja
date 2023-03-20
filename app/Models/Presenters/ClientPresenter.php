@@ -31,7 +31,7 @@ class ClientPresenter extends EntityPresenter
 
         $contact_name = 'No Contact Set';
 
-        if ($contact && (strlen($contact->first_name) >= 1 || strlen($contact->last_name) >= 1)) {
+        if ($contact && ((is_string($contact->first_name) && strlen($contact->first_name) >= 1) || (is_string($contact->last_name) && strlen($contact->last_name) >= 1))) {
             $contact_name = $contact->first_name.' '.$contact->last_name;
         } elseif ($contact && (strlen($contact->email))) {
             $contact_name = $contact->email;
@@ -42,17 +42,17 @@ class ClientPresenter extends EntityPresenter
 
     public function first_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name : $this->entity->contacts()->first()->first_name;
+        return $this->entity->primary_contact()->first()?->first_name ?: ($this->entity->contacts()->first()->first_name ?: '');
     }
 
     public function last_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->last_name : $this->entity->contacts()->first()->last_name;
+        return $this->entity->primary_contact()->first()?->last_name ?: ($this->entity->contacts()->first()->last_name ?: '');
     }
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name.' '.$this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity?->primary_contact()?->first() ? $this->entity->primary_contact()->first()->first_name.' '.$this->entity->primary_contact()->first()->last_name : 'No primary contact set';
     }
 
     public function email()

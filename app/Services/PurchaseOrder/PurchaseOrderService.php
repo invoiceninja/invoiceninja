@@ -11,9 +11,10 @@
 
 namespace App\Services\PurchaseOrder;
 
-use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
+use App\Services\PurchaseOrder\SendEmail;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 
 class PurchaseOrderService
 {
@@ -144,6 +145,14 @@ class PurchaseOrderService
 
         return $expense;
     }
+
+    public function sendEmail($contact = null)
+    {
+        $send_email = new SendEmail($this->purchase_order, null, $contact);
+
+        return $send_email->run();
+    }
+
 
     /**
      * Saves the purchase order.

@@ -251,6 +251,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$emailSignature'] = &$data['$signature'];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references_subject'] = ['value' => $this->formatInvoiceReferencesSubject(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
         $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
@@ -329,6 +330,24 @@ class PaymentEmailEngine extends BaseEmailEngine
         return $invoice_list;
     }
 
+    private function formatInvoiceReferencesSubject()
+    {
+         $invoice_list = '';
+
+        foreach ($this->payment->invoices as $invoice) {
+            if (strlen($invoice->po_number) > 1) {
+                $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
+            }
+
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} " . Number::formatMoney($invoice->pivot->amount, $this->client).', ';
+
+        }
+
+        return $invoice_list;
+
+    }
+
+
     private function formatInvoiceReferences()
     {
         $invoice_list = '<br><br>';
@@ -363,9 +382,9 @@ class PaymentEmailEngine extends BaseEmailEngine
     /**
      * generateLabelsAndValues
      *
-     * @return void
+     * @return array
      */
-    public function generateLabelsAndValues()
+    public function generateLabelsAndValues(): array
     {
         $data = [];
 
@@ -388,6 +407,11 @@ class PaymentEmailEngine extends BaseEmailEngine
      */
     private function buildViewButton(string $link, string $text): string
     {
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
+
+
         return '
 <div>
 <!--[if (gte mso 9)|(IE)]>

@@ -811,6 +811,10 @@ class Import implements ShouldQueue
                 $modified['updated_at'] = Carbon::parse($modified['updated_at']);
             }
 
+            if (!array_key_exists('currency_id', $modified) || !$modified['currency_id']) {
+                $modified['currency_id'] = $this->company->settings->currency_id;
+            }
+
             $vendor = $vendor_repository->save(
                 $modified,
                 VendorFactory::create(

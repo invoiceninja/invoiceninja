@@ -1191,7 +1191,7 @@ $LANG = array(
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
 
-    'white_label_button' => 'White Label',
+    'white_label_button' => 'Purchase White Label',
 
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
@@ -5020,7 +5020,13 @@ $LANG = array(
     'white_label_body' => 'Thank you for purchasing a white label license. <br><br> Your license key is: <br><br> :license_key',
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
-
+    'pre_payment' => 'Pre Payment',
+    'number_of_payments' => 'Number of payments',
+    'number_of_payments_helper' => 'The number of times this payment will be made',
+    'pre_payment_indefinitely' => 'Continue until cancelled',
+    'notification_payment_emailed' => 'Payment :payment was emailed to :client',
+    'notification_payment_emailed_subject' => 'Payment :payment was emailed',
+    'record_not_found' => 'Record not found',
 );
 
 

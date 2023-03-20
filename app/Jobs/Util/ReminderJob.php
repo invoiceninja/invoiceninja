@@ -12,7 +12,6 @@
 namespace App\Jobs\Util;
 
 use App\DataMapper\InvoiceItem;
-use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Ninja\TransactionLog;
 use App\Libraries\MultiDB;
@@ -31,7 +30,12 @@ use Illuminate\Support\Facades\App;
 
 class ReminderJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesReminders, MakesDates;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+    use MakesReminders;
+    use MakesDates;
 
     public $tries = 1;
 
@@ -44,7 +48,7 @@ class ReminderJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() :void
+    public function handle(): void
     {
         set_time_limit(0);
 
@@ -73,7 +77,7 @@ class ReminderJob implements ShouldQueue
                  });
         } else {
             //multiDB environment, need to
-            
+
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
@@ -94,7 +98,7 @@ class ReminderJob implements ShouldQueue
                      })
                      ->with('invitations')->chunk(50, function ($invoices) {
                          // if ($invoice->refresh() && $invoice->isPayable()) {
-                         
+
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);
                          }
@@ -125,22 +129,17 @@ class ReminderJob implements ShouldQueue
                 $enabled_reminder = 'enable_reminder_endless';
             }
 
-            //check if this reminder needs to be emailed
-            //15-01-2022 - insert addition if block if send_reminders is definitely set
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
         $invoice->client->getSetting($enabled_reminder) &&
         $invoice->client->getSetting('send_reminders') &&
         (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())) {
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                     if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email) {
-                        EmailEntity::dispatch($invitation, $invitation->company, $reminder_template)->delay(now()->addSeconds(3));
+                        EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                         nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
+                        $invoice->entityEmailEvent($invitation, $reminder_template);
                     }
                 });
-
-                if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
-                }
             }
             $invoice->service()->setReminder()->save();
         } else {
@@ -156,7 +155,7 @@ class ReminderJob implements ShouldQueue
      * @param  string $template
      * @return Invoice
      */
-    private function calcLateFee($invoice, $template) :Invoice
+    private function calcLateFee($invoice, $template): Invoice
     {
         $late_fee_amount = 0;
         $late_fee_percent = 0;
@@ -196,7 +195,7 @@ class ReminderJob implements ShouldQueue
      *
      * @return Invoice
      */
-    private function setLateFee($invoice, $amount, $percent) :Invoice
+    private function setLateFee($invoice, $amount, $percent): Invoice
     {
         App::forgetInstance('translator');
         $t = app('translator');
@@ -217,7 +216,7 @@ class ReminderJob implements ShouldQueue
             $fee += round($invoice->balance * $percent / 100, 2);
         }
 
-        $invoice_item = new InvoiceItem;
+        $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '5';
         $invoice_item->product_key = trans('texts.fee');
         $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => $this->translateDate(now()->startOfDay(), $invoice->client->date_format(), $invoice->client->locale())]);
