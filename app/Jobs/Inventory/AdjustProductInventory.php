@@ -85,17 +85,6 @@ class AdjustProductInventory implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
-        // foreach ($this->invoice->line_items as $item) {
-        //     $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
-
-        //     if (! $p) {
-        //         continue;
-        //     }
-
-        //     $p->in_stock_quantity -= $item->quantity;
-        //     $p->saveQuietly();
-        // }
-
         collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
         })->each(function ($i) {
@@ -116,24 +105,6 @@ class AdjustProductInventory implements ShouldQueue
 
     private function newInventoryAdjustment()
     {
-        // $line_items = $this->invoice->line_items;
-
-        // foreach ($line_items as $item) {
-        //     $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->where('in_stock_quantity', '>', 0)->first();
-
-        //     if (! $p) {
-        //         continue;
-        //     }
-
-        //     $p->in_stock_quantity -= $item->quantity;
-        //     $p->saveQuietly();
-
-        //     if ($this->company->stock_notification && $p->stock_notification && $p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold) {
-        //         $this->notifyStockLevels($p, 'product');
-        //     } elseif ($this->company->stock_notification && $p->stock_notification && $this->company->inventory_notification_threshold && $p->in_stock_quantity <= $this->company->inventory_notification_threshold) {
-        //         $this->notifyStocklevels($p, 'company');
-        //     }
-        // }
 
         collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
@@ -144,6 +115,9 @@ class AdjustProductInventory implements ShouldQueue
                 $p->in_stock_quantity -= $i->quantity;
 
                 $p->saveQuietly();
+                nlog($p->stock_notification_threshold);
+                nlog($p->in_stock_quantity);
+                nlog($p->stock_notification_threshold);
 
                 if ($this->company->stock_notification && $p->stock_notification && $p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold) {
                     $this->notifyStockLevels($p, 'product');
@@ -156,17 +130,7 @@ class AdjustProductInventory implements ShouldQueue
 
     private function existingInventoryAdjustment()
     {
-        // foreach ($this->old_invoice as $item) {
-        //     $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
-
-        //     if (! $p) {
-        //         continue;
-        //     }
-
-        //     $p->in_stock_quantity += $item->quantity;
-        //     $p->saveQuietly();
-        // }
-
+    
         collect($this->invoice->line_items)->filter(function ($item) {
             return $item->type_id == '1';
         })->each(function ($i) {
@@ -188,7 +152,7 @@ class AdjustProductInventory implements ShouldQueue
         $nmo->settings = $this->company->settings;
 
         $this->company->company_users->each(function ($cu) use ($product, $nmo) {
-            if ($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user'])) {
+            if ($this->checkNotificationExists($cu, $product, ['inventory_all', 'inventory_user', 'inventory_threshold_all', 'inventory_threshold_user'])) {
                 $nmo->to_user = $cu->user;
                 NinjaMailerJob::dispatch($nmo);
             }
