@@ -37,11 +37,8 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
         
-
-        if (Ninja::isHosted()) {
+        if (Ninja::isHosted()){
             app('router')->aliasMiddleware('throttle', ThrottleRequestsWithPredis::class);
-            // app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
-
         } else {
             app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
         }

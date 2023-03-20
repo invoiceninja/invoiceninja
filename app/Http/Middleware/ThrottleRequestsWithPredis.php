@@ -34,7 +34,6 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
      * Create a new request throttler.
      *
      * @param  \Illuminate\Cache\RateLimiter  $limiter
-     * @param  \Illuminate\Contracts\Redis\Factory  $redis
      * @return void
      */
     public function __construct(RateLimiter $limiter)
