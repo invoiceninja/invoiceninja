@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Http\Middleware\ThrottleRequestsWithPredis;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
@@ -38,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
         
 
         if (Ninja::isHosted()) {
-            app('router')->aliasMiddleware('throttle', ThrottleRequestsWithRedis::class);
+            app('router')->aliasMiddleware('throttle', ThrottleRequestsWithPredis::class);
             // app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
 
         } else {
