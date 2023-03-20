@@ -883,7 +883,7 @@ class PdfMock
           '$created_by_user' => 'Mr. Louvenia Armstrong Prof. Reyes Anderson',
           '$vendor.currency' => 'USD',
           '$company.country' => 'United States',
-          '$tech_hero_image' => 'http://ninja.test:8000/images/pdf-designs/tech-hero-image.jpg',
+          '$tech_hero_image' => 'https://invoicing.co/images/pdf-designs/tech-hero-image.jpg',
           '$company.website' => 'http://www.dare.com/vero-consequatur-eveniet-dolorum-exercitationem-alias-repellat.html',
           '$gross_subtotal' => '$10,256.40',
           '$emailSignature' => '&nbsp;',
