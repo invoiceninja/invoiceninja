@@ -11,16 +11,16 @@
 
 namespace App\Services\Client;
 
-use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Services\Email\Email;
-use App\Utils\Traits\MakesDates;
-use Illuminate\Support\Facades\DB;
 use App\Services\Email\EmailObject;
 use App\Services\Email\EmailService;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Support\Facades\DB;
 
 class ClientService
 {
@@ -173,7 +173,6 @@ class ClientService
         
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);
-
     }
 
     /**

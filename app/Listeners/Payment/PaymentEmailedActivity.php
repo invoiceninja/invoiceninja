@@ -11,15 +11,13 @@
 
 namespace App\Listeners\Payment;
 
-use App\Models\Activity;
 use App\Libraries\MultiDB;
+use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Utils\Traits\Notifications\UserNotifies;
 
 class PaymentEmailedActivity implements ShouldQueue
 {
-
     protected $activity_repo;
 
     /**
@@ -52,6 +50,5 @@ class PaymentEmailedActivity implements ShouldQueue
         $fields->payment_id = $event->payment->id;
 
         $this->activity_repo->save($fields, $event->payment, $event->event_vars);
-
     }
 }

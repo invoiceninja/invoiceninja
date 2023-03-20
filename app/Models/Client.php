@@ -666,7 +666,7 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if ($this->country && $this->country->iso_3166_3 == 'GBR' && in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
+        if (in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::DIRECT_DEBIT) {
                     $cg = CompanyGateway::find($pm['company_gateway_id']);
@@ -691,7 +691,7 @@ class Client extends BaseModel implements HasLocalePreference
             return GatewayType::SEPA;
         }
 
-        if ($this->currency()->code == 'GBP') {
+        if (in_array($this->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','USD'])) {
             return GatewayType::DIRECT_DEBIT;
         }
     }

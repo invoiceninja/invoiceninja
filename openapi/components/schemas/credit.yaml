@@ -1,0 +1,223 @@
+    Credit:
+      properties:
+        id:
+          description: "The unique hashed ID of the credit"
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: "The unique hashed ID of the user associated with the credit"
+          type: string
+          example: 1a2b3c4d5e
+        assigned_user_id:
+          description: "The unique hashed ID of the assigned user responsible for the credit"
+          type: string
+          example: 6f7g8h9i0j
+        company_id:
+          description: "The unique hashed ID of the company associated with the credit"
+          type: string
+          example: k1l2m3n4o5
+        client_id:
+          description: "The unique hashed ID of the client associated with the credit"
+          type: string
+          example: p1q2r3s4t5
+        status_id:
+          description: "The ID representing the current status of the credit"
+          type: string
+          example: 3
+        invoice_id:
+          description: "The unique hashed ID of the linked invoice to which the credit is applied"
+          type: string
+          example: u1v2w3x4y5
+        number:
+          description: "The unique alphanumeric credit number per company"
+          type: string
+          example: QUOTE_101
+        po_number:
+          description: "The purchase order number referred to by the credit"
+          type: string
+          example: PO_12345
+        terms:
+          description: "The terms associated with the credit"
+          type: string
+          example: "Net 30"
+        public_notes:
+          description: "Public notes for the credit"
+          type: string
+          example: "Thank you for your business."
+        private_notes:
+          description: "Private notes for internal use, not visible to the client"
+          type: string
+          example: "Client is requesting a discount."
+        footer:
+          description: "The footer text for the credit"
+          type: string
+          example: "Footer text goes here."
+        custom_value1:
+          description: "Custom value 1 for additional credit information"
+          type: string
+          example: "Custom data 1"
+        custom_value2:
+          description: "Custom value 2 for additional credit information"
+          type: string
+          example: "Custom data 2"
+        custom_value3:
+          description: "Custom value 3 for additional credit information"
+          type: string
+          example: "Custom data 3"
+        custom_value4:
+          description: "Custom value 4 for additional credit information"
+          type: string
+          example: "Custom data 4"
+        tax_name1:
+          description: "The name of the first tax applied to the credit"
+          type: string
+          example: "VAT"
+        tax_name2:
+          description: "The name of the second tax applied to the credit"
+          type: string
+          example: "GST"
+        tax_rate1:
+          description: "The rate of the first tax applied to the credit"
+          type: number
+          format: float
+          example: 10.00
+        tax_rate2:
+          description: "The rate of the second tax applied to the credit"
+          type: number
+          format: float
+          example: 5.00
+        tax_name3:
+          description: "The name of the third tax applied to the credit"
+          type: string
+          example: "PST"
+        tax_rate3:
+          description: "The rate of the third tax applied to the credit"
+          type: number
+          format: float
+          example: 8.00
+        total_taxes:
+          description: "The total amount of taxes for the credit"
+          type: number
+          format: float
+          example: 23.00
+        line_items:
+          type: array
+          description: 'An array of objects which define the line items of the credit'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        amount:
+          description: "The total amount of the credit"
+          type: number
+          format: float
+          example: 100.00
+        balance:
+          description: "The outstanding balance of the credit"
+          type: number
+          format: float
+          example: 50.00
+        paid_to_date:
+          description: "The total amount paid to date for the credit"
+          type: number
+          format: float
+          example: 50.00
+        discount:
+          description: "The discount applied to the credit"
+          type: number
+          format: float
+          example: 10.00
+        partial:
+          description: "The partial amount applied to the credit"
+          type: number
+          format: float
+          example: 20.00
+        is_amount_discount:
+          description: "Indicates whether the discount applied is a fixed amount or a percentage"
+          type: boolean
+          example: true
+        is_deleted:
+          description: "Indicates whether the credit has been deleted"
+          type: boolean
+          example: false
+        uses_inclusive_taxes:
+          description: "Indicates whether the tax rates applied to the credit are inclusive or exclusive"
+          type: boolean
+          example: true
+        date:
+          description: "The date the credit was issued"
+          type: string
+          format: date
+          example: "1994-07-30"
+        last_sent_date:
+          description: "The date the credit was last sent out"
+          type: string
+          format: date
+          example: "1994-07-30"
+        next_send_date:
+          description: "The next scheduled date for sending a credit reminder"
+          type: string
+          format: date
+          example: "1994-07-30"
+        partial_due_date:
+          description: "The due date for the partial amount of the credit"
+          type: string
+          format: date
+          example: "1994-07-30"
+        due_date:
+          description: "The due date for the total amount of the credit"
+          type: string
+          format: date
+          example: "1994-07-30"
+        settings:
+          $ref: "#/components/schemas/CompanySettings"
+        last_viewed:
+          description: "The timestamp of the last time the credit was viewed"
+          type: number
+          format: integer
+          example: 1434342123
+        updated_at:
+          description: "The timestamp of the last time the credit was updated"
+          type: number
+          format: integer
+          example: 1434342123
+        archived_at:
+          description: "The timestamp of the last time the credit was archived"
+          type: number
+          format: integer
+          example: 1434342123
+        custom_surcharge1:
+          description: "First custom surcharge amount"
+          type: number
+          format: float
+          example: 10.00
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object

@@ -11,37 +11,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\CompanyUser;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\Uploadable;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\DataMapper\CompanySettings;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Company\CompanyDeleted;
-use App\Utils\Traits\SavesDocuments;
-use Turbo124\Beacon\Facades\LightLogs;
-use App\Repositories\CompanyRepository;
-use Illuminate\Support\Facades\Storage;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Transformers\CompanyTransformer;
 use App\DataMapper\Analytics\AccountDeleted;
-use App\Transformers\CompanyUserTransformer;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\Company\CreateCompanyPaymentTerms;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\DataMapper\CompanySettings;
+use App\Http\Requests\Company\CreateCompanyRequest;
+use App\Http\Requests\Company\DefaultCompanyRequest;
+use App\Http\Requests\Company\DestroyCompanyRequest;
 use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
-use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\Company\UploadCompanyRequest;
-use App\Http\Requests\Company\DefaultCompanyRequest;
-use App\Http\Requests\Company\DestroyCompanyRequest;
+use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Company\CompanyDeleted;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\CompanyUser;
+use App\Repositories\CompanyRepository;
+use App\Transformers\CompanyTransformer;
+use App\Transformers\CompanyUserTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use App\Utils\Traits\Uploadable;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Turbo124\Beacon\Facades\LightLogs;
 
 /**
  * Class CompanyController.
@@ -489,8 +489,7 @@ class CompanyController extends BaseController
 
             try {
                 Storage::disk(config('filesystems.default'))->deleteDirectory($company->company_key);
-            }
-            catch(\Exception $e) {
+            } catch(\Exception $e) {
             }
 
             $account->delete();
@@ -502,9 +501,6 @@ class CompanyController extends BaseController
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->batch();
-
-
-
         } else {
             $company_id = $company->id;
 

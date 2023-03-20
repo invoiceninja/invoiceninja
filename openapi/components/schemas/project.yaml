@@ -1,0 +1,88 @@
+    Project:
+      type: object
+      properties:
+        id:
+          description: 'The project hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: The assigned user identifier associated with the project
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          type: string
+          example: Opnel5aKBz
+          description: The client identifier associated with the project
+        name:
+          type: string
+          description: The name of the project
+          example: 'New Project'
+        task_rate:
+          type: number
+          format: float
+          example: 10
+          description: The default rate per task for the project
+        due_date:
+          type: string
+          format: date
+          example: '2019-01-01'
+          description: The due date for the project
+        private_notes:
+          type: string
+          description: Private notes associated with the project
+        budgeted_hours:
+          type: number
+          format: float
+          description: The number of budgeted hours for the project
+        custom_value1:
+          type: string
+          description: Custom value field 1
+        custom_value2:
+          type: string
+          description: Custom value field 2
+        custom_value3:
+          type: string
+          description: Custom value field 3
+        custom_value4:
+          type: string
+          description: Custom value field 4
+        created_at:
+          type: number
+          format: integer
+          example: 134341234234
+          description: The timestamp of the project creation
+        updated_at:
+          type: number
+          format: integer
+          example: 134341234234
+          description: The timestamp of the last project update
+        archived_at:
+          type: number
+          format: integer
+          example: 134341234234
+          description: The timestamp of the project deletion
+        public_notes:
+          type: string
+          description: Public notes associated with the project
+        is_deleted:
+          type: boolean
+          description: A flag indicating if the project is deleted
+        number:
+          type: string
+          description: The project number
+        color:
+          type: string
+          description: The color associated with the project
+      required:
+        - id
+        - user_id
+        - company_id
+        - name
+        - task_rate
+        - budgeted_hours
+        - is_deleted
+        - color

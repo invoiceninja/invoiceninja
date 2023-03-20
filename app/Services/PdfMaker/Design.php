@@ -681,8 +681,9 @@ class Design extends BaseDesign
 
         $table_type = "{$type}_columns";
 
-        if($type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns'))
+        if ($type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns')) {
             $table_type = "product_quote_columns";
+        }
             
         foreach ($this->context['pdf_variables'][$table_type] as $column) {
             if (array_key_exists($column, $aliases)) {
@@ -788,7 +789,6 @@ class Design extends BaseDesign
                     }
                 }
             } else {
-
                 foreach ($this->context['pdf_variables'][$table_type] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate

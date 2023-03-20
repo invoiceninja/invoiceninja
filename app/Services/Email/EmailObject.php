@@ -11,22 +11,22 @@
 
 namespace App\Services\Email;
 
-use App\Models\User;
-use App\Models\Quote;
 use App\Models\Client;
-use App\Models\Credit;
-use App\Models\Vendor;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Models\ClientContact;
-use App\Models\PurchaseOrder;
-use App\Models\VendorContact;
-use App\Models\QuoteInvitation;
+use App\Models\Company;
+use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
-use Illuminate\Mail\Mailables\Address;
+use App\Models\Payment;
+use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use Illuminate\Mail\Mailables\Address;
 
 /**
  * EmailObject.

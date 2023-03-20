@@ -1191,7 +1191,7 @@ $LANG = array(
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
 
-    'white_label_button' => 'White Label',
+    'white_label_button' => 'Purchase White Label',
 
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',

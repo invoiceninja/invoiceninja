@@ -197,7 +197,7 @@ class PaymentMethod
                 'gateway_type_id' => GatewayType::CREDIT,
             ];
         }
-
+        
         return $this;
     }
 

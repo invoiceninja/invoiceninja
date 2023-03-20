@@ -33,7 +33,6 @@ class Alipay
 
     public function paymentView(array $data)
     {
-
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->currency()->code,
@@ -76,8 +75,7 @@ class Alipay
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if($request->payment_intent){
-
+        if ($request->payment_intent) {
             $pi = \Stripe\PaymentIntent::retrieve(
                 $request->payment_intent,
                 $this->stripe->stripe_connect_auth
@@ -89,10 +87,9 @@ class Alipay
                 return $this->processSuccesfulRedirect($pi);
             }
 
-            if($pi->status == 'requires_source_action') {
+            if ($pi->status == 'requires_source_action') {
                 return redirect($pi->next_action->alipay_handle_redirect->url);
             }
-
         }
 
         return $this->processUnsuccesfulRedirect();

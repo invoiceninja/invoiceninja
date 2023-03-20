@@ -11,24 +11,22 @@
 
 namespace App\Jobs\Util;
 
-use App\Utils\Ninja;
-use App\Models\Invoice;
-use App\Libraries\MultiDB;
-use Illuminate\Bus\Queueable;
-use Illuminate\Support\Carbon;
 use App\DataMapper\InvoiceItem;
 use App\Jobs\Entity\EmailEntity;
-use App\Models\TransactionEvent;
-use App\Utils\Traits\MakesDates;
 use App\Jobs\Ninja\TransactionLog;
-use Illuminate\Support\Facades\App;
+use App\Libraries\MultiDB;
+use App\Models\Invoice;
+use App\Models\TransactionEvent;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesReminders;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Events\Invoice\InvoiceWasEmailed;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use App\Events\Invoice\InvoiceReminderWasEmailed;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 
 class ReminderJob implements ShouldQueue
 {

@@ -12,55 +12,54 @@
 
 namespace App\PaymentDrivers;
 
-use Exception;
-use Stripe\Stripe;
-use Stripe\Account;
-use Stripe\Customer;
-use App\Models\Payment;
-use Stripe\SetupIntent;
-use Stripe\StripeClient;
-use App\Models\SystemLog;
-use Stripe\PaymentIntent;
-use Stripe\PaymentMethod;
-use App\Models\GatewayType;
-use App\Models\PaymentHash;
+use App\Exceptions\PaymentFailed;
+use App\Exceptions\StripeConnectFailure;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
-use App\Utils\Traits\MakesHash;
-use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
-use App\PaymentDrivers\Stripe\EPS;
-use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\BACS;
-use App\PaymentDrivers\Stripe\BECS;
-use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\iDeal;
-use App\PaymentDrivers\Stripe\Charge;
-use App\PaymentDrivers\Stripe\Klarna;
-use App\PaymentDrivers\Stripe\SOFORT;
-use Illuminate\Http\RedirectResponse;
-use App\PaymentDrivers\Stripe\GIROPAY;
-use Stripe\Exception\ApiErrorException;
-use App\Exceptions\StripeConnectFailure;
-use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\Bancontact;
-use App\PaymentDrivers\Stripe\BrowserPay;
-use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\BankTransfer;
+use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\BrowserPay;
+use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Connect\Verify;
+use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\EPS;
+use App\PaymentDrivers\Stripe\FPX;
+use App\PaymentDrivers\Stripe\GIROPAY;
+use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use Laracasts\Presenter\Exceptions\PresenterException;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
-
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\Klarna;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\SOFORT;
+use App\PaymentDrivers\Stripe\Utilities;
+use App\Utils\Traits\MakesHash;
+use Exception;
+use Illuminate\Http\RedirectResponse;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use Stripe\Account;
+use Stripe\Customer;
+use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
+use Stripe\PaymentMethod;
+use Stripe\SetupIntent;
+use Stripe\Stripe;
+use Stripe\StripeClient;
 
 class StripePaymentDriver extends BaseDriver
 {
@@ -446,11 +445,10 @@ class StripePaymentDriver extends BaseDriver
     {
         $this->init();
 
-         return PaymentIntent::retrieve(
-                $payment_intent_id,
-                $this->stripe_connect_auth
-            );
-        
+        return PaymentIntent::retrieve(
+            $payment_intent_id,
+            $this->stripe_connect_auth
+        );
     }
 
     /**
@@ -667,7 +665,6 @@ class StripePaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        
         if ($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
@@ -754,12 +751,11 @@ class StripePaymentDriver extends BaseDriver
                     }
                 }
             }
-        } elseif ($request->type === "payment_method.automatically_updated"){
+        } elseif ($request->type === "payment_method.automatically_updated") {
             // Will notify customer on updated information
             return response()->json([], 200);
-        } elseif ($request->type === "mandate.updated"){
-
-            if ($request->data['object']['status'] == "active"){
+        } elseif ($request->type === "mandate.updated") {
+            if ($request->data['object']['status'] == "active") {
                 // Check if payment method existsn
                 $payment_method = (string) $request->data['object']['payment_method'];
 
@@ -767,18 +763,15 @@ class StripePaymentDriver extends BaseDriver
                     ->where('token', $payment_method)
                     ->first();
 
-                if ($clientgateway){
-
+                if ($clientgateway) {
                     $meta = $clientgateway->meta;
                     $meta->state = 'authorized';
                     $clientgateway->meta = $meta;
                     $clientgateway->save();
-
                 }
 
                 return response()->json([], 200);
-            }
-            elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']){
+            } elseif ($request->data['object']['status'] == "inactive" && $request->data['object']['payment_method']) {
                 // Delete payment method
                 $clientgateway = ClientGatewayToken::query()
                     ->where('token', $request->data['object']['payment_method'])
@@ -787,8 +780,7 @@ class StripePaymentDriver extends BaseDriver
                 $clientgateway->delete();
                 
                 return response()->json([], 200);
-            }
-            elseif ($request->data['object']['status'] == "pending"){
+            } elseif ($request->data['object']['status'] == "pending") {
                 return response()->json([], 200);
             }
         }

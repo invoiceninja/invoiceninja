@@ -263,7 +263,7 @@ class Vendor extends BaseModel
     public function getMergedSettings() :object
     {
         return $this->company->settings;
-    }   
+    }
 
     public function purchase_order_filepath($invitation)
     {

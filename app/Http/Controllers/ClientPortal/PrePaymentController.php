@@ -12,16 +12,16 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
-use App\Utils\Number;
-use Illuminate\View\View;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesDates;
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use App\Repositories\InvoiceRepository;
 use App\Http\Requests\ClientPortal\PrePayments\StorePrePaymentRequest;
+use App\Repositories\InvoiceRepository;
+use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 
 /**
  * Class PrePaymentController.
@@ -38,7 +38,6 @@ class PrePaymentController extends Controller
      */
     public function index()
     {
-        
         $data = [
             'title' => ctrans('texts.amount'). " " .auth()->guard('contact')->user()->client->currency()->code." (".auth()->guard('contact')->user()->client->currency()->symbol . ")",
             'allows_recurring' => auth()->guard('contact')->user()->client->getSetting('client_initiated_payments_recurring'),
@@ -51,7 +50,6 @@ class PrePaymentController extends Controller
 
     public function process(StorePrePaymentRequest $request)
     {
-        
         $invoice = InvoiceFactory::create(auth()->guard('contact')->user()->company_id, auth()->guard('contact')->user()->user_id);
         $invoice->due_date = now()->format('Y-m-d');
         $invoice->is_proforma = true;
@@ -114,7 +112,5 @@ class PrePaymentController extends Controller
         ];
 
         return $this->render('invoices.payment', $data);
-
     }
-
 }

@@ -15,7 +15,6 @@ class StorePrePaymentRequest extends FormRequest
     public function authorize()
     {
         return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
-
     }
 
     /**
@@ -30,5 +29,4 @@ class StorePrePaymentRequest extends FormRequest
             'amount' => 'required|bail|',
         ];
     }
-
 }

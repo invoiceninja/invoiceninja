@@ -11,14 +11,14 @@
 
 namespace App\Services\Payment;
 
-use App\Utils\Ninja;
+use App\Events\Invoice\InvoiceWasUpdated;
+use App\Factory\RecurringInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
-use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Factory\RecurringInvoiceFactory;
-use App\Events\Invoice\InvoiceWasUpdated;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class UpdateInvoicePayment
 {
@@ -84,10 +84,8 @@ class UpdateInvoicePayment
                                 ->save();
             
             if ($invoice->is_proforma) {
-
                 //keep proforma's hidden
-                if(property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1"){
-
+                if (property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1") {
                     $invoice->payments()->each(function ($p) {
                         $p->pivot->forceDelete();
                     });
@@ -117,7 +115,6 @@ class UpdateInvoicePayment
                         $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
                         $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
                         $recurring_invoice->service()->applyNumber()->save();
-                        
                     }
 
                     return;
@@ -125,8 +122,9 @@ class UpdateInvoicePayment
 
                 
 
-                if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####"))
-                    $invoice->number = '';                
+                if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####")) {
+                    $invoice->number = '';
+                }
 
                 $invoice->is_proforma = false;
                 

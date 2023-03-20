@@ -140,7 +140,6 @@ class CreditCard
 
         try {
             $result = $this->braintree->gateway->transaction()->sale($data);
-
         } catch (\Exception $e) {
             if ($e instanceof \Braintree\Exception\Authorization) {
                 $this->braintree->sendFailureMail(ctrans('texts.generic_gateway_error'));

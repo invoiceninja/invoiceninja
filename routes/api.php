@@ -136,7 +136,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('charts/chart_summary', [ChartController::class, 'chart_summary'])->name('chart.chart_summary');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
-    Route::post('v5_claim_license', [LicenseController::class, 'v5ClaimLicense'])->name('license.v5_claim_license');
 
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/upload', [ClientController::class, 'upload'])->name('clients.upload');

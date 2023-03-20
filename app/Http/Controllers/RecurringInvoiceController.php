@@ -11,29 +11,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Utils\Ninja;
-use App\Models\Account;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Models\RecurringInvoice;
-use App\Utils\Traits\SavesDocuments;
-use Illuminate\Support\Facades\Storage;
-use App\Factory\RecurringInvoiceFactory;
-use App\Filters\RecurringInvoiceFilters;
-use App\Jobs\RecurringInvoice\UpdateRecurring;
-use App\Repositories\RecurringInvoiceRepository;
-use App\Transformers\RecurringInvoiceTransformer;
 use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
+use App\Factory\RecurringInvoiceFactory;
+use App\Filters\RecurringInvoiceFilters;
+use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\BulkRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\CreateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UploadRecurringInvoiceRequest;
-use App\Http\Requests\RecurringInvoice\DestroyRecurringInvoiceRequest;
+use App\Jobs\RecurringInvoice\UpdateRecurring;
+use App\Models\Account;
+use App\Models\RecurringInvoice;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Transformers\RecurringInvoiceTransformer;
+use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class RecurringInvoiceController.
@@ -406,10 +406,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function bulk(BulkRecurringInvoiceRequest $request)
     {
-
         $percentage_increase = request()->has('percentage_increase') ? request()->input('percentage_increase') : 0;
 
-        if(in_array($request->action, ['increase_prices', 'update_prices'])) {
+        if (in_array($request->action, ['increase_prices', 'update_prices'])) {
             UpdateRecurring::dispatch($request->ids, auth()->user()->company(), auth()->user(), $request->action, $percentage_increase);
 
             return response()->json(['message' => 'Update in progress.'], 200);
@@ -417,7 +416,7 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
 
-        $recurring_invoices->each(function ($recurring_invoice, $key) use($request){
+        $recurring_invoices->each(function ($recurring_invoice, $key) use ($request) {
             if (auth()->user()->can('edit', $recurring_invoice)) {
                 $this->performAction($recurring_invoice, $request->action, true);
             }

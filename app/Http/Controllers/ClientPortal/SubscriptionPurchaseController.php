@@ -44,7 +44,6 @@ class SubscriptionPurchaseController extends Controller
 
     public function upgrade(Subscription $subscription, Request $request)
     {
-
         App::setLocale($subscription->company->locale());
 
         /* Make sure the contact is logged into the correct company for this subscription */

@@ -808,11 +808,9 @@ html {
      */
     private function buildViewButton(string $link, string $text): string
     {
-
-
-if ($this->settings->email_style == 'plain') {
-    return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
-}
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
 
 
         return '

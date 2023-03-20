@@ -40,8 +40,8 @@ class ApplyNumber extends AbstractService
             return $this->invoice;
         }
 
-        /** Do no give pro forma invoices a proper invoice number */
-        if($this->invoice->is_proforma) {
+        /** Do not give a pro forma invoice a proper invoice number */
+        if ($this->invoice->is_proforma && $this->invoice->recurring_id) {
             $this->invoice->number = ctrans('texts.pre_payment') . " " . now()->format('Y-m-d : H:i:s');
             $this->invoice->saveQuietly();
             return $this->invoice;

@@ -136,7 +136,7 @@ class PaymentFilters extends QueryFilters
      * Sorts the list based on $sort.
      *
      *  formatted as column|asc
-     *  
+     *
      * @param string $sort
      * @return Builder
      */

@@ -15,7 +15,6 @@ use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Services\AbstractService;
-use Illuminate\Support\Facades\Storage;
 
 class GetQuotePdf extends AbstractService
 {
@@ -34,8 +33,9 @@ class GetQuotePdf extends AbstractService
 
         $invitation = $this->quote->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        if(!$invitation)
+        if (!$invitation) {
             $invitation = $this->quote->invitations->first();
+        }
 
         $path = $this->quote->client->quote_filepath($invitation);
 
@@ -48,6 +48,5 @@ class GetQuotePdf extends AbstractService
         $file_path = (new CreateEntityPdf($invitation))->handle();
 
         return $file_path;
-
     }
 }

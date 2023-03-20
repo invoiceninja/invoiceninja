@@ -12,8 +12,8 @@
 namespace App\Export\CSV;
 
 use App\Models\Client;
-use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Carbon;
 
 class BaseExport
 {
@@ -34,7 +34,6 @@ class BaseExport
     protected function filterByClients($query)
     {
         if (isset($this->input['client_id']) && $this->input['client_id'] != 'all') {
-
             $client = Client::withTrashed()->find($this->input['client_id']);
             $this->client_description = $client->present()->name;
             return $query->where('client_id', $this->input['client_id']);

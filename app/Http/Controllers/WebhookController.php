@@ -12,22 +12,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Webhook;
-use Illuminate\Support\Str;
-use Illuminate\Http\Response;
 use App\Factory\WebhookFactory;
 use App\Filters\WebhookFilters;
-use App\Utils\Traits\MakesHash;
+use App\Http\Requests\Webhook\CreateWebhookRequest;
+use App\Http\Requests\Webhook\DestroyWebhookRequest;
+use App\Http\Requests\Webhook\EditWebhookRequest;
+use App\Http\Requests\Webhook\RetryWebhookRequest;
+use App\Http\Requests\Webhook\ShowWebhookRequest;
+use App\Http\Requests\Webhook\StoreWebhookRequest;
+use App\Http\Requests\Webhook\UpdateWebhookRequest;
 use App\Jobs\Util\WebhookSingle;
+use App\Models\Webhook;
 use App\Repositories\BaseRepository;
 use App\Transformers\WebhookTransformer;
-use App\Http\Requests\Webhook\EditWebhookRequest;
-use App\Http\Requests\Webhook\ShowWebhookRequest;
-use App\Http\Requests\Webhook\RetryWebhookRequest;
-use App\Http\Requests\Webhook\StoreWebhookRequest;
-use App\Http\Requests\Webhook\CreateWebhookRequest;
-use App\Http\Requests\Webhook\UpdateWebhookRequest;
-use App\Http\Requests\Webhook\DestroyWebhookRequest;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class WebhookController extends BaseController
 {
@@ -493,7 +493,7 @@ class WebhookController extends BaseController
 
     public function retry(RetryWebhookRequest $request, Webhook $webhook)
     {
-        match($request->entity) {
+        match ($request->entity) {
             'invoice' => $includes ='client',
             'payment' => $includes ='invoices,client',
             'project' => $includes ='client',
@@ -506,7 +506,7 @@ class WebhookController extends BaseController
 
         $entity = $class::withTrashed()->where('id', $this->decodePrimaryKey($request->entity_id))->company()->first();
 
-        if(!$entity){
+        if (!$entity) {
             return response()->json(['message' => ctrans('texts.record_not_found')], 400);
         }
 

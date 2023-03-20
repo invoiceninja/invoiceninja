@@ -24,7 +24,6 @@ class ShowProjectRequest extends Request
     {
         // return auth()->user()->isAdmin();
         return auth()->user()->can('view', $this->project);
-
     }
 
     /**

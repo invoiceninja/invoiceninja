@@ -99,7 +99,6 @@ class UpdatePaymentMethods
 
             /* Already exists return */
             if ($token) {
-            
                 $meta = $token->meta;
                 $meta->state = 'authorized';
                 $token->meta = $meta;

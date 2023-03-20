@@ -1,0 +1,43 @@
+    CompanyUser:
+      properties:
+        permissions:
+          description: 'The company user permissions'
+          type: string
+          example: '[create_invoice]'
+        settings:
+          description: 'Settings that are used for the frontend applications to store user preferences / metadata'
+          type: object
+          example: 'json object'
+        react_settings:
+          description: 'Dedicated settings object for the react web application'
+          type: object'
+          example: 'json object'
+        is_owner:
+          description: 'Determines whether the user owns this company'
+          type: boolean
+          example: true
+        is_admin:
+          description: 'Determines whether the user is the admin of this company'
+          type: boolean
+          example: true
+        is_locked:
+          description: 'Determines whether the users access to this company has been locked'
+          type: boolean
+          example: true
+        updated_at:
+          description: 'The last time the record was modified, format Unix Timestamp'
+          type: integer
+          example: '1231232312321'
+        deleted_at:
+          description: 'Timestamp when the user was archived, format Unix Timestamp'
+          type: integer
+          example: '12312312321'
+        account:
+          $ref: '#/components/schemas/Account'
+        company:
+          $ref: '#/components/schemas/Company'
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          $ref: '#/components/schemas/CompanyToken'
+      type: object
