@@ -167,7 +167,7 @@ class SubscriptionService
     {
         //send license to the user.
         $invoice = $payment_hash->fee_invoice;
-        $license_key = Str::uuid()->toString();
+        $license_key = "v5_".Str::uuid()->toString();
         $invoice->footer = ctrans('texts.white_label_body', ['license_key' => $license_key]);
 
         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);

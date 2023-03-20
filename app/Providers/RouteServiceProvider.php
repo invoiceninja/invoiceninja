@@ -11,14 +11,17 @@
 
 namespace App\Providers;
 
-use App\Models\Scheduler;
 use App\Utils\Ninja;
+use App\Models\Scheduler;
+use Illuminate\Http\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Routing\Middleware\ThrottleRequestsWithRedis;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -32,6 +35,15 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+        
+
+        if (Ninja::isHosted()) {
+            app('router')->aliasMiddleware('throttle', ThrottleRequestsWithRedis::class);
+            // app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
+
+        } else {
+            app('router')->aliasMiddleware('throttle', ThrottleRequests::class);
+        }
 
         Route::bind('task_scheduler', function ($value) {
             if (is_numeric($value)) {
@@ -44,29 +56,30 @@ class RouteServiceProvider extends ServiceProvider
                 ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
         });
 
-        RateLimiter::for('login', function () {
+        RateLimiter::for('login', function (Request $request) {
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(50);
+                return Limit::perMinute(50)->by($request->ip());
             }
         });
 
-        RateLimiter::for('api', function () {
+        RateLimiter::for('api', function (Request $request) {
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(300);
+                return Limit::perMinute(300)->by($request->ip());
             }
         });
 
-        RateLimiter::for('refresh', function () {
+        RateLimiter::for('refresh', function (Request $request) {
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(200);
+                return Limit::perMinute(200)->by($request->ip());
             }
         });
+
     }
 
     /**
