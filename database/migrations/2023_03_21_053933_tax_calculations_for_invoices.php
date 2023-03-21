@@ -20,10 +20,15 @@ return new class extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('calculate_taxes')->default(false); //setting to turn on/off tax calculations
             $table->boolean('tax_all_products')->default(false); //globally tax all products if none defined
+            $table->boolean('tax_data');
         });
 
         Schema::table('products', function (Blueprint $table){
             $table->unsignedInteger('tax_id')->nullable(); // the product tax constant
+        });
+
+        Schema::table('clients', function (Blueprint $table){
+            $table->boolean('tax_data');
         });
 
     }

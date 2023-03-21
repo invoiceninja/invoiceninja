@@ -582,7 +582,7 @@ class Invoice extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return stdClass The invoice calculator object getters
+     * @return \stdClass The invoice calculator object getters
      */
     public function calc()
     {

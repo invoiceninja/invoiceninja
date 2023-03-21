@@ -193,6 +193,8 @@ class CompanyTransformer extends EntityTransformer
             'convert_expense_currency' => (bool) $company->convert_expense_currency,
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
+            'calculate_taxes' => (bool) $company->calculate_taxes,
+            'tax_all_products' => (bool) $company->tax_all_products,
         ];
     }
 
