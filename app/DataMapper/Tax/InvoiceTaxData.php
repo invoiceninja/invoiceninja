@@ -13,8 +13,15 @@ namespace App\DataMapper\Tax;
 
 use App\DataMapper\Tax\ZipTax\Response;
 
+/**
+ * InvoiceTaxData
+ * 
+ * Definition for the invoice tax data structure
+ */
 class InvoiceTaxData
 {
+    public int $updated_at;
+    
     public function __construct(public Response $origin)
     {
     }

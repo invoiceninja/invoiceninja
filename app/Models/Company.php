@@ -448,6 +448,7 @@ class Company extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
+        'tax_data' => 'objects',
     ];
 
     protected $with = [];

@@ -277,9 +277,6 @@ class Invoice extends BaseModel
     ];
 
     protected $casts = [
-        // 'date' => 'date:Y-m-d',
-        // 'due_date' => 'date:Y-m-d',
-        // 'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
@@ -287,6 +284,7 @@ class Invoice extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
+        'tax_data' => 'objects',
     ];
 
     protected $with = [];
