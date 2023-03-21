@@ -105,6 +105,13 @@ class Product extends BaseModel
     use SoftDeletes;
     use Filterable;
 
+    
+    public const PRODUCT_TYPE_PHYSICAL = 1;
+    public const PRODUCT_TYPE_SERVICE = 2;
+    public const PRODUCT_TYPE_DIGITAL = 3;
+    public const PRODUCT_TYPE_FREIGHT = 4;
+    public const PRODUCT_TAX_EXEMPT = 5;
+
     protected $fillable = [
         'custom_value1',
         'custom_value2',
@@ -126,6 +133,7 @@ class Product extends BaseModel
         'stock_notification',
         'max_quantity',
         'product_image',
+        'tax_id',
     ];
 
     protected $touches = [];
