@@ -284,7 +284,7 @@ class Invoice extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
-        'tax_data' => 'objects',
+        'tax_data' => 'object',
     ];
 
     protected $with = [];
