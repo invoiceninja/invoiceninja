@@ -17,7 +17,7 @@ return [
 
     'default' => env('CACHE_DRIVER', 'file'),
 
-    'limiter' => 'redis',
+    'limiter' => env('LIMITER_DRIVER', null),
     /*
     |--------------------------------------------------------------------------
     | Cache Stores

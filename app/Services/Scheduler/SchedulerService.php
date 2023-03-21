@@ -38,9 +38,9 @@ class SchedulerService
         }
     }
 
-    private function schedule_entity()
+    private function email_record()
     {
-        (new ScheduleEntity($this->scheduler))->run();
+        (new EmailRecord($this->scheduler))->run();
     }
 
 

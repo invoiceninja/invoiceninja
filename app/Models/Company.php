@@ -326,6 +326,56 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
+ * @property int $calculate_taxes
+ * @property int $tax_all_products
+ * @property mixed $tax_data
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $all_activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $all_documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransactionRule> $bank_transaction_rules
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransaction> $bank_transactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $client_contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $client_gateway_tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyGateway> $company_gateways
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Design> $designs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpenseCategory> $expense_categories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSetting> $group_settings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSetting> $groups
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm> $payment_terms
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrder> $purchase_orders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringExpense> $recurring_expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Scheduler> $schedulers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_log_relation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Scheduler> $task_schedulers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaskStatus> $task_statuses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaxRate> $tax_rates
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens_hashed
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Design> $user_designs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm> $user_payment_terms
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereCalculateTaxes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereTaxAllProducts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereTaxData($value)
  * @mixin \Eloquent
  */
 class Company extends BaseModel
@@ -362,6 +412,39 @@ class Company extends BaseModel
     const ENTITY_RECURRING_QUOTE = 'recurring_quote';
 
     protected $presenter = CompanyPresenter::class;
+
+    protected array $tax_coverage_countries = [
+        'US',
+        // //EU countries
+        // 'AT', // Austria
+        // 'BE', // Belgium
+        // 'BG', // Bulgaria
+        // 'CY', // Cyprus
+        // 'CZ', // Czech Republic
+        // 'DE', // Germany
+        // 'DK', // Denmark
+        // 'EE', // Estonia
+        // 'ES', // Spain
+        // 'FI', // Finland
+        // 'FR', // France
+        // 'GR', // Greece
+        // 'HR', // Croatia
+        // 'HU', // Hungary
+        // 'IE', // Ireland
+        // 'IT', // Italy
+        // 'LT', // Lithuania
+        // 'LU', // Luxembourg
+        // 'LV', // Latvia
+        // 'MT', // Malta
+        // 'NL', // Netherlands
+        // 'PL', // Poland
+        // 'PT', // Portugal
+        // 'RO', // Romania
+        // 'SE', // Sweden
+        // 'SI', // Slovenia
+        // 'SK', // Slovakia
+        // //EU Countries
+    ];
 
     protected $fillable = [
         'invoice_task_hours',
@@ -448,6 +531,7 @@ class Company extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
+        'tax_data' => 'object',
     ];
 
     protected $with = [];
@@ -467,6 +551,16 @@ class Company extends BaseModel
         self::ENTITY_RECURRING_TASK => 1024,
         self::ENTITY_RECURRING_QUOTE => 2048,
     ];
+
+    public function shouldCalculateTax()
+    {
+        return $this->calculate_taxes && in_array($this->getSetting('country_id'), $this->tax_coverage_countries);
+    }
+
+    public function refreshTaxData()
+    {
+        
+    }
 
     public function documents()
     {

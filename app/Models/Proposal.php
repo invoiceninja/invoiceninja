@@ -29,6 +29,7 @@ use App\Utils\Traits\MakesHash;
  * @method static \Illuminate\Database\Eloquent\Builder|Proposal query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Proposal extends BaseModel

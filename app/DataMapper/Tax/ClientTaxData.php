@@ -13,8 +13,15 @@ namespace App\DataMapper\Tax;
 
 use App\DataMapper\Tax\ZipTax\Response;
 
+/**
+ * ClientTaxData
+ * 
+ * Definition for the client tax data
+ */
 class ClientTaxData
 {
+    public int $updated_at;
+    
     public function __construct(public Response $origin, public Response $destination)
     {
     }

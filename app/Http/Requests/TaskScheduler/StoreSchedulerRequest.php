@@ -32,7 +32,7 @@ class StoreSchedulerRequest extends Request
     public function rules()
     {
         $rules = [
-            'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
+            'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
             'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',

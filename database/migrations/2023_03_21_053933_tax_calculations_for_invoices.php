@@ -31,6 +31,18 @@ return new class extends Migration
             $table->boolean('tax_data');
         });
 
+        Schema::table('schedulers', function (Blueprint $table){
+            $table->dropUnique('schedulers_company_id_name_unique');
+        });
+
+        Schema::table('schedulers', function (Blueprint $table) {
+            $table->string('name', 191)->nullable()->change();
+        });
+
+
+        
+
+
     }
 
     /**

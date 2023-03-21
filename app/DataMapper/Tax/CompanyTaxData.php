@@ -13,8 +13,15 @@ namespace App\DataMapper\Tax;
 
 use App\DataMapper\Tax\ZipTax\Response;
 
+/**
+ * CompanyTaxData
+ * 
+ * Definition for the company tax data structure
+ */
 class CompanyTaxData
 {
+    public int $updated_at;
+    
     public function __construct(public Response $origin)
     {
     }

@@ -97,6 +97,9 @@ use League\CommonMark\CommonMarkConverter;
  * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property int|null $tax_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
  * @mixin \Eloquent
  */
 class Product extends BaseModel
