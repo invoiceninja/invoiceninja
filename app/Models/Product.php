@@ -105,6 +105,12 @@ class Product extends BaseModel
     use SoftDeletes;
     use Filterable;
 
+    public const PRODUCT_TAX_EXEMPT = 0;
+    public const PRODUCT_TYPE_PHYSICAL = 1;
+    public const PRODUCT_TYPE_SERVICE = 2;
+    public const PRODUCT_TYPE_DIGITAL = 3;
+    public const PRODUCT_TYPE_FREIGHT = 4;
+
     protected $fillable = [
         'custom_value1',
         'custom_value2',

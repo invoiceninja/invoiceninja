@@ -5027,6 +5027,11 @@ $LANG = array(
     'notification_payment_emailed' => 'Payment :payment was emailed to :client',
     'notification_payment_emailed_subject' => 'Payment :payment was emailed',
     'record_not_found' => 'Record not found',
+    'product_tax_exempt' => 'Product Tax Exempt',
+    'product_type_physical' => 'Physical Goods',
+    'product_type_digital' => 'Digital Goods',
+    'product_type_service' => 'Services',
+    'product_type_freight' => 'Shipping',
 );
 
 
