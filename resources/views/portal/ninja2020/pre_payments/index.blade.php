@@ -40,9 +40,13 @@
                         type="text"
                         class="input mt-0 mr-4 relative"
                         name="amount"
-                        placeholder="{{ $minimum_amount }}"
+                        placeholder=""
                         min="{{ $minimum_amount }}"/>
-                    
+                        
+                        @if($minimum_amount > 0) 
+                        <p>{{ ctrans('texts.minimum_required_payment', ['amount' => $minimum_amount])}}</p>
+                        @endif
+                        
                         @if($errors->has('amount'))
                             <p class="mt-2 text-red-900 border-red-300 px-2 py-1 bg-gray-100">{{ $errors->first('amount') }}</p>
                         @endif
