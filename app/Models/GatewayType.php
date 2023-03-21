@@ -29,6 +29,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|GatewayType whereName($value)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentType> $payment_methods
  * @mixin \Eloquent
  */
 class GatewayType extends StaticModel
