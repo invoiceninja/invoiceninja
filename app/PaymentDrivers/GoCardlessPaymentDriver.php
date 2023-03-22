@@ -131,7 +131,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
+    {nlog("here");
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $converted_amount = $this->convertToGoCardlessAmount($amount, $this->client->currency()->precision);
 

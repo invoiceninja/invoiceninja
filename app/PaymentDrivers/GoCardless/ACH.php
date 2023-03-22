@@ -172,11 +172,13 @@ class ACH implements MethodInterface
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
         }
 
+        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision);
+
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [
                     // 'amount' => $request->amount,
-                    'amount' => (int)rtrim(round($request->amount),0),
+                    'amount' => $amount,
                     'currency' => $request->currency,
                     'description' => $description,
                     'metadata' => [

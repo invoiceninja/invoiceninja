@@ -19,6 +19,12 @@ use App\Utils\Ninja;
 
 class SubscriptionController extends Controller
 {
+    /**
+     * This function is used to display the subscription page.
+     *
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     */
+
     public function index()
     {
         // if (Ninja::isHosted()) {
@@ -44,7 +50,6 @@ class SubscriptionController extends Controller
      *
      * @param ShowRecurringInvoiceRequest $request
      * @param RecurringInvoice $recurring_invoice
-     * @return Factory|View
      */
     public function show(ShowRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
