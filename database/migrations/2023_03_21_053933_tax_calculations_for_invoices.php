@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Libraries\MultiDB;
+use App\Models\CompanyUser;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -40,7 +42,56 @@ return new class extends Migration
         });
 
 
-        
+        if (config('ninja.db.multi_db_enabled')) {
+            foreach (MultiDB::$dbs as $db) {
+                CompanyUser::on($db)->where('is_admin',0)->cursor()->each(function ($cu){
+
+                    $permissions = $cu->permissions;
+
+                    if (!$permissions || strlen($permissions) == 0) {
+                        $permissions = 'view_reports';
+                        $cu->permissions = $permissions;
+                        $cu->save();
+                    } else {
+                        $permissions_array = explode(',', $permissions);
+
+                        $permissions_array[] = 'view_reports';
+
+                        $modified_permissions_string = implode(",", $permissions_array);
+
+                        $cu->permissions = $modified_permissions_string;
+                        $cu->save();
+                    }
+
+
+                });
+            }
+        } else {
+            
+            
+            CompanyUser::where('is_admin', 0)->cursor()->each(function ($cu) {
+                $permissions = $cu->permissions;
+
+                if (!$permissions || strlen($permissions) == 0) {
+                    $permissions = 'view_reports';
+                    $cu->permissions = $permissions;
+                    $cu->save();
+                } else {
+                    $permissions_array = explode(',', $permissions);
+
+                    $permissions_array[] = 'view_reports';
+
+                    $modified_permissions_string = implode(",", $permissions_array);
+
+                    $cu->permissions = $modified_permissions_string;
+                    $cu->save();
+                }
+            });
+
+
+
+        }
+
 
 
     }
