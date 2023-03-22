@@ -65,8 +65,8 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
-        if (!is_string($this->error)) {
-            $this->error = "Payment failed, no reason given.";
+        if (!is_string($this->error) || strlen($this->error) <=1) {
+            $this->error = "";
         }
 
         //Set DB

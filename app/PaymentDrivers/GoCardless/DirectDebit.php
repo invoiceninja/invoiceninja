@@ -176,7 +176,7 @@ class DirectDebit implements MethodInterface
 
             $payment_meta = new \stdClass;
             $payment_meta->brand = $billing_request->resources->customer_bank_account->bank_name;
-            $payment_meta->type = GatewayType::DIRECT_DEBIT;
+            $payment_meta->type = $this->resolveScheme($billing_request->mandate_request->scheme);
             $payment_meta->state = 'pending';
             $payment_meta->last4 = $billing_request->resources->customer_bank_account->account_number_ending;
 
@@ -230,6 +230,7 @@ class DirectDebit implements MethodInterface
     {
         match ($scheme) {
             'sepa_core' => $type = GatewayType::SEPA,
+            'ach' => $type = GatewayType::BANK_TRANSFER,
             default => $type = GatewayType::DIRECT_DEBIT,
         };
 

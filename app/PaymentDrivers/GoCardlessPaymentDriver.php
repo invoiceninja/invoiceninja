@@ -11,22 +11,23 @@
 
 namespace App\PaymentDrivers;
 
-use App\Factory\ClientContactFactory;
-use App\Factory\ClientFactory;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Country;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\Utils\Traits\GeneratesCounter;
+use App\Factory\ClientFactory;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\Factory\ClientContactFactory;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
@@ -46,7 +47,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     private bool $completed = true;
 
     public static $methods = [
-        GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
+        GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::DIRECT_DEBIT => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::SEPA => \App\PaymentDrivers\GoCardless\SEPA::class,
         GatewayType::INSTANT_BANK_PAY => \App\PaymentDrivers\GoCardless\InstantBankPay::class,
@@ -79,7 +80,7 @@ class GoCardlessPaymentDriver extends BaseDriver
             $this->client
             && isset($this->client->country)
             // && in_array($this->client->country->iso_3166_3, ['GBR'])
-            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','USD'])
+            && in_array($this->client->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD'])
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
         }
@@ -131,7 +132,8 @@ class GoCardlessPaymentDriver extends BaseDriver
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {nlog("here");
+    {
+        
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $converted_amount = $this->convertToGoCardlessAmount($amount, $this->client->currency()->precision);
 
@@ -278,9 +280,28 @@ class GoCardlessPaymentDriver extends BaseDriver
                     ->first();
 
                 if ($payment) {
+                   
+                    if ($payment->status_id == Payment::STATUS_PENDING) {
+                        $payment->service()->deletePayment();
+                    }
+
                     $payment->status_id = Payment::STATUS_FAILED;
                     $payment->save();
-                    nlog('GoCardless completed');
+
+                    $payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
+                    $error = '';
+
+                    if (isset($event['details']['description'])) {
+                        $error = $event['details']['description'];
+                    }
+
+                    PaymentFailedMailer::dispatch(
+                        $payment_hash,
+                        $payment->client->company,
+                        $payment->client,
+                        $error
+                    );
+                    
                 }
             }
 

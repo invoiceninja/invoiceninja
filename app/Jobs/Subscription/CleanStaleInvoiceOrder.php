@@ -37,6 +37,8 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      */
     public function handle(InvoiceRepository $repo) : void
     {
+        nlog("Cleaning Stale Invoices:");
+        
         if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
