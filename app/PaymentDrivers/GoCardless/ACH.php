@@ -30,6 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
+//@deprecated
 class ACH implements MethodInterface
 {
     use MakesHash;

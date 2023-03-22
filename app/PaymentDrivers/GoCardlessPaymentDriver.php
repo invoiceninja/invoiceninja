@@ -11,23 +11,23 @@
 
 namespace App\PaymentDrivers;
 
+use App\Factory\ClientContactFactory;
+use App\Factory\ClientFactory;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
 use App\Models\Country;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Factory\ClientFactory;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use App\Models\ClientGatewayToken;
-use App\Factory\ClientContactFactory;
-use App\Jobs\Mail\PaymentFailedMailer;
+use App\Models\SystemLog;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\QueryException;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
@@ -133,7 +133,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $converted_amount = $this->convertToGoCardlessAmount($amount, $this->client->currency()->precision);
 
@@ -244,7 +243,6 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->init();
 
         nlog('GoCardless Event');
-        nlog($request->all());
 
         if (! $request->has('events')) {
             nlog('No GoCardless events to process in response?');
@@ -280,7 +278,6 @@ class GoCardlessPaymentDriver extends BaseDriver
                     ->first();
 
                 if ($payment) {
-                   
                     if ($payment->status_id == Payment::STATUS_PENDING) {
                         $payment->service()->deletePayment();
                     }
@@ -301,7 +298,6 @@ class GoCardlessPaymentDriver extends BaseDriver
                         $payment->client,
                         $error
                     );
-                    
                 }
             }
 
