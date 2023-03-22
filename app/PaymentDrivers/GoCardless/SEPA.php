@@ -175,7 +175,7 @@ class SEPA implements MethodInterface
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [
-                    'amount' => $request->amount,
+                    'amount' => (int)rtrim(round($request->amount),0),
                     'currency' => $request->currency,
                     'description' => $description,
                     'metadata' => [

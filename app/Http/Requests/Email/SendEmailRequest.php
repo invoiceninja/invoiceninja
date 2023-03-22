@@ -43,7 +43,7 @@ class SendEmailRequest extends Request
             'template' => 'bail|required',
             'entity' => 'bail|required',
             'entity_id' => 'bail|required',
-            'cc_email' => 'bail|sometimes|email',
+            'cc_email' => 'bail|sometimes|email|nullable',
         ];
     }
 
