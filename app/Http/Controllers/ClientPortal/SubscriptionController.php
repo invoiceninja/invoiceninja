@@ -21,20 +21,20 @@ class SubscriptionController extends Controller
 {
     public function index()
     {
-        if (Ninja::isHosted()) {
-            $count = RecurringInvoice::query()
-                ->where('client_id', auth()->guard('contact')->user()->client->id)
-                ->where('company_id', auth()->guard('contact')->user()->client->company_id)
-                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                ->where('is_deleted', 0)
-                ->whereNotNull('subscription_id')
-                ->withTrashed()
-                ->count();
+        // if (Ninja::isHosted()) {
+        //     $count = RecurringInvoice::query()
+        //         ->where('client_id', auth()->guard('contact')->user()->client->id)
+        //         ->where('company_id', auth()->guard('contact')->user()->client->company_id)
+        //         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+        //         ->where('is_deleted', 0)
+        //         ->whereNotNull('subscription_id')
+        //         ->withTrashed()
+        //         ->count();
 
-            if ($count == 0) {
-                return redirect()->route('client.ninja_contact_login', ['contact_key' => auth()->guard('contact')->user()->contact_key, 'company_key' => auth()->guard('contact')->user()->company->company_key]);
-            }
-        }
+        //     if ($count == 0) {
+        //         return redirect()->route('client.ninja_contact_login', ['contact_key' => auth()->guard('contact')->user()->contact_key, 'company_key' => auth()->guard('contact')->user()->company->company_key]);
+        //     }
+        // }
 
         return render('subscriptions.index');
     }
