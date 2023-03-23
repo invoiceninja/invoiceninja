@@ -8768,21 +8768,20 @@ paths:
             type: string
             format: string
           example: D2J234DFA
-      produces:
-        - application/json
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              items:
+              properties:
                 _method:
                   type: string
                   example: POST
                 documents:
                   type: array
-                  format: binary
+                  items:
+                    format: binary
       responses:
         200:
           description: 'Returns the client object'
@@ -9784,7 +9783,8 @@ paths:
                   example: POST
                 documents:
                   type: array
-                  format: binary
+                  items:
+                    format: binary
       responses:
         200:
           description: "Returns the Product object"
@@ -11797,6 +11797,7 @@ paths:
               type: object
               properties:
                 action:
+                  required: true
                   type: string
                   description: |
                     The action to be performed, options include:  
@@ -11828,7 +11829,6 @@ paths:
                       Emails an array of invoices  
                     - `send_email`  
                       Emails an array of invoices. Requires additional properties to be sent. `email_type`  
-                  required: true
                 ids:
                   required: true
                   type: array
