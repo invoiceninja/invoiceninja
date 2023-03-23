@@ -79,6 +79,11 @@ class SumTaxTest extends TestCase
         // $this->makeTestData();
     }
 
+    public function testTaxOnInvoice()
+    {
+        
+    }
+
     public function testSumOfInvoice()
     {
 

@@ -11,9 +11,10 @@
 
 namespace App\Helpers\Invoice;
 
-use App\DataMapper\BaseSettings;
-use App\DataMapper\InvoiceItem;
+use App\Models\Client;
 use App\Models\Invoice;
+use App\DataMapper\InvoiceItem;
+use App\DataMapper\BaseSettings;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSum
@@ -48,6 +49,10 @@ class InvoiceItemSum
 
     private $tax_collection;
 
+    private ?Client $client;
+
+    private bool $calc_tax = false;
+
     public function __construct($invoice)
     {
         $this->tax_collection = collect([]);
@@ -56,6 +61,8 @@ class InvoiceItemSum
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
+            $this->client = $this->invoice->client;
+            $this->calc_tax = $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }
@@ -89,6 +96,17 @@ class InvoiceItemSum
         return $this;
     }
 
+    private function shouldCalculateTax(): bool
+    {
+        if(!$this->invoice->company->calculate_taxes)
+            return false;
+
+        if(in_array($this->client->country->iso_3166_2, ['US']))
+            return true;
+            
+        return false;
+    }
+
     private function push()
     {
         $this->sub_total += $this->getLineTotal();
@@ -120,6 +138,16 @@ class InvoiceItemSum
         $this->item->is_amount_discount = $this->invoice->is_amount_discount;
 
         return $this;
+    }
+    
+    /**
+     * Attempts to calculate taxes based on the clients location 
+     *
+     * @return self
+     */
+    private function calcTaxesAutomatically()
+    {
+        
     }
 
     private function calcTaxes()
