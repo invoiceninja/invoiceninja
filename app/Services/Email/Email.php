@@ -143,6 +143,8 @@ class Email implements ShouldQueue
 
         $this->email_object->signature = $this->email_object->settings->email_signature;
 
+        $this->email_object->invitation_key = $this->email_object->invitation ? $this->email_object->invitation->key : null;
+        
         $this->resolveVariables();
 
         return $this;
@@ -233,7 +235,14 @@ class Email implements ShouldQueue
         }
 
         if ($this->client_mailgun_secret) {
-            $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+
+                $endpoint = 'api.mailgun.net';
+
+                if (strpos($this->client_mailgun_secret, 'key') !== false) {
+                    $endpoint = 'api.eu.mailgun.net';
+                }
+
+            $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $endpoint);
         }
 
         /* Attempt the send! */

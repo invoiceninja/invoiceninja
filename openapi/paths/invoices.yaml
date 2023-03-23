@@ -371,6 +371,7 @@
               type: object
               properties:
                 action:
+                  required: true
                   type: string
                   description: |
                     The action to be performed, options include:  
@@ -402,7 +403,6 @@
                       Emails an array of invoices  
                     - `send_email`  
                       Emails an array of invoices. Requires additional properties to be sent. `email_type`  
-                  required: true
                 ids:
                   required: true
                   type: array

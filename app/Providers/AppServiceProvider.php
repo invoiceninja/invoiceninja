@@ -101,12 +101,12 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
         
-        Mailer::macro('mailgun_config', function (string $secret, string $domain) {
+        Mailer::macro('mailgun_config', function (string $secret, string $domain, string $endpoint = 'api.mailgun.net') {
             Mailer::setSymfonyTransport(app('mail.manager')->createSymfonyTransport([
                 'transport' => 'mailgun',
                 'secret' => $secret,
                 'domain' => $domain,
-                'endpoint' => config('services.mailgun.endpoint'),
+                'endpoint' => $endpoint,
                 'scheme' => config('services.mailgun.scheme'),
             ]));
  
@@ -114,7 +114,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /* Extension for custom mailers */
-        
 
         /* Convenience helper for testing s*/
         ParallelTesting::setUpTestDatabase(function ($database, $token) {

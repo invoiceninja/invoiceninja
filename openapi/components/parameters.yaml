@@ -36,7 +36,7 @@
       name: include
       in: query
       description: Include child relations of the BankIntegration object. Format is comma separated. 
-      require: false
+      required: false
       schema:
         type: string
       examples:

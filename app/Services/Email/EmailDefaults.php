@@ -76,7 +76,8 @@ class EmailDefaults
              ->setReplyTo()
              ->setBcc()
              ->setAttachments()
-             ->setVariables();
+             ->setVariables()
+             ->setHeaders();
         
         return $this->email->email_object;
     }
@@ -369,7 +370,7 @@ class EmailDefaults
     private function setHeaders(): self
     {
         if ($this->email->email_object->invitation_key) {
-            $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation-key' => $this->email->email_object->invitation_key]);
+            $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key]);
         }
 
         return $this;
