@@ -143,6 +143,8 @@ class Email implements ShouldQueue
 
         $this->email_object->signature = $this->email_object->settings->email_signature;
 
+        $this->email_object->invitation_key = $this->email_object->invitation ? $this->email_object->invitation->key : null;
+        
         $this->resolveVariables();
 
         return $this;
