@@ -8776,7 +8776,7 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              properties:
+              items:
                 _method:
                   type: string
                   example: POST
@@ -12386,10 +12386,7 @@ paths:
                       Archives the recurring invoice. The recurring invoice will not fire in this state.
                     - `delete`  
                       Deletes a recurring invoice.  
-                   
-                  required: true
                 ids:
-                  required: true
                   type: array
                   items:
                     description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
@@ -13015,7 +13012,7 @@ components:
       name: include
       in: query
       description: Include child relations of the BankIntegration object. Format is comma separated. 
-      require: false
+      required: false
       schema:
         type: string
       examples:

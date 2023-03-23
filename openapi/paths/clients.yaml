@@ -390,7 +390,7 @@
           multipart/form-data:
             schema:
               type: object
-              properties:
+              items:
                 _method:
                   type: string
                   example: POST

@@ -449,6 +449,8 @@ class CompanySettings extends BaseSettings
     
     public $mailgun_domain = '';
 
+    public $mailgun_endpoint = 'api.mailgun.net'; //api.eu.mailgun.net
+
     public $auto_bill_standard_invoices = false;
 
     public $email_alignment = 'center'; // center , left, right
@@ -476,6 +478,7 @@ class CompanySettings extends BaseSettings
     public $sync_invoice_quote_columns = true;
 
     public static $casts = [
+        'mailgun_endpoint'                   => 'string',    
         // 'client_initiated_payments_recurring'=> 'bool',
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
