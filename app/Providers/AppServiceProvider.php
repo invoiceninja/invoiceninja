@@ -121,4 +121,11 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('db:seed');
         });
     }
+
+    public function register(): void
+    {
+
+        $this->app->register(\App\Providers\BroadcastServiceProvider::class);
+
+    }
 }
