@@ -47,6 +47,15 @@ class PdfDesigner
         return $this;
     }
 
+    public function buildFromPartials(array $partials): self
+    {
+
+        $this->template = $this->composeFromPartials($partials);
+
+        return $this;
+
+    }
+
     /**
      * If the user has implemented a custom design, then we need to rebuild the design at this point
      */
@@ -54,10 +63,8 @@ class PdfDesigner
     /**
      * Returns the custom HTML design as
      * a string
-     *
-     * @param  array
+     * @param  array $partials
      * @return string
-     *
      */
     private function composeFromPartials(array $partials) :string
     {
