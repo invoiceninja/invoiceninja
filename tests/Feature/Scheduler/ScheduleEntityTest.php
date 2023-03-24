@@ -30,7 +30,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
- * @covers  App\Services\Scheduler\SchedulerEntity
+ * @covers  App\Services\Scheduler\EmailRecord
  */
 class ScheduleEntityTest extends TestCase
 {
@@ -62,7 +62,7 @@ class ScheduleEntityTest extends TestCase
             'name' => 'A test entity email scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'schedule_entity',
+            'template' => 'email_record',
             'parameters' => [
                 'entity' => 'invoice',
                 'entity_id' => $this->invoice->hashed_id,
@@ -86,7 +86,7 @@ class ScheduleEntityTest extends TestCase
             'name' => 'A test entity email scheduler',
             'frequency_id' => 0,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'schedule_entity',
+            'template' => 'email_record',
             'parameters' => [
                 'entity' => 'invoice',
                 'entity_id' => $this->invoice->hashed_id,
@@ -108,7 +108,7 @@ class ScheduleEntityTest extends TestCase
         $data = [
             'name' => 'A test entity email scheduler',
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'schedule_entity',
+            'template' => 'email_record',
             'parameters' => [
                 'entity' => 'invoice',
                 'entity_id' => $this->invoice->hashed_id,

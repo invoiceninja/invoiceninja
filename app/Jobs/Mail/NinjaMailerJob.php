@@ -128,7 +128,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             if ($this->client_mailgun_secret) {
-                $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+                $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->nmo->settings->mailgun_endpoint);
             }
 
             $mailer

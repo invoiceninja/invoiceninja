@@ -26,7 +26,17 @@ class StorePrePaymentRequest extends FormRequest
     {
         return [
             'notes' => 'required|bail|',
-            'amount' => 'required|bail|',
+            'amount' => 'required|bail|gte:minimum_amount',
+            'minimum_amount' => '',
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+
+        $this->replace($input);
+
     }
 }

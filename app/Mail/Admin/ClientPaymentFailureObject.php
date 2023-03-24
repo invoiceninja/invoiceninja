@@ -124,6 +124,10 @@ class ClientPaymentFailureObject
             'company' => $this->company,
         ];
 
+        if (strlen($this->error > 1)) {
+            $data['content'] .= "\n\n".$this->error;
+        }
+
         return $data;
     }
 }

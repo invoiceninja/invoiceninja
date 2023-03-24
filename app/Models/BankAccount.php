@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankAccount withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankAccount withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankSubaccount> $bank_subaccounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankSubaccount> $bank_subaccounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankSubaccount> $bank_subaccounts
  * @mixin \Eloquent
  */
 class BankAccount extends BaseModel

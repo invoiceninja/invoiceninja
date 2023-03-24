@@ -11,6 +11,9 @@
 
 namespace App\Services\Tax;
 
+use App\Models\Client;
+use App\Models\Company;
+
 
 class TaxService
 {

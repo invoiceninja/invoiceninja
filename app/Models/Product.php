@@ -97,6 +97,10 @@ use League\CommonMark\CommonMarkConverter;
  * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property int|null $tax_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Product extends BaseModel
@@ -104,6 +108,13 @@ class Product extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
+
+    
+    public const PRODUCT_TYPE_PHYSICAL = 1;
+    public const PRODUCT_TYPE_SERVICE = 2;
+    public const PRODUCT_TYPE_DIGITAL = 3;
+    public const PRODUCT_TYPE_FREIGHT = 4;
+    public const PRODUCT_TAX_EXEMPT = 5;
 
     protected $fillable = [
         'custom_value1',
@@ -126,6 +137,7 @@ class Product extends BaseModel
         'stock_notification',
         'max_quantity',
         'product_image',
+        'tax_id',
     ];
 
     protected $touches = [];

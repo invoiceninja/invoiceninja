@@ -34,6 +34,8 @@ class InvoiceItemExport extends BaseExport
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
+        'client_number' => 'client.number',
+        'client_id_number' => 'client.id_number',
         'custom_surcharge1' => 'custom_surcharge1',
         'custom_surcharge2' => 'custom_surcharge2',
         'custom_surcharge3' => 'custom_surcharge3',
@@ -198,6 +200,8 @@ class InvoiceItemExport extends BaseExport
 
         // if(in_array('client_id', $this->input['report_keys']))
         $entity['client'] = $invoice->client->present()->name();
+        $entity['client_id_number'] = $invoice->client->id_number;
+        $entity['client_number'] = $invoice->client->number;
 
         // if(in_array('status_id', $this->input['report_keys']))
         $entity['status'] = $invoice->stringStatus($invoice->status_id);
