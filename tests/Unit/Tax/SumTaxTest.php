@@ -86,6 +86,12 @@ class SumTaxTest extends TestCase
 
     }
 
+    public function testCalcLogic()
+    {
+        $this->company->calculate_taxes = true;
+        $this->company->tax_all_products = true;
+    }
+
     public function testTaxOnCompany()
     {
         
@@ -148,23 +154,9 @@ class SumTaxTest extends TestCase
     {
         $sum = 
             $this->response->stateSalesTax +
-            // $this->response['stateUseTax'] +
             $this->response->citySalesTax +
-            // $this->response['cityUseTax'] +
             $this->response->countySalesTax +
-            // $this->response['countyUseTax'] +
             $this->response->districtSalesTax;
-            // // $this->response['districtUseTax'] +
-            // $this->response['district1SalesTax'] +
-            // // $this->response['district1UseTax'] +
-            // $this->response['district2SalesTax'] +
-            // // $this->response['district2UseTax'] +
-            // $this->response['district3SalesTax'] +
-            // // $this->response['district3UseTax'] +
-            // $this->response['district4SalesTax'] +
-            // // $this->response['district4UseTax'] +
-            // $this->response['district5SalesTax'];
-            // $this->response['district5UseTax'];
 
         $this->assertEquals(0.0875, $sum);
     }

@@ -64,8 +64,8 @@ class Response
     public string $geoState = "";
     public float $taxSales = 0;
     public float $taxUse = 0;
-    public string $txbService = "";
-    public string $txbFreight = "";
+    public string $txbService = ""; // N = No, Y = Yes
+    public string $txbFreight = ""; // N = No, Y = Yes
     public float $stateSalesTax = 0;
     public float $stateUseTax = 0;
     public float $citySalesTax = 0;

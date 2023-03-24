@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\BaseSettings;
+use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSum
@@ -53,6 +54,8 @@ class InvoiceItemSum
 
     private bool $calc_tax = false;
 
+    private RuleInterface $rule;
+     
     public function __construct($invoice)
     {
         $this->tax_collection = collect([]);
@@ -98,11 +101,18 @@ class InvoiceItemSum
 
     private function shouldCalculateTax(): bool
     {
-        if(!$this->invoice->company->calculate_taxes)
+        if(!$this->invoice->company->calculate_taxes || $this->client->is_tax_exempt)
             return false;
 
-        if(in_array($this->client->country->iso_3166_2, ['US']))
+        if(in_array($this->client->country->iso_3166_2, ['US'])){ //only calculate for USA
+            
+            $class = "App\DataMapper\Tax\\".strtolower($this->client->country->iso_3166_2)."\\Rule";
+
+            $this->rule = new $class($this->invoice->tax_data);
+
             return true;
+        
+        }            
             
         return false;
     }
@@ -145,14 +155,34 @@ class InvoiceItemSum
      *
      * @return self
      */
-    private function calcTaxesAutomatically()
+    private function calcTaxesAutomatically(): self 
     {
-        
+        if($this->invoice->company->tax_all_products || $this->item->tax_id != ''){
+            $this->rule->run();
+
+        }
+        else {
+
+            $this->rule->taxByType($this->item->tax_id);
+        }
+
+        $this->item->tax_name1 = $this->rule->tax_name1;
+        $this->item->tax_rate1 = $this->rule->tax_rate1;
+
+        $this->item->tax_name2 = $this->rule->tax_name2;
+        $this->item->tax_rate2 = $this->rule->tax_rate2;
+
+        $this->item->tax_name3 = $this->rule->tax_name3;
+        $this->item->tax_rate3 = $this->rule->tax_rate3;
+
         return $this;
     }
 
     private function calcTaxes()
     {
+        if($this->calc_tax)
+            $this->calcTaxesAutomatically();
+
         $item_tax = 0;
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));

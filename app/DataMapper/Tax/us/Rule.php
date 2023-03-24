@@ -11,7 +11,10 @@
 
 namespace App\DataMapper\Tax\us;
 
-class Rule
+use App\Models\Product;
+use App\DataMapper\Tax\RuleInterface;
+
+class Rule implements RuleInterface
 {
 
     public float $al_sales_tax_rate = 4; // Alabama
@@ -67,4 +70,77 @@ class Rule
     public float $dc_sales_tax_rate = 6; // District of Columbia
     public float $pr_sales_tax_rate = 11.5; // Puerto Rico
 
+    public string $tax_name1 = '';
+    public float $tax_rate1 = 0;
+
+    public string $tax_name2 = '';
+    public float $tax_rate2 = 0;
+    
+    public string $tax_name3 = '';
+    public float $tax_rate3 = 0;
+    
+    public function __construct(public RuleInterface $tax_data)
+    {
+        $this->tax_data = $tax_data;
+    }
+
+    public function run()
+    {
+        $this->tax_name1 = $this->tax_data->taxSales * 100;
+        $this->tax_rate1 = "{$this->tax_data->geoState} Sales Tax";
+
+    }
+
+    public function taxByType(?int $product_tax_type)
+    {
+        if(!$product_tax_type)
+            return;
+
+        match($product_tax_type){
+            Product::PRODUCT_TAX_EXEMPT => $this->taxExempt(),
+            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
+            Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
+            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
+            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
+            default => $this->default(),
+        };
+        
+        return $this;
+    }
+
+    public function taxExempt()
+    {
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+    }
+
+    public function taxDigital()
+    {
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+    }
+
+    public function taxService()
+    {
+        if($this->tax_data->txbService == 'Y')
+            $this->run();
+    }
+
+    public function taxShipping()
+    {
+        if($this->tax_data->txbFreight == 'N')
+            $this->run();
+    }
+
+    public function taxPhysical()
+    {
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+    }
+
+    public function default()
+    {
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+    }
 }

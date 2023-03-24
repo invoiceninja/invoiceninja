@@ -14,4 +14,18 @@ namespace App\DataMapper\Tax;
 interface RuleInterface
 {
     public function run();
+
+    public function taxByType(?int $type);
+
+    public function taxExempt();
+    
+    public function taxDigital();
+
+    public function taxService();
+
+    public function taxShipping();
+
+    public function taxPhysical();
+
+    public function default();
 }
