@@ -147,14 +147,17 @@ class AccountController extends BaseController
             return $account;
         }
 
-        $ct = CompanyUser::whereUserId(auth()->user()->id);
+        $cu = CompanyUser::where('user_id', auth()->user()->id);
+
+        $company_user = $cu->first();
 
         $truth = app()->make(TruthSource::class);
-        $truth->setCompanyUser($ct->first());
-        $truth->setUser(auth()->user());
-        $truth->setCompany($ct->first()->company);
+        $truth->setCompanyUser($company_user);
+        $truth->setUser($company_user->user);
+        $truth->setCompany($company_user->company);
+        $truth->setCompanyToken($company_user->tokens()->where('user_id', $company_user->user_id)->where('company_id', $company_user->company_id)->first());
 
-        return $this->listResponse($ct);
+        return $this->listResponse($cu);
     }
 
     public function update(UpdateAccountRequest $request, Account $account)
