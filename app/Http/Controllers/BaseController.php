@@ -33,6 +33,7 @@ use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -565,7 +566,7 @@ class BaseController extends Controller
     /**
      * Mini Load Query
      *
-     * @param  mixed $query
+     *  @param  Builder           $query
      * @return void
      */
     protected function miniLoadResponse($query)
@@ -667,7 +668,7 @@ class BaseController extends Controller
     /**
      * Passes back the miniloaded data response
      *
-     * @param  mixed $query
+     * @param  Builder $query
      * @return void
      */
     protected function timeConstrainedResponse($query)
@@ -911,8 +912,8 @@ class BaseController extends Controller
     
     /**
      * List response
-     *
-     * @param  mixed $query
+     * 
+     * @param  Builder $query
      */
     protected function listResponse($query)
     {
@@ -926,24 +927,26 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && ! auth()->user()->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
+        $user = Auth::user();
+
+        if ($user && ! $user->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
-                $query->where('id', auth()->user()->id);
+                $query->where('id', $user->id);
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
-                if ($this->entity_type == BankIntegration::class && !auth()->user()->isSuperUser() && auth()->user()->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
+                if ($this->entity_type == BankIntegration::class && !$user->isSuperUser() && $user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction'])) {
                     $query->exclude(["balance"]);
                 } //allows us to selective display bank integrations back to the user if they can view / create bank transactions but without the bank balance being present in the response
                 else {
-                    $query->where('user_id', '=', auth()->user()->id);
+                    $query->where('user_id', '=', $user->id);
                 }
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-                $query->where('user_id', '=', auth()->user()->id)->orWhere('assigned_user_id', auth()->user()->id);
+                $query->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
             }
         }
         
-        if ($this->entity_type == Client::class && auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+        if ($this->entity_type == Client::class && $user->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
             $query->exclude($this->client_exclusion_fields);
         }
 
