@@ -18,8 +18,7 @@ class Response
     public int $rCode = 100;
 
     /**
-    *        ["results" => [
-    *            [
+    *  [
     *            "geoPostalCode" => "92582",
     *            "geoCity" => "SAN JACINTO",
     *            "geoCounty" => "RIVERSIDE",
@@ -54,13 +53,45 @@ class Response
     *            "district5SalesTax" => 0,
     *            "district5UseTax" => 0,
     *            "originDestination" => "D",
-    *            ],
-    *        ]
+    *            
     *    ];
-    *    
-    * @var mixed[]
+    *
     */
-    public array $results = [];
+
+    public string $geoPostalCode = "92582";
+    public string $geoCity = "SAN JACINTO";
+    public string $geoCounty = "RIVERSIDE";
+    public string $geoState = "CA";
+    public float $taxSales = 0.0875;
+    public float $taxUse = 0.0875;
+    public string $txbService = "N";
+    public string $txbFreight = "N";
+    public float $stateSalesTax = 0.06;
+    public float $stateUseTax = 0.06;
+    public float $citySalesTax = 0.01;
+    public float $cityUseTax = 0.01;
+    public string $cityTaxCode = "874";
+    public float $countySalesTax = 0.0025;
+    public float $countyUseTax = 0.0025;
+    public string $countyTaxCode = "";
+    public float $districtSalesTax = 0.015;
+    public float $districtUseTax = 0.015;
+    public string $district1Code = "26";
+    public float $district1SalesTax = 0;
+    public float $district1UseTax = 0;
+    public string $district2Code = "26";
+    public float $district2SalesTax = 0.005;
+    public float $district2UseTax = 0.005;
+    public string $district3Code = "";
+    public float $district3SalesTax = 0;
+    public float $district3UseTax = 0;
+    public string $district4Code = "33";
+    public float $district4SalesTax = 0.01;
+    public float $district4UseTax = 0.01;
+    public string $district5Code = "";
+    public float $district5SalesTax = 0;
+    public float $district5UseTax = 0;
+    public string $originDestination = "D";
 
 }
     

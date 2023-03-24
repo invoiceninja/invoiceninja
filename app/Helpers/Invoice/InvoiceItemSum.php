@@ -148,6 +148,7 @@ class InvoiceItemSum
     private function calcTaxesAutomatically()
     {
         
+        return $this;
     }
 
     private function calcTaxes()
