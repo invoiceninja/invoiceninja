@@ -13,7 +13,12 @@ namespace Tests\Unit\Tax;
 
 use Tests\TestCase;
 use App\Models\Client;
+use App\Models\Invoice;
 use Tests\MockAccountData;
+use App\DataMapper\Tax\ClientTaxData;
+use App\DataMapper\Tax\CompanyTaxData;
+use App\DataMapper\Tax\InvoiceTaxData;
+use App\DataMapper\Tax\ZipTax\Response;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -25,7 +30,9 @@ class SumTaxTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     
-    public array $response = [
+    public Response $response;
+    
+    public array $resp = [
             "geoPostalCode" => "92582",
             "geoCity" => "SAN JACINTO",
             "geoCounty" => "RIVERSIDE",
@@ -74,39 +81,79 @@ class SumTaxTest extends TestCase
         $this->withoutExceptionHandling();
 
         $this->makeTestData();
+
+        $this->response = new Response($this->resp); 
+
     }
 
-    public function testTaxOnInvoice()
+    public function testTaxOnCompany()
+    {
+        
+        $tax_class = new CompanyTaxData($this->response);
+
+        $this->company->tax_data = $tax_class;
+        $this->company->save();
+
+        $this->assertEquals("92582", $this->company->tax_data->origin->geoPostalCode);
+        $this->assertEquals(0.0875, $this->company->tax_data->origin->taxSales);
+        
+    }
+
+    public function testTaxOnClient()
     {
         $c = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
         ]);
+    
+        $tax_class = new ClientTaxData($this->response, $this->response);
 
-        $c->tax_data = $this->response;
+        $c->tax_data = $tax_class;
         $c->save();
 
-        $this->assertEquals("92582", $c->tax_data->geoPostalCode);
-        $this->assertEquals(0.0875, $c->tax_data->taxSales);
+        $this->assertEquals("92582", $c->tax_data->origin->geoPostalCode);
+        $this->assertEquals(0.0875, $c->tax_data->origin->taxSales);
+        
+    }
+
+    public function testTaxOnInvoice()
+    {
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $tax_class = new InvoiceTaxData($this->response);
+
+        $i->tax_data = $tax_class;
+        $i->save();
+
+
+        $this->assertEquals("92582", $i->tax_data->origin->geoPostalCode);
+        $this->assertEquals(0.0875, $i->tax_data->origin->taxSales);
+
+
     }
 
     public function testSumOfInvoice()
     {
 
-        $this->assertEquals("CA", $this->response['geoState']);
+        $this->assertEquals("CA", $this->response->geoState);
 
     }
 
     public function testSumOfTaxes()
     {
         $sum = 
-            $this->response['stateSalesTax'] +
+            $this->response->stateSalesTax +
             // $this->response['stateUseTax'] +
-            $this->response['citySalesTax'] +
+            $this->response->citySalesTax +
             // $this->response['cityUseTax'] +
-            $this->response['countySalesTax'] +
+            $this->response->countySalesTax +
             // $this->response['countyUseTax'] +
-            $this->response['districtSalesTax'];
+            $this->response->districtSalesTax;
             // // $this->response['districtUseTax'] +
             // $this->response['district1SalesTax'] +
             // // $this->response['district1UseTax'] +
