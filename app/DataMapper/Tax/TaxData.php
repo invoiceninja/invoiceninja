@@ -18,7 +18,7 @@ use App\DataMapper\Tax\ZipTax\Response;
  * 
  * Definition for the invoice tax data structure
  */
-class InvoiceTaxData
+class TaxData
 {
     public int $updated_at;
     

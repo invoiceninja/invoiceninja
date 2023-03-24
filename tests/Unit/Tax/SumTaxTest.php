@@ -17,9 +17,7 @@ use App\Models\Invoice;
 use App\Models\Product;
 use Tests\MockAccountData;
 use App\DataMapper\InvoiceItem;
-use App\DataMapper\Tax\ClientTaxData;
-use App\DataMapper\Tax\CompanyTaxData;
-use App\DataMapper\Tax\InvoiceTaxData;
+use App\DataMapper\Tax\TaxData;
 use App\DataMapper\Tax\ZipTax\Response;
 use App\Factory\InvoiceFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -89,7 +87,7 @@ class SumTaxTest extends TestCase
 
     }
 
-
+    /** Proves that we do not charge taxes automatically */
     public function testCalcInvoiceNoTax()
     {
         $this->company->calculate_taxes = false;
@@ -108,7 +106,7 @@ class SumTaxTest extends TestCase
 
         $line_items = [];
 
-        $invoice->tax_data = new InvoiceTaxData($this->response);
+        $invoice->tax_data = new TaxData($this->response);
 
         $line_item = new InvoiceItem();
         $line_item->quantity = 1;
@@ -131,7 +129,7 @@ class SumTaxTest extends TestCase
         $this->assertEquals(0, $line_items[0]->tax_rate1);
     }
 
-
+    /** Proves that we do calc taxes automatically */
     public function testCalcInvoiceTax()
     {
 
@@ -151,7 +149,7 @@ class SumTaxTest extends TestCase
 
         $line_items = [];
 
-        $invoice->tax_data = new InvoiceTaxData($this->response);
+        $invoice->tax_data = new TaxData($this->response);
         
         $line_item = new InvoiceItem;
         $line_item->quantity = 1;
@@ -177,7 +175,7 @@ class SumTaxTest extends TestCase
     public function testTaxOnCompany()
     {
         
-        $tax_class = new CompanyTaxData($this->response);
+        $tax_class = new TaxData($this->response);
 
         $this->company->tax_data = $tax_class;
         $this->company->save();
@@ -194,7 +192,7 @@ class SumTaxTest extends TestCase
             'company_id' => $this->company->id,
         ]);
     
-        $tax_class = new ClientTaxData($this->response, $this->response);
+        $tax_class = new TaxData($this->response, $this->response);
 
         $c->tax_data = $tax_class;
         $c->save();
@@ -213,7 +211,7 @@ class SumTaxTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $tax_class = new InvoiceTaxData($this->response);
+        $tax_class = new TaxData($this->response);
 
         $i->tax_data = $tax_class;
         $i->save();
