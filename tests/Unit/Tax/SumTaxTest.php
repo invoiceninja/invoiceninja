@@ -14,11 +14,14 @@ namespace Tests\Unit\Tax;
 use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Product;
 use Tests\MockAccountData;
+use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\ClientTaxData;
 use App\DataMapper\Tax\CompanyTaxData;
 use App\DataMapper\Tax\InvoiceTaxData;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\Factory\InvoiceFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -86,10 +89,89 @@ class SumTaxTest extends TestCase
 
     }
 
-    public function testCalcLogic()
+
+    public function testCalcInvoiceNoTax()
     {
+        $this->company->calculate_taxes = false;
+        $this->company->tax_all_products = true;
+        $this->company->save();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'country_id' => 840,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $client->id;
+        $invoice->uses_inclusive_taxes = false;
+
+        $line_items = [];
+
+        $invoice->tax_data = new InvoiceTaxData($this->response);
+
+        $line_item = new InvoiceItem();
+        $line_item->quantity = 1;
+        $line_item->cost = 10;
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_item->tax_id = Product::PRODUCT_TYPE_PHYSICAL;
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $line_items = $invoice->line_items;
+
+
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals("", $line_items[0]->tax_name1);
+        $this->assertEquals(0, $line_items[0]->tax_rate1);
+    }
+
+
+    public function testCalcInvoiceTax()
+    {
+
         $this->company->calculate_taxes = true;
         $this->company->tax_all_products = true;
+        $this->company->save();
+
+        $client = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'country_id' => 840,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $client->id;
+        $invoice->uses_inclusive_taxes = false;
+
+        $line_items = [];
+
+        $invoice->tax_data = new InvoiceTaxData($this->response);
+        
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 10;
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_item->tax_id = Product::PRODUCT_TYPE_PHYSICAL;
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $line_items = $invoice->line_items;
+
+
+        $this->assertEquals(10.88, $invoice->amount);
+        $this->assertEquals("CA Sales Tax", $line_items[0]->tax_name1);
+        $this->assertEquals(8.75, $line_items[0]->tax_rate1);
     }
 
     public function testTaxOnCompany()

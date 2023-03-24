@@ -93,7 +93,7 @@ class Response
     public float $district5UseTax = 0;
     public string $originDestination = "";
 
-    public function __construct(?array $data)
+    public function __construct($data)
     {
 
         foreach($data as $key => $value){

@@ -13,7 +13,7 @@ namespace App\DataMapper\Tax;
 
 interface RuleInterface
 {
-    public function run();
+    public function tax();
 
     public function taxByType(?int $type);
 

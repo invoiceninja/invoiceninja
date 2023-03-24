@@ -13,6 +13,7 @@ namespace App\DataMapper\Tax\us;
 
 use App\Models\Product;
 use App\DataMapper\Tax\RuleInterface;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class Rule implements RuleInterface
 {
@@ -79,22 +80,25 @@ class Rule implements RuleInterface
     public string $tax_name3 = '';
     public float $tax_rate3 = 0;
     
-    public function __construct(public RuleInterface $tax_data)
+    public function __construct(public Response $tax_data)
     {
         $this->tax_data = $tax_data;
+        nlog($tax_data);
     }
 
-    public function run()
+    public function tax(): self
     {
-        $this->tax_name1 = $this->tax_data->taxSales * 100;
-        $this->tax_rate1 = "{$this->tax_data->geoState} Sales Tax";
+        $this->tax_rate1 = $this->tax_data->taxSales * 100;
+        $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+
+        return $this;
 
     }
 
-    public function taxByType(?int $product_tax_type)
+    public function taxByType(?int $product_tax_type): self
     {
         if(!$product_tax_type)
-            return;
+            return $this;
 
         match($product_tax_type){
             Product::PRODUCT_TAX_EXEMPT => $this->taxExempt(),
@@ -108,39 +112,50 @@ class Rule implements RuleInterface
         return $this;
     }
 
-    public function taxExempt()
+    public function taxExempt(): self
     {
         $this->tax_name1 = '';
         $this->tax_rate1 = 0;
+
+        return $this;
     }
 
-    public function taxDigital()
+    public function taxDigital(): self
     {
-        $this->tax_name1 = '';
-        $this->tax_rate1 = 0;
+        $this->tax();
+
+        return $this;
     }
 
-    public function taxService()
+    public function taxService(): self
     {
         if($this->tax_data->txbService == 'Y')
-            $this->run();
+            $this->tax();
+
+        return $this;
     }
 
-    public function taxShipping()
+    public function taxShipping(): self
     {
-        if($this->tax_data->txbFreight == 'N')
-            $this->run();
+        if($this->tax_data->txbFreight == 'Y')
+            $this->tax();
+
+        return $this;
     }
 
-    public function taxPhysical()
+    public function taxPhysical(): self
     {
+        $this->tax();
+
+        return $this;
+    }
+
+    public function default(): self
+    {
+        
         $this->tax_name1 = '';
         $this->tax_rate1 = 0;
-    }
 
-    public function default()
-    {
-        $this->tax_name1 = '';
-        $this->tax_rate1 = 0;
+        return $this;
     }
 }

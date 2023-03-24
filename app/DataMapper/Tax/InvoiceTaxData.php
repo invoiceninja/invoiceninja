@@ -24,5 +24,8 @@ class InvoiceTaxData
     
     public function __construct(public Response $origin)
     {
+        foreach($origin as $key => $value) {
+            $this->{$key} = $value;
+        }
     }
 }

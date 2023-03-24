@@ -17,6 +17,7 @@ use App\DataMapper\InvoiceItem;
 use App\DataMapper\BaseSettings;
 use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class InvoiceItemSum
 {
@@ -55,7 +56,7 @@ class InvoiceItemSum
     private bool $calc_tax = false;
 
     private RuleInterface $rule;
-     
+
     public function __construct($invoice)
     {
         $this->tax_collection = collect([]);
@@ -65,7 +66,7 @@ class InvoiceItemSum
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
             $this->client = $this->invoice->client;
-            $this->calc_tax = $this->shouldCalculateTax();
+            $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }
@@ -99,22 +100,29 @@ class InvoiceItemSum
         return $this;
     }
 
-    private function shouldCalculateTax(): bool
+    private function shouldCalculateTax(): self
     {
-        if(!$this->invoice->company->calculate_taxes || $this->client->is_tax_exempt)
-            return false;
+        if (!$this->invoice->company->calculate_taxes || $this->client->is_tax_exempt) {
+            $this->calc_tax = false;
+            nlog("returning false");
+            return $this;
+        }
 
-        if(in_array($this->client->country->iso_3166_2, ['US'])){ //only calculate for USA
-            
+        if (in_array($this->client->country->iso_3166_2, ['US'])) { //only calculate for USA
             $class = "App\DataMapper\Tax\\".strtolower($this->client->country->iso_3166_2)."\\Rule";
 
-            $this->rule = new $class($this->invoice->tax_data);
+            $tax_data = new Response($this->invoice->tax_data);
 
-            return true;
-        
-        }            
+            $this->rule = new $class($tax_data);
             
-        return false;
+            nlog("returning true");
+
+            $this->calc_tax = true;
+
+            return $this;
+        }
+        
+        return $this;
     }
 
     private function push()
@@ -149,20 +157,17 @@ class InvoiceItemSum
 
         return $this;
     }
-    
+
     /**
-     * Attempts to calculate taxes based on the clients location 
+     * Attempts to calculate taxes based on the clients location
      *
      * @return self
      */
-    private function calcTaxesAutomatically(): self 
+    private function calcTaxesAutomatically(): self
     {
-        if($this->invoice->company->tax_all_products || $this->item->tax_id != ''){
-            $this->rule->run();
-
-        }
-        else {
-
+        if ($this->invoice->company->tax_all_products || $this->item->tax_id != '') {
+            $this->rule->tax();
+        } else {
             $this->rule->taxByType($this->item->tax_id);
         }
 
@@ -180,8 +185,9 @@ class InvoiceItemSum
 
     private function calcTaxes()
     {
-        if($this->calc_tax)
+        if ($this->calc_tax) {
             $this->calcTaxesAutomatically();
+        }
 
         $item_tax = 0;
 
@@ -190,7 +196,6 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate1_total;
 
-        // if($item_tax_rate1_total != 0)
         if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }

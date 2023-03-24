@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Tax\de;
 
+use App\Models\Product;
 use App\DataMapper\Tax\RuleInterface;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class Rule implements RuleInterface
 {
@@ -89,8 +91,91 @@ class Rule implements RuleInterface
 
     public bool $foreign_consumer_tax_exempt = true;
 
-    public function run()
+    public string $tax_name1 = '';
+    public float $tax_rate1 = 0;
+
+    public string $tax_name2 = '';
+    public float $tax_rate2 = 0;
+    
+    public string $tax_name3 = '';
+    public float $tax_rate3 = 0;
+    
+
+    public function __construct(public Response $tax_data)
     {
+        $this->tax_data = $tax_data;
+    }
+
+    public function tax(): self
+    {
+        $this->tax_name1 = 21;
+        $this->tax_rate1 = "VAT";
+
+        return $this;
+
+    }
+
+    public function taxByType(?int $product_tax_type): self
+    {
+        if(!$product_tax_type)
+            return $this;
+
+        match($product_tax_type){
+            Product::PRODUCT_TAX_EXEMPT => $this->taxExempt(),
+            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
+            Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
+            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
+            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
+            default => $this->default(),
+        };
+        
+        return $this;
+    }
+
+    public function taxExempt(): self
+    {
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+
+        return $this;
+    }
+
+    public function taxDigital(): self
+    {
+        $this->tax();
+
+        return $this;
+    }
+
+    public function taxService(): self
+    {
+        if($this->tax_data->txbService == 'Y')
+            $this->tax();
+
+        return $this;
+    }
+
+    public function taxShipping(): self
+    {
+        if($this->tax_data->txbFreight == 'Y')
+            $this->tax();
+
+        return $this;
+    }
+
+    public function taxPhysical(): self
+    {
+        $this->tax();
+
+        return $this;
+    }
+
+    public function default(): self
+    {
+        
+        $this->tax_name1 = '';
+        $this->tax_rate1 = 0;
+
         return $this;
     }
 }
