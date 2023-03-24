@@ -87,6 +87,7 @@ class SumTaxTest extends TestCase
         $c->save();
 
         $this->assertEquals("92582", $c->tax_data->geoPostalCode);
+        $this->assertEquals(0.0875, $c->tax_data->taxSales);
     }
 
     public function testSumOfInvoice()
