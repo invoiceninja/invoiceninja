@@ -44,7 +44,6 @@ class PrePaymentController extends Controller
 
         $data = [
             'title' => ctrans('texts.amount'). " " .$client->currency()->code." (".auth()->guard('contact')->user()->client->currency()->symbol . ")",
-            // 'allows_recurring' => auth()->guard('contact')->user()->client->getSetting('client_initiated_payments_recurring'),
             'allows_recurring' => true,
             'minimum' => $minimum,
             'minimum_amount' =>  $minimum_amount,

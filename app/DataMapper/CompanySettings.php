@@ -473,13 +473,10 @@ class CompanySettings extends BaseSettings
 
     public $client_initiated_payments_minimum = 0;
 
-    // public $client_initiated_payments_recurring = false;
-
     public $sync_invoice_quote_columns = true;
 
     public static $casts = [
         'mailgun_endpoint'                   => 'string',    
-        // 'client_initiated_payments_recurring'=> 'bool',
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
         'sync_invoice_quote_columns'         => 'bool',
