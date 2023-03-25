@@ -153,7 +153,7 @@ class Rule implements RuleInterface
     public function default(): self
     {
         
-        $this->tax_name1 = '';
+        $this->tax_name1 = 'Tax Exempt';
         $this->tax_rate1 = 0;
 
         return $this;

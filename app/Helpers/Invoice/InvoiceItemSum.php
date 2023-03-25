@@ -104,7 +104,6 @@ class InvoiceItemSum
     {
         if (!$this->invoice->company->calculate_taxes || $this->client->is_tax_exempt) {
             $this->calc_tax = false;
-            nlog("returning false");
             return $this;
         }
 
@@ -115,8 +114,6 @@ class InvoiceItemSum
 
             $this->rule = new $class($tax_data);
             
-            nlog("returning true");
-
             $this->calc_tax = true;
 
             return $this;
