@@ -25,6 +25,38 @@ class InvoiceItemSum
     use Discounter;
     use Taxer;
 
+    private array $tax_jurisdictions = [
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
+
+        'US', //USA
+    ];
+
     protected $invoice;
 
     private $items;
@@ -102,18 +134,19 @@ class InvoiceItemSum
 
     private function shouldCalculateTax(): self
     {
-        if (!$this->invoice->company->calculate_taxes || $this->client->is_tax_exempt) {
+        if (!$this->invoice->company->calculate_taxes) {
             $this->calc_tax = false;
             return $this;
         }
 
-        if (in_array($this->client->country->iso_3166_2, ['US'])) { //only calculate for USA
+        if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
             $class = "App\DataMapper\Tax\\".strtolower($this->client->country->iso_3166_2)."\\Rule";
 
             $tax_data = new Response($this->invoice->tax_data);
 
             $this->rule = new $class();
             $this->rule->setTaxData($tax_data);
+            $this->rule->setClient($this->client);
             $this->calc_tax = true;
 
             return $this;

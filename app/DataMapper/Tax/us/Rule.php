@@ -105,6 +105,9 @@ class Rule implements RuleInterface
 
     public function tax(): self
     {
+        if($this->client->is_tax_exempt)
+            return $this->taxExempt();
+
         $this->tax_rate1 = $this->tax_data->taxSales * 100;
         $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
 
@@ -116,6 +119,11 @@ class Rule implements RuleInterface
     {
         if(!$product_tax_type)
             return $this;
+
+
+        if ($this->client->is_tax_exempt) {
+            return $this->taxExempt();
+        }
 
         match($product_tax_type){
             Product::PRODUCT_TAX_EXEMPT => $this->taxExempt(),

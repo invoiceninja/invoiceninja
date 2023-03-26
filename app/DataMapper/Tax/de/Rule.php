@@ -103,6 +103,8 @@ class Rule implements RuleInterface
     
     protected ?Client $client;
 
+    protected ?Response $tax_data;
+
     public function __construct()
     {
     }
@@ -123,6 +125,10 @@ class Rule implements RuleInterface
 
     public function tax(): self
     {
+        if($this->client->is_tax_exempt)
+            return $this->taxExempt();
+        
+
         $this->tax_name1 = $this->vat_rate;
         $this->tax_rate1 = "VAT";
 
@@ -132,6 +138,11 @@ class Rule implements RuleInterface
 
     public function taxByType(?int $product_tax_type): self
     {
+
+        if ($this->client->is_tax_exempt) {
+            return $this->taxExempt();
+        }
+
         if(!$product_tax_type)
             return $this;
 
