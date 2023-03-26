@@ -16,15 +16,15 @@ use App\Models\Client;
 use App\Models\Company;
 use Tests\MockAccountData;
 use App\DataMapper\Tax\de\Rule;
-use App\Services\Tax\ProcessRule;
+use App\Services\Tax\Providers\EuTax;
 use App\DataMapper\CompanySettings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test App\Services\Tax\ProcessRule
+ * @test App\Services\Tax\Providers\EuTax
  */
-class ProcessRuleTest extends TestCase
+class EuTaxTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
@@ -60,7 +60,7 @@ class ProcessRuleTest extends TestCase
             'shipping_country_id' => 276,
         ]);
 
-        $process = new ProcessRule($company, $client);
+        $process = new EuTax($company, $client);
         $process->run();
 
         $this->assertEquals('de', $process->getVendorCountryCode());
@@ -96,7 +96,7 @@ class ProcessRuleTest extends TestCase
             'shipping_country_id' => 56,
         ]);
 
-        $process = new ProcessRule($company, $client);
+        $process = new EuTax($company, $client);
         $process->run();
 
         $this->assertEquals('de', $process->getVendorCountryCode());
@@ -132,7 +132,7 @@ class ProcessRuleTest extends TestCase
             'shipping_country_id' => 840,
         ]);
 
-        $process = new ProcessRule($company, $client);
+        $process = new EuTax($company, $client);
         $process->run();
 
         $this->assertEquals('de', $process->getVendorCountryCode());

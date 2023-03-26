@@ -11,6 +11,7 @@
 
 namespace App\DataMapper\Tax\de;
 
+use App\Models\Client;
 use App\Models\Product;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
@@ -100,10 +101,24 @@ class Rule implements RuleInterface
     public string $tax_name3 = '';
     public float $tax_rate3 = 0;
     
+    protected ?Client $client;
 
-    public function __construct(public Response $tax_data)
+    public function __construct()
+    {
+    }
+
+    public function setClient(Client $client): self
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
+    public function setTaxData(Response $tax_data): self
     {
         $this->tax_data = $tax_data;
+
+        return $this;
     }
 
     public function tax(): self
@@ -126,9 +141,18 @@ class Rule implements RuleInterface
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
             default => $this->default(),
         };
         
+        return $this;
+    }
+
+    public function taxReduced(): self
+    {
+        $this->tax_rate1 = $this->vat_reduced_rate;
+        $this->tax_name1 = 'VAT';
+
         return $this;
     }
 

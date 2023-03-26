@@ -11,6 +11,9 @@
 
 namespace App\DataMapper\Tax;
 
+use App\Models\Client;
+use App\DataMapper\Tax\ZipTax\Response;
+
 interface RuleInterface
 {
     public function tax();
@@ -27,5 +30,11 @@ interface RuleInterface
 
     public function taxPhysical();
 
+    public function taxReduced();
+
     public function default();
+
+    public function setClient(Client $client);
+
+    public function setTaxData(Response $tax_data);
 }

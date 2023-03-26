@@ -11,6 +11,7 @@
 
 namespace App\DataMapper\Tax\us;
 
+use App\Models\Client;
 use App\Models\Product;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
@@ -80,10 +81,26 @@ class Rule implements RuleInterface
     public string $tax_name3 = '';
     public float $tax_rate3 = 0;
     
-    public function __construct(public Response $tax_data)
+    public ?Client $client;
+
+    public ?Response $tax_data;
+
+    public function __construct()
+    {
+    }
+
+    public function setTaxData(Response $tax_data): self
     {
         $this->tax_data = $tax_data;
-        nlog($tax_data);
+
+        return $this;
+    }
+
+    public function setClient(Client $client):self 
+    {
+        $this->client = $client;
+
+        return $this;
     }
 
     public function tax(): self
@@ -155,6 +172,13 @@ class Rule implements RuleInterface
         
         $this->tax_name1 = 'Tax Exempt';
         $this->tax_rate1 = 0;
+
+        return $this;
+    }
+
+    public function taxReduced(): self
+    {
+        $this->tax();
 
         return $this;
     }

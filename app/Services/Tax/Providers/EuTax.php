@@ -9,14 +9,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Tax;
+namespace App\Services\Tax\Providers;
 
 use App\Models\Client;
 use App\Models\Company;
 use Illuminate\Support\Str;
 use App\DataMapper\Tax\de\Rule;
 use App\Services\Tax\VatNumberCheck;
-class ProcessRule
+class EuTax
 {
     public Rule $rule;
 

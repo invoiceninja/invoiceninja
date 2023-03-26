@@ -112,8 +112,8 @@ class InvoiceItemSum
 
             $tax_data = new Response($this->invoice->tax_data);
 
-            $this->rule = new $class($tax_data);
-            
+            $this->rule = new $class();
+            $this->rule->setTaxData($tax_data);
             $this->calc_tax = true;
 
             return $this;
