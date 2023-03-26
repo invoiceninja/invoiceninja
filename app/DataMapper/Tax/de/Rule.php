@@ -108,7 +108,7 @@ class Rule implements RuleInterface
 
     public function tax(): self
     {
-        $this->tax_name1 = 21;
+        $this->tax_name1 = $this->vat_rate;
         $this->tax_rate1 = "VAT";
 
         return $this;

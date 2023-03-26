@@ -96,4 +96,10 @@ return [
         'redirect' => env('BITBUCKET_OAUTH_REDIRECT'),
     ],
 
+    'tax' => [
+        'zip_tax' => [
+            'key' => env('ZIP_TAX_KEY', false),
+        ],
+        ]
+    ]
 ];
