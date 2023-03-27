@@ -100,6 +100,5 @@ return [
         'zip_tax' => [
             'key' => env('ZIP_TAX_KEY', false),
         ],
-        ]
-    ]
+    ],
 ];

@@ -147,6 +147,8 @@ class ClientTransformer extends EntityTransformer
             'created_at' => (int) $client->created_at,
             'display_name' => $client->present()->name(),
             'number' => (string) $client->number ?: '',
+            'has_valid_vat_number' => (bool) $client->has_valid_vat_number,
+            'is_tax_exempt' => (bool) $client->is_tax_exempt,
         ];
     }
 }

@@ -13,8 +13,7 @@ namespace App\Services\Tax\Providers;
 
 use App\Models\Client;
 use App\Models\Company;
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Http;
+use App\Services\Tax\Providers\EuTax;
 
 class TaxProvider
 {
@@ -52,7 +51,6 @@ class TaxProvider
     private string $provider = ZipTax::class;
     
     private mixed $api_credentials;
-
 
     public function __construct(protected Company $company, protected Client $client)
     {
@@ -122,9 +120,6 @@ class TaxProvider
 
         return $this;
 
-
-        return $this;
-
     }
 
     private function configureProvider(?string $provider): self
@@ -170,13 +165,13 @@ class TaxProvider
     {
         $this->provider = EuTax::class;
 
-        // $this->api_credentials = config('services.tax.eu_tax.key');
-
         return $this;
     }
 
     private function noTaxRegionDefined(): self
     {
+        throw new \Exception("No tax region defined for this country");
+
         return $this;
     }
 

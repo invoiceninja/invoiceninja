@@ -138,7 +138,8 @@ class InvoiceItemSum
             $this->calc_tax = false;
             return $this;
         }
-
+        
+        //should we be filtering by client country here? do we need to reflect at the company <=> client level?
         if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
             $class = "App\DataMapper\Tax\\".strtolower($this->client->country->iso_3166_2)."\\Rule";
 

@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::table('clients', function (Blueprint $table) {
             $table->boolean('is_tax_exempt')->default(false);
+            $table->boolean('has_valid_vat_number')->default(false);
         });
     }
 

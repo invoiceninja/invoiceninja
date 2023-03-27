@@ -22,6 +22,37 @@ class Rule implements RuleInterface
 
     public float $vat_threshold = 10000;
 
+
+    public array $distance_selling_thresholds = [
+        "AT" => 35000,
+        "BE" => 35000,
+        "BG" => 35800,
+        "HR" => 35900,
+        "CY" => 0, // Cyprus does not have a distance selling threshold, so for cyprus buyers and sellers always use this rate
+        "CZ" => 44200,
+        "DK" => 37500,
+        "EE" => 35000,
+        "FI" => 35000,
+        "FR" => 35000,
+        "DE" => 100000,
+        "GR" => 35000,
+        "HU" => 25000,
+        "IE" => 35000,
+        "IT" => 35000,
+        "LV" => 35000,
+        "LT" => 35000,
+        "LU" => 100000,
+        "MT" => 35000,
+        "NL" => 100000,
+        "PL" => 36900,
+        "PT" => 35000,
+        "RO" => 24200,
+        "SK" => 35000,
+        "SI" => 35000,
+        "ES" => 35000,
+        "SE" => 31700
+    ];
+
     public float $vat_reduced_rate = 7;
 
     public float $vat_reduced_threshold = 10000;
@@ -123,14 +154,14 @@ class Rule implements RuleInterface
         return $this;
     }
 
+    //need to add logic here to capture if
     public function tax(): self
     {
-        if($this->client->is_tax_exempt)
+        if($this->client->is_tax_exempt || $this->client->has_valid_vat_number)
             return $this->taxExempt();
         
-
         $this->tax_name1 = $this->vat_rate;
-        $this->tax_rate1 = "VAT";
+        $this->tax_rate1 = "MwSt.";
 
         return $this;
 
@@ -162,7 +193,7 @@ class Rule implements RuleInterface
     public function taxReduced(): self
     {
         $this->tax_rate1 = $this->vat_reduced_rate;
-        $this->tax_name1 = 'VAT';
+        $this->tax_name1 = 'ermäßigte MwSt.';
 
         return $this;
     }
@@ -184,16 +215,14 @@ class Rule implements RuleInterface
 
     public function taxService(): self
     {
-        if($this->tax_data->txbService == 'Y')
-            $this->tax();
+        $this->tax();
 
         return $this;
     }
 
     public function taxShipping(): self
     {
-        if($this->tax_data->txbFreight == 'Y')
-            $this->tax();
+        $this->tax();
 
         return $this;
     }
