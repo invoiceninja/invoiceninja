@@ -13,105 +13,20 @@ namespace App\DataMapper\Tax\de;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
 
-class Rule implements RuleInterface
+class Rule extends BaseRule implements RuleInterface
 {
+
     public float $vat_rate = 19;
 
     public float $vat_threshold = 10000;
 
-
-    public array $distance_selling_thresholds = [
-        "AT" => 35000,
-        "BE" => 35000,
-        "BG" => 35800,
-        "HR" => 35900,
-        "CY" => 0, // Cyprus does not have a distance selling threshold, so for cyprus buyers and sellers always use this rate
-        "CZ" => 44200,
-        "DK" => 37500,
-        "EE" => 35000,
-        "FI" => 35000,
-        "FR" => 35000,
-        "DE" => 100000,
-        "GR" => 35000,
-        "HU" => 25000,
-        "IE" => 35000,
-        "IT" => 35000,
-        "LV" => 35000,
-        "LT" => 35000,
-        "LU" => 100000,
-        "MT" => 35000,
-        "NL" => 100000,
-        "PL" => 36900,
-        "PT" => 35000,
-        "RO" => 24200,
-        "SK" => 35000,
-        "SI" => 35000,
-        "ES" => 35000,
-        "SE" => 31700
-    ];
-
     public float $vat_reduced_rate = 7;
 
     public float $vat_reduced_threshold = 10000;
-
-    public float $at_vat_rate = 20; // Austria
-    
-    public float $be_vat_rate = 21; // Belgium
-    
-    public float $bg_vat_rate = 20; // Bulgaria
-    
-    public float $hr_vat_rate = 25; // Croatia
-    
-    public float $cy_vat_rate = 19; // Cyprus
-    
-    public float $cz_vat_rate = 21; // Czech Republic
-    
-    public float $dk_vat_rate = 25; // Denmark
-    
-    public float $ee_vat_rate = 20; // Estonia
-    
-    public float $fi_vat_rate = 24; // Finland
-    
-    public float $fr_vat_rate = 20; // France
-    
-    public float $de_vat_rate = 19; // Germany
-    
-    public float $gr_vat_rate = 24; // Greece
-    
-    public float $hu_vat_rate = 27; // Hungary
-    
-    public float $ie_vat_rate = 23; // Ireland
-    
-    public float $it_vat_rate = 22; // Italy
-    
-    public float $lv_vat_rate = 21; // Latvia
-    
-    public float $lt_vat_rate = 21; // Lithuania
-    
-    public float $lu_vat_rate = 17; // Luxembourg
-    
-    public float $mt_vat_rate = 18; // Malta
-    
-    public float $nl_vat_rate = 21; // Netherlands
-    
-    public float $pl_vat_rate = 23; // Poland
-    
-    public float $pt_vat_rate = 23; // Portugal
-    
-    public float $ro_vat_rate = 19; // Romania
-    
-    public float $sk_vat_rate = 20; // Slovakia
-    
-    public float $si_vat_rate = 22; // Slovenia
-    
-    public float $es_vat_rate = 21; // Spain
-    
-    public float $se_vat_rate = 25; // Sweden
-    
-    public float $gb_vat_rate = 20; // United Kingdom
 
     public bool $consumer_tax_exempt = false;
 
