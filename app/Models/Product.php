@@ -117,7 +117,7 @@ class Product extends BaseModel
     public const PRODUCT_TYPE_SERVICE = 2;
     public const PRODUCT_TYPE_DIGITAL = 3;
     public const PRODUCT_TYPE_SHIPPING = 4;
-    public const PRODUCT_TAX_EXEMPT = 5;
+    public const PRODUCT_TYPE_EXEMPT = 5;
     public const PRODUCT_TYPE_REDUCED_TAX = 6;
 
     protected $fillable = [

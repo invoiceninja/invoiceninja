@@ -20,37 +20,6 @@ class BaseRule implements RuleInterface
 {
 
     /** EU TAXES */
-
-    public array $distance_selling_thresholds = [
-        "AT" => 35000,
-        "BE" => 35000,
-        "BG" => 35800,
-        "HR" => 35900,
-        "CY" => 0, // Cyprus does not have a distance selling threshold, so for cyprus buyers and sellers always use this rate
-        "CZ" => 44200,
-        "DK" => 37500,
-        "EE" => 35000,
-        "FI" => 35000,
-        "FR" => 35000,
-        "DE" => 100000,
-        "GR" => 35000,
-        "HU" => 25000,
-        "IE" => 35000,
-        "IT" => 35000,
-        "LV" => 35000,
-        "LT" => 35000,
-        "LU" => 100000,
-        "MT" => 35000,
-        "NL" => 100000,
-        "PL" => 36900,
-        "PT" => 35000,
-        "RO" => 24200,
-        "SK" => 35000,
-        "SI" => 35000,
-        "ES" => 35000,
-        "SE" => 31700
-    ];
-
     public float $vat_rate = 19;
     public float $vat_threshold = 10000;
     public float $vat_reduced_rate = 7;
@@ -202,7 +171,7 @@ class BaseRule implements RuleInterface
         }
 
         match ($product_tax_type) {
-            Product::PRODUCT_TAX_EXEMPT => $this->taxExempt(),
+            Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
             Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
