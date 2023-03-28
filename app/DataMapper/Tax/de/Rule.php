@@ -39,12 +39,15 @@ class Rule extends BaseRule implements RuleInterface
     public bool $foreign_consumer_tax_exempt = true;
 
     public string $tax_name1 = '';
+
     public float $tax_rate1 = 0;
 
     public string $tax_name2 = '';
+    
     public float $tax_rate2 = 0;
     
     public string $tax_name3 = '';
+    
     public float $tax_rate3 = 0;
     
     protected ?Client $client;
