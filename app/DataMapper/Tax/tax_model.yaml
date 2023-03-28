@@ -104,115 +104,115 @@ region:
       WY:
         APPLY_TAX: false
   EU:
-    tax_all: true
+    tax_all: false
     vat_threshold: 10000
     seller_region: DE
     subregions:
       AT:
         VAT: 21
         REDUCED_VAT: 11
-        APPLY_VAT: true
+        APPLY_VAT: false
       BE:
         VAT: 21
         REDUCED_VAT: 6
-        APPLY_VAT: true
+        APPLY_VAT: false
       BG:
         VAT: 20
         REDUCED_VAT: 9
-        APPLY_VAT: true
+        APPLY_VAT: false
       CY:
         VAT: 19
         REDUCED_VAT: 9
-        APPLY_VAT: true
+        APPLY_VAT: false
       CZ:
         VAT: 21
         REDUCED_VAT: 15
-        APPLY_VAT: true
+        APPLY_VAT: false
       DE:
         VAT: 19
         REDUCED_VAT: 7
-        APPLY_VAT: true
+        APPLY_VAT: false
       DK:
         VAT: 25
         REDUCED_VAT: 0
-        APPLY_VAT: true
+        APPLY_VAT: false
       EE:
         VAT: 20
         REDUCED_VAT: 9
-        APPLY_VAT: true
+        APPLY_VAT: false
       ES:
         VAT: 21
         REDUCED_VAT: 10
-        APPLY_VAT: true
+        APPLY_VAT: false
       FI:
         VAT: 24
         REDUCED_VAT: 14
-        APPLY_VAT: true
+        APPLY_VAT: false
       FR:
         VAT: 20
         REDUCED_VAT: 5.5
-        APPLY_VAT: true
+        APPLY_VAT: false
       GB:
         VAT: 20
         REDUCED_VAT: 0
-        APPLY_VAT: true
+        APPLY_VAT: false
       GR:
         VAT: 24
         REDUCED_VAT: 13
-        APPLY_VAT: true
+        APPLY_VAT: false
       HR:
         VAT: 25
         REDUCED_VAT: 5
-        APPLY_VAT: true
+        APPLY_VAT: false
       HU:
         VAT: 27
         REDUCED_VAT: 5
-        APPLY_VAT: true
+        APPLY_VAT: false
       IE:
         VAT: 23
         REDUCED_VAT: 0
-        APPLY_VAT: true
+        APPLY_VAT: false
       IT:
         VAT: 22
         REDUCED_VAT: 10
-        APPLY_VAT: true
+        APPLY_VAT: false
       LT:
         VAT: 21
         REDUCED_VAT: 9
-        APPLY_VAT: true
+        APPLY_VAT: false
       LU:
         VAT: 17
         REDUCED_VAT: 3
-        APPLY_VAT: true
+        APPLY_VAT: false
       LV:
         VAT: 21
         REDUCED_VAT: 12
-        APPLY_VAT: true
+        APPLY_VAT: false
       MT:
         VAT: 18
         REDUCED_VAT: 5
-        APPLY_VAT: true
+        APPLY_VAT: false
       NL:
         VAT: 21
         REDUCED_VAT: 9
-        APPLY_VAT: true
+        APPLY_VAT: false
       PT:
         VAT: 23
         REDUCED_VAT: 6
-        APPLY_VAT: true
+        APPLY_VAT: false
       RO:
         VAT: 19
         REDUCED_VAT: 5
-        APPLY_VAT: true
+        APPLY_VAT: false
       SE:
         VAT: 25
         REDUCED_VAT: 12
-        APPLY_VAT: true
+        APPLY_VAT: false
       SI:
         VAT: 22
         REDUCED_VAT: 9.5
-        APPLY_VAT: true
+        APPLY_VAT: false
       SK:
         VAT: 20
         REDUCED_VAT: 10
-        APPLY_VAT: true
+        APPLY_VAT: false
