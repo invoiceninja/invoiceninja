@@ -1,0 +1,218 @@
+region:
+  US:
+    tax_all: false
+    seller_region: CA
+    subregions:
+      AL:
+        APPLY_TAX: false
+      AK:
+        APPLY_TAX: false
+      AZ:
+        APPLY_TAX: false
+      AR:
+        APPLY_TAX: false
+      CA:
+        APPLY_TAX: false
+      CO:
+        APPLY_TAX: false
+      CT:
+        APPLY_TAX: false
+      DE:
+        APPLY_TAX: false
+      FL:
+        APPLY_TAX: false
+      GA:
+        APPLY_TAX: false
+      HI:
+        APPLY_TAX: false
+      ID:
+        APPLY_TAX: false
+      IL:
+        APPLY_TAX: false
+      IN:
+        APPLY_TAX: false
+      IA:
+        APPLY_TAX: false
+      KS:
+        APPLY_TAX: false
+      KY:
+        APPLY_TAX: false
+      LA:
+        APPLY_TAX: false
+      ME:
+        APPLY_TAX: false
+      MD:
+        APPLY_TAX: false
+      MA:
+        APPLY_TAX: false
+      MI:
+        APPLY_TAX: false
+      MN:
+        APPLY_TAX: false
+      MS:
+        APPLY_TAX: false
+      MO:
+        APPLY_TAX: false
+      MT:
+        APPLY_TAX: false
+      NE:
+        APPLY_TAX: false
+      NV:
+        APPLY_TAX: false
+      NH:
+        APPLY_TAX: false
+      NJ:
+        APPLY_TAX: false
+      NM:
+        APPLY_TAX: false
+      NY:
+        APPLY_TAX: false
+      NC:
+        APPLY_TAX: false
+      ND:
+        APPLY_TAX: false
+      OH:
+        APPLY_TAX: false
+      OK:
+        APPLY_TAX: false
+      OR:
+        APPLY_TAX: false
+      PA:
+        APPLY_TAX: false
+      RI:
+        APPLY_TAX: false
+      SC:
+        APPLY_TAX: false
+      SD:
+        APPLY_TAX: false
+      TN:
+        APPLY_TAX: false
+      TX:
+        APPLY_TAX: false
+      UT:
+        APPLY_TAX: false
+      VT:
+        APPLY_TAX: false
+      VA:
+        APPLY_TAX: false
+      WA:
+        APPLY_TAX: false
+      WV:
+        APPLY_TAX: false
+      WI:
+        APPLY_TAX: false
+      WY:
+        APPLY_TAX: false
+  EU:
+    tax_all: true
+    vat_threshold: 10000
+    seller_region: DE
+    subregions:
+      AT:
+        VAT: 21
+        REDUCED_VAT: 11
+        APPLY_VAT: true
+      BE:
+        VAT: 21
+        REDUCED_VAT: 6
+        APPLY_VAT: true
+      BG:
+        VAT: 20
+        REDUCED_VAT: 9
+        APPLY_VAT: true
+      CY:
+        VAT: 19
+        REDUCED_VAT: 9
+        APPLY_VAT: true
+      CZ:
+        VAT: 21
+        REDUCED_VAT: 15
+        APPLY_VAT: true
+      DE:
+        VAT: 19
+        REDUCED_VAT: 7
+        APPLY_VAT: true
+      DK:
+        VAT: 25
+        REDUCED_VAT: 0
+        APPLY_VAT: true
+      EE:
+        VAT: 20
+        REDUCED_VAT: 9
+        APPLY_VAT: true
+      ES:
+        VAT: 21
+        REDUCED_VAT: 10
+        APPLY_VAT: true
+      FI:
+        VAT: 24
+        REDUCED_VAT: 14
+        APPLY_VAT: true
+      FR:
+        VAT: 20
+        REDUCED_VAT: 5.5
+        APPLY_VAT: true
+      GB:
+        VAT: 20
+        REDUCED_VAT: 0
+        APPLY_VAT: true
+      GR:
+        VAT: 24
+        REDUCED_VAT: 13
+        APPLY_VAT: true
+      HR:
+        VAT: 25
+        REDUCED_VAT: 5
+        APPLY_VAT: true
+      HU:
+        VAT: 27
+        REDUCED_VAT: 5
+        APPLY_VAT: true
+      IE:
+        VAT: 23
+        REDUCED_VAT: 0
+        APPLY_VAT: true
+      IT:
+        VAT: 22
+        REDUCED_VAT: 10
+        APPLY_VAT: true
+      LT:
+        VAT: 21
+        REDUCED_VAT: 9
+        APPLY_VAT: true
+      LU:
+        VAT: 17
+        REDUCED_VAT: 3
+        APPLY_VAT: true
+      LV:
+        VAT: 21
+        REDUCED_VAT: 12
+        APPLY_VAT: true
+      MT:
+        VAT: 18
+        REDUCED_VAT: 5
+        APPLY_VAT: true
+      NL:
+        VAT: 21
+        REDUCED_VAT: 9
+        APPLY_VAT: true
+      PT:
+        VAT: 23
+        REDUCED_VAT: 6
+        APPLY_VAT: true
+      RO:
+        VAT: 19
+        REDUCED_VAT: 5
+        APPLY_VAT: true
+      SE:
+        VAT: 25
+        REDUCED_VAT: 12
+        APPLY_VAT: true
+      SI:
+        VAT: 22
+        REDUCED_VAT: 9.5
+        APPLY_VAT: true
+      SK:
+        VAT: 20
+        REDUCED_VAT: 10
+        APPLY_VAT: true

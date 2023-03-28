@@ -177,6 +177,7 @@ class BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
             default => $this->default(),
         };
 
@@ -234,4 +235,10 @@ class BaseRule implements RuleInterface
 
         return $this;
     }
+
+    public function override(): self
+    {
+        return $this;
+    }
+
 }

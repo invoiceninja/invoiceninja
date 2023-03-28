@@ -119,6 +119,7 @@ class Product extends BaseModel
     public const PRODUCT_TYPE_SHIPPING = 4;
     public const PRODUCT_TYPE_EXEMPT = 5;
     public const PRODUCT_TYPE_REDUCED_TAX = 6;
+    public const PRODUCT_TYPE_OVERRIDE_TAX = 7;
 
     protected $fillable = [
         'custom_value1',
