@@ -5015,6 +5015,23 @@ $LANG = array(
     'restored_payment_link' => 'Successfully restored payment link',
     'search_payment_link' => 'Search 1 Payment Link',
     'search_payment_links' => 'Search :count Payment Links',
+    'increase_prices' => 'Increase Prices',
+    'update_prices' => 'Update Prices',
+    'incresed_prices' => 'Successfully queued prices to be increased',
+    'updated_prices' => 'Successfully queued prices to be updated',
+    'api_token' => 'API Token',
+    'api_key' => 'API Key',
+    'endpoint' => 'Endpoint',
+    'not_billable' => 'Not Billable',
+    'allow_billable_task_items' => 'Allow Billable Task Items',
+    'allow_billable_task_items_help' => 'Enable configuring which task items are billed',
+    'show_task_item_description' => 'Show Task Item Description',
+    'show_task_item_description_help' => 'Enable specifying task item descriptions',
+    'email_record' => 'Email Record',
+    'invoice_product_columns' => 'Invoice Product Columns',
+    'quote_product_columns' => 'Quote Product Columns',
+    'vendors' => 'Vendors',
+    'product_sales' => 'Product Sales',
 );
 
 
