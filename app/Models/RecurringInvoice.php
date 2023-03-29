@@ -418,8 +418,6 @@ class RecurringInvoice extends BaseModel
 
         $offset = $this->client->timezone_offset();
 
-        nlog("offset = {$offset}");
-
         /* If this setting is enabled, the recurring invoice may be set in the past */
 
         if ($this->company->stop_on_unpaid_recurring) {
