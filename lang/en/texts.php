@@ -5031,6 +5031,7 @@ $LANG = array(
     'invoice_product_columns' => 'Invoice Product Columns',
     'quote_product_columns' => 'Quote Product Columns',
     'vendors' => 'Vendors',
+    'product_sales' => 'Product Sales',
 );
 
 
