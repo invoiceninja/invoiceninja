@@ -9,51 +9,35 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\DataMapper\Tax\de;
+namespace App\DataMapper\Tax\US;
 
 use App\Models\Client;
 use App\Models\Product;
-use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
 
-class Rule extends BaseRule implements RuleInterface
+class Rule implements RuleInterface
 {
 
-    public bool $consumer_tax_exempt = false;
-
-    public bool $business_tax_exempt = false;
-
-    public bool $eu_business_tax_exempt = true;
-
-    public bool $foreign_business_tax_exempt = true;
-
-    public bool $foreign_consumer_tax_exempt = true;
-
     public string $tax_name1 = '';
-
     public float $tax_rate1 = 0;
 
     public string $tax_name2 = '';
-    
     public float $tax_rate2 = 0;
     
     public string $tax_name3 = '';
-    
     public float $tax_rate3 = 0;
     
-    protected ?Client $client;
+    public ?Client $client;
 
-    protected ?Response $tax_data;
+    public ?Response $tax_data;
 
     public function __construct()
     {
     }
 
-    public function setClient(Client $client): self
-    {
-        $this->client = $client;
-
+    public function override() 
+    { 
         return $this;
     }
 
@@ -64,14 +48,20 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
 
-    //need to add logic here to capture if
+    public function setClient(Client $client):self 
+    {
+        $this->client = $client;
+
+        return $this;
+    }
+
     public function tax(): self
     {
-        if($this->client->is_tax_exempt || $this->client->has_valid_vat_number)
+        if($this->client->is_tax_exempt)
             return $this->taxExempt();
-        
-        $this->tax_name1 = $this->vat_rate;
-        $this->tax_rate1 = "MwSt.";
+
+        $this->tax_rate1 = $this->tax_data->taxSales * 100;
+        $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
 
         return $this;
 
@@ -79,13 +69,13 @@ class Rule extends BaseRule implements RuleInterface
 
     public function taxByType(?int $product_tax_type): self
     {
+        if(!$product_tax_type)
+            return $this;
+
 
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
         }
-
-        if(!$product_tax_type)
-            return $this;
 
         match($product_tax_type){
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
@@ -98,14 +88,6 @@ class Rule extends BaseRule implements RuleInterface
             default => $this->default(),
         };
         
-        return $this;
-    }
-
-    public function taxReduced(): self
-    {
-        $this->tax_rate1 = $this->vat_reduced_rate;
-        $this->tax_name1 = 'ermäßigte MwSt.';
-
         return $this;
     }
 
@@ -126,14 +108,16 @@ class Rule extends BaseRule implements RuleInterface
 
     public function taxService(): self
     {
-        $this->tax();
+        if($this->tax_data->txbService == 'Y')
+            $this->tax();
 
         return $this;
     }
 
     public function taxShipping(): self
     {
-        $this->tax();
+        if($this->tax_data->txbFreight == 'Y')
+            $this->tax();
 
         return $this;
     }
@@ -148,15 +132,16 @@ class Rule extends BaseRule implements RuleInterface
     public function default(): self
     {
         
-        $this->tax_name1 = '';
+        $this->tax_name1 = 'Tax Exempt';
         $this->tax_rate1 = 0;
 
         return $this;
     }
 
-    public function override(): self
+    public function taxReduced(): self
     {
+        $this->tax();
+
         return $this;
     }
-
 }

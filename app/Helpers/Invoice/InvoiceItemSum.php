@@ -199,7 +199,7 @@ class InvoiceItemSum
         if ($this->invoice->company->tax_all_products || $this->item->tax_id != '') {
             $this->rule->tax();
         } else {
-            $this->rule->taxByType($this->item->tax_id);
+            $this->rule->init()->taxByType($this->item->tax_id);
         }
 
         $this->item->tax_name1 = $this->rule->tax_name1;

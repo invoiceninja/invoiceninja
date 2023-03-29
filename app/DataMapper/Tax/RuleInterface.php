@@ -16,6 +16,8 @@ use App\DataMapper\Tax\ZipTax\Response;
 
 interface RuleInterface
 {
+    public function init();
+
     public function tax();
 
     public function taxByType(?int $type);
@@ -39,4 +41,6 @@ interface RuleInterface
     public function setClient(Client $client);
 
     public function setTaxData(Response $tax_data);
+
+    public function calculateRates();
 }

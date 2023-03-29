@@ -18,10 +18,45 @@ class BaseRule implements RuleInterface
 {
     /** EU TAXES */
     public bool $consumer_tax_exempt = false;
+
     public bool $business_tax_exempt = true;
+
     public bool $eu_business_tax_exempt = true;
+
     public bool $foreign_business_tax_exempt = true;
+
     public bool $foreign_consumer_tax_exempt = true;
+
+    public array $eu_country_codes = [
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
+    ];
+
     /** EU TAXES */
 
 
@@ -43,6 +78,11 @@ class BaseRule implements RuleInterface
 
     public function __construct()
     {
+    }
+
+    public function init(): self
+    {
+        return $this;
     }
 
     public function setClient(Client $client): self
@@ -105,6 +145,11 @@ class BaseRule implements RuleInterface
     }
 
     public function override(): self
+    {
+        return $this;
+    }
+
+    public function calculateRates(): self
     {
         return $this;
     }
