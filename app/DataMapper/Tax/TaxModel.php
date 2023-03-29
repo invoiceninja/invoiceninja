@@ -229,10 +229,10 @@ class TaxModel
         $this->regions->EU->subregions->FR->reduced_vat_rate = 5.5;
         $this->regions->EU->subregions->FR->apply_tax = false;
 
-        $this->regions->EU->subregions->GB = new \stdClass();
-        $this->regions->EU->subregions->GB->vat_rate = 20;
-        $this->regions->EU->subregions->GB->reduced_vat_rate = 0;
-        $this->regions->EU->subregions->GB->apply_tax = false;
+        // $this->regions->EU->subregions->GB = new \stdClass();
+        // $this->regions->EU->subregions->GB->vat_rate = 20;
+        // $this->regions->EU->subregions->GB->reduced_vat_rate = 0;
+        // $this->regions->EU->subregions->GB->apply_tax = false;
 
         $this->regions->EU->subregions->GR = new \stdClass();
         $this->regions->EU->subregions->GR->vat_rate = 24;
