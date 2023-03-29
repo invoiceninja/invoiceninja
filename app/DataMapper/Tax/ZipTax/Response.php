@@ -95,13 +95,6 @@ class Response
     public float $district5UseTax = 0;
     public string $originDestination = "";
 
-    //EU
-    public float $vat_rate = 0;
-    public float $vat_reduced_rate = 0;
-    public string $vat_country_code = "";
-
-
-
     public function __construct($data)
     {
 
