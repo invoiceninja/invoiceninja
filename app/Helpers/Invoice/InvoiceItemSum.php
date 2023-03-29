@@ -141,13 +141,16 @@ class InvoiceItemSum
         
         //should we be filtering by client country here? do we need to reflect at the company <=> client level?
         if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
-            $class = "App\DataMapper\Tax\\".$this->client->country->iso_3166_2."\\Rule";
+            $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $tax_data = new Response($this->invoice->tax_data);
 
             $this->rule = new $class();
-            $this->rule->setTaxData($tax_data);
-            $this->rule->setClient($this->client);
+            $this->rule
+                 ->setTaxData($tax_data)
+                 ->setClient($this->client)
+                 ->init();
+                 
             $this->calc_tax = true;
 
             return $this;
@@ -196,7 +199,7 @@ class InvoiceItemSum
      */
     private function calcTaxesAutomatically(): self
     {
-        if ($this->invoice->company->tax_all_products || $this->item->tax_id != '') {
+        if ($this->invoice->company->tax_all_products || ( property_exists($this->item, 'tax_id') && $this->item->tax_id != '')) {
             $this->rule->tax();
         } else {
             $this->rule->init()->taxByType($this->item->tax_id);
@@ -250,7 +253,7 @@ class InvoiceItemSum
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-
+ 
         $this->item->tax_amount = $item_tax;
 
         return $this;
