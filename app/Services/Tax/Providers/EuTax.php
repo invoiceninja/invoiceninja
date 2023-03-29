@@ -28,7 +28,7 @@ class EuTax
 
     private float $vat_rate = 0.0;
 
-    private float $vat_reduced_rate = 0.0;
+    private float $reduced_vat_rate = 0.0;
 
     private array $eu_country_codes = [
         'AT', // Austria
@@ -86,7 +86,7 @@ class EuTax
 
     public function getVatReducedRate(): float
     {
-        return $this->vat_reduced_rate;
+        return $this->reduced_vat_rate;
     }
 
     public function getVendorCountryCode(): string
@@ -125,29 +125,41 @@ class EuTax
     {
 
         if(
-            (($this->vendor_country_code == $this->client_country_code) && $this->valid_vat_number && $this->rule->business_tax_exempt) ||
-            (in_array($this->client_country_code, $this->eu_country_codes) && $this->valid_vat_number && $this->rule->business_tax_exempt)
+            (($this->vendor_country_code == $this->client_country_code) && $this->valid_vat_number && $this->rule->business_tax_exempt) || //same country / exempt for tax / valid vat number
+            (in_array($this->client_country_code, $this->eu_country_codes) && $this->valid_vat_number && $this->rule->eu_business_tax_exempt) //eu country / exempt for tax / valid vat number
         ) {
-            $this->vat_rate = 0.0;
-            $this->vat_reduced_rate = 0.0;
+            $this->vat_rate = 0;
+            $this->reduced_vat_rate = 0;
+            nlog("euro zone and tax exempt");
         }
-        elseif(!in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && ($this->rule->foreign_consumer_tax_exempt || $this->rule->foreign_business_tax_exempt)) {
-           nlog($this->client_country_code);
-            $this->vat_rate = 0.0;
-            $this->vat_reduced_rate = 0.0;
+        elseif(!in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && ($this->rule->foreign_consumer_tax_exempt || $this->rule->foreign_business_tax_exempt)) //foreign + tax exempt
+        {
+            $this->vat_rate = 0;
+            $this->reduced_vat_rate = 0;
+            nlog("foreign and tax exempt");
         }
-        elseif(in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && !$this->valid_vat_number) {
-            $rate_name = $this->client_country_code."_vat_rate";
-            $this->vat_rate = $this->rule->{$rate_name};
-            $this->vat_reduced_rate = $this->rule->vat_reduced_rate;
+        elseif(in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && !$this->valid_vat_number) //eu country / no valid vat 
+        {   
+            if(($this->vendor_country_code != $this->client_country_code) && $this->company->tax_data->regions->EU->has_sales_above_threshold)
+            {
+                $this->vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->vat_rate;
+                $this->reduced_vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_vat_rate;
+                nlog("eu zone with sales above threshold");
+            }
+            else {
+                $this->vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->company->country()->iso_3166_2}->vat_rate;
+                $this->reduced_vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->company->country()->iso_3166_2}->reduced_vat_rate;
+                nlog("same eu country with");
+            }
         }
         else {
-            $rate_name = $this->vendor_country_code."_vat_rate";
-            $this->vat_rate = $this->rule->{$rate_name};
-            $this->vat_reduced_rate = $this->rule->vat_reduced_rate;
+            nlog("default tax");
+            $this->vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->company->country()->iso_3166_2}->vat_rate;
+            $this->reduced_vat_rate = $this->company->tax_data->regions->EU->subregions->{$this->company->country()->iso_3166_2}->reduced_vat_rate;
         }
 
         return $this;
 
     }
 }
+

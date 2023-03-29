@@ -13,10 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('clients', function (Blueprint $table) {
+        Schema::table('clients', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->boolean('is_tax_exempt')->default(false);
             $table->boolean('has_valid_vat_number')->default(false);
+            $table->mediumText('tax_data')->nullable()->change();
         });
+
+        Schema::table('companies', function (Illuminate\Database\Schema\Blueprint $table) {
+            $table->mediumText('tax_data')->nullable()->change();
+        });
+
+
     }
 
     /**

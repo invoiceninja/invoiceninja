@@ -36,6 +36,11 @@ class Rule implements RuleInterface
     {
     }
 
+    public function override() 
+    { 
+        return $this;
+    }
+
     public function setTaxData(Response $tax_data): self
     {
         $this->tax_data = $tax_data;
@@ -78,6 +83,8 @@ class Rule implements RuleInterface
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
             default => $this->default(),
         };
         

@@ -34,6 +34,8 @@ interface RuleInterface
 
     public function default();
 
+    public function override();
+
     public function setClient(Client $client);
 
     public function setTaxData(Response $tax_data);

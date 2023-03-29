@@ -20,17 +20,9 @@ use App\DataMapper\Tax\ZipTax\Response;
 class Rule extends BaseRule implements RuleInterface
 {
 
-    public float $vat_rate = 19;
-
-    public float $vat_threshold = 10000;
-
-    public float $vat_reduced_rate = 7;
-
-    public float $vat_reduced_threshold = 10000;
-
     public bool $consumer_tax_exempt = false;
 
-    public bool $business_tax_exempt = true;
+    public bool $business_tax_exempt = false;
 
     public bool $eu_business_tax_exempt = true;
 
@@ -102,6 +94,7 @@ class Rule extends BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
             default => $this->default(),
         };
         
@@ -160,4 +153,10 @@ class Rule extends BaseRule implements RuleInterface
 
         return $this;
     }
+
+    public function override(): self
+    {
+        return $this;
+    }
+
 }

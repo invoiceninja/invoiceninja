@@ -195,6 +195,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
             'tax_all_products' => (bool) $company->tax_all_products,
+            'tax_data' => $company->tax_data ?: '',
         ];
     }
 

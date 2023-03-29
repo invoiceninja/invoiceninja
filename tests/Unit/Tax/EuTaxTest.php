@@ -16,8 +16,9 @@ use App\Models\Client;
 use App\Models\Company;
 use Tests\MockAccountData;
 use App\DataMapper\Tax\de\Rule;
-use App\Services\Tax\Providers\EuTax;
+use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\CompanySettings;
+use App\Services\Tax\Providers\EuTax;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -48,9 +49,16 @@ class EuTaxTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->country_id = '276'; // germany
 
+        $tax_data = new TaxModel();
+        $tax_data->seller_region = 'DE';
+        $tax_data->seller_subregion = 'DE';
+        $tax_data->regions->EU->has_sales_above_threshold = true;
+        $tax_data->regions->EU->tax_all = true;
+        
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
-            'settings' => $settings
+            'settings' => $settings,
+            'tax_data' => $tax_data,
         ]);
 
         $client = Client::factory()->create([
@@ -84,10 +92,18 @@ class EuTaxTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->country_id = '276'; // germany
 
+        $tax_data = new TaxModel();
+        $tax_data->seller_region = 'DE';
+        $tax_data->seller_subregion = 'DE';
+        $tax_data->regions->EU->has_sales_above_threshold = true;
+        $tax_data->regions->EU->tax_all = true;
+
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
-            'settings' => $settings
+            'settings' => $settings,
+            'tax_data' => $tax_data,
         ]);
+
 
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
@@ -109,7 +125,7 @@ class EuTaxTest extends TestCase
 
         $this->assertEquals(21, $process->getVatRate());
 
-        $this->assertEquals(7, $process->getVatReducedRate());
+        $this->assertEquals(6, $process->getVatReducedRate());
 
 
     }

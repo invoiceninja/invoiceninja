@@ -2,217 +2,219 @@ region:
   US:
     tax_all: false
     seller_region: CA
+    has_sales_above_threshold: false
     subregions:
       AL:
-        APPLY_TAX: false
+        apply_tax: false
       AK:
-        APPLY_TAX: false
+        apply_tax: false
       AZ:
-        APPLY_TAX: false
+        apply_tax: false
       AR:
-        APPLY_TAX: false
+        apply_tax: false
       CA:
-        APPLY_TAX: false
+        apply_tax: false
       CO:
-        APPLY_TAX: false
+        apply_tax: false
       CT:
-        APPLY_TAX: false
+        apply_tax: false
       DE:
-        APPLY_TAX: false
+        apply_tax: false
       FL:
-        APPLY_TAX: false
+        apply_tax: false
       GA:
-        APPLY_TAX: false
+        apply_tax: false
       HI:
-        APPLY_TAX: false
+        apply_tax: false
       ID:
-        APPLY_TAX: false
+        apply_tax: false
       IL:
-        APPLY_TAX: false
+        apply_tax: false
       IN:
-        APPLY_TAX: false
+        apply_tax: false
       IA:
-        APPLY_TAX: false
+        apply_tax: false
       KS:
-        APPLY_TAX: false
+        apply_tax: false
       KY:
-        APPLY_TAX: false
+        apply_tax: false
       LA:
-        APPLY_TAX: false
+        apply_tax: false
       ME:
-        APPLY_TAX: false
+        apply_tax: false
       MD:
-        APPLY_TAX: false
+        apply_tax: false
       MA:
-        APPLY_TAX: false
+        apply_tax: false
       MI:
-        APPLY_TAX: false
+        apply_tax: false
       MN:
-        APPLY_TAX: false
+        apply_tax: false
       MS:
-        APPLY_TAX: false
+        apply_tax: false
       MO:
-        APPLY_TAX: false
+        apply_tax: false
       MT:
-        APPLY_TAX: false
+        apply_tax: false
       NE:
-        APPLY_TAX: false
+        apply_tax: false
       NV:
-        APPLY_TAX: false
+        apply_tax: false
       NH:
-        APPLY_TAX: false
+        apply_tax: false
       NJ:
-        APPLY_TAX: false
+        apply_tax: false
       NM:
-        APPLY_TAX: false
+        apply_tax: false
       NY:
-        APPLY_TAX: false
+        apply_tax: false
       NC:
-        APPLY_TAX: false
+        apply_tax: false
       ND:
-        APPLY_TAX: false
+        apply_tax: false
       OH:
-        APPLY_TAX: false
+        apply_tax: false
       OK:
-        APPLY_TAX: false
+        apply_tax: false
       OR:
-        APPLY_TAX: false
+        apply_tax: false
       PA:
-        APPLY_TAX: false
+        apply_tax: false
       RI:
-        APPLY_TAX: false
+        apply_tax: false
       SC:
-        APPLY_TAX: false
+        apply_tax: false
       SD:
-        APPLY_TAX: false
+        apply_tax: false
       TN:
-        APPLY_TAX: false
+        apply_tax: false
       TX:
-        APPLY_TAX: false
+        apply_tax: false
       UT:
-        APPLY_TAX: false
+        apply_tax: false
       VT:
-        APPLY_TAX: false
+        apply_tax: false
       VA:
-        APPLY_TAX: false
+        apply_tax: false
       WA:
-        APPLY_TAX: false
+        apply_tax: false
       WV:
-        APPLY_TAX: false
+        apply_tax: false
       WI:
-        APPLY_TAX: false
+        apply_tax: false
       WY:
-        APPLY_TAX: false
+        apply_tax: false
   EU:
     tax_all: false
     vat_threshold: 10000
+    has_sales_above_threshold: false
     seller_region: DE
     subregions:
       AT:
-        VAT: 21
-        REDUCED_VAT: 11
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 11
+        apply_tax: false
       BE:
-        VAT: 21
-        REDUCED_VAT: 6
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 6
+        apply_tax: false
       BG:
-        VAT: 20
-        REDUCED_VAT: 9
-        APPLY_VAT: false
+        vat: 20
+        reduced_vat: 9
+        apply_tax: false
       CY:
-        VAT: 19
-        REDUCED_VAT: 9
-        APPLY_VAT: false
+        vat: 19
+        reduced_vat: 9
+        apply_tax: false
       CZ:
-        VAT: 21
-        REDUCED_VAT: 15
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 15
+        apply_tax: false
       DE:
-        VAT: 19
-        REDUCED_VAT: 7
-        APPLY_VAT: false
+        vat: 19
+        reduced_vat: 7
+        apply_tax: false
       DK:
-        VAT: 25
-        REDUCED_VAT: 0
-        APPLY_VAT: false
+        vat: 25
+        reduced_vat: 0
+        apply_tax: false
       EE:
-        VAT: 20
-        REDUCED_VAT: 9
-        APPLY_VAT: false
+        vat: 20
+        reduced_vat: 9
+        apply_tax: false
       ES:
-        VAT: 21
-        REDUCED_VAT: 10
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 10
+        apply_tax: false
       FI:
-        VAT: 24
-        REDUCED_VAT: 14
-        APPLY_VAT: false
+        vat: 24
+        reduced_vat: 14
+        apply_tax: false
       FR:
-        VAT: 20
-        REDUCED_VAT: 5.5
-        APPLY_VAT: false
+        vat: 20
+        reduced_vat: 5.5
+        apply_tax: false
       GB:
-        VAT: 20
-        REDUCED_VAT: 0
-        APPLY_VAT: false
+        vat: 20
+        reduced_vat: 0
+        apply_tax: false
       GR:
-        VAT: 24
-        REDUCED_VAT: 13
-        APPLY_VAT: false
+        vat: 24
+        reduced_vat: 13
+        apply_tax: false
       HR:
-        VAT: 25
-        REDUCED_VAT: 5
-        APPLY_VAT: false
+        vat: 25
+        reduced_vat: 5
+        apply_tax: false
       HU:
-        VAT: 27
-        REDUCED_VAT: 5
-        APPLY_VAT: false
+        vat: 27
+        reduced_vat: 5
+        apply_tax: false
       IE:
-        VAT: 23
-        REDUCED_VAT: 0
-        APPLY_VAT: false
+        vat: 23
+        reduced_vat: 0
+        apply_tax: false
       IT:
-        VAT: 22
-        REDUCED_VAT: 10
-        APPLY_VAT: false
+        vat: 22
+        reduced_vat: 10
+        apply_tax: false
       LT:
-        VAT: 21
-        REDUCED_VAT: 9
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 9
+        apply_tax: false
       LU:
-        VAT: 17
-        REDUCED_VAT: 3
-        APPLY_VAT: false
+        vat: 17
+        reduced_vat: 3
+        apply_tax: false
       LV:
-        VAT: 21
-        REDUCED_VAT: 12
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 12
+        apply_tax: false
       MT:
-        VAT: 18
-        REDUCED_VAT: 5
-        APPLY_VAT: false
+        vat: 18
+        reduced_vat: 5
+        apply_tax: false
       NL:
-        VAT: 21
-        REDUCED_VAT: 9
-        APPLY_VAT: false
+        vat: 21
+        reduced_vat: 9
+        apply_tax: false
       PT:
-        VAT: 23
-        REDUCED_VAT: 6
-        APPLY_VAT: false
+        vat: 23
+        reduced_vat: 6
+        apply_tax: false
       RO:
-        VAT: 19
-        REDUCED_VAT: 5
-        APPLY_VAT: false
+        vat: 19
+        reduced_vat: 5
+        apply_tax: false
       SE:
-        VAT: 25
-        REDUCED_VAT: 12
-        APPLY_VAT: false
+        vat: 25
+        reduced_vat: 12
+        apply_tax: false
       SI:
-        VAT: 22
-        REDUCED_VAT: 9.5
-        APPLY_VAT: false
+        vat: 22
+        reduced_vat: 9.5
+        apply_tax: false
       SK:
-        VAT: 20
-        REDUCED_VAT: 10
-        APPLY_VAT: false
+        vat: 20
+        reduced_vat: 10
+        apply_tax: false
