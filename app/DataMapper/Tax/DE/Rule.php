@@ -83,7 +83,7 @@ class Rule extends BaseRule implements RuleInterface
     //need to add logic here to capture if
     public function tax(): self
     {
-        if($this->client->is_tax_exempt || $this->client->has_valid_vat_number)
+        if($this->client->is_tax_exempt)
             return $this->taxExempt();
         
         $this->tax_name1 = $this->vat_rate;
@@ -178,10 +178,12 @@ class Rule extends BaseRule implements RuleInterface
     public function calculateRates(): self
     {
 
-        if(
-            (($this->vendor_country_code == $this->client_country_code) && $this->client->has_valid_vat_number && $this->business_tax_exempt) || //same country / exempt for tax / valid vat number
-            (in_array($this->client_country_code, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt) //eu country / exempt for tax / valid vat number
-        ) {
+        if ($this->client->is_tax_exempt) {
+            $this->vat_rate = 0;
+            $this->reduced_vat_rate = 0;
+        }
+        elseif($this->client_country_code != $this->vendor_country_code && in_array($this->client_country_code, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
+        {
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
             nlog("euro zone and tax exempt");
