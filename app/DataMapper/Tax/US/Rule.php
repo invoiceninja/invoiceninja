@@ -144,4 +144,14 @@ class Rule implements RuleInterface
 
         return $this;
     }
+
+    public function init(): self
+    {
+        return $this;
+    }
+
+    public function calculateRates(): self
+    {
+        return $this;
+    }
 }
