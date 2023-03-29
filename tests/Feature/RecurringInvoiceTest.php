@@ -56,6 +56,8 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+
+
     public function testBulkIncreasePriceWithJob()
     {
 
@@ -561,4 +563,5 @@ class RecurringInvoiceTest extends TestCase
 
         $this->assertEquals(null, $invoice->subscription_id);
     }
+    
 }

@@ -120,4 +120,11 @@ class AppServiceProvider extends ServiceProvider
             Artisan::call('db:seed');
         });
     }
+
+    public function register(): void
+    {
+        if (Ninja::isHosted()) {
+            $this->app->register(\App\Providers\BroadcastServiceProvider::class);
+        }
+    }
 }

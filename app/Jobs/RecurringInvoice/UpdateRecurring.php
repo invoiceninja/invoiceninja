@@ -40,6 +40,8 @@ class UpdateRecurring implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
+        $this->user->setCompany($this->company);
+        
         RecurringInvoice::where('company_id', $this->company->id)
             ->whereIn('id', $this->ids)
             ->chunk(100, function ($recurring_invoices) {
