@@ -93,6 +93,7 @@ class RecurringInvoiceTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'cost' => 20,
+            'price' => 20,
             'product_key' => 'pink',
         ]);
 
@@ -128,6 +129,7 @@ class RecurringInvoiceTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'cost' => 10,
+            'price' => 10,
             'product_key' => 'pink',
         ]);
 
@@ -152,6 +154,7 @@ class RecurringInvoiceTest extends TestCase
         $this->assertEquals(10, $recurring_invoice->amount);
 
         $p->cost = 20;
+        $p->price = 20;
         $p->save();
 
         $recurring_invoice->service()->updatePrice();
@@ -175,6 +178,7 @@ class RecurringInvoiceTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'cost' => 10,
+            'price' => 10,
             'product_key' => 'pink',
         ]);
 
@@ -182,6 +186,7 @@ class RecurringInvoiceTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'cost' => 20,
+            'price' => 20,
             'product_key' => 'floyd',
         ]);
 
@@ -220,9 +225,11 @@ class RecurringInvoiceTest extends TestCase
         $this->assertEquals(30, $recurring_invoice->amount);
 
         $p1->cost = 20;
+        $p1->price = 20;
         $p1->save();
 
         $p2->cost = 40;
+        $p2->price = 40;
         $p2->save();
 
         $recurring_invoice->service()->updatePrice();
