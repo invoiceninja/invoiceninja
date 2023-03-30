@@ -32,7 +32,7 @@ class StoreDesignRequest extends Request
         return [
             //'name' => 'required',
             'name' => 'required|unique:designs,name,null,null,company_id,'.auth()->user()->companyId(),
-            'design' => 'required',
+            'design' => 'required|array',
         ];
     }
 
