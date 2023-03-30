@@ -33,7 +33,7 @@ class UpdatePrice extends AbstractService
             ->first();
             
             if ($product) {
-                $line_items[$key]->cost = floatval($product->cost);
+                $line_items[$key]->cost = floatval($product->price);
             }
         }
 
