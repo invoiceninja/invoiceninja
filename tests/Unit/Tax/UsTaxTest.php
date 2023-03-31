@@ -146,6 +146,107 @@ class UsTaxTest extends TestCase
         return $invoice;
     }
 
+    // public function testCompanyTaxAllOffTaxExemptProduct()
+    // {
+
+    //     $invoice = $this->invoiceStub('92582');
+    //     $client = $invoice->client;
+    //     $client->is_tax_exempt = false;
+    //     $client->save();
+
+    //     $company = $invoice->company;
+    //     $tax_data = $company->tax_data;
+
+    //     $tax_data->regions->US->has_sales_above_threshold = true;
+    //     $tax_data->regions->US->tax_all = false;
+
+    //     $company->tax_data = $tax_data;
+    //     $company->save();
+
+    //     $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+    //     $this->assertEquals(0, $invoice->line_items[0]->tax_rate1);
+    //     $this->assertEquals(100, $invoice->amount);
+
+    // }
+
+    public function testCompanyTaxAllOffButTaxUSRegion()
+    {
+
+        $invoice = $this->invoiceStub('92582');
+        $client = $invoice->client;
+        $client->is_tax_exempt = false;
+        $client->save();
+
+        $company = $invoice->company;
+        $company->tax_all_products = false;
+        $tax_data = $company->tax_data;
+
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all = true;
+
+        $company->tax_data = $tax_data;
+        $company->save();
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(8.75, $invoice->line_items[0]->tax_rate1);
+        $this->assertEquals(108.75, $invoice->amount);
+
+    }
+
+    public function testCompanyTaxAllOff()
+    {
+
+        $invoice = $this->invoiceStub('92582');
+        $client = $invoice->client;
+        $client->is_tax_exempt = false;
+        $client->save();
+
+        $company = $invoice->company;
+        $company->tax_all_products = false;
+        $tax_data = $company->tax_data;
+
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all = false;
+
+        $company->tax_data = $tax_data;
+        $company->save();
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(0, $invoice->line_items[0]->tax_rate1);
+        $this->assertEquals(100, $invoice->amount);
+
+    }
+
+
+    public function testThresholdLevelsAreMet()
+    {
+
+        $invoice = $this->invoiceStub('92582');
+        $client = $invoice->client;
+        $client->is_tax_exempt = true;
+        $client->save();
+
+
+        $company = $invoice->company;
+        $tax_data = $company->tax_data;
+
+        $tax_data->regions->US->has_sales_above_threshold = false;
+        $tax_data->regions->US->tax_all = true;
+
+        $company->tax_data = $tax_data;
+        $company->save();
+
+        $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+
+        $this->assertEquals(0, $invoice->line_items[0]->tax_rate1);
+        $this->assertEquals(100, $invoice->amount);
+
+
+    }
+
     public function testHasValidVatMakesNoDifferenceToTaxCalc()
     {
         
@@ -158,9 +259,8 @@ class UsTaxTest extends TestCase
 
         $this->assertEquals(8.75, $invoice->line_items[0]->tax_rate1);
         $this->assertEquals(108.75, $invoice->amount);
-
-
     }
+
 
     public function testTaxExemption()
     {

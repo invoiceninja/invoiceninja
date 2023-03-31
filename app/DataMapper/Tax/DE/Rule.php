@@ -93,7 +93,7 @@ class Rule extends BaseRule implements RuleInterface
 
     }
 
-    public function taxByType(?int $product_tax_type): self
+    public function taxByType($product_tax_type): self
     {
 
         if ($this->client->is_tax_exempt) {

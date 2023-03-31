@@ -104,7 +104,7 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function taxByType(?int $product_tax_type): self
+    public function taxByType($product_tax_type): self
     {
         return $this;
     }

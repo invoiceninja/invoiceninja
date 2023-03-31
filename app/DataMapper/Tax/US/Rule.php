@@ -67,7 +67,7 @@ class Rule implements RuleInterface
 
     }
 
-    public function taxByType(?int $product_tax_type): self
+    public function taxByType($product_tax_type): self
     {
         if(!$product_tax_type)
             return $this;

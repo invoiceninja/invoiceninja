@@ -20,7 +20,7 @@ interface RuleInterface
 
     public function tax();
 
-    public function taxByType(?int $type);
+    public function taxByType($type);
 
     public function taxExempt();
     
