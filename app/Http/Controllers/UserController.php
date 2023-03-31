@@ -592,9 +592,9 @@ class UserController extends BaseController
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-        if ($request->entityIsDeleted($user)) {
-            return $request->disallowUpdate();
-        }
+        // if ($request->entityIsDeleted($user)) {
+        //     return $request->disallowUpdate();
+        // }
 
         $company_user = CompanyUser::whereUserId($user->id)
                                     ->whereCompanyId(auth()->user()->companyId())

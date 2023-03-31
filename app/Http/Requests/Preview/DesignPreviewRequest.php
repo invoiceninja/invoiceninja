@@ -47,6 +47,7 @@ class DesignPreviewRequest extends Request
             'settings' => 'sometimes',
             'group_id' => 'sometimes',
             'client_id' => 'sometimes',
+            'design' => 'bail|sometimes|array'
         ];
 
         return $rules;

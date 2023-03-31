@@ -40,6 +40,7 @@ use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -486,6 +487,11 @@ class CompanyController extends BaseController
                 $company_user->forceDelete();
             });
 
+            try {
+                Storage::disk(config('filesystems.default'))->deleteDirectory($company->company_key);
+            } catch(\Exception $e) {
+            }
+
             $account->delete();
 
             if (Ninja::isHosted()) {
@@ -494,7 +500,7 @@ class CompanyController extends BaseController
 
             LightLogs::create(new AccountDeleted())
                      ->increment()
-                     ->queue();
+                     ->batch();
         } else {
             $company_id = $company->id;
 
@@ -510,6 +516,12 @@ class CompanyController extends BaseController
             $nmo->settings = $other_company->settings;
             $nmo->to_user = auth()->user();
             (new NinjaMailerJob($nmo, true))->handle();
+
+            try {
+                Storage::disk(config('filesystems.default'))->deleteDirectory($company->company_key);
+            } catch(\Exception $e) {
+            }
+
 
             $company->delete();
 

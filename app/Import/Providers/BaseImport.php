@@ -130,12 +130,10 @@ class BaseImport
             //     $count = substr_count($csvfile, $delimiter);
             //     $bestDelimiter = $delimiter;
             // }
-            if (substr_count(strstr($csvfile,"\n",true), $delimiter) > $count) {
+            if (substr_count(strstr($csvfile, "\n", true), $delimiter) > $count) {
                 $count = substr_count($csvfile, $delimiter);
                 $bestDelimiter = $delimiter;
             }
-
-
         }
         return $bestDelimiter;
     }
@@ -641,8 +639,6 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
-
-        
         $keys = array_shift($data);
         ksort($keys);
 
@@ -666,11 +662,10 @@ class BaseImport
         ksort($keys);
 
         $data = array_map(function ($row) use ($keys) {
-
             $row_count = count($row);
             $key_count = count($keys);
             
-            if($key_count > $row_count) {
+            if ($key_count > $row_count) {
                 $row = array_pad($row, $key_count, ' ');
             }
 

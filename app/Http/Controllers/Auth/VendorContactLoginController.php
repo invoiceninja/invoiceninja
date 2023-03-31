@@ -28,16 +28,13 @@ class VendorContactLoginController extends Controller
 
     public function catch()
     {
-        $data = [
-
-        ];
-
         return $this->render('purchase_orders.catch');
     }
 
     public function logout()
     {
         Auth::guard('vendor')->logout();
+        
         request()->session()->invalidate();
 
         return redirect('/vendors');

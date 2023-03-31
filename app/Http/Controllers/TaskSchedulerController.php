@@ -13,8 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Factory\SchedulerFactory;
 use App\Filters\SchedulerFilters;
-use App\Http\Requests\TaskScheduler\DestroySchedulerRequest;
 use App\Http\Requests\TaskScheduler\CreateSchedulerRequest;
+use App\Http\Requests\TaskScheduler\DestroySchedulerRequest;
 use App\Http\Requests\TaskScheduler\ShowSchedulerRequest;
 use App\Http\Requests\TaskScheduler\StoreSchedulerRequest;
 use App\Http\Requests\TaskScheduler\UpdateSchedulerRequest;

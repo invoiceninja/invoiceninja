@@ -28,6 +28,6 @@ class RecurringInvoiceRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?RecurringInvoiceInvitation
     {
-        return RecurringInvoiceInvitation::where('key', $key)->first();
+        return RecurringInvoiceInvitation::withTrashed()->where('key', $key)->first();
     }
 }

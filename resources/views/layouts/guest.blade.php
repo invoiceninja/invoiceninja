@@ -28,8 +28,10 @@
     <meta charset="utf-8">
     <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description')"/>
-    <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
 
+    @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
+        <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
+    @endif
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">

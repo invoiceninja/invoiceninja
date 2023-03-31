@@ -13,14 +13,18 @@ namespace App\Events\Invoice;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Class InvoiceWasCreated.
  */
-class InvoiceWasCreated
+class InvoiceWasCreated implements ShouldBroadcast
 {
-    use SerializesModels;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * @var Invoice
@@ -43,5 +47,26 @@ class InvoiceWasCreated
         $this->invoice = $invoice;
         $this->company = $company;
         $this->event_vars = $event_vars;
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return PrivateChannel|array
+     */
+    public function broadcastOn()
+    {
+        return ['simple-channel'];
+    }
+    
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return ['id' => 'value'];
     }
 }

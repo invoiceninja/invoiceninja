@@ -1,0 +1,15 @@
+    CompanyToken:
+      properties:
+        name:
+          description: 'The token name'
+          type: string
+          example: 'Token Name'
+        token:
+          description: 'The token value'
+          type: string
+          example: AS3df3jUUH765fhfd9KJuidj3JShjA
+        is_system:
+          description: 'Determines whether the token is created by the system rather than a user'
+          type: boolean
+          example: 'true'
+      type: object

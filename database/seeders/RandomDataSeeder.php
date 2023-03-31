@@ -110,6 +110,7 @@ class RandomDataSeeder extends Seeder
             'account_id' => $account->id,
             'name' => 'test token',
             'token' => \Illuminate\Support\Str::random(64),
+            'is_system' => 1
         ]);
 
         $user->companies()->attach($company->id, [
@@ -157,6 +158,7 @@ class RandomDataSeeder extends Seeder
                 'account_id' => $account->id,
                 'name' => 'test token',
                 'token' => \Illuminate\Support\Str::random(64),
+                'is_system' => 1,
             ]);
 
             $user->companies()->attach($company->id, [
@@ -200,6 +202,7 @@ class RandomDataSeeder extends Seeder
             'account_id' => $account->id,
             'name' => 'test token',
             'token' => \Illuminate\Support\Str::random(64),
+            'is_system' => 1,
         ]);
 
 
