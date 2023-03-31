@@ -21,6 +21,7 @@ return new class extends Migration
 
         Schema::table('companies', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->mediumText('tax_data')->nullable()->change();
+            $table->dropColumn('tax_all_products');
         });
         
     }
