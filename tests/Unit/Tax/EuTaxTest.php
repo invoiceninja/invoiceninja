@@ -44,6 +44,10 @@ class EuTaxTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testInvoiceWithCustomTaxIdTax()
+    {
+        
+    }
 
     public function testInvoiceTaxCalcDetoBeNoVat()
     {
