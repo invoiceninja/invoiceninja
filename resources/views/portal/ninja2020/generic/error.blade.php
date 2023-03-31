@@ -12,10 +12,15 @@
                         <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
                              class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
                     </div>
-                @else
+                @elseif($company)
                     <div>
                         <img src="{{ $company->present()->logo()  }}"
                              class="mx-auto border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
+                    </div>
+                @else
+                    <div>
+                        <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
+                             class="mx-auto border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
                     </div>
                 @endif
 

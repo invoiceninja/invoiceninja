@@ -178,7 +178,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 if (request()->has('user_input') && strlen(request()->input('user_input')) > 2) {
-                    $quote->public_notes .= $quote->public_notes . "\n" . request()->input('user_input');
+                    $quote->po_number = substr(request()->input('user_input'), 0, 180);
                     $quote->saveQuietly();
                 }
 

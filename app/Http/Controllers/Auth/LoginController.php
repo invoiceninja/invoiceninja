@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,6 @@ use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Login\LoginRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
@@ -23,8 +23,6 @@ use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
 use App\Models\Account;
-use App\Models\Client;
-use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
@@ -38,7 +36,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Laravel\Socialite\Facades\Socialite;
 use Microsoft\Graph\Model;
 use PragmaRX\Google2FA\Google2FA;
@@ -46,18 +43,7 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
 {
-    /**
-     * @OA\Tag(
-     *     name="login",
-     *     description="Authentication",
-     *     @OA\ExternalDocumentation(
-     *         description="Find out more",
-     *         url="https://invoiceninja.github.io"
-     *     )
-     * )
-     */
     use AuthenticatesUsers;
-
     use UserSessionAttributes;
     use LoginCache;
 
@@ -89,7 +75,7 @@ class LoginController extends BaseController
      * @param Request $request
      * @param User $user
      * @return void
-     * deprecated .1 API ONLY we don't need to set any session variables
+     * @deprecated .1 API ONLY we don't need to set any session variables
      */
     public function authenticated(Request $request, User $user): void
     {
@@ -99,63 +85,8 @@ class LoginController extends BaseController
     /**
      * Login via API.
      *
-     * @param Request $request The request
-     *
-     * @return     Response|User Process user login.
-     *
+     * @param LoginRequest $request The request
      * @throws \Illuminate\Validation\ValidationException
-     * @OA\Post(
-     *      path="/api/v1/login",
-     *      operationId="postLogin",
-     *      tags={"login"},
-     *      summary="Attempts authentication",
-     *      description="Returns a CompanyUser object on success",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-SECRET"),
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(ref="#/components/parameters/include_static"),
-     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
-     *      @OA\RequestBody(
-     *         description="User credentials",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="email",
-     *                     description="The user email address",
-     *                     type="string",
-     *                 ),
-     *                 @OA\Property(
-     *                     property="password",
-     *                     example="1234567",
-     *                     description="The user password must meet minimum criteria ~ >6 characters",
-     *                     type="string"
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Company User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function apiLogin(LoginRequest $request)
     {
@@ -175,7 +106,7 @@ class LoginController extends BaseController
         if ($this->attemptLogin($request)) {
             LightLogs::create(new LoginSuccess())
                 ->increment()
-                ->queue();
+                ->batch();
 
             $user = $this->guard()->user();
 
@@ -221,7 +152,7 @@ class LoginController extends BaseController
         } else {
             LightLogs::create(new LoginFailure())
                 ->increment()
-                ->queue();
+                ->batch();
 
             $this->incrementLoginAttempts($request);
 
@@ -236,39 +167,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return     CompanyUser Refresh Feed.
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/refresh",
-     *      operationId="refresh",
-     *      tags={"refresh"},
-     *      summary="Refreshes the dataset",
-     *      description="Refreshes the dataset",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(ref="#/components/parameters/include_static"),
-     *      @OA\Parameter(ref="#/components/parameters/clear_cache"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Company User response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
+     * @return CompanyUser Refresh Feed.
      */
     public function refresh(Request $request)
     {
@@ -346,7 +245,7 @@ class LoginController extends BaseController
     private function handleSocialiteLogin($provider, $token)
     {
         $user = $this->getSocialiteUser($provider, $token);
-        
+
         if ($user) {
             return $this->loginOrCreateFromSocialite($user, $provider);
         }
@@ -363,7 +262,7 @@ class LoginController extends BaseController
             'oauth_user_id' => $user->id,
             'oauth_provider_id' => $provider,
         ];
-        
+
         if ($existing_user = MultiDB::hasUser($query)) {
             if (!$existing_user->account) {
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
@@ -408,7 +307,7 @@ class LoginController extends BaseController
 
             return $this->timeConstrainedResponse($cu);
         }
-        
+
         nlog("socialite");
         nlog($user);
 
@@ -478,7 +377,7 @@ class LoginController extends BaseController
 
         if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
             auth()->user()->companies->each(function ($company) {
-                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()) {
+                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->where('is_system', true)->exists()) {
                     (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
                 }
             });
@@ -498,7 +397,6 @@ class LoginController extends BaseController
         } else {
             return response()->json(['message' => 'Invalid response from oauth server, no access token in response.'], 400);
         }
-
 
         $graph = new \Microsoft\Graph\Graph();
         $graph->setAccessToken($accessToken);
@@ -536,17 +434,22 @@ class LoginController extends BaseController
                 return $this->existingLoginUser($user->getId(), 'microsoft');
             }
 
-            // Signup!
-            $new_account = [
-                'first_name' => $user->getGivenName() ?: '',
-                'last_name' => $user->getSurname() ?: '',
-                'password' => '',
-                'email' => $email,
-                'oauth_user_id' => $user->getId(),
-                'oauth_provider_id' => 'microsoft',
-            ];
 
-            return $this->createNewAccount($new_account);
+            // Signup!
+            if (request()->has('create') && request()->input('create') == 'true') {
+                $new_account = [
+                    'first_name' => $user->getGivenName() ?: '',
+                    'last_name' => $user->getSurname() ?: '',
+                    'password' => '',
+                    'email' => $email,
+                    'oauth_user_id' => $user->getId(),
+                    'oauth_provider_id' => 'microsoft',
+                ];
+
+                return $this->createNewAccount($new_account);
+            }
+
+            return response()->json(['message' => 'User not found. If you believe this is an error, please send an email to contact@invoiceninja.com'], 400);
         }
 
 
@@ -640,19 +543,23 @@ class LoginController extends BaseController
                 return $this->existingLoginUser($google->harvestSubField($user), 'google');
             }
 
-            //user not found anywhere - lets sign them up.
-            $name = OAuth::splitName($google->harvestName($user));
+            if (request()->has('create') && request()->input('create') == 'true') {
+                //user not found anywhere - lets sign them up.
+                $name = OAuth::splitName($google->harvestName($user));
 
-            $new_account = [
-                'first_name' => $name[0],
-                'last_name' => $name[1],
-                'password' => '',
-                'email' => $google->harvestEmail($user),
-                'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id' => 'google',
-            ];
+                $new_account = [
+                    'first_name' => $name[0],
+                    'last_name' => $name[1],
+                    'password' => '',
+                    'email' => $google->harvestEmail($user),
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id' => 'google',
+                ];
 
-            return $this->createNewAccount($new_account);
+                return $this->createNewAccount($new_account);
+            }
+
+            return response()->json(['message' => 'User not found. If you believe this is an error, please send an email to contact@invoiceninja.com'], 400);
         }
 
         return response()
@@ -700,7 +607,7 @@ class LoginController extends BaseController
 
         if ($provider == 'microsoft') {
             $scopes = ['email', 'Mail.Send', 'offline_access', 'profile', 'User.Read openid'];
-            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url')."/auth/microsoft"];
+            $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
         if (request()->has('code')) {

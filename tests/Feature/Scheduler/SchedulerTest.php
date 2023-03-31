@@ -25,6 +25,7 @@ use App\DataMapper\Schedule\EmailStatement;
 use App\Services\Scheduler\SchedulerService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
+use App\Services\Scheduler\EmailStatementService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -399,12 +400,13 @@ class SchedulerTest extends TestCase
 
         $scheduler->fill($data);
         $scheduler->save();
+        $scheduler->calculateNextRun();
 
-        $service_object = new SchedulerService($scheduler);
+        // $service_object = new SchedulerService($scheduler);
 
-        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
-        $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
+        // $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateNextRun');
+        // $reflectionMethod->setAccessible(true);
+        // $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
 
         $scheduler->fresh();
         $offset = $this->company->timezone_offset();
@@ -434,12 +436,13 @@ class SchedulerTest extends TestCase
 
         $scheduler->fill($data);
         $scheduler->save();
+        $scheduler->calculateNextRun();
 
-        $service_object = new SchedulerService($scheduler);
+        $service_object = new EmailStatementService($scheduler);
 
-        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStartAndEndDates');
+        $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStartAndEndDates');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler));
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler));
 
         $this->assertIsArray($method);
 
@@ -469,16 +472,11 @@ class SchedulerTest extends TestCase
         $scheduler->fill($data);
         $scheduler->save();
 
-        $service_object = new SchedulerService($scheduler);
+        $service_object = new EmailStatementService($scheduler);
 
-        // $reflection = new \ReflectionClass(get_class($service_object));
-        // $method = $reflection->getMethod('calculateStatementProperties');
-        // $method->setAccessible(true);
-        // $method->invokeArgs($service_object, []);
-
-        $reflectionMethod = new \ReflectionMethod(SchedulerService::class, 'calculateStatementProperties');
+        $reflectionMethod = new \ReflectionMethod(EmailStatementService::class, 'calculateStatementProperties');
         $reflectionMethod->setAccessible(true);
-        $method = $reflectionMethod->invoke(new SchedulerService($scheduler)); // 'baz'
+        $method = $reflectionMethod->invoke(new EmailStatementService($scheduler)); // 'baz'
 
         $this->assertIsArray($method);
 

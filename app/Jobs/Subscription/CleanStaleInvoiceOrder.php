@@ -37,6 +37,8 @@ class CleanStaleInvoiceOrder implements ShouldQueue
      */
     public function handle(InvoiceRepository $repo) : void
     {
+        nlog("Cleaning Stale Invoices:");
+        
         if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
@@ -47,6 +49,20 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                         $invoice->is_proforma = false;
                         $repo->delete($invoice);
                     });
+
+            Invoice::query()
+                   ->withTrashed()
+                   ->where('status_id', Invoice::STATUS_SENT)
+                   ->where('created_at', '<', now()->subHours(2))
+                   ->where('balance', '>', 0)
+                   ->cursor()
+                   ->each(function ($invoice){
+
+                    if (collect($invoice->line_items)->contains('type_id', 3)) {
+                        $invoice->service()->removeUnpaidGatewayFees();
+                    }
+
+                   });
 
             return;
         }

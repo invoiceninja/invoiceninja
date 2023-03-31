@@ -21,6 +21,10 @@
         $checked_off = '';
     }
     
+    if (isset($pre_payment) && $pre_payment == '1' && isset($is_recurring) && $is_recurring == '1') {
+        $token_billing_string = 'true';
+    }
+
 @endphp
 
 @if($token_billing)

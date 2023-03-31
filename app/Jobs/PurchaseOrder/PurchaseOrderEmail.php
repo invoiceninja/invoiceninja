@@ -57,6 +57,7 @@ class PurchaseOrderEmail implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         $this->purchase_order->last_sent_date = now();
+        $this->purchase_order->save();
 
         $this->purchase_order->invitations->load('contact.vendor.country', 'purchase_order.vendor.country', 'purchase_order.company')->each(function ($invitation) {
             /* Don't fire emails if the company is disabled */

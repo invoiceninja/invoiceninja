@@ -7,6 +7,11 @@
     if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'optin'){
         $token_billing_string = 'false';
     }
+
+    if (isset($pre_payment) && $pre_payment == '1' && isset($is_recurring) && $is_recurring == '1') {
+        $token_billing_string = 'true';
+    }
+
     
 @endphp
 

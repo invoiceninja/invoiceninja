@@ -40,7 +40,7 @@ class VendorFactory extends Factory
             'postal_code' => $this->faker->postcode(),
             'country_id' => 4,
             'vendor_hash' => Str::random(40),
-
+            'currency_id' => 1,
         ];
     }
 }

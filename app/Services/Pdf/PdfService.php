@@ -11,7 +11,6 @@
 
 namespace App\Services\Pdf;
 
-use App\Models\Account;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -72,7 +71,7 @@ class PdfService
      * Resolves the PDF generation type and
      * attempts to generate a PDF from the HTML
      * string.
-     * 
+     *
      * @return mixed | Exception
      *
      */
@@ -102,7 +101,6 @@ class PdfService
      */
     public function getHtml(): string
     {
-        
         $html = $this->builder->getCompiledHTML();
 
         if (config('ninja.log_pdf_html')) {

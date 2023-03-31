@@ -38,6 +38,7 @@ class SubdomainController extends BaseController
         'beta',
         'prometh',
         'license',
+        'socket',
     ];
 
     public function __construct()

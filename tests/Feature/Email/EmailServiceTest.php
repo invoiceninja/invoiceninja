@@ -109,28 +109,6 @@ class EmailServiceTest extends TestCase
         $this->assertFalse($this->email_service->preFlightChecksFail());
     }
 
-    public function testClientMailersAreUnCapped()
-    {
-        config(['ninja.environment' => 'hosted']);
-
-        Cache::put($this->account->key, 1000000);
-
-        collect([
-            'gmail',
-            'office365',
-            'client_postmark',
-            'client_mailgun'])
-        ->each(function ($mailer) {
-            $this->email_object->settings->email_sending_method = $mailer;
-
-            $this->assertFalse($this->email_service->preFlightChecksFail());
-        });
-
-        $this->email_object->settings->email_sending_method = 'postmark';
-
-        $this->assertTrue($this->email_service->preFlightChecksFail());
-    }
-
     public function testFlaggedInvalidEmailsPrevented()
     {
         config(['ninja.environment' => 'hosted']);

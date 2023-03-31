@@ -48,7 +48,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
 
-    public function init(): void
+    public function init(): self
     {
         $this->gateway = new Gateway([
             'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
@@ -56,6 +56,8 @@ class BraintreePaymentDriver extends BaseDriver
             'publicKey' => $this->company_gateway->getConfigField('publicKey'),
             'privateKey' => $this->company_gateway->getConfigField('privateKey'),
         ]);
+
+        return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -109,6 +111,12 @@ class BraintreePaymentDriver extends BaseDriver
             return $this->gateway->customer()->find($existing->gateway_customer_reference);
         }
 
+        $customer = $this->searchByEmail();
+
+        if ($customer) {
+            return $customer;
+        }
+
         $result = $this->gateway->customer()->create([
             'firstName' => $this->client->present()->name(),
             'email' => $this->client->present()->email(),
@@ -137,6 +145,45 @@ class BraintreePaymentDriver extends BaseDriver
 
         SystemLogger::dispatch(['server_response' => $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
     }
+
+    private function searchByEmail()
+    {
+        $result = $this->gateway->customer()->search([
+            \Braintree\CustomerSearch::email()->is($this->client->present()->email()),
+        ]);
+
+        if ($result->maximumCount() > 0) {
+            return $result->firstItem();
+        }
+    }
+
+    // public function updateCustomer()
+    // {
+    //     $customer = $this->findOrCreateCustomer();
+
+    //     $result = $this->gateway->customer()->update(
+    //         $customer->id,
+    //         [
+    //             'firstName' => $this->client->present()->name(),
+    //             'email' => $this->client->present()->email(),
+    //             'phone' => $this->client->present()->phone(),
+    //             'creditCard' => [
+    //             'billingAddress' => [
+    //                  'options' => [
+    //                     'updateExisting' => true
+    //                  ],
+    //                 'firstName' => $this->client->present()->first_name() ?: $this->client->present()->name(),
+    //                 'lastName' => $this->client->present()->last_name() ?: '',
+    //                 'streetAddress' => $this->client->address1 ?: '',
+    //                 'extendedAddress' =>$this->client->address2 ?: '',
+    //                 'locality' => $this->client->city ?: '',
+    //                 'postalCode' => $this->client->postal_code ?: '',
+    //                 'countryCodeAlpha2' => $this->client->country ? $this->client->country->iso_3166_2 : 'US',
+    //             ],
+    //         ],
+    //         ]
+    //     );
+    // }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {

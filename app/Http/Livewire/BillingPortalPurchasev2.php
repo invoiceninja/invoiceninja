@@ -172,8 +172,7 @@ class BillingPortalPurchasev2 extends Component
             $this->contact = auth()->guard('contact')->user();
             $this->authenticated = true;
             $this->payment_started = true;
-        }
-        else {
+        } else {
             $this->bundle = collect();
         }
 
@@ -276,7 +275,6 @@ class BillingPortalPurchasev2 extends Component
      */
     public function handleCoupon()
     {
-
         $this->resetErrorBag('coupon');
         $this->resetValidation('coupon');
 
@@ -311,7 +309,7 @@ class BillingPortalPurchasev2 extends Component
                 'description' => $p->notes,
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
-                'product' => nl2br(substr($p->notes, 0, 50)),
+                'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                 'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                 'total' => $total,
                 'qty' => $qty,
@@ -329,7 +327,7 @@ class BillingPortalPurchasev2 extends Component
                 'description' => $p->notes,
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
-                'product' => nl2br(substr($p->notes, 0, 50)),
+                'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                 'price' => Number::formatMoney($total, $this->subscription->company),
                 'total' => $total,
                 'qty' => $qty,
@@ -352,7 +350,7 @@ class BillingPortalPurchasev2 extends Component
                         'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
-                        'product' => nl2br(substr($p->notes, 0, 50)),
+                        'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                         'price' => Number::formatMoney($total, $this->subscription->company).' / '. RecurringInvoice::frequencyForKey($this->subscription->frequency_id),
                         'total' => $total,
                         'qty' => $qty,
@@ -375,7 +373,7 @@ class BillingPortalPurchasev2 extends Component
                         'description' => $p->notes,
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
-                        'product' => nl2br(substr($p->notes, 0, 50)),
+                        'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
                         'price' => Number::formatMoney($total, $this->subscription->company),
                         'total' => $total,
                         'qty' => $qty,

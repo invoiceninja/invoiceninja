@@ -39,7 +39,6 @@ class PaymentNotification implements ShouldQueue
      * Handle the event.
      *
      * @param object $event
-     * @return bool
      */
     public function handle($event)
     {
@@ -50,6 +49,15 @@ class PaymentNotification implements ShouldQueue
         }
 
         $payment = $event->payment;
+
+
+        /*Google Analytics Track Revenue*/
+        if (isset($payment->company->google_analytics_key)) {
+            $this->trackRevenue($event);
+        }
+
+        if($payment->is_manual)
+            return;
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
@@ -80,10 +88,6 @@ class PaymentNotification implements ShouldQueue
             }
         }
 
-        /*Google Analytics Track Revenue*/
-        if (isset($payment->company->google_analytics_key)) {
-            $this->trackRevenue($event);
-        }
     }
 
     private function trackRevenue($event)

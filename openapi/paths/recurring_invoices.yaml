@@ -1,7 +1,7 @@
   /api/v1/recurring_invoices:
     get:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "List recurring invoices"
       description: |
         Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
@@ -72,7 +72,7 @@
           $ref: "#/components/responses/default"
     post:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Create recurring invoice"
       description: "Adds a Recurring Invoice to the system"
       operationId: storeRecurringInvoice
@@ -106,7 +106,7 @@
   "/api/v1/recurring_invoices/{id}":
     get:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Show recurring invoice"
       description: "Displays an RecurringInvoice by id"
       operationId: showRecurringInvoice
@@ -146,7 +146,7 @@
           $ref: "#/components/responses/default"
     put:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Update recurring invoice"
       description: "Handles the updating of an RecurringInvoice by id"
       operationId: updateRecurringInvoice
@@ -186,7 +186,7 @@
           $ref: "#/components/responses/default"
     delete:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Delete recurring invoice"
       description: "Handles the deletion of an RecurringInvoice by id"
       operationId: deleteRecurringInvoice
@@ -223,7 +223,7 @@
   "/api/v1/recurring_invoices/{id}/edit":
     get:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Edit recurring invoice"
       description: "Displays an RecurringInvoice by id"
       operationId: editRecurringInvoice
@@ -265,7 +265,7 @@
   /api/v1/recurring_invoices/create:
     get:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Blank recurring invoice"
       description: "Returns a blank object with default values"
       operationId: getRecurringInvoicesCreate
@@ -298,25 +298,49 @@
   /api/v1/recurring_invoices/bulk:
     post:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Bulk recurring invoice actions"
-      description: ""
+      description: |
+        There are multiple actions that are available including:
+
       operationId: bulkRecurringInvoices
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed IDs"
+        description: "Bulk action details"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: |
+                    The action to be performed, options include:  
+                    - `start`  
+                      Starts (or restarts) the recurring invoice. **note** if the recurring invoice has been stopped for a long time, it will attempt to catch back up firing a new Invoice every hour per interval that has been missed.  
+                      If you do not wish to have the recurring invoice catch up, you should set the next_send_date to the correct date you wish the recurring invoice to commence from.
+                    - `stop`  
+                      Stops the recurring invoice. 
+                    - `send_now`  
+                      Force sends the recurring invoice - this option is only available when the recurring invoice is in a draft state.  
+                    - `restore`  
+                      Restores the recurring invoice from an archived or deleted state.
+                    - `archive`  
+                      Archives the recurring invoice. The recurring invoice will not fire in this state.
+                    - `delete`  
+                      Deletes a recurring invoice.  
+                ids:
+                  type: array
+                  items:
+                    description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
+                    type: string
+              example:
+                action: start
+                ids: "['D2J234DFA','D2J234DFA','D2J234DFA']"
       responses:
         200:
           description: "The RecurringInvoice response"
@@ -343,7 +367,7 @@
     get:
       deprecated: true
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Custom recurring invoice action"
       description: "Performs a custom action on an RecurringInvoice.\n\n    The current range of actions are as follows\n    - clone_to_RecurringInvoice\n    - clone_to_quote\n    - history\n    - delivery_note\n    - mark_paid\n    - download\n    - archive\n    - delete\n    - email"
       operationId: actionRecurringInvoice
@@ -392,7 +416,7 @@
   "/api/v1/recurring_invoice/{invitation_key}/download":
     get:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Download recurring invoice PDF"
       description: "Downloads a specific invoice"
       operationId: downloadRecurringInvoice
@@ -429,7 +453,7 @@
   "/api/v1/recurring_invoices/{id}/upload":
     put:
       tags:
-        - recurring_invoices
+        - Recurring Invoices
       summary: "Add recurring invoice document"
       description: "Handles the uploading of a document to a recurring_invoice"
       operationId: uploadRecurringInvoice

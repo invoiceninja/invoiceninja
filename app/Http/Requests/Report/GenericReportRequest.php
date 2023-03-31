@@ -58,6 +58,5 @@ class GenericReportRequest extends Request
         }
 
         $this->replace($input);
-        
     }
 }

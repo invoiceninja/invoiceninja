@@ -14,7 +14,7 @@ tags:
   - name: invoices
     description: |
       Endpoint definitions for interacting with invoices.
-  - name: recurring_invoices
+  - name: Recurring Invoices
     description: |
       Endpoint definitions for interacting with recurring_invoices.
   - name: payments

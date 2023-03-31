@@ -20,12 +20,10 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
-use Stripe\Checkout\Session;
-use Stripe\PaymentIntent;
-use Stripe\PaymentMethod;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Number;
+use Stripe\Checkout\Session;
 
 class BACS
 {
@@ -78,7 +76,6 @@ class BACS
         return render('gateways.stripe.bacs.pay', $data);
     }
     public function paymentResponse(PaymentResponseRequest $request)
-
     {
         $this->stripe->init();
         $invoice_numbers = collect($this->stripe->payment_hash->invoices())->pluck('invoice_number')->implode(',');
@@ -183,7 +180,7 @@ class BACS
             $clientgateway = ClientGatewayToken::query()
                 ->where('token', $method->id)
                 ->first();
-            if (!$clientgateway){
+            if (!$clientgateway) {
                 $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
             }
         } catch (\Exception $e) {
