@@ -327,7 +327,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
  * @property int $calculate_taxes
- * @property int $tax_all_products
  * @property mixed $tax_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $all_activities
@@ -557,7 +556,6 @@ class Company extends BaseModel
         'convert_expense_currency',
         'notify_vendor_when_paid',
         'calculate_taxes',
-        'tax_all_products',
     ];
 
     protected $hidden = [
