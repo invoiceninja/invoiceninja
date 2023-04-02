@@ -145,6 +145,10 @@ class PreviewController extends BaseController
                 ->design($design)
                 ->build();
 
+
+            nlog($maker->getCompiledHTML());
+
+            
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML();
             }
@@ -375,6 +379,8 @@ class PreviewController extends BaseController
         $maker
             ->design($design)
             ->build();
+
+            nlog($maker->getCompiledHTML());
 
         if (request()->query('html') == 'true') {
             return $maker->getCompiledHTML();
