@@ -84,14 +84,21 @@ class Rule extends BaseRule implements RuleInterface
     public function tax($type): self
     {
         
-        if ($this->client->is_tax_exempt) 
+
+        if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
+        } elseif ($this->client->company->tax_data->regions->EU->tax_all) {
+            
+            $this->tax_rate1  = $this->vat_rate;
+            $this->tax_name1 = "MwSt.";
+
+
+            return $this;
+        }
 
         if ($type) 
             return $this->taxByType($type);
         
-        $this->tax_rate1  = $this->vat_rate;
-        $this->tax_name1 = "MwSt.";
 
         return $this;
 
