@@ -556,4 +556,29 @@ class RecurringInvoiceController extends BaseController
 
         return $this->itemResponse($recurring_invoice->fresh());
     }
+
+    public function downloadPdf(string $invitation_key)
+    {
+        $invitation = $this->recurring_invoice_repo->getInvitationByKey($invitation_key);
+
+        if (! $invitation) {
+            return response()->json(['message' => 'no record found'], 400);
+        }
+
+        $contact = $invitation->contact;
+        $invoice = $invitation->recurring_invoice;
+
+        $file = $invoice->service()->getInvoicePdf($contact);
+
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if (request()->input('inline') == 'true') {
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+        }
+
+        return response()->streamDownload(function () use ($file) {
+            echo Storage::get($file);
+        }, basename($file), $headers);
+    }
+
 }
