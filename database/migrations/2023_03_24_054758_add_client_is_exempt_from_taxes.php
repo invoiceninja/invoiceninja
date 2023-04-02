@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\Company;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -24,6 +25,12 @@ return new class extends Migration
             $table->dropColumn('tax_all_products');
         });
         
+        Company::query()
+               ->cursor()
+               ->each(function ($company) {
+                   $company->tax_data = null;
+                   $company->save();
+               });
     }
 
     /**
