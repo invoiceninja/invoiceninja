@@ -91,7 +91,6 @@ class SumTaxTest extends TestCase
     public function testCalcInvoiceNoTax()
     {
         $this->company->calculate_taxes = false;
-        $this->company->tax_all_products = true;
         $this->company->save();
 
         $client = Client::factory()->create([
@@ -134,7 +133,6 @@ class SumTaxTest extends TestCase
     {
 
         $this->company->calculate_taxes = true;
-        $this->company->tax_all_products = true;
         $this->company->save();
 
         $client = Client::factory()->create([

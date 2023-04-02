@@ -98,7 +98,6 @@ class UsTaxTest extends TestCase
             'settings' => $settings,
             'tax_data' => $tax_data,
             'calculate_taxes' => true,
-            'tax_all_products' => true,
         ]);
 
         $client = Client::factory()->create([
@@ -179,7 +178,6 @@ class UsTaxTest extends TestCase
         $client->save();
 
         $company = $invoice->company;
-        $company->tax_all_products = false;
         $tax_data = $company->tax_data;
 
         $tax_data->regions->US->has_sales_above_threshold = true;

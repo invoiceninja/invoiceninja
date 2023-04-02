@@ -60,7 +60,6 @@ class EuTaxTest extends TestCase
             'settings' => $settings,
             'tax_data' => $tax_data,
             'calculate_taxes' => true,
-            'tax_all_products' => true,
         ]);
 
         $client = Client::factory()->create([
@@ -124,7 +123,6 @@ class EuTaxTest extends TestCase
             'settings' => $settings,
             'tax_data' => $tax_data,
             'calculate_taxes' => true,
-            'tax_all_products' => true,
         ]);
 
         $client = Client::factory()->create([
@@ -189,7 +187,6 @@ class EuTaxTest extends TestCase
             'settings' => $settings,
             'tax_data' => $tax_data,
             'calculate_taxes' => true,
-            'tax_all_products' => true,
         ]);
 
         $client = Client::factory()->create([
