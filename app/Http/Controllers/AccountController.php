@@ -11,16 +11,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Account\CreateAccountRequest;
-use App\Http\Requests\Account\UpdateAccountRequest;
-use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
 use App\Models\CompanyUser;
+use Illuminate\Http\Response;
+use App\Jobs\Account\CreateAccount;
 use App\Transformers\AccountTransformer;
 use App\Transformers\CompanyUserTransformer;
-use App\Utils\TruthSource;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
+use App\Http\Requests\Account\CreateAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 
 class AccountController extends BaseController
 {
@@ -146,8 +147,10 @@ class AccountController extends BaseController
         if (! ($account instanceof Account)) {
             return $account;
         }
+        
+        MultiDB::findAndSetDbByAccountKey($account->key);
 
-        $cu = CompanyUser::where('user_id', auth()->user()->id);
+        $cu = CompanyUser::where('user_id', $account->users()->first()->id);
 
         $company_user = $cu->first();
 
