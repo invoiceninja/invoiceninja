@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Client;
 use App\Models\Company;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -31,6 +32,14 @@ return new class extends Migration
                    $company->tax_data = null;
                    $company->save();
                });
+        
+        Client::query()
+               ->cursor()
+               ->each(function ($client) {
+                   $client->tax_data = null;
+                   $client->save();
+               });
+
     }
 
     /**

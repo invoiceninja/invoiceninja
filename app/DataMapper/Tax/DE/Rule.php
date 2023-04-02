@@ -81,10 +81,14 @@ class Rule extends BaseRule implements RuleInterface
     }
 
     //need to add logic here to capture if
-    public function tax(): self
+    public function tax($type): self
     {
-        if($this->client->is_tax_exempt)
+        
+        if ($this->client->is_tax_exempt) 
             return $this->taxExempt();
+
+        if ($type) 
+            return $this->taxByType($type);
         
         $this->tax_rate1  = $this->vat_rate;
         $this->tax_name1 = "MwSt.";

@@ -55,13 +55,22 @@ class Rule implements RuleInterface
         return $this;
     }
 
-    public function tax(): self
+    public function tax($type): self
     {
-        if($this->client->is_tax_exempt)
+        
+        if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
+        }
+        else if($this->client->company->tax_data->regions->US->tax_all){
 
-        $this->tax_rate1 = $this->tax_data->taxSales * 100;
-        $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+            $this->tax_rate1 = $this->tax_data->taxSales * 100;
+            $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+
+            return $this;
+        }
+
+        if($type)
+            return $this->taxByType($type);
 
         return $this;
 
@@ -71,11 +80,6 @@ class Rule implements RuleInterface
     {
         if(!$product_tax_type)
             return $this;
-
-
-        if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
-        }
 
         match($product_tax_type){
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
@@ -101,7 +105,7 @@ class Rule implements RuleInterface
 
     public function taxDigital(): self
     {
-        $this->tax();
+        $this->default();
 
         return $this;
     }
@@ -109,7 +113,7 @@ class Rule implements RuleInterface
     public function taxService(): self
     {
         if($this->tax_data->txbService == 'Y')
-            $this->tax();
+            $this->default();
 
         return $this;
     }
@@ -117,30 +121,30 @@ class Rule implements RuleInterface
     public function taxShipping(): self
     {
         if($this->tax_data->txbFreight == 'Y')
-            $this->tax();
+            $this->default();
 
         return $this;
     }
 
     public function taxPhysical(): self
     {
-        $this->tax();
+        $this->default();
 
         return $this;
     }
 
     public function default(): self
     {
-        
-        $this->tax_name1 = 'Tax Exempt';
-        $this->tax_rate1 = 0;
+                
+        $this->tax_rate1 = $this->tax_data->taxSales * 100;
+        $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
 
         return $this;
     }
 
     public function taxReduced(): self
     {
-        $this->tax();
+        $this->default();
 
         return $this;
     }

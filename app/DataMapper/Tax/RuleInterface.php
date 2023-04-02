@@ -18,7 +18,7 @@ interface RuleInterface
 {
     public function init();
 
-    public function tax();
+    public function tax(mixed $type);
 
     public function taxByType($type);
 
