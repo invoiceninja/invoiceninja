@@ -18,8 +18,9 @@ use App\Models\Product;
 use Tests\MockAccountData;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\TaxData;
-use App\DataMapper\Tax\ZipTax\Response;
 use App\Factory\InvoiceFactory;
+use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\Tax\ZipTax\Response;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -90,7 +91,16 @@ class SumTaxTest extends TestCase
     /** Proves that we do not charge taxes automatically */
     public function testCalcInvoiceNoTax()
     {
+
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_region = 'US';
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all = true;
+
         $this->company->calculate_taxes = false;
+        $this->company->tax_data = $tax_data;
         $this->company->save();
 
         $client = Client::factory()->create([
@@ -132,7 +142,16 @@ class SumTaxTest extends TestCase
     public function testCalcInvoiceTax()
     {
 
+
+
+        $tax_data = new TaxModel();
+        $tax_data->seller_region = 'US';
+        $tax_data->seller_subregion = 'CA';
+        $tax_data->regions->US->has_sales_above_threshold = true;
+        $tax_data->regions->US->tax_all = true;
+
         $this->company->calculate_taxes = true;
+        $this->company->tax_data = $tax_data;
         $this->company->save();
 
         $client = Client::factory()->create([
