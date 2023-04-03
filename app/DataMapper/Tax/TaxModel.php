@@ -13,7 +13,7 @@ namespace App\DataMapper\Tax;
 
 class TaxModel 
 {
-    public string $seller_region = 'US';
+    // public string $seller_region = 'US';
 
     public string $seller_subregion = 'CA';
 
@@ -45,7 +45,7 @@ class TaxModel
     private function usRegion(): self
     {
         $this->regions->US->has_sales_above_threshold = false;
-        $this->regions->US->tax_all = false;
+        $this->regions->US->tax_all_subregions = false;
         $this->usSubRegions();
 
         return $this;
