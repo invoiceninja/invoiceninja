@@ -32,7 +32,7 @@ class StoreDesignRequest extends Request
         return [
             //'name' => 'required',
             'name' => 'required|unique:designs,name,null,null,company_id,'.auth()->user()->companyId(),
-            'design' => 'required|array',
+            'design' => 'required',
             'design.header' => 'required|min:1',
             'design.body' => 'required|min:1',
             'design.footer' => 'required|min:1',
@@ -43,7 +43,7 @@ class StoreDesignRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-        $input['design'] = is_array($input['design']) ? $input['design'] : [];
+        $input['design'] = (isset($input['design']) && is_array($input['design'])) ? $input['design'] : [];
 
         if (! array_key_exists('product', $input['design']) || is_null($input['design']['product'])) {
             $input['design']['product'] = '';
