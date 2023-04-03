@@ -364,12 +364,12 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml')) {
-                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml');
+                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->xinvoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->xinvoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml')) {
-                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'-xinvoice.xml');
+                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
