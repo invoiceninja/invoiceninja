@@ -3,6 +3,7 @@
 namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
+use App\Models\Country;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -69,20 +70,20 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentInformation($invoice->number, "380", date_create($invoice->date), $invoice->client->getCurrencyCode())
             ->addDocumentNote($invoice->public_notes)
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
-//            ->setDocumentSeller($company->name)
-            ->setDocumentSellerAddress($company->address1, "", "", $company->postal_code, $company->city, $company->country->country->iso_3166_2)
+            ->setDocumentSeller($company->getSetting('name'))
+            ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), "Germany") //Country::query()->where('id', $company->getSetting("country_id"))->first()
             ->setDocumentBuyer($client->name, $client->number)
-            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->country->iso_3166_2)
+            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, "Germany") // $client->country->country->iso_3166_2
             ->setDocumentBuyerReference($client->leitweg_id)
-            ->setDocumentBuyerContact($client->primary_contact->first_name." ".$client->primary_contact->last_name, "", $client->primary_contact->phone, "", $client->primary_contact->email)
+            //->setDocumentBuyerContact($client->primary_contact()->first_name." ".$client->primary_contact->last_name, "", $client->primary_contact->phone, "", $client->primary_contact->email)
             ->setDocumentBuyerOrderReferencedDocument($invoice->po_number)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
 
-        if (str_contains($company->vat_number, "/")){
-            $xrechnung->addDocumentSellerTaxRegistration("FC", $company->vat_number);
+        if (str_contains($company->getSetting('vat_number'), "/")){
+            $xrechnung->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));
          }
         else {
-            $xrechnung->addDocumentSellerTaxRegistration("VA", $company->vat_number);
+            $xrechnung->addDocumentSellerTaxRegistration("VA", $company->getSetting('vat_number'));
         }
         // Create line items and calculate taxes
         $taxtype1 = "";
@@ -286,18 +287,21 @@ class CreateXInvoice implements ShouldQueue
         if ($taxnet_3 > 0) {
             $xrechnung->addDocumentTax($taxtype3, "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
-        $xrechnung->writeFile(explode(".", $client->xinvoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
-
-        $filepath_pdf = $client->invoice_filepath($invoice->invitations->first());
         $disk = config('filesystems.default');
+        if(!Storage::exists($client->xinvoice_filepath($invoice->invitations->first()))){
+            Storage::makeDirectory($client->xinvoice_filepath($invoice->invitations->first()));
+        }
+        $xrechnung->writeFile(Storage::disk($disk)->path($client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
+        $filepath_pdf = $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName();
+
 
         $file = Storage::disk($disk)->exists($filepath_pdf);
         if ($file) {
-            $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $filepath_pdf);
+            $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
             $pdfBuilder->generateDocument();
-            $pdfBuilder->saveDocument($client->invoice_filepath($invoice->invitations->first()));
+            $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
         }
-        return explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml";
+        return $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName("xml");
     }
     private function getItemTaxable($item, $invoice_total): float
     {

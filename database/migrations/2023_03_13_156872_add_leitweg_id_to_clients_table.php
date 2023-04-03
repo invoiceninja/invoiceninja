@@ -15,7 +15,7 @@ return new class extends Migration
     {
 
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('leitweg_idf')->default(null);
+            $table->string('leitweg_id')->default(null);
         });
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('use_xinvoice')->default(false);
