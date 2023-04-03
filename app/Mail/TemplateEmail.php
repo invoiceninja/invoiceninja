@@ -18,6 +18,7 @@ use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Storage;
 
 class TemplateEmail extends Mailable
 {
@@ -151,6 +152,11 @@ class TemplateEmail extends Mailable
             if ($ubl_string) {
                 $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
             }
+        }
+        if ($this->invitation && $this->invitation->invoice && $company->use_xinvoice && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            $this->invitation->invoice->service()->getXInvoice($this->invitation->contact);
+            $disk = config('filesystems.default');
+            $this->attach(Storage::disk($disk)->path($this->invitation->invoice->client->xinvoice_filepath($this->invitation->invoice->invitations->first()) . $this->invitation->invoice->getFileName("xml")));
         }
 
         return $this;
