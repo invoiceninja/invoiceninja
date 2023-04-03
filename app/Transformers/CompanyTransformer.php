@@ -194,6 +194,7 @@ class CompanyTransformer extends EntityTransformer
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
+            'tax_data' => $company->tax_data ?: '',
         ];
     }
 

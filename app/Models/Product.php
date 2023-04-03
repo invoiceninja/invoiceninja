@@ -101,6 +101,11 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @mixin \Eloquent
  */
 class Product extends BaseModel
@@ -109,12 +114,13 @@ class Product extends BaseModel
     use SoftDeletes;
     use Filterable;
 
-    
     public const PRODUCT_TYPE_PHYSICAL = 1;
     public const PRODUCT_TYPE_SERVICE = 2;
     public const PRODUCT_TYPE_DIGITAL = 3;
-    public const PRODUCT_TYPE_FREIGHT = 4;
-    public const PRODUCT_TAX_EXEMPT = 5;
+    public const PRODUCT_TYPE_SHIPPING = 4;
+    public const PRODUCT_TYPE_EXEMPT = 5;
+    public const PRODUCT_TYPE_REDUCED_TAX = 6;
+    public const PRODUCT_TYPE_OVERRIDE_TAX = 7;
 
     protected $fillable = [
         'custom_value1',
