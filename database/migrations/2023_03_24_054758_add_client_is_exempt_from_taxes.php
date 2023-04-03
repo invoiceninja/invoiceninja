@@ -26,10 +26,6 @@ return new class extends Migration
             $table->mediumText('tax_data')->nullable()->change();
             $table->dropColumn('tax_all_products');
         });
-        
-        Schema::table('products', function (Blueprint $table) {
-            $table->unsignedInteger('tax_id')->nullable(); // the product tax constant
-        });
 
         Company::query()
                ->cursor()
