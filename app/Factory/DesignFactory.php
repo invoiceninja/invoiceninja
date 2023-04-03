@@ -24,7 +24,7 @@ class DesignFactory
         $design->is_active = true;
         $design->is_custom = true;
         $design->name = '';
-        $design->design = '';
+        $design->design = '[]';
 
         return $design;
     }

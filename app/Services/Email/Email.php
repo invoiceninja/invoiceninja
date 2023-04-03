@@ -58,6 +58,8 @@ class Email implements ShouldQueue
 
     protected ?string $client_mailgun_domain = null;
 
+    protected ?string $client_mailgun_endpoint = null;
+
     private string $mailer = 'default';
 
     public Mailable $mailable;
@@ -143,6 +145,8 @@ class Email implements ShouldQueue
 
         $this->email_object->signature = $this->email_object->settings->email_signature;
 
+        $this->email_object->invitation_key = $this->email_object->invitation ? $this->email_object->invitation->key : null;
+        
         $this->resolveVariables();
 
         return $this;
@@ -233,7 +237,8 @@ class Email implements ShouldQueue
         }
 
         if ($this->client_mailgun_secret) {
-            $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+
+            $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->client_mailgun_endpoint);
         }
 
         /* Attempt the send! */
@@ -304,6 +309,9 @@ class Email implements ShouldQueue
 
             $this->tearDown();
             /* Releasing immediately does not add in the backoff */
+
+            sleep(rand(0, 3));
+
             $this->release($this->backoff()[$this->attempts()-1]);
 
             $message = null;
@@ -479,6 +487,8 @@ class Email implements ShouldQueue
 
         $this->client_mailgun_domain = null;
 
+        $this->client_mailgun_endpoint = null;
+
         //always dump the drivers to prevent reuse
         app('mail.manager')->forgetMailers();
     }
@@ -528,6 +538,8 @@ class Email implements ShouldQueue
         if (strlen($this->email_object->settings->mailgun_secret) > 2 && strlen($this->email_object->settings->mailgun_domain) > 2) {
             $this->client_mailgun_secret = $this->email_object->settings->mailgun_secret;
             $this->client_mailgun_domain = $this->email_object->settings->mailgun_domain;
+            $this->client_mailgun_endpoint = $this->email_object->settings->mailgun_endpoint;
+
         } else {
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();

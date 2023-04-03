@@ -131,7 +131,7 @@ class InvoiceFilters extends QueryFilters
      */
     public function upcoming(): Builder
     {
-        return $this->builder
+        return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
                     ->where(function ($query) {
                         $query->whereNull('due_date')
                               ->orWhere('due_date', '>', now());

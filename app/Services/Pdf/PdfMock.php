@@ -69,7 +69,11 @@ class PdfMock
         
         $pdf_service->config = $pdf_config;
 
-        $pdf_designer = (new PdfDesigner($pdf_service))->build();
+        if(isset($this->request['design']))
+            $pdf_designer = (new PdfDesigner($pdf_service))->buildFromPartials($this->request['design']);
+        else
+            $pdf_designer = (new PdfDesigner($pdf_service))->build();
+        
         $pdf_service->designer = $pdf_designer;
 
         $pdf_service->html_variables = $document_type == 'purchase_order' ? $this->getVendorStubVariables() : $this->getStubVariables();

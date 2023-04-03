@@ -11,7 +11,36 @@
 
 namespace App\DataMapper\Tax;
 
+use App\Models\Client;
+use App\DataMapper\Tax\ZipTax\Response;
+
 interface RuleInterface
 {
-    public function run();
+    public function init();
+
+    public function tax(mixed $type);
+
+    public function taxByType($type);
+
+    public function taxExempt();
+    
+    public function taxDigital();
+
+    public function taxService();
+
+    public function taxShipping();
+
+    public function taxPhysical();
+
+    public function taxReduced();
+
+    public function default();
+
+    public function override();
+
+    public function setClient(Client $client);
+
+    public function setTaxData(Response $tax_data);
+
+    public function calculateRates();
 }

@@ -188,6 +188,7 @@ class DemoMode extends Command
             $company_token->account_id = $account->id;
             $company_token->name = 'test token';
             $company_token->token = 'TOKEN';
+            $company_token->is_system = true;
             $company_token->save();
 
             $u2->companies()->attach($company->id, [

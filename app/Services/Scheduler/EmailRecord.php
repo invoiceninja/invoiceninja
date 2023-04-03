@@ -15,7 +15,7 @@ use App\Models\Scheduler;
 use Illuminate\Support\Str;
 use App\Utils\Traits\MakesHash;
 
-class ScheduleEntity
+class EmailRecord
 {
     use MakesHash;
 

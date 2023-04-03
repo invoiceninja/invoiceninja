@@ -739,7 +739,9 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
         $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?: 0, $this->client);
 
-        if ($abbreviated || ! $invoices_string) {
+        if($abbreviated && $invoices_string){
+            return $invoices_string;
+        } elseif ($abbreviated || ! $invoices_string) {
             return ctrans('texts.gateway_payment_text_no_invoice', [
                 'amount' => $amount,
                 'client' => $this->client->present()->name(),

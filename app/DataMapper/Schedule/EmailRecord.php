@@ -11,14 +11,14 @@
 
 namespace App\DataMapper\Schedule;
 
-class ScheduleEntity
+class EmailRecord
 {
     /**
      * Defines the template name
      *
      * @var string
      */
-    public string $template = 'schedule_entity';
+    public string $template = 'email_record';
 
     /**
      * Defines the template name

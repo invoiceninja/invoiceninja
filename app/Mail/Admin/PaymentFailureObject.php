@@ -120,6 +120,10 @@ class PaymentFailureObject
             'additional_info' => $this->error,
         ];
 
+        if (strlen($this->error > 1)) {
+            $data['content'] .= "\n\n".$this->error;
+        }
+
         return $data;
     }
 
