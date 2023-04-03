@@ -11,16 +11,51 @@
 
 namespace App\Helpers\Invoice;
 
-use App\DataMapper\BaseSettings;
-use App\DataMapper\InvoiceItem;
+use App\Models\Client;
 use App\Models\Invoice;
+use App\DataMapper\InvoiceItem;
+use App\DataMapper\BaseSettings;
+use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class InvoiceItemSum
 {
     use NumberFormatter;
     use Discounter;
     use Taxer;
+
+    private array $tax_jurisdictions = [
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
+
+        'US', //USA
+    ];
 
     protected $invoice;
 
@@ -48,6 +83,12 @@ class InvoiceItemSum
 
     private $tax_collection;
 
+    private ?Client $client;
+
+    private bool $calc_tax = false;
+
+    private RuleInterface $rule;
+
     public function __construct($invoice)
     {
         $this->tax_collection = collect([]);
@@ -56,6 +97,8 @@ class InvoiceItemSum
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
+            $this->client = $this->invoice->client;
+            $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }
@@ -86,6 +129,33 @@ class InvoiceItemSum
                 ->push();
         }
 
+        return $this;
+    }
+
+    private function shouldCalculateTax(): self
+    {
+        if (!$this->invoice->company->calculate_taxes) {
+            $this->calc_tax = false;
+            return $this;
+        }
+        
+        //should we be filtering by client country here? do we need to reflect at the company <=> client level?
+        if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
+            $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
+
+            $tax_data = new Response($this->invoice->tax_data);
+
+            $this->rule = new $class();
+            $this->rule
+                 ->setTaxData($tax_data)
+                 ->setClient($this->client)
+                 ->init();
+                 
+            $this->calc_tax = true;
+
+            return $this;
+        }
+        
         return $this;
     }
 
@@ -122,8 +192,33 @@ class InvoiceItemSum
         return $this;
     }
 
+    /**
+     * Attempts to calculate taxes based on the clients location
+     *
+     * @return self
+     */
+    private function calcTaxesAutomatically(): self
+    {
+        $this->rule->tax($this->item->tax_id ?? null);
+        
+        $this->item->tax_name1 = $this->rule->tax_name1;
+        $this->item->tax_rate1 = $this->rule->tax_rate1;
+
+        $this->item->tax_name2 = $this->rule->tax_name2;
+        $this->item->tax_rate2 = $this->rule->tax_rate2;
+
+        $this->item->tax_name3 = $this->rule->tax_name3;
+        $this->item->tax_rate3 = $this->rule->tax_rate3;
+
+        return $this;
+    }
+
     private function calcTaxes()
     {
+        if ($this->calc_tax) {
+            $this->calcTaxesAutomatically();
+        }
+
         $item_tax = 0;
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
@@ -131,7 +226,6 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate1_total;
 
-        // if($item_tax_rate1_total != 0)
         if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
@@ -155,7 +249,7 @@ class InvoiceItemSum
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
         $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
-
+ 
         $this->item->tax_amount = $item_tax;
 
         return $this;

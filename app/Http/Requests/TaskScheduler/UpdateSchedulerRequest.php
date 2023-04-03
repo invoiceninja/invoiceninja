@@ -29,7 +29,7 @@ class UpdateSchedulerRequest extends Request
     public function rules(): array
     {
         $rules = [
-            'name' => ['bail', 'sometimes', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)->ignore($this->task_scheduler->id)],
+            'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
             'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',

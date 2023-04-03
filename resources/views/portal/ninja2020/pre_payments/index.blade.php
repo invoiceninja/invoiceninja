@@ -34,15 +34,19 @@
                         @endif
                     @endcomponent
 
+                    <input type="hidden" name="minimum_amount" value="{{ $minimum }}">
 
                     @component('portal.ninja2020.components.general.card-element', ['title' => $title])
                         <input
                         type="text"
                         class="input mt-0 mr-4 relative"
                         name="amount"
-                        placeholder="{{ $minimum_amount }}"
-                        min="{{ $minimum_amount }}"/>
-                    
+                        placeholder=""/>
+                        
+                        @if($minimum > 0) 
+                        <p>{{ ctrans('texts.minimum_required_payment', ['amount' => $minimum_amount])}}</p>
+                        @endif
+                        
                         @if($errors->has('amount'))
                             <p class="mt-2 text-red-900 border-red-300 px-2 py-1 bg-gray-100">{{ $errors->first('amount') }}</p>
                         @endif
@@ -58,9 +62,9 @@
                         <div x-cloak x-show="show">
                             @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.number_of_payments')])
                                 <select name="remaining_cycles" class="form-select input w-full bg-white">
-                                    <option value="-1" selected>{{ ctrans('texts.pre_payment_indefinitely')}}</option>
+                                    <option value="-1">{{ ctrans('texts.pre_payment_indefinitely')}}</option>
                                     @for($i = 1; $i < 60; $i++)
-                                    <option value={{$i}}>{{$i}}</option>
+                                    <option value={{$i}}  @if($i == 1) selected @endif>{{$i}}</option>
                                     @endfor
                                 </select>
                                 <span class="py-2">

@@ -136,7 +136,7 @@ class EmailController extends BaseController
         $mo->email_template_body = $request->input('template');
         $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
-        if ($request->has('cc_email')) {
+        if ($request->has('cc_email') && $request->cc_email) {
             $mo->cc[] = new Address($request->cc_email);
         }
 

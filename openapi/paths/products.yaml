@@ -362,7 +362,8 @@
                   example: POST
                 documents:
                   type: array
-                  format: binary
+                  items:
+                    format: binary
       responses:
         200:
           description: "Returns the Product object"
