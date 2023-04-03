@@ -187,7 +187,7 @@ class InvoiceService
 
     public function getXInvoice($contact = null)
     {
-        return (new GetInvoiceXInvoice($this->invoice))->run();
+        return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
     }
 
     public function sendEmail($contact = null)
@@ -448,7 +448,7 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
-                    // Add XInvoice
+                    (new CreateXInvoice($invitation))->handle();
                 });
 
                 return $this;
@@ -456,7 +456,7 @@ class InvoiceService
 
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
-                // Add XInvoice
+                CreateXInvoice::dispatch($invitation);
             });
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');
