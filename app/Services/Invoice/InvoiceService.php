@@ -19,6 +19,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Utils\Ninja;
@@ -448,7 +449,10 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
-                    (new CreateXInvoice($invitation))->handle();
+                    if ($invitation instanceof InvoiceInvitation)
+                    {
+                    (new CreateXInvoice($invitation->invoice))->handle();
+                    }
                 });
 
                 return $this;
@@ -456,7 +460,10 @@ class InvoiceService
 
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
-                CreateXInvoice::dispatch($invitation);
+                if ($invitation instanceof InvoiceInvitation)
+                {
+                    CreateXInvoice::dispatch($invitation->invoice);
+                }
             });
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');

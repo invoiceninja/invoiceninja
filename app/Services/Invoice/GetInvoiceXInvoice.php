@@ -38,7 +38,7 @@ class GetInvoiceXInvoice extends AbstractService
             $invitation = $this->invoice->invitations->first();
         }
 
-        $path = $this->invoice->client->invoice_filepath($invitation);
+        $path = $this->invoice->client->xinvoice_filepath($invitation);
 
         $file_path = $path.$this->invoice->numberFormatter().'-xinvoice.xml';
 

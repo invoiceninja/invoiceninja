@@ -69,7 +69,7 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentInformation($invoice->number, "380", date_create($invoice->date), $invoice->client->getCurrencyCode())
             ->addDocumentNote($invoice->public_notes)
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
-            ->setDocumentSeller($company->name)
+//            ->setDocumentSeller($company->name)
             ->setDocumentSellerAddress($company->address1, "", "", $company->postal_code, $company->city, $company->country->country->iso_3166_2)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->country->iso_3166_2)
@@ -286,7 +286,7 @@ class CreateXInvoice implements ShouldQueue
         if ($taxnet_3 > 0) {
             $xrechnung->addDocumentTax($taxtype3, "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
         }
-        $xrechnung->writeFile(explode(".", $client->invoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
+        $xrechnung->writeFile(explode(".", $client->xinvoice_filepath($invoice->invitations->first()))[0] . "-xinvoice.xml");
 
         $filepath_pdf = $client->invoice_filepath($invoice->invitations->first());
         $disk = config('filesystems.default');

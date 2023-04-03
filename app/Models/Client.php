@@ -732,6 +732,12 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
+    public function xinvoice_filepath($invitation)
+    {
+        $contact_key = $invitation->contact->contact_key;
+
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/xinvoice/';
+    }
 
     public function quote_filepath($invitation)
     {
