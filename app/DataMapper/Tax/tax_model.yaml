@@ -1,7 +1,7 @@
 region:
   US:
-    tax_all: false
-    seller_region: CA
+    tax_all_subregions: false
+    seller_subregion: CA
     has_sales_above_threshold: false
     subregions:
       AL:

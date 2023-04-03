@@ -55,7 +55,7 @@ class TaxModel
     {
      
         $this->regions->EU->has_sales_above_threshold = false;
-        $this->regions->EU->tax_all = false;
+        $this->regions->EU->tax_all_subregions = false;
         $this->regions->EU->vat_threshold = 10000;
         $this->euSubRegions();
 

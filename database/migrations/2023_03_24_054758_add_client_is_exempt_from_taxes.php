@@ -2,6 +2,7 @@
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Product;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -26,6 +27,10 @@ return new class extends Migration
             $table->dropColumn('tax_all_products');
         });
         
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedInteger('tax_id')->nullable(); // the product tax constant
+        });
+
         Company::query()
                ->cursor()
                ->each(function ($company) {
@@ -38,6 +43,13 @@ return new class extends Migration
                ->each(function ($client) {
                    $client->tax_data = null;
                    $client->save();
+               });
+
+        Product::query()
+               ->cursor()
+               ->each(function ($product) {
+                   $product->tax_id = 1;
+                   $product->save();
                });
 
     }
