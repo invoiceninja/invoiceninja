@@ -291,7 +291,6 @@ class EmailDefaults
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
 
-            // TODO: Alter this to include XInvoice
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
             if ($this->email->email_object->company->use_xinvoice && $this->email->email_object->entity instanceof Invoice) {
                 $tempfile = tmpfile();
