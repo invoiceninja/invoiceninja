@@ -73,11 +73,11 @@ class CreateXInvoice implements ShouldQueue
             ->addDocumentNote($invoice->public_notes)
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
             ->setDocumentSeller($company->getSetting('name'))
-            ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), "Germany") //Country::query()->where('id', $company->getSetting("country_id"))->first()
+            ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2)
             ->setDocumentBuyer($client->name, $client->number)
-            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, "Germany") // $client->country->country->iso_3166_2
+            ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
             ->setDocumentBuyerReference($client->leitweg_id)
-            //->setDocumentBuyerContact($client->primary_contact()->first_name." ".$client->primary_contact->last_name, "", $client->primary_contact->phone, "", $client->primary_contact->email)
+            ->setDocumentBuyerContact($client->primary_contact()->first()->first_name." ".$client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
             ->setDocumentBuyerOrderReferencedDocument($invoice->po_number)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
 
