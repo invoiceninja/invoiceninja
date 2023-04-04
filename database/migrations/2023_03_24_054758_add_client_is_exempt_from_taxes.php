@@ -27,6 +27,11 @@ return new class extends Migration
             $table->dropColumn('tax_all_products');
         });
 
+        Schema::table('projects', function (Illuminate\Database\Schema\Blueprint $table) {
+            $table->unsignedInteger('current_hours')->nullable();
+        });
+
+
         Company::query()
                ->cursor()
                ->each(function ($company) {
