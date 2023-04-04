@@ -451,7 +451,7 @@ class InvoiceService
                     (new CreateEntityPdf($invitation))->handle();
                     if ($invitation instanceof InvoiceInvitation)
                     {
-                    (new CreateXInvoice($invitation->invoice))->handle();
+                    (new CreateXInvoice($invitation->invoice, true))->handle();
                     }
                 });
 
@@ -462,7 +462,7 @@ class InvoiceService
                 CreateEntityPdf::dispatch($invitation);
                 if ($invitation instanceof InvoiceInvitation)
                 {
-                    CreateXInvoice::dispatch($invitation->invoice);
+                    CreateXInvoice::dispatch($invitation->invoice, true);
                 }
             });
         } catch (\Exception $e) {

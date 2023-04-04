@@ -21,9 +21,10 @@ class CreateXInvoice implements ShouldQueue
 
     public Invoice $invoice;
 
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, bool $alterPDF)
     {
         $this->invoice = $invoice;
+        $this->alterpdf = $alterPDF;
     }
 
     /**
@@ -294,12 +295,13 @@ class CreateXInvoice implements ShouldQueue
         $xrechnung->writeFile(Storage::disk($disk)->path($client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
         $filepath_pdf = $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName();
 
-
-        $file = Storage::disk($disk)->exists($filepath_pdf);
-        if ($file) {
-            $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
-            $pdfBuilder->generateDocument();
-            $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
+        if ($this->alterpdf){
+            $file = Storage::disk($disk)->exists($filepath_pdf);
+            if ($file) {
+                $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, Storage::disk($disk)->path($filepath_pdf));
+                $pdfBuilder->generateDocument();
+                $pdfBuilder->saveDocument(Storage::disk($disk)->path($filepath_pdf));
+            }
         }
         return $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName("xml");
     }
