@@ -102,9 +102,19 @@ class ExpenseRepository extends BaseRepository
 
     public function delete($expense) :Expense
     {
+        
         if ($expense->transaction_id) {
+            
+            $exp_ids = collect(explode(',', $expense->transaction->expense_id))->filter(function ($id) use ($expense) {
+                return $id != $expense->hashed_id;
+            })->implode(',');
+                    
             $expense->transaction_id = null;
             $expense->saveQuietly();
+
+            $expense->transaction->expense_id = $exp_ids;
+            $expense->transaction->saveQuietly();
+
         }
 
         parent::delete($expense);

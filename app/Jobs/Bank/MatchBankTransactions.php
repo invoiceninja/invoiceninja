@@ -152,7 +152,7 @@ class MatchBankTransactions implements ShouldQueue
     {
         $this->bt = BankTransaction::find($input['id']);
 
-        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
+        if (!$this->bt) {
             return $this;
         }
 
@@ -176,9 +176,13 @@ class MatchBankTransactions implements ShouldQueue
 
     private function coalesceExpenses($expense): string 
     {
+nlog("BTExpense: " . $this->bt->expense_id);
 
-        if(!$this->bt->expense_id || strlen($this->bt->expense_id) < 1)
-            return $expense;
+    if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+        nlog("coalesceExpense: " . $expense);
+        return $expense;
+    }
+        nlog("coalesceExpenses: " . $this->bt->expense_id . "," . $expense);
 
         return collect(explode(",", $this->bt->expense_id))->push($expense)->implode(",");
     }
@@ -259,7 +263,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
-        $this->bt->expense_id = $expense->hashed_id;
+        $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
 
         if (array_key_exists('vendor_id', $input)) {
             $this->bt->vendor_id = $input['vendor_id'];

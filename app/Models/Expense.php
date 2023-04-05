@@ -259,4 +259,10 @@ class Expense extends BaseModel
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function transaction()
+    {
+        return $this->belongsTo(BankTransaction::class);
+    }
+
 }
