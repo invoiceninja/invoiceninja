@@ -82,11 +82,10 @@ class UpdateCalculatedFields
                 $duration += $end_time - $start_time;
 
             }
-            
-            return round(($duration/60/60), 0);
-
+                    
         });
 
+        return round(($duration/60/60), 0);
 
     }
 }

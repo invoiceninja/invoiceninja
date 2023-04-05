@@ -1,14 +1,17 @@
 <?php
 
+use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Product;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
+    use MakesHash;
     /**
      * Run the migrations.
      *
@@ -31,6 +34,17 @@ return new class extends Migration
             $table->unsignedInteger('current_hours')->nullable();
         });
 
+        Schema::table('bank_transactions', function(Illuminate\Database\Schema\Blueprint $table) {
+            $table->text('expense_id')->default('')->change();
+        });
+
+        BankTransaction::withTrashed()
+                       ->whereNotNull('expense_id')
+                       ->cursor()
+                       ->each(function ($transaction) {
+                           $transaction->expense_id = $this->encodePrimaryKey($transaction->expense_id);
+                           $transaction->save();
+                       });
 
         Company::query()
                ->cursor()

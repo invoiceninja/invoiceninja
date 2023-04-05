@@ -11,12 +11,13 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\Expense;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -39,6 +40,22 @@ class ExpenseApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testTransactionIdClearedOnDelete()
+    {
+        $e = Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'transaction_id' => '123',
+        ]);
+        
+        $this->assertNotNull($e->transaction_id);
+
+        $expense_repo = app('App\Repositories\ExpenseRepository');
+        $e = $expense_repo->delete($e);
+
+        $this->assertNull($e->transaction_id);
     }
 
     public function testExpenseGetClientStatus()

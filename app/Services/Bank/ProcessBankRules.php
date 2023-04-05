@@ -123,7 +123,7 @@ class ProcessBankRules extends AbstractService
                         $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
                         $expense->save();
 
-                        $this->bank_transaction->expense_id = $expense->id;
+                        $this->bank_transaction->expense_id = $expense->hashed_id;
                         $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
                         $this->bank_transaction->save();
 

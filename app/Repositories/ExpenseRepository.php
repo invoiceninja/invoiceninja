@@ -99,6 +99,20 @@ class ExpenseRepository extends BaseRepository
         return $expense;
     }
 
+
+    public function delete($expense) :Expense
+    {
+        if ($expense->transaction_id) {
+            $expense->transaction_id = null;
+            $expense->saveQuietly();
+        }
+
+        parent::delete($expense);
+
+        return $expense;
+    }
+
+
     /**
      * Handle race conditions when creating expense numbers
      *
