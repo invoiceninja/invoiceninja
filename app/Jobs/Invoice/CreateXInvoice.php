@@ -74,7 +74,7 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2)
-            ->setDocumentSellerContact($invoice->user->first_name." ".$invoice->user->last_name)
+            ->setDocumentSellerContact($invoice->user->first_name." ".$invoice->user->last_name, "", $invoice->user->phone, "", $invoice->user->email)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
             ->setDocumentBuyerReference($client->leitweg_id)
@@ -86,6 +86,10 @@ class CreateXInvoice implements ShouldQueue
         if (!empty($invoice->po_number)) {
             $xrechnung->setDocumentBuyerOrderReferencedDocument($invoice->po_number);
         }
+        if (empty($client->leitweg_id)){
+            $xrechnung->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
+        }
+        $xrechnung->addDocumentPaymentMean(10, "");
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
             $xrechnung->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));
@@ -107,7 +111,7 @@ class CreateXInvoice implements ShouldQueue
             } else {
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
             }
-            $linenetamount = $item->line_total + $item->surcharge_1 + $item->surcharge_2 + $item->surcharge_3;
+            $linenetamount = $item->line_total;
             if ($item->discount > 0){
                 if ($invoice->is_amount_discount){
                     $linenetamount -= $item->discount;

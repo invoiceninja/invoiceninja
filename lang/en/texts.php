@@ -5021,7 +5021,7 @@ $LANG = array(
     'payment_type_Klarna' => 'Klarna',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Payable within :payeddue days net until :paydate',
-
+    'xinvoice_no_buyers_reference' => "No buyer's reference given",
 );
 
 
