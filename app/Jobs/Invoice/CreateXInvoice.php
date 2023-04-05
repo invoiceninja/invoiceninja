@@ -90,7 +90,7 @@ class CreateXInvoice implements ShouldQueue
         if (empty($client->leitweg_id)){
             $xrechnung->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
         }
-        $xrechnung->addDocumentPaymentMean(10, "");
+        $xrechnung->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
             $xrechnung->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));
