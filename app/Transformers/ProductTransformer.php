@@ -95,6 +95,7 @@ class ProductTransformer extends EntityTransformer
             'stock_notification_threshold' => (int) $product->stock_notification_threshold,
             'max_quantity' => (int) $product->max_quantity,
             'product_image' => (string) $product->product_image ?: '',
+            'tax_id' => (int) $product->tax_id ?: 1,     
         ];
     }
 }

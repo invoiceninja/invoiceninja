@@ -1,0 +1,155 @@
+    Expense:
+      properties:
+        id:
+          description: 'The expense hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: ''
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: ''
+        invoice_id:
+          description: 'The related invoice hashed id'
+          type: string
+          example: ''
+        bank_id:
+          description: 'The bank id related to this expense'
+          type: string
+          example: ''
+        invoice_currency_id:
+          description: 'The currency id of the related invoice'
+          type: string
+          example: ''
+        expense_currency_id:
+          description: 'The currency id of the expense'
+          type: string
+          example: ''
+        invoice_category_id:
+          description: 'The invoice category id'
+          type: string
+          example: ''
+        payment_type_id:
+          description: 'The payment type id'
+          type: string
+          example: ''
+        recurring_expense_id:
+          description: 'The related recurring expense this expense was created from'
+          type: string
+          example: ''
+        private_notes:
+          description: 'The private notes of the expense'
+          type: string
+          example: ''
+        public_notes:
+          description: 'The public notes of the expense'
+          type: string
+          example: ''
+        transaction_reference:
+          description: 'The transaction references of the expense'
+          type: string
+          example: ''
+        transcation_id:
+          description: 'The transaction id of the expense'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A custom value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'Tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'Tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The total expense amont'
+          type: number
+          format: float
+          example: '10.00'
+        foreign_amount:
+          description: 'The total foreign amount of the expense'
+          type: number
+          format: float
+          example: '10.00'
+        exchange_rate:
+          description: 'The exchange rate at the time of the expense'
+          type: number
+          format: float
+          example: '0.80'
+        date:
+          description: 'The expense date formate Y-m-d'
+          type: string
+          example: '2022-12-01'
+        payment_date:
+          description: 'The date of payment for the expense, format Y-m-d'
+          type: string
+          example: ''
+        should_be_invoiced:
+          description: 'Flag whether the expense should be invoiced'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Boolean determining whether the expense has been deleted'
+          type: boolean
+          example: true
+        invoice_documents:
+          description: 'Passing the expense documents over to the invoice'
+          type: boolean
+          example: true
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object

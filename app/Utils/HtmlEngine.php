@@ -374,7 +374,6 @@ class HtmlEngine
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
-
         $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes ?: ''), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
@@ -638,6 +637,10 @@ class HtmlEngine
         $data['$entity_images'] = ['value' => $this->generateEntityImagesMarkup(), 'label' => ''];
 
         $data['$payments'] = ['value' => '', 'label' => ctrans('texts.payments')];
+        $data['$payment.custom1'] = ['value' => '', 'label' => ctrans('texts.payment')];
+        $data['$payment.custom2'] = ['value' => '', 'label' => ctrans('texts.payment')];
+        $data['$payment.custom3'] = ['value' => '', 'label' => ctrans('texts.payment')];
+        $data['$payment.custom4'] = ['value' => '', 'label' => ctrans('texts.payment')];
 
         if ($this->entity_string == 'invoice' && $this->entity->payments()->exists()) {
             $payment_list = '<br><br>';
@@ -647,6 +650,15 @@ class HtmlEngine
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
+
+
+            $payment = $this->entity->payments()->first();
+
+            $data['$payment.custom1'] = ['value' => $payment->custom_value1, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment1')];
+            $data['$payment.custom2'] = ['value' => $payment->custom_value2, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment2')];
+            $data['$payment.custom3'] = ['value' => $payment->custom_value3, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment3')];
+            $data['$payment.custom4'] = ['value' => $payment->custom_value4, 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'payment4')];
+
         }
 
         if (($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1)) {
@@ -762,9 +774,6 @@ class HtmlEngine
         if ($country) {
             return $country->iso_3166_2;
         }
-        // if ($country) {
-        //     return ctrans('texts.country_' . $country->iso_3166_2);
-        // }
 
         return ' ';
     }
@@ -984,9 +993,9 @@ html {
      */
     private function buildViewButton(string $link, string $text): string
     {
-
-if($this->settings->email_style == 'plain')
-    return '<a href="'. $link .'" target="_blank">'. $text .'</a>';       
+        if ($this->settings->email_style == 'plain') {
+            return '<a href="'. $link .'" target="_blank">'. $text .'</a>';
+        }
 
         return '
 <div>

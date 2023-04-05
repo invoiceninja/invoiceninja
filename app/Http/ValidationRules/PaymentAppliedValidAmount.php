@@ -84,17 +84,15 @@ class PaymentAppliedValidAmount implements Rule
 
                 $inv = $inv_collection->firstWhere('id', $invoice['invoice_id']);
 
-                if($inv->balance < $invoice['amount']) {
-
+                if ($inv->balance < $invoice['amount']) {
                     $this->message = 'Amount cannot be greater than invoice balance';
 
                     return false;
                 }
-                
             }
         }
 
-        if(round($payment_amounts, 3) >= round($invoice_amounts, 3)) {
+        if (round($payment_amounts, 3) >= round($invoice_amounts, 3)) {
             return true;
         }
 

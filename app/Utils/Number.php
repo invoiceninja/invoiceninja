@@ -238,10 +238,15 @@ class Number
             $precision = 2;
         } elseif ($v < 1) {
             $precision = strlen($v) - strrpos($v, '.') - 1;
-        } 
+        }
         
-        if(is_array($parts) && $parts[0] != 0) {
+        if (is_array($parts) && $parts[0] != 0) {
             $precision = 2;
+        }
+
+        //04-04-2023 if currency = JPY override precision to 0
+        if($currency->code == 'JPY') {
+            $precision = 0;
         }
 
         $value = number_format($v, $precision, $decimal, $thousand);
@@ -254,7 +259,6 @@ class Number
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
         } elseif ($entity->getSetting('show_currency_code') === false) {
-
             if ($_value < 0) {
                 $value = substr($value, 1);
                 $symbol = "-{$symbol}";

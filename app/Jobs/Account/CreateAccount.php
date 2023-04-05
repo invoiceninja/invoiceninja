@@ -77,7 +77,7 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->account_sms_verified = true;
 
-            if (in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu'])) {
+            if (in_array($this->getDomain($this->request['email']), ['givmail.com','yopmail.com','gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'aol.com', 'mail.ru','brand-app.biz','proton.me','ema-sofia.eu', 'mail.com'])) {
                 $sp794f3f->account_sms_verified = false;
             }
 
@@ -126,7 +126,9 @@ class CreateAccount
 
             NinjaMailerJob::dispatch($nmo, true);
 
-            \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
+            // \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
+
+            (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
         }
 
         VersionCheck::dispatch();

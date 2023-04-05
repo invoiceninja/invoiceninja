@@ -35,7 +35,6 @@ class SendEmail extends AbstractService
 
     /**
      * Builds the correct template to send.
-     * @return void
      */
     public function run()
     {

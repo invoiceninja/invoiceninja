@@ -1,0 +1,83 @@
+    InvoiceItem:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          example: 1
+        cost:
+          type: number
+          format: float
+          example: 10.00
+        product_key:
+          type: string
+          example: 'Product key'
+        product_cost:
+          type: number
+          format: float
+          example: 10.00
+        notes:
+          type: string
+          example: 'Item notes'
+        discount:
+          type: number
+          format: float
+          example: 5.00
+        is_amount_discount:
+          type: boolean
+          example: false
+        tax_name1:
+          type: string
+          example: 'Tax name 1'
+        tax_rate1:
+          type: number
+          format: float
+          example: 10.00
+        tax_name2:
+          type: string
+          example: 'Tax name 2'
+        tax_rate2:
+          type: number
+          format: float
+          example: 5.00
+        tax_name3:
+          type: string
+          example: 'Tax name 3'
+        tax_rate3:
+          type: number
+          format: float
+          example: 3.00
+        sort_id:
+          type: string
+          example: '0'
+        line_total:
+          type: number
+          format: float
+          example: 10.00
+        gross_line_total:
+          type: number
+          format: float
+          example: 15.00
+        tax_amount:
+          type: number
+          format: float
+          example: 1.00
+        date:
+          type: string
+          format: date-time
+          example: '2023-03-19T00:00:00Z'
+        custom_value1:
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          type: string
+          example: 'Custom value 4'
+        type_id:
+          type: string
+          example: '1'
+          description: '1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee, 5 late fee, 6 expense'

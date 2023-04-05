@@ -74,7 +74,7 @@
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
         "pragmarx/google2fa": "^8.0",
-        "turbo124/predis": "1.1.11",
+        "pusher/pusher-php-server": "^7.2",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^3",
         "setasign/fpdf": "^1.8",
@@ -88,6 +88,7 @@
         "symfony/mailgun-mailer": "^6.1",
         "symfony/postmark-mailer": "^6.1",
         "turbo124/beacon": "^1.4",
+        "turbo124/predis": "1.1.11",
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "horstoeko/zugferd":"^1",
@@ -159,7 +160,10 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

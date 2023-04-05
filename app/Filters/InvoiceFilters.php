@@ -107,7 +107,10 @@ class InvoiceFilters extends QueryFilters
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('custom_value4', 'like', '%'.$filter.'%');
+                          ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+                          ->orWhereHas('client', function ($q) use ($filter) {
+                              $q->where('name', 'like', '%'.$filter.'%');
+                          });
         });
     }
 
@@ -128,7 +131,7 @@ class InvoiceFilters extends QueryFilters
      */
     public function upcoming(): Builder
     {
-        return $this->builder
+        return $this->builder->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
                     ->where(function ($query) {
                         $query->whereNull('due_date')
                               ->orWhere('due_date', '>', now());

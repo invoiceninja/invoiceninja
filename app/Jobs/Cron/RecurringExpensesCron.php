@@ -40,7 +40,7 @@ class RecurringExpensesCron
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         /* Get all expenses where the send date is less than NOW + 30 minutes() */
         nlog('Sending recurring expenses '.Carbon::now()->format('Y-m-d h:i:s'));

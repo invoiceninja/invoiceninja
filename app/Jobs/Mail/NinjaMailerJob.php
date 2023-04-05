@@ -128,7 +128,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             if ($this->client_mailgun_secret) {
-                $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain);
+                $mailer->mailgun_config($this->client_mailgun_secret, $this->client_mailgun_domain, $this->nmo->settings->mailgun_endpoint);
             }
 
             $mailer
@@ -188,6 +188,8 @@ class NinjaMailerJob implements ShouldQueue
             }
         
             /* Releasing immediately does not add in the backoff */
+            sleep(rand(0, 3));
+
             $this->release($this->backoff()[$this->attempts()-1]);
         }
 
@@ -584,8 +586,9 @@ class NinjaMailerJob implements ShouldQueue
             $guzzle = new \GuzzleHttp\Client();
             $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
-            if(!$user->oauth_user_refresh_token || $user->oauth_user_refresh_token == '')
+            if (!$user->oauth_user_refresh_token || $user->oauth_user_refresh_token == '') {
                 return false;
+            }
 
             $token = json_decode($guzzle->post($url, [
                 'form_params' => [

@@ -1,0 +1,26 @@
+    PaymentTerm:
+      properties:
+        num_days:
+          description: 'The payment term length in days'
+          type: integer
+          example: '1'
+        name:
+          description: 'The payment term length in string format'
+          type: string
+          example: 'NET 1'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object

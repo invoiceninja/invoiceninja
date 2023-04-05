@@ -1,0 +1,226 @@
+    RecurringQuote:
+      properties:
+        id:
+          description: 'The hashed id of the recurring quote'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        status_id:
+          description: 'The quote status variable'
+          type: string
+          example: '4'
+        frequency_id:
+          description: 'The recurring quote frequency'
+          type: number
+          example: '4'
+        remaining_cycles:
+          description: 'The number of quotes left to be generated'
+          type: number
+          example: '4'
+        number:
+          description: 'The recurringquote number - is a unique alpha numeric number per quote per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: 'The purchase order associated with this recurring quote'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The quote terms'
+          type: string
+          example: 'These are quote terms'
+        public_notes:
+          description: 'The public notes of the quote'
+          type: string
+          example: 'These are some public notes'
+        private_notes:
+          description: 'The private notes of the quote'
+          type: string
+          example: 'These are some private notes'
+        footer:
+          description: 'The quote footer notes'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: '2022-10-01'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Something custom'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        total_taxes:
+          description: 'The total taxes for the quote'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of objects which define the line items of the quote'
+          type: object
+          example: ''
+        amount:
+          description: 'The quote amount'
+          type: number
+          format: float
+          example: '10.00'
+        balance:
+          description: 'The quote balance'
+          type: number
+          format: float
+          example: '10.00'
+        paid_to_date:
+          description: 'The amount paid on the quote to date'
+          type: number
+          format: float
+          example: '10.00'
+        discount:
+          description: 'The quote discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        is_deleted:
+          description: 'Defines if the quote has been deleted'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The quote Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        last_sent_date:
+          description: 'The last date the quote was sent out'
+          type: string
+          format: date
+          example: '1994-07-30'
+        next_send_date:
+          description: 'The Next date for a reminder to be sent'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The due date of the quote'
+          type: string
+          format: date
+          example: '1994-07-30'
+        settings:
+          $ref: '#/components/schemas/CompanySettings'
+        last_viewed:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+      type: object

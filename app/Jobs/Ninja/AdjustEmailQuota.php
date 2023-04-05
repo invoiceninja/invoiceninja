@@ -21,8 +21,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
-use Turbo124\Beacon\Facades\LightLogs;
 use Illuminate\Support\Facades\Redis;
+use Turbo124\Beacon\Facades\LightLogs;
+
 class AdjustEmailQuota implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -78,14 +79,11 @@ class AdjustEmailQuota implements ShouldQueue
 
         $keys = $redis->keys($prefix);
 
-        if(is_array($keys))
-        {
+        if (is_array($keys)) {
             $redis->pipeline(function ($pipe) use ($keys) {
-
                 foreach ($keys as $key) {
                     $pipe->del($key);
                 }
-
             });
         }
         $keys = null;
@@ -101,7 +99,5 @@ class AdjustEmailQuota implements ShouldQueue
                 }
             });
         }
-
-        
     }
 }

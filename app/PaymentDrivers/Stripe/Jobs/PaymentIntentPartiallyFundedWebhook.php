@@ -50,7 +50,7 @@ class PaymentIntentPartiallyFundedWebhook implements ShouldQueue
                 $payment_intent = $transaction['id'];
             }
 
-            if(!$payment_intent){
+            if (!$payment_intent) {
                 nlog("payment intent not found");
                 nlog($transaction);
                 return;
@@ -61,7 +61,7 @@ class PaymentIntentPartiallyFundedWebhook implements ShouldQueue
             ->where('transaction_reference', $payment_intent)
             ->first();
 
-            if(!$payment){
+            if (!$payment) {
                 nlog("paymentintent found but no payment");
             }
 

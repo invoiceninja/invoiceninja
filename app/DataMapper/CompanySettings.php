@@ -449,6 +449,8 @@ class CompanySettings extends BaseSettings
     
     public $mailgun_domain = '';
 
+    public $mailgun_endpoint = 'api.mailgun.net'; //api.eu.mailgun.net
+
     public $auto_bill_standard_invoices = false;
 
     public $email_alignment = 'center'; // center , left, right
@@ -467,7 +469,17 @@ class CompanySettings extends BaseSettings
 
     public $show_task_item_description = false;
 
+    public $client_initiated_payments = false;
+
+    public $client_initiated_payments_minimum = 0;
+
+    public $sync_invoice_quote_columns = true;
+
     public static $casts = [
+        'mailgun_endpoint'                   => 'string',    
+        'client_initiated_payments'          => 'bool',
+        'client_initiated_payments_minimum'  => 'float',
+        'sync_invoice_quote_columns'         => 'bool',
         'show_task_item_description'         => 'bool',
         'allow_billable_task_items'          => 'bool',
         'accept_client_input_quote_approval' => 'bool',
@@ -493,7 +505,6 @@ class CompanySettings extends BaseSettings
         'purchase_order_design_id'           => 'string',
         'purchase_order_footer'              => 'string',
         'purchase_order_number_pattern'      => 'string',
-        'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
@@ -525,7 +536,6 @@ class CompanySettings extends BaseSettings
         'reminder_send_time'                 => 'int',
         'email_sending_method'               => 'string',
         'gmail_sending_user_id'              => 'string',
-        'currency_id'                        => 'string',
         'counter_number_applied'             => 'string',
         'quote_number_applied'               => 'string',
         'email_subject_custom1'              => 'string',
@@ -899,6 +909,15 @@ class CompanySettings extends BaseSettings
                 '$credit.total',
             ],
             'product_columns' => [
+                '$product.item',
+                '$product.description',
+                '$product.unit_cost',
+                '$product.quantity',
+                '$product.discount',
+                '$product.tax',
+                '$product.line_total',
+            ],
+            'product_quote_columns' => [
                 '$product.item',
                 '$product.description',
                 '$product.unit_cost',

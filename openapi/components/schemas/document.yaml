@@ -1,0 +1,70 @@
+    Document:
+      properties:
+        id:
+          description: 'The document hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: ''
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: ''
+        project_id:
+          description: 'The project associated with this document'
+          type: string
+          example: ''
+        vendor_id:
+          description: 'The vendor associated with this documents'
+          type: string
+          example: ''
+        name:
+          description: 'The document name'
+          type: string
+          example: Beauty
+        url:
+          description: 'The document url'
+          type: string
+          example: Beauty
+        preview:
+          description: 'The document preview url'
+          type: string
+          example: Beauty
+        type:
+          description: 'The document type'
+          type: string
+          example: Beauty
+        disk:
+          description: 'The document disk'
+          type: string
+          example: Beauty
+        hash:
+          description: 'The document hashed'
+          type: string
+          example: Beauty
+        is_deleted:
+          description: 'Flag to determine if the document is deleted'
+          type: boolean
+          example: true
+        is_default:
+          description: 'Flag to determine if the document is a default doc'
+          type: boolean
+          example: true
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        deleted_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object

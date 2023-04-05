@@ -356,8 +356,7 @@ class ACH
         $response = json_decode($request->gateway_response);
         $bank_account_response = json_decode($request->bank_account_response);
 
-        if($response->status == 'requires_source_action' && $response->next_action->type == 'verify_with_microdeposits')
-        {
+        if ($response->status == 'requires_source_action' && $response->next_action->type == 'verify_with_microdeposits') {
             $method = $bank_account_response->payment_method->us_bank_account;
             $method = $bank_account_response->payment_method->us_bank_account;
             $method->id = $response->payment_method;
@@ -561,7 +560,7 @@ class ACH
             $payment_meta->type = GatewayType::BANK_TRANSFER;
             $payment_meta->state = $state;
 
-            if(property_exists($method, 'next_action')) {
+            if (property_exists($method, 'next_action')) {
                 $payment_meta->next_action = $method->next_action;
             }
 

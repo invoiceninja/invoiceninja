@@ -32,7 +32,7 @@ class StoreSchedulerRequest extends Request
     public function rules()
     {
         $rules = [
-            'name' => ['bail', 'required', Rule::unique('schedulers')->where('company_id', auth()->user()->company()->id)],
+            'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
             'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
@@ -43,6 +43,8 @@ class StoreSchedulerRequest extends Request
             'parameters.date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,custom',
             'parameters.start_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom'],
             'parameters.end_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom', 'after_or_equal:parameters.start_date'],
+            'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
+            'parameters.entity_id' => ['bail', 'sometimes', 'string'],
         ];
 
         return $rules;

@@ -12,15 +12,9 @@
 namespace App\Http\Requests\User;
 
 use App\Http\Requests\Request;
-use App\Models\User;
-use App\Utils\Traits\ChecksEntityStatus;
-use App\Utils\Traits\MakesHash;
 
 class DetachCompanyUserRequest extends Request
 {
-    use MakesHash;
-    use ChecksEntityStatus;
-
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -1,0 +1,48 @@
+    BankTransactionRule:
+      properties:
+        id:
+          description: 'The bank transaction rules hashed id'
+          type: string
+          example: AS3df3A
+        company_id:
+          description: 'The company hashed id'
+          type: string
+          example: AS3df3A
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: AS3df3A
+        name:
+          description: 'The name of the transaction'
+          type: string
+          example: 'Rule 1'
+        rules:
+          description: 'A mapped collection of the sub rules for the BankTransactionRule'
+          type: array
+          items:
+            $ref: '#/components/schemas/BTRules'
+        auto_convert:
+          description: 'Flags whether the rule converts the transaction automatically'
+          type: boolean
+          example: true
+        matches_on_all:
+          description: 'Flags whether all subrules are required for the match'
+          type: boolean
+          example: true
+        applies_to:
+          description: 'Flags whether the rule applies to a CREDIT or DEBIT'
+          type: string
+          example: CREDIT
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: AS3df3A
+        vendor_id:
+          description: 'The vendor hashed id'
+          type: string
+          example: AS3df3A
+        category_id:
+          description: 'The category hashed id'
+          type: string
+          example: AS3df3A
+      type: object
