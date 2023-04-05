@@ -96,134 +96,44 @@ class CreateXInvoice implements ShouldQueue
 
 
         //Create line items and calculate taxes
-        $taxtype1 = "";
-        switch ($company->tax_type1){
-            case "ZeroRate":
-                $taxtype1 = "Z";
-                break;
-            case "Tax Exempt":
-                $taxtype1 = "E";
-                break;
-            case "Reversal of tax liabilty":
-                $taxtype1 = "AE";
-                break;
-            case "intra-community delivery":
-                $taxtype1 = "K";
-                break;
-            case "Out of EU":
-                $taxtype1 = "G";
-                break;
-            case "Outside the tax scope":
-                $taxtype1 = "O";
-                break;
-            case "Canary Islands":
-                $taxtype1 = "L";
-                break;
-            case "Ceuta / Melila":
-                $taxtype1 = "M";
-                break;
-            default:
-                $taxtype1 = "S";
-                break;
-        }
-        $taxtype2 = "";
-        switch ($company->tax_type2){
-            case "ZeroRate":
-                $taxtype2 = "Z";
-                break;
-            case "Tax Exempt":
-                $taxtype2 = "E";
-                break;
-            case "Reversal of tax liabilty":
-                $taxtype2 = "AE";
-                break;
-            case "intra-community delivery":
-                $taxtype2 = "K";
-                break;
-            case "Out of EU":
-                $taxtype2 = "G";
-                break;
-            case "Outside the tax scope":
-                $taxtype2 = "O";
-                break;
-            case "Canary Islands":
-                $taxtype2 = "L";
-                break;
-            case "Ceuta / Melila":
-                $taxtype2 = "M";
-                break;
-            default:
-                $taxtype2 = "S";
-                break;
-        }
-        $taxtype3 = "";
-        switch ($company->tax_type3){
-            case "ZeroRate":
-                $taxtype3 = "Z";
-                break;
-            case "Tax Exempt":
-                $taxtype3 = "E";
-                break;
-            case "Reversal of tax liabilty":
-                $taxtype3 = "AE";
-                break;
-            case "intra-community delivery":
-                $taxtype3 = "K";
-                break;
-            case "Out of EU":
-                $taxtype3 = "G";
-                break;
-            case "Outside the tax scope":
-                $taxtype3 = "O";
-                break;
-            case "Canary Islands":
-                $taxtype3 = "L";
-                break;
-            case "Ceuta / Melila":
-                $taxtype3 = "M";
-                break;
-            default:
-                $taxtype3 = "S";
-                break;
-        }
         foreach ($invoice->line_items as $index => $item){
             $xrechnung->addNewPosition($index)
-                ->setDocumentPositionProductDetails($item->notes)
-                ->setDocumentPositionGrossPrice($item->gross_line_total)
-                ->setDocumentPositionNetPrice($item->line_total);
+                        ->setDocumentPositionProductDetails($item->notes)
+                        ->setDocumentPositionGrossPrice($item->gross_line_total)
+                        ->setDocumentPositionNetPrice($item->line_total);
             if (isset($item->task_id)){
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "HUR");
             }
             else{
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
             }
-            // According to european law, each artical can only have one tax percentage
-            if (empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3)){
-                if (!empty($invoice->tax_name1)){
-                    $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $invoice->tax_rate1);
-                }
-                elseif (!empty($invoice->tax_name2)){
-                    $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $invoice->tax_rate2);
-                }
-                elseif (!empty($invoice->tax_name3)){
-                    $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $invoice->tax_rate3);
-                }
-                else{
-                    nlog("Can't add correct tax position");
-                }
+
+            // According to european law, each line item can only have one tax rate
+            if (!empty($item->tax_name1)){
+                $xrechnung->addDocumentPositionTax(getTaxType($item->tax_name1), 'VAT', $item->tax_rate1);
             }
-            else {
-                if ($item->tax_name1 != "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
-                    $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $item->tax_rate1);
-                }
-                elseif ($item->tax_name1 == "" && $item->tax_name2 != "" && $item->tax_name3 == ""){
-                    $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $item->tax_rate2);
-                }
-                elseif ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 != ""){
-                    $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $item->tax_rate3);
-                }
+            elseif (!empty($item->tax_name2)){
+                $xrechnung->addDocumentPositionTax(getTaxType($item->tax_name2), 'VAT', $item->tax_rate2);
             }
-        }
+            elseif (!empty($item->tax_name3)){
+                $xrechnung->addDocumentPositionTax(getTaxType($item->tax_name3), 'VAT', $item->tax_rate3);
+            }
+            else{
+                nlog("Can't add correct tax position");
+            }
+
+            if (!empty($invoice->tax_name1)){
+                $xrechnung->addDocumentPositionTax(getTaxType($invoice->tax_name1), 'VAT', $invoice->tax_rate1);
+            }
+            elseif (!empty($invoice->tax_name2)){
+                $xrechnung->addDocumentPositionTax(getTaxType($invoice->tax_name2), 'VAT', $invoice->tax_rate2);
+            }
+            elseif (!empty($invoice->tax_name3)){
+                $xrechnung->addDocumentPositionTax(getTaxType($invoice->tax_name3), 'VAT', $item->tax_rate3);
+            } else{
+                nlog("Can't add correct tax position");}
+            }
+
 
 
         if ($invoice->isPartial()){
@@ -232,17 +142,15 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->setDocumentSummation($invoice->amount, $invoice->amount-$invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, 0.0);
         }
 
-        if (count($invoicingdata->getTaxMap()) > 0){
-            $tax = explode(" ", $invoicingdata->getTaxMap()[0]["name"]);
-            $xrechnung->addDocumentTax($taxtype1, "VAT", $invoicingdata->getTaxMap()[0]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[0]["total"], explode("%", end($tax))[0]);
+        foreach ($invoicingdata->getTaxMap() as $item){
+            $tax = explode(" ", $item["name"]);
+            $xrechnung->addDocumentTax(getTaxType(""), "VAT", $item["total"]/(explode("%", end($tax))[0]/100), $item["total"], explode("%", end($tax))[0]);
+            // TODO: Add correct tax type within getTaxType
         }
-        if (count($invoicingdata->getTaxMap()) > 1) {
-            $tax = explode(" ", $invoicingdata->getTaxMap()[1]["name"]);
-            $xrechnung->addDocumentTax($taxtype2, "VAT", $invoicingdata->getTaxMap()[1]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[1]["total"], explode("%", end($tax))[0]);
-        }
-        if (count($invoicingdata->getTaxMap()) > 2) {
-            $tax = explode(" ", $invoicingdata->getTaxMap()[2]["name"]);
-            $xrechnung->addDocumentTax($taxtype3, "VAT", $invoicingdata->getTaxMap()[2]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[2]["total"], explode("%", end($tax))[0]);
+        foreach ($invoicingdata->getTotalTaxMap() as $item){
+            $tax = explode(" ", $item["name"]);
+            $xrechnung->addDocumentTax(getTaxType(""), "VAT", $item["total"]/(explode("%", end($tax))[0]/100), $item["total"], explode("%", end($tax))[0]);
+            // TODO: Add correct tax type within getTaxType
         }
 
         $disk = config('filesystems.default');
@@ -269,4 +177,39 @@ class CreateXInvoice implements ShouldQueue
         }
         return $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName("xml");
     }
+}
+
+private function getTaxType(string $name)
+{
+    $taxtype = "";
+    switch ($name){
+        case "ZeroRate":
+            $taxtype = "Z";
+            break;
+        case "Tax Exempt":
+            $taxtype = "E";
+            break;
+        case "Reversal of tax liabilty":
+            $taxtype = "AE";
+            break;
+        case "intra-community delivery":
+            $taxtype = "K";
+            break;
+        case "Out of EU":
+            $taxtype = "G";
+            break;
+        case "Outside the tax scope":
+            $taxtype = "O";
+            break;
+        case "Canary Islands":
+            $taxtype = "L";
+            break;
+        case "Ceuta / Melila":
+            $taxtype = "M";
+            break;
+        default:
+            $taxtype = "S";
+            break;
+    }
+    return $taxtype;
 }
