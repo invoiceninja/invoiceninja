@@ -3,7 +3,6 @@
 namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
-use App\Models\Country;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -19,7 +18,7 @@ class CreateXInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public Invoice $invoice;
+    private Invoice $invoice;
     private bool $alterpdf;
     private string $custompdfpath;
 
@@ -75,6 +74,7 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2)
+            ->setDocumentSellerContact($invoice->user->first_name." ".$invoice->user->last_name)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
             ->setDocumentBuyerReference($client->leitweg_id)
@@ -94,7 +94,7 @@ class CreateXInvoice implements ShouldQueue
         }
 
         $invoicingdata = $invoice->calc();
-
+        $globaltax = null;
 
         //Create line items and calculate taxes
         foreach ($invoice->line_items as $index => $item) {
@@ -107,26 +107,40 @@ class CreateXInvoice implements ShouldQueue
             } else {
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
             }
-
-            // According to european law, each line item can only have one tax rate
-            if (!empty($item->tax_name1)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name1), 'VAT', $item->tax_rate1);
-            } elseif (!empty($item->tax_name2)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name2), 'VAT', $item->tax_rate2);
-            } elseif (!empty($item->tax_name3)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name3), 'VAT', $item->tax_rate3);
-            } else {
-                nlog("Can't add correct tax position");
+            $linenetamount = $item->line_total + $item->surcharge_1 + $item->surcharge_2 + $item->surcharge_3;
+            if ($item->discount > 0){
+                if ($invoice->is_amount_discount){
+                    $linenetamount -= $item->discount;
+                }
+                else {
+                    $linenetamount -= $linenetamount * ($item->discount / 100);
+                }
             }
-
-            if (!empty($invoice->tax_name1)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name1), 'VAT', $invoice->tax_rate1);
-            } elseif (!empty($invoice->tax_name2)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name2), 'VAT', $invoice->tax_rate2);
-            } elseif (!empty($invoice->tax_name3)) {
-                $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name3), 'VAT', $item->tax_rate3);
+            $xrechnung->setDocumentPositionLineSummation($linenetamount);
+            // According to european law, each line item can only have one tax rate
+            if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))){
+                if (!empty($item->tax_name1)) {
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name1), 'VAT', $item->tax_rate1);
+                } elseif (!empty($item->tax_name2)) {
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name2), 'VAT', $item->tax_rate2);
+                } elseif (!empty($item->tax_name3)) {
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name3), 'VAT', $item->tax_rate3);
+                } else {
+                    nlog("Can't add correct tax position");
+                }
             } else {
-                nlog("Can't add correct tax position");
+               if (!empty($invoice->tax_name1)) {
+                   $globaltax = 0;
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name1), 'VAT', $invoice->tax_rate1);
+                } elseif (!empty($invoice->tax_name2)) {
+                   $globaltax = 1;
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name2), 'VAT', $invoice->tax_rate2);
+                } elseif (!empty($invoice->tax_name3)) {
+                   $globaltax = 2;
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name3), 'VAT', $item->tax_rate3);
+               } else {
+                    nlog("Can't add correct tax position");
+              }
             }
         }
 
@@ -142,9 +156,9 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
-        foreach ($invoicingdata->getTotalTaxMap() as $item) {
-            $tax = explode(" ", $item["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
+        if (!empty($globaltax)){
+            $tax = explode(" ", $invoicingdata->getTotalTaxMap()[$globaltax]["name"]);
+            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicingdata->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicingdata->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
 
@@ -153,6 +167,7 @@ class CreateXInvoice implements ShouldQueue
             Storage::makeDirectory($client->xinvoice_filepath($invoice->invitations->first()));
         }
         $xrechnung->writeFile(Storage::disk($disk)->path($client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
+        // The validity can be checked using https://portal3.gefeg.com/invoice/validation
 
         if ($this->alterpdf) {
             if ($this->custompdfpath != "") {
@@ -169,6 +184,7 @@ class CreateXInvoice implements ShouldQueue
                 }
             }
         }
+
         return $client->invoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
     }
 
