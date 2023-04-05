@@ -175,6 +175,11 @@ class InvoiceSumInclusive
         return $this;
     }
 
+    public function getTotalSurcharges()
+    {
+        return $this->total_custom_values;
+    }
+
     public function getRecurringInvoice()
     {
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);

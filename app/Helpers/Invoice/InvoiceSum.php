@@ -294,6 +294,11 @@ class InvoiceSum
         return $this->total;
     }
 
+    public function getTotalSurcharges()
+    {
+        return $this->total_custom_values;
+    }
+
     public function setTaxMap()
     {
         if ($this->invoice->is_amount_discount == true) {

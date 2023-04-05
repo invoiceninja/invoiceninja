@@ -70,7 +70,6 @@ class CreateXInvoice implements ShouldQueue
 
         $xrechnung
             ->setDocumentInformation($invoice->number, "380", date_create($invoice->date), $invoice->client->getCurrencyCode())
-            ->addDocumentNote($invoice->public_notes)
             ->setDocumentSupplyChainEvent(date_create($invoice->date))
             ->setDocumentSeller($company->getSetting('name'))
             ->setDocumentSellerAddress($company->getSetting("address1"), "", "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2)
@@ -78,8 +77,13 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
             ->setDocumentBuyerReference($client->leitweg_id)
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name." ".$client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
-            ->setDocumentBuyerOrderReferencedDocument($invoice->po_number)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
+        if (!empty($invoice->public_notes)){
+            $xrechnung->addDocumentNote($invoice->public_notes);
+        }
+        if(!empty($invoice->po_number)){
+            $xrechnung->setDocumentBuyerOrderReferencedDocument($invoice->po_number);
+        }
 
         if (str_contains($company->getSetting('vat_number'), "/")){
             $xrechnung->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));
@@ -87,7 +91,11 @@ class CreateXInvoice implements ShouldQueue
         else {
             $xrechnung->addDocumentSellerTaxRegistration("VA", $company->getSetting('vat_number'));
         }
-        // Create line items and calculate taxes
+
+        $invoicingdata = $invoice->calc();
+
+
+        //Create line items and calculate taxes
         $taxtype1 = "";
         switch ($company->tax_type1){
             case "ZeroRate":
@@ -178,11 +186,6 @@ class CreateXInvoice implements ShouldQueue
                 $taxtype3 = "S";
                 break;
         }
-        $taxamount_1 = $taxamount_2 = $taxamount_3 = $taxnet_1 = $taxnet_2 = $taxnet_3 = 0.0;
-        $netprice = 0.0;
-        $chargetotalamount = $discount = 0.0;
-        $taxable = $this->getTaxable();
-
         foreach ($invoice->line_items as $index => $item){
             $xrechnung->addNewPosition($index)
                 ->setDocumentPositionProductDetails($item->notes)
@@ -194,34 +197,15 @@ class CreateXInvoice implements ShouldQueue
             else{
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "H87");
             }
-            $netprice += $this->getItemTaxable($item, $taxable);
-            $discountamount = 0.0;
-            if ($item->discount > 0){
-                if ($invoice->is_amount_discount){
-                    $discountamount = $item->discount;
-                    $discount += $item->discount;
-                }
-                else {
-                    $discountamount = $item->line_total * ($item->discount / 100);
-                    $discount += $item->line_total * ($item->discount / 100);
-                }
-            }
-
             // According to european law, each artical can only have one tax percentage
-            if ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
-                if ($invoice->tax_name1 != null && $invoice->tax_name2 == null && $invoice->tax_name3 == null){
+            if (empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3)){
+                if (!empty($invoice->tax_name1)){
                     $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $invoice->tax_rate1);
-                    $taxnet_1 += $item->line_total - $discountamount;
-                    $taxamount_1 += $item->tax_amount;
                 }
-                elseif ($invoice->tax_name1 == null && $invoice->tax_name2 != null && $invoice->tax_name3 == null){
-                    $taxnet_2 += $item->line_total - $discountamount;
-                    $taxamount_2 += $item->tax_amount;
+                elseif (!empty($invoice->tax_name2)){
                     $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $invoice->tax_rate2);
                 }
-                elseif ($invoice->tax_name1 == null && $invoice->tax_name2 == null && $invoice->tax_name3 != null){
-                    $taxnet_3 += $item->line_total - $discountamount;
-                    $taxamount_3 += $item->tax_amount;
+                elseif (!empty($invoice->tax_name3)){
                     $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $invoice->tax_rate3);
                 }
                 else{
@@ -230,65 +214,37 @@ class CreateXInvoice implements ShouldQueue
             }
             else {
                 if ($item->tax_name1 != "" && $item->tax_name2 == "" && $item->tax_name3 == ""){
-                    $taxnet_1 += $item->line_total - $discountamount;
-                    $taxamount_1 += $item->tax_amount;
                     $xrechnung->addDocumentPositionTax($taxtype1, 'VAT', $item->tax_rate1);
                 }
                 elseif ($item->tax_name1 == "" && $item->tax_name2 != "" && $item->tax_name3 == ""){
-                    $taxnet_2 += $item->line_total - $discountamount;
-                    $taxamount_2 += $item->tax_amount;
                     $xrechnung->addDocumentPositionTax($taxtype2, 'VAT', $item->tax_rate2);
                 }
                 elseif ($item->tax_name1 == "" && $item->tax_name2 == "" && $item->tax_name3 != ""){
-                    $taxnet_3 += $item->line_total - $discountamount;
-                    $taxamount_3 += $item->tax_amount;
                     $xrechnung->addDocumentPositionTax($taxtype3, 'VAT', $item->tax_rate3);
                 }
             }
         }
 
-        // Calculate global surcharges
-        if ($this->invoice->custom_surcharge1 && $this->invoice->custom_surcharge_tax1) {
-            $chargetotalamount += $this->invoice->custom_surcharge1;
-        }
-
-        if ($this->invoice->custom_surcharge2 && $this->invoice->custom_surcharge_tax2) {
-            $chargetotalamount += $this->invoice->custom_surcharge2;
-        }
-
-        if ($this->invoice->custom_surcharge3 && $this->invoice->custom_surcharge_tax3) {
-            $chargetotalamount += $this->invoice->custom_surcharge3;
-        }
-
-        if ($this->invoice->custom_surcharge4 && $this->invoice->custom_surcharge_tax4) {
-            $chargetotalamount += $this->invoice->custom_surcharge4;
-        }
-
-        // Calculate global discounts
-        if ($invoice->disount > 0){
-            if ($invoice->is_amount_discount){
-                $discount += $invoice->discount;
-            }
-            else {
-                $discount += $invoice->amount * ($invoice->discount / 100);
-            }
-        }
-
 
         if ($invoice->isPartial()){
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $netprice, $chargetotalamount, $discount, $taxable, $invoice->total_taxes, null, $invoice->partial);}
-        else {
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $netprice, $chargetotalamount, $discount, $taxable, $invoice->total_taxes, null, 0.0);
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->amount-$invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, $invoice->partial);
+        } else {
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->amount-$invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, 0.0);
         }
-        if ($taxnet_1 > 0){
-        $xrechnung->addDocumentTax($taxtype1, "VAT", $taxnet_1, $taxamount_1, $invoice->tax_rate1);
+
+        if (count($invoicingdata->getTaxMap()) > 0){
+            $tax = explode(" ", $invoicingdata->getTaxMap()[0]["name"]);
+            $xrechnung->addDocumentTax($taxtype1, "VAT", $invoicingdata->getTaxMap()[0]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[0]["total"], explode("%", end($tax))[0]);
         }
-        if ($taxnet_2 > 0) {
-        $xrechnung->addDocumentTax($taxtype2, "VAT", $taxnet_2, $taxamount_2, $invoice->tax_rate2);
+        if (count($invoicingdata->getTaxMap()) > 1) {
+            $tax = explode(" ", $invoicingdata->getTaxMap()[1]["name"]);
+            $xrechnung->addDocumentTax($taxtype2, "VAT", $invoicingdata->getTaxMap()[1]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[1]["total"], explode("%", end($tax))[0]);
         }
-        if ($taxnet_3 > 0) {
-            $xrechnung->addDocumentTax($taxtype3, "VAT", $taxnet_3, $taxamount_3, $invoice->tax_rate3);
+        if (count($invoicingdata->getTaxMap()) > 2) {
+            $tax = explode(" ", $invoicingdata->getTaxMap()[2]["name"]);
+            $xrechnung->addDocumentTax($taxtype3, "VAT", $invoicingdata->getTaxMap()[2]["total"]/(explode("%", end($tax))[0]/100), $invoicingdata->getTaxMap()[2]["total"], explode("%", end($tax))[0]);
         }
+
         $disk = config('filesystems.default');
         if(!Storage::exists($client->xinvoice_filepath($invoice->invitations->first()))){
             Storage::makeDirectory($client->xinvoice_filepath($invoice->invitations->first()));
@@ -312,87 +268,5 @@ class CreateXInvoice implements ShouldQueue
             }
         }
         return $client->invoice_filepath($invoice->invitations->first()).$invoice->getFileName("xml");
-    }
-    private function getItemTaxable($item, $invoice_total): float
-    {
-        $total = $item->quantity * $item->cost;
-
-        if ($this->invoice->discount != 0) {
-            if ($this->invoice->is_amount_discount) {
-                if ($invoice_total + $this->invoice->discount != 0) {
-                    $total -= $invoice_total ? ($total / ($invoice_total + $this->invoice->discount) * $this->invoice->discount) : 0;
-                }
-            } else {
-                $total *= (100 - $this->invoice->discount) / 100;
-            }
-        }
-
-        if ($item->discount != 0) {
-            if ($this->invoice->is_amount_discount) {
-                $total -= $item->discount;
-            } else {
-                $total -= $total * $item->discount / 100;
-            }
-        }
-
-        return round($total, 2);
-    }
-
-    /**
-     * @return float
-     */
-    private function getTaxable(): float
-    {
-        $total = 0.0;
-
-        foreach ($this->invoice->line_items as $item) {
-            $line_total = $item->quantity * $item->cost;
-
-            if ($item->discount != 0) {
-                if ($this->invoice->is_amount_discount) {
-                    $line_total -= $item->discount;
-                } else {
-                    $line_total -= $line_total * $item->discount / 100;
-                }
-            }
-
-            $total += $line_total;
-        }
-
-        if ($this->invoice->discount > 0) {
-            if ($this->invoice->is_amount_discount) {
-                $total -= $this->invoice->discount;
-            } else {
-                $total *= (100 - $this->invoice->discount) / 100;
-                $total = round($total, 2);
-            }
-        }
-
-        if ($this->invoice->custom_surcharge1 && $this->invoice->custom_surcharge_tax1) {
-            $total += $this->invoice->custom_surcharge1;
-        }
-
-        if ($this->invoice->custom_surcharge2 && $this->invoice->custom_surcharge_tax2) {
-            $total += $this->invoice->custom_surcharge2;
-        }
-
-        if ($this->invoice->custom_surcharge3 && $this->invoice->custom_surcharge_tax3) {
-            $total += $this->invoice->custom_surcharge3;
-        }
-
-        if ($this->invoice->custom_surcharge4 && $this->invoice->custom_surcharge_tax4) {
-            $total += $this->invoice->custom_surcharge4;
-        }
-
-        return $total;
-    }
-
-    public function taxAmount($taxable, $rate): float
-    {
-        if ($this->invoice->uses_inclusive_taxes) {
-            return round($taxable - ($taxable / (1 + ($rate / 100))), 2);
-        } else {
-            return round($taxable * ($rate / 100), 2);
-        }
     }
 }
