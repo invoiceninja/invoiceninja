@@ -3,6 +3,8 @@
 namespace App\Jobs\Invoice;
 
 use App\Models\Invoice;
+use App\Models\Product;
+use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentPdfBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
@@ -125,24 +127,24 @@ class CreateXInvoice implements ShouldQueue
             // According to european law, each line item can only have one tax rate
             if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))){
                 if (!empty($item->tax_name1)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name1), 'VAT', $item->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id, $invoice), 'VAT', $item->tax_rate1);
                 } elseif (!empty($item->tax_name2)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name2), 'VAT', $item->tax_rate2);
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id, $invoice), 'VAT', $item->tax_rate2);
                 } elseif (!empty($item->tax_name3)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_name3), 'VAT', $item->tax_rate3);
+                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id, $invoice), 'VAT', $item->tax_rate3);
                 } else {
                     nlog("Can't add correct tax position");
                 }
             } else {
                if (!empty($invoice->tax_name1)) {
                    $globaltax = 0;
-                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name1), 'VAT', $invoice->tax_rate1);
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name1, $invoice), 'VAT', $invoice->tax_rate1);
                 } elseif (!empty($invoice->tax_name2)) {
                    $globaltax = 1;
-                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name2), 'VAT', $invoice->tax_rate2);
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name2, $invoice), 'VAT', $invoice->tax_rate2);
                 } elseif (!empty($invoice->tax_name3)) {
                    $globaltax = 2;
-                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name3), 'VAT', $item->tax_rate3);
+                   $xrechnung->addDocumentPositionTax($this->getTaxType($invoice->tax_name3, $invoice), 'VAT', $item->tax_rate3);
                } else {
                     nlog("Can't add correct tax position");
               }
@@ -158,12 +160,12 @@ class CreateXInvoice implements ShouldQueue
 
         foreach ($invoicingdata->getTaxMap() as $item) {
             $tax = explode(" ", $item["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
+            $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
         if (!empty($globaltax)){
             $tax = explode(" ", $invoicingdata->getTotalTaxMap()[$globaltax]["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicingdata->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicingdata->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
+            $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $invoicingdata->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicingdata->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
 
@@ -193,18 +195,46 @@ class CreateXInvoice implements ShouldQueue
         return $client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
     }
 
-    private function getTaxType(string $name): string
+    private function getTaxType($name, Invoice $invoice): string
     {
-        return match ($name) {
-            "ZeroRate" => "Z",
-            "Tax Exempt" => "E",
-            "Reversal of tax liabilty" => "AE",
-            "intra-community delivery" => "K",
-            "Out of EU" => "G",
-            "Outside the tax scope" => "O",
-            "Canary Islands" => "L",
-            "Ceuta / Melila" => "M",
-            default => "S",
-        };
+        $taxtype = null;
+        switch ($name) {
+            case Product::PRODUCT_TYPE_SERVICE:
+            case Product::PRODUCT_TYPE_DIGITAL:
+            case Product::PRODUCT_TYPE_PHYSICAL:
+            case Product::PRODUCT_TYPE_SHIPPING:
+            case Product::PRODUCT_TYPE_REDUCED_TAX:
+                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                break;
+            case Product::PRODUCT_TYPE_EXEMPT:
+                $taxtype =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+                break;
+            case Product::PRODUCT_TYPE_ZERO_RATED:
+                $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                break;
+            case Product::PRODUCT_TYPE_REVERSE_TAX:
+                $taxtype = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
+                break;
+        }
+        $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
+        if (empty($taxtype)){
+            if (in_array($invoice->company->country()->iso_3166_2, $eu_states) && in_array($invoice->client->country->iso_3166_2, $eu_states)){
+                $taxtype = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+            }
+            elseif (!in_array($invoice->client->country->iso_3166_2, $eu_states)){
+                $taxtype = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
+            }
+            elseif ($invoice->client->country->iso_3166_2 == "ES-CN"){
+                $taxtype = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
+            }
+            elseif (in_array($invoice->client->country->iso_3166_2, ["ES-CE", "ES-ML"])){
+                $taxtype = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
+            }
+            else {
+                nlog("Unkown tax case for xinvoice");
+                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+            }
+        }
+        return $taxtype;
     }
 }
