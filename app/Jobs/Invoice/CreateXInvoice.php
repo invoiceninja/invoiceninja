@@ -153,9 +153,9 @@ class CreateXInvoice implements ShouldQueue
 
 
         if ($invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->amount - $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, $invoice->partial);
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, $invoice->partial);
         } else {
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->amount - $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, 0.0);
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, 0.0);
         }
 
         foreach ($invoicingdata->getTaxMap() as $item) {
