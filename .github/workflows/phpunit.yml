@@ -113,9 +113,7 @@ jobs:
         REDIS_PORT: ${{ job.services.redis.ports['6379'] }}
       run: |
         php artisan key:generate
-        php artisan optimize
-        php artisan cache:clear
-        php artisan config:cache
+        php artisan config:clear
         php artisan ninja:post-update
 
     - name: Migrate Database
