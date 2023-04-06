@@ -190,7 +190,7 @@ class CreateXInvoice implements ShouldQueue
             }
         }
 
-        return $client->invoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
+        return $client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
     }
 
     private function getTaxType(string $name): string
