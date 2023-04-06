@@ -115,7 +115,8 @@ jobs:
         php artisan key:generate
         php artisan config:clear
         php artisan ninja:post-update
-
+        php artisan optimize
+        
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
