@@ -176,15 +176,13 @@ class MatchBankTransactions implements ShouldQueue
 
     private function coalesceExpenses($expense): string 
     {
-nlog("BTExpense: " . $this->bt->expense_id);
 
-    if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
-        nlog("coalesceExpense: " . $expense);
-        return $expense;
-    }
-        nlog("coalesceExpenses: " . $this->bt->expense_id . "," . $expense);
+        if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+            return $expense;
+        }
 
         return collect(explode(",", $this->bt->expense_id))->push($expense)->implode(",");
+
     }
 
     private function linkPayment($input)

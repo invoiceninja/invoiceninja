@@ -165,11 +165,6 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Vendor::class);
     }
 
-    public function expense()
-    {
-        return $this->belongsTo(Expense::class);
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();

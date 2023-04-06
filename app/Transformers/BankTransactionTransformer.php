@@ -34,7 +34,7 @@ class BankTransactionTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'company',
-        'expense',
+        // 'expense',
         'payment',
         'vendor',
         'bank_account',
@@ -81,12 +81,12 @@ class BankTransactionTransformer extends EntityTransformer
         return $this->includeItem($bank_transaction->company, $transformer, Company::class);
     }
 
-    public function includeExpense(BankTransaction $bank_transaction)
-    {
-        $transformer = new ExpenseTransformer($this->serializer);
+    // public function includeExpense(BankTransaction $bank_transaction)
+    // {
+    //     $transformer = new ExpenseTransformer($this->serializer);
 
-        return $this->includeItem($bank_transaction->expense, $transformer, Expense::class);
-    }
+    //     return $this->includeItem($bank_transaction->expense, $transformer, Expense::class);
+    // }
 
     public function includeVendor(BankTransaction $bank_transaction)
     {
