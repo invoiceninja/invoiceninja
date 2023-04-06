@@ -117,7 +117,7 @@ class TemplateEmail extends Mailable
             }//remove whitespace if any has been inserted.
         }
 
-        $this->subject($this->build_email->getSubject())
+        $this->subject(str_replace("<br>", "", $this->build_email->getSubject()))
             ->text('email.template.text', [
                 'text_body' => $this->build_email->getTextBody(),
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,

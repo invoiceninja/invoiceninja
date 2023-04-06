@@ -1,0 +1,111 @@
+    Subscription:
+      properties:
+        id:
+          description: Unique identifier for the subscription
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: Unique identifier for the user associated with the subscription
+          type: string
+          example: Ua6Rw4pVbS
+        product_id:
+          description: Unique identifier for the product associated with the subscription
+          type: string
+          example: Pr5Ft7yBmC
+        company_id:
+          description: Unique identifier for the company associated with the subscription
+          type: string
+          example: Co7Vn3yLmW
+        recurring_invoice_id:
+          description: Unique identifier for the recurring invoice associated with the subscription
+          type: string
+          example: Ri2Yt8zJkP
+        is_recurring:
+          description: Indicates whether the subscription is recurring
+          type: boolean
+          example: 'true'
+        frequency_id:
+          description: 'integer const representation of the frequency'
+          type: string
+          example: '1'
+        auto_bill:
+          description: 'enum setting'
+          type: string
+          example: always
+        promo_code:
+          description: Promotional code applied to the subscription
+          type: string
+          example: PROMOCODE4U
+        promo_discount:
+          description: Discount percentage or amount applied to the subscription
+          type: number
+          example: 10
+        is_amount_discount:
+          description: Indicates whether the discount is a fixed amount
+          type: boolean
+          example: 'true'
+        allow_cancellation:
+          description: Indicates whether the subscription can be cancelled
+          type: boolean
+          example: 'true'
+        per_seat_enabled:
+          description: Indicates whether the subscription pricing is per seat
+          type: boolean
+          example: 'true'
+        currency_id:
+          description: Unique identifier for the currency used in the subscription
+          type: integer
+          example: '1'
+        max_seats_limit:
+          description: Maximum number of seats allowed for the subscription
+          type: integer
+          example: '100'
+        trial_enabled:
+          description: Indicates whether the subscription has a trial period
+          type: boolean
+          example: 'true'
+        trial_duration:
+          description: Duration of the trial period in days
+          type: integer
+          example: '14'
+        allow_query_overrides:
+          description: Indicates whether query overrides are allowed for the subscription
+          type: boolean
+          example: 'true'
+        allow_plan_changes:
+          description: Indicates whether plan changes are allowed for the subscription
+          type: boolean
+          example: 'true'
+        refund_period:
+          description: Number of days within which refunds can be requested
+          type: integer
+          example: '30'
+        webhook_configuration:
+          description: Webhook configuration for the subscription
+          type: string
+          example: 'expand reference for this'
+        is_deleted:
+          description: Indicates whether the subscription has been deleted
+          type: boolean
+          example: 'false'
+        archived_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '134341234234'
+      type: object
+    BulkAction:
+      type: array
+      items:
+        type: integer
+        example: '[0,1,2,3,]'

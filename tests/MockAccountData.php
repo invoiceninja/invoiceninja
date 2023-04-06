@@ -219,6 +219,7 @@ trait MockAccountData
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000000,
             'hosted_company_count' => 1000000,
+            'account_sms_verified' => true,
         ]);
 
         $this->account->num_users = 3;

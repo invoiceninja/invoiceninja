@@ -18,6 +18,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @test
@@ -40,6 +41,34 @@ class InvoiceEmailTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+
+        $this->withoutExceptionHandling();
+
+    }
+
+    public function test_cc_email_implementation()
+    {
+        $data = [
+            'template' => 'email_template_invoice',
+            'entity' => 'invoice',
+            'entity_id' => $this->invoice->hashed_id,
+            'cc_email' => 'jj@gmail.com'
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/emails', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
     }
 
     public function test_initial_email_send_emails()

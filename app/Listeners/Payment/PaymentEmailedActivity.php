@@ -12,32 +12,43 @@
 namespace App\Listeners\Payment;
 
 use App\Libraries\MultiDB;
-use App\Utils\Traits\Notifications\UserNotifies;
+use App\Models\Activity;
+use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PaymentEmailedActivity implements ShouldQueue
 {
-
-    use UserNotifies;
+    protected $activity_repo;
 
     /**
      * Create the event listener.
      *
-     * @return void
+     * @param ActivityRepository $activity_repo
      */
-    public function __construct()
+    public function __construct(ActivityRepository $activity_repo)
     {
+        $this->activity_repo = $activity_repo;
     }
 
     /**
      * Handle the event.
      *
      * @param object $event
-     * @return bool
      */
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-        $payment = $event->payment;
+
+        $fields = new \stdClass();
+
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->payment->user_id;
+
+        $fields->user_id = $user_id;
+        $fields->client_id = $event->payment->client_id;
+        $fields->company_id = $event->payment->company_id;
+        $fields->activity_type_id = Activity::PAYMENT_EMAILED;
+        $fields->payment_id = $event->payment->id;
+
+        $this->activity_repo->save($fields, $event->payment, $event->event_vars);
     }
 }

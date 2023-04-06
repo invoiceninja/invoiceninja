@@ -21,6 +21,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyLedger;
+use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Contact;
 use App\Models\Credit;
@@ -160,16 +161,33 @@ class CheckData extends Command
 
     private function checkCompanyTokens()
     {
-        CompanyUser::doesnthave('token')->cursor()->each(function ($cu) {
-            if ($cu->user) {
-                $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
-                (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-            } else {
-                $this->logMessage("Dangling User ID # {$cu->id}");
+        // CompanyUser::whereDoesntHave('token', function ($query){
+        //   return $query->where('is_system', 1);
+        // })->cursor()->each(function ($cu){
+        //     if ($cu->user) {
+        //         $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
+        //         (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+        //     } else {
+        //         $this->logMessage("Dangling User ID # {$cu->id}");
+        //     }
+        // });
+
+        CompanyUser::query()->cursor()->each(function ($cu) {
+            if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
+                $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
+
+                if ($cu->company && $cu->user) {
+                    (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
+                }
             }
         });
     }
-
+    
+    /**
+     * checkOauthSanity
+     *
+     * @return void
+     */
     private function checkOauthSanity()
     {
         User::where('oauth_provider_id', '1')->cursor()->each(function ($user) {

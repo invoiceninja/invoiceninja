@@ -12,9 +12,11 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Factory\RecurringInvoiceFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -82,10 +84,47 @@ class UpdateInvoicePayment
                                 ->save();
             
             if ($invoice->is_proforma) {
+                //keep proforma's hidden
+                if (property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1") {
+                    $invoice->payments()->each(function ($p) {
+                        $p->pivot->forceDelete();
+                    });
+
+                    $invoice->is_deleted = true;
+                    $invoice->deleted_at = now();
+                    $invoice->saveQuietly();
+
+                    if (property_exists($this->payment_hash->data, 'is_recurring') && $this->payment_hash->data->is_recurring == "1") {
+                        $recurring_invoice = RecurringInvoiceFactory::create($invoice->company_id, $invoice->user_id);
+                        $recurring_invoice->client_id = $invoice->client_id;
+                        $recurring_invoice->line_items = $invoice->line_items;
+                        $recurring_invoice->frequency_id = $this->payment_hash->data->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
+                        $recurring_invoice->date = now();
+                        $recurring_invoice->remaining_cycles = $this->payment_hash->data->remaining_cycles;
+                        $recurring_invoice->auto_bill = 'always';
+                        $recurring_invoice->auto_bill_enabled =  true;
+                        $recurring_invoice->due_date_days = 'on_receipt';
+                        $recurring_invoice->next_send_date = now()->format('Y-m-d');
+                        $recurring_invoice->next_send_date_client = now()->format('Y-m-d');
+                        $recurring_invoice->amount = $invoice->amount;
+                        $recurring_invoice->balance = $invoice->amount;
+                        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+                        $recurring_invoice->is_proforma = true;
+                        
+                        $recurring_invoice->saveQuietly();
+                        $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
+                        $recurring_invoice->next_send_date_client = $recurring_invoice->nextSendDateClient();
+                        $recurring_invoice->service()->applyNumber()->save();
+                    }
+
+                    return;
+                }
+
+                
+
                 if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####")) {
                     $invoice->number = '';
                 }
-                
 
                 $invoice->is_proforma = false;
                 

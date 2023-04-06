@@ -100,7 +100,7 @@ class PaymentMigrationRepository extends BaseRepository
         $payment->deleted_at = $data['deleted_at'] ?: null;
         $payment->save();
 
-        if (array_key_exists('currency_id', $data) && $data['currency_id'] == 0) {
+        if ($payment->currency_id == 0) {
             $payment->currency_id = $payment->company->settings->currency_id;
             $payment->save();
         }

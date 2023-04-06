@@ -190,14 +190,12 @@ class BackupUpdate extends Command
                 ->where('filename', '!=', '')
                 ->cursor()
                 ->each(function ($backup) {
-                    
                     $backup_bin = Storage::disk('s3')->get($backup->filename);
 
                     if ($backup_bin) {
                         Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
 
                         nlog("Backups - Moving {$backup->filename} to {$this->option('disk')}");
-
                     }
                 });
     }

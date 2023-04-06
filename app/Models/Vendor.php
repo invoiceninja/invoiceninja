@@ -104,6 +104,38 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereWebsite($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
  * @mixin \Eloquent
  */
 class Vendor extends BaseModel
@@ -259,7 +291,7 @@ class Vendor extends BaseModel
     public function getMergedSettings() :object
     {
         return $this->company->settings;
-    }   
+    }
 
     public function purchase_order_filepath($invitation)
     {

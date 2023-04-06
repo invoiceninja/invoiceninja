@@ -106,8 +106,7 @@ class BankTransfer
     /**
      * paymentResponse
      *
-     * @param  mixed $request
-     * @return void
+     * @param  PaymentResponseRequest $request
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {

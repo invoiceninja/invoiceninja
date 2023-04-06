@@ -118,6 +118,9 @@
             background-color: {{ $primary_color }};
         }
 
+        .logo {
+
+        }
     </style>
 
     <!--[if gte mso 9]>

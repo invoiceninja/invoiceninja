@@ -80,8 +80,6 @@ class InvoiceController extends Controller
     /**
      * Pay one or more invoices.
      *
-     * @param ProcessInvoicesInBulkRequest $request
-     * @return mixed
      */
     public function catch_bulk()
     {

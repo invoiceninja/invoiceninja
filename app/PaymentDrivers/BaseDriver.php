@@ -11,36 +11,36 @@
 
 namespace App\PaymentDrivers;
 
-use App\Utils\Ninja;
-use App\Utils\Number;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
+use App\Exceptions\PaymentFailed;
+use App\Factory\PaymentFactory;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Jobs\Util\SystemLogger;
+use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
-use App\Utils\Helpers;
+use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
+use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Models\ClientContact;
-use App\Jobs\Mail\NinjaMailer;
-use App\Models\CompanyGateway;
-use Illuminate\Support\Carbon;
-use App\Factory\PaymentFactory;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Models\ClientGatewayToken;
-use Illuminate\Support\Facades\App;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Utils\Traits\SystemLogTrait;
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Jobs\Mail\PaymentFailedMailer;
-use App\Events\Payment\PaymentWasCreated;
-use App\Mail\Admin\ClientPaymentFailureObject;
+use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Utils\Helpers;
+use App\Utils\Ninja;
+use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SystemLogTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 
 /**
  * Class BaseDriver.
@@ -739,7 +739,9 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
         $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?: 0, $this->client);
 
-        if ($abbreviated || ! $invoices_string) {
+        if($abbreviated && $invoices_string){
+            return $invoices_string;
+        } elseif ($abbreviated || ! $invoices_string) {
             return ctrans('texts.gateway_payment_text_no_invoice', [
                 'amount' => $amount,
                 'client' => $this->client->present()->name(),
@@ -749,11 +751,10 @@ class BaseDriver extends AbstractPaymentDriver
         return ctrans('texts.gateway_payment_text', [
             'invoices' => $invoices_string,
             'amount' => $amount,
-            'client' => $this->client->present()->name(), 
+            'client' => $this->client->present()->name(),
         ]);
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
-
     }
     
     /**

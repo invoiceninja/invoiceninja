@@ -46,6 +46,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->custom_value4 = $recurring_invoice->custom_value4;
         $invoice->amount = $recurring_invoice->amount;
         $invoice->uses_inclusive_taxes = $recurring_invoice->uses_inclusive_taxes;
+        $invoice->is_proforma = $recurring_invoice->is_proforma;
 
         $invoice->custom_surcharge1 = $recurring_invoice->custom_surcharge1;
         $invoice->custom_surcharge2 = $recurring_invoice->custom_surcharge2;

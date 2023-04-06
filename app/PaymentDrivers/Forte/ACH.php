@@ -119,7 +119,6 @@ class ACH
                 'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
                 'Content-Type: application/json',
                 'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key),
-                'Cookie: visid_incap_621087=u18+3REYR/iISgzZxOF5s2ODW2IAAAAAQUIPAAAAAADuGqKgECQLS81FcSDrmhGe; nlbi_621087=YHngadhJ2VU+yr7/R1efXgAAAAD3mQyhqmnLls8PRu4iN58G; incap_ses_1136_621087=CVdrXUdhIlm9WJNDieLDD4QVXGIAAAAAvBwvkUcwhM0+OwvdPm2stg=='
             ],
             ]);
 

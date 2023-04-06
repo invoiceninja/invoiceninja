@@ -40,6 +40,13 @@ class ApplyNumber extends AbstractService
             return $this->invoice;
         }
 
+        /** Do not give a pro forma invoice a proper invoice number */
+        if ($this->invoice->is_proforma && $this->invoice->recurring_id) {
+            $this->invoice->number = ctrans('texts.pre_payment') . " " . now()->format('Y-m-d : H:i:s');
+            $this->invoice->saveQuietly();
+            return $this->invoice;
+        }
+
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
                 $this->trySaving();

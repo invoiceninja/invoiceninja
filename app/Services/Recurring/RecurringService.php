@@ -13,16 +13,14 @@ namespace App\Services\Recurring;
 
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Jobs\Util\UnlinkFile;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use Illuminate\Support\Carbon;
 
 class RecurringService
 {
-    protected $recurring_entity;
-
-    public function __construct($recurring_entity)
+    public function __construct(public RecurringInvoice | RecurringExpense $recurring_entity)
     {
-        $this->recurring_entity = $recurring_entity;
     }
 
     //set schedules - update next_send_dates
@@ -54,8 +52,9 @@ class RecurringService
             return $this;
         }
     
-        if($this->recurring_entity->trashed())
+        if ($this->recurring_entity->trashed()) {
             $this->recurring_entity->restore();
+        }
 
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
         
@@ -133,6 +132,20 @@ class RecurringService
 
     public function fillDefaults()
     {
+        return $this;
+    }
+
+    public function increasePrice(float $percentage)
+    {
+        (new IncreasePrice($this->recurring_entity, $percentage))->run();
+        
+        return $this;
+    }
+
+    public function updatePrice()
+    {
+        (new UpdatePrice($this->recurring_entity))->run();
+
         return $this;
     }
     

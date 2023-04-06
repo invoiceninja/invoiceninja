@@ -152,8 +152,9 @@ class PaymentType extends StaticModel
 
     public function name($id)
     {
-        if(isset($this->type_names[$id]))
+        if (isset($this->type_names[$id])) {
             return ctrans("texts.".$this->type_names[$id]);
+        }
 
         return ctrans('texts.manual_entry');
     }

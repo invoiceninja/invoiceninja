@@ -1,0 +1,35 @@
+    Paymentable:
+      properties:
+        id:
+          description: 'The paymentable hashed id'
+          type: string
+          example: AS3df3A
+        invoice_id:
+          description: 'The invoice hashed id'
+          type: string
+          example: AS3df3A
+        credit_id:
+          description: 'The credit hashed id'
+          type: string
+          example: AS3df3A
+        refunded:
+          description: 'The amount that has been refunded for this payment'
+          type: number
+          format: float
+          example: '10.00'
+        amount:
+          description: 'The amount that has been applied to the payment'
+          type: number
+          format: float
+          example: '10.00'
+        updated_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+        created_at:
+          description: Timestamp
+          type: number
+          format: integer
+          example: '1434342123'
+      type: object
