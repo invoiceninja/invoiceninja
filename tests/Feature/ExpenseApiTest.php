@@ -11,6 +11,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
 use Tests\TestCase;
 use App\Models\Expense;
 use Tests\MockAccountData;
@@ -44,10 +46,22 @@ class ExpenseApiTest extends TestCase
 
     public function testTransactionIdClearedOnDelete()
     {
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'bank_integration_id' => $bi->id,
+        ]);
+
         $e = Expense::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'transaction_id' => '123',
+            'transaction_id' => $bt->id,
         ]);
         
         $this->assertNotNull($e->transaction_id);
