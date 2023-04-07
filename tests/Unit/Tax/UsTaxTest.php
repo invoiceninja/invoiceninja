@@ -203,7 +203,6 @@ class UsTaxTest extends TestCase
         $client->is_tax_exempt = true;
         $client->save();
 
-
         $company = $invoice->company;
         $tax_data = $company->tax_data;
 
