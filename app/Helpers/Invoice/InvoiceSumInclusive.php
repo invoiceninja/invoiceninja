@@ -18,7 +18,6 @@ use Illuminate\Support\Collection;
 class InvoiceSumInclusive
 {
     use Taxer;
-    use Balancer;
     use CustomValuer;
     use Discounter;
     use NumberFormatter;
@@ -155,7 +154,6 @@ class InvoiceSumInclusive
      */
     private function calculateBalance()
     {
-        //$this->invoice->balance = $this->balance($this->getTotal(), $this->invoice);
         $this->setCalculatedAttributes();
 
         return $this;

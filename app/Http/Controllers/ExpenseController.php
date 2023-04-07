@@ -49,7 +49,7 @@ class ExpenseController extends BaseController
     protected $entity_transformer = ExpenseTransformer::class;
 
     /**
-     * @var Expenseepository
+     * @var ExpensRepository
      */
     protected $expense_repo;
 

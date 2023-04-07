@@ -61,25 +61,19 @@ class Rule implements RuleInterface
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
         }
-        else if($this->client->company->tax_data->regions->US->tax_all){
+        else if($this->client->company->tax_data->regions->US->tax_all_subregions || $this->client->company->tax_data->regions->US->subregions->{$this->tax_data->geoState}->apply_tax){
 
-            $this->tax_rate1 = $this->tax_data->taxSales * 100;
-            $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+            $this->taxByType($type);
 
             return $this;
         }
-
-        if($type)
-            return $this->taxByType($type);
-
+            
         return $this;
 
     }
 
     public function taxByType($product_tax_type): self
     {
-        if(!$product_tax_type)
-            return $this;
 
         match($product_tax_type){
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),

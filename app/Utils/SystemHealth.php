@@ -261,6 +261,8 @@ class SystemHealth
             try {
                 $pdo = DB::connection()->getPdo();
                 $x = DB::connection()->getDatabaseName();
+                // nlog($pdo);
+                // nlog($x);
                 $result['success'] = true;
             } catch (Exception $e) {
                 // $x = [config('database.connections.'.config('database.default').'.database') => false];

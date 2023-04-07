@@ -104,8 +104,6 @@ class MatchBankTransactions implements ShouldQueue
         }
 
         foreach ($this->input as $input) {
-            nlog($input);
-
             if (array_key_exists('invoice_ids', $input) && strlen($input['invoice_ids']) >= 1) {
                 $this->matchInvoicePayment($input);
             } elseif (array_key_exists('payment_id', $input) && strlen($input['payment_id']) >= 1) {
@@ -154,7 +152,7 @@ class MatchBankTransactions implements ShouldQueue
     {
         $this->bt = BankTransaction::find($input['id']);
 
-        if (!$this->bt || $this->bt->status_id == BankTransaction::STATUS_CONVERTED) {
+        if (!$this->bt) {
             return $this;
         }
 
@@ -164,7 +162,7 @@ class MatchBankTransactions implements ShouldQueue
             $expense->transaction_id = $this->bt->id;
             $expense->save();
 
-            $this->bt->expense_id = $expense->id;
+            $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
             $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
             $this->bt->vendor_id = $expense->vendor_id;
             $this->bt->ninja_category_id = $expense->category_id;
@@ -174,6 +172,17 @@ class MatchBankTransactions implements ShouldQueue
         }
     
         return $this;
+    }
+
+    private function coalesceExpenses($expense): string 
+    {
+
+        if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+            return $expense;
+        }
+
+        return collect(explode(",", $this->bt->expense_id))->push($expense)->implode(",");
+
     }
 
     private function linkPayment($input)
@@ -209,7 +218,10 @@ class MatchBankTransactions implements ShouldQueue
             return $this;
         }
 
-        $_invoices = Invoice::withTrashed()->find($this->getInvoices($input['invoice_ids']));
+        $_invoices = Invoice::query()
+                            ->withTrashed()
+                            ->where('company_id', $this->bt->company_id)
+                            ->where('id',$this->getInvoices($input['invoice_ids']));
         
         $amount = $this->bt->amount;
 
@@ -249,7 +261,7 @@ class MatchBankTransactions implements ShouldQueue
         $expense->should_be_invoiced = $this->company->mark_expenses_invoiceable;
         $expense->save();
 
-        $this->bt->expense_id = $expense->id;
+        $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
 
         if (array_key_exists('vendor_id', $input)) {
             $this->bt->vendor_id = $input['vendor_id'];

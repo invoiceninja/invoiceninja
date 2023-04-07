@@ -11,12 +11,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use Tests\TestCase;
+use App\Models\Expense;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -39,6 +42,34 @@ class ExpenseApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testTransactionIdClearedOnDelete()
+    {
+        $bi = BankIntegration::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'account_id' => $this->account->id
+        ]);
+
+        $bt = BankTransaction::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'bank_integration_id' => $bi->id,
+        ]);
+
+        $e = Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'transaction_id' => $bt->id,
+        ]);
+        
+        $this->assertNotNull($e->transaction_id);
+
+        $expense_repo = app('App\Repositories\ExpenseRepository');
+        $e = $expense_repo->delete($e);
+
+        $this->assertNull($e->transaction_id);
     }
 
     public function testExpenseGetClientStatus()

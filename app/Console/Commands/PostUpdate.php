@@ -62,12 +62,13 @@ class PostUpdate extends Command
         info('finished running composer install ');
 
         try {
-            Artisan::call('optimize');
+            // Artisan::call('optimize');
+            Artisan::call('config:clear');
         } catch (\Exception $e) {
-            info("I wasn't able to optimize.");
+            info("I wasn't able to clear config.");
         }
 
-        info('optimized');
+        info('cleared config');
 
         try {
             Artisan::call('view:clear');

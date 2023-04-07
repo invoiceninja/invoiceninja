@@ -86,18 +86,16 @@ class Rule extends BaseRule implements RuleInterface
         
 
         if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
-        } elseif ($this->client->company->tax_data->regions->EU->tax_all) {
-            
-            $this->tax_rate1  = $this->vat_rate;
-            $this->tax_name1 = "MwSt.";
 
+            return $this->taxExempt();
+
+        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_country_code}->apply_tax) {
+
+            $this->taxByType($type);
 
             return $this;
         }
 
-        if ($type) 
-            return $this->taxByType($type);
         
 
         return $this;
@@ -110,9 +108,6 @@ class Rule extends BaseRule implements RuleInterface
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
         }
-
-        if(!$product_tax_type)
-            return $this;
 
         match($product_tax_type){
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
@@ -146,29 +141,31 @@ class Rule extends BaseRule implements RuleInterface
 
     public function taxDigital(): self
     {
-        $this->tax();
+        // $this->tax();
 
         return $this;
     }
 
     public function taxService(): self
     {
-        $this->tax();
+        // $this->tax();
 
         return $this;
     }
 
     public function taxShipping(): self
     {
-        $this->tax();
+        // $this->tax();
 
         return $this;
     }
 
     public function taxPhysical(): self
     {
-        $this->tax();
+        // $this->tax();
 
+        $this->tax_rate1 = $this->vat_rate;
+        $this->tax_name1 = 'MwSt.';
         return $this;
     }
 

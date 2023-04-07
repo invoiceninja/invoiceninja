@@ -133,6 +133,23 @@ class BankTransaction extends BaseModel
         return $collection;
     }
 
+    public function getExpenseIds()
+    {
+        $collection = collect();
+
+        $expenses = explode(",", $this->expense_id);
+
+        if (count($expenses) >= 1) {
+            foreach ($expenses as $expense) {
+                if (is_string($expense) && strlen($expense) > 1) {
+                    $collection->push($this->decodePrimaryKey($expense));
+                }
+            }
+        }
+
+        return $collection;
+    }
+
     public function getEntityType()
     {
         return self::class;
@@ -146,11 +163,6 @@ class BankTransaction extends BaseModel
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
-    }
-
-    public function expense()
-    {
-        return $this->belongsTo(Expense::class);
     }
 
     public function user()

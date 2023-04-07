@@ -47,7 +47,7 @@ class MatchBankTransactionRequest extends Request
     public function prepareForValidation()
     {
         $inputs = $this->all();
-        
+        nlog($inputs);
         foreach ($inputs['transactions'] as $key => $input) {
             if (array_key_exists('id', $inputs['transactions'][$key])) {
                 $inputs['transactions'][$key]['id'] = $this->decodePrimaryKey($input['id']);
@@ -73,6 +73,7 @@ class MatchBankTransactionRequest extends Request
 
             if (array_key_exists('expense_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['expense_id']) >= 1) {
                 $inputs['transactions'][$key]['expense_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['expense_id']);
+
                 $e = Expense::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['expense_id'])->first();
 
                 /*Ensure we don't relink an existing expense*/
@@ -81,6 +82,8 @@ class MatchBankTransactionRequest extends Request
                 }
             }
         }
+
+        nlog($inputs);
 
         $this->replace($inputs);
     }
