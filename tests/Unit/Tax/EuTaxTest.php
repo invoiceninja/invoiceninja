@@ -53,7 +53,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -90,6 +90,7 @@ class EuTaxTest extends TestCase
                     'tax_name3' => '',
                     'tax_rate3' => 0,
                     'type_id' => '1',
+                    'tax_id' => 1
                 ],
             ],
             'tax_rate1' => 0,
@@ -116,7 +117,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -131,6 +132,7 @@ class EuTaxTest extends TestCase
             'country_id' => 56,
             'shipping_country_id' => 56,
             'has_valid_vat_number' => true,
+            'is_tax_exempt' => false,
         ]);
 
         $invoice = Invoice::factory()->create([
@@ -180,7 +182,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -217,6 +219,7 @@ class EuTaxTest extends TestCase
                     'tax_name3' => '',
                     'tax_rate3' => 0,
                     'type_id' => '1',
+                    'tax_id' => 1,
                 ],
             ],
             'tax_rate1' => 0,
@@ -246,7 +249,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
         
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -291,7 +294,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -376,7 +379,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -418,7 +421,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -459,7 +462,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -499,7 +502,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -540,7 +543,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
@@ -581,7 +584,7 @@ class EuTaxTest extends TestCase
         $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
-        $tax_data->regions->EU->tax_all = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,

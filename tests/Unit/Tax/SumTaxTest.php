@@ -97,7 +97,7 @@ class SumTaxTest extends TestCase
         $tax_data->seller_region = 'US';
         $tax_data->seller_subregion = 'CA';
         $tax_data->regions->US->has_sales_above_threshold = true;
-        $tax_data->regions->US->tax_all = true;
+        $tax_data->regions->US->tax_all_subregions = true;
 
         $this->company->calculate_taxes = false;
         $this->company->tax_data = $tax_data;
@@ -148,7 +148,7 @@ class SumTaxTest extends TestCase
         $tax_data->seller_region = 'US';
         $tax_data->seller_subregion = 'CA';
         $tax_data->regions->US->has_sales_above_threshold = true;
-        $tax_data->regions->US->tax_all = true;
+        $tax_data->regions->US->tax_all_subregions = true;
 
         $this->company->calculate_taxes = true;
         $this->company->tax_data = $tax_data;
