@@ -156,19 +156,27 @@ class MatchBankTransactions implements ShouldQueue
             return $this;
         }
 
-        $expense = Expense::withTrashed()->find($input['expense_id']);
+        $_expenses = explode(",", $input['expense_id']);
 
-        if ($expense && !$expense->transaction_id) {
-            $expense->transaction_id = $this->bt->id;
-            $expense->save();
+        foreach($_expenses as $_expense) {
+                    
+            $expense = Expense::withTrashed()
+                             ->where('id',  $this->decodePrimaryKey($_expense))
+                             ->where('company_id', $this->bt->company_id)
+                             ->first();
 
-            $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
-            $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
-            $this->bt->vendor_id = $expense->vendor_id;
-            $this->bt->ninja_category_id = $expense->category_id;
-            $this->bt->save();
+            if ($expense && !$expense->transaction_id) {
+                $expense->transaction_id = $this->bt->id;
+                $expense->save();
 
-            $this->bts->push($this->bt->id);
+                $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
+                $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
+                $this->bt->vendor_id = $expense->vendor_id;
+                $this->bt->ninja_category_id = $expense->category_id;
+                $this->bt->save();
+
+                $this->bts->push($this->bt->id);
+            }
         }
     
         return $this;
