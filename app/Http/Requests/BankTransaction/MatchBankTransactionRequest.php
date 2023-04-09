@@ -39,7 +39,7 @@ class MatchBankTransactionRequest extends Request
         $rules['transactions.*.vendor_id'] = 'bail|nullable|sometimes|exists:vendors,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
         $rules['transactions.*.id'] = 'bail|required|exists:bank_transactions,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
         $rules['transactions.*.payment_id'] = 'bail|sometimes|nullable|exists:payments,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
-        $rules['transactions.*.expense_id'] = 'bail|sometimes|nullable|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        // $rules['transactions.*.expense_id'] = 'bail|sometimes|nullable|exists:expenses,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
 
         return $rules;
     }
@@ -72,14 +72,14 @@ class MatchBankTransactionRequest extends Request
             }
 
             if (array_key_exists('expense_id', $inputs['transactions'][$key]) && strlen($inputs['transactions'][$key]['expense_id']) >= 1) {
-                $inputs['transactions'][$key]['expense_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['expense_id']);
+                // $inputs['transactions'][$key]['expense_id'] = $this->decodePrimaryKey($inputs['transactions'][$key]['expense_id']);
 
-                $e = Expense::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['expense_id'])->first();
+                // $e = Expense::withTrashed()->where('company_id', auth()->user()->company()->id)->where('id', $inputs['transactions'][$key]['expense_id'])->first();
 
                 /*Ensure we don't relink an existing expense*/
-                if (!$e || is_numeric($e->transaction_id)) {
-                    unset($inputs['transactions'][$key]['expense_id']);
-                }
+                // if (!$e || is_numeric($e->transaction_id)) {
+                //     unset($inputs['transactions'][$key]['expense_id']);
+                // }
             }
         }
 
