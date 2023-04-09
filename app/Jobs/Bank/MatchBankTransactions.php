@@ -161,7 +161,7 @@ class MatchBankTransactions implements ShouldQueue
         foreach($_expenses as $_expense) {
                     
             $expense = Expense::withTrashed()
-                             ->where('id',  $this->decodePrimaryKey($_expense))
+                             ->where('id', $this->decodePrimaryKey($_expense))
                              ->where('company_id', $this->bt->company_id)
                              ->first();
 
