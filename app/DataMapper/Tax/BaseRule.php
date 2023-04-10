@@ -137,9 +137,9 @@ class BaseRule implements RuleInterface
     {
 
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
-            throw new \Exception('Country not supported');
+            throw new \Exception('Automatic tax calculates not supported for this country');
 
-        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2] ?? '';
+        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         match($this->client_region){
             'US' => $this->client_subregion = $this->tax_data->geoState,
@@ -150,7 +150,7 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    private function isTaxableRegion(): bool
+    public function isTaxableRegion(): bool
     {
         return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
     }

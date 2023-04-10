@@ -35,12 +35,12 @@ class Rule extends BaseRule implements RuleInterface
         
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
-        } elseif($this->client->company->tax_data->regions->US->tax_all_subregions || $this->client->company->tax_data->regions->US->subregions->{$this->client_subregion}->apply_tax) {
+        } elseif($this->client_region == 'US' && $this->isTaxableRegion()) {
 
             $this->taxByType($item->tax_id);
 
             return $this;
-        } elseif($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax) { //other regions outside of US
+        } elseif($this->isTaxableRegion()) { //other regions outside of US
 
         }
         return $this;
@@ -122,9 +122,8 @@ class Rule extends BaseRule implements RuleInterface
 
     public function calculateRates(): self
     {
-        if($this->client_region != 'US' && $this->isTaxableRegion()) {
-
-        }
+        if($this->client_region != 'US' && $this->isTaxableRegion())
+            return $this;
 
         return $this;
     }

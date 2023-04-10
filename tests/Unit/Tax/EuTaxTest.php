@@ -273,9 +273,9 @@ class EuTaxTest extends TestCase
 
         $this->assertInstanceOf(Rule::class, $process);
 
-        $this->assertEquals(19, $process->vat_rate);
+        $this->assertEquals(19, $process->tax_rate);
 
-        $this->assertEquals(7, $process->reduced_vat_rate);
+        $this->assertEquals(7, $process->reduced_tax_rate);
 
 
     }
@@ -319,9 +319,9 @@ class EuTaxTest extends TestCase
 
         $this->assertInstanceOf(Rule::class, $process);
 
-        $this->assertEquals(21, $process->vat_rate);
+        $this->assertEquals(21, $process->tax_rate);
 
-        $this->assertEquals(6, $process->reduced_vat_rate);
+        $this->assertEquals(6, $process->reduced_tax_rate);
 
 
     }
@@ -360,9 +360,9 @@ class EuTaxTest extends TestCase
 
         $this->assertInstanceOf(Rule::class, $process);
 
-        $this->assertEquals(0, $process->vat_rate);
+        $this->assertEquals(0, $process->tax_rate);
 
-        $this->assertEquals(0, $process->reduced_vat_rate);
+        $this->assertEquals(0, $process->reduced_tax_rate);
 
 
     }
@@ -401,9 +401,9 @@ class EuTaxTest extends TestCase
 
         $this->assertFalse($client->has_valid_vat_number);
 
-        $this->assertEquals(19, $process->vat_rate);
+        $this->assertEquals(19, $process->tax_rate);
 
-        $this->assertEquals(7, $process->reduced_vat_rate);
+        $this->assertEquals(7, $process->reduced_tax_rate);
 
     }
 
@@ -442,9 +442,9 @@ class EuTaxTest extends TestCase
 
         $this->assertTrue($client->has_valid_vat_number);
 
-        $this->assertEquals(19, $process->vat_rate);
+        $this->assertEquals(19, $process->tax_rate);
 
-        $this->assertEquals(7, $process->reduced_vat_rate);
+        $this->assertEquals(7, $process->reduced_tax_rate);
 
     }
 
@@ -482,9 +482,9 @@ class EuTaxTest extends TestCase
 
         $this->assertTrue($client->has_valid_vat_number);
 
-        $this->assertEquals(0, $process->vat_rate);
+        $this->assertEquals(0, $process->tax_rate);
 
-        $this->assertEquals(0, $process->reduced_vat_rate);
+        $this->assertEquals(0, $process->reduced_tax_rate);
 
     }
 
@@ -522,9 +522,9 @@ class EuTaxTest extends TestCase
 
         $this->assertTrue($client->is_tax_exempt);
 
-        $this->assertEquals(0, $process->vat_rate);
+        $this->assertEquals(0, $process->tax_rate);
 
-        $this->assertEquals(0, $process->reduced_vat_rate);
+        $this->assertEquals(0, $process->reduced_tax_rate);
 
     }
 
@@ -562,9 +562,9 @@ class EuTaxTest extends TestCase
 
         $this->assertTrue($client->is_tax_exempt);
 
-        $this->assertEquals(0, $process->vat_rate);
+        $this->assertEquals(0, $process->tax_rate);
 
-        $this->assertEquals(0, $process->reduced_vat_rate);
+        $this->assertEquals(0, $process->reduced_tax_rate);
 
     }
 
@@ -602,9 +602,9 @@ class EuTaxTest extends TestCase
 
         $this->assertTrue($client->is_tax_exempt);
 
-        $this->assertEquals(0, $process->vat_rate);
+        $this->assertEquals(0, $process->tax_rate);
 
-        $this->assertEquals(0, $process->reduced_vat_rate);
+        $this->assertEquals(0, $process->reduced_tax_rate);
 
     }
 
