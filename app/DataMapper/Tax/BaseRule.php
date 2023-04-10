@@ -155,6 +155,24 @@ class BaseRule implements RuleInterface
         return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
     }
 
+    public function taxForeignEntity(mixed $item): self
+    {
+        if($this->client_region == 'US') {
+            
+            $this->tax_rate1 = $this->tax_data->taxSales * 100;
+            $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+
+        }
+        else {
+
+            $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
+            $this->tax_name1 = "Tax";
+
+        }
+
+        return $this;
+    }
+
     public function setTaxData(Response $tax_data): self
     {
         $this->tax_data = $tax_data;

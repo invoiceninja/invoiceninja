@@ -47,15 +47,19 @@ class Rule extends BaseRule implements RuleInterface
 
             return $this->taxExempt();
 
-        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_subregion}->apply_tax) {
+        } 
+        elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_subregion}->apply_tax) {
 
             $this->taxByType($item->tax_id);
 
             return $this;
+        } 
+        elseif ($this->client_region != 'EU' && $this->isTaxableRegion()) { //foreign entity with tax obligations
+
+            $this->taxForeignEntity($item);
+
+            return $this;
         }
-
-        
-
         return $this;
 
     }
@@ -183,6 +187,5 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
 
     }
-
 
 }

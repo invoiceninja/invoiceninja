@@ -62,6 +62,7 @@ class TaxModel
         $this->regions->AU->subregions->AU = new \stdClass();
         $this->regions->AU->subregions->AU->apply_tax = false;
         $this->regions->AU->subregions->AU->tax_rate = 10;
+        $this->regions->AU->subregions->AU->tax_name = 'GST';
 
         return $this;
     }
