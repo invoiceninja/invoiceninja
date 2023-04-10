@@ -11,12 +11,10 @@
 
 namespace App\DataMapper\Tax\DE;
 
-use App\Models\Client;
 use App\Models\Product;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
-use App\DataMapper\Tax\ZipTax\Response;
 
 class Rule extends BaseRule implements RuleInterface
 {
@@ -46,7 +44,7 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
 
-    public function tax(mixed $type, ?InvoiceItem $item = null): self
+    public function tax($item = null): self
     {
         
         if ($this->client->is_tax_exempt) {
@@ -55,7 +53,7 @@ class Rule extends BaseRule implements RuleInterface
 
         } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_iso_3166_2}->apply_tax) {
 
-            $this->taxByType($type);
+            $this->taxByType($item->tax_id);
 
             return $this;
         }

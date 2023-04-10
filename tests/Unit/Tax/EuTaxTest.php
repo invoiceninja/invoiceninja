@@ -351,6 +351,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
+        $process->setTaxData(new Response([]));
         $process->setClient($client);
         $process->init();
 

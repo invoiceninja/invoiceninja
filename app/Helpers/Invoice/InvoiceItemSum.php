@@ -200,7 +200,7 @@ class InvoiceItemSum
      */
     private function calcTaxesAutomatically(): self
     {
-        $this->rule->tax($this->item->tax_id ?? null);
+        $this->rule->tax($this->item);
         
         $this->item->tax_name1 = $this->rule->tax_name1;
         $this->item->tax_rate1 = $this->rule->tax_rate1;

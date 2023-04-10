@@ -11,15 +11,11 @@
 
 namespace App\DataMapper\Tax;
 
-use App\DataMapper\InvoiceItem;
-use App\Models\Client;
-use App\DataMapper\Tax\ZipTax\Response;
-
 interface RuleInterface
 {
     public function init();
 
-    public function tax(mixed $type, ?InvoiceItem $item = null);
+    public function tax($item = null);
 
     public function taxByType($type);
 
