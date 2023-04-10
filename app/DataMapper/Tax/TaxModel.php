@@ -13,7 +13,6 @@ namespace App\DataMapper\Tax;
 
 class TaxModel 
 {
-    // public string $seller_region = 'US';
 
     public string $seller_subregion = 'CA';
 

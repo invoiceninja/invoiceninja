@@ -50,7 +50,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
         
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -114,7 +113,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
         
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -179,7 +177,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
         
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -246,7 +243,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -271,7 +267,7 @@ class EuTaxTest extends TestCase
 
         $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('DE', $process->client_iso_3166_2);
+        $this->assertEquals('DE', $process->client_subregion);
 
         $this->assertFalse($client->has_valid_vat_number);
 
@@ -291,7 +287,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = true;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -318,7 +313,7 @@ class EuTaxTest extends TestCase
 
         $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('BE', $process->client_iso_3166_2);
+        $this->assertEquals('BE', $process->client_subregion);
 
         $this->assertFalse($client->has_valid_vat_number);
 
@@ -351,13 +346,15 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setTaxData(new Response([]));
+        $process->setTaxData(new Response([
+            'geoState' => 'CA',
+        ]));
         $process->setClient($client);
         $process->init();
 
         $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('US', $process->client_iso_3166_2);
+        $this->assertEquals('CA', $process->client_subregion);
 
         $this->assertFalse($client->has_valid_vat_number);
 
@@ -377,7 +374,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -419,7 +415,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -460,7 +455,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -500,7 +494,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -541,7 +534,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
         $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
@@ -582,8 +574,6 @@ class EuTaxTest extends TestCase
         $settings->country_id = '276'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'DE';
-        $tax_data->seller_subregion = 'DE';
         $tax_data->regions->EU->has_sales_above_threshold = false;
         $tax_data->regions->EU->tax_all_subregions = true;
 

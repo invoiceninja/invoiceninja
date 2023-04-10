@@ -88,7 +88,6 @@ class UsTaxTest extends TestCase
         $settings->country_id = '840'; // germany
 
         $tax_data = new TaxModel();
-        $tax_data->seller_region = 'US';
         $tax_data->seller_subregion = 'CA';
         $tax_data->regions->US->has_sales_above_threshold = true;
         $tax_data->regions->US->tax_all_subregions = true;

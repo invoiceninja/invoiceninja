@@ -29,8 +29,6 @@ class BaseRule implements RuleInterface
 
     public string $vendor_iso_3166_2 = '';
 
-    public string $client_iso_3166_2 = '';
-
     public string $client_region = '';
 
     public string $client_subregion = '';
@@ -141,11 +139,15 @@ class BaseRule implements RuleInterface
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
             throw new \Exception('Country not supported');
 
+            nlog($this->client->country->iso_3166_2);
+
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2] ?? '';
+
+        nlog($this->client_region);
 
         match($this->client_region){
             'US' => $this->client_subregion = $this->tax_data->geoState,
-            'EU' => $this->client->country->iso_3166_2,
+            'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             default => '',
         };
     
