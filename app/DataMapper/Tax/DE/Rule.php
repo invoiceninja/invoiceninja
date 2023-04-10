@@ -13,6 +13,7 @@ namespace App\DataMapper\Tax\DE;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
@@ -45,25 +46,9 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setClient(Client $client): self
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
-    //need to add logic here to capture if
-    public function tax($type): self
+    public function tax(mixed $type, ?InvoiceItem $item = null): self
     {
         
-
         if ($this->client->is_tax_exempt) {
 
             return $this->taxExempt();

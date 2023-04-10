@@ -11,8 +11,8 @@
 
 namespace App\DataMapper\Tax\US;
 
-use App\Models\Client;
 use App\Models\Product;
+use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
@@ -25,22 +25,7 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
-    public function setClient(Client $client):self 
-    {
-        $this->client = $client;
-        $this->client_iso_3166_2 = $client->country->iso_3166_2;
-
-        return $this;
-    }
-
-    public function tax($type): self
+    public function tax(mixed $type, ?InvoiceItem $item = null): self
     {
         
         if ($this->client->is_tax_exempt) {
@@ -52,7 +37,7 @@ class Rule extends BaseRule implements RuleInterface
 
             return $this;
         }
-        else if($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_iso_3166_2}->apply_tax){ //other regions outside of US
+        else if($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax){ //other regions outside of US
 
         }
         return $this;

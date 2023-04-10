@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Tax;
 
+use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\DataProviders\USStates;
 use App\Models\Client;
 
 class BaseRule implements RuleInterface
@@ -33,6 +35,8 @@ class BaseRule implements RuleInterface
 
     public string $client_region = '';
 
+    public string $client_subregion = '';
+    
     public array $eu_country_codes = [
             'AT', // Austria
             'BE', // Belgium
@@ -137,10 +141,12 @@ class BaseRule implements RuleInterface
 
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
             throw new \Exception('Country not supported');
-            
+
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2] ?? '';
 
-        $this->client_subregion = 
+        if($this->client_region == 'US'){
+            $this->client_subregion = $this->tax_data->geoState;
+        }
 
         return $this;
     }
@@ -152,12 +158,12 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function tax($product_tax_type): self
+    public function tax(mixed $type, ?InvoiceItem $item = null): self
     {
         return $this;
     }
 
-    public function taxByType($product_tax_type): self
+    public function taxByType(mixed $type): self
     {
         return $this;
     }
