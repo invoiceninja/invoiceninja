@@ -11,15 +11,22 @@
 
 namespace App\DataMapper\Tax\US;
 
-use App\Models\Product;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
+use App\Models\Product;
 
 class Rule extends BaseRule implements RuleInterface
 {
+    
+    public function init(): self
+    {
+        $this->calculateRates();
 
-    public function override(): self 
-    { 
+        return $this;
+    }
+
+    public function override(): self
+    {
         return $this;
     }
 
@@ -28,14 +35,12 @@ class Rule extends BaseRule implements RuleInterface
         
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
-        }
-        else if($this->client->company->tax_data->regions->US->tax_all_subregions || $this->client->company->tax_data->regions->US->subregions->{$this->tax_data->geoState}->apply_tax){
+        } elseif($this->client->company->tax_data->regions->US->tax_all_subregions || $this->client->company->tax_data->regions->US->subregions->{$this->client_subregion}->apply_tax) {
 
             $this->taxByType($item->tax_id);
 
             return $this;
-        }
-        else if($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax){ //other regions outside of US
+        } elseif($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax) { //other regions outside of US
 
         }
         return $this;
@@ -45,7 +50,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxByType($product_tax_type): self
     {
 
-        match($product_tax_type){
+        match($product_tax_type) {
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
             Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
@@ -76,16 +81,18 @@ class Rule extends BaseRule implements RuleInterface
 
     public function taxService(): self
     {
-        if($this->tax_data->txbService == 'Y')
+        if($this->tax_data->txbService == 'Y') {
             $this->default();
+        }
 
         return $this;
     }
 
     public function taxShipping(): self
     {
-        if($this->tax_data->txbFreight == 'Y')
+        if($this->tax_data->txbFreight == 'Y') {
             $this->default();
+        }
 
         return $this;
     }
@@ -113,13 +120,12 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
 
-    public function init(): self
-    {
-        return $this;
-    }
-
     public function calculateRates(): self
     {
+        if($this->client_region != 'US' && $this->isTaxableRegion()) {
+
+        }
+
         return $this;
     }
 }

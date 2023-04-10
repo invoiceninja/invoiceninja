@@ -50,7 +50,7 @@ class Rule extends BaseRule implements RuleInterface
 
             return $this->taxExempt();
 
-        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_iso_3166_2}->apply_tax) {
+        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_subregion}->apply_tax) {
 
             $this->taxByType($item->tax_id);
 

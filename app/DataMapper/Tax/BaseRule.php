@@ -134,6 +134,7 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
+    // Refactor to support switching between shipping / billing country / region / subregion
     private function resolveRegions(): self
     {
 
@@ -142,11 +143,18 @@ class BaseRule implements RuleInterface
 
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2] ?? '';
 
-        if($this->client_region == 'US'){
-            $this->client_subregion = $this->tax_data->geoState;
-        }
-
+        match($this->client_region){
+            'US' => $this->client_subregion = $this->tax_data->geoState,
+            'EU' => $this->client->country->iso_3166_2,
+            default => '',
+        };
+    
         return $this;
+    }
+
+    private function isTaxableRegion(): bool
+    {
+        return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
     }
 
     public function setTaxData(Response $tax_data): self
