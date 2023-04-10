@@ -12,7 +12,6 @@
 namespace App\DataMapper\Tax\DE;
 
 use App\Models\Product;
-use App\DataMapper\InvoiceItem;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 
@@ -147,41 +146,41 @@ class Rule extends BaseRule implements RuleInterface
 
     public function calculateRates(): self
     {
-
         if ($this->client->is_tax_exempt) {
+            // nlog("tax exempt");
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
         }
         elseif($this->client_iso_3166_2 != $this->vendor_iso_3166_2 && in_array($this->client_iso_3166_2, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
         {
+            // nlog("euro zone and tax exempt");
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
-            // nlog("euro zone and tax exempt");
         }
         elseif(!in_array(strtoupper($this->client_iso_3166_2), $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
         {
+            // nlog("foreign and tax exempt");
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
-            // nlog("foreign and tax exempt");
         }
         elseif(in_array(strtoupper($this->client_iso_3166_2), $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
         {   
             if(($this->vendor_iso_3166_2 != $this->client_iso_3166_2) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
             {
+                // nlog("eu zone with sales above threshold");
                 $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->vat_rate;
                 $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_vat_rate;
-                // nlog("eu zone with sales above threshold");
             }
             else {
+                // nlog("EU with intra-community supply ie DE to DE");
                 $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->vat_rate;
                 $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_vat_rate;
-                // nlog("same eu country with");
             }
         }
         else {
+            // nlog("default tax");
             $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->vat_rate;
             $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_vat_rate;
-            // nlog("default tax");
         }
 
         return $this;
