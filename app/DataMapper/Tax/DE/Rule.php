@@ -13,16 +13,15 @@ namespace App\DataMapper\Tax\DE;
 
 use App\Models\Client;
 use App\Models\Product;
-use Illuminate\Support\Str;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
 
 class Rule extends BaseRule implements RuleInterface
 {
-    public string $vendor_country_code = 'DE';
+    public string $vendor_iso_3166_2 = 'DE';
 
-    public string $client_country_code = 'DE';
+    public string $client_iso_3166_2 = 'DE';
 
     public bool $consumer_tax_exempt = false;
 
@@ -34,33 +33,13 @@ class Rule extends BaseRule implements RuleInterface
 
     public bool $foreign_consumer_tax_exempt = true;
 
-    public string $tax_name1 = '';
-
-    public float $tax_rate1 = 0;
-
-    public string $tax_name2 = '';
-    
-    public float $tax_rate2 = 0;
-    
-    public string $tax_name3 = '';
-    
-    public float $tax_rate3 = 0;
-
     public float $vat_rate = 0;
 
     public float $reduced_vat_rate = 0;
 
-    protected ?Client $client;
-
-    protected ?Response $tax_data;
-
-    public function __construct()
-    {
-    }
-
     public function init(): self
     {
-        $this->client_country_code = $this->client->shipping_country ? $this->client->shipping_country->iso_3166_2 : $this->client->country->iso_3166_2;
+        $this->client_iso_3166_2 = $this->client->shipping_country ? $this->client->shipping_country->iso_3166_2 : $this->client->country->iso_3166_2;
         $this->calculateRates();
         
         return $this;
@@ -89,7 +68,7 @@ class Rule extends BaseRule implements RuleInterface
 
             return $this->taxExempt();
 
-        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_country_code}->apply_tax) {
+        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_iso_3166_2}->apply_tax) {
 
             $this->taxByType($type);
 
@@ -190,21 +169,21 @@ class Rule extends BaseRule implements RuleInterface
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
         }
-        elseif($this->client_country_code != $this->vendor_country_code && in_array($this->client_country_code, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
+        elseif($this->client_iso_3166_2 != $this->vendor_iso_3166_2 && in_array($this->client_iso_3166_2, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
         {
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
             // nlog("euro zone and tax exempt");
         }
-        elseif(!in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
+        elseif(!in_array(strtoupper($this->client_iso_3166_2), $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
         {
             $this->vat_rate = 0;
             $this->reduced_vat_rate = 0;
             // nlog("foreign and tax exempt");
         }
-        elseif(in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
+        elseif(in_array(strtoupper($this->client_iso_3166_2), $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
         {   
-            if(($this->vendor_country_code != $this->client_country_code) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
+            if(($this->vendor_iso_3166_2 != $this->client_iso_3166_2) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
             {
                 $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->vat_rate;
                 $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_vat_rate;

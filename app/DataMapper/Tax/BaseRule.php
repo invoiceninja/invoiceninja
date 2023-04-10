@@ -27,34 +27,72 @@ class BaseRule implements RuleInterface
 
     public bool $foreign_consumer_tax_exempt = true;
 
+    public string $vendor_iso_3166_2 = '';
+
+    public string $client_iso_3166_2 = '';
+
+    public string $client_region = '';
+
     public array $eu_country_codes = [
-        'AT', // Austria
-        'BE', // Belgium
-        'BG', // Bulgaria
-        'CY', // Cyprus
-        'CZ', // Czech Republic
-        'DE', // Germany
-        'DK', // Denmark
-        'EE', // Estonia
-        'ES', // Spain
-        'FI', // Finland
-        'FR', // France
-        'GR', // Greece
-        'HR', // Croatia
-        'HU', // Hungary
-        'IE', // Ireland
-        'IT', // Italy
-        'LT', // Lithuania
-        'LU', // Luxembourg
-        'LV', // Latvia
-        'MT', // Malta
-        'NL', // Netherlands
-        'PL', // Poland
-        'PT', // Portugal
-        'RO', // Romania
-        'SE', // Sweden
-        'SI', // Slovenia
-        'SK', // Slovakia
+            'AT', // Austria
+            'BE', // Belgium
+            'BG', // Bulgaria
+            'CY', // Cyprus
+            'CZ', // Czech Republic
+            'DE', // Germany
+            'DK', // Denmark
+            'EE', // Estonia
+            'ES', // Spain
+            'FI', // Finland
+            'FR', // France
+            'GR', // Greece
+            'HR', // Croatia
+            'HU', // Hungary
+            'IE', // Ireland
+            'IT', // Italy
+            'LT', // Lithuania
+            'LU', // Luxembourg
+            'LV', // Latvia
+            'MT', // Malta
+            'NL', // Netherlands
+            'PL', // Poland
+            'PT', // Portugal
+            'RO', // Romania
+            'SE', // Sweden
+            'SI', // Slovenia
+            'SK', // Slovakia
+    ];
+
+    public array $region_codes = [ 
+            'AT' => 'EU', // Austria
+            'BE' => 'EU', // Belgium
+            'BG' => 'EU', // Bulgaria
+            'CY' => 'EU', // Cyprus
+            'CZ' => 'EU', // Czech Republic
+            'DE' => 'EU', // Germany
+            'DK' => 'EU', // Denmark
+            'EE' => 'EU', // Estonia
+            'ES' => 'EU', // Spain
+            'FI' => 'EU', // Finland
+            'FR' => 'EU', // France
+            'GR' => 'EU', // Greece
+            'HR' => 'EU', // Croatia
+            'HU' => 'EU', // Hungary
+            'IE' => 'EU', // Ireland
+            'IT' => 'EU', // Italy
+            'LT' => 'EU', // Lithuania
+            'LU' => 'EU', // Luxembourg
+            'LV' => 'EU', // Latvia
+            'MT' => 'EU', // Malta
+            'NL' => 'EU', // Netherlands
+            'PL' => 'EU', // Poland
+            'PT' => 'EU', // Portugal
+            'RO' => 'EU', // Romania
+            'SE' => 'EU', // Sweden
+            'SI' => 'EU', // Slovenia
+            'SK' => 'EU', // Slovakia
+        
+            'US' => 'US', // United States
     ];
 
     /** EU TAXES */
@@ -88,6 +126,21 @@ class BaseRule implements RuleInterface
     public function setClient(Client $client): self
     {
         $this->client = $client;
+
+        $this->resolveRegions();
+
+        return $this;
+    }
+
+    private function resolveRegions(): self
+    {
+
+        if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
+            throw new \Exception('Country not supported');
+            
+        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2] ?? '';
+
+        $this->client_subregion = 
 
         return $this;
     }

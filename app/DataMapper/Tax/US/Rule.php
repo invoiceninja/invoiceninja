@@ -13,30 +13,14 @@ namespace App\DataMapper\Tax\US;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
 use App\DataMapper\Tax\ZipTax\Response;
 
-class Rule implements RuleInterface
+class Rule extends BaseRule implements RuleInterface
 {
 
-    public string $tax_name1 = '';
-    public float $tax_rate1 = 0;
-
-    public string $tax_name2 = '';
-    public float $tax_rate2 = 0;
-    
-    public string $tax_name3 = '';
-    public float $tax_rate3 = 0;
-    
-    public ?Client $client;
-
-    public ?Response $tax_data;
-
-    public function __construct()
-    {
-    }
-
-    public function override() 
+    public function override(): self 
     { 
         return $this;
     }
@@ -51,6 +35,7 @@ class Rule implements RuleInterface
     public function setClient(Client $client):self 
     {
         $this->client = $client;
+        $this->client_iso_3166_2 = $client->country->iso_3166_2;
 
         return $this;
     }
@@ -67,7 +52,9 @@ class Rule implements RuleInterface
 
             return $this;
         }
-            
+        else if($this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_iso_3166_2}->apply_tax){ //other regions outside of US
+
+        }
         return $this;
 
     }

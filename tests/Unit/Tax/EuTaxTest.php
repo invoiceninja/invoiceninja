@@ -269,9 +269,9 @@ class EuTaxTest extends TestCase
         $process->setClient($client);
         $process->init();
 
-        $this->assertEquals('DE', $process->vendor_country_code);
+        $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('DE', $process->client_country_code);
+        $this->assertEquals('DE', $process->client_iso_3166_2);
 
         $this->assertFalse($client->has_valid_vat_number);
 
@@ -316,9 +316,9 @@ class EuTaxTest extends TestCase
         $process->init();
 
 
-        $this->assertEquals('DE', $process->vendor_country_code);
+        $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('BE', $process->client_country_code);
+        $this->assertEquals('BE', $process->client_iso_3166_2);
 
         $this->assertFalse($client->has_valid_vat_number);
 
@@ -354,9 +354,9 @@ class EuTaxTest extends TestCase
         $process->setClient($client);
         $process->init();
 
-        $this->assertEquals('DE', $process->vendor_country_code);
+        $this->assertEquals('DE', $process->vendor_iso_3166_2);
 
-        $this->assertEquals('US', $process->client_country_code);
+        $this->assertEquals('US', $process->client_iso_3166_2);
 
         $this->assertFalse($client->has_valid_vat_number);
 
