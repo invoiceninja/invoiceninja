@@ -35,7 +35,7 @@ class TaskRepository extends BaseRepository
      *
      * @return     task|null  task Object
      */
-    public function save(array $data, Task $task) : ?Task
+    public function save(array $data, Task $task): ?Task
     {
         if ($task->id) {
             $this->new_task = false;
@@ -98,7 +98,8 @@ class TaskRepository extends BaseRepository
             $time_log = [];
         }
 
-        array_multisort($time_log);
+        // array_multisort($time_log);
+        ksort($time_log);
 
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
@@ -118,8 +119,6 @@ class TaskRepository extends BaseRepository
         }
 
         $task->time_log = json_encode($time_log);
-        // $task->start_time = $task->start_time ?: $task->calcStartTime();
-        // $task->duration = $task->calcDuration();
 
         $task->saveQuietly();
 
@@ -206,10 +205,12 @@ class TaskRepository extends BaseRepository
 
         $last = end($log);
 
-        if (is_array($last) && $last[1] !== 0) {
+        if (is_array($last) && $last[1] !== 0) { // this line is a disaster
             $new = [time(), 0];
+
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
+
             $task->saveQuietly();
         }
 
@@ -226,7 +227,7 @@ class TaskRepository extends BaseRepository
             $last[1] = time();
 
             array_pop($log);
-            $log = array_merge($log, [$last]);
+            $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
 
             $task->time_log = json_encode($log);
             $task->saveQuietly();

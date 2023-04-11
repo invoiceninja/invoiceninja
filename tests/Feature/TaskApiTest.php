@@ -99,6 +99,89 @@ class TaskApiTest extends TestCase
         }
     }
     
+    public function testStartStopSanity()
+    {
+        
+        $task = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}?stop=true");
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testStoppingTaskWithDescription()
+    {
+        $task = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ]);
+
+        $task_repo = new \App\Repositories\TaskRepository();
+
+        $task = $task_repo->stop($task);
+
+        $log = json_decode($task->time_log);
+
+        $last = end($log);
+
+        $this->assertNotEquals(0, $last[1]);
+        $this->assertCount(2, $last);
+    }
+
+    public function testMultiDimensionArrayOfTimes()
+    {
+        $logs = [
+        '[[1680302433,1680387960,"",true]]',
+        '[[1680715620,1680722820,"",true],[1680729660,1680737460,"",true]]',
+        '[[1681156840,1681158000,"",true]]',        
+        '[[1680035007,1680036807,"",true]]',
+        ];
+
+        foreach($logs as $log)
+        {
+            $this->assertTrue($this->checkTimeLog(json_decode($log)));
+        }
+
+    }
+
+    public function testArrayOfTimes()
+    {
+        $logs = [
+        "[[1675275148,1675277829]]",
+        "[[1675375200,1675384200],[1676074247,1676074266]]",
+        "[[1675443600,1675461600],[1676053305,1676055950],[1676063112,1676067834]]",
+        "[[1676068200,1676070900]]",
+        "[[1678134638,1678156238]]",
+        "[[1678132800,1678134582],[1678134727,1678136801]]",
+        "[[1678343569,1678344469]]",
+        "[[1678744339,1678755139]]",
+        "[[1678894860,1678906620]]",
+        "[[1679339870,1679341672]]",
+        "[[1680547478,1680547482]]",
+        "[[1681156881,0]]",
+        ];
+
+        foreach($logs as $log)
+        {
+            $this->assertTrue($this->checkTimeLog(json_decode($log)));
+        }
+
+    }
+
+
     public function testTimeLogChecker1()
     {
         $log = [

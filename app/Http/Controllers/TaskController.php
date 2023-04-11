@@ -274,6 +274,7 @@ class TaskController extends BaseController
         $old_task = json_decode(json_encode($task));
 
         $task = $this->task_repo->save($request->all(), $task);
+        
         $task = $this->task_repo->triggeredActions($request, $task);
 
         if ($task->status_order != $old_task->status_order) {
