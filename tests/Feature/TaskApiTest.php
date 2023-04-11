@@ -99,6 +99,42 @@ class TaskApiTest extends TestCase
         }
     }
     
+    public function testMultiSortArray()
+    {
+        
+        $logs = [
+            [1680035007,1680036807,"",true],
+            [1681156840,1681158000,"",true],
+            [1680302433,1680387960,"",true],
+            [1680715620,1680722820,"",true],
+            [1,1680737460,"",true]
+        ];
+
+        $key_values = array_column($logs, 0);
+
+        nlog($logs);
+
+    }
+
+    public function testKsortPerformance()
+    {
+        $logs = [
+        [1680035007,1680036807,"",true],
+        [1681156840,1681158000,"",true],
+        [1680302433,1680387960,"",true],
+        [1680715620,1680722820,"",true],
+        [1,1680737460,"",true]
+        ];
+        
+        $key_values = array_column($logs, 0);
+        array_multisort($key_values, SORT_ASC, $logs);
+
+        $start = $logs[0];
+
+        $this->assertEquals(1, $start[0]);
+
+    }
+
     public function testStartStopSanity()
     {
         

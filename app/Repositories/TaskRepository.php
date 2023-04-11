@@ -97,9 +97,12 @@ class TaskRepository extends BaseRepository
         } else {
             $time_log = [];
         }
+        
+        $key_values = array_column($time_log, 0);
+        array_multisort($key_values, SORT_ASC, $time_log);
 
         // array_multisort($time_log);
-        ksort($time_log);
+        // ksort($time_log);
 
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
