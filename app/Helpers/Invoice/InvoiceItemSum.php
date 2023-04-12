@@ -54,7 +54,9 @@ class InvoiceItemSum
         'SI', // Slovenia
         'SK', // Slovakia
 
-        'US', //USA
+        'US', // USA
+
+        'AU', // Australia
     ];
 
     protected $invoice;

@@ -13,13 +13,22 @@ namespace App\DataMapper\Tax;
 
 class TaxModel 
 {
-
+    
+    /** @var mixed $seller_subregion */
     public string $seller_subregion = 'CA';
-
+    
+    /** @var mixed $version */
     public string $version = 'alpha';
-
+    
+    /** @var mixed $regions */
     public object $regions;
-
+    
+    /**
+     * __construct
+     *
+     * @param  mixed $model
+     * @return void
+     */
     public function __construct(public ?TaxModel $model = null)
     {
         
@@ -29,7 +38,12 @@ class TaxModel
             $this->regions = $model;
 
     }
-
+    
+    /**
+     * Initializes the rules and builds any required data.
+     *
+     * @return void
+     */
     public function init()
     {
         $this->regions = new \stdClass();
@@ -43,7 +57,12 @@ class TaxModel
 
         return $this->regions;
     }
-
+    
+    /**
+     * Builds the model for Australian Taxes
+     *
+     * @return self
+     */
     private function auRegion(): self
     {
         $this->regions->AU = new \stdClass();
@@ -54,7 +73,12 @@ class TaxModel
 
         return $this;
     }
-
+    
+    /**
+     * Builds the model for Australian Subregions
+     *
+     * @return self
+     */
     private function auSubRegions(): self 
     {
 
@@ -66,7 +90,12 @@ class TaxModel
 
         return $this;
     }
-
+    
+    /**
+     * Builds the model for US Taxes
+     *
+     * @return self
+     */
     private function usRegion(): self
     {
         $this->regions->US->has_sales_above_threshold = false;
@@ -75,7 +104,12 @@ class TaxModel
 
         return $this;
     }
-
+    
+    /**
+     * Builds the model for EU Taxes
+     *
+     * @return self
+     */
     private function euRegion(): self
     {
      
@@ -86,7 +120,12 @@ class TaxModel
 
         return $this;
     }
-
+    
+    /**
+     * Builds the model for US States
+     *
+     * @return self
+     */
     private function usSubRegions(): self
     {
         $this->regions->US->subregions = new \stdClass();
@@ -293,7 +332,12 @@ class TaxModel
 
         return $this;
     }
-
+    
+    /**
+     * Create the EU member countries
+     *
+     * @return self
+     */
     private function euSubRegions(): self
     {
         
