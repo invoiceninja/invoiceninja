@@ -173,6 +173,15 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
+    public function defaultForeign(): self
+    {
+
+        $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
+        $this->tax_name1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
+
+        return $this;
+    }
+
     public function setTaxData(Response $tax_data): self
     {
         $this->tax_data = $tax_data;

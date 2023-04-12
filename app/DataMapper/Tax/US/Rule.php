@@ -17,7 +17,11 @@ use App\Models\Product;
 
 class Rule extends BaseRule implements RuleInterface
 {
-    
+    /**
+     * The rules apply US => US taxes using the tax calculator.
+     * 
+     * US => Foreign taxes we check the product types still for exemptions, and we all back to the client country tax rate.
+     */
     public function init(): self
     {
         $this->calculateRates();
@@ -41,6 +45,13 @@ class Rule extends BaseRule implements RuleInterface
 
             return $this;
         } elseif($this->isTaxableRegion()) { //other regions outside of US
+
+            match($item->tax_id) {
+                Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
+                Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
+                Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
+                default => $this->defaultForeign(),
+            };
 
         }
         return $this;
