@@ -11,8 +11,9 @@
 
 namespace App\DataMapper\Tax;
 
-use App\DataMapper\Tax\ZipTax\Response;
 use App\Models\Client;
+use App\Models\Product;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class BaseRule implements RuleInterface
 {
@@ -27,7 +28,7 @@ class BaseRule implements RuleInterface
 
     public bool $foreign_consumer_tax_exempt = true;
 
-    public string $vendor_iso_3166_2 = '';
+    public string $seller_region = '';
 
     public string $client_region = '';
 
@@ -93,6 +94,8 @@ class BaseRule implements RuleInterface
             'SK' => 'EU', // Slovakia
         
             'US' => 'US', // United States
+
+            'AU' => 'AU', // Australia
     ];
 
     /** EU TAXES */
@@ -132,19 +135,26 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
+    public function setTaxData(Response $tax_data): self
+    {
+        $this->tax_data = $tax_data;
+
+        return $this;
+    }
+
     // Refactor to support switching between shipping / billing country / region / subregion
     private function resolveRegions(): self
     {
 
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
-            throw new \Exception('Automatic tax calculates not supported for this country');
+            throw new \Exception('Automatic tax calculations not supported for this country');
 
         $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         match($this->client_region){
             'US' => $this->client_subregion = $this->tax_data->geoState,
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
-            default => '',
+            default => $this->client->country->iso_3166_2,
         };
     
         return $this;
@@ -155,26 +165,18 @@ class BaseRule implements RuleInterface
         return $this->client->company->tax_data->regions->{$this->client_region}->tax_all_subregions || $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->apply_tax;
     }
 
-    public function taxForeignEntity(mixed $item): self
+    public function defaultForeign(): self
     {
+
         if($this->client_region == 'US') {
-            
+                
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
 
-        }
-        else {
-
-            $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
-            $this->tax_name1 = "Tax";
+            return $this;
 
         }
 
-        return $this;
-    }
-
-    public function defaultForeign(): self
-    {
 
         $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
         $this->tax_name1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
@@ -182,18 +184,32 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
     public function tax($item = null): self
     {
-        return $this;
-    }
+        nlog($this->client_region);
+        nlog($this->seller_region);
 
+        if ($this->client->is_tax_exempt) {
+            return $this->taxExempt();
+        } elseif($this->client_region == $this->seller_region && $this->isTaxableRegion()) {
+
+            $this->taxByType($item->tax_id);
+
+            return $this;
+        } elseif($this->isTaxableRegion()) { //other regions outside of US
+
+            match($item->tax_id) {
+                Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
+                Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
+                Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
+                default => $this->defaultForeign(),
+            };
+
+        }
+        return $this;
+
+    }
+    
     public function taxByType(mixed $type): self
     {
         return $this;

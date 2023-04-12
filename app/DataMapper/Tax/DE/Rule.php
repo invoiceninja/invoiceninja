@@ -17,7 +17,7 @@ use App\DataMapper\Tax\RuleInterface;
 
 class Rule extends BaseRule implements RuleInterface
 {
-    public string $vendor_iso_3166_2 = 'DE';
+    public string $seller_region = 'EU';
 
     public bool $consumer_tax_exempt = false;
 
@@ -38,30 +38,6 @@ class Rule extends BaseRule implements RuleInterface
         $this->calculateRates();
         
         return $this;
-    }
-
-    public function tax($item = null): self
-    {
-        
-        if ($this->client->is_tax_exempt) {
-
-            return $this->taxExempt();
-
-        } 
-        elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_subregion}->apply_tax) {
-
-            $this->taxByType($item->tax_id);
-
-            return $this;
-        } 
-        elseif ($this->client_region != 'EU' && $this->isTaxableRegion()) { //foreign entity with tax obligations
-
-            $this->taxForeignEntity($item);
-
-            return $this;
-        }
-        return $this;
-
     }
 
     public function taxByType($product_tax_type): self
@@ -148,38 +124,38 @@ class Rule extends BaseRule implements RuleInterface
     public function calculateRates(): self
     {
         if ($this->client->is_tax_exempt) {
-            // nlog("tax exempt");
+            nlog("tax exempt");
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         }
-        elseif($this->client_subregion != $this->vendor_iso_3166_2 && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
+        elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
         {
-            // nlog("euro zone and tax exempt");
+            nlog("euro zone and tax exempt");
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         }
         elseif(!in_array($this->client_subregion, $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
         {
-            // nlog("foreign and tax exempt");
+            nlog("foreign and tax exempt");
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         }
         elseif(in_array($this->client_subregion, $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
         {   
-            if(($this->vendor_iso_3166_2 != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
+            if(($this->client->company->tax_data->seller_subregion != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
             {
-                // nlog("eu zone with sales above threshold");
+                nlog("eu zone with sales above threshold");
                 $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->tax_rate;
                 $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_tax_rate;
             }
             else {
-                // nlog("EU with intra-community supply ie DE to DE");
+                nlog("EU with intra-community supply ie DE to DE");
                 $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
                 $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
             }
         }
         else {
-            // nlog("default tax");
+            nlog("default tax");
             $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
             $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
         }

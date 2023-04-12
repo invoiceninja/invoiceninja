@@ -17,6 +17,8 @@ use App\Models\Product;
 
 class Rule extends BaseRule implements RuleInterface
 {
+    public string $seller_region = 'US';
+
     /**
      * The rules apply US => US taxes using the tax calculator.
      * 
@@ -32,30 +34,6 @@ class Rule extends BaseRule implements RuleInterface
     public function override(): self
     {
         return $this;
-    }
-
-    public function tax($item = null): self
-    {
-        
-        if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
-        } elseif($this->client_region == 'US' && $this->isTaxableRegion()) {
-
-            $this->taxByType($item->tax_id);
-
-            return $this;
-        } elseif($this->isTaxableRegion()) { //other regions outside of US
-
-            match($item->tax_id) {
-                Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
-                Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
-                Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
-                default => $this->defaultForeign(),
-            };
-
-        }
-        return $this;
-
     }
 
     public function taxByType($product_tax_type): self
