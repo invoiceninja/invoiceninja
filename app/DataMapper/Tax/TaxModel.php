@@ -201,31 +201,37 @@ class TaxModel
 
         $this->regions->EU->subregions->AT = new \stdClass();
         $this->regions->EU->subregions->AT->tax_rate = 21;
+        $this->regions->EU->subregions->AT->tax_name = 'USt';
         $this->regions->EU->subregions->AT->reduced_tax_rate = 11;
         $this->regions->EU->subregions->AT->apply_tax = false;
 
         $this->regions->EU->subregions->BE = new \stdClass();
         $this->regions->EU->subregions->BE->tax_rate = 21;
+        $this->regions->EU->subregions->BE->tax_name = 'BTW';
         $this->regions->EU->subregions->BE->reduced_tax_rate = 6;
         $this->regions->EU->subregions->BE->apply_tax = false;
 
         $this->regions->EU->subregions->BG = new \stdClass();
         $this->regions->EU->subregions->BG->tax_rate = 20;
+        $this->regions->EU->subregions->BG->tax_name = 'НДС';
         $this->regions->EU->subregions->BG->reduced_tax_rate = 9;
         $this->regions->EU->subregions->BG->apply_tax = false;
 
         $this->regions->EU->subregions->CY = new \stdClass();
         $this->regions->EU->subregions->CY->tax_rate = 19;
+        $this->regions->EU->subregions->CY->tax_name = 'ΦΠΑ';
         $this->regions->EU->subregions->CY->reduced_tax_rate = 9;
         $this->regions->EU->subregions->CY->apply_tax = false;
 
         $this->regions->EU->subregions->CZ = new \stdClass();
         $this->regions->EU->subregions->CZ->tax_rate = 21;
+        $this->regions->EU->subregions->CZ->tax_name = 'DPH';
         $this->regions->EU->subregions->CZ->reduced_tax_rate = 15;
         $this->regions->EU->subregions->CZ->apply_tax = false;
 
         $this->regions->EU->subregions->DE = new \stdClass();
         $this->regions->EU->subregions->DE->tax_rate = 19;
+        $this->regions->EU->subregions->DE->tax_name = 'MwSt';
         $this->regions->EU->subregions->DE->reduced_tax_rate = 7;
         $this->regions->EU->subregions->DE->apply_tax = false;
 
@@ -236,21 +242,25 @@ class TaxModel
 
         $this->regions->EU->subregions->EE = new \stdClass();
         $this->regions->EU->subregions->EE->tax_rate = 20;
+        $this->regions->EU->subregions->EE->tax_name = 'KM';        
         $this->regions->EU->subregions->EE->reduced_tax_rate = 9;
         $this->regions->EU->subregions->EE->apply_tax = false;
 
         $this->regions->EU->subregions->ES = new \stdClass();
         $this->regions->EU->subregions->ES->tax_rate = 21;
+        $this->regions->EU->subregions->ES->tax_name = 'IVA';
         $this->regions->EU->subregions->ES->reduced_tax_rate = 10;
         $this->regions->EU->subregions->ES->apply_tax = false;
 
         $this->regions->EU->subregions->FI = new \stdClass();
         $this->regions->EU->subregions->FI->tax_rate = 24;
+        $this->regions->EU->subregions->FI->tax_name = 'ALV';
         $this->regions->EU->subregions->FI->reduced_tax_rate = 14;
         $this->regions->EU->subregions->FI->apply_tax = false;
 
         $this->regions->EU->subregions->FR = new \stdClass();
         $this->regions->EU->subregions->FR->tax_rate = 20;
+        $this->regions->EU->subregions->FR->tax_name = 'TVA';
         $this->regions->EU->subregions->FR->reduced_tax_rate = 5.5;
         $this->regions->EU->subregions->FR->apply_tax = false;
 
@@ -261,76 +271,91 @@ class TaxModel
 
         $this->regions->EU->subregions->GR = new \stdClass();
         $this->regions->EU->subregions->GR->tax_rate = 24;
+        $this->regions->EU->subregions->GR->tax_name = 'ΦΠΑ';
         $this->regions->EU->subregions->GR->reduced_tax_rate = 13;
         $this->regions->EU->subregions->GR->apply_tax = false;
 
         $this->regions->EU->subregions->HR = new \stdClass();
         $this->regions->EU->subregions->HR->tax_rate = 25;
+        $this->regions->EU->subregions->HR->tax_name = 'PDV';
         $this->regions->EU->subregions->HR->reduced_tax_rate = 5;
         $this->regions->EU->subregions->HR->apply_tax = false;
 
         $this->regions->EU->subregions->HU = new \stdClass();
         $this->regions->EU->subregions->HU->tax_rate = 27;
+        $this->regions->EU->subregions->HU->tax_name = 'ÁFA';
         $this->regions->EU->subregions->HU->reduced_tax_rate = 5;
         $this->regions->EU->subregions->HU->apply_tax = false;
 
         $this->regions->EU->subregions->IE = new \stdClass();
         $this->regions->EU->subregions->IE->tax_rate = 23;
+        $this->regions->EU->subregions->IE->tax_name = 'VAT';
         $this->regions->EU->subregions->IE->reduced_tax_rate = 0;
         $this->regions->EU->subregions->IE->apply_tax = false;
 
         $this->regions->EU->subregions->IT = new \stdClass();
         $this->regions->EU->subregions->IT->tax_rate = 22;
+        $this->regions->EU->subregions->IT->tax_name = 'IVA';
         $this->regions->EU->subregions->IT->reduced_tax_rate = 10;
         $this->regions->EU->subregions->IT->apply_tax = false;
 
         $this->regions->EU->subregions->LT = new \stdClass();
         $this->regions->EU->subregions->LT->tax_rate = 21;
+        $this->regions->EU->subregions->LT->tax_name = 'PVM';
         $this->regions->EU->subregions->LT->reduced_tax_rate = 9;
         $this->regions->EU->subregions->LT->apply_tax = false;
 
         $this->regions->EU->subregions->LU = new \stdClass();
         $this->regions->EU->subregions->LU->tax_rate = 17;
+        $this->regions->EU->subregions->LU->tax_name = 'TVA';
         $this->regions->EU->subregions->LU->reduced_tax_rate = 3;
         $this->regions->EU->subregions->LU->apply_tax = false;
 
         $this->regions->EU->subregions->LV = new \stdClass();
         $this->regions->EU->subregions->LV->tax_rate = 21;
+        $this->regions->EU->subregions->LV->tax_name = 'PVN';
         $this->regions->EU->subregions->LV->reduced_tax_rate = 12;
         $this->regions->EU->subregions->LV->apply_tax = false;
 
         $this->regions->EU->subregions->MT = new \stdClass();
         $this->regions->EU->subregions->MT->tax_rate = 18;
+        $this->regions->EU->subregions->MT->tax_name = 'VAT';
         $this->regions->EU->subregions->MT->reduced_tax_rate = 5;
         $this->regions->EU->subregions->MT->apply_tax = false;
 
         $this->regions->EU->subregions->NL = new \stdClass();
         $this->regions->EU->subregions->NL->tax_rate = 21;
+        $this->regions->EU->subregions->NL->tax_name = 'BTW';
         $this->regions->EU->subregions->NL->reduced_tax_rate = 9;
         $this->regions->EU->subregions->NL->apply_tax = false;
 
         $this->regions->EU->subregions->PT = new \stdClass();
         $this->regions->EU->subregions->PT->tax_rate = 23;
+        $this->regions->EU->subregions->PT->tax_name = 'IVA';
         $this->regions->EU->subregions->PT->reduced_tax_rate = 6;
         $this->regions->EU->subregions->PT->apply_tax = false;
 
         $this->regions->EU->subregions->RO = new \stdClass();
         $this->regions->EU->subregions->RO->tax_rate = 19;
+        $this->regions->EU->subregions->RO->tax_name = 'TVA';
         $this->regions->EU->subregions->RO->reduced_tax_rate = 5;
         $this->regions->EU->subregions->RO->apply_tax = false;
 
         $this->regions->EU->subregions->SE = new \stdClass();
         $this->regions->EU->subregions->SE->tax_rate = 25;
+        $this->regions->EU->subregions->SE->tax_name = 'Moms';
         $this->regions->EU->subregions->SE->reduced_tax_rate = 12;
         $this->regions->EU->subregions->SE->apply_tax = false;
 
         $this->regions->EU->subregions->SI = new \stdClass();
         $this->regions->EU->subregions->SI->tax_rate = 22;
+        $this->regions->EU->subregions->SI->tax_name = 'DDV';
         $this->regions->EU->subregions->SI->reduced_tax_rate = 9.5;
         $this->regions->EU->subregions->SI->apply_tax = false;
 
         $this->regions->EU->subregions->SK = new \stdClass();
         $this->regions->EU->subregions->SK->tax_rate = 20;
+        $this->regions->EU->subregions->SK->tax_name = 'DPH';
         $this->regions->EU->subregions->SK->reduced_tax_rate = 10;
         $this->regions->EU->subregions->SK->apply_tax = false;
 
