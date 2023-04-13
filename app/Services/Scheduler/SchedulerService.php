@@ -12,8 +12,9 @@
 namespace App\Services\Scheduler;
 
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Services\Scheduler\EmailProductSalesReport;
 
 class SchedulerService
 {
@@ -43,12 +44,15 @@ class SchedulerService
         (new EmailRecord($this->scheduler))->run();
     }
 
-
     private function email_statement()
     {
         (new EmailStatementService($this->scheduler))->run();
     }
 
+    private function email_product_sales_report()
+    {
+        (new EmailProductSalesReport($this->scheduler))->run();
+    }
 
     /**
      * Sets the next run date of the scheduled task
