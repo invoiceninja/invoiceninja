@@ -272,9 +272,9 @@ class BaseTransformer
     /**
      * @param $email
      *
-     * @return ?Contact
+     * @return ?ClientContact
      */
-    public function getContact($email)
+    public function getContact($email): ?ClientContact
     {
         $contact = ClientContact::where('company_id', $this->company->id)
             ->whereRaw("LOWER(REPLACE(`email`, ' ' ,''))  = ?", [

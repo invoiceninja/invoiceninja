@@ -46,7 +46,6 @@ class EmailProductSalesReport
             $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
         }
         
-        
         $data = [
             'start_date' => $start_end_dates[0],
             'end_date' => $start_end_dates[1],
@@ -57,6 +56,8 @@ class EmailProductSalesReport
         $export = (new ProductSalesExport($this->scheduler->company, $data));
         $csv = $export->run();
 
+        //todo - potentially we send this to more than one user.
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new DownloadReport($this->scheduler->company, $csv, $this->file_name);
         $nmo->company = $this->scheduler->company;
@@ -64,7 +65,6 @@ class EmailProductSalesReport
         $nmo->to_user = $this->scheduler->user;
 
         NinjaMailerJob::dispatch($nmo);
-
 
         //calculate next run dates;
         $this->scheduler->calculateNextRun();

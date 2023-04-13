@@ -26,6 +26,7 @@ use App\Services\Scheduler\SchedulerService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use App\Services\Scheduler\EmailStatementService;
+use App\Services\Scheduler\EmailProductSalesReport;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
@@ -57,6 +58,39 @@ class SchedulerTest extends TestCase
 
 
     public function testProductSalesReportGeneration()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_product_sales_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(200);
+        
+        $arr = $response->json();
+
+        $id = $this->decodePrimaryKey($arr['data']['id']);
+        $scheduler = Scheduler::find($id);
+
+        $this->assertNotNull($scheduler);
+
+        $export = (new EmailProductSalesReport($scheduler))->run();
+
+        $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
+
+    }
+
+    public function testProductSalesReportStore()
     {
         $data = [
             'name' => 'A test product sales scheduler',
