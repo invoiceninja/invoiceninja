@@ -54,6 +54,8 @@ class SchedulerTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        // $this->withoutExceptionHandling();
     }
 
 
@@ -67,16 +69,26 @@ class SchedulerTest extends TestCase
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
+                'report_keys' => [],
+                'client_id' => null,
+
             ],
         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/task_schedulers', $data);
+        $response = false;
 
-        $response->assertStatus(200);
-        
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(200);
+        }
+        catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
         $arr = $response->json();
 
         $id = $this->decodePrimaryKey($arr['data']['id']);

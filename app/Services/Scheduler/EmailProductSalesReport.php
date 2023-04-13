@@ -50,7 +50,8 @@ class EmailProductSalesReport
             'start_date' => $start_end_dates[0],
             'end_date' => $start_end_dates[1],
             'date_range' => 'custom',
-            'client_id' => null
+            'client_id' => null,
+            'report_keys' => []
         ];
 
         $export = (new ProductSalesExport($this->scheduler->company, $data));
