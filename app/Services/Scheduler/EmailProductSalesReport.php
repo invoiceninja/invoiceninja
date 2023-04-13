@@ -11,11 +11,14 @@
 
 namespace App\Services\Scheduler;
 
-use App\DataMapper\Schedule\EmailStatement;
 use App\Models\Client;
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesDates;
+use App\Mail\DownloadReport;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Export\CSV\ProductSalesExport;
+use App\DataMapper\Schedule\EmailStatement;
 
 class EmailProductSalesReport
 {
@@ -26,22 +29,20 @@ class EmailProductSalesReport
 
     private bool $multiple_clients = false;
 
+    private string $file_name = 'product_sales.csv';
+
     public function __construct(public Scheduler $scheduler)
     {
     }
 
     public function run()
     {
-        $query = Client::query()
-                ->where('company_id', $this->scheduler->company_id)
-                ->where('is_deleted', 0);
-
-        //Email only the selected clients
         
         $start_end_dates = $this->calculateStartAndEndDates();
+        $data = [];
 
-        if (count($this->scheduler->parameters['clients']) >= 1) {
-            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
+        if (count($this->scheduler->parameters['clients']) >= 1) {            
+            $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
         }
         
         
@@ -49,10 +50,19 @@ class EmailProductSalesReport
             'start_date' => $start_end_dates[0],
             'end_date' => $start_end_dates[1],
             'date_range' => 'custom',
-            'client_id' =>
+            'client_id' => null
         ];
 
-        $export = new ProductSalesExport($this->scheduler->company, $data);
+        $export = (new ProductSalesExport($this->scheduler->company, $data));
+        $csv = $export->run();
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new DownloadReport($this->scheduler->company, $csv, $this->file_name);
+        $nmo->company = $this->scheduler->company;
+        $nmo->settings = $this->scheduler->company->settings;
+        $nmo->to_user = $this->scheduler->user;
+
+        NinjaMailerJob::dispatch($nmo);
 
 
         //calculate next run dates;
