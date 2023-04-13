@@ -16,6 +16,7 @@ use App\Models\Scheduler;
 use App\Mail\DownloadReport;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Export\CSV\ProductSalesExport;
 use App\DataMapper\Schedule\EmailStatement;
