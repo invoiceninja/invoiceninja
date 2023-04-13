@@ -64,4 +64,18 @@ class DesignFilters extends QueryFilters
     {
         return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
     }
+
+    /**
+     * Filter the designs by `is_custom` column.
+     *
+     * @return Illuminate\Database\Query\Builder
+     */
+    public function custom(string $custom): Builder
+    {
+        if (strlen($custom) === 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where('is_custom', filter_var($custom, FILTER_VALIDATE_BOOLEAN));
+    }
 }
