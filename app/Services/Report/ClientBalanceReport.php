@@ -36,10 +36,8 @@ class ClientBalanceReport extends BaseExport
         'client_name',
         'client_number',
         'id_number',
-        'invoices',
-        'amount',
-        'balance',
-        'total_taxes',
+        'invoice_balance',
+        'credit_balance',
     ];
 
     /**
@@ -87,7 +85,7 @@ class ClientBalanceReport extends BaseExport
             });
 
         return $this->csv->toString();
-        
+
     }
 
     public function buildHeader(): array
@@ -112,9 +110,8 @@ class ClientBalanceReport extends BaseExport
             $client->number,
             $client->id_number,
             $query->count(),
-            $query->sum('amount'),
             $query->sum('balance'),
-            $query->sum('total_taxes'),
+            $client->credit_balance,
         ];
     }
 }

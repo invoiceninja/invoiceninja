@@ -67,7 +67,7 @@ class UserSalesReport extends BaseExport
 
         $query = $this->filterByClients($query);
 
-        $this->csv->insertOne([ctrans('texts.sales_report_header', ['client' => $this->client_description, 'start_date' => $this->start_date, 'end_date' => $this->end_date])]);
+        $this->csv->insertOne([ctrans('texts.user_sales_report_header', ['client' => $this->client_description, 'start_date' => $this->start_date, 'end_date' => $this->end_date])]);
         $this->csv->insertOne($this->buildHeader());
 
         $users = $this->company->users;

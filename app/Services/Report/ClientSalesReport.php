@@ -11,11 +11,120 @@
 
 namespace App\Services\Report;
 
-class ClientSalesReport
+use App\Utils\Ninja;
+use App\Utils\Number;
+use App\Models\Client;
+use League\Csv\Writer;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Libraries\MultiDB;
+use App\Export\CSV\BaseExport;
+use App\Utils\Traits\MakesDates;
+use Illuminate\Support\Facades\App;
+
+class ClientSalesReport extends BaseExport
 {
+    use MakesDates;
     //Name
     //Invoice count
     //Amount
     //Amount with Tax
 
+    public Writer $csv;
+    
+    public string $date_key = 'created_at';
+
+    public array $report_keys = [
+        'client_name',
+        'client_number',
+        'id_number',
+        'invoices',
+        'amount',
+        'balance',
+        'total_taxes',
+        'amount_paid',
+    ];
+
+    /**
+        @param array $input
+        [
+            'date_range',
+            'start_date',
+            'end_date',
+            'clients',
+            'client_id',
+        ]
+    */
+    public function __construct(public Company $company, public array $input)
+    {
+    }
+
+    public function run()
+    {
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
+        $this->csv = Writer::createFromString();
+        
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.client_sales_report')]);
+        $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
+
+        $this->csv->insertOne($this->buildHeader());
+
+        Client::query()
+            ->where('company_id', $this->company->id)
+            ->where('is_deleted', 0)
+            ->orderBy('balance', 'desc')
+            ->cursor()
+            ->each(function ($client) {
+                
+                $this->csv->insertOne($this->buildRow($client));
+                
+            });
+
+        return $this->csv->toString();
+        
+    }
+
+    public function buildHeader(): array
+    {
+        $headers = [];
+
+        foreach($this->report_keys as $key) {
+            $headers[] = ctrans("texts.{$key}");
+        }
+
+        return $headers;
+
+    }
+    private function buildRow(Client $client): array
+    {
+        $query = Invoice::where('client_id', $client->id)
+                                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
+    
+        $query = $this->addDateRange($query);
+
+        $amount = $query->sum('amount');
+        $balance = $query->sum('balance');
+        $paid = $amount-$balance;
+
+        return [
+            $client->present()->name(),
+            $client->number,
+            $client->id_number,
+            $query->count(),
+            Number::formatMoney($amount, $client),
+            Number::formatMoney($balance, $client),
+            Number::formatMoney($query->sum('total_taxes'), $client),
+            Number::formatMoney($amount-$balance, $client),
+
+        ];
+    }
 }

@@ -5032,8 +5032,9 @@ $LANG = array(
     'quote_product_columns' => 'Quote Product Columns',
     'vendors' => 'Vendors',
     'product_sales' => 'Product Sales',
-    'sales_report_header' => 'User sales report for client/s :client from :start_date to :end_date',
-    'customer_balance_report' => 'Customer balance report',
+    'user_sales_report_header' => 'User sales report for client/s :client from :start_date to :end_date',
+    'client_balance_report' => 'Customer balance report',
+    'client_sales_report' => 'Customer sales report',
     'user_sales_report' => 'User sales report',
     
 );
