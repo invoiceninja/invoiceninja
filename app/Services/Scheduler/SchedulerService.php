@@ -51,10 +51,7 @@ class SchedulerService
 
     private function email_report()
     {
-        match($this->scheduler->template){
-            'product_sales_report' => (new EmailReport($this->scheduler))->run(),
-            default => null
-        };  
+        (new EmailReport($this->scheduler))->run();
     }
 
 

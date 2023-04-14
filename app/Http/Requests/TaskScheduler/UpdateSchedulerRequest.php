@@ -40,6 +40,10 @@ class UpdateSchedulerRequest extends Request
             'parameters.date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,custom',
             'parameters.start_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom'],
             'parameters.end_date' => ['bail', 'sometimes', 'date:Y-m-d', 'required_if:parameters.date_rate,custom', 'after_or_equal:parameters.start_date'],
+            'parameters.entity' => ['bail', 'sometimes', 'string', 'in:invoice,credit,quote,purchase_order'],
+            'parameters.entity_id' => ['bail', 'sometimes', 'string'],
+            'parameters.report_name' => ['bail','sometimes', 'string', 'required_if:template,email_report', 'in:ar_summary_report,ar_detail_report,tax_summary_report,user_sales_report,client_sales_report,client_balance_report,product_sales_report'],
+            'parameters.date_key' => ['bail','sometimes', 'string'],
         ];
 
         return $rules;
