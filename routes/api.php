@@ -332,6 +332,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('users/bulk', [UserController::class, 'bulk'])->name('users.bulk')->middleware('password_protected');
     Route::post('/users/{user}/invite', [UserController::class, 'invite'])->middleware('password_protected');
     Route::post('/users/{user}/disconnect_mailer', [UserController::class, 'disconnectOauthMailer']);
+    Route::post('/users/{user}/disconnect_oauth', [UserController::class, 'disconnectOauth']);
     Route::post('/user/{user}/reconfirm', [UserController::class, 'reconfirm']);
 
     Route::resource('webhooks', WebhookController::class);

@@ -77,6 +77,7 @@ class BankTransactionTest extends TestCase
 
         $this->assertEquals($this->expense->refresh()->transaction_id, $bt->id);
         $this->assertEquals($this->expense->hashed_id, $bt->refresh()->expense_id);
+        $this->assertEquals($bt->id, $this->expense->transaction_id);
         $this->assertEquals($this->vendor->id, $bt->vendor_id);
         $this->assertEquals(BankTransaction::STATUS_CONVERTED, $bt->status_id);
 

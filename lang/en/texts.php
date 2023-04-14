@@ -5032,6 +5032,14 @@ $LANG = array(
     'quote_product_columns' => 'Quote Product Columns',
     'vendors' => 'Vendors',
     'product_sales' => 'Product Sales',
+    'user_sales_report_header' => 'User sales report for client/s :client from :start_date to :end_date',
+    'client_balance_report' => 'Customer balance report',
+    'client_sales_report' => 'Customer sales report',
+    'user_sales_report' => 'User sales report',
+    'aged_receivable_detailed_report' => 'Aged Receivable Detailed Report',
+    'aged_receivable_summary_report' => 'Aged Receivable Summary Report',
+    'taxable_amount' => 'Taxable Amount',
+    'tax_summary' => 'Tax Summary',
 );
 
 

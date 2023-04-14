@@ -11,14 +11,11 @@
 
 namespace App\DataMapper\Tax;
 
-use App\Models\Client;
-use App\DataMapper\Tax\ZipTax\Response;
-
 interface RuleInterface
 {
     public function init();
 
-    public function tax(mixed $type);
+    public function tax($item = null);
 
     public function taxByType($type);
 
@@ -37,10 +34,6 @@ interface RuleInterface
     public function default();
 
     public function override();
-
-    public function setClient(Client $client);
-
-    public function setTaxData(Response $tax_data);
 
     public function calculateRates();
 }

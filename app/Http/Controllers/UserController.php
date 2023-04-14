@@ -736,4 +736,18 @@ class UserController extends BaseController
         return $this->itemResponse($user->fresh());
 
     }
+
+    public function disconnectOauth(DisconnectUserMailerRequest $request, User $user)
+    {
+        $user->oauth_user_id = null;
+        $user->oauth_provider_id = null;
+        $user->oauth_user_token_expiry = null;
+        $user->oauth_user_token = null;
+        $user->oauth_user_refresh_token = null;
+        $user->save();
+
+        return $this->itemResponse($user->fresh());
+
+    }
+
 }

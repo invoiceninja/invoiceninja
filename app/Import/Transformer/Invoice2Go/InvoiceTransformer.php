@@ -61,8 +61,14 @@ class InvoiceTransformer extends BaseTransformer
             ],
         ];
 
-        $client_id =
-            $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
+        $client_id = null;
+        
+        if($this->hasClient($this->getString($invoice_data, 'Name') || $this->getContact($this->getString($invoice_data, 'EmailRecipient'))))
+        {
+
+            $client_id = $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
+            
+        }
 
         if ($client_id) {
             $transformed['client_id'] = $client_id;

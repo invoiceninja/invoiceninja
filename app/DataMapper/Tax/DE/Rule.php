@@ -11,97 +11,54 @@
 
 namespace App\DataMapper\Tax\DE;
 
-use App\Models\Client;
 use App\Models\Product;
-use Illuminate\Support\Str;
 use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
-use App\DataMapper\Tax\ZipTax\Response;
 
 class Rule extends BaseRule implements RuleInterface
-{
-    public string $vendor_country_code = 'DE';
-
-    public string $client_country_code = 'DE';
-
+{    
+    /** @var string $seller_region */
+    public string $seller_region = 'EU';
+    
+    /** @var bool $consumer_tax_exempt */
     public bool $consumer_tax_exempt = false;
-
+    
+    /** @var bool $business_tax_exempt */
     public bool $business_tax_exempt = false;
-
+    
+    /** @var bool $eu_business_tax_exempt */
     public bool $eu_business_tax_exempt = true;
-
+    
+    /** @var bool $foreign_business_tax_exempt */
     public bool $foreign_business_tax_exempt = true;
-
+    
+    /** @var bool $foreign_consumer_tax_exempt */
     public bool $foreign_consumer_tax_exempt = true;
-
-    public string $tax_name1 = '';
-
-    public float $tax_rate1 = 0;
-
-    public string $tax_name2 = '';
     
-    public float $tax_rate2 = 0;
+    /** @var float $tax_rate */
+    public float $tax_rate = 0;
     
-    public string $tax_name3 = '';
+    /** @var float $reduced_tax_rate */
+    public float $reduced_tax_rate = 0;
     
-    public float $tax_rate3 = 0;
-
-    public float $vat_rate = 0;
-
-    public float $reduced_vat_rate = 0;
-
-    protected ?Client $client;
-
-    protected ?Response $tax_data;
-
-    public function __construct()
-    {
-    }
-
+    /**
+     * Initializes the rules and builds any required data.
+     *
+     * @return self
+     */
     public function init(): self
     {
-        $this->client_country_code = $this->client->shipping_country ? $this->client->shipping_country->iso_3166_2 : $this->client->country->iso_3166_2;
         $this->calculateRates();
         
         return $this;
     }
-
-    public function setClient(Client $client): self
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
-    //need to add logic here to capture if
-    public function tax($type): self
-    {
-        
-
-        if ($this->client->is_tax_exempt) {
-
-            return $this->taxExempt();
-
-        } elseif ($this->client->company->tax_data->regions->EU->tax_all_subregions || $this->client->company->tax_data->regions->EU->subregions->{$this->client_country_code}->apply_tax) {
-
-            $this->taxByType($type);
-
-            return $this;
-        }
-
-        
-
-        return $this;
-
-    }
-
+    
+    /**
+     * Sets the correct tax rate based on the product type.
+     *
+     * @param  mixed $product_tax_type
+     * @return self
+     */
     public function taxByType($product_tax_type): self
     {
 
@@ -122,15 +79,25 @@ class Rule extends BaseRule implements RuleInterface
         
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a reduced tax product
+     *
+     * @return self
+     */
     public function taxReduced(): self
     {
-        $this->tax_rate1 = $this->reduced_vat_rate;
+        $this->tax_rate1 = $this->reduced_tax_rate;
         $this->tax_name1 = 'ermäßigte MwSt.';
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a tax exempt product
+     *
+     * @return self
+     */
     public function taxExempt(): self
     {
         $this->tax_name1 = '';
@@ -138,37 +105,56 @@ class Rule extends BaseRule implements RuleInterface
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a digital product
+     *
+     * @return self
+     */
     public function taxDigital(): self
     {
-        // $this->tax();
-
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a service product
+     *
+     * @return self
+     */
     public function taxService(): self
     {
-        // $this->tax();
-
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a shipping product
+     *
+     * @return self
+     */
     public function taxShipping(): self
     {
-        // $this->tax();
-
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a physical product
+     *
+     * @return self
+     */
     public function taxPhysical(): self
     {
-        // $this->tax();
 
-        $this->tax_rate1 = $this->vat_rate;
+        $this->tax_rate1 = $this->tax_rate;
         $this->tax_name1 = 'MwSt.';
+
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a default product
+     *
+     * @return self
+     */
     public function default(): self
     {
         
@@ -177,54 +163,63 @@ class Rule extends BaseRule implements RuleInterface
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for an override product
+     *
+     * @return self
+     */
     public function override(): self
     {
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rates based on the client's location.
+     *
+     * @return self
+     */
     public function calculateRates(): self
     {
-
         if ($this->client->is_tax_exempt) {
-            $this->vat_rate = 0;
-            $this->reduced_vat_rate = 0;
+            // nlog("tax exempt");
+            $this->tax_rate = 0;
+            $this->reduced_tax_rate = 0;
         }
-        elseif($this->client_country_code != $this->vendor_country_code && in_array($this->client_country_code, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
+        elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
         {
-            $this->vat_rate = 0;
-            $this->reduced_vat_rate = 0;
             // nlog("euro zone and tax exempt");
+            $this->tax_rate = 0;
+            $this->reduced_tax_rate = 0;
         }
-        elseif(!in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
+        elseif(!in_array($this->client_subregion, $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) //foreign + tax exempt
         {
-            $this->vat_rate = 0;
-            $this->reduced_vat_rate = 0;
             // nlog("foreign and tax exempt");
+            $this->tax_rate = 0;
+            $this->reduced_tax_rate = 0;
         }
-        elseif(in_array(strtoupper($this->client_country_code), $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
+        elseif(in_array($this->client_subregion, $this->eu_country_codes) && !$this->client->has_valid_vat_number) //eu country / no valid vat 
         {   
-            if(($this->vendor_country_code != $this->client_country_code) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
+            if(($this->client->company->tax_data->seller_subregion != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold)
             {
-                $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->vat_rate;
-                $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_vat_rate;
                 // nlog("eu zone with sales above threshold");
+                $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->tax_rate;
+                $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_tax_rate;
             }
             else {
-                $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->vat_rate;
-                $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_vat_rate;
-                // nlog("same eu country with");
+                // nlog("EU with intra-community supply ie DE to DE");
+                $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
+                $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
             }
         }
         else {
-            $this->vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->vat_rate;
-            $this->reduced_vat_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_vat_rate;
             // nlog("default tax");
+            $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->tax_rate;
+            $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->company->country()->iso_3166_2}->reduced_tax_rate;
         }
 
         return $this;
 
     }
-
 
 }

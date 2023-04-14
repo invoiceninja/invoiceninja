@@ -57,7 +57,7 @@ class Response
     *    ];
     *
     */
-    public string $seller_region = "";
+    public string $seller_subregion = "";
     //US
 
     public string $geoPostalCode = "";

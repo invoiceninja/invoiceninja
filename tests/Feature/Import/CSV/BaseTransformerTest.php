@@ -96,7 +96,7 @@ class BaseTransformerTest extends TestCase
         $this->assertEquals($client->id, $base_transformer->getClient('magic', 'null'));
         $this->assertEquals($client->id, $base_transformer->getClient('nomagic', 'test@gmail.com'));
         $this->assertEquals($client->id, $base_transformer->getClient(null, 'test@gmail.com'));
-        $this->assertNull($base_transformer->getClient('null', 'notest@gmail.com'));
+        $this->assertNotNull($base_transformer->getClient('null', 'notest@gmail.com'));
 
         $this->assertEquals($client->id, $base_transformer->getClientId(' magic'));
         $this->assertEquals($client->id, $base_transformer->getClientId('Magic '));

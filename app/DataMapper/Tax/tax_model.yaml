@@ -108,7 +108,6 @@ region:
     tax_all: false
     vat_threshold: 10000
     has_sales_above_threshold: false
-    seller_region: DE
     subregions:
       AT:
         vat: 21

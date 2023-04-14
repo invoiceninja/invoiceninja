@@ -11,71 +11,53 @@
 
 namespace App\DataMapper\Tax\US;
 
-use App\Models\Client;
-use App\Models\Product;
+use App\DataMapper\Tax\BaseRule;
 use App\DataMapper\Tax\RuleInterface;
-use App\DataMapper\Tax\ZipTax\Response;
+use App\Models\Product;
 
-class Rule implements RuleInterface
+/**
+ * The rules apply US => US taxes using the tax calculator.
+ *
+ * US => Foreign taxes we check the product types still for exemptions, and we all back to the client country tax rate.
+ */
+class Rule extends BaseRule implements RuleInterface
 {
 
-    public string $tax_name1 = '';
-    public float $tax_rate1 = 0;
-
-    public string $tax_name2 = '';
-    public float $tax_rate2 = 0;
+    /** @var string $seller_region */
+    public string $seller_region = 'US';
     
-    public string $tax_name3 = '';
-    public float $tax_rate3 = 0;
+    /**
+     * Initializes the rules and builds any required data.
+     *
+     * @return self
+     */
+    public function init(): self
+    {
+        $this->calculateRates();
+
+        return $this;
+    }
     
-    public ?Client $client;
-
-    public ?Response $tax_data;
-
-    public function __construct()
+    /**
+     * Override tax class, we use this when we do not modify the input taxes
+     *
+     * @return self
+     */
+    public function override(): self
     {
-    }
-
-    public function override() 
-    { 
         return $this;
     }
-
-    public function setTaxData(Response $tax_data): self
-    {
-        $this->tax_data = $tax_data;
-
-        return $this;
-    }
-
-    public function setClient(Client $client):self 
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
-    public function tax($type): self
-    {
-        
-        if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
-        }
-        else if($this->client->company->tax_data->regions->US->tax_all_subregions || $this->client->company->tax_data->regions->US->subregions->{$this->tax_data->geoState}->apply_tax){
-
-            $this->taxByType($type);
-
-            return $this;
-        }
-            
-        return $this;
-
-    }
-
+    
+    /**
+     * Sets the correct tax rate based on the product type.
+     *
+     * @param  mixed $product_tax_type
+     * @return self
+     */
     public function taxByType($product_tax_type): self
     {
 
-        match($product_tax_type){
+        match($product_tax_type) {
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
             Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
@@ -88,7 +70,12 @@ class Rule implements RuleInterface
         
         return $this;
     }
-
+    
+    /**
+     * Sets the tax as exempt (0)
+     *
+     * @return self
+     */
     public function taxExempt(): self
     {
         $this->tax_name1 = '';
@@ -96,37 +83,64 @@ class Rule implements RuleInterface
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a digital product
+     *
+     * @return self
+     */
     public function taxDigital(): self
     {
         $this->default();
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a service product
+     *
+     * @return self
+     */
     public function taxService(): self
     {
-        if($this->tax_data->txbService == 'Y')
+        if($this->tax_data->txbService == 'Y') {
             $this->default();
+        }
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a shipping product
+     *
+     * @return self
+     */
     public function taxShipping(): self
     {
-        if($this->tax_data->txbFreight == 'Y')
+        if($this->tax_data->txbFreight == 'Y') {
             $this->default();
+        }
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a physical product
+     *
+     * @return self
+     */
     public function taxPhysical(): self
     {
         $this->default();
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for an undefined product uses the default tax rate for the client county
+     *
+     * @return self
+     */
     public function default(): self
     {
                 
@@ -135,19 +149,24 @@ class Rule implements RuleInterface
 
         return $this;
     }
-
+    
+    /**
+     * Calculates the tax rate for a reduced tax product
+     *
+     * @return self
+     */
     public function taxReduced(): self
     {
         $this->default();
 
         return $this;
     }
-
-    public function init(): self
-    {
-        return $this;
-    }
-
+    
+    /**
+     * Calculates the tax rates to be applied
+     *
+     * @return self
+     */
     public function calculateRates(): self
     {
         return $this;

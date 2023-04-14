@@ -426,7 +426,9 @@ class BaseImport
                     $message = $ex->getMessage();
                 } else {
                     report($ex);
-                    $message = 'Unknown error';
+                    $message = 'Unknown error ';
+                    nlog($ex->getMessage());
+                    nlog($raw_invoice);
                 }
 
                 $this->error_array['invoice'][] = [
