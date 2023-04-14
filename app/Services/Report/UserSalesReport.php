@@ -22,7 +22,7 @@ use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
 
-class UserSales extends BaseExport
+class UserSalesReport extends BaseExport
 {
     use MakesDates;
     //Name

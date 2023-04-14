@@ -11,11 +11,14 @@
 
 namespace App\Services\Report;
 
-class ClientSales
+class ARDetailReport
 {
-    //Name
-    //Invoice count
-    //Amount
-    //Amount with Tax
+//Date
+//Invoice #
+//Status
+//Customer
+//Age - Days
+//Amount
+//Balance
 
 }

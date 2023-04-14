@@ -11,13 +11,11 @@
 
 namespace App\Services\Report;
 
-class ARSummary
+class ClientSalesReport
 {
-    //name
-    //total
-    //current
-    //0-30
-    //30-60
-    //60-90
-    //90+
+    //Name
+    //Invoice count
+    //Amount
+    //Amount with Tax
+
 }

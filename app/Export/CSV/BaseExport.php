@@ -110,7 +110,7 @@ class BaseExport
         }
     }
 
-    protected function buildHeader() :array
+    public function buildHeader() :array
     {
         $header = [];
 

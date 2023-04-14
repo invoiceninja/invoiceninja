@@ -11,10 +11,13 @@
 
 namespace App\Services\Report;
 
-class CustomerBalance
+class ARSummaryReport
 {
     //name
-    //invoice balance
-    //credit balance
-    //balance
+    //total
+    //current
+    //0-30
+    //30-60
+    //60-90
+    //90+
 }
