@@ -142,7 +142,7 @@ Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitat
 
 Route::fallback(function () {
 
-    if (Ninja::isSelfHost() && Account::first()->set_react_as_default_ap) {
+    if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {
 
         $account = Account::first();
 
