@@ -78,7 +78,7 @@ class WebhookSingle implements ShouldQueue
         $subscription = Webhook::with('company')->find($this->subscription_id);
 
         if ($subscription) {
-            nlog("firing event ID {$subscription->event_id} company_id {$subscription->company_id}");
+            // nlog("firing event ID {$subscription->event_id} company_id {$subscription->company_id}");
         }
         
         if (!$subscription) {
