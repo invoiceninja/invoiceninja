@@ -5036,7 +5036,8 @@ $LANG = array(
     'client_balance_report' => 'Customer balance report',
     'client_sales_report' => 'Customer sales report',
     'user_sales_report' => 'User sales report',
-    
+    'aged_receivable_detailed_report' => 'Aged Receivable Detailed Report',
+    'aged_receivable_summary_report' => 'Aged Receivable Summary Report',
 );
 
 

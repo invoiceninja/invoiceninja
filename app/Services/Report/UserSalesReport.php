@@ -33,6 +33,12 @@ class UserSalesReport extends BaseExport
     
     public string $date_key = 'created_at';
 
+    public array $report_keys = [
+        'name',
+        'invoices',
+        'invoice_amount',
+        'total_taxes',
+    ];
     /**
         @param array $input 
         [
@@ -68,6 +74,11 @@ class UserSalesReport extends BaseExport
         $query = $this->filterByClients($query);
 
         $this->csv->insertOne([ctrans('texts.user_sales_report_header', ['client' => $this->client_description, 'start_date' => $this->start_date, 'end_date' => $this->end_date])]);
+
+        if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = $this->report_keys;
+        }
+
         $this->csv->insertOne($this->buildHeader());
 
         $users = $this->company->users;
@@ -95,14 +106,5 @@ class UserSalesReport extends BaseExport
 
     }
 
-    public function buildHeader(): array
-    {
-        return [
-        ctrans('texts.name'),
-        ctrans('texts.invoices'),
-        ctrans('texts.invoice_amount'),
-        ctrans('texts.total_taxes'),
-        ];
-    }
 
 }

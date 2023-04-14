@@ -76,6 +76,10 @@ class ClientSalesReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.client_sales_report')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
+        if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = $this->report_keys;
+        }
+
         $this->csv->insertOne($this->buildHeader());
 
         Client::query()
@@ -93,17 +97,6 @@ class ClientSalesReport extends BaseExport
         
     }
 
-    public function buildHeader(): array
-    {
-        $headers = [];
-
-        foreach($this->report_keys as $key) {
-            $headers[] = ctrans("texts.{$key}");
-        }
-
-        return $headers;
-
-    }
     private function buildRow(Client $client): array
     {
         $query = Invoice::where('client_id', $client->id)
