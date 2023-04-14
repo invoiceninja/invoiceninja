@@ -144,7 +144,7 @@ class PreviewController extends BaseController
             $maker
                 ->design($design)
                 ->build();
-
+            
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML();
             }

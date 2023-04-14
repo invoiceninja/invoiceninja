@@ -135,7 +135,7 @@ class SelfUpdateController extends BaseController
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('migrate', ['--force' => true]);
-        Artisan::call('optimize');
+        Artisan::call('config:clear');
 
         $this->buildCache(true);
 

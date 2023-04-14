@@ -56,6 +56,29 @@ class UserTest extends TestCase
         );
     }
 
+    public function testDisconnectUserOauthMailer()
+    {
+        $user = 
+        User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => $this->faker->safeEmail(),
+            'oauth_user_id' => '123456789',
+            'oauth_provider_id' => '123456789',
+        ]);
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/users/{$user->hashed_id}/disconnect_mailer");
+
+        $response->assertStatus(200);
+
+        $user->fresh();
+
+        $this->assertNull($user->oauth_user_token);
+        $this->assertNull($user->oauth_user_refresh_token);
+
+    }
+
     public function testUserFiltersWith()
     {
         $response = $this->withHeaders([

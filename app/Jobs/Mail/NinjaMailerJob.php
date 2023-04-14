@@ -188,6 +188,8 @@ class NinjaMailerJob implements ShouldQueue
             }
         
             /* Releasing immediately does not add in the backoff */
+            sleep(rand(0, 3));
+
             $this->release($this->backoff()[$this->attempts()-1]);
         }
 

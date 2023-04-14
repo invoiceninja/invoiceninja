@@ -11,13 +11,15 @@
 
 namespace Tests\Unit;
 
+use Tests\TestCase;
+use App\Models\Invoice;
+use Tests\MockAccountData;
+use App\DataMapper\InvoiceItem;
+use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
-use Tests\TestCase;
 
 /**
  * @test
@@ -45,6 +47,32 @@ class InvoiceTest extends TestCase
         $this->invoice->uses_inclusive_taxes = true;
 
         $this->invoice_calc = new InvoiceSum($this->invoice);
+    }
+
+    public function testRoundingWithLargeUnitCostPrecision()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 82.6446;
+        $line_item->tax_rate1 = 21;
+        $line_item->tax_name1 = 'Test';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(100, $invoice->amount);
+
     }
 
     public function testInclusiveRounding()

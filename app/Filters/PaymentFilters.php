@@ -22,7 +22,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -35,6 +35,8 @@ class PaymentFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('amount', 'like', '%'.$filter.'%')
                           ->orWhere('date', 'like', '%'.$filter.'%')
+                          ->orWhere('number','like', '%'.$filter.'%')
+                          ->owWhere('transaction_reference', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')
@@ -55,7 +57,7 @@ class PaymentFilters extends QueryFilters
      * - partially refunded
      * - refunded
      *
-     * @param string client_status The payment status as seen by the client
+     * @param string $value The payment status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder

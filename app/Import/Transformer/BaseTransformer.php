@@ -11,24 +11,26 @@
 
 namespace App\Import\Transformer;
 
-use App\Factory\ExpenseCategoryFactory;
-use App\Factory\ProjectFactory;
-use App\Factory\VendorFactory;
+use App\Models\Quote;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Vendor;
 use App\Models\Country;
 use App\Models\Expense;
-use App\Models\ExpenseCategory;
 use App\Models\Invoice;
-use App\Models\PaymentType;
 use App\Models\Product;
 use App\Models\Project;
-use App\Models\Quote;
 use App\Models\TaxRate;
-use App\Models\Vendor;
-use App\Utils\Number;
+use App\Models\PaymentType;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
+use App\Factory\VendorFactory;
 use Illuminate\Support\Carbon;
+use App\Factory\ProjectFactory;
+use App\Models\ExpenseCategory;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\ClientRepository;
+use App\Factory\ExpenseCategoryFactory;
 
 /**
  * Class BaseTransformer.
@@ -129,7 +131,28 @@ class BaseTransformer
             }
         }
 
-        return null;
+        $client_repository = app()->make(ClientRepository::class);
+        $client_repository->import_mode = true;
+
+        $client = $client_repository->save(
+            [
+                'name' => $client_name,
+                'contacts' => [
+                    [
+                        'first_name' => $client_name,
+                        'email' => $client_email,
+                    ],
+                ],
+            ],
+            ClientFactory::create(
+                $this->company->id,
+                $this->company->owner()->id
+            )
+        );
+
+        $client_repository = null;
+        
+        return $client->id;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -249,9 +272,9 @@ class BaseTransformer
     /**
      * @param $email
      *
-     * @return ?Contact
+     * @return ?ClientContact
      */
-    public function getContact($email)
+    public function getContact($email): ?ClientContact
     {
         $contact = ClientContact::where('company_id', $this->company->id)
             ->whereRaw("LOWER(REPLACE(`email`, ' ' ,''))  = ?", [

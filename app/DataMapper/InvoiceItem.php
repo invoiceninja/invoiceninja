@@ -59,7 +59,11 @@ class InvoiceItem
 
     public $type_id = '1'; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee, 5 late fee, 6 expense
 
+    public $tax_id = '';
+
+
     public static $casts = [
+        'tax_id' => 'string',
         'type_id' => 'string',
         'quantity' => 'float',
         'cost' => 'float',

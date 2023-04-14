@@ -15,10 +15,12 @@ use App\Models\Client;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 use App\DataMapper\Schedule\EmailStatement;
+use App\Utils\Traits\MakesDates;
 
 class EmailStatementService
 {
     use MakesHash;
+    use MakesDates;
     
     private Client $client;
 

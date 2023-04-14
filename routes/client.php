@@ -1,5 +1,7 @@
 <?php
 
+use App\Utils\Ninja;
+use App\Models\Account;
 use App\Utils\PhantomJS\Phantom;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
@@ -138,4 +140,21 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 
-Route::fallback([BaseController::class, 'notFoundClient']);
+Route::fallback(function () {
+
+    if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {
+
+        $account = Account::first();
+
+        return response()->view('react.index', [
+            'rc' => request()->input('rc', ''),
+            'login' => request()->input('login', ''),
+            'signup' => request()->input('signup', ''),
+            'report_errors' => $account->report_errors,
+            'user_agent' => request()->server('HTTP_USER_AGENT'),
+        ])->header('X-Frame-Options', 'SAMEORIGIN', false);
+    }
+
+    abort(404);
+
+});

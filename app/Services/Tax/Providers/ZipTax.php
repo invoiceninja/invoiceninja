@@ -14,12 +14,14 @@ namespace App\Services\Tax\Providers;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class ZipTax
+class ZipTax implements TaxProviderInterface
 {
 
     private string $endpoint = 'https://api.zip-tax.com/request/v40';
 
-    public function __construct(protected string $api_key, protected string $address, protected ?string $postal_code)
+    private string $api_key = '';
+
+    public function __construct(protected array $address)
     {
     }
 
@@ -43,6 +45,13 @@ class ZipTax
 
     }
     
+    public function setApiCredentials($api_key): self
+    {
+        $this->api_key = $api_key;
+
+        return $this;
+    }
+
     /**
      * callApi
      *

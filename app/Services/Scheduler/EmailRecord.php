@@ -27,7 +27,10 @@ class EmailRecord
     {
         $class = 'App\\Models\\' . Str::camel($this->scheduler->parameters['entity']);
 
-        $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']))->service()->sendEmail();
+        $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
+        
+        if($entity)
+            $entity->service()->sendEmail();
 
         $this->scheduler->forceDelete();
     }

@@ -14,15 +14,18 @@ namespace App\DataMapper\Tax;
 use App\DataMapper\Tax\ZipTax\Response;
 
 /**
- * ClientTaxData
+ * InvoiceTaxData
  * 
- * Definition for the client tax data
+ * Definition for the invoice tax data structure
  */
-class ClientTaxData
+class TaxData
 {
     public int $updated_at;
     
-    public function __construct(public Response $origin, public Response $destination)
+    public function __construct(public Response $origin)
     {
+        foreach($origin as $key => $value) {
+            $this->{$key} = $value;
+        }
     }
 }

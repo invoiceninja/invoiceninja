@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use Illuminate\Http\UploadedFile;
 
 class UploadInvoiceRequest extends Request
 {
@@ -46,5 +47,24 @@ class UploadInvoiceRequest extends Request
 
     public function prepareForValidation()
     {
+
+        //tests to see if upload via binary data works.
+        
+        // if(request()->getContent())
+        // {
+        //     // $file = new UploadedFile(request()->getContent(), request()->header('filename'));
+        //     $file = new UploadedFile(request()->getContent(), 'something.png');
+        //     // request()->files->set('documents', $file);
+     
+        //     $this->files->add(['file' => $file]);
+
+        //     // Merge it in request also (As I found this is not needed in every case)
+        //     $this->merge(['file' => $file]);
+
+
+        // }
+       
+
+
     }
 }

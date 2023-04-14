@@ -13,6 +13,7 @@ namespace App\Services\Tax;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Services\Tax\Providers\ZipTax;
 
 
 class TaxService
@@ -22,4 +23,15 @@ class TaxService
     {
     }
 
+    private function validateVat(): self
+    {
+        $client_country_code = $this->client->shipping_country ? $this->client->shipping_country->iso_3166_2 : $this->client->country->iso_3166_2;
+
+        $vat_check = (new VatNumberCheck($this->client->vat_number, $client_country_code))->run();
+
+        $this->client->has_valid_vat_number = $vat_check->isValid();
+        $this->client->saveQuietly();
+
+        return $this;
+    }
 }
