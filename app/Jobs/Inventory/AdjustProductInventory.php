@@ -115,9 +115,6 @@ class AdjustProductInventory implements ShouldQueue
                 $p->in_stock_quantity -= $i->quantity;
 
                 $p->saveQuietly();
-                nlog($p->stock_notification_threshold);
-                nlog($p->in_stock_quantity);
-                nlog($p->stock_notification_threshold);
 
                 if ($this->company->stock_notification && $p->stock_notification && $p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold) {
                     $this->notifyStockLevels($p, 'product');
@@ -131,7 +128,7 @@ class AdjustProductInventory implements ShouldQueue
     private function existingInventoryAdjustment()
     {
     
-        collect($this->invoice->line_items)->filter(function ($item) {
+        collect($this->old_invoice)->filter(function ($item) {
             return $item->type_id == '1';
         })->each(function ($i) {
             $p = Product::where('product_key', $i->product_key)->where('company_id', $this->company->id)->first();

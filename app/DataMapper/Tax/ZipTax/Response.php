@@ -18,8 +18,7 @@ class Response
     public int $rCode = 100;
 
     /**
-    *        ["results" => [
-    *            [
+    *  [
     *            "geoPostalCode" => "92582",
     *            "geoCity" => "SAN JACINTO",
     *            "geoCounty" => "RIVERSIDE",
@@ -54,13 +53,56 @@ class Response
     *            "district5SalesTax" => 0,
     *            "district5UseTax" => 0,
     *            "originDestination" => "D",
-    *            ],
-    *        ]
+    *            
     *    ];
-    *    
-    * @var mixed[]
+    *
     */
-    public array $results = [];
+    public string $seller_subregion = "";
+    //US
+
+    public string $geoPostalCode = "";
+    public string $geoCity = "";
+    public string $geoCounty = "";
+    public string $geoState = "";
+    public float $taxSales = 0;
+    public float $taxUse = 0;
+    public string $txbService = ""; // N = No, Y = Yes
+    public string $txbFreight = ""; // N = No, Y = Yes
+    public float $stateSalesTax = 0;
+    public float $stateUseTax = 0;
+    public float $citySalesTax = 0;
+    public float $cityUseTax = 0;
+    public string $cityTaxCode = "";
+    public float $countySalesTax = 0;
+    public float $countyUseTax = 0;
+    public string $countyTaxCode = "";
+    public float $districtSalesTax = 0;
+    public float $districtUseTax = 0;
+    public string $district1Code = "";
+    public float $district1SalesTax = 0;
+    public float $district1UseTax = 0;
+    public string $district2Code = "";
+    public float $district2SalesTax = 0;
+    public float $district2UseTax = 0;
+    public string $district3Code = "";
+    public float $district3SalesTax = 0;
+    public float $district3UseTax = 0;
+    public string $district4Code = "";
+    public float $district4SalesTax = 0;
+    public float $district4UseTax = 0;
+    public string $district5Code = "";
+    public float $district5SalesTax = 0;
+    public float $district5UseTax = 0;
+    public string $originDestination = "";
+
+    public function __construct($data)
+    {
+
+        foreach($data as $key => $value){
+            $this->{$key} = $value;
+        }
+        
+    }
 
 }
     

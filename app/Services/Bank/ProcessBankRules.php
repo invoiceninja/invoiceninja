@@ -123,7 +123,7 @@ class ProcessBankRules extends AbstractService
                         $expense->should_be_invoiced = $this->bank_transaction->company->mark_expenses_invoiceable;
                         $expense->save();
 
-                        $this->bank_transaction->expense_id = $expense->id;
+                        $this->bank_transaction->expense_id = $this->coalesceExpenses($expense->hashed_id);
                         $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
                         $this->bank_transaction->save();
 
@@ -132,6 +132,17 @@ class ProcessBankRules extends AbstractService
                 }
             }
         }
+    }
+
+    private function coalesceExpenses($expense): string 
+    {
+
+        if (!$this->bank_transaction->expense_id || strlen($this->bank_transaction->expense_id) < 1) {
+            return $expense;
+        }
+
+        return collect(explode(",", $this->bank_transaction->expense_id))->push($expense)->implode(",");
+
     }
 
     private function resolveCategory()

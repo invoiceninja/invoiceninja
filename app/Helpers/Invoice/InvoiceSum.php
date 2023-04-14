@@ -18,7 +18,6 @@ use Illuminate\Support\Collection;
 class InvoiceSum
 {
     use Taxer;
-    use Balancer;
     use CustomValuer;
     use Discounter;
     use NumberFormatter;

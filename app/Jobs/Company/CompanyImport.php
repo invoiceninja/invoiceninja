@@ -1338,7 +1338,8 @@ class CompanyImport implements ShouldQueue
                 unset($obj_array[$un]);
             }
 
-            if ($class instanceof CompanyGateway) {
+            if ($class == 'App\Models\CompanyGateway') {
+
                 if (Ninja::isHosted() && $obj_array['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23') {
                     $obj_array['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 }
@@ -1566,6 +1567,11 @@ class CompanyImport implements ShouldQueue
                     return $this->encodePrimaryKey($encodeable);
                 })->implode(",");
 
+                $obj_array['expense_id'] = collect(explode(",", $obj_array['expense_id']))->map(function ($id) {
+                    return $this->transformId('expenses', $id);
+                })->map(function ($encodeable) {
+                    return $this->encodePrimaryKey($encodeable);
+                })->implode(",");
 
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);

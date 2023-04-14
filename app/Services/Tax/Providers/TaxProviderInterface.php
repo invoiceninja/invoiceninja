@@ -9,20 +9,12 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\DataMapper\Tax;
+namespace App\Services\Tax\Providers;
 
-use App\DataMapper\Tax\ZipTax\Response;
-
-/**
- * CompanyTaxData
- * 
- * Definition for the company tax data structure
- */
-class CompanyTaxData
+interface TaxProviderInterface
 {
-    public int $updated_at;
-    
-    public function __construct(public Response $origin)
-    {
-    }
+    public function run();
+
+    public function setApiCredentials(mixed $credentials);
+
 }

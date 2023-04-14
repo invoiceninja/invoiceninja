@@ -38,7 +38,11 @@ class BaseExport
             $this->client_description = $client->present()->name;
             return $query->where('client_id', $this->input['client_id']);
         }
+        elseif(isset($this->input['clients']) && count($this->input['clients']) > 0) {
 
+            $this->client_description = 'Multiple Clients';
+            return $query->whereIn('client_id', $this->input['clients']);
+        }
         return $query;
     }
 
@@ -87,6 +91,10 @@ class BaseExport
                 $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter()->format('Y-m-d');
                 $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
+            case 'last365_days':
+                $this->start_date = now()->startOfDay()->subDays(365)->format('Y-m-d');
+                $this->end_date = now()->startOfDay()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [now()->subDays(365), now()])->orderBy($this->date_key, 'ASC');
             case 'this_year':
                 $this->start_date = now()->startOfYear()->format('Y-m-d');
                 $this->end_date = now()->format('Y-m-d');
@@ -102,7 +110,7 @@ class BaseExport
         }
     }
 
-    protected function buildHeader() :array
+    public function buildHeader() :array
     {
         $header = [];
 

@@ -76,6 +76,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Scheduler withoutTrashed()
+ * @property-read \App\Models\User $user
  * @mixin \Eloquent
  */
 class Scheduler extends BaseModel
@@ -122,6 +123,11 @@ class Scheduler extends BaseModel
         return $this->belongsTo(Company::class);
     }
     
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     /**
      * remainingCycles
      *
