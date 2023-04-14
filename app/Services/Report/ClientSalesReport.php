@@ -120,4 +120,17 @@ class ClientSalesReport extends BaseExport
 
         ];
     }
+    
+    public function buildHeader() :array
+    {
+        $header = [];
+
+        foreach ($this->input['report_keys'] as $value) {
+
+            $header[] = ctrans("texts.{$value}");
+        }
+
+        return $header;
+    }
+
 }

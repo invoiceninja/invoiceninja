@@ -71,6 +71,10 @@ class ClientBalanceReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.customer_balance_report')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
+        if (count($this->input['report_keys']) == 0) {
+            $this->input['report_keys'] = $this->report_keys;
+        }
+
         $this->csv->insertOne($this->buildHeader());
 
         Client::query()
