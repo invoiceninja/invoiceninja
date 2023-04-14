@@ -21,7 +21,7 @@ class DesignFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      *
      * @deprecated
@@ -40,7 +40,7 @@ class DesignFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      *
      * @return Builder
      */
@@ -58,7 +58,7 @@ class DesignFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
     public function entityFilter(): Builder
     {
@@ -68,7 +68,7 @@ class DesignFilters extends QueryFilters
     /**
      * Filter the designs by `is_custom` column.
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Illuminate\Database\Eloquent\Builder
      */
     public function custom(string $custom): Builder
     {
