@@ -39,10 +39,10 @@ class BaseExport
             return $query->where('client_id', $this->input['client_id']);
         }
         elseif(isset($this->input['clients']) && count($this->input['clients']) > 0) {
+
             $this->client_description = 'Multiple Clients';
             return $query->whereIn('client_id', $this->input['clients']);
         }
-
         return $query;
     }
 

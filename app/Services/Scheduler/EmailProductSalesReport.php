@@ -42,10 +42,6 @@ class EmailProductSalesReport
         $start_end_dates = $this->calculateStartAndEndDates();
         $data = [];
 
-        if (count($this->scheduler->parameters['clients']) >= 1) {            
-            $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
-        }
-        
         $data = [
             'start_date' => $start_end_dates[0],
             'end_date' => $start_end_dates[1],
@@ -54,6 +50,10 @@ class EmailProductSalesReport
             'report_keys' => []
         ];
 
+        if (count($this->scheduler->parameters['clients']) >= 1) {
+            $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
+        }
+        
         $export = (new ProductSalesExport($this->scheduler->company, $data));
         $csv = $export->run();
 
