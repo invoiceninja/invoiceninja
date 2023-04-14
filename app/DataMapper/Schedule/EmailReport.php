@@ -11,14 +11,14 @@
 
 namespace App\DataMapper\Schedule;
 
-class EmailProductSalesReport
+class EmailReport
 {
     /**
      * Defines the template name
      *
      * @var string
      */
-    public string $template = 'email_product_sales_report';
+    public string $template = 'email_report';
 
     /**
      * An array of clients hashed_ids
@@ -66,5 +66,8 @@ class EmailProductSalesReport
      * @var string
      */
     public string $end_date = '';
+    
+    /** @var string $report_name */
 
+    public string $report_name = '';
 }

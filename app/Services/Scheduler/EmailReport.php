@@ -19,9 +19,14 @@ use App\Utils\Traits\MakesDates;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Export\CSV\ProductSalesExport;
-use App\DataMapper\Schedule\EmailStatement;
+use App\Services\Report\ARDetailReport;
+use App\Services\Report\ARSummaryReport;
+use App\Services\Report\ClientBalanceReport;
+use App\Services\Report\ClientSalesReport;
+use App\Services\Report\TaxSummaryReport;
+use App\Services\Report\UserSalesReport;
 
-class EmailProductSalesReport
+class EmailReport
 {
     use MakesHash;
     use MakesDates;
@@ -30,7 +35,7 @@ class EmailProductSalesReport
 
     private bool $multiple_clients = false;
 
-    private string $file_name = 'product_sales.csv';
+    private string $file_name = 'file.csv';
 
     public function __construct(public Scheduler $scheduler)
     {
@@ -54,7 +59,25 @@ class EmailProductSalesReport
             $data['clients'] = $this->transformKeys($this->scheduler->parameters['clients']);
         }
         
-        $export = (new ProductSalesExport($this->scheduler->company, $data));
+        $export = false;
+
+        match($this->scheduler->parameters['report_name'])
+        {
+            'product_sales_report' => $export = (new ProductSalesExport($this->scheduler->company, $data)),
+            'email_ar_detailed_report' => (new ARDetailReport($this->scheduler->company, $data)),
+            'email_ar_summary_report' => (new ARSummaryReport($this->scheduler->company, $data)),
+            'email_tax_summary_report' => (new TaxSummaryReport($this->scheduler->company, $data)),
+            'email_client_balance_report' => (new ClientBalanceReport($this->scheduler->company, $data)),
+            'email_client_sales_report' => (new ClientSalesReport($this->scheduler->company, $data)),
+            'email_user_sales_report' => (new UserSalesReport($this->scheduler->company, $data)),
+            default => $export = false,
+        };
+        
+        if(!$export) {
+            $this->cancelSchedule();
+            return;
+        }
+
         $csv = $export->run();
 
         //todo - potentially we send this to more than one user.
@@ -72,7 +95,10 @@ class EmailProductSalesReport
         
     }
 
-
+    private function cancelSchedule()
+    {
+        $this->scheduler->forceDelete();
+    }
     
    
 

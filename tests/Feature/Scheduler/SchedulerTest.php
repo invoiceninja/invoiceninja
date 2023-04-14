@@ -25,7 +25,7 @@ use App\DataMapper\Schedule\EmailStatement;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use App\Services\Scheduler\EmailStatementService;
-use App\Services\Scheduler\EmailProductSalesReport;
+use App\Services\Scheduler\EmailReport;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
@@ -59,18 +59,48 @@ class SchedulerTest extends TestCase
         // $this->withoutExceptionHandling();
     }
 
+
+    public function testReportValidationRules()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_report',
+            'parameters' => [
+                'date_range' => EmailStatement::LAST_MONTH,
+                'clients' => [],
+                'report_keys' => [],
+                'client_id' => $this->client->hashed_id,
+                'report_name' => '',
+            ],
+        ];
+
+        $response = false;
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+            $response->assertStatus(422);
+
+    }
+
+
     public function testProductSalesReportGenerationOneClientSeparateParam()
     {
         $data = [
             'name' => 'A test product sales scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'email_product_sales_report',
+            'template' => 'email_report',
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
                 'report_keys' => [],
                 'client_id' => $this->client->hashed_id,
+                'report_name' => 'product_sales_report',
 
             ],
         ];
@@ -99,7 +129,7 @@ class SchedulerTest extends TestCase
 
         $this->assertNotNull($scheduler);
 
-        $export = (new EmailProductSalesReport($scheduler))->run();
+        $export = (new EmailReport($scheduler))->run();
 
         $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
@@ -111,13 +141,13 @@ class SchedulerTest extends TestCase
             'name' => 'A test product sales scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'email_product_sales_report',
+            'template' => 'email_report',
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [$this->client->hashed_id],
                 'report_keys' => [],
                 'client_id' => null,
-
+                'report_name' => 'product_sales_report',
             ],
         ];
 
@@ -145,7 +175,7 @@ class SchedulerTest extends TestCase
 
         $this->assertNotNull($scheduler);
 
-        $export = (new EmailProductSalesReport($scheduler))->run();
+        $export = (new EmailReport($scheduler))->run();
 
         $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
@@ -157,13 +187,13 @@ class SchedulerTest extends TestCase
             'name' => 'A test product sales scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'email_product_sales_report',
+            'template' => 'email_report',
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
                 'report_keys' => [],
                 'client_id' => null,
-
+                'report_name' => 'product_sales_report',
             ],
         ];
 
@@ -188,7 +218,7 @@ class SchedulerTest extends TestCase
 
         $this->assertNotNull($scheduler);
 
-        $export = (new EmailProductSalesReport($scheduler))->run();
+        $export = (new EmailReport($scheduler))->run();
 
         $this->assertEquals(now()->addMonth()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
@@ -200,10 +230,11 @@ class SchedulerTest extends TestCase
             'name' => 'A test product sales scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'next_run' => now()->format('Y-m-d'),
-            'template' => 'email_product_sales_report',
+            'template' => 'email_report',
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
+                'report_name' => 'product_sales_report',
             ],
         ];
 
