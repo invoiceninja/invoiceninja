@@ -177,10 +177,7 @@ class PreviewController extends BaseController
 
     public function design(DesignPreviewRequest $request)
     {
-        // if (Ninja::isHosted() && !in_array($request->getHost(), ['preview.invoicing.co','staging.invoicing.co'])) {
-        //     return response()->json(['message' => 'This server cannot handle this request.'], 400);
-        // }
-
+        
         $pdf = (new PdfMock($request->all(), auth()->user()->company()))->build()->getPdf();
 
         $response = Response::make($pdf, 200);

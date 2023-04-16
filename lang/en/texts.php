@@ -5042,6 +5042,7 @@ $LANG = array(
     'tax_summary' => 'Tax Summary',
     'oauth_mail' => 'OAuth / Mail',
     'preferences' => 'Preferences',
+    'analytics' => 'Analytics',
 );
 
 
