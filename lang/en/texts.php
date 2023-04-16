@@ -5040,6 +5040,8 @@ $LANG = array(
     'aged_receivable_summary_report' => 'Aged Receivable Summary Report',
     'taxable_amount' => 'Taxable Amount',
     'tax_summary' => 'Tax Summary',
+    'oauth_mail' => 'OAuth / Mail',
+    'preferences' => 'Preferences',
 );
 
 
