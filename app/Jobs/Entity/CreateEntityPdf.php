@@ -212,7 +212,7 @@ class CreateEntityPdf implements ShouldQueue
                 throw new FilePermissionsFailure($e->getMessage());
             }
         }
-        if ($this->entity_string == "invoice" && $this->company->use_xinvoice){
+        if ($this->entity_string == "invoice" && $this->company->enable_e_invoice){
             (new CreateXInvoice($this->entity, true))->handle();
         }
         $this->invitation = null;

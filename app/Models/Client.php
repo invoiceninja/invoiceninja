@@ -41,7 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $client_hash
  * @property string|null $logo
  * @property string|null $phone
- * @property string|null leitweg_id
+ * @property string|null routing_id
  * @property string $balance
  * @property string $paid_to_date
  * @property string $credit_balance
@@ -363,7 +363,7 @@ class Client extends BaseModel implements HasLocalePreference
         'public_notes',
         'phone',
         'number',
-        'leitweg_id',
+        'routing_id',
     ];
 
     protected $with = [
@@ -413,7 +413,7 @@ class Client extends BaseModel implements HasLocalePreference
         'id_number',
         'public_notes',
         'phone',
-        'leitweg_id',
+        'routing_id',
     ];
 
     // public function scopeExclude($query)
@@ -875,11 +875,11 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
-    public function xinvoice_filepath($invitation)
+    public function e_invoice_filepath($invitation)
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/xinvoice/';
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/e_invoice/';
     }
 
     public function quote_filepath($invitation)

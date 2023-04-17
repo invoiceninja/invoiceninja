@@ -38,7 +38,7 @@ class GetInvoiceXInvoice extends AbstractService
             $invitation = $this->invoice->invitations->first();
         }
 
-        $file_path = $this->invoice->client->xinvoice_filepath($this->invoice->invitations->first()). $this->invoice->getFileName("xml");
+        $file_path = $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()). $this->invoice->getFileName("xml");
 
         // $disk = 'public';
         $disk = config('filesystems.default');

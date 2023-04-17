@@ -903,7 +903,7 @@ class InvoiceController extends BaseController
      * @param $invitation_key
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function downloadXInvoice($invitation_key)
+    public function downloadEInvoice($invitation_key)
     {
         $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
 
@@ -914,7 +914,7 @@ class InvoiceController extends BaseController
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        $file = $invoice->service()->getXInvoice($contact);
+        $file = $invoice->service()->getEInvoice($contact);
 
         $headers = ['Content-Type' => 'application/xml'];
 

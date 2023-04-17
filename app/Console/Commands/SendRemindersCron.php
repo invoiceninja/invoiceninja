@@ -175,8 +175,8 @@ class SendRemindersCron extends Command
         $invoice->calc()->getInvoice()->save();
         $invoice->fresh();
         $invoice->service()->deletePdf()->save();
-        if ($invoice->company->use_xinvoice){
-            $invoice->service()->deleteXInvoice()->save();
+        if ($invoice->company->enable_e_invoice){
+            $invoice->service()->deleteEInvoice()->save();
         }
 
         /* Refresh the client here to ensure the balance is fresh */

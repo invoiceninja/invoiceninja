@@ -15,11 +15,11 @@ return new class extends Migration
     {
 
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('leitweg_id')->default(null);
+            $table->string('routing_id')->default(null)->nullable();
         });
         Schema::table('companies', function (Blueprint $table) {
-            $table->boolean('use_xinvoice')->default(false);
-            $table->string('xinvoice_type')->default("EN16931");
+            $table->boolean('enable_e_invoice')->default(false);
+            $table->string('e_invoice_type')->default("EN16931");
         });
     }
 

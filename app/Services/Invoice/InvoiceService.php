@@ -186,7 +186,7 @@ class InvoiceService
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
 
-    public function getXInvoice($contact = null)
+    public function getEInvoice($contact = null)
     {
         return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
     }
@@ -358,18 +358,18 @@ class InvoiceService
         return $this;
     }
 
-    public function deleteXInvoice()
+    public function deleteEInvoice()
     {
         $this->invoice->load('invitations');
 
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->xinvoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->xinvoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
 
-                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                    Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());

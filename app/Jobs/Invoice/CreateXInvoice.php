@@ -43,7 +43,7 @@ class CreateXInvoice implements ShouldQueue
         $company = $invoice->company;
         $client = $invoice->client;
         $profile = "";
-        switch ($company->xinvoice_type) {
+        switch ($company->e_invoice_type) {
             case "EN16931":
                 $profile = ZugferdProfiles::PROFILE_EN16931;
                 break;
@@ -79,7 +79,7 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentSellerContact($invoice->user->first_name." ".$invoice->user->last_name, "", $invoice->user->phone, "", $invoice->user->email)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
-            ->setDocumentBuyerReference($client->leitweg_id)
+            ->setDocumentBuyerReference($client->routing_id)
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
             ->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
@@ -89,7 +89,7 @@ class CreateXInvoice implements ShouldQueue
         if (!empty($invoice->po_number)) {
             $xrechnung->setDocumentBuyerOrderReferencedDocument($invoice->po_number);
         }
-        if (empty($client->leitweg_id)){
+        if (empty($client->routing_id)){
             $xrechnung->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
         }
         $xrechnung->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
@@ -170,10 +170,10 @@ class CreateXInvoice implements ShouldQueue
         }
 
         $disk = config('filesystems.default');
-        if (!Storage::exists($client->xinvoice_filepath($invoice->invitations->first()))) {
-            Storage::makeDirectory($client->xinvoice_filepath($invoice->invitations->first()));
+        if (!Storage::exists($client->e_invoice_filepath($invoice->invitations->first()))) {
+            Storage::makeDirectory($client->e_invoice_filepath($invoice->invitations->first()));
         }
-        $xrechnung->writeFile(Storage::disk($disk)->path($client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
+        $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation
 
         if ($this->alterpdf) {
@@ -192,7 +192,7 @@ class CreateXInvoice implements ShouldQueue
             }
         }
 
-        return $client->xinvoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
+        return $client->e_invoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml");
     }
 
     private function getTaxType($name, Invoice $invoice): string

@@ -19,9 +19,9 @@ use horstoeko\zugferd\ZugferdDocumentReader;
 
 /**
  * @test
- * @covers  App\Jobs\Invoice\CreateUbl
+ * @covers  App\Jobs\Invoice\CreateXInvoice
  */
-class XInvoiceTest extends TestCase
+class EInvoiceTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
@@ -36,13 +36,16 @@ class XInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
-    public function testXInvoiceGenerates()
+    public function testEInvoiceGenerates()
     {
         $xinvoice = (new CreateXInvoice($this->invoice, false))->handle();
         $this->assertNotNull($xinvoice);
         $this->assertFileExists($xinvoice);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testValidityofXMLFile()
     {
         $xinvoice = (new CreateXInvoice($this->invoice, false))->handle();
@@ -50,6 +53,10 @@ class XInvoiceTest extends TestCase
         $document ->getDocumentInformation($documentno);
         $this->assertEquals($this->invoice->number, $documentno);
     }
+
+    /**
+     * @throws Exception
+     */
     public function checkEmbededPDFFile()
     {
         $pdf = (new CreateEntityPdf($this->invoice->invitations()->first()));
