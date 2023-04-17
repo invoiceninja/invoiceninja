@@ -30,15 +30,11 @@ use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Cron\AutoBill;
 use App\Jobs\Invoice\BulkInvoiceJob;
-use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\UpdateReminders;
 use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\Ninja\TransactionLog;
 use App\Models\Account;
-use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
-use App\Models\TransactionEvent;
 use App\Repositories\InvoiceRepository;
 use App\Services\PdfMaker\PdfMerge;
 use App\Transformers\InvoiceTransformer;
@@ -46,7 +42,6 @@ use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
@@ -862,7 +857,7 @@ class InvoiceController extends BaseController
 
     /**
      * @OA\Get(
-     *      path="/api/v1/invoice/{invitation_key}/download_xinvoice",
+     *      path="/api/v1/invoice/{invitation_key}/download_e_invoice",
      *      operationId="downloadXInvoice",
      *      tags={"invoices"},
      *      summary="Download a specific x-invoice by invitation key",
