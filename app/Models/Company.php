@@ -97,6 +97,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $stock_notification
  * @property string|null $matomo_url
  * @property int|null $matomo_id
+ * @property bool $enable_e_invoice
+ * @property string $e_invoice_type
  * @property int $enabled_expense_tax_rates
  * @property int $invoice_task_project
  * @property int $report_include_deleted
@@ -837,6 +839,8 @@ class Company extends BaseModel
         'google_analytics_key',
         'matomo_url',
         'matomo_id',
+        'enable_e_invoice',
+        'e_invoice_type',
         'client_can_register',
         'enable_shop_api',
         'invoice_task_timelog',
@@ -914,7 +918,7 @@ class Company extends BaseModel
 
     public function refreshTaxData()
     {
-        
+
     }
 
     public function documents()

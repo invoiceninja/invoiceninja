@@ -14,10 +14,12 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
+use App\Jobs\Invoice\CreateXInvoice;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Utils\Ninja;
@@ -184,6 +186,11 @@ class InvoiceService
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
 
+    public function getEInvoice($contact = null)
+    {
+        return (new GetInvoiceXInvoice($this->invoice, $contact))->run();
+    }
+
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
@@ -293,7 +300,7 @@ class InvoiceService
         } elseif ($this->invoice->balance < 0 || $this->invoice->balance > 0) {
             $this->invoice->status_id = Invoice::STATUS_SENT;
         }
-        
+
         return $this;
     }
 
@@ -342,6 +349,27 @@ class InvoiceService
 
                 if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf')) {
                     Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation).$this->invoice->numberFormatter().'.pdf');
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
+    }
+
+    public function deleteEInvoice()
+    {
+        $this->invoice->load('invitations');
+
+        $this->invoice->invitations->each(function ($invitation) {
+            try {
+                if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                }
+
+                if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                    Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -421,6 +449,10 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
+                    if ($invitation instanceof InvoiceInvitation)
+                    {
+                    (new CreateXInvoice($invitation->invoice, true))->handle();
+                    }
                 });
 
                 return $this;
@@ -428,6 +460,10 @@ class InvoiceService
 
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
+                if ($invitation instanceof InvoiceInvitation)
+                {
+                    CreateXInvoice::dispatch($invitation->invoice, true);
+                }
             });
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');

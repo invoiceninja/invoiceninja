@@ -11,6 +11,8 @@
 
 namespace App\Services\Email;
 
+use App\Jobs\Invoice\CreateXInvoice;
+use App\Services\Invoice\GetInvoiceXInvoice;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Invoice\CreateUbl;
@@ -55,7 +57,7 @@ class EmailDefaults
     public function __construct(protected Email $email)
     {
     }
- 
+
     /**
      * Entry point for generating
      * the defaults for the email object
@@ -78,7 +80,6 @@ class EmailDefaults
              ->setAttachments()
              ->setVariables()
              ->setHeaders();
-        
         return $this->email->email_object;
     }
 
@@ -183,7 +184,6 @@ class EmailDefaults
             // Default template to be used
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
-        
         return $this;
     }
 
@@ -224,7 +224,7 @@ class EmailDefaults
     public function setVariables(): self
     {
         $this->email->email_object->body = strtr($this->email->email_object->body, $this->email->email_object->variables);
-        
+
         $this->email->email_object->subject = strtr($this->email->email_object->subject, $this->email->email_object->variables);
 
         if ($this->template != 'custom') {
@@ -253,7 +253,7 @@ class EmailDefaults
         foreach ($bccs as $bcc) {
             $bcc_array[] = new Address($bcc);
         }
-        
+
         $this->email->email_object->bcc = array_merge($this->email->email_object->bcc, $bcc_array);
 
         return $this;
@@ -267,7 +267,7 @@ class EmailDefaults
         return $this;
         // return $this->email->email_object->cc;
         // return [
-        
+
         // ];
     }
 
@@ -298,7 +298,16 @@ class EmailDefaults
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
-
+            if ($this->email->email_object->company->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+                $tempfile = tmpfile();
+                file_put_contents(stream_get_meta_data($tempfile)['uri'], $pdf);
+                $xinvoice_path = (new CreateXInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents(stream_get_meta_data($tempfile)['uri'])), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-xinvoice.xml"]]);
+            }
+            else {
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+            }
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }
 
@@ -309,6 +318,11 @@ class EmailDefaults
             if ($ubl_string) {
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($ubl_string), 'name' => $this->email->email_object->entity->getFileName('xml')]]);
             }
+        }
+        /** E-Invoice xml file */
+        if ($this->email->email_object->company->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+            $xinvoice_path = (new GetInvoiceXInvoice($this->email->email_object->entity))->run();
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
         }
 
         if (!$this->email->email_object->settings->document_email_attachment || !$this->email->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -332,7 +346,7 @@ class EmailDefaults
         if ($this->email->email_object->entity instanceof Invoice) {
             $expense_ids = [];
             $task_ids = [];
-            
+
             foreach ($this->email->email_object->entity->line_items as $item) {
                 if (property_exists($item, 'expense_id')) {
                     $expense_ids[] = $item->expense_id;
