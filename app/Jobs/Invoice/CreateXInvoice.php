@@ -61,6 +61,7 @@ class CreateXInvoice implements ShouldQueue
             case "XInvoice-Basic":
                 $profile = ZugferdProfiles::PROFILE_BASIC;
                 break;
+
         }
         $xrechnung = ZugferdDocumentBuilder::CreateNew($profile);
 
@@ -72,7 +73,6 @@ class CreateXInvoice implements ShouldQueue
             ->setDocumentSellerContact($invoice->user->first_name." ".$invoice->user->last_name, "", $invoice->user->phone, "", $invoice->user->email)
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
-            ->setDocumentBuyerReference($client->routing_id)
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
             ->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($invoice->date)->diff(date_create($invoice->due_date))->format("%d"), 'paydate' => $invoice->due_date]));
@@ -84,6 +84,9 @@ class CreateXInvoice implements ShouldQueue
         }
         if (empty($client->routing_id)){
             $xrechnung->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
+        }
+        else {
+            $xrechnung->setDocumentBuyerReference($client->routing_id);
         }
         $xrechnung->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
 
