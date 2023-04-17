@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\DataMapper\InvoiceItem;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Libraries\MultiDB;
@@ -224,6 +225,13 @@ class AutoBillInvoice extends AbstractService
 
         event('eloquent.created: App\Models\Payment', $payment);
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        //if we have paid the invoice in full using credits, then we need to fire the event
+        if($this->invoice->balance == 0){
+
+            event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
+
+        }
 
         return $this->invoice
                     ->service()
