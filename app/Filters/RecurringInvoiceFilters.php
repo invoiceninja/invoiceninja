@@ -121,4 +121,29 @@ class RecurringInvoiceFilters extends QueryFilters
     {
         return $this->builder->company();
     }
+
+    /**
+     * Filter based on line_items product_key
+     *
+     * @param string value Product keys
+     * @return Builder
+     */
+    public function product_key(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $key_parameters = explode(',', $value);
+
+        if (count($key_parameters)) {
+            return $this->builder->where(function ($query) use ($key_parameters) {
+                foreach ($key_parameters as $key) {
+                    $query->orWhereJsonContains('line_items', ['product_key' => $key]);
+                }
+            });
+        }
+
+        return $this->builder;
+    }
 }
