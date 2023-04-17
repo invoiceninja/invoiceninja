@@ -20,15 +20,8 @@ class CreateXInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private Invoice $invoice;
-    private bool $alterpdf;
-    private string $custompdfpath;
-
-    public function __construct(Invoice $invoice, bool $alterPDF, string $custompdfpath = "")
+    public function __construct(private Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
     {
-        $this->invoice = $invoice;
-        $this->alterpdf = $alterPDF;
-        $this->custompdfpath = $custompdfpath;
     }
 
     /**
@@ -100,7 +93,7 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentSellerTaxRegistration("VA", $company->getSetting('vat_number'));
         }
 
-        $invoicingdata = $invoice->calc();
+        $invoicing_data = $invoice->calc();
         $globaltax = null;
 
         //Create line items and calculate taxes
@@ -153,19 +146,19 @@ class CreateXInvoice implements ShouldQueue
 
 
         if ($invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, $invoice->partial);
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $invoice->partial);
         } else {
-            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicingdata->getSubTotal(), $invoicingdata->getTotalSurcharges(), $invoicingdata->getTotalDiscount(), $invoicingdata->getSubTotal(), $invoicingdata->getItemTotalTaxes(), null, 0.0);
+            $xrechnung->setDocumentSummation($invoice->amount, $invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
         }
 
-        foreach ($invoicingdata->getTaxMap() as $item) {
+        foreach ($invoicing_data->getTaxMap() as $item) {
             $tax = explode(" ", $item["name"]);
             $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
         if (!empty($globaltax)){
-            $tax = explode(" ", $invoicingdata->getTotalTaxMap()[$globaltax]["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $invoicingdata->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicingdata->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
+            $tax = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
+            $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
 
@@ -176,11 +169,11 @@ class CreateXInvoice implements ShouldQueue
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($invoice->invitations->first()) . $invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation
 
-        if ($this->alterpdf) {
-            if ($this->custompdfpath != "") {
-                $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $this->custompdfpath);
+        if ($this->alterPDF) {
+            if ($this->custom_pdf_path != "") {
+                $pdfBuilder = new ZugferdDocumentPdfBuilder($xrechnung, $this->custom_pdf_path);
                 $pdfBuilder->generateDocument();
-                $pdfBuilder->saveDocument($this->custompdfpath);
+                $pdfBuilder->saveDocument($this->custom_pdf_path);
             } else {
                 $filepath_pdf = $client->invoice_filepath($invoice->invitations->first()) . $invoice->getFileName();
                 $file = Storage::disk($disk)->exists($filepath_pdf);
