@@ -24,7 +24,6 @@ class DesignFilters extends QueryFilters
      * @param string $filter
      * @return Builder
      *
-     * @deprecated
      */
     public function filter(string $filter = ''): Builder
     {
@@ -33,7 +32,7 @@ class DesignFilters extends QueryFilters
         }
 
         return $this->builder->where(function ($query) use ($filter) {
-            $query->where('designs.name', 'like', '%'.$filter.'%');
+            $query->where('name', 'like', '%'.$filter.'%');
         });
     }
 
@@ -58,17 +57,22 @@ class DesignFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {
-        return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
+        //19-03-2023 change the scope for the design filters
+        return  $this->builder->where(function ($query) {
+            $query->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
+    // return $this->builder->where('company_id', auth()->user()->company()->id)->orWhere('company_id', null)->orderBy('id', 'asc');
+
+        });
     }
 
     /**
      * Filter the designs by `is_custom` column.
      *
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function custom(string $custom): Builder
     {

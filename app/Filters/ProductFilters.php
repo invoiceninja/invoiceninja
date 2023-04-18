@@ -23,7 +23,7 @@ class ProductFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */

@@ -115,7 +115,7 @@ abstract class QueryFilters
      * Explodes the value by delimiter.
      *
      * @param  string $value
-     * @return stdClass
+     * @return \stdClass
      */
     public function split($value) : \stdClass
     {
@@ -133,7 +133,7 @@ abstract class QueryFilters
      * Filters the list based on the status
      * archived, active, deleted.
      *
-     * @param string filter
+     * @param string $filter
      * @return Builder
      */
     public function status(string $filter = ''): Builder
@@ -196,13 +196,15 @@ abstract class QueryFilters
      *
      * -Can only be used on contact routes
      *
-     * @return
+     * @return Builder
      */
-    public function clientFilter()
+    public function clientFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->builder->where('client_id', auth()->guard('contact')->user()->client->id);
         }
+
+        return $this->builder;
     }
 
     public function created_at($value = '')
