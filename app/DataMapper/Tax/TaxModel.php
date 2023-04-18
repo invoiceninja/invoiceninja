@@ -68,7 +68,7 @@ class TaxModel
         $this->regions->AU = new \stdClass();
         $this->regions->AU->has_sales_above_threshold = false;
         $this->regions->AU->tax_all_subregions = false;
-        $this->regions->AU->vat_threshold = 75000;
+        $this->regions->AU->tax_threshold = 75000;
         $this->auSubRegions();
 
         return $this;
@@ -115,7 +115,7 @@ class TaxModel
      
         $this->regions->EU->has_sales_above_threshold = false;
         $this->regions->EU->tax_all_subregions = false;
-        $this->regions->EU->vat_threshold = 10000;
+        $this->regions->EU->tax_threshold = 10000;
         $this->euSubRegions();
 
         return $this;
