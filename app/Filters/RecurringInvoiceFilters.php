@@ -12,6 +12,7 @@
 namespace App\Filters;
 
 use App\Models\RecurringInvoice;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -120,5 +121,83 @@ class RecurringInvoiceFilters extends QueryFilters
     public function entityFilter()
     {
         return $this->builder->company();
+    }
+
+    /**
+     * Filter based on line_items product_key
+     *
+     * @param string value Product keys
+     * @return Builder
+     */
+    public function product_key(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $key_parameters = explode(',', $value);
+
+        if (count($key_parameters)) {
+            return $this->builder->where(function ($query) use ($key_parameters) {
+                foreach ($key_parameters as $key) {
+                    $query->orWhereJsonContains('line_items', ['product_key' => $key]);
+                }
+            });
+        }
+
+        return $this->builder;
+    }
+
+    /**
+     * next send date between.
+     *
+     * @param string range
+     * @return Builder
+     */
+    public function next_send_between(string $range = ''): Builder
+    {
+        $parts = explode('|', $range);
+
+        if (!isset($parts[0]) || !isset($parts[1])) {
+            return $this->builder;
+        }
+
+        if (is_numeric($parts[0])) {
+            $startDate = Carbon::createFromTimestamp((int)$parts[0]);
+        } else {
+            $startDate = Carbon::parse($parts[0]);
+        }
+
+        if (is_numeric($parts[1])) {
+            $endDate = Carbon::createFromTimestamp((int)$parts[1]);
+        } else {
+            $endDate = Carbon::parse($parts[1]);
+        }
+
+        if (!$startDate || !$endDate) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereBetween(
+            'next_send_date',
+            [$startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')]
+        );
+    }
+
+    /**
+     * Filter by frequency id.
+     *
+     * @param integer frequency_id
+     * @return Builder
+     */
+    public function frequency_id(string $value = ''): Builder
+    {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        $frequencyIds = explode(',', $value);
+
+        return $this->builder->whereIn('frequency_id', $frequencyIds);
     }
 }
