@@ -873,6 +873,7 @@ class Company extends BaseModel
         'convert_expense_currency',
         'notify_vendor_when_paid',
         'calculate_taxes',
+        'tax_data',
     ];
 
     protected $hidden = [
