@@ -5046,7 +5046,6 @@ $LANG = array(
     'oauth_mail' => 'OAuth / Mail',
     'preferences' => 'Preferences',
     'analytics' => 'Analytics',
-    'app_help_link' => 'More information here :link',
     'reduced_rate' => 'Reduced Rate',
     'tax_all' => 'Tax All',
     'tax_selected' => 'Tax Selected',
