@@ -35,7 +35,7 @@ class InvoiceFilters extends QueryFilters
      * - overdue
      * - reversed
      *
-     * @param string client_status The invoice status as seen by the client
+     * @param string $value The invoice status as seen by the client
      * @return Builder
      */
     public function client_status(string $value = ''): Builder
@@ -88,7 +88,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -127,6 +127,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * @return Builder
+     * @return Builder
      * @throws InvalidArgumentException
      */
     public function upcoming(): Builder
@@ -141,6 +142,7 @@ class InvoiceFilters extends QueryFilters
 
     /**
      * @return void
+     * @return Builder
      * @throws InvalidArgumentException
      */
     public function overdue(): Builder
@@ -174,7 +176,7 @@ class InvoiceFilters extends QueryFilters
     /**
      * Sorts the list based on $sort.
      *
-     * @param string sort formatted as column|asc
+     * @param string $sort formatted as column|asc
      * @return Builder
      */
     public function sort(string $sort = ''): Builder
@@ -194,9 +196,9 @@ class InvoiceFilters extends QueryFilters
      * We need to ensure we are using the correct company ID
      * as we could be hitting this from either the client or company auth guard
      *
-     * @return Illuminate\Database\Query\Builder
+     * @return Builder
      */
-    public function entityFilter()
+    public function entityFilter(): Builder
     {
         if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
@@ -210,7 +212,7 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @throws InvalidArgumentException
      */
-    public function private_notes($filter = '') :Builder
+    public function private_notes($filter = ''): Builder
     {
         if (strlen($filter) == 0) {
             return $this->builder;

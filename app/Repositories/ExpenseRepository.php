@@ -103,7 +103,7 @@ class ExpenseRepository extends BaseRepository
     public function delete($expense) :Expense
     {
         
-        if ($expense->transaction_id) {
+        if ($expense->transaction()->exists()) {
             
             $exp_ids = collect(explode(',', $expense->transaction->expense_id))->filter(function ($id) use ($expense) {
                 return $id != $expense->hashed_id;
