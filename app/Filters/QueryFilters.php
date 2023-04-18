@@ -244,7 +244,7 @@ abstract class QueryFilters
     }
 
 
-    public function is_deleted($value)
+    public function is_deleted($value = 'true')
     {
         if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
