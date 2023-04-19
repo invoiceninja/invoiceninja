@@ -41,7 +41,7 @@ class BulkProductRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->all();
-nlog($input);
+
         if (isset($input['ids'])) {
             $input['ids'] = $this->transformKeys($input['ids']);
         }
