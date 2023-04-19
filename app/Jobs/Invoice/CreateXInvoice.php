@@ -159,7 +159,7 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
-        if (!empty($globaltax)){
+        if (!empty($globaltax && isset($invoicing_data->getTotalTaxMap()[$globaltax]["name"]))){
             $tax = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
             $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
