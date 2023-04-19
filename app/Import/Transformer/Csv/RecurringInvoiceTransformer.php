@@ -59,10 +59,17 @@ class RecurringInvoiceTransformer extends BaseTransformer
             'date' => isset($invoice_data['invoice.date'])
                 ? $this->parseDate($invoice_data['invoice.date'])
                 : now()->format('Y-m-d'),
+            'next_send_date' => isset($invoice_data['invoice.next_send_date'])
+                ? $this->parseDate($invoice_data['invoice.next_send_date'])
+                : now()->format('Y-m-d'),
+            'next_send_date_client' => isset($invoice_data['invoice.next_send_date'])
+                ? $this->parseDate($invoice_data['invoice.next_send_date'])
+                : now()->format('Y-m-d'),
             'due_date' => isset($invoice_data['invoice.due_date'])
                 ? $this->parseDate($invoice_data['invoice.due_date'])
                 : null,
             'terms' => $this->getString($invoice_data, 'invoice.terms'),
+            'due_date_days' => 'terms',
             'public_notes' => $this->getString(
                 $invoice_data,
                 'invoice.public_notes'
