@@ -20,6 +20,8 @@ class CreateXInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $deleteWhenMissingModels = true;
+
     public function __construct(private Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
     {
     }
