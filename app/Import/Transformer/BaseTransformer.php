@@ -28,6 +28,7 @@ use App\Factory\VendorFactory;
 use Illuminate\Support\Carbon;
 use App\Factory\ProjectFactory;
 use App\Models\ExpenseCategory;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\ClientRepository;
 use App\Factory\ExpenseCategoryFactory;
@@ -96,6 +97,75 @@ class BaseTransformer
         return $currency
             ? $currency->id
             : $this->company->settings->currency_id;
+    }
+
+    public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
+    {
+
+        switch ($frequency) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+            case 'daily':
+                return RecurringInvoice::FREQUENCY_DAILY;
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+            case 'weekly':
+                return RecurringInvoice::FREQUENCY_WEEKLY;
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+            case 'biweekly':
+                return RecurringInvoice::FREQUENCY_TWO_WEEKS;
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+            case '4weeks':
+                return RecurringInvoice::FREQUENCY_FOUR_WEEKS;
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+            case 'monthly':
+                return RecurringInvoice::FREQUENCY_MONTHLY;
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+            case 'bimonthly':
+                return RecurringInvoice::FREQUENCY_TWO_MONTHS;
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+            case 'quarterly':
+                return RecurringInvoice::FREQUENCY_THREE_MONTHS;
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+            case '4months':
+                return RecurringInvoice::FREQUENCY_FOUR_MONTHS;
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+            case '6months':
+                return RecurringInvoice::FREQUENCY_SIX_MONTHS;
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+            case 'yearly':
+                return RecurringInvoice::FREQUENCY_ANNUALLY;
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+            case '2years':
+                return RecurringInvoice::FREQUENCY_TWO_YEARS;
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+            case '3years':
+                return RecurringInvoice::FREQUENCY_THREE_YEARS;
+            default:
+                return RecurringInvoice::FREQUENCY_MONTHLY;
+        }
+
+    }
+
+    public function getRemainingCycles($remaining_cycles = -1): int
+    {
+        return (int)$remaining_cycles;
+    }
+
+    public function getAutoBillFlag(string $option): string
+    {
+        switch ($option) {
+            case 'off':
+            case 'false':
+                return 'off';
+            case 'always':
+            case 'true':
+                return 'always';
+            case 'optin':
+                return 'opt_in';
+            case 'optout':
+                return 'opt_out';
+            default:
+                return 'off';
+        }
     }
 
     public function getClient($client_name, $client_email)
@@ -358,8 +428,7 @@ class BaseTransformer
     }
 
     /**
-     * @param $date
-     * @param string $format
+     *
      * @param mixed  $data
      * @param mixed  $field
      *
@@ -414,6 +483,22 @@ class BaseTransformer
     public function hasInvoice($invoice_number)
     {
         return Invoice::where('company_id', $this->company->id)
+            ->where('is_deleted', false)
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $invoice_number)),
+            ])
+            ->exists();
+    }
+
+
+    /**
+     * @param $invoice_number
+     *
+     * @return bool
+     */
+    public function hasRecurringInvoice($invoice_number)
+    {
+        return RecurringInvoice::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
