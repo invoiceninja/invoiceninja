@@ -5058,6 +5058,7 @@ $LANG = array(
     'converted_payment_balance' => 'Converted Payment Balance',
     'total_hours' => 'Total Hours',
     'date_picker_hint' => 'Use +days to set the date in the future',
+    'app_help_link' => 'More information',
 );
 
 

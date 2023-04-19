@@ -360,7 +360,8 @@ class HtmlEngine
         $data['$credit.po_number'] = &$data['$invoice.po_number'];
         $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
-        $data['$credit.balance'] = &$data['$balance'];
+        $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
+
 
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];

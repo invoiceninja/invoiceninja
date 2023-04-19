@@ -413,6 +413,8 @@
                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
                <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                            <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                            <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
                <div id="table-totals" cellspacing="0">$status_logo</div>
@@ -442,7 +444,7 @@
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
                     'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
-                    'vendor-details', 'client-details'
+                    'client-details', 'vendor-details', 'swiss-qr', 'shipping-details', 'statement-credit-table', 'statement-credit-table-totals',
                 ];
 
                 tables.forEach((tableIdentifier) => {
@@ -456,24 +458,3 @@
         </script>
     </div>
 </div>
-
-    <script>
-        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
-        document.addEventListener('DOMContentLoaded', () => {
-            let tables = [
-                'product-table', 'task-table', 'delivery-note-table',
-                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-                'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
-                'client-details','vendor-details', 'swiss-qr'
-            ];
-
-            tables.forEach((tableIdentifier) => {
-                console.log(document.getElementById(tableIdentifier));
-
-                document.getElementById(tableIdentifier)?.childElementCount === 0
-                    ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
-                    : '';
-            });
-        });
-    </script>
-      

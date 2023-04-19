@@ -107,7 +107,7 @@ class ClientStatementController extends BaseController
         }
 
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status']),
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status', 'show_credits_table']),
             $send_email
         );
 

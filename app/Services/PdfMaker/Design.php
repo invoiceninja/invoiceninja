@@ -49,6 +49,8 @@ class Design extends BaseDesign
 
     public $invoices;
 
+    public $credits;
+
     public $payments;
 
     public $settings_object;
@@ -143,6 +145,14 @@ class Design extends BaseDesign
             'task-table' => [
                 'id' => 'task-table',
                 'elements' => $this->taskTable(),
+            ],
+            'statement-credit-table' => [
+                'id' => 'statement-credit-table',
+                'elements' => $this->statementCreditTable(),
+            ],
+            'statement-credit-table-totals' => [
+                'id' => 'statement-credit-table-totals',
+                'elements' => $this->statementInvoiceTableTotals(),
             ],
             'statement-invoice-table' => [
                 'id' => 'statement-invoice-table',
@@ -613,6 +623,54 @@ class Design extends BaseDesign
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
+        ];
+    }
+
+    /**
+     * Parent method for building payments table within statement.
+     *
+     * @return array
+     */
+    public function statementCreditTable(): array
+    {
+        if (is_null($this->credits) && $this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        if (\array_key_exists('show_credits_table', $this->options) && $this->options['show_credits_table'] === false) {
+            return [];
+        }
+
+        $tbody = [];
+
+        foreach ($this->credits as $credit) {
+            $element = ['element' => 'tr', 'elements' => []];
+
+            $element['elements'][] = ['element' => 'td', 'content' => $credit->number];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($credit->date, $this->client->date_format(), $this->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($credit->amount, $this->client)];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($credit->balance, $this->client)];
+
+            $tbody[] = $element;
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_credit')],
+            ['element' => 'tbody', 'elements' => $tbody],
+        ];
+
+    }
+
+    public function statementCreditTableTotals(): array
+    {
+        if ($this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        $outstanding = $this->credits->sum('balance');
+
+        return [
+            ['element' => 'p', 'content' => '$credit.balance_label: ' . Number::formatMoney($outstanding, $this->client)],
         ];
     }
 

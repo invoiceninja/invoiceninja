@@ -962,6 +962,12 @@ class CompanySettings extends BaseSettings
                 '$method',
                 '$statement_amount',
             ],
+            'statement_credit_columns' => [
+                '$credit.number',
+                '$credit.date',
+                '$total',
+                '$credit.balance',
+            ],
         ];
 
         return json_decode(json_encode($variables));
