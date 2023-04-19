@@ -147,6 +147,11 @@ class BaseTransformer
 
     public function getRemainingCycles($remaining_cycles = -1): int
     {
+        
+        if ($remaining_cycles == 'endless') {
+            return -1;
+        }
+
         return (int)$remaining_cycles;
     }
 

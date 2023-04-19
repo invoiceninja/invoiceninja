@@ -1,7 +1,7 @@
 "Invoice Ninja v4.5.17 - December 19, 2020 11:28 pm",,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,
 INVOICES,,,,,,,,,,,,,,,,,,,,
-Client,Email,Auto Bill,Frequency,Remaining Cycles,Invoice Number,Amount,Paid,PO Number,Status,Invoice Date,Due Date,Discount,Partial/Deposit,Partial Due Date,Public Notes,Private Notes,Item Product,Item Notes,Item Cost,Item Quantity
+Client,Email,Auto Bill,Frequency,Remaining Cycles,Invoice Number,Amount,Paid,PO Number,Status,Start Date,Due Date,Discount,Partial/Deposit,Partial Due Date,Public Notes,Private Notes,Item Product,Item Notes,Item Cost,Item Quantity
 Ludwig Krajcik DVM,brook59@example.org,always,monthly,endless,1,$13.50,$5.01,,Partial,2019-11-25,2019-10-20,,$0.00,,,,et,Ad neque sit dolores est praesentium. In laboriosam fugiat et a adipisci id laborum. Quis nam aperiam non qui porro.,1.35,10
 Ludwig Krajcik DVM,brook59@example.org,always,monthly,endless,2,$26.67,$6.94,,Partial,2020-02-19,2020-02-29,,$0.00,,,,omnis,Dicta quam ut nihil animi occaecati omnis nulla. Eum minus quae ut et. Et iste consequatur saepe quam.,8.89,3
 Ludwig Krajcik DVM,brook59@example.org,always,monthly,endless,2,$26.67,$6.94,,Partial,2020-02-19,2020-02-29,,$0.00,,,,omnis,Dicta quam ut nihil animi occaecati omnis nulla. Eum minus quae ut et. Et iste consequatur saepe quam.,8.89,3

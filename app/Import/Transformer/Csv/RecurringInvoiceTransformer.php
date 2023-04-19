@@ -130,8 +130,7 @@ class RecurringInvoiceTransformer extends BaseTransformer
             ), 
             'frequency_id' => $this->getFrequency(isset($invoice_data['invoice.frequency_id']) ? $invoice_data['invoice.frequency_id'] : 'monthly'
             ),
-            'remaining_cycles' => $this->getRemainingCycles(
-                $this->getNumber($invoice_data, 'invoice.remaining_cycles')
+            'remaining_cycles' => $this->getRemainingCycles(isset($invoice_data['invoice.remaining_cycles']) ? $invoice_data['invoice.remaining_cycles'] : -1
             ),
             // 'archived' => $status === 'archived',
         ];

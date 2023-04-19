@@ -103,7 +103,7 @@ class CsvImportTest extends TestCase
             12 => 'invoice.public_notes',
             13 => 'invoice.private_notes',
             5 => 'invoice.number',
-            7 => 'invoice.date',
+            7 => 'invoice.next_send_date',
             17 => 'item.product_key',
             18 => 'item.notes',
             19 => 'item.cost',
