@@ -97,6 +97,8 @@ class Response
 
     public function __construct($data)
     {
+        if(!$data)
+            return;
 
         foreach($data as $key => $value){
             $this->{$key} = $value;

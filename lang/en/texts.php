@@ -5046,6 +5046,20 @@ $LANG = array(
     'oauth_mail' => 'OAuth / Mail',
     'preferences' => 'Preferences',
     'analytics' => 'Analytics',
+    'reduced_rate' => 'Reduced Rate',
+    'tax_all' => 'Tax All',
+    'tax_selected' => 'Tax Selected',
+    'version' => 'version',
+    'seller_subregion' => 'Seller Subregion',
+    'calculate_taxes' => 'Calculate Taxes',
+    'calculate_taxes_help' => 'Automatically calculate taxes when saving invoices',
+    'link_expenses' => 'Link Expenses',
+    'converted_client_balance' => 'Converted Client Balance',
+    'converted_payment_balance' => 'Converted Payment Balance',
+    'total_hours' => 'Total Hours',
+    'date_picker_hint' => 'Use +days to set the date in the future',
+    'app_help_link' => 'More information ',
+    'here' => 'here',
 );
 
 

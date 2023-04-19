@@ -20,6 +20,8 @@ class CreateXInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $deleteWhenMissingModels = true;
+
     public function __construct(private Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
     {
     }
@@ -159,7 +161,7 @@ class CreateXInvoice implements ShouldQueue
             $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType
         }
-        if (!empty($globaltax)){
+        if (!empty($globaltax && isset($invoicing_data->getTotalTaxMap()[$globaltax]["name"]))){
             $tax = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
             $xrechnung->addDocumentTax($this->getTaxType("", $invoice), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
             // TODO: Add correct tax type within getTaxType

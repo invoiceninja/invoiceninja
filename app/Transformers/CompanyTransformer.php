@@ -151,7 +151,8 @@ class CompanyTransformer extends EntityTransformer
             'matomo_id' => (string) $company->matomo_id ?: '',
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
-            'is_large' => (bool) $company->is_large,
+            // 'is_large' => (bool) $company->is_large,
+            'is_large' => (bool) $this->isLarge($company),
             'is_disabled' => (bool) $company->is_disabled,
             'enable_shop_api' => (bool) $company->enable_shop_api,
             'mark_expenses_invoiceable'=> (bool) $company->mark_expenses_invoiceable,
@@ -194,8 +195,19 @@ class CompanyTransformer extends EntityTransformer
             'notify_vendor_when_paid' => (bool) $company->notify_vendor_when_paid,
             'invoice_task_hours' => (bool) $company->invoice_task_hours,
             'calculate_taxes' => (bool) $company->calculate_taxes,
-            'tax_data' => $company->tax_data ?: '',
+            'tax_data' => $company->tax_data ?: new \stdClass,
         ];
+    }
+
+    private function isLarge(Company $company): bool
+    {
+        //if the user is attached to more than one company AND they are not an admin across all companies
+        if ($company->is_large || (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count()))) 
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public function includeExpenseCategories(Company $company)

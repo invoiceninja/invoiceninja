@@ -176,7 +176,13 @@ class BaseRule implements RuleInterface
             return $this;
 
         }
+        elseif($this->client_region == 'AU'){
+            
+            $this->tax_rate1 = 10;
+            $this->tax_name1 = 'GST';
 
+            return $this;
+        }
 
         $this->tax_rate1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
         $this->tax_name1 = $this->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;

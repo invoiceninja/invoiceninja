@@ -35,6 +35,7 @@ class CreateStatementRequest extends Request
             'client_id'  => 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id,
             'show_payments_table' => 'boolean',
             'show_aging_table' => 'boolean',
+            'show_credits_table' => 'boolean',
             'status' => 'string',
         ];
     }
