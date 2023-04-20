@@ -5061,6 +5061,7 @@ $LANG = array(
     'app_help_link' => 'More information ',
     'here' => 'here',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
+    'show_credits_table' => 'Show Credits Table',
 );
 
 
