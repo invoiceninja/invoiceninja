@@ -98,7 +98,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $matomo_url
  * @property int|null $matomo_id
  * @property bool $enable_e_invoice
- * @property string $e_invoice_type
  * @property int $enabled_expense_tax_rates
  * @property int $invoice_task_project
  * @property int $report_include_deleted
