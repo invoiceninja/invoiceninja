@@ -840,7 +840,6 @@ class Company extends BaseModel
         'matomo_url',
         'matomo_id',
         'enable_e_invoice',
-        'e_invoice_type',
         'client_can_register',
         'enable_shop_api',
         'invoice_task_timelog',
