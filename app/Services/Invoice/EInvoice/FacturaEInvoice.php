@@ -18,8 +18,11 @@ use App\Services\AbstractService;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 
-class Facturae extends AbstractService
+class FacturaEInvoice extends AbstractService
 {
+    private Facturae $fac;
+    
+    private $calc;
 
     // Facturae::SCHEMA_3_2	Invoice Format 3.2
     // Facturae::SCHEMA_3_2_1	Invoice Format 3.2.1
@@ -114,36 +117,61 @@ class Facturae extends AbstractService
 
     public function run()
     {
+        $this->calc = $this->invoice->calc();
 
-        $fac = new Facturae();
-        $fac->setNumber('', $this->invoice->number);
-        $fac->setIssueDate($this->invoice->date);
-        $fac->setBuyer($this->buildBuyer());
-        $fac->setSeller($this->buildSeller());
-        $fac = $this->buildItems($fac);
-        
+        $this->fac = new Facturae();
+        $this->fac->setNumber('', $this->invoice->number);
+        $this->fac->setIssueDate($this->invoice->date);
+        $this->fac->setPrecision(Facturae::PRECISION_LINE);
+
+        $this->buildBuyer()
+             ->buildSeller()
+             ->buildItems()
+             ->setDiscount()
+             ->setPoNumber();
+
+        return $this->fac->export();
     }
 
-    private function buildItems(Facturae $fac): Facturae
+    private function setPoNumber(): self
+    {
+        if(strlen($this->invoice->po_number > 1)){
+            $this->fac->setReferences($this->invoice->po_number);
+        }
+
+        return $this;
+    }
+
+    private function setDiscount(): self
+    {
+        if($this->invoice->discount > 0) {
+            $this->fac->addDiscount(ctrans('texts.discount'), $this->calc->getTotalDiscount());
+        }
+
+        return $this;
+    }
+
+    private function buildItems(): self
     {
 
         foreach($this->invoice->line_items as $item)
         {
-            $fac->addItem(new FacturaeItem([
+            $this->fac->addItem(new FacturaeItem([
                 'description' => $item->notes,
                 'quantity' => $item->quantity,
                 'unitPrice' => $item->cost,
                 'discountsAndRebates' => $item->discount,
-                'charges' => 0,
+                'charges' => [],
+                'discounts' => [],
                 'taxes' => $this->buildRatesForItem($item),
-                'specialTaxableEvent' => FacturaeItem::SPECIAL_TAXABLE_EVENT_NON_SUBJECT,
-                'specialTaxableEventReason' => '',
-                'specialTaxableEventReasonDescription' => '',
+                // 'specialTaxableEvent' => FacturaeItem::SPECIAL_TAXABLE_EVENT_NON_SUBJECT,
+                // 'specialTaxableEventReason' => '',
+                // 'specialTaxableEventReasonDescription' => '',
             ]));
             
         }
     
-        return $fac;
+        return $this;
     
     }
 
@@ -210,7 +238,7 @@ class Facturae extends AbstractService
         };
     }
 
-    private function buildSeller(): FacturaeParty
+    private function buildSeller(): self
     {
         $company = $this->invoice->company;
 
@@ -238,10 +266,12 @@ class Facturae extends AbstractService
         // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
 
-        return $seller;
+        $this->fac->setSeller($seller);
+        
+        return $this;
     }
 
-    private function buildBuyer(): FacturaeParty
+    private function buildBuyer(): self
     {
 
         $buyer = new FacturaeParty([
@@ -264,7 +294,9 @@ class Facturae extends AbstractService
         // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
 
-        return $buyer;
+        $this->fac->setBuyer($buyer);
+
+        return $this;
     }
 
 }
