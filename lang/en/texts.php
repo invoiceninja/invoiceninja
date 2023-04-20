@@ -5060,6 +5060,7 @@ $LANG = array(
     'date_picker_hint' => 'Use +days to set the date in the future',
     'app_help_link' => 'More information ',
     'here' => 'here',
+    'industry_Restaurant & Catering' => 'Restaurant & Catering',
 );
 
 
