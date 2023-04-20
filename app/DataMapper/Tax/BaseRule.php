@@ -154,7 +154,7 @@ class BaseRule implements RuleInterface
         match($this->client_region){
             'US' => $this->client_subregion = $this->tax_data->geoState,
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
-            default => $this->client->country->iso_3166_2,
+            default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
     
         return $this;
