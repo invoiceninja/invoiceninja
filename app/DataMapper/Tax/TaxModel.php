@@ -381,6 +381,7 @@ class TaxModel
 
         $this->regions->EU->subregions->DK = new \stdClass();
         $this->regions->EU->subregions->DK->tax_rate = 25;
+        $this->regions->EU->subregions->DK->tax_name = 'Moms';
         $this->regions->EU->subregions->DK->reduced_tax_rate = 0;
         $this->regions->EU->subregions->DK->apply_tax = false;
 
