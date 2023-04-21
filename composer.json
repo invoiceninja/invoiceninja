@@ -53,9 +53,11 @@
         "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^7.0",
+        "horstoeko/zugferd": "^1",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
         "invoiceninja/inspector": "^1.0",
+        "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^9.3",
         "laravel/slack-notification-channel": "^2.2",
@@ -91,7 +93,6 @@
         "turbo124/predis": "1.1.11",
         "twilio/sdk": "^6.40",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "horstoeko/zugferd":"^1",
         "wepay/php-sdk": "^0.3"
     },
     "require-dev": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "732ddc1c902c8a5a0412d8424df2ba6a",
+    "content-hash": "7482363bb2c3f9f8fb07bbd3d517597b",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -4025,6 +4025,63 @@
                 }
             ],
             "time": "2023-02-17T17:40:48+00:00"
+        },
+        {
+            "name": "josemmo/facturae-php",
+            "version": "v1.7.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/josemmo/Facturae-PHP.git",
+                "reference": "fb876dd4b4515e0cd85b1be61f676bfee9a80f65"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/josemmo/Facturae-PHP/zipball/fb876dd4b4515e0cd85b1be61f676bfee9a80f65",
+                "reference": "fb876dd4b4515e0cd85b1be61f676bfee9a80f65",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "*"
+            },
+            "suggest": {
+                "ext-curl": "For communicating with remote TSA Servers and SOAP Web Services",
+                "ext-fileinfo": "For getting MIME types when using FacturaeFile",
+                "ext-openssl": "For signing and timestamping both invoices and SOAP requests",
+                "lib-libxml": "For parsing SOAP XML responses for FACe and FACeB2B"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "josemmo\\Facturae\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "josemmo",
+                    "email": "josemmo@pm.me",
+                    "homepage": "https://github.com/josemmo"
+                }
+            ],
+            "description": "Librería para la generación, firma y envío de facturas electrónicas",
+            "homepage": "https://github.com/josemmo/Facturae-PHP",
+            "keywords": [
+                "face",
+                "faceb2b",
+                "facturae",
+                "xades"
+            ],
+            "support": {
+                "issues": "https://github.com/josemmo/Facturae-PHP/issues",
+                "source": "https://github.com/josemmo/Facturae-PHP/tree/v1.7.6"
+            },
+            "time": "2023-03-25T10:09:02+00:00"
         },
         {
             "name": "khanamiryan/qrcode-detector-decoder",

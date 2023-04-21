@@ -38,7 +38,7 @@ class CreateXInvoice implements ShouldQueue
         $company = $invoice->company;
         $client = $invoice->client;
         $profile = "";
-        switch ($company->e_invoice_type) {
+        switch ($client->getSetting('e_invoice_type')) {
             case "EN16931":
                 $profile = ZugferdProfiles::PROFILE_EN16931;
                 break;
@@ -62,6 +62,9 @@ class CreateXInvoice implements ShouldQueue
                 break;
             case "XInvoice-Basic":
                 $profile = ZugferdProfiles::PROFILE_BASIC;
+                break;
+            default:
+                $profile = ZugferdProfiles::PROFILE_EN16931;
                 break;
 
         }

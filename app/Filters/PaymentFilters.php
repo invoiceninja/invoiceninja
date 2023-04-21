@@ -36,7 +36,7 @@ class PaymentFilters extends QueryFilters
             $query->where('amount', 'like', '%'.$filter.'%')
                           ->orWhere('date', 'like', '%'.$filter.'%')
                           ->orWhere('number','like', '%'.$filter.'%')
-                          ->owWhere('transaction_reference', 'like', '%'.$filter.'%')
+                          ->orWhere('transaction_reference', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value3', 'like', '%'.$filter.'%')

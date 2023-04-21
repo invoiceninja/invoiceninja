@@ -1,0 +1,50 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace Tests\Feature;
+
+use App\Services\Invoice\EInvoice\FacturaEInvoice;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
+/**
+ * @test
+ * @covers App\Http\Controllers\ActivityController
+ */
+class FacturaeTest extends TestCase
+{
+    use DatabaseTransactions;
+    use MockAccountData;
+
+    protected function setUp() :void
+    {
+        parent::setUp();
+
+        $this->makeTestData();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+    }
+
+    public function testInvoiceGeneration()
+    {
+
+        $f = new FacturaEInvoice($this->invoice);
+        $f->run();
+
+        $this->assertNotNull($f->run());
+        
+        nlog($f->run());
+    }
+}

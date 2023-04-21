@@ -475,7 +475,10 @@ class CompanySettings extends BaseSettings
 
     public $sync_invoice_quote_columns = true;
 
+    public $e_invoice_type = 'EN16931';
+
     public static $casts = [
+        'e_invoice_type'                   => 'string',    
         'mailgun_endpoint'                   => 'string',    
         'client_initiated_payments'          => 'bool',
         'client_initiated_payments_minimum'  => 'float',
