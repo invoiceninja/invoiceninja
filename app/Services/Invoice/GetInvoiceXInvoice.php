@@ -11,7 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Jobs\Invoice\CreateXInvoice;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
@@ -43,7 +43,7 @@ class GetInvoiceXInvoice extends AbstractService
         $file = Storage::disk($disk)->exists($file_path);
 
         if (! $file) {
-            $file_path = (new CreateXInvoice($this->invoice, false))->handle();
+            $file_path = (new CreateEInvoice($this->invoice, false))->handle();
         }
 
         return $file_path;

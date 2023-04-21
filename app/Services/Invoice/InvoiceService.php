@@ -14,7 +14,7 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Inventory\AdjustProductInventory;
-use App\Jobs\Invoice\CreateXInvoice;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
@@ -451,7 +451,7 @@ class InvoiceService
                     (new CreateEntityPdf($invitation))->handle();
                     if ($invitation instanceof InvoiceInvitation)
                     {
-                    (new CreateXInvoice($invitation->invoice, true))->handle();
+                    (new CreateEInvoice($invitation->invoice, true))->handle();
                     }
                 });
 
@@ -462,7 +462,7 @@ class InvoiceService
                 CreateEntityPdf::dispatch($invitation);
                 if ($invitation instanceof InvoiceInvitation)
                 {
-                    CreateXInvoice::dispatch($invitation->invoice, true);
+                    CreateEInvoice::dispatch($invitation->invoice, true);
                 }
             });
         } catch (\Exception $e) {

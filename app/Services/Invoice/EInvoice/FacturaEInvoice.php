@@ -11,12 +11,12 @@
 
 namespace App\Services\Invoice\EInvoice;
 
-use App\Models\Client;
 use App\Models\Invoice;
 use josemmo\Facturae\Facturae;
 use App\Services\AbstractService;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
+use Illuminate\Support\Facades\Storage;
 
 class FacturaEInvoice extends AbstractService
 {
@@ -111,15 +111,16 @@ class FacturaEInvoice extends AbstractService
     // FacturaeCentre::ROLE_B2B_ISSUER	Issuer in FACeB2B
 
 
-    public function __construct(public Invoice $invoice)
+    public function __construct(public Invoice $invoice, private mixed $profile)
     {
     }
 
     public function run()
     {
+
         $this->calc = $this->invoice->calc();
 
-        $this->fac = new Facturae();
+        $this->fac = new Facturae($this->profile);
         $this->fac->setNumber('', $this->invoice->number);
         $this->fac->setIssueDate($this->invoice->date);
         $this->fac->setPrecision(Facturae::PRECISION_LINE);
@@ -130,12 +131,22 @@ class FacturaEInvoice extends AbstractService
              ->setDiscount()
              ->setPoNumber();
 
-        return $this->fac->export();
+
+        $disk = config('filesystems.default');
+
+        if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
+            Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
+        }
+
+        $this->fac->export(Storage::disk($disk)->path($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig")));
+
+        return $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig");
+
     }
 
     private function setPoNumber(): self
     {
-        if(strlen($this->invoice->po_number > 1)){
+        if(strlen($this->invoice->po_number > 1)) {
             $this->fac->setReferences($this->invoice->po_number);
         }
 
@@ -154,8 +165,7 @@ class FacturaEInvoice extends AbstractService
     private function buildItems(): self
     {
 
-        foreach($this->invoice->line_items as $item)
-        {
+        foreach($this->invoice->line_items as $item) {
             $this->fac->addItem(new FacturaeItem([
                 'description' => $item->notes,
                 'quantity' => $item->quantity,

@@ -12,7 +12,7 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
-use App\Jobs\Invoice\CreateXInvoice;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -213,7 +213,7 @@ class CreateEntityPdf implements ShouldQueue
             }
         }
         if ($this->entity_string == "invoice" && $this->company->enable_e_invoice){
-            (new CreateXInvoice($this->entity, true))->handle();
+            (new CreateEInvoice($this->entity, true))->handle();
         }
         $this->invitation = null;
         $this->entity = null;

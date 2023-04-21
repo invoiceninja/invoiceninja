@@ -11,7 +11,7 @@
 
 namespace App\Services\Email;
 
-use App\Jobs\Invoice\CreateXInvoice;
+use App\Jobs\Invoice\CreateEInvoice;
 use App\Services\Invoice\GetInvoiceXInvoice;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateRawPdf;
@@ -301,7 +301,7 @@ class EmailDefaults
             if ($this->email->email_object->company->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
                 $tempfile = tmpfile();
                 file_put_contents(stream_get_meta_data($tempfile)['uri'], $pdf);
-                $xinvoice_path = (new CreateXInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
+                $xinvoice_path = (new CreateEInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents(stream_get_meta_data($tempfile)['uri'])), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-xinvoice.xml"]]);
             }
