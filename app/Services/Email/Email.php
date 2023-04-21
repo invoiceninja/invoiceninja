@@ -247,7 +247,7 @@ class Email implements ShouldQueue
             
             $mailer->send($this->mailable);
 
-            Cache::increment($this->company->account->key);
+            Cache::increment("email_quota".$this->company->account->key);
 
             LightLogs::create(new EmailSuccess($this->company->company_key))
                      ->send();
