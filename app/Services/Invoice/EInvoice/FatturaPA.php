@@ -66,7 +66,7 @@ class FatturaPA extends AbstractService
 
     public function run()
     {
-
+        return $this->addHeader()->getXml();
     }
     
    public function addHeader() {
@@ -108,11 +108,11 @@ class FatturaPA extends AbstractService
         }
         $lineItem = $this->xml->FatturaElettronicaBody->DatiBeniServizi->addChild('DettaglioLinee');
         $lineItem->addChild('NumeroLinea', $data['NumeroLinea']);
-        $lineItem->addChild('Descrizione', $data['Descrizione']);
-        $lineItem->addChild('Quantita', $data['Quantita']);
-        $lineItem->addChild('PrezzoUnitario', $data['PrezzoUnitario']);
-        $lineItem->addChild('PrezzoTotale', $data['PrezzoTotale']);
-        $lineItem->addChild('AliquotaIVA', $data['AliquotaIVA']);
+        $lineItem->addChild('Descrizione', $data['notes']);
+        $lineItem->addChild('Quantita', $data['quantity']);
+        $lineItem->addChild('PrezzoUnitario', $data['cost']);
+        $lineItem->addChild('PrezzoTotale', $data['line_total']);
+        $lineItem->addChild('AliquotaIVA', $data['tax_rate1']);
 
         if (isset($data['UnitaMisura'])) {
             $lineItem->addChild('UnitaMisura', $data['UnitaMisura']);
