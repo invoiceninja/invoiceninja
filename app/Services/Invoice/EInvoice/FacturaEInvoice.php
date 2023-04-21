@@ -11,10 +11,9 @@
 
 namespace App\Services\Invoice\EInvoice;
 
-use App\Models\Client;
 use App\Models\Invoice;
-use josemmo\Facturae\Facturae;
 use App\Services\AbstractService;
+use josemmo\Facturae\Facturae;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 
@@ -135,7 +134,7 @@ class FacturaEInvoice extends AbstractService
 
     private function setPoNumber(): self
     {
-        if(strlen($this->invoice->po_number > 1)){
+        if(strlen($this->invoice->po_number > 1)) {
             $this->fac->setReferences($this->invoice->po_number);
         }
 
@@ -154,8 +153,7 @@ class FacturaEInvoice extends AbstractService
     private function buildItems(): self
     {
 
-        foreach($this->invoice->line_items as $item)
-        {
+        foreach($this->invoice->line_items as $item) {
             $this->fac->addItem(new FacturaeItem([
                 'description' => $item->notes,
                 'quantity' => $item->quantity,
