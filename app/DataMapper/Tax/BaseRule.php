@@ -192,9 +192,7 @@ class BaseRule implements RuleInterface
 
     public function tax($item = null): self
     {
-        nlog($this->client_region);
-        nlog($this->seller_region);
-
+    
         if ($this->client->is_tax_exempt) {
             return $this->taxExempt();
         } elseif($this->client_region == $this->seller_region && $this->isTaxableRegion()) {
