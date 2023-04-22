@@ -136,7 +136,7 @@ class NinjaMailerJob implements ShouldQueue
                 ->send($this->nmo->mailable);
 
             /* Count the amount of emails sent across all the users accounts */
-            Cache::increment($this->company->account->key);
+            Cache::increment("email_quota".$this->company->account->key);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->send();
@@ -486,8 +486,13 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
+        /* Always send regardless */ 
+        if($this->override) {
+            return false;
+        }
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled && !$this->override) {
+        if ($this->company->is_disabled) {
             return true;
         }
 

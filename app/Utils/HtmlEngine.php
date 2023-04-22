@@ -155,7 +155,7 @@ class HtmlEngine
         $data['$exchange_rate'] = ['value' => $this->entity->exchange_rate ?: ' ', 'label' => ctrans('texts.exchange_rate')];
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
+            $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$invoice'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number_short')];
@@ -212,7 +212,7 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'quote') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.quote')];
+            $data['$entity'] = ['value' => ctrans('texts.quote'), 'label' => ctrans('texts.quote')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.quote_terms')];
@@ -256,7 +256,7 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'credit') {
-            $data['$entity'] = ['value' => '', 'label' => ctrans('texts.credit')];
+            $data['$entity'] = ['value' => ctrans('texts.credit'), 'label' => ctrans('texts.credit')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number_short')];
             $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms ?: ''), $this->client) ?: '', 'label' => ctrans('texts.credit_terms')];

@@ -550,7 +550,7 @@ class Account extends BaseModel
             $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 10;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 3;
         }
 
         return min($limit, 5000);

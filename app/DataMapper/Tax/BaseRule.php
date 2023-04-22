@@ -12,6 +12,7 @@
 namespace App\DataMapper\Tax;
 
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Product;
 use App\DataMapper\Tax\ZipTax\Response;
 
@@ -117,6 +118,8 @@ class BaseRule implements RuleInterface
 
     protected ?Response $tax_data;
 
+    public ?Invoice $invoice;
+    
     public function __construct()
     {
     }
@@ -126,18 +129,29 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setClient(Client $client): self
+    public function setInvoice(Invoice $invoice): self
     {
-        $this->client = $client;
+        $this->invoice = $invoice;
+        
+        $this->configTaxData();
+
+        $this->client = $invoice->client;
+
+        $this->tax_data = new Response($this->invoice->tax_data);
 
         $this->resolveRegions();
+
 
         return $this;
     }
 
-    public function setTaxData(Response $tax_data): self
+    private function configTaxData(): self
     {
-        $this->tax_data = $tax_data;
+        if($this->invoice->tax_data && $this->invoice->status_id > 1)
+            return $this;
+
+        //determine if we are taxing locally or if we are taxing globally
+        // $this->invoice->tax_data = $this->invoice->client->tax_data;
 
         return $this;
     }
@@ -176,10 +190,10 @@ class BaseRule implements RuleInterface
             return $this;
 
         }
-        elseif($this->client_region == 'AU'){
+        elseif($this->client_region == 'AU'){ //these are defaults and are only stubbed out for now, for AU we can actually remove these
             
-            $this->tax_rate1 = 10;
-            $this->tax_name1 = 'GST';
+            $this->tax_rate1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_rate;
+            $this->tax_name1 = $this->client->company->tax_data->regions->AU->subregions->AU->tax_name;
 
             return $this;
         }

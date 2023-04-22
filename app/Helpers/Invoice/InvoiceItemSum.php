@@ -146,12 +146,9 @@ class InvoiceItemSum
             
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
-            $tax_data = new Response($this->invoice?->tax_data);
-
             $this->rule = new $class();
             $this->rule
-                 ->setTaxData($tax_data)
-                 ->setClient($this->client)
+                 ->setInvoice($this->invoice)
                  ->init();
                  
             $this->calc_tax = true;

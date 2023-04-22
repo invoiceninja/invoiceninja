@@ -579,7 +579,7 @@ class RecurringInvoiceTest extends TestCase
             'user_id' => $this->user->id,
             'cost' => 10,
             'price' => 10,
-            'product_key' => $this->faker->word,
+            'product_key' => $this->faker->unique()->word(),
         ]);
 
         $p2 = Product::factory()->create([
@@ -587,7 +587,7 @@ class RecurringInvoiceTest extends TestCase
             'user_id' => $this->user->id,
             'cost' => 20,
             'price' => 20,
-            'product_key' => $this->faker->word,
+            'product_key' => $this->faker->unique()->word(),
         ]);
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->company->id, $this->user->id);
@@ -627,7 +627,7 @@ class RecurringInvoiceTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/recurring_invoices?product_key=' . $this->faker->word)
+        ])->get('/api/v1/recurring_invoices?product_key=' . $this->faker->unique()->word())
             ->assertStatus(200);
 
         $arr = $response->json();

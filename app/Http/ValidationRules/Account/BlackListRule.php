@@ -30,6 +30,7 @@ class BlackListRule implements Rule
         'sharklasers.com',
         '100072641.help',
         'yandex.com',
+        'bloheyz.com',
     ];
 
     /**

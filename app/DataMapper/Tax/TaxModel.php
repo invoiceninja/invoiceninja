@@ -14,19 +14,19 @@ namespace App\DataMapper\Tax;
 class TaxModel 
 {
     
-    /** @var mixed $seller_subregion */
+    /** @var string $seller_subregion */
     public string $seller_subregion = 'CA';
     
-    /** @var mixed $version */
+    /** @var string $version */
     public string $version = 'alpha';
     
-    /** @var mixed $regions */
+    /** @var object $regions */
     public object $regions;
     
     /**
      * __construct
      *
-     * @param  mixed $model
+     * @param  TaxModel $model
      * @return void
      */
     public function __construct(public ?TaxModel $model = null)
@@ -42,9 +42,9 @@ class TaxModel
     /**
      * Initializes the rules and builds any required data.
      *
-     * @return void
+     * @return object
      */
-    public function init()
+    public function init(): object
     {
         $this->regions = new \stdClass();
         $this->regions->US = new \stdClass();

@@ -11,18 +11,18 @@
 
 namespace Tests\Unit\Tax;
 
-use Tests\TestCase;
+use App\DataMapper\CompanySettings;
+use App\DataMapper\Tax\DE\Rule;
+use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\Tax\ZipTax\Response;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use Tests\MockAccountData;
-use App\DataMapper\Tax\DE\Rule;
-use App\DataMapper\Tax\TaxModel;
-use App\DataMapper\CompanySettings;
-use App\DataMapper\Tax\ZipTax\Response;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
+use Tests\TestCase;
 
 /**
  * @test App\Services\Tax\Providers\EuTax
@@ -338,8 +338,18 @@ class EuTaxTest extends TestCase
             'has_valid_vat_number' => false,
         ]);
 
+        $invoice = Invoice::factory()->create([
+        'company_id' => $company->id,
+        'client_id' => $client->id,
+        'user_id' => $this->user->id,
+        'status_id' => Invoice::STATUS_SENT,
+        'tax_data' => new Response([
+                    'geoState' => 'CA',
+        ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
 
         $this->assertEquals('EU', $process->seller_region);
@@ -382,12 +392,21 @@ class EuTaxTest extends TestCase
             'has_valid_vat_number' => false,
         ]);
 
+        $invoice = Invoice::factory()->create([
+        'company_id' => $company->id,
+        'client_id' => $client->id,
+        'user_id' => $this->user->id,
+        'status_id' => Invoice::STATUS_SENT,
+        'tax_data' => new Response([
+                    'geoState' => 'CA',
+        ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
 
-
-$this->assertEquals('EU', $process->seller_region);
+        $this->assertEquals('EU', $process->seller_region);
 
         $this->assertEquals('BE', $process->client_subregion);
 
@@ -428,11 +447,18 @@ $this->assertEquals('EU', $process->seller_region);
             'has_valid_vat_number' => false,
         ]);
 
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
+
         $process = new Rule();
-        $process->setTaxData(new Response([
-            'geoState' => 'CA',
-        ]));
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
 
         $this->assertEquals('EU', $process->seller_region);
@@ -476,8 +502,18 @@ $this->assertEquals('EU', $process->seller_region);
             'has_valid_vat_number' => false,
         ]);
 
+        $invoice = Invoice::factory()->create([
+        'company_id' => $company->id,
+        'client_id' => $client->id,
+        'user_id' => $this->user->id,
+        'status_id' => Invoice::STATUS_SENT,
+        'tax_data' => new Response([
+                    'geoState' => 'CA',
+        ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
 
         $this->assertInstanceOf(Rule::class, $process);
@@ -517,9 +553,20 @@ $this->assertEquals('EU', $process->seller_region);
             'has_valid_vat_number' => true,
         ]);
 
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
+
 
         $this->assertInstanceOf(Rule::class, $process);
 
@@ -556,10 +603,21 @@ $this->assertEquals('EU', $process->seller_region);
             'shipping_country_id' => 56,
             'has_valid_vat_number' => true,
         ]);
+        
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
 
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
+
 
         $this->assertInstanceOf(Rule::class, $process);
 
@@ -597,9 +655,20 @@ $this->assertEquals('EU', $process->seller_region);
             'is_tax_exempt' => true,
         ]);
 
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
+
 
         $this->assertInstanceOf(Rule::class, $process);
 
@@ -637,8 +706,18 @@ $this->assertEquals('EU', $process->seller_region);
             'is_tax_exempt' => true,
         ]);
 
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
+
         $process = new Rule();
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
 
         $this->assertInstanceOf(Rule::class, $process);
@@ -676,10 +755,20 @@ $this->assertEquals('EU', $process->seller_region);
             'is_tax_exempt' => true,
         ]);
 
+        $invoice = Invoice::factory()->create([
+           'company_id' => $company->id,
+           'client_id' => $client->id,
+           'user_id' => $this->user->id,
+           'status_id' => Invoice::STATUS_SENT,
+           'tax_data' => new Response([
+                    'geoState' => 'CA',
+           ]),
+        ]);
+
         $process = new Rule();
-        $process->setTaxData(new Response([]));
-        $process->setClient($client);
+        $process->setInvoice($invoice);
         $process->init();
+
 
         $this->assertInstanceOf(Rule::class, $process);
 
