@@ -133,12 +133,25 @@ class BaseRule implements RuleInterface
     {
         $this->invoice = $invoice;
         
+        $this->configTaxData();
+
         $this->client = $invoice->client;
 
-        $this->tax_data = new Response($invoice?->tax_data);
+        $this->tax_data = new Response($this->invoice->tax_data);
 
         $this->resolveRegions();
 
+
+        return $this;
+    }
+
+    private function configTaxData(): self
+    {
+        if($this->invoice->tax_data && $this->invoice->status_id > 1)
+            return $this;
+
+        //determine if we are taxing locally or if we are taxing globally
+        // $this->invoice->tax_data = $this->invoice->client->tax_data;
 
         return $this;
     }
