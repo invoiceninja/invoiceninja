@@ -486,8 +486,13 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
+        /* Always send regardless */ 
+        if($this->override) {
+            return false;
+        }
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled && !$this->override) {
+        if ($this->company->is_disabled) {
             return true;
         }
 
