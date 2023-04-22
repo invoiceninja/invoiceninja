@@ -190,7 +190,7 @@ class BaseRepository
             $this->new_model = true;
 
             if (is_array($model->line_items) && !($model instanceof RecurringInvoice)) {
-                $model->line_items = (collect($model->line_items))->map(function ($item) use ($model, $client) {
+                $model->line_items = (collect($model->line_items))->map(function ($item) use ($client) {
                     $item->notes = Helpers::processReservedKeywords($item->notes, $client);
 
                     return $item;
