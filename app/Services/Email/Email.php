@@ -329,8 +329,13 @@ class Email implements ShouldQueue
      */
     public function preFlightChecksFail(): bool
     {
+        /* Always send if disabled */
+        if($this->override) {
+            return false;
+        }
+
         /* If we are migrating data we don't want to fire any emails */
-        if ($this->company->is_disabled && !$this->override) {
+        if ($this->company->is_disabled) {
             return true;
         }
 
