@@ -140,10 +140,6 @@ class EmailController extends BaseController
             $mo->cc[] = new Address($request->cc_email);
         }
 
-        // if ($entity == 'purchaseOrder' || $entity == 'purchase_order' || $template == 'purchase_order' || $entity == 'App\Models\PurchaseOrder') {
-        //     return $this->sendPurchaseOrder($entity_obj, $data, $template);
-        // }
-
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_obj, $template, $mo) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
