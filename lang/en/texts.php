@@ -5062,6 +5062,7 @@ $LANG = array(
     'here' => 'here',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
 );
 
 
