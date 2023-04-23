@@ -449,22 +449,26 @@ class InvoiceService
             if ($force) {
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
-                    if ($invitation instanceof InvoiceInvitation)
+
+                    if ($invitation->company->enable_e_invoice && $invitation instanceof InvoiceInvitation)
                     {
-                    (new CreateEInvoice($invitation->invoice, true))->handle();
+                        (new CreateEInvoice($invitation->invoice, true))->handle();
                     }
+
                 });
 
                 return $this;
             }
 
-            $this->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
-                if ($invitation instanceof InvoiceInvitation)
-                {
-                    CreateEInvoice::dispatch($invitation->invoice, true);
-                }
-            });
+            if($this->invoice->company->enable_e_invoice) {
+                $this->invoice->invitations->each(function ($invitation) {
+                    CreateEntityPdf::dispatch($invitation);
+                    if ($invitation instanceof InvoiceInvitation) {
+                        CreateEInvoice::dispatch($invitation->invoice, true);
+                    }
+                });
+            }
+
         } catch (\Exception $e) {
             nlog('failed creating invoices in Touch PDF');
         }
