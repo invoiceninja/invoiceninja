@@ -158,15 +158,21 @@ class ZugferdEInvoice extends AbstractService
             $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
         }
 
+
         foreach ($invoicing_data->getTaxMap() as $item) {
-            $tax = explode(" ", $item["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $item["total"] / (explode("%", end($tax))[0] / 100), $item["total"], explode("%", end($tax))[0]);
+            
+            $tax_name = explode(" ", $item["name"]);
+            $tax_rate = (explode("%", end($tax_name))[0] / 100);
+            
+            $total_tax = $tax_rate == 0 ? 0 : $item["total"] / $tax_rate;
+
+            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $total_tax, $item["total"], explode("%", end($tax_name))[0]);
             // TODO: Add correct tax type within getTaxType
         }
 
         if (!empty($globaltax && isset($invoicing_data->getTotalTaxMap()[$globaltax]["name"]))) {
-            $tax = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax))[0]);
+            $tax_name = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
+            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax_name))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax_name))[0]);
             // TODO: Add correct tax type within getTaxType
         }
 

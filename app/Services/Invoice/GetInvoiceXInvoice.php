@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GetInvoiceXInvoice extends AbstractService
 {
-    public function __construct(public Invoice $invoice, public ClientContact $contact = null)
+    public function __construct(public Invoice $invoice, public ?ClientContact $contact = null)
     {
     }
 
