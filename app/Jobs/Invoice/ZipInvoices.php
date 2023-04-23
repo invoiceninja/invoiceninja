@@ -62,11 +62,8 @@ class ZipInvoices implements ShouldQueue
      * Execute the job.
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
-    public function handle()
+    public function handle(): void
     {
         MultiDB::setDb($this->company->db);
 
@@ -78,22 +75,25 @@ class ZipInvoices implements ShouldQueue
 
         $this->invoices->each(function ($invoice) {
             (new CreateEntityPdf($invoice->invitations()->first()))->handle();
-            if ($this->company->use_xinvoice){
+            if ($this->company->enable_e_invoice){
                 (new CreateEInvoice($invoice, false))->handle();
             }
         });
 
         try {
+
             foreach ($this->invoices as $invoice) {
                 $file = $invoice->service()->getInvoicePdf();
-                $xinvoice = $invoice->service()->getXInvoice();
                 $zip_file_name = basename($file);
-                $xinvoice_zip_file_name = basename($xinvoice);
-                $zipFile->addFromString($zip_file_name, Storage::get($file))
-                    ->addDir($xinvoice_zip_file_name, Storage::get($xinvoice));
+                $zipFile->addFromString($zip_file_name, Storage::get($file));
+            }
 
-                //$download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
-                //$zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
+            if($this->company->enable_e_invoice){
+                foreach ($this->invoices as $invoice) {
+                    $xinvoice = $invoice->service()->getEInvoice();
+                    $xinvoice_zip_file_name = basename($xinvoice);
+                    $zipFile->addFromString($xinvoice_zip_file_name, Storage::get($xinvoice));
+                }
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());

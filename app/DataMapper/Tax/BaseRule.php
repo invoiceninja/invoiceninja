@@ -118,7 +118,7 @@ class BaseRule implements RuleInterface
 
     protected ?Response $tax_data;
 
-    public ?Invoice $invoice;
+    public mixed $invoice;
     
     public function __construct()
     {
@@ -129,7 +129,7 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setInvoice(Invoice $invoice): self
+    public function setInvoice(mixed $invoice): self
     {
         $this->invoice = $invoice;
         
