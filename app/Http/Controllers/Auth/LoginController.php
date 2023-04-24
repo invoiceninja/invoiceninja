@@ -12,34 +12,35 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Google_Client;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Account;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
+use Microsoft\Graph\Model;
+use App\Models\CompanyUser;
+use App\Models\CompanyToken;
+use Illuminate\Http\Request;
+use App\Libraries\OAuth\OAuth;
+use App\Events\User\UserLoggedIn;
+use PragmaRX\Google2FA\Google2FA;
+use App\Jobs\Account\CreateAccount;
+use Illuminate\Support\Facades\Auth;
+use App\Utils\Traits\User\LoginCache;
+use Illuminate\Support\Facades\Cache;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Controllers\BaseController;
+use App\Jobs\Company\CreateCompanyToken;
+use Laravel\Socialite\Facades\Socialite;
+use App\Http\Requests\Login\LoginRequest;
+use App\Libraries\OAuth\Providers\Google;
+use Illuminate\Database\Eloquent\Builder;
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
-use App\Events\User\UserLoggedIn;
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\Login\LoginRequest;
-use App\Jobs\Account\CreateAccount;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Libraries\MultiDB;
-use App\Libraries\OAuth\OAuth;
-use App\Libraries\OAuth\Providers\Google;
-use App\Models\Account;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\User;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\User\LoginCache;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Utils\TruthSource;
-use Google_Client;
-use Illuminate\Database\Eloquent\Builder;
+use App\Transformers\CompanyUserTransformer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
-use Microsoft\Graph\Model;
-use PragmaRX\Google2FA\Google2FA;
-use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
 {
@@ -610,6 +611,9 @@ class LoginController extends BaseController
             $parameters = ['response_type' => 'code', 'redirect_uri' => config('ninja.app_url') . "/auth/microsoft"];
         }
 
+        if(request()->hasHeader('X-REACT'))
+            Cache::put("react_redir:".auth()->user()->account->key, 'true', 300);
+
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
@@ -662,7 +666,14 @@ class LoginController extends BaseController
             nlog('user not found for oauth');
         }
 
-        return redirect('/#/');
+        $redirect_url = '/#/';
+
+        $request_from_react = Cache::pull("react_redir:".auth()->user()->account->key);
+
+        if($request_from_react)
+            $redirect_url = 'https://app.invoicing.co/#/settings/user_details/connect';
+
+        return redirect($redirect_url);
     }
 
     public function handleMicrosoftProviderCallback($provider = 'microsoft')
