@@ -399,7 +399,7 @@ class EuTaxTest extends TestCase
         'status_id' => Invoice::STATUS_SENT,
         'tax_data' => new Response([
                     'geoState' => 'CA',
-        ]),
+            ]),
         ]);
 
         $process = new Rule();

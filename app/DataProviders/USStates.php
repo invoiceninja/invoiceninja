@@ -33868,7 +33868,7 @@ class USStates
         return self::$states;
     }
 
-    public static function getState(string $zip): string
+    public static function getState(?string $zip = '90210'): string
     {
         if(isset(self::$zip_code_map[$zip]))
             return self::$zip_code_map[$zip];

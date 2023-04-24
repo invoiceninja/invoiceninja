@@ -90,12 +90,18 @@ use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
 use App\Http\Controllers\Reports\ActivityReportController;
+use App\Http\Controllers\Reports\ARDetailReportController;
 use App\Http\Controllers\Reports\DocumentReportController;
+use App\Http\Controllers\Reports\ARSummaryReportController;
 use App\Http\Controllers\Reports\QuoteItemReportController;
+use App\Http\Controllers\Reports\UserSalesReportController;
+use App\Http\Controllers\Reports\TaxSummaryReportController;
 use App\Http\Controllers\Support\Messages\SendingController;
+use App\Http\Controllers\Reports\ClientSalesReportController;
 use App\Http\Controllers\Reports\InvoiceItemReportController;
 use App\Http\Controllers\PaymentNotificationWebhookController;
 use App\Http\Controllers\Reports\ProductSalesReportController;
+use App\Http\Controllers\Reports\ClientBalanceReportController;
 use App\Http\Controllers\Reports\ClientContactReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 
@@ -285,7 +291,14 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/product_sales', ProductSalesReportController::class);
     Route::post('reports/tasks', TaskReportController::class);
     Route::post('reports/profitloss', ProfitAndLossController::class);
-
+    
+    Route::post('reports/ar_detail_report', ARDetailReportController::class);
+    Route::post('reports/ar_summary_report', ARSummaryReportController::class);
+    Route::post('reports/client_balance_report', ClientBalanceReportController::class);
+    Route::post('reports/client_sales_report', ClientSalesReportController::class);
+    Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
+    Route::post('reports/user_sales_report', UserSalesReportController::class);
+    
     Route::resource('task_schedulers', TaskSchedulerController::class);
     Route::post('task_schedulers/bulk', [TaskSchedulerController::class, 'bulk'])->name('task_schedulers.bulk');
 

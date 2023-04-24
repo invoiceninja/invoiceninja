@@ -5063,6 +5063,8 @@ $LANG = array(
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
     'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+
 );
 
 
