@@ -33873,7 +33873,7 @@ class USStates
         if(isset(self::$zip_code_map[$zip]))
             return self::$zip_code_map[$zip];
 
-        $prefix_state = self::getStateFromThreeDigitPrefix($zip)
+        $prefix_state = self::getStateFromThreeDigitPrefix($zip);
 
         if($prefix_state)
             return $prefix_state;
