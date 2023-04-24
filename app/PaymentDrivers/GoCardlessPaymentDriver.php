@@ -385,9 +385,6 @@ class GoCardlessPaymentDriver extends BaseDriver
         );
     }
 
-
-
-
     public function ensureMandateIsReady($token)
     {
         try {
