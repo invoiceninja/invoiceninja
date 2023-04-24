@@ -162,6 +162,7 @@ class BaseRule implements RuleInterface
         if(strlen($this->invoice->tax_data?->originDestination) == 0 && $this->client->company->tax_data->seller_subregion != $this->client_subregion) {
             $tax_data = $this->invoice->tax_data; 
             $tax_data->originDestination = "D";
+            $tax_data->geoState = $this->client_subregion;
             $this->invoice->tax_data = $tax_data;
             $this->invoice->saveQuietly();
         }

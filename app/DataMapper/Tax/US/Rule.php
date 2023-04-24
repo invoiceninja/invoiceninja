@@ -143,9 +143,24 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function default(): self
     {
-                
+
+        if($this->tax_data?->stateSalesTax == 0) {
+
+            if($this->tax_data->originDestination == "O"){
+                $tax_region = $this->client->company->tax_data->seller_subregion;
+                $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->US->subregions->{$tax_region}->tax_rate;
+                $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+            } else {
+                $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
+                $this->tax_name1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
+            }
+
+            return $this;
+        }
+
         $this->tax_rate1 = $this->tax_data->taxSales * 100;
         $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
+
 
         return $this;
     }
