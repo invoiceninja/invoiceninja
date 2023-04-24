@@ -36,6 +36,7 @@ class ClientBalanceReport extends BaseExport
         'client_name',
         'client_number',
         'id_number',
+        'invoices',
         'invoice_balance',
         'credit_balance',
     ];
@@ -68,7 +69,7 @@ class ClientBalanceReport extends BaseExport
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.customer_balance_report')]);
+        $this->csv->insertOne([ctrans('texts.client_balance_report')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
 
         if (count($this->input['report_keys']) == 0) {
