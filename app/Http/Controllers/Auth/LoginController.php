@@ -671,7 +671,7 @@ class LoginController extends BaseController
         $request_from_react = Cache::pull("react_redir:".auth()->user()->account->key);
 
         if($request_from_react)
-            $redirect_url = 'https://app.invoicing.co/#/settings/user_details/connect';
+            $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
 
         return redirect($redirect_url);
     }
