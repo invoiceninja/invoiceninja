@@ -148,7 +148,7 @@ class InvoiceItemSum
 
             $this->rule = new $class();
             $this->rule
-                 ->setInvoice($this->invoice)
+                 ->setEntity($this->invoice)
                  ->init();
                  
             $this->calc_tax = true;

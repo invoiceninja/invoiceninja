@@ -22,6 +22,7 @@ use App\Services\Report\ARDetailReport;
 use App\Services\Report\UserSalesReport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
@@ -44,6 +45,7 @@ class ARDetailReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
+
     }
 
     public $company;

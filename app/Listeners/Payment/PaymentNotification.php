@@ -56,8 +56,39 @@ class PaymentNotification implements ShouldQueue
             $this->trackRevenue($event);
         }
 
-        if($payment->is_manual)
+        /* Manual Payment Notifications */
+        if($payment->is_manual){
+
+            foreach ($payment->company->company_users as $company_user) {
+                $user = $company_user->user;
+
+                $methods = $this->findUserEntityNotificationType(
+                    $payment,
+                    $company_user,
+                    [
+                    'payment_manual',
+                    'payment_manual_all',
+                    'payment_manual_user',
+                    'all_notifications', ]
+                );
+
+                if (($key = array_search('mail', $methods)) !== false) {
+                    unset($methods[$key]);
+
+                    $nmo = new NinjaMailerObject;
+                    $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment))->build());
+                    $nmo->company = $event->company;
+                    $nmo->settings = $event->company->settings;
+                    $nmo->to_user = $user;
+
+                    (new NinjaMailerJob($nmo))->handle();
+
+                    $nmo = null;
+                }
+            }
+
             return;
+        }
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {

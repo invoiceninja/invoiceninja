@@ -349,7 +349,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
         $this->assertEquals('EU', $process->seller_region);
@@ -399,11 +399,11 @@ class EuTaxTest extends TestCase
         'status_id' => Invoice::STATUS_SENT,
         'tax_data' => new Response([
                     'geoState' => 'CA',
-        ]),
+            ]),
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
         $this->assertEquals('EU', $process->seller_region);
@@ -458,7 +458,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
         $this->assertEquals('EU', $process->seller_region);
@@ -513,7 +513,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
         $this->assertInstanceOf(Rule::class, $process);
@@ -564,7 +564,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
 
@@ -615,7 +615,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
 
@@ -666,7 +666,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
 
@@ -717,7 +717,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
         $this->assertInstanceOf(Rule::class, $process);
@@ -766,7 +766,7 @@ class EuTaxTest extends TestCase
         ]);
 
         $process = new Rule();
-        $process->setInvoice($invoice);
+        $process->setEntity($invoice);
         $process->init();
 
 

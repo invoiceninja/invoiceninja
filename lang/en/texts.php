@@ -5062,6 +5062,14 @@ $LANG = array(
     'here' => 'here',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

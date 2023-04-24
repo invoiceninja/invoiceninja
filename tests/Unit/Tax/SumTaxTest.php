@@ -102,10 +102,13 @@ class SumTaxTest extends TestCase
         $this->company->tax_data = $tax_data;
         $this->company->save();
 
+        $tax_data = new TaxData($this->response);
+
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'country_id' => 840,
+            'tax_data' => $tax_data,
         ]);
 
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
@@ -114,7 +117,7 @@ class SumTaxTest extends TestCase
 
         $line_items = [];
 
-        $invoice->tax_data = new TaxData($this->response);
+        $invoice->tax_data = $tax_data;
 
         $line_item = new InvoiceItem();
         $line_item->quantity = 1;
@@ -130,7 +133,6 @@ class SumTaxTest extends TestCase
         $invoice = $invoice->calc()->getInvoice();
 
         $line_items = $invoice->line_items;
-
 
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals("", $line_items[0]->tax_name1);
@@ -152,19 +154,23 @@ class SumTaxTest extends TestCase
         $this->company->tax_data = $tax_data;
         $this->company->save();
 
-        $client = Client::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'country_id' => 840,
-        ]);
+$tax_data = new TaxData($this->response);
 
-        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
-        $invoice->client_id = $client->id;
-        $invoice->uses_inclusive_taxes = false;
+$client = Client::factory()->create([
+    'user_id' => $this->user->id,
+    'company_id' => $this->company->id,
+    'country_id' => 840,
+    'tax_data' => $tax_data,
+]);
 
-        $line_items = [];
+$invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+$invoice->client_id = $client->id;
+$invoice->uses_inclusive_taxes = false;
 
-        $invoice->tax_data = new TaxData($this->response);
+$line_items = [];
+
+$invoice->tax_data = $tax_data;
+
         
         $line_item = new InvoiceItem;
         $line_item->quantity = 1;
