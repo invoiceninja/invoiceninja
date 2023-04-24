@@ -22,47 +22,28 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 
 class ZugferdEInvoice extends AbstractService
 {
-    
+
     public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
     {
     }
 
     public function run()
     {
-         
+
         $company = $this->invoice->company;
         $client = $this->invoice->client;
         $profile = $client->getSetting('e_invoice_type');
 
-        switch ($profile) {
-            case "EN16931":
-                $profile = ZugferdProfiles::PROFILE_EN16931;
-                break;
-            case "XInvoice_2_2":
-                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2_2;
-                break;
-            case "XInvoice_2_1":
-                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2_1;
-                break;
-            case "XInvoice_2_0":
-                $profile = ZugferdProfiles::PROFILE_XRECHNUNG_2;
-                break;
-            case "XInvoice_1_0":
-                $profile = ZugferdProfiles::PROFILE_XRECHNUNG;
-                break;
-            case "XInvoice-Extended":
-                $profile = ZugferdProfiles::PROFILE_EXTENDED;
-                break;
-            case "XInvoice-BasicWL":
-                $profile = ZugferdProfiles::PROFILE_BASICWL;
-                break;
-            case "XInvoice-Basic":
-                $profile = ZugferdProfiles::PROFILE_BASIC;
-                break;
-            default:
-                $profile = ZugferdProfiles::PROFILE_EN16931;
-                break;
-        }
+        $profile = match ($profile) {
+            "XInvoice_2_2" => ZugferdProfiles::PROFILE_XRECHNUNG_2_2,
+            "XInvoice_2_1" => ZugferdProfiles::PROFILE_XRECHNUNG_2_1,
+            "XInvoice_2_0" => ZugferdProfiles::PROFILE_XRECHNUNG_2,
+            "XInvoice_1_0" => ZugferdProfiles::PROFILE_XRECHNUNG,
+            "XInvoice-Extended" => ZugferdProfiles::PROFILE_EXTENDED,
+            "XInvoice-BasicWL" => ZugferdProfiles::PROFILE_BASICWL,
+            "XInvoice-Basic" => ZugferdProfiles::PROFILE_BASIC,
+            default => ZugferdProfiles::PROFILE_EN16931,
+        };
 
 
         $xrechnung = ZugferdDocumentBuilder::CreateNew($profile);
@@ -76,23 +57,25 @@ class ZugferdEInvoice extends AbstractService
             ->setDocumentBuyer($client->name, $client->number)
             ->setDocumentBuyerAddress($client->address1, "", "", $client->postal_code, $client->city, $client->country->iso_3166_2)
             ->setDocumentBuyerContact($client->primary_contact()->first()->first_name . " " . $client->primary_contact()->first()->last_name, "", $client->primary_contact()->first()->phone, "", $client->primary_contact()->first()->email)
-            ->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state)
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->invoice->date)->diff(date_create($this->invoice->due_date))->format("%d"), 'paydate' => $this->invoice->due_date]));
-        
+
             if (!empty($this->invoice->public_notes)) {
             $xrechnung->addDocumentNote($this->invoice->public_notes);
         }
-        
+
         if (!empty($this->invoice->po_number)) {
             $xrechnung->setDocumentBuyerOrderReferencedDocument($this->invoice->po_number);
         }
-        
+
         if (empty($client->routing_id)) {
             $xrechnung->setDocumentBuyerReference(ctrans("texts.xinvoice_no_buyers_reference"));
         } else {
             $xrechnung->setDocumentBuyerReference($client->routing_id);
         }
-        
+        if (!empty($client->shipping_address1)){
+            $xrechnung->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
+        }
+
         $xrechnung->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
@@ -160,10 +143,10 @@ class ZugferdEInvoice extends AbstractService
 
 
         foreach ($invoicing_data->getTaxMap() as $item) {
-            
+
             $tax_name = explode(" ", $item["name"]);
             $tax_rate = (explode("%", end($tax_name))[0] / 100);
-            
+
             $total_tax = $tax_rate == 0 ? 0 : $item["total"] / $tax_rate;
 
             $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $total_tax, $item["total"], explode("%", end($tax_name))[0]);
@@ -177,11 +160,11 @@ class ZugferdEInvoice extends AbstractService
         }
 
         $disk = config('filesystems.default');
-        
+
         if (!Storage::disk($disk)->exists($client->e_invoice_filepath($this->invoice->invitations->first()))) {
             Storage::makeDirectory($client->e_invoice_filepath($this->invoice->invitations->first()));
         }
-        
+
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml")));
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation
 
