@@ -258,6 +258,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value4',
         'is_deleted',
         'oauth_user_token',
+        'oauth_user_refresh_token',
     ];
 
     /**

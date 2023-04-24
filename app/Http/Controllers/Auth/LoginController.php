@@ -649,11 +649,15 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->refreshToken,
+                // 'oauth_user_token' => $oauth_user_token,
+                // 'oauth_user_refresh_token' => $socialite_user->refreshToken,
             ];
 
             $user->update($update_user);
+            $user->oauth_user_token = $oauth_user_token;
+            $user->oauth_user_refresh_token = $socialite_user->refreshToken;
+            $user->save();
+
         } else {
             nlog('user not found for oauth');
         }
@@ -679,12 +683,16 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $oauth_user_token,
-                'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
+                // 'oauth_user_token' => $oauth_user_token,
+                // 'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
                 'oauth_user_token_expiry' => $oauth_expiry,
             ];
 
             $user->update($update_user);
+            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+            $user->oauth_user_token = $oauth_user_token;
+            $user->save();
+
         } else {
             nlog('user not found for oauth');
         }
