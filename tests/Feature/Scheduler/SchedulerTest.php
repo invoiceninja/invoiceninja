@@ -480,14 +480,14 @@ class SchedulerTest extends TestCase
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000, 100000),
+            'number' => rand(1000, 10000000),
             'name' => 'A fancy client'
         ]);
 
         $c2 = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'number' => rand(1000, 100000),
+            'number' => rand(1000, 10000000),
             'name' => 'A fancy client'
         ]);
 

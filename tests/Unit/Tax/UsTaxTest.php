@@ -107,6 +107,7 @@ class UsTaxTest extends TestCase
             'shipping_country_id' => 840,
             'has_valid_vat_number' => false,
             'postal_code' => $postal_code,
+            'tax_data' => new Response($this->mock_response),
         ]);
 
         $invoice = Invoice::factory()->create([
@@ -309,6 +310,7 @@ class UsTaxTest extends TestCase
                 'shipping_country_id' => 276,
                 'has_valid_vat_number' => false,
                 'postal_code' => 'xx',
+                'tax_data' => new Response($this->mock_response),
             ]);
 
             $invoice = Invoice::factory()->create([
@@ -353,18 +355,18 @@ class UsTaxTest extends TestCase
     {
 
         $invoice = $this->invoiceStub('92582');
-        $client = $invoice->client;
-        $client->is_tax_exempt = false;
-        $client->save();
+        $invoice->client->is_tax_exempt = false;
+        $invoice->client->tax_data = new Response($this->mock_response);
 
-        $company = $invoice->company;
-        $tax_data = $company->tax_data;
+        $invoice->client->push();
+
+        $tax_data = $invoice->company->tax_data;
 
         $tax_data->regions->US->has_sales_above_threshold = true;
         $tax_data->regions->US->tax_all_subregions = true;
 
-        $company->tax_data = $tax_data;
-        $company->save();
+        $invoice->company->tax_data = $tax_data;
+        $invoice->company->push();
 
         $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
 

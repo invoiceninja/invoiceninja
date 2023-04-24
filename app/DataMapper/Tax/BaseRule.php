@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\DataProviders\USStates;
 
 class BaseRule implements RuleInterface
 {
@@ -116,7 +117,7 @@ class BaseRule implements RuleInterface
 
     protected ?Client $client;
 
-    protected ?Response $tax_data;
+    public ?Response $tax_data;
 
     public mixed $invoice;
     
@@ -129,29 +130,41 @@ class BaseRule implements RuleInterface
         return $this;
     }
 
-    public function setInvoice(mixed $invoice): self
+    public function setEntity(mixed $invoice): self
     {
         $this->invoice = $invoice;
-        
-        $this->configTaxData();
 
         $this->client = $invoice->client;
 
+        $this->configTaxData()
+             ->resolveRegions();
+
         $this->tax_data = new Response($this->invoice->tax_data);
-
-        $this->resolveRegions();
-
 
         return $this;
     }
 
     private function configTaxData(): self
     {
+
+        if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes)) {
+            throw new \Exception('Automatic tax calculations not supported for this country');
+        }
+
+        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
+
         if($this->invoice->tax_data && $this->invoice->status_id > 1)
             return $this;
 
         //determine if we are taxing locally or if we are taxing globally
-        // $this->invoice->tax_data = $this->invoice->client->tax_data;
+        $this->invoice->tax_data = $this->invoice->client->tax_data ?: new Response([]);
+
+        if(strlen($this->invoice->tax_data?->originDestination) == 0 && $this->client->company->tax_data->seller_subregion != $this->client_subregion) {
+            $tax_data = $this->invoice->tax_data; 
+            $tax_data->originDestination = "D";
+            $this->invoice->tax_data = $tax_data;
+            $this->invoice->saveQuietly();
+        }
 
         return $this;
     }
@@ -160,18 +173,23 @@ class BaseRule implements RuleInterface
     private function resolveRegions(): self
     {
 
-        if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes))
-            throw new \Exception('Automatic tax calculations not supported for this country');
-
-        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
-
         match($this->client_region){
-            'US' => $this->client_subregion = $this->tax_data->geoState,
+            'US' => $this->client_subregion = strlen($this->invoice?->tax_data?->geoState) > 1 ? $this->invoice?->tax_data?->geoState : $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
+            'AU' => $this->client_subregion = 'AU',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
     
         return $this;
+    }
+
+    private function getUSState(): string
+    {
+        try {
+            return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
+        } catch (\Exception $e) {
+            return 'CA';
+        }
     }
 
     public function isTaxableRegion(): bool
