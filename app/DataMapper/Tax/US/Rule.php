@@ -155,8 +155,8 @@ class Rule extends BaseRule implements RuleInterface
                 $this->tax_name1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_name;
 
                 if($this->client_region == 'US')
-                    $this->tax_name1 = "{$this->tax_data->geoState} ".$this->tax_name1;
-                    
+                    $this->tax_name1 = "{$this->client_subregion} ".$this->tax_name1;
+
             }
 
             return $this;
