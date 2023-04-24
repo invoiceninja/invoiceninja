@@ -545,7 +545,7 @@ class CreditController extends BaseController
             }
         });
 
-        return $this->listResponse(Credit::withTrashed()->company()->whereIn('id', $request->ids));
+        return $this->listResponse(Credit::with(['invitations','documents'])->withTrashed()->company()->whereIn('id', $request->ids));
     }
 
     public function action(ActionCreditRequest $request, Credit $credit, $action)
