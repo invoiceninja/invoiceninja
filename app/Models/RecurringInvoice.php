@@ -347,6 +347,10 @@ class RecurringInvoice extends BaseModel
         'status',
     ];
 
+    protected $with = [
+        'client.company',
+    ];
+
     protected $touches = [];
 
     public function getEntityType()

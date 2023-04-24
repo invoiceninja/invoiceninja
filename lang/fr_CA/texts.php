@@ -5054,6 +5054,14 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'here' => 'ici',
     'industry_Restaurant & Catering' => 'Restauration et traiteur',
     'show_credits_table' => 'Arricher la liste des crédits',
+    'manual_payment' => 'Paiement manuel',
+    'tax_summary_report' => 'Rapport sommaire de taxes',
+    'tax_category' => 'Catégorie de taxe',
+    'physical_goods' => 'Produits physiques',
+    'digital_products' => 'Produits numériques',
+    'services' => 'Services',
+    'shipping' => 'Livraison',
+    'tax_exempt' => 'Exemption de taxes',
 );
 
 

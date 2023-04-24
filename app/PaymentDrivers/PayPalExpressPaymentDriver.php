@@ -123,12 +123,17 @@ class PayPalExpressPaymentDriver extends BaseDriver
     {
         $this->initializeOmnipayGateway();
 
+        dd('here');
+
         $response = $this->omnipay_gateway
             ->completePurchase(['amount' => $this->payment_hash->data->amount, 'currency' => $this->client->getCurrencyCode()])
             ->send();
 
-        if ($response->isCancelled()) {
+        if ($response->isCancelled() && $this->client->getSetting('enable_client_portal')) {
             return redirect()->route('client.invoices.index')->with('warning', ctrans('texts.status_cancelled'));
+        }
+        elseif($response->isCancelled() && !$this->client->getSetting('enable_client_portal')){
+            redirect()->route('client.invoices.show', ['invoice' => $this->payment_hash->fee_invoice])->with('warning', ctrans('texts.status_cancelled'));
         }
 
         if ($response->isSuccessful()) {
@@ -195,7 +200,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 'payment_hash' => $this->payment_hash->hash,
                 'payment_method_id' => GatewayType::PAYPAL,
             ]),
-            'cancelUrl' => $this->client->company->domain().'/client/invoices',
+            'cancelUrl' => $this->client->company->domain()."/client/invoices/{$invoice->hashed_id}",
             'description' => implode(',', collect($this->payment_hash->data->invoices)
                 ->map(function ($invoice) {
                     return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->invoice_number);
