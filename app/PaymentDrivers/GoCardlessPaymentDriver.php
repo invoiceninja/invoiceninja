@@ -542,4 +542,9 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         return $client;
     }
+
+    public function verificationView()
+    {
+        return render('gateways.gocardless.verification');
+    }
 }
