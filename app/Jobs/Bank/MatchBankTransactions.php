@@ -226,8 +226,6 @@ class MatchBankTransactions implements ShouldQueue
             return $this;
         }
 
-        nlog($this->getInvoices($input['invoice_ids']));
-
         $_invoices = Invoice::query()
                             ->withTrashed()
                             ->where('company_id', $this->bt->company_id)
