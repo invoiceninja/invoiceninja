@@ -118,7 +118,7 @@ class MatchBankTransactions implements ShouldQueue
         return BankTransaction::whereIn('id', $this->bts);
     }
 
-    private function getInvoices(string $invoice_hashed_ids)
+    private function getInvoices(string $invoice_hashed_ids): array
     {
         $collection = collect();
 
@@ -132,7 +132,7 @@ class MatchBankTransactions implements ShouldQueue
             }
         }
 
-        return $collection;
+        return $collection->toArray();
     }
 
     private function checkPayable($invoices) :bool
@@ -205,7 +205,7 @@ class MatchBankTransactions implements ShouldQueue
         
         if ($payment && !$payment->transaction_id) {
             $payment->transaction_id = $this->bt->id;
-            $payment->save();
+            $payment->saveQuietly();
 
             $this->bt->payment_id = $payment->id;
             $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
@@ -226,10 +226,12 @@ class MatchBankTransactions implements ShouldQueue
             return $this;
         }
 
+        nlog($this->getInvoices($input['invoice_ids']));
+
         $_invoices = Invoice::query()
                             ->withTrashed()
                             ->where('company_id', $this->bt->company_id)
-                            ->where('id',$this->getInvoices($input['invoice_ids']));
+                            ->whereIn('id', $this->getInvoices($input['invoice_ids']));
         
         $amount = $this->bt->amount;
 
@@ -383,7 +385,7 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->invoice_ids = collect($invoices)->pluck('hashed_id')->implode(',');
+        $this->bt->invoice_ids = $invoices->get()->pluck('hashed_id')->implode(',');
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->payment_id = $payment->id;
         $this->bt->save();

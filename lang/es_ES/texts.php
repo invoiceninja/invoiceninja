@@ -4949,7 +4949,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'failed' => 'Fallido',
     'client_contacts' => 'Contactos del cliente',
     'sync_from' => 'sincronizar desde',
-    'gateway_payment_text' => 'Facturas: :invoices por importe de :amount del cliente :client',
+    'gateway_payment_text' => 'Factura: :invoices por importe de :amount de :client',
     'gateway_payment_text_no_invoice' => 'Pago sin factura por importe :amount del cliente :client',
     'click_to_variables' => 'Aquí para ver todas las variables del cliente',
     'ship_to' => 'Enviar a',
@@ -5052,6 +5052,14 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'here' => 'aquí',
     'industry_Restaurant & Catering' => 'Restaurante y Catering',
     'show_credits_table' => 'Mostrar tabla de créditos',
+    'manual_payment' => 'Pago Manual',
+    'tax_summary_report' => 'Informe resumido de impuestos',
+    'tax_category' => 'Categoría de impuestos',
+    'physical_goods' => 'Bienes físicos',
+    'digital_products' => 'Productos digitales',
+    'services' => 'Servicios',
+    'shipping' => 'Envío',
+    'tax_exempt' => 'Exento de impuestos',
 );
 
 

@@ -33,8 +33,8 @@ class ZipTax implements TaxProviderInterface
         if($response->successful())
             return $response->json();
 
-        if($this->postal_code) {
-           $response = $this->callApi(['key' => $this->api_key, 'address' => $this->postal_code]);
+        if(isset($this->address['postal_code'])) {
+           $response = $this->callApi(['key' => $this->api_key, 'address' => $this->address['postal_code']]);
 
             if($response->successful())
                 return $response->json();

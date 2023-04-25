@@ -3492,7 +3492,7 @@ class BlackListRule implements Rule
         'zymuying.com',
         'zzi.us',
         'zzrgg.com',
-        'zzz.com','
+        'zzz.com',
     ];
 
     /**
@@ -3500,9 +3500,9 @@ class BlackListRule implements Rule
      * @param mixed $value
      * @return bool
      */
-    public function passes($attribute, $value)
+    public function passes($attribute, $value): bool
     {
-        $parts = explode('@', $value);
+        $parts = explode("@", $value);
 
         if (is_array($parts)) {
             return ! in_array($parts[1], $this->blacklist);
@@ -3514,7 +3514,7 @@ class BlackListRule implements Rule
     /**
      * @return string
      */
-    public function message()
+    public function message(): string
     {
         return 'This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com';
     }
