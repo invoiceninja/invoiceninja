@@ -361,7 +361,7 @@ class BaseController extends Controller
                         $query->where('designs.user_id', $user->id);
                     }
                 },
-                'company.documents'=> function ($query) {
+                'company.documents'=> function ($query) use ($updated_at) {
                     $query->where('updated_at', '>=', $updated_at);
                 },
                 'company.expenses'=> function ($query) use ($updated_at, $user) {
