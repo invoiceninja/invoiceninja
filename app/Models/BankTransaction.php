@@ -180,6 +180,11 @@ class BankTransaction extends BaseModel
         return $this->belongsTo(Account::class)->withTrashed();
     }
 
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class)->withTrashed();
+    }
+
     public function service() :BankService
     {
         return new BankService($this);
