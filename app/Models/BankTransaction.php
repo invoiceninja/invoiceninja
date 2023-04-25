@@ -87,6 +87,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BankTransaction withoutTrashed()
+ * @property-read \App\Models\Payment|null $payment
  * @mixin \Eloquent
  */
 class BankTransaction extends BaseModel
