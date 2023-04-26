@@ -22,7 +22,6 @@ use App\DataMapper\BaseSettings;
 use App\Models\RecurringInvoice;
 use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
-use App\DataMapper\Tax\ZipTax\Response;
 
 class InvoiceItemSum
 {

@@ -40,7 +40,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property array|null $line_items
+ * @property mixed $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -83,7 +83,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $due_date_days
  * @property string|null $partial_due_date
  * @property string $exchange_rate
- * @property string $paid_to_date
+ * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property string|null $next_send_date_client
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -182,7 +182,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property int $is_proforma
+ * @property bool $is_proforma
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history

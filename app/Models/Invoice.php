@@ -51,20 +51,20 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property object|null $line_items
+ * @property object|array $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
- * @property string $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property float $tax_rate3
+ * @property float $total_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -74,10 +74,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_surcharge2
  * @property string|null $custom_surcharge3
  * @property string|null $custom_surcharge4
- * @property int $custom_surcharge_tax1
- * @property int $custom_surcharge_tax2
- * @property int $custom_surcharge_tax3
- * @property int $custom_surcharge_tax4
+ * @property bool $custom_surcharge_tax1
+ * @property bool $custom_surcharge_tax2
+ * @property bool $custom_surcharge_tax3
+ * @property bool $custom_surcharge_tax4
  * @property float $exchange_rate
  * @property float $amount
  * @property float $balance
@@ -91,11 +91,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
  * @property string|null $reminder_last_sent
- * @property int $auto_bill_enabled
- * @property string $paid_to_date
+ * @property bool $auto_bill_enabled
+ * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property int $auto_bill_tries
- * @property int $is_proforma
+ * @property bool $is_proforma
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
