@@ -31,9 +31,9 @@ class DesignWasDeleted
      * Get the channels the event should broadcast on.
      *
      * @return PrivateChannel
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+    */
+    // public function broadcastOn()
+    // {
+    //     return new PrivateChannel('channel-name');
+    // }
 }

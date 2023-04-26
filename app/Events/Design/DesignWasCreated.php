@@ -32,8 +32,8 @@ class DesignWasCreated
      *
      * @return PrivateChannel
      */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+    // public function broadcastOn()
+    // {
+    //     return new PrivateChannel('channel-name');
+    // }
 }

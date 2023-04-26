@@ -54,19 +54,19 @@ class InvoiceWasCreated implements ShouldBroadcast
      *
      * @return PrivateChannel|array
      */
-    public function broadcastOn()
-    {
-        return ['simple-channel'];
-    }
+    // public function broadcastOn()
+    // {
+    //     return ['simple-channel'];
+    // }
     
 
-    /**
-     * Get the data to broadcast.
-     *
-     * @return array<string, mixed>
-     */
-    public function broadcastWith(): array
-    {
-        return ['id' => 'value'];
-    }
+    // /**
+    //  * Get the data to broadcast.
+    //  *
+    //  * @return array<string, mixed>
+    //  */
+    // public function broadcastWith(): array
+    // {
+    //     return ['id' => 'value'];
+    // }
 }
