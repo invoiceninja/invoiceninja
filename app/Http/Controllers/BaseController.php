@@ -929,7 +929,7 @@ class BaseController extends Controller
      *
      * @param  Builder $query
      */
-    protected function listResponse($query)
+    protected function listResponse(Builder $query)
     {
         $this->buildManager();
 

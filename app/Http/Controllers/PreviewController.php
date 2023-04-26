@@ -128,9 +128,12 @@ class PreviewController extends BaseController
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
 
-            /** @var \App\Models\Company $company */
+
             /** @var App\Models\User auth()->user() */
-            $company = auth()->user()->company();
+            $user = auth()->user();
+
+            /** @var \App\Models\Company $company */
+            $company = $user->company();
 
             if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
 

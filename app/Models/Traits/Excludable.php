@@ -28,10 +28,11 @@ trait Excludable
      * @param Builder $query
      * @param array $columns
      *
-     * @return mixed
+     * @return Builder
      */
     public function scopeExclude($query, $columns): \Illuminate\Database\Eloquent\Builder
     {
+        /** @var Builder $query */
         return $query->select(array_diff($this->getTableColumns(), (array) $columns));
     }
 }
