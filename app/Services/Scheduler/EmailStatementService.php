@@ -66,8 +66,9 @@ class EmailStatementService
         return [
             'start_date' =>$start_end[0],
             'end_date' =>$start_end[1],
-            'show_payments_table' => $this->scheduler->parameters['show_payments_table'],
-            'show_aging_table' => $this->scheduler->parameters['show_aging_table'],
+            'show_payments_table' => $this->scheduler->parameters['show_payments_table'] ?? true,
+            'show_aging_table' => $this->scheduler->parameters['show_aging_table'] ?? true,
+            'show_credits_table' => $this->scheduler->parameters['show_credits_table'] ?? true,
             'status' => $this->scheduler->parameters['status']
         ];
     }

@@ -57,7 +57,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxByType($product_tax_type): self
     {
 
-        match($product_tax_type) {
+        match(intval($product_tax_type)) {
             Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
             Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
             Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
@@ -103,7 +103,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxService(): self
     {
-        if($this->tax_data->txbService == 'Y') {
+        if($this->tax_data?->txbService == 'Y') {
             $this->default();
         }
 
@@ -117,7 +117,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxShipping(): self
     {
-        if($this->tax_data->txbFreight == 'Y') {
+        if($this->tax_data?->txbFreight == 'Y') {
             $this->default();
         }
 

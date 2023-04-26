@@ -235,7 +235,7 @@ class BaseRule implements RuleInterface
             return $this;
         } elseif($this->isTaxableRegion()) { //other regions outside of US
 
-            match($item->tax_id) {
+            match(intval($item->tax_id)) {
                 Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
                 Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
                 Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),

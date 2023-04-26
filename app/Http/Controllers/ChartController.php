@@ -64,7 +64,6 @@ class ChartController extends BaseController
      *       ),
      *     )
      * @param Request $request
-     * @return Response|mixed
      */
     public function totals(ShowChartRequest $request)
     {

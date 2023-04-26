@@ -668,7 +668,7 @@ class BaseController extends Controller
      * Passes back the miniloaded data response
      *
      * @param  Builder $query
-     * @return void
+     * 
      */
     protected function timeConstrainedResponse($query)
     {

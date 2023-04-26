@@ -18,7 +18,6 @@ use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\ThrottlesEmail;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
@@ -785,7 +784,6 @@ class Company extends BaseModel
     use PresentableTrait;
     use MakesHash;
     use CompanySettingsSaver;
-    use ThrottlesEmail;
     use AppSetup;
     use \Awobaz\Compoships\Compoships;
 

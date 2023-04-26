@@ -603,7 +603,7 @@ class CompanyController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UploadCompanyRequest $request
-     * @param Company $client
+     * @param Company $company
      * @return Response
      *
      *

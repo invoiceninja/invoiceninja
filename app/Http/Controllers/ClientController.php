@@ -574,7 +574,7 @@ class ClientController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param UploadClientRequest $request
+     * @param PurgeClientRequest $request
      * @param Client $client
      * @return Response
      *
@@ -644,7 +644,7 @@ class ClientController extends BaseController
      *
      * @param PurgeClientRequest $request
      * @param Client $client
-     * @param string $mergeable client hashed_id
+     * @param string $mergeable_client
      * @return Response
      *
      *

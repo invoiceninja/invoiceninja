@@ -187,7 +187,6 @@ class InvoiceController extends Controller
      *
      * @param array $ids
      *
-     * @return void
      */
     private function downloadInvoicePDF(array $ids)
     {
