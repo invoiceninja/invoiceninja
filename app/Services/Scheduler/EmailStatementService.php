@@ -68,6 +68,7 @@ class EmailStatementService
             'end_date' =>$start_end[1],
             'show_payments_table' => $this->scheduler->parameters['show_payments_table'],
             'show_aging_table' => $this->scheduler->parameters['show_aging_table'],
+            'show_credits_table' => $this->scheduler->parameters['show_credits_table'],
             'status' => $this->scheduler->parameters['status']
         ];
     }

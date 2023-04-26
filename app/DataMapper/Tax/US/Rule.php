@@ -103,7 +103,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxService(): self
     {
-        if($this->tax_data->txbService == 'Y') {
+        if($this->tax_data?->txbService == 'Y') {
             $this->default();
         }
 
