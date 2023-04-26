@@ -11,9 +11,15 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
+use App\Models\Credit;
 use App\Models\Invoice;
-use App\Utils\Traits\NumberFormatter;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Collection;
+use App\Utils\Traits\NumberFormatter;
+use App\Helpers\Invoice\InvoiceItemSumInclusive;
 
 class InvoiceSumInclusive
 {
@@ -22,7 +28,7 @@ class InvoiceSumInclusive
     use Discounter;
     use NumberFormatter;
 
-    protected $invoice;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     public $tax_map;
 
@@ -46,7 +52,7 @@ class InvoiceSumInclusive
     /**
      * Constructs the object with Invoice and Settings object.
      *
-     * @param      \App\Models\RecurringInvoice|\App\Models\Quote|\App\Models\Credit|\App\Models\PurchaseOrder|\App\Models\Invoice  $invoice   The entity
+     * @param RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
      */
     public function __construct($invoice)
     {

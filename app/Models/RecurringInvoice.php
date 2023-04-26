@@ -35,30 +35,30 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $status_id
  * @property string|null $number
  * @property float $discount
- * @property int $is_amount_discount
+ * @property bool $is_amount_discount
  * @property string|null $po_number
  * @property string|null $date
  * @property string|null $due_date
- * @property int $is_deleted
- * @property object|null $line_items
+ * @property bool $is_deleted
+ * @property array|null $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
- * @property string $total_taxes
+ * @property float $tax_rate3
+ * @property float $total_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
- * @property string $amount
- * @property string $balance
+ * @property float $amount
+ * @property float $balance
  * @property float|null $partial
  * @property string|null $last_viewed
  * @property int $frequency_id
@@ -69,17 +69,17 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string $auto_bill
- * @property int $auto_bill_enabled
+ * @property bool $auto_bill_enabled
  * @property int|null $design_id
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_surcharge1
  * @property string|null $custom_surcharge2
  * @property string|null $custom_surcharge3
  * @property string|null $custom_surcharge4
- * @property int $custom_surcharge_tax1
- * @property int $custom_surcharge_tax2
- * @property int $custom_surcharge_tax3
- * @property int $custom_surcharge_tax4
+ * @property bool $custom_surcharge_tax1
+ * @property bool $custom_surcharge_tax2
+ * @property bool $custom_surcharge_tax3
+ * @property bool $custom_surcharge_tax4
  * @property string|null $due_date_days
  * @property string|null $partial_due_date
  * @property string $exchange_rate
@@ -609,22 +609,17 @@ class RecurringInvoice extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
-                break;
             case self::STATUS_PENDING:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
-                break;
             case self::STATUS_ACTIVE:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.active').'</span></h4>';
-                break;
             case self::STATUS_COMPLETED:
                 return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
-                break;
             case self::STATUS_PAUSED:
                 return '<h4><span class="badge badge-danger">'.ctrans('texts.paused').'</span></h4>';
-                break;
             default:
-                // code...
-                break;
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
+
         }
     }
 
@@ -633,22 +628,17 @@ class RecurringInvoice extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_PENDING:
                 return ctrans('texts.pending');
-                break;
             case self::STATUS_ACTIVE:
                 return ctrans('texts.active');
-                break;
             case self::STATUS_COMPLETED:
                 return ctrans('texts.status_completed');
-                break;
             case self::STATUS_PAUSED:
                 return ctrans('texts.paused');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.pending');
+
         }
     }
 
@@ -657,43 +647,30 @@ class RecurringInvoice extends BaseModel
         switch ($frequency_id) {
             case self::FREQUENCY_DAILY:
                 return ctrans('texts.freq_daily');
-                break;
             case self::FREQUENCY_WEEKLY:
                 return ctrans('texts.freq_weekly');
-                break;
             case self::FREQUENCY_TWO_WEEKS:
                 return ctrans('texts.freq_two_weeks');
-                break;
             case self::FREQUENCY_FOUR_WEEKS:
                 return ctrans('texts.freq_four_weeks');
-                break;
             case self::FREQUENCY_MONTHLY:
                 return ctrans('texts.freq_monthly');
-                break;
             case self::FREQUENCY_TWO_MONTHS:
                 return ctrans('texts.freq_two_months');
-                break;
             case self::FREQUENCY_THREE_MONTHS:
                 return ctrans('texts.freq_three_months');
-                break;
             case self::FREQUENCY_FOUR_MONTHS:
                 return ctrans('texts.freq_four_months');
-                break;
             case self::FREQUENCY_SIX_MONTHS:
                 return ctrans('texts.freq_six_months');
-                break;
             case self::FREQUENCY_ANNUALLY:
                 return ctrans('texts.freq_annually');
-                break;
             case self::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
-                break;
             case self::FREQUENCY_THREE_YEARS:
                 return ctrans('texts.freq_three_years');
-                break;
             default:
                 return '';
-                break;
         }
     }
 
@@ -774,15 +751,12 @@ class RecurringInvoice extends BaseModel
             case '':
             case '0':
                 return $this->calculateDateFromTerms($date);
-                break;
                 
             case 'on_receipt':
                 return Carbon::parse($date)->copy();
-                break;
 
             default:
                 return $this->setDayOfMonth($date, $this->due_date_days);
-                break;
         }
     }
 

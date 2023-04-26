@@ -11,10 +11,15 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\BaseSettings;
+use App\Models\RecurringInvoice;
 use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
 use App\DataMapper\Tax\ZipTax\Response;
@@ -59,7 +64,7 @@ class InvoiceItemSum
         'AU', // Australia
     ];
 
-    protected $invoice;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     private $items;
 
@@ -91,7 +96,7 @@ class InvoiceItemSum
 
     private RuleInterface $rule;
 
-    public function __construct($invoice)
+    public function __construct( RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
 
@@ -136,7 +141,7 @@ class InvoiceItemSum
 
     private function shouldCalculateTax(): self
     {
-        if (!$this->invoice->company?->calculate_taxes) {
+        if (!$this->invoice->company->calculate_taxes) {
             $this->calc_tax = false;
             return $this;
         }

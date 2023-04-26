@@ -55,7 +55,7 @@ class InvoiceSum
     /**
      * Constructs the object with Invoice and Settings object.
      *
-     * @param      \App\Models\RecurringInvoice|\App\Models\Quote|\App\Models\Credit|\App\Models\PurchaseOrder|\App\Models\Invoice  $invoice   The entity
+     * @param RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
      */
     public function __construct($invoice)
     {
