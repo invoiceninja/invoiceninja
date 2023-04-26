@@ -16,6 +16,7 @@ use App\Utils\Number;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
 use App\Models\RecurringInvoice;
 use Illuminate\Support\Collection;
 use App\Utils\Traits\NumberFormatter;
@@ -27,7 +28,7 @@ class InvoiceSum
     use Discounter;
     use NumberFormatter;
 
-    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder $invoice;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     public $tax_map;
 

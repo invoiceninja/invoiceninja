@@ -108,9 +108,9 @@ class InvoiceItemSum
         $this->line_items = [];
     }
 
-    public function process()
+    public function process(): self
     {
-        if (! $this->invoice->line_items || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+        if (!$this->invoice->line_items || !is_array($this->invoice->line_items)) {
             $this->items = [];
 
             return $this;
@@ -121,7 +121,7 @@ class InvoiceItemSum
         return $this;
     }
 
-    private function calcLineItems()
+    private function calcLineItems(): self
     {
         foreach ($this->invoice->line_items as $this->item) {
             $this->cleanLineItem()
