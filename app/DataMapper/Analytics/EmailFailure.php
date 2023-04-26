@@ -37,7 +37,7 @@ class EmailFailure extends GenericMixedMetric
      *
      * date("Y-m-d H:i:s")
      *
-     * @var DateTime
+     * @var \DateTime
      */
     public $datetime;
 

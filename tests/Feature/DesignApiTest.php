@@ -46,6 +46,15 @@ class DesignApiTest extends TestCase
 
     public function testDesignPost()
     {
+
+        $this->expectsEvents([
+            TaskWasCreated::class,
+            TaskWasUpdated::class,
+            // TaskWasArchived::class,
+            // TaskWasRestored::class,
+            // TaskWasDeleted::class,
+        ]);
+
         $design = [
             'body' => 'body',
             'includes' => 'includes',
@@ -127,6 +136,14 @@ class DesignApiTest extends TestCase
 
     public function testDesignArchive()
     {
+
+        $this->expectsEvents([
+            TaskWasArchived::class,
+            TaskWasRestored::class,
+            TaskWasDeleted::class,
+        ]);
+
+
         $design = [
             'body' => 'body',
             'includes' => 'includes',
