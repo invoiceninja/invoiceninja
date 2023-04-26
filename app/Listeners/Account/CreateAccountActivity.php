@@ -22,7 +22,6 @@ class CreateAccountActivity implements ShouldQueue
     /**
      * Create the event listener.
      *
-     * @param ActivityRepository $activity_repo
      */
     public function __construct()
     {
