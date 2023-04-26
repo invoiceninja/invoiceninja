@@ -146,7 +146,7 @@ class FacturaEInvoice extends AbstractService
 
     private function setPoNumber(): self
     {
-        if(strlen($this->invoice->po_number > 1)) {
+        if(strlen($this->invoice->po_number) > 1) {
             $this->fac->setReferences($this->invoice->po_number);
         }
 
