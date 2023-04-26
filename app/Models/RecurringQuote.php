@@ -604,7 +604,12 @@ class RecurringQuote extends BaseModel
         }
     }
 
-    public function calc()
+    /**
+     * Access the invoice calculator object.
+     *
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
+     */
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $invoice_calc = null;
 

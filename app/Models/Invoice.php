@@ -666,7 +666,7 @@ class Invoice extends BaseModel
      *
      * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $invoice_calc = null;
 

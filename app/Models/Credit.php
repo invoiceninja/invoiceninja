@@ -450,9 +450,9 @@ class Credit extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return \stdClass The invoice calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $credit_calc = null;
 

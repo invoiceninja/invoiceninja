@@ -393,9 +393,9 @@ class Quote extends BaseModel
     /**
      * Access the quote calculator object.
      *
-     * @return \stdClass The quote calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The quote calculator object getters
      */
-    public function calc()
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $quote_calc = null;
 

@@ -353,19 +353,14 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_ACCEPTED:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.accepted').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
         }
     }
 
@@ -491,7 +486,12 @@ class PurchaseOrder extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function calc()
+    /**
+     * Access the invoice calculator object.
+     *
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
+     */
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $purchase_order_calc = null;
 
