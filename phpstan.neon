@@ -1,4 +1,9 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
 parameters:
+    ignoreErrors:
+        - '#Call to an undefined method .*badMethod\(\)#'
     level: 2
     paths:
         - app
