@@ -26,30 +26,8 @@ class UserWasArchived
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
-    public $user;
-
-    public $creating_user;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param User $user
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(User $user, User $creating_user, Company $company, array $event_vars)
+    public function __construct(public User $user, public User $creating_user, public Company $company, public array $event_vars)
     {
-        $this->user = $user;
-        $this->creating_user = $creating_user;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 
     /**

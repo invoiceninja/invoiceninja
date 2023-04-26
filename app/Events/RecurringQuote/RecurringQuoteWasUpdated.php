@@ -24,26 +24,8 @@ class RecurringQuoteWasUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var Invoice
-     */
-    public $recurring_quote;
 
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param RecurringQuote $recurring_quote
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(RecurringQuote $recurring_quote, Company $company, array $event_vars)
+    public function __construct(public RecurringQuote $recurring_quote, public Company $company, public array $event_vars)
     {
-        $this->recurring_quote = $recurring_quote;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

@@ -23,7 +23,7 @@ class DesignWasRestored
 {
     use SerializesModels;
 
-    public function __construct(public Design $design, public Company $company, public array $event_vars)
+    public function __construct(public Design $design, public bool $fromDeleted, public Company $company, public array $event_vars)
     {
     }
 
