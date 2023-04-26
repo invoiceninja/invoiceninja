@@ -821,6 +821,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
+ * @method \App\Models\User|null owner()
  * @mixin \Eloquent
  */
 class Company extends BaseModel
@@ -1392,7 +1393,10 @@ class Company extends BaseModel
         return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
-    public function owner()
+    /**
+     * @return \App\Models\User|null
+     */
+    public function owner(): ?User
     {
         return $this->company_users()->withTrashed()->where('is_owner', true)->first()?->user;
     }

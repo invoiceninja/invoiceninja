@@ -44,6 +44,7 @@ use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
  * Class BaseController.
+ * @method static Illuminate\Database\Eloquent\Builder exclude($columns)
  */
 class BaseController extends Controller
 {

@@ -40,7 +40,10 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
  * @method \App\Models\Company company()
  * @method int companyId()
+ * @method Builder|static exclude($columns)
+ * @method static Builder|static exclude($columns)
  * @mixin \Eloquent
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class BaseModel extends Model
 {
