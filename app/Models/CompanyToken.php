@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_system
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $company
  * @property-read \App\Models\CompanyUser|null $company_user
  * @property-read \App\Models\CompanyUser|null $cu
  * @property-read mixed $hashed_id

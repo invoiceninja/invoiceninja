@@ -188,14 +188,12 @@ class Account extends BaseModel
     private $free_plan_email_quota = 20;
 
     private $paid_plan_email_quota = 500;
+
     /**
      * @var string
      */
     protected $presenter = AccountPresenter::class;
 
-    /**
-     * @var array
-     */
     protected $fillable = [
         'plan',
         'plan_term',
@@ -454,6 +452,8 @@ class Account extends BaseModel
         }
 
         $trial_active = false;
+        $trial_expires = false;
+        $trial_started = false;
 
         //14 day trial
         $duration = 60*60*24*14;
@@ -468,10 +468,11 @@ class Account extends BaseModel
         }
 
         $plan_active = false;
+        $plan_expires = false;
+        
         if ($plan) {
             if ($this->plan_expires == null) {
                 $plan_active = true;
-                $plan_expires = false;
             } else {
                 $plan_expires = Carbon::parse($this->plan_expires);
                 if ($plan_expires->greaterThan(now())) {
@@ -483,7 +484,6 @@ class Account extends BaseModel
         if (! $include_inactive && ! $plan_active && ! $trial_active) {
             return null;
         }
-
 
         // Should we show plan details or trial details?
         if (($plan && ! $trial_plan) || ! $include_trial) {
@@ -666,11 +666,11 @@ class Account extends BaseModel
 
         $plan_expires = Carbon::parse($this->plan_expires);
 
-        if (!$this->payment_id && $plan_expires->gt(now())) {
+        if ($plan_expires->gt(now())) {
             $diff = $plan_expires->diffInDays();
             
-            if ($diff > 14);
-            return 0;
+            if ($diff > 14)
+                return 0;
 
             return $diff;
         }

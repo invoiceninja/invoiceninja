@@ -149,6 +149,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @method bool hasPermissionTo(string $permission)
  * @method \App\Models\Company getCompany()
+ * @method \App\Models\Company company()
  * @method bool hasExcludedPermissions(array $matched_permission, array $excluded_permissions)
  * @method bool isAdmin()
  * @method bool isSuperUser()
