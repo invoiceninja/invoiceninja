@@ -61,7 +61,7 @@ class EmailEntity implements ShouldQueue
      * EmailEntity constructor.
      *
      *
-     * @param Invitation $invitation
+     * @param mixed $invitation
      * @param Company    $company
      * @param ?string    $reminder_template
      * @param array      $template_data
@@ -146,21 +146,26 @@ class EmailEntity implements ShouldQueue
         } elseif ($this->invitation instanceof RecurringInvoiceInvitation) {
             return 'recurring_invoice';
         }
+
+        return '';
     }
 
-    /* Switch statement to handle failure notifications */
-    private function entityEmailFailed($message)
-    {
-        switch ($this->entity_string) {
-            case 'invoice':
-                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-                break;
+    /**
+     * @deprecated
+     * @unused
+     */
+    // private function entityEmailFailed($message)
+    // {
+    //     switch ($this->entity_string) {
+    //         case 'invoice':
+    //             event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+    //             break;
 
-            default:
-                // code...
-                break;
-        }
-    }
+    //         default:
+    //             // code...
+    //             break;
+    //     }
+    // }
 
     /* Builds the email builder object */
     private function resolveEmailBuilder()

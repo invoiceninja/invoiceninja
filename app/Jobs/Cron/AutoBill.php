@@ -48,16 +48,19 @@ class AutoBill implements ShouldQueue
             MultiDB::setDb($this->db);
         }
 
+        $invoice = false;
+        
         try {
             nlog("autobill {$this->invoice_id}");
             
             $invoice = Invoice::withTrashed()->find($this->invoice_id);
 
             $invoice->service()->autoBill();
+
         } catch (\Exception $e) {
             nlog("Failed to capture payment for {$this->invoice_id} ->".$e->getMessage());
 
-            if($this->send_email_on_failure)
+            if($this->send_email_on_failure && $invoice)
             {
 
                 $invoice->invitations->each(function ($invitation) use ($invoice) {

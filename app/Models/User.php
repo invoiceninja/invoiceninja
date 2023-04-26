@@ -11,26 +11,25 @@
 
 namespace App\Models;
 
+use App\Models\Company;
+use App\Utils\TruthSource;
 use App\Jobs\Mail\NinjaMailer;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
 use App\Jobs\Mail\NinjaMailerJob;
+use App\Services\User\UserService;
+use App\Utils\Traits\UserSettings;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ResetPasswordObject;
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Presenters\UserPresenter;
-use App\Notifications\ResetPasswordNotification;
-use App\Services\User\UserService;
-use App\Utils\Traits\MakesHash;
+use Illuminate\Notifications\Notifiable;
+use Laracasts\Presenter\PresentableTrait;
 use App\Utils\Traits\UserSessionAttributes;
-use App\Utils\Traits\UserSettings;
-use App\Utils\TruthSource;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Laracasts\Presenter\PresentableTrait;
 
 /**
  * App\Models\User
@@ -178,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-    public $company;
+    public Company $company;
 
     protected $appends = [
         'hashed_id',
