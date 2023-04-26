@@ -62,7 +62,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int $enabled_item_tax_rates
- * @property int $is_large
+ * @property bool $is_large
  * @property int $enable_shop_api
  * @property string $default_auto_bill
  * @property int $mark_expenses_invoiceable

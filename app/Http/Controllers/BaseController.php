@@ -236,26 +236,26 @@ class BaseController extends Controller
      * @param  string  $includes The includes for the object
      * @return string            The filtered array of includes
      */
-    private function filterIncludes(string $includes): string
-    {
-        $permissions_array = [
-            'payments' => 'view_payment',
-            'client' => 'view_client',
-            'clients' => 'view_client',
-            'vendor' => 'view_vendor',
-            'vendors' => 'view_vendors',
-            'expense' => 'view_expense',
-            'expenses' => 'view_expense',
-        ];
+    // private function filterIncludes(string $includes): string
+    // {
+    //     $permissions_array = [
+    //         'payments' => 'view_payment',
+    //         'client' => 'view_client',
+    //         'clients' => 'view_client',
+    //         'vendor' => 'view_vendor',
+    //         'vendors' => 'view_vendors',
+    //         'expense' => 'view_expense',
+    //         'expenses' => 'view_expense',
+    //     ];
 
-        $collection = collect(explode(",", $includes));
+    //     $collection = collect(explode(",", $includes));
 
-        $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
-            return auth()->user()->hasPermission($permissions_array[$include]);
-        });
+    //     $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
+    //         return auth()->user()->hasPermission($permissions_array[$include]);
+    //     });
 
-        return $filtered_includes->implode(",");
-    }
+    //     return $filtered_includes->implode(",");
+    // }
 
     /**
      * 404 for the client portal.
@@ -294,7 +294,7 @@ class BaseController extends Controller
      * Refresh API response with latest cahnges
      *
      * @param  Builder           $query
-     * @return Builder
+     * @return Response
      */
     protected function refreshResponse($query)
     {
@@ -541,9 +541,11 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
 
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -565,8 +567,8 @@ class BaseController extends Controller
     /**
      * Mini Load Query
      *
-     *  @param  Builder           $query
-     * @return void
+     * @param  Builder $query
+     * 
      */
     protected function miniLoadResponse($query)
     {
@@ -639,9 +641,10 @@ class BaseController extends Controller
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -654,15 +657,15 @@ class BaseController extends Controller
      * @deprecated
      * @return bool
      */
-    private function complexPermissionsUser(): bool
-    {
-        //if the user is attached to more than one company AND they are not an admin across all companies
-        if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
-            return true;
-        }
+    // private function complexPermissionsUser(): bool
+    // {
+    //     //if the user is attached to more than one company AND they are not an admin across all companies
+    //     if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
     
     /**
      * Passes back the miniloaded data response
@@ -963,9 +966,10 @@ class BaseController extends Controller
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -974,7 +978,7 @@ class BaseController extends Controller
      * Sorts the response by keys
      *
      * @param  mixed $response
-     * @return void
+     * @return Response
      */
     protected function response($response)
     {
@@ -1011,6 +1015,7 @@ class BaseController extends Controller
      * Item Response
      *
      * @param  mixed $item
+     * @return Response
      */
     protected function itemResponse($item)
     {
@@ -1151,9 +1156,9 @@ class BaseController extends Controller
     /**
      * Sets the Flutter build to serve
      *
-     * @return void
+     * @return string
      */
-    private function setBuild()
+    private function setBuild(): string
     {
         $build = '';
 

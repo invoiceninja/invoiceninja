@@ -33,7 +33,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\CompanyUser|null $cu
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken newModelQuery()
@@ -100,6 +99,9 @@ class CompanyToken extends BaseModel
                     ->where('user_id', $this->user_id);
     }
 
+    /**
+     * @return \Awobaz\Compoships\Database\Eloquent\Relations\HasOne
+     */
     public function cu()
     {
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
