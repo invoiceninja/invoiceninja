@@ -148,7 +148,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
  * @method bool hasPermissionTo(string $permission)
- * @method \Illuminate\Database\Eloquent\Builder|Company getCompany()
+ * @method \App\Models\Company getCompany()
  * @method bool hasExcludedPermissions(array $matched_permission, array $excluded_permissions)
  * @method bool isAdmin()
  * @method bool isSuperUser()

@@ -11,36 +11,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Design;
-use App\Utils\Statics;
 use App\Models\Account;
-use App\Models\TaxRate;
-use App\Models\Webhook;
-use App\Models\Scheduler;
-use App\Models\TaskStatus;
-use App\Models\PaymentTerm;
-use Illuminate\Support\Str;
-use League\Fractal\Manager;
-use App\Models\GroupSetting;
-use Illuminate\Http\Response;
-use App\Models\CompanyGateway;
-use App\Utils\Traits\AppSetup;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\ExpenseCategory;
-use League\Fractal\Resource\Item;
 use App\Models\BankTransactionRule;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Client;
+use App\Models\CompanyGateway;
+use App\Models\Design;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\PaymentTerm;
+use App\Models\Scheduler;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
-use League\Fractal\Resource\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use League\Fractal\Serializer\JsonApiSerializer;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use App\Utils\Ninja;
+use App\Utils\Statics;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use League\Fractal\Manager;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
+use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
  * Class BaseController.
@@ -298,6 +298,7 @@ class BaseController extends Controller
      */
     protected function refreshResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->manager->parseIncludes($this->first_load);
@@ -536,7 +537,9 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            $query = $paginator->getCollection();
+            /** @phpstan-ignore-next-line */
+            $query = $paginator->getCollection(); /** @phpstan-ignore-line */
+
 
             $resource = new Collection($query, $transformer, $this->entity_type);
 
@@ -568,10 +571,11 @@ class BaseController extends Controller
      * Mini Load Query
      *
      * @param  Builder $query
-     * 
+     *
      */
     protected function miniLoadResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -638,6 +642,8 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
@@ -671,10 +677,11 @@ class BaseController extends Controller
      * Passes back the miniloaded data response
      *
      * @param  Builder $query
-     * 
+     *
      */
     protected function timeConstrainedResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->getCompany()->is_large) {
@@ -902,19 +909,24 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
+
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
-        }
+        } 
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
     
     /**
      * List response
-     * 
+     *
      * @param  Builder $query
      */
     protected function listResponse($query)

@@ -25,12 +25,12 @@ trait Excludable
 
     /**
      * Exclude an array of elements from the result.
-     * @param $query
-     * @param $columns
+     * @param Builder $query
+     * @param array $columns
      *
      * @return mixed
      */
-    public function scopeExclude($query, $columns)
+    public function scopeExclude($query, $columns): \Illuminate\Database\Eloquent\Builder
     {
         return $query->select(array_diff($this->getTableColumns(), (array) $columns));
     }
