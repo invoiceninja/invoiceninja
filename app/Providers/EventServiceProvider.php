@@ -438,6 +438,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceReminderWasEmailed::class => [
             InvoiceReminderEmailActivity::class,
+            InvoiceEmailedNotification::class,
         ],
         InvoiceWasDeleted::class => [
             InvoiceDeletedActivity::class,

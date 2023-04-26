@@ -52,7 +52,7 @@ class NinjaMailerJob implements ShouldQueue
     public $override;
 
     /* @var Company $company*/
-    public Company $company;
+    public ?Company $company;
 
     private $mailer;
 
