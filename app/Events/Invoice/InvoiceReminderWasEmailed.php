@@ -22,29 +22,7 @@ class InvoiceReminderWasEmailed
 {
     use SerializesModels;
 
-    /**
-     * @var Invoice
-     */
-    public $invitation;
-
-    public $reminder;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param InvoiceInvitation $invitation
-     * @param Company $company
-     * @param array $event_vars
-     */
-    public function __construct(InvoiceInvitation $invitation, Company $company, array $event_vars, string $reminder)
+    public function __construct(public InvoiceInvitation $invitation, public Company $company, public array $event_vars, public int $reminder)
     {
-        $this->invitation = $invitation;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
-        $this->reminder = $reminder;
     }
 }

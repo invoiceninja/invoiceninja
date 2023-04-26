@@ -41,7 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $client_hash
  * @property string|null $logo
  * @property string|null $phone
- * @property string|null routing_id
+ * @property string|null $routing_id
  * @property string $balance
  * @property string $paid_to_date
  * @property string $credit_balance
@@ -641,6 +641,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first();
+    }
+
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
     }
 
     public function locale()

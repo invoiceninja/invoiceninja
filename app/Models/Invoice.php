@@ -612,76 +612,59 @@ class Invoice extends BaseModel
         return ($this->partial && $this->partial > 0) === true;
     }
 
-    public static function badgeForStatus(int $status)
+    public static function badgeForStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_PARTIAL:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.partial').'</span></h5>';
-                break;
             case self::STATUS_PAID:
                 return '<h5><span class="badge badge-success">'.ctrans('texts.paid').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             case self::STATUS_OVERDUE:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.overdue').'</span></h5>';
-                break;
             case self::STATUS_UNPAID:
                 return '<h5><span class="badge badge-warning text-white">'.ctrans('texts.unpaid').'</span></h5>';
-                break;
             case self::STATUS_REVERSED:
                 return '<h5><span class="badge badge-info">'.ctrans('texts.reversed').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
+                
         }
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_PARTIAL:
                 return ctrans('texts.partial');
-                break;
             case self::STATUS_PAID:
                 return ctrans('texts.paid');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
             case self::STATUS_OVERDUE:
                 return ctrans('texts.overdue');
-                break;
             case self::STATUS_UNPAID:
                 return ctrans('texts.unpaid');
-                break;
             case self::STATUS_REVERSED:
                 return ctrans('texts.reversed');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.sent');
         }
     }
 
     /**
      * Access the invoice calculator object.
      *
-     * @return \stdClass The invoice calculator object getters
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
     public function calc()
     {
@@ -780,16 +763,12 @@ class Invoice extends BaseModel
         switch ($locked_status) {
             case 'off':
                 return false;
-                break;
             case 'when_sent':
                 return $this->status_id == self::STATUS_SENT;
-                break;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
-                break;
             default:
                 return false;
-                break;
         }
     }
 
@@ -813,7 +792,7 @@ class Invoice extends BaseModel
             return $this->balance;
         }
 
-        if ($this->status_id = 1) {
+        if ($this->status_id == 1) {
             return $this->amount;
         }
 

@@ -156,7 +156,7 @@ class PaymentFilters extends QueryFilters
     /**
      * Filters the query by the users company ID.
      *
-     * @return Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function entityFilter(): Builder
     {

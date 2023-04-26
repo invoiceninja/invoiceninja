@@ -42,6 +42,7 @@ class InvoiceSumInclusive
 
     private $precision;
 
+    private InvoiceItemSumInclusive $invoice_items;
     /**
      * Constructs the object with Invoice and Settings object.
      *

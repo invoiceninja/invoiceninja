@@ -229,7 +229,7 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateTax
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  float $amount
      * @param  float $tax_rate
      * @return float
@@ -250,7 +250,7 @@ class ProductSalesExport extends BaseExport
     /**
      * calculateDiscount
      *
-     * @param  mixed $invoice
+     * @param  Invoice $invoice
      * @param  mixed $entity
      * @return float
      */

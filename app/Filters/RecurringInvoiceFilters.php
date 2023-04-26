@@ -151,7 +151,7 @@ class RecurringInvoiceFilters extends QueryFilters
     /**
      * next send date between.
      *
-     * @param string range
+     * @param string $range
      * @return Builder
      */
     public function next_send_between(string $range = ''): Builder
@@ -187,7 +187,7 @@ class RecurringInvoiceFilters extends QueryFilters
     /**
      * Filter by frequency id.
      *
-     * @param integer frequency_id
+     * @param string $value
      * @return Builder
      */
     public function frequency_id(string $value = ''): Builder
