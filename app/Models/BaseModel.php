@@ -31,13 +31,15 @@ use Illuminate\Support\Str;
  * @property string $number
  * @property int $company_id
  * @property \App\Models\Company $company
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel|Illuminate\Database\Eloquent\Relations\BelongsTo|\Awobaz\Compoships\Database\Eloquent\Relations\BelongsTo|\App\Models\Company company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
+ * @method \App\Models\Company company()
+ * @method int companyId()
  * @mixin \Eloquent
  */
 class BaseModel extends Model
