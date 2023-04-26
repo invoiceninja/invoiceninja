@@ -53,6 +53,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|CompanyToken with()
  * @mixin \Eloquent
  */
 class CompanyToken extends BaseModel

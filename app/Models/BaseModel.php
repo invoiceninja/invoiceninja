@@ -41,7 +41,7 @@ use Illuminate\Support\Str;
  * @method \App\Models\Company company()
  * @method int companyId()
  * @method Builder|static exclude($columns)
- * @method static Builder|static exclude($columns)
+ * @method static \Illuminate\Database\Eloquent\Builder exclude(array $columns)
  * @mixin \Eloquent
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
