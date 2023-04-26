@@ -580,10 +580,10 @@ class NinjaMailerJob implements ShouldQueue
     /**
      * Attempts to refresh the Microsoft refreshToken
      *
-     * @param  App\Models\User
-     * @return string | boool
+     * @param  \App\Models\User $user
+     * @return mixed
      */
-    private function refreshOfficeToken($user)
+    private function refreshOfficeToken(User $user)
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
 

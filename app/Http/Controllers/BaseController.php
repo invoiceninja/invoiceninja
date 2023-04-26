@@ -928,7 +928,7 @@ class BaseController extends Controller
     /**
      * List response
      *
-     * @param  Builder $query
+     * @param Builder $query
      */
     protected function listResponse(Builder $query)
     {
@@ -1011,7 +1011,11 @@ class BaseController extends Controller
             }
 
             if (request()->include_static) {
-                $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+
+                $response['static'] = Statics::company($user->getCompany()->getLocale());
             }
         }
 
@@ -1042,8 +1046,11 @@ class BaseController extends Controller
 
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        if (auth()->user() && request()->include_static) {
-            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user && request()->include_static) {
+            $data['static'] = Statics::company($user->getCompany()->getLocale());
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
@@ -1075,7 +1082,11 @@ class BaseController extends Controller
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            if (auth()->user()->getCompany()->is_large && request()->missing('updated_at')) {
+            
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if ($user->getCompany()->is_large && request()->missing('updated_at')) {
                 $data = $this->mini_load;
             } else {
                 $data = $this->first_load;
@@ -1103,7 +1114,11 @@ class BaseController extends Controller
      */
     public function flutterRoute()
     {
+        
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+            
+            /** @var \App\Models\Account $account */
+
             //always redirect invoicing.co to invoicing.co
             if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co', 'https://invoiceninja.net'])) {
                 return redirect()->secure('https://invoicing.co');

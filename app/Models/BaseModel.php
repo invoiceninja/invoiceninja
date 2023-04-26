@@ -100,7 +100,10 @@ class BaseModel extends Model
      */
     public function scopeCompany($query)
     {
-        $query->where('company_id', auth()->user()->companyId());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where('company_id', $user->companyId());
 
         return $query;
     }
@@ -110,7 +113,10 @@ class BaseModel extends Model
      */
     public function scopeScope($query)
     {
-        $query->where($this->getTable().'.company_id', '=', auth()->user()->company()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query->where($this->getTable().'.company_id', '=', $user->company()->id);
 
         return $query;
     }
