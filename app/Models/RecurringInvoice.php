@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_value4
  * @property string $amount
  * @property string $balance
- * @property string|null $partial
+ * @property float|null $partial
  * @property string|null $last_viewed
  * @property int $frequency_id
  * @property string|null $last_sent_date

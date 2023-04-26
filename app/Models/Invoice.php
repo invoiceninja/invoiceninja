@@ -78,10 +78,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $amount
- * @property string $balance
- * @property string|null $partial
+ * @property float $exchange_rate
+ * @property float $amount
+ * @property float $balance
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at

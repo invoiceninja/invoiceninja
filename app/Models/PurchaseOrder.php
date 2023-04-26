@@ -76,7 +76,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int $custom_surcharge_tax4
  * @property string $exchange_rate
  * @property string $balance
- * @property string|null $partial
+ * @property float|null $partial
  * @property string $amount
  * @property string $paid_to_date
  * @property string|null $partial_due_date
@@ -335,18 +335,15 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_ACCEPTED:
                 return ctrans('texts.accepted');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
-                // code...
-                break;
+            default:
+                return ctrans('texts.sent');
+                
         }
     }
 

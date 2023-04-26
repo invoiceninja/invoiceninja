@@ -49,7 +49,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $last_sent_date
  * @property string|null $due_date
  * @property int $is_deleted
- * @property object|null $line_items
+ * @property array|null $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -76,10 +76,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
- * @property string $exchange_rate
- * @property string $amount
- * @property string $balance
- * @property string|null $partial
+ * @property float $exchange_rate
+ * @property float $amount
+ * @property float $balance
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
@@ -450,7 +450,7 @@ class Credit extends BaseModel
     /**
      * Access the invoice calculator object.
      *
-     * @return stdClass The invoice calculator object getters
+     * @return \stdClass The invoice calculator object getters
      */
     public function calc()
     {
@@ -524,6 +524,8 @@ class Credit extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
+        $file_exists = false;
+
         try {
             $file_exists = Storage::disk(config('filesystems.default'))->exists($file_path);
         } catch (\Exception $e) {
@@ -576,19 +578,14 @@ class Credit extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_PARTIAL:
                 return ctrans('texts.partial');
-                break;
             case self::STATUS_APPLIED:
                 return ctrans('texts.applied');
-                break;
             default:
-                return '';
-                break;
+                return ctrans('texts.sent');
         }
     }
 }

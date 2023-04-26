@@ -80,7 +80,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $custom_surcharge_tax4
  * @property string|null $due_date_days
  * @property string $exchange_rate
- * @property string|null $partial
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property int|null $subscription_id
  * @property int $uses_inclusive_taxes
