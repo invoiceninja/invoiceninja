@@ -305,7 +305,11 @@ class BankIntegrationController extends BaseController
      */
     public function create(CreateBankIntegrationRequest $request)
     {
-        $bank_integration = BankIntegrationFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $bank_integration = BankIntegrationFactory::create($user->company()->id, $user->id, $user->account_id);
 
         return $this->itemResponse($bank_integration);
     }
@@ -350,8 +354,12 @@ class BankIntegrationController extends BaseController
      */
     public function store(StoreBankIntegrationRequest $request)
     {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         //stub to store the model
-        $bank_integration = $this->bank_integration_repo->save($request->all(), BankIntegrationFactory::create(auth()->user()->company()->id, auth()->user()->id, auth()->user()->account_id));
+        $bank_integration = $this->bank_integration_repo->save($request->all(), BankIntegrationFactory::create($user->company()->id, $user->id, $user->account_id));
 
         return $this->itemResponse($bank_integration);
     }
@@ -521,7 +529,13 @@ class BankIntegrationController extends BaseController
         // As yodlee is the first integration we don't need to perform switches yet, however
         // if we add additional providers we can reuse this class
 
-        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user_account = $user->account;
+
+        $bank_account_id = $user_account->bank_integration_account_id;
 
         if (!$bank_account_id) {
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
@@ -532,11 +546,11 @@ class BankIntegrationController extends BaseController
         $accounts = $yodlee->getAccounts();
 
         foreach ($accounts as $account) {
-            if (!BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', auth()->user()->company()->id)->exists()) {
+            if (!BankIntegration::withTrashed()->where('bank_account_id', $account['id'])->where('company_id', $user->company()->id)->exists()) {
                 $bank_integration = new BankIntegration();
-                $bank_integration->company_id = auth()->user()->company()->id;
-                $bank_integration->account_id = auth()->user()->account_id;
-                $bank_integration->user_id = auth()->user()->id;
+                $bank_integration->company_id = $user->company()->id;
+                $bank_integration->account_id = $user->account_id;
+                $bank_integration->user_id = $user->id;
                 $bank_integration->bank_account_id = $account['id'];
                 $bank_integration->bank_account_type = $account['account_type'];
                 $bank_integration->bank_account_name = $account['account_name'];
@@ -550,18 +564,16 @@ class BankIntegrationController extends BaseController
                 $bank_integration->save();
             }
         }
-
-        $account = auth()->user()->account;
         
         if (Cache::get("throttle_polling:{$account->key}")) {
             return response()->json(BankIntegration::query()->company(), 200);
         }
 
-        $account->bank_integrations->each(function ($bank_integration) use ($account) {
-            ProcessBankTransactions::dispatch($account->bank_integration_account_id, $bank_integration);
+        $user_account->bank_integrations->each(function ($bank_integration) use ($user_account) {
+            ProcessBankTransactions::dispatch($user_account->bank_integration_account_id, $bank_integration);
         });
 
-        Cache::put("throttle_polling:{$account->key}", true, 300);
+        Cache::put("throttle_polling:{$user_account->key}", true, 300);
 
         return response()->json(BankIntegration::query()->company(), 200);
     }
@@ -605,7 +617,12 @@ class BankIntegrationController extends BaseController
 
     public function removeAccount(AdminBankIntegrationRequest $request, $acc_id)
     {
-        $bank_account_id = auth()->user()->account->bank_integration_account_id;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $account = $user->account;
+
+        $bank_account_id = $account->bank_integration_account_id;
 
         if (!$bank_account_id) {
             return response()->json(['message' => 'Not yet authenticated with Bank Integration service'], 400);
@@ -621,47 +638,13 @@ class BankIntegrationController extends BaseController
         return $this->itemResponse($bi->fresh());
     }
 
-
-    /**
-     * Return the remote list of accounts stored on the third party provider
-     * and update our local cache.
-     *
-     * @return Response
-     *
-     * @OA\Post(
-     *      path="/api/v1/bank_integrations/get_transactions/account_id",
-     *      operationId="getAccountTransactions",
-     *      tags={"bank_integrations"},
-     *      summary="Retrieve transactions for a account",
-     *      description="Retrieve transactions for a account",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Retrieve transactions for a account",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
-        auth()->user()->account->bank_integrations->each(function ($bank_integration) {
-            (new ProcessBankTransactions(auth()->user()->account->bank_integration_account_id, $bank_integration))->handle();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->account->bank_integrations->each(function ($bank_integration) use ($user){
+            (new ProcessBankTransactions($user->account->bank_integration_account_id, $bank_integration))->handle();
         });
 
         return response()->json(['message' => 'Fetching transactions....'], 200);
