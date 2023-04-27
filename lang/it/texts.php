@@ -4966,7 +4966,7 @@ $LANG = array(
     'payment_type_Interac E Transfer' => 'Interac E Trasferimento',
     'xinvoice_payable' => 'Pagabile entro :payeddue giorni netti fino :paydate',
     'xinvoice_no_buyers_reference' => "Nessun riferimento dell&#39;acquirente fornito",
-    'xinvoice_online_payment' => 'La fattura deve essere pagata online tramite il link fornito',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Pagamento anticipato',
     'number_of_payments' => 'Numero di pagamenti',
     'number_of_payments_helper' => 'Il numero di volte in cui verrà effettuato questo pagamento',
@@ -5050,6 +5050,8 @@ $LANG = array(
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

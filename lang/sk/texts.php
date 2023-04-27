@@ -4964,7 +4964,7 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Splatné do :payeddue dní netto do :paydate',
     'xinvoice_no_buyers_reference' => "Nebola uvedená žiadna referencia kupujúceho",
-    'xinvoice_online_payment' => 'Faktúru je potrebné uhradiť online cez uvedený odkaz',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Platba vopred',
     'number_of_payments' => 'Počet platieb',
     'number_of_payments_helper' => 'Koľkokrát sa táto platba uskutoční',
@@ -5048,6 +5048,8 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

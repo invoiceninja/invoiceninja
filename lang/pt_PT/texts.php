@@ -4978,7 +4978,7 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Pagável dentro de :payeddue dias líquidos até :paydate',
     'xinvoice_no_buyers_reference' => "Nenhuma referência do comprador fornecida",
-    'xinvoice_online_payment' => 'A fatura deve ser paga online através do link fornecido',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Pré-Pagamento',
     'number_of_payments' => 'Número de pagamentos',
     'number_of_payments_helper' => 'O número de vezes que esse pagamento será feito',
@@ -5062,6 +5062,8 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

@@ -4882,7 +4882,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'email_queued' => 'Courriel en file d\'attente',
     'clone_to_recurring_invoice' => 'Dupliquer en facture récurrente',
     'inventory_threshold' => 'Seuil d\'inventaire',
-    'emailed_statement' => 'L\'état de compte a été mis en file d\'attente pour l\'envoi',
+    'emailed_statement' => 'Le relevé a été mis en file d\'attente pour l\'envoi',
     'show_email_footer' => 'Afficher le pied de page du courriel',
     'invoice_task_hours' => 'Facturer les heures de tâches',
     'invoice_task_hours_help' => 'Ajouter ces heures aux articles de la facture',
@@ -4910,7 +4910,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'all_clients' => 'Tous les clients',
     'show_aging_table' => 'Afficher la liste des impayés',
     'show_payments_table' => 'Afficher la liste des paiements',
-    'email_statement' => 'Envoyer par courriel l\'état de compte',
+    'email_statement' => 'Envoyer le relevé par courriel',
     'once' => 'Une fois',
     'schedules' => 'Planifications',
     'new_schedule' => 'Nouvelle planification',
@@ -4973,7 +4973,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_Interac E Transfer' => 'Transfert Interac',
     'xinvoice_payable' => 'Payable d\'ici :payeddue jours jusqu\'à :paydate',
     'xinvoice_no_buyers_reference' => "Aucune référence de l'acheteur fournie",
-    'xinvoice_online_payment' => 'Cette facture doit être payée en ligne en utilisant le lien fourni',
+    'xinvoice_online_payment' => 'Cette facture doit être payée en ligne en suivant le lien fourni',
     'pre_payment' => 'Prépaiement',
     'number_of_payments' => 'Nombre de paiements',
     'number_of_payments_helper' => 'Nombre de fois que ce paiement sera fait',
@@ -5037,7 +5037,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'tax_all' => 'Tout taxer',
     'tax_selected' => 'Taxe sélectionnée',
     'version' => 'version',
-    'seller_subregion' => 'Sous-région du vendeur',
+    'seller_subregion' => 'Province du vendeur',
     'calculate_taxes' => 'Calculer les taxes',
     'calculate_taxes_help' => 'Calcul automatique des taxes à la sauvegarde des factures',
     'link_expenses' => 'Lier les dépenses',
@@ -5057,6 +5057,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'services' => 'Services',
     'shipping' => 'Livraison',
     'tax_exempt' => 'Exemption de taxes',
+    'late_fee_added_locked_invoice' => 'Les frais de retard pour la facture :invoice ont été ajoutés le :date',
+
 );
 
 

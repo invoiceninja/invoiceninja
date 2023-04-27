@@ -136,6 +136,12 @@ class EntitySentObject
                 $this->template_subject = 'texts.notification_purchase_order_sent_subject';
                 $this->template_body = 'texts.notification_purchase_order_sent';
                 break;
+            case 'custom1':
+            case 'custom2':
+            case 'custom3':
+                $this->template_subject = 'texts.notification_invoice_custom_sent_subject';
+                $this->template_body = 'texts.notification_invoice_sent';
+                break;
             default:
                 $this->template_subject = 'texts.notification_invoice_sent_subject';
                 $this->template_body = 'texts.notification_invoice_sent';

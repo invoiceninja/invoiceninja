@@ -136,15 +136,16 @@ class EmailController extends BaseController
         $mo->email_template_body = $request->input('template');
         $mo->email_template_subject = str_replace("template", "subject", $request->input('template'));
 
-        if ($request->has('cc_email') && $request->cc_email) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($request->has('cc_email') && $request->cc_email && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
             $mo->cc[] = new Address($request->cc_email);
         }
 
         $entity_obj->invitations->each(function ($invitation) use ($data, $entity_obj, $template, $mo) {
             if (! $invitation->contact->trashed() && $invitation->contact->email) {
                 $entity_obj->service()->markSent()->save();
-
-                // EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data);
 
                 $mo->invitation_id = $invitation->id;
 

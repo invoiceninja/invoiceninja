@@ -37,6 +37,8 @@ class InvoiceEmailedNotification implements ShouldQueue
      */
     public function handle($event)
     {
+        nlog($event->template);
+
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -60,6 +62,20 @@ class InvoiceEmailedNotification implements ShouldQueue
             /* If one of the methods is email then we fire the EntitySentMailer */
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
+
+                // $template = $event->template ?? '';
+
+                // if(isset($event->reminder)){
+
+                //     $template = match($event->reminder){
+                //         63 => 'reminder1',
+                //         64 => 'reminder2',
+                //         65 => 'reminder3',
+                //         66 => 'endless_reminder',
+                //         default => ''
+                //     };
+
+                // }
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());

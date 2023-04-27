@@ -5002,7 +5002,7 @@ $LANG = array(
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'مستحق الدفع paydate: صافي أيام الدفع payeddue: تاريخ الدفع',
     'xinvoice_no_buyers_reference' => "لم يتم إعطاء إشارة للمشتري",
-    'xinvoice_online_payment' => 'يجب دفع الفاتورة عبر الإنترنت من خلال الرابط المقدم',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'الدفع المسبق',
     'number_of_payments' => 'عدد الدفعات',
     'number_of_payments_helper' => 'عدد المرات التي سيتم فيها إجراء هذه الدفعة',
@@ -5086,6 +5086,8 @@ $LANG = array(
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 
