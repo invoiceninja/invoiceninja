@@ -203,6 +203,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getInvoice()
     {
         //Build invoice values here and return Invoice
@@ -212,6 +215,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getQuote()
     {
         //Build invoice values here and return Invoice
@@ -221,6 +227,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getCredit()
     {
         //Build invoice values here and return Invoice
@@ -230,6 +239,9 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    /**
+     * @return Invoice | RecurringInvoice | Quote | Credit | PurchaseOrder
+     */
     public function getPurchaseOrder()
     {
         //Build invoice values here and return Invoice
