@@ -34,6 +34,12 @@ class LateFeeTest extends TestCase
 
     public $faker;
 
+    public $account;
+
+    public $company;
+
+    public $client;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -153,7 +159,7 @@ class LateFeeTest extends TestCase
         $settings->num_days_reminder1 = 10;
         $settings->schedule_reminder1 = 'after_due_date';
 
-    $client = $this->buildData($settings);
+        $client = $this->buildData($settings);
 
         $i = Invoice::factory()->create([
             'client_id' => $client->id,
@@ -161,7 +167,7 @@ class LateFeeTest extends TestCase
             'company_id' => $this->company->id,
             'amount' => 0,
             'balance' => 0,
-            'status_id' => 2,
+            'status_id' => Invoice::STATUS_DRAFT,
             'total_taxes' => 1,
             'date' => now()->format('Y-m-d'),
             'due_date' => now()->subDays(10)->format('Y-m-d'),
@@ -178,9 +184,11 @@ class LateFeeTest extends TestCase
         ]);
 
         $i = $i->calc()->getInvoice();
-        $i->service()->applyNumber()->createInvitations()->save();
+        $i->service()->applyNumber()->createInvitations()->markSent()->save();
         
         $this->assertEquals(10, $i->amount);
+        $this->assertEquals(10, $i->balance);
+        $this->assertEquals(10, $client->fresh()->balance);
 
         $reflectionMethod = new \ReflectionMethod(ReminderJob::class, 'sendReminderForInvoice');
         $reflectionMethod->setAccessible(true);
@@ -189,7 +197,7 @@ class LateFeeTest extends TestCase
         $i->fresh();
 
         $this->assertEquals(10, $i->balance);
-
+        $this->assertEquals(20, $client->fresh()->balance);
     }
 
 

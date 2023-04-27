@@ -55,6 +55,6 @@ class ContactLoggedIn
      */
      public function broadcastOn()
      {
-return [];
+        return [];
      }
 }

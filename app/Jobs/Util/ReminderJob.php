@@ -182,7 +182,7 @@ class ReminderJob implements ShouldQueue
         }
 
         $invoice = InvoiceFactory::create($over_due_invoice->company_id, $over_due_invoice->user_id);
-        $invoice->client_id = $invoice->client_id;
+        $invoice->client_id = $over_due_invoice->client_id;
         $invoice->date = now()->format('Y-m-d');
         $invoice->due_date = now()->format('Y-m-d');
                 
@@ -206,9 +206,9 @@ class ReminderJob implements ShouldQueue
                 ->markSent()
                 ->save();
         
-        nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.$invoice->balance);
-        $invoice->client->service()->updateBalance($invoice->balance);
-        $invoice->ledger()->updateInvoiceBalance($invoice->balance, "Late Fee Adjustment for invoice {$invoice->number}");
+        // nlog('adjusting client balance and invoice balance by #'.$invoice->number.' '.$invoice->balance);
+        // $invoice->client->service()->updateBalance($invoice->balance);
+        // $invoice->ledger()->updateInvoiceBalance($invoice->balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         $invoice->service()->touchPdf(true);
 
