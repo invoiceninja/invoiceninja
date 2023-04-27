@@ -293,8 +293,16 @@ abstract class QueryFilters
         return $this->builder;
     }
 
-    public function with(string $value): Builder
+    public function with(string $value = ''): Builder
     {
+        if (strlen($value) == 0) {
+            return $this->builder;
+        }
+
+        if($this->with_property == 'id') {
+            $value = $this->decodePrimaryKey($value);
+        }
+
         return $this->builder
             ->orWhere($this->with_property, $value)
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class ClientFilters extends QueryFilters
 {
+
     /**
      * Filter by name.
      *
