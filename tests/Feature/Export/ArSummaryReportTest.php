@@ -27,7 +27,7 @@ use Tests\TestCase;
 /**
  * @test
  */
-class ARSummaryReportTest extends TestCase
+class ArSummaryReportTest extends TestCase
 {
     use MakesHash;
 

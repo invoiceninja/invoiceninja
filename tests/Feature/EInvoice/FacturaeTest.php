@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\EInvoice;
 
 use App\Services\Invoice\EInvoice\FacturaEInvoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -19,7 +19,6 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Http\Controllers\ActivityController
  */
 class FacturaeTest extends TestCase
 {
