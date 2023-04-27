@@ -4,6 +4,7 @@ includes:
 parameters:
     ignoreErrors:
         - '#Call to an undefined method .*badMethod\(\)#'
+        - 'Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude().
     level: 2
     paths:
         - app

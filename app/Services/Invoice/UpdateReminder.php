@@ -160,19 +160,6 @@ class UpdateReminder extends AbstractService
         return $this->invoice;
     }
 
-    private function testReminderValid($reminder_number, $reminder_schedule) :bool
-    {
-        $reminder_sent = "reminder{$reminder_number}_sent";
-        $schedule_reminder = "schedule_reminder{$reminder_number}";
-        $enable_reminder = "enable_reminder{$reminder_number}";
-        $late_fee_amount = "late_fee_amount{$reminder_number}";
-        $late_fee_percent = "late_fee_percent{$reminder_number}";
-
-        return is_null($this->invoice->{$reminder_sent}) &&
-            $this->settings->{$schedule_reminder} == $reminder_schedule &&
-            ($this->settings->{$enable_reminder} || $late_fee_percent > 0 || $late_fee_amount > 0);
-    }
-
     private function addTimeInterval($date, $endless_reminder_frequency_id) :?Carbon
     {
         if (! $date) {

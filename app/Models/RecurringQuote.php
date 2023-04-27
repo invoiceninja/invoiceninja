@@ -80,7 +80,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $custom_surcharge_tax4
  * @property string|null $due_date_days
  * @property string $exchange_rate
- * @property string|null $partial
+ * @property float|null $partial
  * @property string|null $partial_due_date
  * @property int|null $subscription_id
  * @property int $uses_inclusive_taxes
@@ -171,6 +171,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringQuote whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringQuote withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringQuote withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringQuoteInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
@@ -538,22 +543,16 @@ class RecurringQuote extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h4><span class="badge badge-light">'.ctrans('texts.draft').'</span></h4>';
-                break;
             case self::STATUS_PENDING:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
-                break;
             case self::STATUS_ACTIVE:
                 return '<h4><span class="badge badge-primary">'.ctrans('texts.active').'</span></h4>';
-                break;
             case self::STATUS_COMPLETED:
                 return '<h4><span class="badge badge-success">'.ctrans('texts.status_completed').'</span></h4>';
-                break;
             case self::STATUS_PAUSED:
                 return '<h4><span class="badge badge-danger">'.ctrans('texts.paused').'</span></h4>';
-                break;
             default:
-                // code...
-                break;
+                return '<h4><span class="badge badge-primary">'.ctrans('texts.pending').'</span></h4>';
         }
     }
 
@@ -562,50 +561,43 @@ class RecurringQuote extends BaseModel
         switch ($frequency_id) {
             case self::FREQUENCY_DAILY:
                 return ctrans('texts.freq_daily');
-                break;
             case self::FREQUENCY_WEEKLY:
                 return ctrans('texts.freq_weekly');
-                break;
             case self::FREQUENCY_TWO_WEEKS:
                 return ctrans('texts.freq_two_weeks');
-                break;
             case self::FREQUENCY_FOUR_WEEKS:
                 return ctrans('texts.freq_four_weeks');
-                break;
             case self::FREQUENCY_MONTHLY:
                 return ctrans('texts.freq_monthly');
-                break;
             case self::FREQUENCY_TWO_MONTHS:
                 return ctrans('texts.freq_two_months');
-                break;
             case self::FREQUENCY_THREE_MONTHS:
                 return ctrans('texts.freq_three_months');
-                break;
             case self::FREQUENCY_FOUR_MONTHS:
                 return ctrans('texts.freq_four_months');
-                break;
             case self::FREQUENCY_SIX_MONTHS:
                 return ctrans('texts.freq_six_months');
-                break;
             case self::FREQUENCY_ANNUALLY:
                 return ctrans('texts.freq_annually');
-                break;
             case self::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
-                break;
             default:
-                // code...
-                break;
+                return ctrans('texts.freq_weekly');
+
         }
     }
 
-    public function calc()
+    /**
+     * Access the invoice calculator object.
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
+     */
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $invoice_calc = null;
 
-        if ($this->uses_inclusive_taxes) {
+        if ($this->uses_inclusive_taxes) {            
             $invoice_calc = new InvoiceSumInclusive($this);
-        } else {
+        } else {            
             $invoice_calc = new InvoiceSum($this);
         }
 
@@ -669,10 +661,8 @@ class RecurringQuote extends BaseModel
         switch ($this->due_date_days) {
             case 'terms':
                 return $this->calculateDateFromTerms($date);
-                break;
             default:
                 return $this->setDayOfMonth($date, $this->due_date_days);
-                break;
         }
     }
 
@@ -697,6 +687,7 @@ class RecurringQuote extends BaseModel
 
     /**
      * Service entry points.
+     * @return RecurringService
      */
     public function service() :RecurringService
     {

@@ -11,13 +11,17 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\BaseSettings;
+use App\Models\RecurringInvoice;
 use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
-use App\DataMapper\Tax\ZipTax\Response;
 
 class InvoiceItemSum
 {
@@ -59,7 +63,7 @@ class InvoiceItemSum
         'AU', // Australia
     ];
 
-    protected $invoice;
+    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
 
     private $items;
 
@@ -91,7 +95,7 @@ class InvoiceItemSum
 
     private RuleInterface $rule;
 
-    public function __construct($invoice)
+    public function __construct( RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
 
@@ -108,9 +112,9 @@ class InvoiceItemSum
         $this->line_items = [];
     }
 
-    public function process()
+    public function process(): self
     {
-        if (! $this->invoice->line_items || ! isset($this->invoice->line_items) || ! is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+        if (!$this->invoice->line_items || !is_array($this->invoice->line_items)) {
             $this->items = [];
 
             return $this;
@@ -121,7 +125,7 @@ class InvoiceItemSum
         return $this;
     }
 
-    private function calcLineItems()
+    private function calcLineItems(): self
     {
         foreach ($this->invoice->line_items as $this->item) {
             $this->cleanLineItem()
@@ -136,7 +140,7 @@ class InvoiceItemSum
 
     private function shouldCalculateTax(): self
     {
-        if (!$this->invoice->company?->calculate_taxes) {
+        if (!$this->invoice->company->calculate_taxes) {
             $this->calc_tax = false;
             return $this;
         }
@@ -159,7 +163,7 @@ class InvoiceItemSum
         return $this;
     }
 
-    private function push()
+    private function push(): self
     {
         $this->sub_total += $this->getLineTotal();
 

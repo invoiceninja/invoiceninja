@@ -11,28 +11,30 @@
 
 namespace App\Exceptions;
 
+use Throwable;
+use PDOException;
 use App\Utils\Ninja;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
-use Illuminate\Database\Eloquent\RelationNotFoundException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Sentry\State\Scope;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Queue\MaxAttemptsExceededException;
-use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
-use League\Flysystem\UnableToCreateDirectory;
-use PDOException;
 use Sentry\Laravel\Integration;
-use Sentry\State\Scope;
+use Illuminate\Support\Facades\Schema;
+use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Auth\AuthenticationException;
+use League\Flysystem\UnableToCreateDirectory;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\Process\Exception\RuntimeException;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -59,10 +61,9 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         UnableToCreateDirectory::class,
-        GuzzleHttp\Exception\ConnectException::class,
-        Symfony\Component\Process\Exception\RuntimeException::class,
-        InvalidArgumentException::class,
+        ConnectException::class,
         RuntimeException::class,
+        InvalidArgumentException::class,
         Aws\Exception\CredentialsException::class,
     ];
 

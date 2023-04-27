@@ -11,13 +11,18 @@
 
 namespace Tests\Feature;
 
-use App\Models\Design;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Design;
+use Tests\MockAccountData;
+use App\Utils\Traits\MakesHash;
+use App\Events\Design\DesignWasCreated;
+use App\Events\Design\DesignWasDeleted;
+use App\Events\Design\DesignWasUpdated;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Events\Design\DesignWasArchived;
+use App\Events\Design\DesignWasRestored;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -46,6 +51,7 @@ class DesignApiTest extends TestCase
 
     public function testDesignPost()
     {
+
         $design = [
             'body' => 'body',
             'includes' => 'includes',
@@ -127,6 +133,7 @@ class DesignApiTest extends TestCase
 
     public function testDesignArchive()
     {
+
         $design = [
             'body' => 'body',
             'includes' => 'includes',

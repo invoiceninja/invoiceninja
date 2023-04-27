@@ -129,7 +129,7 @@ class Number
     /**
      * Formats a given value based on the clients currency AND country.
      *
-     * @param floatval $value The number to be formatted
+     * @param $value            The number to be formatted
      * @param $entity
      * @return string           The formatted value
      */

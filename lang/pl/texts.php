@@ -4986,11 +4986,6 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'notification_payment_emailed' => 'Płatność :payment została wysłana e-mailem do :client',
     'notification_payment_emailed_subject' => 'Płatność :payment została wysłana e-mailem',
     'record_not_found' => 'Rekord nie znaleziony',
-    'product_tax_exempt' => 'Produkt zwolniony z podatku',
-    'product_type_physical' => 'Towary materialne',
-    'product_type_digital' => 'Towary cyfrowe',
-    'product_type_service' => 'Usługi',
-    'product_type_freight' => 'Shipping',
     'minimum_payment_amount' => 'Minimalna kwota płatności',
     'client_initiated_payments' => 'Płatności zainicjowane przez Klienta',
     'client_initiated_payments_help' => 'Support making a payment in the client portal without an invoice',
@@ -5059,6 +5054,14 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'here' => 'here',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

@@ -36,7 +36,7 @@ class BankIntegrationFilters extends QueryFilters
     /**
      * Filter based on search text.
      *
-     * @param string query filter
+     * @param string $filter
      * @return Builder
      * @deprecated
      */
@@ -55,7 +55,7 @@ class BankIntegrationFilters extends QueryFilters
      * Filters the list based on the status
      * archived, active, deleted.
      *
-     * @param string filter
+     * @param string $filter
      * @return Builder
      */
     public function status(string $filter = ''): Builder

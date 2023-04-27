@@ -20,23 +20,9 @@ use Illuminate\Support\Facades\App;
 
 class AddGatewayFee extends AbstractService
 {
-    private $company_gateway;
-
-    public $invoice;
-
-    private $amount;
-
-    private $gateway_type_id;
-
-    public function __construct(CompanyGateway $company_gateway, int $gateway_type_id, Invoice $invoice, float $amount)
+    
+    public function __construct(private CompanyGateway $company_gateway, private int $gateway_type_id, public Invoice $invoice, private float $amount)
     {
-        $this->company_gateway = $company_gateway;
-
-        $this->invoice = $invoice;
-
-        $this->amount = $amount;
-
-        $this->gateway_type_id = $gateway_type_id;
     }
 
     public function run()

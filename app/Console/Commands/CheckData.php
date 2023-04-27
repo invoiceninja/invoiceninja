@@ -415,8 +415,8 @@ class CheckData extends Command
                 $invitation->company_id = $invoice->company_id;
                 $invitation->user_id = $invoice->user_id;
                 $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
-                $invitation->invitation_key = Str::random(config('ninja.key_length'));
+                $invitation->client_contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
+                $invitation->key = Str::random(config('ninja.key_length'));
                 $invitation->save();
             }
         }
@@ -447,7 +447,7 @@ class CheckData extends Command
                     $contact_id = 'client_contact_id';
                     $contact_class = ClientContact::class;
 
-                    $entity_key = \Illuminate\Support\Str::of(class_basename($entity))->snake()->append('_id')->value;
+                    $entity_key = \Illuminate\Support\Str::of(class_basename($entity))->snake()->append('_id')->toString();
                     $entity_obj = get_class($entity).'Invitation';
 
                     if ($entity instanceof PurchaseOrder) {

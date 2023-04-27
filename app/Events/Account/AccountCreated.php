@@ -47,13 +47,14 @@ class AccountCreated
         $this->event_vars = $event_vars;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('channel-name');
-    }
+    // /**
+    //  * Get the channels the event should broadcast on.
+    //  *
+    //  * @return Channel|array
+    //  */
+     public function broadcastOn()
+     {
+        return [];
+       //  return new PrivateChannel('channel-name');
+     }
 }

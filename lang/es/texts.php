@@ -4987,11 +4987,6 @@ $LANG = array(
     'notification_payment_emailed' => 'El pago :payment se envió por correo electrónico a :client',
     'notification_payment_emailed_subject' => 'El pago :payment fue enviado por correo electrónico',
     'record_not_found' => 'Registro no encontrado',
-    'product_tax_exempt' => 'Producto exento de impuestos',
-    'product_type_physical' => 'Bienes físicos',
-    'product_type_digital' => 'Bienes digitales',
-    'product_type_service' => 'Servicios',
-    'product_type_freight' => 'Envío',
     'minimum_payment_amount' => 'Monto mínimo de pago',
     'client_initiated_payments' => 'Pagos iniciados por el cliente',
     'client_initiated_payments_help' => 'Soporte para realizar un pago en el portal del cliente sin factura',
@@ -5060,6 +5055,14 @@ $LANG = array(
     'here' => 'aquí',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

@@ -41,7 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $client_hash
  * @property string|null $logo
  * @property string|null $phone
- * @property string|null routing_id
+ * @property string|null $routing_id
  * @property string $balance
  * @property string $paid_to_date
  * @property string $credit_balance
@@ -365,6 +365,23 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @method static \Illuminate\Database\Eloquent\Builder|Client whereRoutingId($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $gateway_tokens
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringExpense> $recurring_expenses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
  * @mixin \Eloquent
  */
 class Client extends BaseModel implements HasLocalePreference
@@ -626,6 +643,11 @@ class Client extends BaseModel implements HasLocalePreference
         })->first();
     }
 
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
+
     public function locale()
     {
         if (! $this->language()) {
@@ -774,7 +796,7 @@ class Client extends BaseModel implements HasLocalePreference
             if ($pm['gateway_type_id'] == GatewayType::CREDIT_CARD) {
                 $cg = CompanyGateway::find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::CREDIT_CARD)) {
+                if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
                     $cg->fees_and_limits = $fees_and_limits;

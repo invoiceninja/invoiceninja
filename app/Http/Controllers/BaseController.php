@@ -11,39 +11,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Models\Client;
-use App\Models\Design;
-use App\Utils\Statics;
 use App\Models\Account;
-use App\Models\TaxRate;
-use App\Models\Webhook;
-use App\Models\Scheduler;
-use App\Models\TaskStatus;
-use App\Models\PaymentTerm;
-use Illuminate\Support\Str;
-use League\Fractal\Manager;
-use App\Models\GroupSetting;
-use Illuminate\Http\Response;
-use App\Models\CompanyGateway;
-use App\Utils\Traits\AppSetup;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
-use App\Models\ExpenseCategory;
-use League\Fractal\Resource\Item;
 use App\Models\BankTransactionRule;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Client;
+use App\Models\CompanyGateway;
+use App\Models\Design;
+use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
+use App\Models\PaymentTerm;
+use App\Models\Scheduler;
+use App\Models\TaskStatus;
+use App\Models\TaxRate;
+use App\Models\User;
+use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use App\Transformers\EntityTransformer;
-use League\Fractal\Resource\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use League\Fractal\Serializer\JsonApiSerializer;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use App\Utils\Ninja;
+use App\Utils\Statics;
+use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use League\Fractal\Manager;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
+use League\Fractal\Serializer\JsonApiSerializer;
 
 /**
  * Class BaseController.
+ * @method static Illuminate\Database\Eloquent\Builder exclude($columns)
  */
 class BaseController extends Controller
 {
@@ -236,26 +237,26 @@ class BaseController extends Controller
      * @param  string  $includes The includes for the object
      * @return string            The filtered array of includes
      */
-    private function filterIncludes(string $includes): string
-    {
-        $permissions_array = [
-            'payments' => 'view_payment',
-            'client' => 'view_client',
-            'clients' => 'view_client',
-            'vendor' => 'view_vendor',
-            'vendors' => 'view_vendors',
-            'expense' => 'view_expense',
-            'expenses' => 'view_expense',
-        ];
+    // private function filterIncludes(string $includes): string
+    // {
+    //     $permissions_array = [
+    //         'payments' => 'view_payment',
+    //         'client' => 'view_client',
+    //         'clients' => 'view_client',
+    //         'vendor' => 'view_vendor',
+    //         'vendors' => 'view_vendors',
+    //         'expense' => 'view_expense',
+    //         'expenses' => 'view_expense',
+    //     ];
 
-        $collection = collect(explode(",", $includes));
+    //     $collection = collect(explode(",", $includes));
 
-        $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
-            return auth()->user()->hasPermission($permissions_array[$include]);
-        });
+    //     $filtered_includes = $collection->filter(function ($include) use ($permissions_array) {
+    //         return auth()->user()->hasPermission($permissions_array[$include]);
+    //     });
 
-        return $filtered_includes->implode(",");
-    }
+    //     return $filtered_includes->implode(",");
+    // }
 
     /**
      * 404 for the client portal.
@@ -294,10 +295,11 @@ class BaseController extends Controller
      * Refresh API response with latest cahnges
      *
      * @param  Builder           $query
-     * @return Builder
+     * @return Response
      */
     protected function refreshResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->manager->parseIncludes($this->first_load);
@@ -536,14 +538,18 @@ class BaseController extends Controller
 
             $paginator = $query->paginate($limit);
 
-            $query = $paginator->getCollection();
+            /** @phpstan-ignore-next-line */
+            $query = $paginator->getCollection(); /** @phpstan-ignore-line */
+
 
             $resource = new Collection($query, $transformer, $this->entity_type);
 
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -565,11 +571,12 @@ class BaseController extends Controller
     /**
      * Mini Load Query
      *
-     *  @param  Builder           $query
-     * @return void
+     * @param  Builder $query
+     *
      */
     protected function miniLoadResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
@@ -636,12 +643,15 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -654,24 +664,25 @@ class BaseController extends Controller
      * @deprecated
      * @return bool
      */
-    private function complexPermissionsUser(): bool
-    {
-        //if the user is attached to more than one company AND they are not an admin across all companies
-        if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
-            return true;
-        }
+    // private function complexPermissionsUser(): bool
+    // {
+    //     //if the user is attached to more than one company AND they are not an admin across all companies
+    //     if (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count())) {
+    //         return true;
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
     
     /**
      * Passes back the miniloaded data response
      *
      * @param  Builder $query
-     * 
+     *
      */
     protected function timeConstrainedResponse($query)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->getCompany()->is_large) {
@@ -899,22 +910,27 @@ class BaseController extends Controller
             $limit = $this->resolveQueryLimit();
 
             $paginator = $query->paginate($limit);
+
+            /** @phpstan-ignore-next-line */
             $query = $paginator->getCollection();
+
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
-        }
+        } 
+        
+        // else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
     
     /**
      * List response
-     * 
-     * @param  Builder $query
+     *
+     * @param Builder $query
      */
-    protected function listResponse($query)
+    protected function listResponse(Builder $query)
     {
         $this->buildManager();
 
@@ -963,9 +979,10 @@ class BaseController extends Controller
             $query = $paginator->getCollection();
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
-        } else {
-            $resource = new Collection($query, $transformer, $this->entity_type);
         }
+        //  else {
+        //     $resource = new Collection($query, $transformer, $this->entity_type);
+        // }
 
         return $this->response($this->manager->createData($resource)->toArray());
     }
@@ -974,7 +991,7 @@ class BaseController extends Controller
      * Sorts the response by keys
      *
      * @param  mixed $response
-     * @return void
+     * @return Response
      */
     protected function response($response)
     {
@@ -994,7 +1011,11 @@ class BaseController extends Controller
             }
 
             if (request()->include_static) {
-                $response['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+
+                /** @var \App\Models\User $user */
+                $user = auth()->user();
+
+                $response['static'] = Statics::company($user->getCompany()->getLocale());
             }
         }
 
@@ -1011,6 +1032,7 @@ class BaseController extends Controller
      * Item Response
      *
      * @param  mixed $item
+     * @return Response
      */
     protected function itemResponse($item)
     {
@@ -1024,8 +1046,11 @@ class BaseController extends Controller
 
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        if (auth()->user() && request()->include_static) {
-            $data['static'] = Statics::company(auth()->user()->getCompany()->getLocale());
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($user && request()->include_static) {
+            $data['static'] = Statics::company($user->getCompany()->getLocale());
         }
 
         return $this->response($this->manager->createData($resource)->toArray());
@@ -1057,7 +1082,11 @@ class BaseController extends Controller
          * Thresholds for displaying large account on first load
          */
         if (request()->has('first_load') && request()->input('first_load') == 'true') {
-            if (auth()->user()->getCompany()->is_large && request()->missing('updated_at')) {
+            
+            /** @var \App\Models\User $user */
+            $user = auth()->user();
+
+            if ($user->getCompany()->is_large && request()->missing('updated_at')) {
                 $data = $this->mini_load;
             } else {
                 $data = $this->first_load;
@@ -1085,7 +1114,11 @@ class BaseController extends Controller
      */
     public function flutterRoute()
     {
+        
         if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+            
+            /** @var \App\Models\Account $account */
+
             //always redirect invoicing.co to invoicing.co
             if (Ninja::isHosted() && !in_array(request()->getSchemeAndHttpHost(), ['https://staging.invoicing.co', 'https://invoicing.co', 'https://demo.invoicing.co', 'https://invoiceninja.net'])) {
                 return redirect()->secure('https://invoicing.co');
@@ -1151,9 +1184,9 @@ class BaseController extends Controller
     /**
      * Sets the Flutter build to serve
      *
-     * @return void
+     * @return string
      */
-    private function setBuild()
+    private function setBuild(): string
     {
         $build = '';
 

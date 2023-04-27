@@ -396,7 +396,7 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->invoice->service()->touchPdf();
+        $this->touchPdf();
 
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
@@ -541,7 +541,7 @@ class InvoiceService
         $settings = $this->invoice->client->getMergedSettings();
 
         if (! $this->invoice->design_id) {
-            $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
+            $this->invoice->design_id = intval($this->decodePrimaryKey($settings->invoice_design_id));
         }
 
         if (! isset($this->invoice->footer) || empty($this->invoice->footer)) {

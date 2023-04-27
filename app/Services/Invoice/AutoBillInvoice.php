@@ -11,45 +11,41 @@
 
 namespace App\Services\Invoice;
 
-use App\DataMapper\InvoiceItem;
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Services\AbstractService;
-use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use App\DataMapper\InvoiceItem;
+use App\Factory\PaymentFactory;
+use App\Services\AbstractService;
+use App\Models\ClientGatewayToken;
+use App\Events\Invoice\InvoiceWasPaid;
+use App\Events\Payment\PaymentWasCreated;
 
 class AutoBillInvoice extends AbstractService
 {
-    private $invoice;
 
-    private $client;
+    private Client $client;
 
-    private $used_credit = [];
-
-    protected $db;
+    private array $used_credit = [];
 
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
-    public function __construct(Invoice $invoice, $db)
+    public function __construct(private Invoice $invoice, protected string $db)
     {
-        $this->invoice = $invoice;
-
-        $this->db = $db;
     }
 
     public function run()
     {
         MultiDB::setDb($this->db);
 
-        /* Harvest Client*/
+        /* @var \App\Modesl\Client $client */
         $this->client = $this->invoice->client;
 
         $is_partial = false;
@@ -78,6 +74,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $amount = 0;
+        $invoice_total = 0;
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
@@ -93,13 +90,15 @@ class AutoBillInvoice extends AbstractService
         info("Auto Bill - balance remains to be paid!! - {$amount}");
 
         /* Retrieve the Client Gateway Token */
+        /** @var \App\Models\ClientGatewayToken $gateway_token */
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
         if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing) {
             nlog('Bailing out - no suitable gateway token found.');
 
-            return $this->invoice;
+            throw new \Exception(ctrans('texts.no_payment_method_specified'));
+            // return $this->invoice;
         }
 
         nlog('Gateway present - adding gateway fee');
@@ -191,6 +190,8 @@ class AutoBillInvoice extends AbstractService
             ->service()
             ->setCalculatedStatus()
             ->save();
+            
+        $current_credit = false;
 
         foreach ($this->used_credit as $credit) {
             $current_credit = Credit::find($credit['credit_id']);
@@ -219,8 +220,10 @@ class AutoBillInvoice extends AbstractService
              ->adjustCreditBalance($amount * -1)
              ->save();
 
+        $credit_reference = $current_credit ? $current_credit->number : 'unknown';
+
         $this->invoice->ledger() //09-03-2022
-                      ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
+                      ->updateCreditBalance($amount * -1, "Credit {$credit_reference} used to pay down Invoice {$this->invoice->number}")
                       ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
@@ -245,7 +248,7 @@ class AutoBillInvoice extends AbstractService
      *
      * @return $this
      */
-    private function applyCreditPayment()
+    private function applyCreditPayment(): self
     {
         $available_credits = Credit::where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
@@ -258,7 +261,7 @@ class AutoBillInvoice extends AbstractService
         info("available credit balance = {$available_credit_balance}");
 
         if ((int) $available_credit_balance == 0) {
-            return;
+            return $this;
         }
 
         if ($this->invoice->partial > 0) {
@@ -307,32 +310,32 @@ class AutoBillInvoice extends AbstractService
         return $this;
     }
 
-    private function applyPaymentToCredit($credit, $amount) :Credit
-    {
-        $credit_item = new InvoiceItem;
-        $credit_item->type_id = '1';
-        $credit_item->product_key = ctrans('texts.credit');
-        $credit_item->notes = ctrans('texts.credit_payment', ['invoice_number' => $this->invoice->number]);
-        $credit_item->quantity = 1;
-        $credit_item->cost = $amount * -1;
+    // private function applyPaymentToCredit($credit, $amount) :Credit
+    // {
+    //     $credit_item = new InvoiceItem;
+    //     $credit_item->type_id = '1';
+    //     $credit_item->product_key = ctrans('texts.credit');
+    //     $credit_item->notes = ctrans('texts.credit_payment', ['invoice_number' => $this->invoice->number]);
+    //     $credit_item->quantity = 1;
+    //     $credit_item->cost = $amount * -1;
 
-        $credit_items = $credit->line_items;
-        $credit_items[] = $credit_item;
+    //     $credit_items = $credit->line_items;
+    //     $credit_items[] = $credit_item;
 
-        $credit->line_items = $credit_items;
+    //     $credit->line_items = $credit_items;
 
-        $credit = $credit->calc()->getCredit();
-        $credit->save();
+    //     $credit = $credit->calc()->getCredit();
+    //     $credit->save();
 
-        return $credit;
-    }
+    //     return $credit;
+    // }
 
     /**
      * Harvests a client gateway token which passes the
      * necessary filters for an $amount.
      *
      * @param  float              $amount The amount to charge
-     * @return ClientGatewayToken         The client gateway token
+     * @return ClientGatewayToken | bool        The client gateway token
      */
     public function getGateway($amount)
     {
@@ -373,31 +376,32 @@ class AutoBillInvoice extends AbstractService
      *
      * @param float $fee The fee amount.
      * @return AutoBillInvoice
+     * @deprecated / unused
      */
-    private function addFeeToInvoice(float $fee)
-    {
-        //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
-        $starting_amount = $this->invoice->amount;
+    // private function addFeeToInvoice(float $fee)
+    // {
+    //     //todo if we increase the invoice balance here, we will also need to adjust UP the client balance and ledger?
+    //     $starting_amount = $this->invoice->amount;
 
-        $item = new InvoiceItem;
-        $item->quantity = 1;
-        $item->cost = $fee;
-        $item->notes = ctrans('texts.online_payment_surcharge');
-        $item->type_id = 3;
+    //     $item = new InvoiceItem;
+    //     $item->quantity = 1;
+    //     $item->cost = $fee;
+    //     $item->notes = ctrans('texts.online_payment_surcharge');
+    //     $item->type_id = 3;
 
-        $items = (array) $this->invoice->line_items;
-        $items[] = $item;
+    //     $items = (array) $this->invoice->line_items;
+    //     $items[] = $item;
 
-        $this->invoice->line_items = $items;
-        $this->invoice->saveQuietly();
+    //     $this->invoice->line_items = $items;
+    //     $this->invoice->saveQuietly();
 
-        $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
+    //     $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
 
-        if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
-            $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
-            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, "Invoice {$this->invoice->number} balance updated after stale gateway fee removed")->save();
-        }
+    //     if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
+    //         $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
+    //         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, "Invoice {$this->invoice->number} balance updated after stale gateway fee removed")->save();
+    //     }
 
-        return $this;
-    }
+    //     return $this;
+    // }
 }

@@ -39,9 +39,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $gateway_type_id
  * @property int|null $type_id
  * @property int $status_id
- * @property string $amount
- * @property string $refunded
- * @property string $applied
+ * @property float $amount
+ * @property float $refunded
+ * @property float $applied
  * @property string|null $date
  * @property string|null $transaction_reference
  * @property string|null $payer_id
@@ -51,7 +51,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property bool $is_deleted
- * @property int $is_manual
+ * @property bool $is_manual
  * @property float $exchange_rate
  * @property int $currency_id
  * @property int|null $exchange_currency_id
@@ -132,6 +132,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Payment whereVendorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Payment withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Payment withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Paymentable> $paymentables
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
@@ -394,66 +399,52 @@ class Payment extends BaseModel
         return $this->createClientDate($this->date, $this->client->timezone()->name)->format($date_format->format);
     }
 
-    public static function badgeForStatus(int $status)
+    public static function badgeForStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_PENDING:
                 return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h6><span class="badge badge-warning text-white">'.ctrans('texts.payment_status_2').'</span></h6>';
-                break;
             case self::STATUS_FAILED:
                 return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';
-                break;
             case self::STATUS_COMPLETED:
                 return '<h6><span class="badge badge-info">'.ctrans('texts.payment_status_4').'</span></h6>';
-                break;
             case self::STATUS_PARTIALLY_REFUNDED:
                 return '<h6><span class="badge badge-success">'.ctrans('texts.payment_status_5').'</span></h6>';
-                break;
             case self::STATUS_REFUNDED:
                 return '<h6><span class="badge badge-primary">'.ctrans('texts.payment_status_6').'</span></h6>';
-                break;
             default:
-                // code...
-                break;
+                return '';
         }
     }
 
-    public static function stringStatus(int $status)
+    public static function stringStatus(int $status): string
     {
         switch ($status) {
             case self::STATUS_PENDING:
                 return ctrans('texts.payment_status_1');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.payment_status_2');
-                break;
             case self::STATUS_FAILED:
                 return ctrans('texts.payment_status_3');
-                break;
             case self::STATUS_COMPLETED:
                 return ctrans('texts.payment_status_4');
-                break;
             case self::STATUS_PARTIALLY_REFUNDED:
                 return ctrans('texts.payment_status_5');
-                break;
             case self::STATUS_REFUNDED:
                 return ctrans('texts.payment_status_6');
-                break;
             default:
                 return '';
-                break;
         }
     }
 
-    public function ledger()
+    public function ledger(): LedgerService
     {
         return new LedgerService($this);
     }
 
-    public function service()
+    public function service(): PaymentService
     {
         return new PaymentService($this);
     }
@@ -464,7 +455,7 @@ class Payment extends BaseModel
     }
 
     /**
-     * @return mixed
+     * @return float
      */
     public function getCompletedAmount() :float
     {
@@ -558,7 +549,7 @@ class Payment extends BaseModel
             'payment_refunded' => $payment->refunded ?: 0,
             'payment_status' => $payment->status_id ?: 1,
             'paymentables' => $payment->paymentables->toArray(),
-            'payment_request' => request() ? request()->all() : [],
+            'payment_request' => [],
         ];
     }
 

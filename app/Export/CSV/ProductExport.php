@@ -120,9 +120,9 @@ class ProductExport extends BaseExport
             $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
         }
 
-        if (array_key_exists('project_id', $this->input['report_keys'])) {
-            $entity['project'] = $product->project()->exists() ? $product->project->name : '';
-        }
+        // if (array_key_exists('project_id', $this->input['report_keys'])) {
+        //     $entity['project'] = $product->project()->exists() ? $product->project->name : '';
+        // }
 
         return $entity;
     }

@@ -76,7 +76,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int $custom_surcharge_tax4
  * @property string $exchange_rate
  * @property string $balance
- * @property string|null $partial
+ * @property float|null $partial
  * @property string $amount
  * @property string $paid_to_date
  * @property string|null $partial_due_date
@@ -246,6 +246,12 @@ use Illuminate\Support\Facades\Storage;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Backup> $history
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrderInvitation> $invitations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @mixin \Eloquent
  */
 class PurchaseOrder extends BaseModel
@@ -329,18 +335,15 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return ctrans('texts.draft');
-                break;
             case self::STATUS_SENT:
                 return ctrans('texts.sent');
-                break;
             case self::STATUS_ACCEPTED:
                 return ctrans('texts.accepted');
-                break;
             case self::STATUS_CANCELLED:
                 return ctrans('texts.cancelled');
-                break;
-                // code...
-                break;
+            default:
+                return ctrans('texts.sent');
+                
         }
     }
 
@@ -350,19 +353,14 @@ class PurchaseOrder extends BaseModel
         switch ($status) {
             case self::STATUS_DRAFT:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.draft').'</span></h5>';
-                break;
             case self::STATUS_SENT:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
-                break;
             case self::STATUS_ACCEPTED:
                 return '<h5><span class="badge badge-primary">'.ctrans('texts.accepted').'</span></h5>';
-                break;
             case self::STATUS_CANCELLED:
                 return '<h5><span class="badge badge-secondary">'.ctrans('texts.cancelled').'</span></h5>';
-                break;
             default:
-                // code...
-                break;
+                return '<h5><span class="badge badge-primary">'.ctrans('texts.sent').'</span></h5>';
         }
     }
 
@@ -488,7 +486,12 @@ class PurchaseOrder extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
-    public function calc()
+    /**
+     * Access the invoice calculator object.
+     *
+     * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
+     */
+    public function calc(): InvoiceSumInclusive | InvoiceSum
     {
         $purchase_order_calc = null;
 

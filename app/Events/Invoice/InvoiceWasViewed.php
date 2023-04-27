@@ -22,14 +22,6 @@ class InvoiceWasViewed
 {
     use SerializesModels;
 
-    /**
-     * @var Invoice
-     */
-    public $invitation;
-
-    public $company;
-
-    public $event_vars;
 
     /**
      * Create a new event instance.
@@ -38,10 +30,7 @@ class InvoiceWasViewed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(InvoiceInvitation $invitation, Company $company, array $event_vars)
+    public function __construct(public InvoiceInvitation $invitation, Company $company, array $event_vars)
     {
-        $this->invitation = $invitation;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

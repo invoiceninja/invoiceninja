@@ -4981,11 +4981,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'notification_payment_emailed' => 'Le paiement :payment à été envoyé à :client',
     'notification_payment_emailed_subject' => 'Le paiement :payment a été envoyé',
     'record_not_found' => 'Record not found',
-    'product_tax_exempt' => 'Product Tax Exempt',
-    'product_type_physical' => 'Physical Goods',
-    'product_type_digital' => 'Digital Goods',
-    'product_type_service' => 'Services',
-    'product_type_freight' => 'Shipping',
     'minimum_payment_amount' => 'Montant minimum de paiement',
     'client_initiated_payments' => 'Paiements initiés par le client',
     'client_initiated_payments_help' => 'Assistance pour effectuer un paiement dans le portail client sans facture',
@@ -5054,6 +5049,14 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'here' => 'here',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

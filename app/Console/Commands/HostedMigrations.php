@@ -105,7 +105,7 @@ class HostedMigrations extends Command
 
                     Import::dispatch($import_file, $user->companies()->first(), $user);
                 } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
-                    \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+                    \Mail::to($user)->send(new MigrationFailed($e, $company));
 
                     if (app()->environment() !== 'production') {
                         info($e->getMessage());
