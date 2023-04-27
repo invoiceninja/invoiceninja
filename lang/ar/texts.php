@@ -5010,11 +5010,6 @@ $LANG = array(
     'notification_payment_emailed' => 'الدفع: تم إرسال الدفع بالبريد الإلكتروني إلى: العميل',
     'notification_payment_emailed_subject' => 'الدفع: الدفع بالبريد الإلكتروني',
     'record_not_found' => 'لم يتم العثور على السجل',
-    'product_tax_exempt' => 'معفى من ضريبة المنتج',
-    'product_type_physical' => 'البضائع المادية',
-    'product_type_digital' => 'السلع الرقمية',
-    'product_type_service' => 'خدمات',
-    'product_type_freight' => 'شحن',
     'minimum_payment_amount' => 'الحد الأدنى لمبلغ السداد',
     'client_initiated_payments' => 'مدفوعات يبدأها العميل',
     'client_initiated_payments_help' => 'دعم إجراء الدفع في بوابة العميل بدون فاتورة',
@@ -5083,6 +5078,14 @@ $LANG = array(
     'here' => 'هنا',
     'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'show_credits_table' => 'Show Credits Table',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

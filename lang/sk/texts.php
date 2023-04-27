@@ -4972,11 +4972,6 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'notification_payment_emailed' => 'Platba :payment bola odoslaná e-mailom na adresu :client',
     'notification_payment_emailed_subject' => 'Platba :payment bola odoslaná e-mailom',
     'record_not_found' => 'Záznam sa nenašiel',
-    'product_tax_exempt' => 'Oslobodenie od dane z produktov',
-    'product_type_physical' => 'Fyzický tovar',
-    'product_type_digital' => 'Digitálny tovar',
-    'product_type_service' => 'Služby',
-    'product_type_freight' => 'Doprava',
     'minimum_payment_amount' => 'Minimálna výška platby',
     'client_initiated_payments' => 'Platby iniciované klientom',
     'client_initiated_payments_help' => 'Podpora uskutočňovania platby na klientskom portáli bez faktúry',
@@ -5045,6 +5040,14 @@ Nemôžete nájsť faktúru? Potrebujete poradiť? Radi Vám pomôžeme         
     'here' => 'tu',
     'industry_Restaurant & Catering' => 'Reštaurácia &amp; Catering',
     'show_credits_table' => 'Zobraziť tabuľku kreditov',
+    'manual_payment' => 'Payment Manual',
+    'tax_summary_report' => 'Tax Summary Report',
+    'tax_category' => 'Tax Category',
+    'physical_goods' => 'Physical Goods',
+    'digital_products' => 'Digital Products',
+    'services' => 'Services',
+    'shipping' => 'Shipping',
+    'tax_exempt' => 'Tax Exempt',
 );
 
 

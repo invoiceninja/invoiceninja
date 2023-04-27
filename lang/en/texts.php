@@ -4981,7 +4981,7 @@ $LANG = array(
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Payable within :payeddue days net until :paydate',
     'xinvoice_no_buyers_reference' => "No buyer's reference given",
-    'xinvoice_online_payment' => 'The invoice needs to be payed online via the provided link',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Pre Payment',
     'number_of_payments' => 'Number of payments',
     'number_of_payments_helper' => 'The number of times this payment will be made',
@@ -5065,6 +5065,8 @@ $LANG = array(
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

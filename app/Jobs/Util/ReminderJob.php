@@ -190,7 +190,7 @@ class ReminderJob implements ShouldQueue
         $invoice_item = new InvoiceItem();
         $invoice_item->type_id = '5';
         $invoice_item->product_key = trans('texts.fee');
-        $invoice_item->notes = ctrans('texts.late_fee_added', ['date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
+        $invoice_item->notes = ctrans('texts.late_fee_added_locked_invoice', ['invoice' => $over_due_invoice->number, 'date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
         $invoice_item->quantity = 1;
         $invoice_item->cost = $fee;
 
