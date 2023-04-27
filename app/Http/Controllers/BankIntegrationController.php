@@ -48,48 +48,8 @@ class BankIntegrationController extends BaseController
     }
 
     /**
-     * @OA\Get(
-     *      path="/api/v1/bank_integrations",
-     *      operationId="getBankIntegrations",
-     *      tags={"bank_integrations"},
-     *      summary="Gets a list of bank_integrations",
-     *      description="Lists all bank integrations",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(ref="#/components/parameters/index"),
-     *      @OA\Parameter(
-     *          name="rows",
-     *          in="query",
-     *          description="The number of bank integrations to return",
-     *          example="50",
-     *          required=false,
-     *          @OA\Schema(
-     *              type="number",
-     *              format="integer",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A list of bank integrations",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     * @param Request $request
-     * @return Response|mixed
+     * @param BankIntegrationFilters $filters
+     * @return Responsec
      */
     public function index(BankIntegrationFilters $filters)
     {
@@ -105,47 +65,6 @@ class BankIntegrationController extends BaseController
      * @param BankIntegration $bank_integration
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/bank_integrations/{id}",
-     *      operationId="showBankIntegration",
-     *      tags={"bank_integrations"},
-     *      summary="Shows a bank_integration",
-     *      description="Displays a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The BankIntegration Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function show(ShowBankIntegrationRequest $request, BankIntegration $bank_integration)
     {
@@ -160,47 +79,6 @@ class BankIntegrationController extends BaseController
      * @param BankIntegration $bank_integration
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/bank_integrations/{id}/edit",
-     *      operationId="editBankIntegration",
-     *      tags={"bank_integrations"},
-     *      summary="Shows a bank_integration for editing",
-     *      description="Displays a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The BankIntegration Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function edit(EditBankIntegrationRequest $request, BankIntegration $bank_integration)
     {
@@ -214,48 +92,6 @@ class BankIntegrationController extends BaseController
      * @param BankIntegration $bank_integration
      * @return Response
      *
-     *
-     *
-     * @OA\Put(
-     *      path="/api/v1/bank_integrations/{id}",
-     *      operationId="updateBankIntegration",
-     *      tags={"bank_integrations"},
-     *      summary="Updates a bank_integration",
-     *      description="Handles the updating of a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The BankIntegration Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function update(UpdateBankIntegrationRequest $request, BankIntegration $bank_integration)
     {
@@ -271,37 +107,7 @@ class BankIntegrationController extends BaseController
      * @param CreateBankIntegrationRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/bank_integrations/create",
-     *      operationId="getBankIntegrationsCreate",
-     *      tags={"bank_integrations"},
-     *      summary="Gets a new blank bank_integration object",
-     *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A blank bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
+     *     
      */
     public function create(CreateBankIntegrationRequest $request)
     {
@@ -320,37 +126,6 @@ class BankIntegrationController extends BaseController
      * @param StoreBankIntegrationRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/bank_integrations",
-     *      operationId="storeBankIntegration",
-     *      tags={"bank_integrations"},
-     *      summary="Adds a bank_integration",
-     *      description="Adds an bank_integration to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function store(StoreBankIntegrationRequest $request)
     {
@@ -371,47 +146,7 @@ class BankIntegrationController extends BaseController
      * @param BankIntegration $bank_integration
      * @return Response
      *
-     *
      * @throws \Exception
-     * @OA\Delete(
-     *      path="/api/v1/bank_integrations/{id}",
-     *      operationId="deleteBankIntegration",
-     *      tags={"bank_integrations"},
-     *      summary="Deletes a bank_integration",
-     *      description="Handles the deletion of a bank_integration by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The BankIntegration Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function destroy(DestroyBankIntegrationRequest $request, BankIntegration $bank_integration)
     {
@@ -426,49 +161,6 @@ class BankIntegrationController extends BaseController
      *
      * @return Collection
      *
-     * @OA\Post(
-     *      path="/api/v1/bank_integrations/bulk",
-     *      operationId="bulkBankIntegrations",
-     *      tags={"bank_integrations"},
-     *      summary="Performs bulk actions on an array of bank_integrations",
-     *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/index"),
-     *      @OA\RequestBody(
-     *         description="Action paramters",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="array",
-     *                 @OA\Items(
-     *                     type="integer",
-     *                     description="Array of hashed IDs to be bulk 'actioned",
-     *                     example="[0,1,2,3]",
-     *                 ),
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Bulk Action response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function bulk(BulkBankIntegrationRequest $request)
     {
@@ -493,36 +185,6 @@ class BankIntegrationController extends BaseController
      * Return the remote list of accounts stored on the third party provider.
      *
      * @return Response
-     *
-     * @OA\Post(
-     *      path="/api/v1/bank_integrations/refresh_accounts",
-     *      operationId="getRefreshAccounts",
-     *      tags={"bank_integrations"},
-     *      summary="Gets the list of accounts from the remote server",
-     *      description="Adds an bank_integration to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function refreshAccounts(AdminBankIntegrationRequest $request)
     {
@@ -584,35 +246,6 @@ class BankIntegrationController extends BaseController
      *
      * @return Response
      *
-     * @OA\Post(
-     *      path="/api/v1/bank_integrations/remove_account/account_id",
-     *      operationId="getRemoveAccount",
-     *      tags={"bank_integrations"},
-     *      summary="Removes an account from the integration",
-     *      description="Removes an account from the integration",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the bank_integration object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BankIntegration"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
 
     public function removeAccount(AdminBankIntegrationRequest $request, $acc_id)
@@ -638,6 +271,14 @@ class BankIntegrationController extends BaseController
         return $this->itemResponse($bi->fresh());
     }
 
+
+    /**
+     * Return the remote list of accounts stored on the third party provider
+     * and update our local cache.
+     *
+     * @return Response
+     *
+     */
     public function getTransactions(AdminBankIntegrationRequest $request)
     {
         /** @var \App\Models\User $user */

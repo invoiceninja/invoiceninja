@@ -4971,7 +4971,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'payment_type_Interac E Transfer' => 'Interac E Transfer',
     'xinvoice_payable' => 'Pagadero dentro de :payeddue días de pago vencido neto hasta  :paydate',
     'xinvoice_no_buyers_reference' => "No se da la referencia del comprador",
-    'xinvoice_online_payment' => 'La factura debe pagarse en línea a través del enlace proporcionado.',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Prepago',
     'number_of_payments' => 'Numero de pagos',
     'number_of_payments_helper' => 'El número de veces que se realizará este pago.',
@@ -5055,6 +5055,8 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'services' => 'Servicios',
     'shipping' => 'Envío',
     'tax_exempt' => 'Exento de impuestos',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

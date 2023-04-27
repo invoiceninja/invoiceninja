@@ -5067,7 +5067,7 @@ $LANG = array(
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
     'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
-
+    'lang_Khmer' => 'Khmer',
 );
 
 

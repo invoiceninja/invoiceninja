@@ -4975,7 +4975,7 @@ Email: :email<b><br><b>',
     'payment_type_Interac E Transfer' => 'Interac E-overdracht',
     'xinvoice_payable' => 'Te betalen binnen :payeddue vervaldagen netto tot :paydate',
     'xinvoice_no_buyers_reference' => "Geen kopersreferentie opgegeven",
-    'xinvoice_online_payment' => 'De factuur dient online betaald te worden via de voorziene link',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Vooruitbetaling',
     'number_of_payments' => 'Aantal betalingen',
     'number_of_payments_helper' => 'Het aantal keren dat deze betaling zal worden gedaan',
@@ -5059,6 +5059,8 @@ Email: :email<b><br><b>',
     'services' => 'Diensten',
     'shipping' => 'Verzenden',
     'tax_exempt' => 'Vrijgesteld van belasting',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 

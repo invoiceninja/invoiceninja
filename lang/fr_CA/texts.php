@@ -4973,7 +4973,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_Interac E Transfer' => 'Transfert Interac',
     'xinvoice_payable' => 'Payable d\'ici :payeddue jours jusqu\'à :paydate',
     'xinvoice_no_buyers_reference' => "Aucune référence de l'acheteur fournie",
-    'xinvoice_online_payment' => 'Cette facture doit être payée en ligne en utilisant le lien fourni',
+    'xinvoice_online_payment' => 'Cette facture doit être payée en ligne en suivant le lien fourni',
     'pre_payment' => 'Prépaiement',
     'number_of_payments' => 'Nombre de paiements',
     'number_of_payments_helper' => 'Nombre de fois que ce paiement sera fait',
@@ -5057,6 +5057,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'services' => 'Services',
     'shipping' => 'Livraison',
     'tax_exempt' => 'Exemption de taxes',
+    'late_fee_added_locked_invoice' => 'Les frais de retard pour la facture :invoice ont été ajoutés le :date',
+
 );
 
 

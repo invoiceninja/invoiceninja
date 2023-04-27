@@ -4983,7 +4983,7 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'payment_type_Interac E Transfer' => 'Interac E-Übertragung',
     'xinvoice_payable' => 'Zahlbar innerhalb von :payeddue Tagen netto bis :paydate',
     'xinvoice_no_buyers_reference' => "Keine Käuferreferenz angegeben",
-    'xinvoice_online_payment' => 'Die Rechnung muss online über den bereitgestellten Link bezahlt werden',
+    'xinvoice_online_payment' => 'The invoice needs to be paid online via the provided link',
     'pre_payment' => 'Vorauszahlung',
     'number_of_payments' => 'Anzahl der Zahlungen',
     'number_of_payments_helper' => 'Die Häufigkeit, mit der diese Zahlung erfolgt',
@@ -5067,6 +5067,8 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'services' => 'Services',
     'shipping' => 'Shipping',
     'tax_exempt' => 'Tax Exempt',
+    'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
+
 );
 
 
