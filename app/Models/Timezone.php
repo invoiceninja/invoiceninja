@@ -27,6 +27,7 @@ namespace App\Models;
  * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Timezone whereUtcOffset($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Timezone find()
  * @mixin \Eloquent
  */
 class Timezone extends StaticModel

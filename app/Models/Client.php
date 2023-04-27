@@ -796,7 +796,7 @@ class Client extends BaseModel implements HasLocalePreference
             if ($pm['gateway_type_id'] == GatewayType::CREDIT_CARD) {
                 $cg = CompanyGateway::find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::CREDIT_CARD)) {
+                if ($cg && ! property_exists($cg->fees_and_limits, strval(GatewayType::CREDIT_CARD))) {
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
                     $cg->fees_and_limits = $fees_and_limits;

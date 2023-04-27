@@ -11,7 +11,6 @@
 
 namespace App\Models;
 
-use App\DataMapper\ClientSettings;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
 use App\Utils\Traits\MakesHash;
@@ -39,6 +38,7 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude(array $excludeable)
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude()
+ * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find()
  * @method \App\Models\Company company()
  * @method int companyId()
  * @method Builder|static exclude($columns)

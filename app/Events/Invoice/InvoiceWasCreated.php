@@ -54,10 +54,10 @@ class InvoiceWasCreated implements ShouldBroadcast
      *
      * @return PrivateChannel|array
      */
-    // public function broadcastOn()
-    // {
-    //     return ['simple-channel'];
-    // }
+    public function broadcastOn()
+    {
+        return [];
+    }
     
 
     // /**
