@@ -4012,6 +4012,7 @@ $LANG = array(
      'notification_invoice_reminder1_sent_subject' => 'Reminder 1 for Invoice :invoice was sent to :client',
      'notification_invoice_reminder2_sent_subject' => 'Reminder 2 for Invoice :invoice was sent to :client',
      'notification_invoice_reminder3_sent_subject' => 'Reminder 3 for Invoice :invoice was sent to :client',
+     'notification_invoice_custom_sent_subject' => 'Custom reminder for Invoice :invoice was sent to :client',
      'notification_invoice_reminder_endless_sent_subject' => 'Endless reminder for Invoice :invoice was sent to :client',
      'assigned_user' => 'Assigned User',
      'setup_steps_notice' => 'To proceed to next step, make sure you test each section.',

@@ -22,7 +22,7 @@ class InvoiceReminderWasEmailed
 {
     use SerializesModels;
 
-    public function __construct(public InvoiceInvitation $invitation, public Company $company, public array $event_vars, public int $reminder)
+    public function __construct(public InvoiceInvitation $invitation, public Company $company, public array $event_vars, public string $template)
     {
     }
 }
