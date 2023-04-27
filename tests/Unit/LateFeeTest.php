@@ -77,12 +77,14 @@ class LateFeeTest extends TestCase
         $settings = new \stdClass;
         $settings->currency_id = '1';
 
-        $this->client = Client::factory()->create([
+        $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'is_deleted' => 0,
             'settings' => $settings,
         ]);
+
+        return $client;
     }
 
     public function testLateFeeAdded()
@@ -98,10 +100,10 @@ class LateFeeTest extends TestCase
         $settings->num_days_reminder1 = 10;
         $settings->schedule_reminder1 = 'after_due_date';
 
-        $this->buildData($settings);
+        $client = $this->buildData($settings);
 
         $i = Invoice::factory()->create([
-            'client_id' => $this->client->id,
+            'client_id' => $client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'amount' => 0,
@@ -126,6 +128,7 @@ class LateFeeTest extends TestCase
         $i->service()->applyNumber()->createInvitations()->save();
 
         $this->assertEquals(10, $i->amount);
+        $this->assertEquals(10, $i->balance);
 
         $reflectionMethod = new \ReflectionMethod(ReminderJob::class, 'sendReminderForInvoice');
         $reflectionMethod->setAccessible(true);
@@ -137,7 +140,7 @@ class LateFeeTest extends TestCase
 
     }
 
-    public function testLateFeeAddedToNewInvoiceWithLockedInvoiceConfi()
+    public function testLateFeeAddedToNewInvoiceWithLockedInvoiceConfig()
     {
 
         $settings = CompanySettings::defaults();
@@ -150,10 +153,10 @@ class LateFeeTest extends TestCase
         $settings->num_days_reminder1 = 10;
         $settings->schedule_reminder1 = 'after_due_date';
 
-        $this->buildData($settings);
+    $client = $this->buildData($settings);
 
         $i = Invoice::factory()->create([
-            'client_id' => $this->client->id,
+            'client_id' => $client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'amount' => 0,
