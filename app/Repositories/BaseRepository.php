@@ -295,7 +295,7 @@ class BaseRepository
             }
 
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
@@ -334,7 +334,7 @@ class BaseRepository
 
         if ($model instanceof Quote) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('quote_design_id')));
             }
 
             $model = $model->calc()->getQuote();
@@ -348,7 +348,7 @@ class BaseRepository
 
         if ($model instanceof RecurringInvoice) {
             if (! $model->design_id) {
-                $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
+                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
             }
 
             $model = $model->calc()->getRecurringInvoice();

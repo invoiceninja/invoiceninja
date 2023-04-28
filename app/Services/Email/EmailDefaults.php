@@ -298,7 +298,7 @@ class EmailDefaults
          $this->email->email_object->entity instanceof Quote ||
          $this->email->email_object->entity instanceof Credit)) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation, $this->email->company->db))->handle());
-            if ($this->email->email_object->company->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+            if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
                 $tempfile = tmpfile();
                 file_put_contents(stream_get_meta_data($tempfile)['uri'], $pdf);
                 $xinvoice_path = (new CreateEInvoice($this->email->email_object->entity, true, stream_get_meta_data($tempfile)['uri']))->handle();
@@ -320,7 +320,7 @@ class EmailDefaults
             }
         }
         /** E-Invoice xml file */
-        if ($this->email->email_object->company->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+        if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
             $xinvoice_path = (new GetInvoiceXInvoice($this->email->email_object->entity))->run();
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode(file_get_contents($xinvoice_path)), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
         }

@@ -11,24 +11,25 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Models\BankIntegration;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\JsonResponse;
+use App\Helpers\Bank\Yodlee\Yodlee;
+use Illuminate\Support\Facades\Cache;
 use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
-use App\Helpers\Bank\Yodlee\Yodlee;
-use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\BulkBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\ShowBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
-use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
 use App\Jobs\Bank\ProcessBankTransactions;
-use App\Models\BankIntegration;
 use App\Repositories\BankIntegrationRepository;
 use App\Transformers\BankIntegrationTransformer;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\BankIntegration\BulkBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\EditBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\ShowBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\StoreBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\CreateBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\UpdateBankIntegrationRequest;
+use App\Http\Requests\BankIntegration\DestroyBankIntegrationRequest;
 
 class BankIntegrationController extends BaseController
 {
@@ -159,7 +160,7 @@ class BankIntegrationController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return Response
      *
      */
     public function bulk(BulkBankIntegrationRequest $request)
@@ -168,12 +169,12 @@ class BankIntegrationController extends BaseController
 
         $ids = request()->input('ids');
             
-        $bank_integrations = BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))
-                                            ->company()
-                                            ->cursor()
-                                            ->each(function ($bank_integration, $key) use ($action) {
-                                                $this->bank_integration_repo->{$action}($bank_integration);
-                                            });
+        BankIntegration::withTrashed()->whereIn('id', $this->transformKeys($ids))
+                        ->company()
+                        ->cursor()
+                        ->each(function ($bank_integration, $key) use ($action) {
+                            $this->bank_integration_repo->{$action}($bank_integration);
+                        });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
 
@@ -184,7 +185,7 @@ class BankIntegrationController extends BaseController
     /**
      * Return the remote list of accounts stored on the third party provider.
      *
-     * @return Response
+     * @return JsonResponse
      */
     public function refreshAccounts(AdminBankIntegrationRequest $request)
     {
@@ -227,7 +228,7 @@ class BankIntegrationController extends BaseController
             }
         }
         
-        if (Cache::get("throttle_polling:{$account->key}")) {
+        if (Cache::get("throttle_polling:{$user_account->key}")) {
             return response()->json(BankIntegration::query()->company(), 200);
         }
 
@@ -276,7 +277,7 @@ class BankIntegrationController extends BaseController
      * Return the remote list of accounts stored on the third party provider
      * and update our local cache.
      *
-     * @return Response
+     * @return JsonResponse
      *
      */
     public function getTransactions(AdminBankIntegrationRequest $request)

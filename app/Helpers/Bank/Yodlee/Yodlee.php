@@ -200,7 +200,6 @@ class Yodlee
         }
     }
 
-
     public function getTransactions($params = [])
     {
         $token = $this->getAccessToken();
@@ -208,7 +207,6 @@ class Yodlee
         $response = Http::withHeaders($this->getHeaders(["Authorization" => "Bearer {$token}"]))->get($this->getEndpoint(). "/transactions", $params);
 
         if ($response->successful()) {
-            // return $response->object();
             $it = new IncomeTransformer();
             return $it->transform($response->object());
         }

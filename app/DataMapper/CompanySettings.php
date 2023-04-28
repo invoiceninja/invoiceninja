@@ -479,7 +479,10 @@ class CompanySettings extends BaseSettings
 
     public $default_expense_payment_type_id = '0';
 
+    public $enable_e_invoice = false;
+
     public static $casts = [
+        'enable_e_invoice'                   => 'bool', 
         'default_expense_payment_type_id'    => 'string',
         'e_invoice_type'                     => 'string',    
         'mailgun_endpoint'                   => 'string',    

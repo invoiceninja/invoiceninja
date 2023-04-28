@@ -96,7 +96,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $stock_notification
  * @property string|null $matomo_url
  * @property int|null $matomo_id
- * @property bool $enable_e_invoice
  * @property int $enabled_expense_tax_rates
  * @property int $invoice_task_project
  * @property int $report_include_deleted
@@ -640,8 +639,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
  * @property int $tax_all_products
- * @property int $enable_e_invoice
- * @property string $xinvoice_type
+ * @property string $e_invoice_type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $all_activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $all_documents
