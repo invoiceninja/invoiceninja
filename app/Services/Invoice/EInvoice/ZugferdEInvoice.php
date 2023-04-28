@@ -90,9 +90,22 @@ class ZugferdEInvoice extends AbstractService
         //Create line items and calculate taxes
         foreach ($this->invoice->line_items as $index => $item) {
             $xrechnung->addNewPosition($index)
-                ->setDocumentPositionProductDetails($item->notes)
                 ->setDocumentPositionGrossPrice($item->gross_line_total)
                 ->setDocumentPositionNetPrice($item->line_total);
+            if (!empty($item->product_key)){
+                if (!empty($item->notes)){
+                   $xrechnung->setDocumentPositionProductDetails($item->product_key, $item->notes);
+                }
+                $xrechnung->setDocumentPositionProductDetails($item->product_key);
+            }
+            else {
+                if (!empty($item->notes)){
+                    $xrechnung->setDocumentPositionProductDetails($item->notes);
+                }
+                else {
+                    $xrechnung->setDocumentPositionProductDetails("no product name defined");
+                }
+            }
             if (isset($item->task_id)) {
                 $xrechnung->setDocumentPositionQuantity($item->quantity, "HUR");
             } else {
@@ -136,9 +149,9 @@ class ZugferdEInvoice extends AbstractService
 
 
         if ($this->invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
         } else {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
         }
 
 
@@ -166,7 +179,7 @@ class ZugferdEInvoice extends AbstractService
         }
 
         $xrechnung->writeFile(Storage::disk($disk)->path($client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xml")));
-        // The validity can be checked using https://portal3.gefeg.com/invoice/validation
+        // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
 
         if ($this->alterPDF) {
             if ($this->custom_pdf_path != "") {
@@ -210,7 +223,7 @@ class ZugferdEInvoice extends AbstractService
         }
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
         if (empty($taxtype)) {
-            if (in_array($this->invoice->company->country()->iso_3166_2, $eu_states) && in_array($this->invoice->client->country->iso_3166_2, $eu_states)) {
+            if ((in_array($this->invoice->company->country()->iso_3166_2, $eu_states) && in_array($this->invoice->client->country->iso_3166_2, $eu_states)) && $this->invoice->company->country()->iso_3166_2 != $this->invoice->client->country->iso_3166_2) {
                 $taxtype = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
             } elseif (!in_array($this->invoice->client->country->iso_3166_2, $eu_states)) {
                 $taxtype = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
