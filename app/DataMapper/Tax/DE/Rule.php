@@ -113,6 +113,10 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxDigital(): self
     {
+
+        $this->tax_rate1 = $this->tax_rate;
+        $this->tax_name1 = 'MwSt.';
+
         return $this;
     }
     
@@ -123,6 +127,10 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxService(): self
     {
+
+        $this->tax_rate1 = $this->tax_rate;
+        $this->tax_name1 = 'MwSt.';
+
         return $this;
     }
     
@@ -133,6 +141,10 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxShipping(): self
     {
+
+        $this->tax_rate1 = $this->tax_rate;
+        $this->tax_name1 = 'MwSt.';
+
         return $this;
     }
     
