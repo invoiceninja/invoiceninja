@@ -50,6 +50,14 @@ class GroupSettingController extends BaseController
         $this->group_setting_repo = $group_setting_repo;
     }
 
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @param GroupSettingFilters $filters
+     * @return Response
+     *
+    */
     public function index(GroupSettingFilters $filters)
     {
         $group_settings = GroupSetting::filter($filters);
@@ -63,41 +71,13 @@ class GroupSettingController extends BaseController
      * @param CreateGroupSettingRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/group_settings/create",
-     *      operationId="getGroupSettingsCreate",
-     *      tags={"group_settings"},
-     *      summary="Gets a new blank GroupSetting object",
-     *      description="Returns a blank object with default values",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A blank GroupSetting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
+    */
     public function create(CreateGroupSettingRequest $request)
     {
-        $group_setting = GroupSettingFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $group_setting = GroupSettingFactory::create($user->company()->id, $user->id);
 
         return $this->itemResponse($group_setting);
     }
@@ -108,44 +88,13 @@ class GroupSettingController extends BaseController
      * @param StoreGroupSettingRequest $request
      * @return Response
      *
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/group_settings",
-     *      operationId="storeGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Adds a GroupSetting",
-     *      description="Adds an GroupSetting to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved GroupSetting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function store(StoreGroupSettingRequest $request)
     {
-        //need to be careful here as we may also receive some
-        //supporting attributes such as logo which need to be handled outside of the
-        //settings object
-        $group_setting = GroupSettingFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $group_setting = GroupSettingFactory::create($user->company()->id, $user->id);
 
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
 
@@ -161,47 +110,6 @@ class GroupSettingController extends BaseController
      * @param GroupSetting $group_setting
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/group_settings/{id}",
-     *      operationId="showGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Shows an GroupSetting",
-     *      description="Displays an GroupSetting by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The GroupSetting Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the GroupSetting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function show(ShowGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -215,47 +123,6 @@ class GroupSettingController extends BaseController
      * @param GroupSetting $group_setting
      * @return Response
      *
-     *
-     * @OA\Get(
-     *      path="/api/v1/group_settings/{id}/edit",
-     *      operationId="editGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Shows an GroupSetting for editting",
-     *      description="Displays an GroupSetting by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The GroupSetting Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the GroupSetting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function edit(EditGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -269,47 +136,6 @@ class GroupSettingController extends BaseController
      * @param GroupSetting $group_setting
      * @return Response
      *
-     *
-     * @OA\Put(
-     *      path="/api/v1/group_settings/{id}",
-     *      operationId="updateGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Updates an GroupSetting",
-     *      description="Handles the updating of an GroupSetting by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The GroupSetting Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the GroupSetting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function update(UpdateGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -333,45 +159,6 @@ class GroupSettingController extends BaseController
      *
      *
      * @throws \Exception
-     * @OA\Delete(
-     *      path="/api/v1/group_settings/{id}",
-     *      operationId="deleteGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Deletes a GroupSetting",
-     *      description="Handles the deletion of an GroupSetting by id",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The GroupSetting Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns a HTTP status",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function destroy(DestroyGroupSettingRequest $request, GroupSetting $group_setting)
     {
@@ -383,51 +170,8 @@ class GroupSettingController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Collection
+     * @return Response
      *
-     * @OA\Post(
-     *      path="/api/v1/group_settings/bulk",
-     *      operationId="bulkGroupSettings",
-     *      tags={"group_settings"},
-     *      summary="Performs bulk actions on an array of group_settings",
-     *      description="",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/index"),
-     *      @OA\RequestBody(
-     *         description="An array of group_settings ids",
-     *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 type="array",
-     *                 @OA\Items(
-     *                     type="integer",
-     *                     description="Array of hashed IDs to be bulk 'actioned",
-     *                     example="[0,1,2,3]",
-     *                 ),
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="The Bulk Action response",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function bulk()
     {
@@ -441,11 +185,14 @@ class GroupSettingController extends BaseController
             return response()->json(['message' => ctrans('texts.no_group_settings_found')]);
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         /*
          * Send the other actions to the switch
          */
-        $group_settings->each(function ($group, $key) use ($action) {
-            if (auth()->user()->can('edit', $group)) {
+        $group_settings->each(function ($group, $key) use ($action, $user) {
+            if ($user->can('edit', $group)) {
                 $this->group_setting_repo->{$action}($group);
             }
         });
@@ -462,48 +209,6 @@ class GroupSettingController extends BaseController
      * @param GroupSetting $group_setting
      * @return Response
      *
-     *
-     *
-     * @OA\Put(
-     *      path="/api/v1/group_settings/{id}/upload",
-     *      operationId="uploadGroupSetting",
-     *      tags={"group_settings"},
-     *      summary="Uploads a document to a group setting",
-     *      description="Handles the uploading of a document to a group setting",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Group Setting Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the Group Setting object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
      */
     public function upload(UploadGroupSettingRequest $request, GroupSetting $group_setting)
     {
