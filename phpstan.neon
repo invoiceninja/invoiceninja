@@ -8,5 +8,7 @@ parameters:
     level: 4
     paths:
         - app
+    excludePaths:
+        - vendor
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
