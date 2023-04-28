@@ -32,11 +32,11 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $industry_id
  * @property string|null $ip
  * @property string $company_key
- * @property int $convert_products
- * @property int $fill_products
- * @property int $update_products
- * @property int $show_product_details
- * @property int $client_can_register
+ * @property bool $convert_products
+ * @property bool $fill_products
+ * @property bool $update_products
+ * @property bool $show_product_details
+ * @property bool $client_can_register
  * @property int $custom_surcharge_taxes1
  * @property int $custom_surcharge_taxes2
  * @property int $custom_surcharge_taxes3
@@ -86,12 +86,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $use_comma_as_decimal_place
  * @property int $report_include_drafts
  * @property array|null $client_registration_fields
- * @property int $convert_rate_to_client
- * @property int $markdown_email_enabled
- * @property int $stop_on_unpaid_recurring
- * @property int $use_quote_terms_on_conversion
+ * @property bool $convert_rate_to_client
+ * @property bool $markdown_email_enabled
+ * @property bool $stop_on_unpaid_recurring
+ * @property bool $use_quote_terms_on_conversion
  * @property int $enable_applying_payments
- * @property int $track_inventory
+ * @property bool $track_inventory
  * @property int $inventory_notification_threshold
  * @property int $stock_notification
  * @property string|null $matomo_url
@@ -198,134 +198,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read int|null $vendors_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
  * @property-read int|null $webhooks_count
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
- * @method static \Database\Factories\CompanyFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company query()
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereAutoStartTasks($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCalculateExpenseTaxByAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereClientCanRegister($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereClientRegistrationFields($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereConvertExpenseCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereConvertPaymentCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereConvertProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereConvertRateToClient($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCustomFields($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCustomSurchargeTaxes1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCustomSurchargeTaxes2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCustomSurchargeTaxes3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCustomSurchargeTaxes4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDb($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDefaultAutoBill($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDefaultPasswordTimeout($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDefaultQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDefaultTaskIsDateBased($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableApplyingPayments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableModules($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableProductCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableProductDiscount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableProductQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnableShopApi($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnabledExpenseTaxRates($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnabledItemTaxRates($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnabledModules($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEnabledTaxRates($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereExpenseInclusiveTaxes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereFillProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereFirstDayOfWeek($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereFirstMonthOfYear($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereGoogleAnalyticsKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInventoryNotificationThreshold($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceExpenseDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskDatelog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskHours($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskLock($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskProject($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereInvoiceTaskTimelog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIsDisabled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIsLarge($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMarkExpensesInvoiceable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMarkExpensesPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMarkdownEmailEnabled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMarkdownEnabled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMatomoId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereMatomoUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereNotifyVendorWhenPaid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereOauthPasswordRequired($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePortalDomain($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePortalMode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereReportIncludeDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereReportIncludeDrafts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereSessionTimeout($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereSettings($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereShowProductCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereShowProductDetails($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereShowTaskEndDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereShowTasksTable($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereSizeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereSlackWebhookUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereStockNotification($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereStopOnUnpaidRecurring($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereSubdomain($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereTrackInventory($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdateProducts($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUseCommaAsDecimalPlace($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUseQuoteTermsOnConversion($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $all_activities
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $all_documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransactionRule> $bank_transaction_rules
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankTransaction> $bank_transactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $client_contacts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientGatewayToken> $client_gateway_tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyGateway> $company_gateways
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Design> $designs
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpenseCategory> $expense_categories
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSetting> $group_settings
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GroupSetting> $groups
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $ledger
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm> $payment_terms
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PurchaseOrder> $purchase_orders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringExpense> $recurring_expenses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RecurringInvoice> $recurring_invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Scheduler> $schedulers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subscription> $subscriptions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_log_relation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SystemLog> $system_logs
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Scheduler> $task_schedulers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaskStatus> $task_statuses
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TaxRate> $tax_rates
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyToken> $tokens_hashed
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Design> $user_designs
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PaymentTerm> $user_payment_terms
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Vendor> $vendors
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Webhook> $webhooks
  * @property int $calculate_taxes
  * @property mixed $tax_data
  * @method \App\Models\User|null owner()

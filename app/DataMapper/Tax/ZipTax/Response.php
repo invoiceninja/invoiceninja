@@ -102,11 +102,13 @@ class Response
 
     public function __construct($data)
     {
-        if(!$data)
-            return $this;
 
-        foreach($data as $key => $value){
-            $this->{$key} = $value;
+        if($data) {
+
+            foreach($data as $key => $value) {
+                $this->{$key} = $value;
+            }
+
         }
         
     }

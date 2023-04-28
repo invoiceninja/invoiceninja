@@ -64,6 +64,8 @@ class BaseImport
 
     public ?bool $skip_header;
 
+    public array $entity_count = [];
+    
     public function __construct(array $request, Company $company)
     {
         $this->company = $company;
@@ -80,9 +82,10 @@ class BaseImport
 
         auth()->login($this->company->owner(), true);
 
-        auth()
-            ->user()
-            ->setCompany($this->company);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->setCompany($this->company);
     }
 
     public function getCsvData($entity_type)
@@ -579,12 +582,12 @@ class BaseImport
         $quote_data,
         $quote_repository
     ) {
-        if (! empty($invoice_data['archived'])) {
+        if (! empty($quote_data['archived'])) {
             $quote_repository->archive($quote);
             $quote->fresh();
         }
 
-        if (! empty($invoice_data['viewed'])) {
+        if (! empty($quote_data['viewed'])) {
             $quote = $quote
                 ->service()
                 ->markViewed()
