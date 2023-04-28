@@ -801,7 +801,6 @@ class Invoice extends BaseModel
 
     public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
-        nlog($template);
 
         switch ($reminder_template) {
             case 'invoice':
