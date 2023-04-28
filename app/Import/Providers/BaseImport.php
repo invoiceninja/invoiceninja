@@ -463,7 +463,7 @@ class BaseImport
                 } else {
                     $invoice = InvoiceFactory::create(
                         $this->company->id,
-                        $this->getUserIDForRecord($invoice_data)
+                        $this->company->owner()->id
                     );
                     if (! empty($invoice_data['status_id'])) {
                         $invoice->status_id = $invoice_data['status_id'];

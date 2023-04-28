@@ -397,7 +397,7 @@ class BaseTransformer
     /**
      * @param $name
      *
-     * @return int
+     * @return float
      */
     public function getTaxRate($name)
     {
@@ -437,7 +437,7 @@ class BaseTransformer
      * @param mixed  $data
      * @param mixed  $field
      *
-     * @return null
+     * @return ?string
      */
     public function getDate($data, $field)
     {
