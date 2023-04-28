@@ -150,7 +150,7 @@ class ClientTransformer extends EntityTransformer
             'has_valid_vat_number' => (bool) $client->has_valid_vat_number,
             'is_tax_exempt' => (bool) $client->is_tax_exempt,
             'routing_id' => (string) $client->routing_id,
-            'tax_data' => $client->tax_data ?: '',
+            // 'tax_data' => $client->tax_data ?: '',
         ];
     }
 }
