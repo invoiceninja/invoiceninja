@@ -30,12 +30,10 @@ class CompanyFactory
     public function create(int $account_id) :Company
     {
         $company = new Company;
-        // $company->name = '';
         $company->account_id = $account_id;
         $company->company_key = $this->createHash();
         $company->settings = CompanySettings::defaults();
         $company->db = config('database.default');
-        //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
         $company->custom_fields = (object) [];
         $company->client_registration_fields = ClientRegistrationFields::generate();
 

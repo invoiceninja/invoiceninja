@@ -37,7 +37,6 @@ trait CleanLineItems
     /**
      * Sets default values for the line_items.
      * @param $item
-     * @return $this
      */
     private function cleanLineItem($item)
     {
@@ -63,9 +62,13 @@ trait CleanLineItems
                 $item['type_id'] = '1';
             }
 
-            // if($item['type_id'] == '2'){
-            //     str_replace()
-            // }
+            if (! array_key_exists('tax_id', $item)) {
+                $item['tax_id'] = '1';
+            }
+            elseif(array_key_exists('tax_id', $item) && $item['tax_id'] == '') {
+                $item['tax_id'] = '1';
+            }
+            
         }
 
         if (array_key_exists('id', $item)) {

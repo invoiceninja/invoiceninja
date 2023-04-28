@@ -70,7 +70,6 @@ class CreateEInvoice implements ShouldQueue
                 return (new FacturaEInvoice($this->invoice, str_replace("Facturae_", "", $e_invoice_type)))->run();
             default:
                 return (new ZugferdEInvoice($this->invoice, $this->alterPDF, $this->custom_pdf_path))->run();
-                break;
 
         }
 
