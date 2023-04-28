@@ -7,6 +7,8 @@ parameters:
         - '#Call to an undefined method Illuminate\Database\Eloquent\Builder::exclude#'
     level: 4
     paths:
-        - app
+        - 'app/'
+    excludePaths:
+        - 'vendor/'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface

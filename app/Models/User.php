@@ -36,6 +36,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  *
  * @property int $id
  * @property int $account_id
+ * @property int $company_id
  * @property string|null $first_name
  * @property string|null $last_name
  * @property string|null $phone
