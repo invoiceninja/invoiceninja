@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\GroupSettingFactory;
+use App\Filters\GroupSettingFilters;
 use App\Http\Requests\GroupSetting\CreateGroupSettingRequest;
 use App\Http\Requests\GroupSetting\DestroyGroupSettingRequest;
 use App\Http\Requests\GroupSetting\EditGroupSettingRequest;
@@ -49,47 +50,9 @@ class GroupSettingController extends BaseController
         $this->group_setting_repo = $group_setting_repo;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     *
-     *
-     * @OA\Get(
-     *      path="/api/v1/group_settings",
-     *      operationId="getGroupSettings",
-     *      tags={"group_settings"},
-     *      summary="Gets a list of group_settings",
-     *      description="Lists group_settings, search and filters allow fine grained lists to be generated.
-
-        Query parameters can be added to performed more fine grained filtering of the group_settings, these are handled by the GroupSettingFilters class which defines the methods available",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="A list of group_settings",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/GroupSetting"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
-    public function index()
+    public function index(GroupSettingFilters $filters)
     {
-        $group_settings = GroupSetting::whereCompanyId(auth()->user()->company()->id);
+        $group_settings = GroupSetting::filter($filters);
 
         return $this->listResponse($group_settings);
     }

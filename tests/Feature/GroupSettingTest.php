@@ -38,6 +38,43 @@ class GroupSettingTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testAddGroupFilters()
+    {
+        $settings = new \stdClass;
+        $settings->currency_id = '1';
+
+        $data = [
+            'name' => 'testX',
+            'settings' => $settings,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('testX', $arr['data']['name']);
+        $this->assertEquals(0, $arr['data']['archived_at']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/group_settings?name=fdfdfd');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(0, $arr['data']);
+
+    }
+
+
     public function testAddGroupSettings()
     {
         $settings = new \stdClass;
