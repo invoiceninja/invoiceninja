@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\Company;
 use App\Models\Language;
+use App\DataMapper\Tax\TaxModel;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -26,7 +29,10 @@ return new class extends Migration
             $table->dropColumn('enable_e_invoice');
         });
 
-
+        Company::query()->cursor()->each(function ($company){
+            $company->tax_data = new TaxModel();
+            $company->save();
+        });
     }
 
     /**

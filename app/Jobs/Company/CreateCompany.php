@@ -11,13 +11,14 @@
 
 namespace App\Jobs\Company;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Libraries\MultiDB;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\Tax\TaxModel;
+use App\DataMapper\CompanySettings;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\DataMapper\ClientRegistrationFields;
 
 class CreateCompany
 {
@@ -65,6 +66,7 @@ class CreateCompany
         $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->markdown_email_enabled = true;
         $company->markdown_enabled = false;
+        $company->tax_data = new TaxModel();
 
         if (Ninja::isHosted()) {
             $company->subdomain = MultiDB::randomSubdomainGenerator();
