@@ -11,40 +11,43 @@
 
 namespace App\Transformers;
 
-use App\Models\Account;
-use App\Models\Activity;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
+use stdClass;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\Company;
-use App\Models\CompanyGateway;
-use App\Models\CompanyLedger;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
 use App\Models\Credit;
 use App\Models\Design;
-use App\Models\Document;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
 use App\Models\Expense;
-use App\Models\ExpenseCategory;
-use App\Models\GroupSetting;
+use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\TaxRate;
+use App\Models\Webhook;
+use App\Models\Activity;
+use App\Models\Document;
+use App\Models\Scheduler;
+use App\Models\SystemLog;
+use App\Models\TaskStatus;
+use App\Models\CompanyUser;
+use App\Models\PaymentTerm;
+use App\Models\CompanyToken;
+use App\Models\GroupSetting;
+use App\Models\Subscription;
+use App\Models\CompanyLedger;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
+use App\Models\CompanyGateway;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\ExpenseCategory;
+use App\Utils\Traits\MakesHash;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Models\Scheduler;
-use App\Models\Subscription;
-use App\Models\SystemLog;
-use App\Models\Task;
-use App\Models\TaskStatus;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Webhook;
-use App\Utils\Traits\MakesHash;
-use stdClass;
+use App\Models\BankTransactionRule;
 
 /**
  * Class CompanyTransformer.
@@ -130,7 +133,7 @@ class CompanyTransformer extends EntityTransformer
             'show_product_details' => (bool) $company->show_product_details,
             'enable_product_quantity' => (bool) $company->enable_product_quantity,
             'default_quantity' => (bool) $company->default_quantity,
-            'custom_fields' => $company->custom_fields ?: $std,
+            'custom_fields' => $company->custom_fields ?? $std,
             'size_id' => (string) $company->size_id ?: '',
             'industry_id' => (string) $company->industry_id ?: '',
             'first_month_of_year' => (string) $company->first_month_of_year ?: '',
@@ -138,7 +141,7 @@ class CompanyTransformer extends EntityTransformer
             'subdomain' => (string) $company->subdomain ?: '',
             'portal_mode' => (string) $company->portal_mode ?: '',
             'portal_domain' => (string) $company->portal_domain ?: '',
-            'settings' => $company->settings ?: '',
+            'settings' => $company->settings ?? '',
             'enabled_tax_rates' => (int) $company->enabled_tax_rates,
             'enabled_modules' => (int) $company->enabled_modules,
             'updated_at' => (int) $company->updated_at,
@@ -201,8 +204,11 @@ class CompanyTransformer extends EntityTransformer
 
     private function isLarge(Company $company): bool
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         //if the user is attached to more than one company AND they are not an admin across all companies
-        if ($company->is_large || (auth()->user()->company_users()->count() > 1 && (auth()->user()->company_users()->where('is_admin', 1)->count() != auth()->user()->company_users()->count()))) 
+        if ($company->is_large || ($user->company_users()->count() > 1 && ($user->company_users()->where('is_admin', 1)->count() != $user->company_users()->count()))) 
         {
             return true;
         }
