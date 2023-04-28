@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\Feature;
+namespace Tests\Feature\EInvoice;
 
 use App\Services\Invoice\EInvoice\FatturaPA;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

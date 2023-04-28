@@ -40,6 +40,7 @@ use Illuminate\Support\Str;
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scopeExclude()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel find() 
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel whereIn()
+ * @method static \Illuminate\Database\Eloquent\Builder|BankIntegration where()
  * @method \App\Models\Company company()
  * @method int companyId()
  * @method Builder|static exclude($columns)

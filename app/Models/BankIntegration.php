@@ -35,8 +35,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
- * @property int $disabled_upstream
- * @property int $auto_sync
+ * @property bool $disabled_upstream
+ * @property bool $auto_sync
  * @property-read \App\Models\Account $account
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id

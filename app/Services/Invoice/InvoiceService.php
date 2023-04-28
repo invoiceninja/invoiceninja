@@ -450,7 +450,7 @@ class InvoiceService
                 $this->invoice->invitations->each(function ($invitation) {
                     (new CreateEntityPdf($invitation))->handle();
 
-                    if ($invitation->company->enable_e_invoice && $invitation instanceof InvoiceInvitation)
+                    if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation)
                     {
                         (new CreateEInvoice($invitation->invoice, true))->handle();
                     }
@@ -464,7 +464,7 @@ class InvoiceService
             $this->invoice->invitations->each(function ($invitation) {
                 CreateEntityPdf::dispatch($invitation);
 
-                if ($invitation->company->enable_e_invoice && $invitation instanceof InvoiceInvitation) {
+                if ($invitation->invoice->client->getSetting('enable_e_invoice') && $invitation instanceof InvoiceInvitation) {
                     CreateEInvoice::dispatch($invitation->invoice, true);
                 }
 
