@@ -400,7 +400,6 @@ class BillingPortalPurchase extends Component
 
         $context = 'purchase';
 
-        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
         if (Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
             $context = 'whitelabel';
         }
