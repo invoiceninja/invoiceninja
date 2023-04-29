@@ -447,6 +447,7 @@ class BillingPortalPurchase extends Component
             return;
         }
 
+        $utm = isset($this->request_data['utm']) ? $this->request_data['utm'] : null;
 
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
@@ -454,6 +455,7 @@ class BillingPortalPurchase extends Component
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
             'coupon' => $this->coupon,
+            'utm' => $utm
         ]);
     }
 

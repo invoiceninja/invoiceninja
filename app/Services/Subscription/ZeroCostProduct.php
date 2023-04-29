@@ -79,6 +79,9 @@ class ZeroCostProduct extends AbstractService
                 'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
             ];
 
+            if(isset($this->data['utm']))
+                $context['utm'] = $this->data['utm'];
+
             return $context;
         }
 
