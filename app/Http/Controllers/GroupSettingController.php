@@ -179,9 +179,9 @@ class GroupSettingController extends BaseController
 
         $ids = request()->input('ids');
 
-        $group_settings = GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $group_settings = GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company();
 
-        if (! $group_settings) {
+        if ($group_settings->count() == 0) {
             return response()->json(['message' => ctrans('texts.no_group_settings_found')]);
         }
 
@@ -191,7 +191,7 @@ class GroupSettingController extends BaseController
         /*
          * Send the other actions to the switch
          */
-        $group_settings->each(function ($group, $key) use ($action, $user) {
+        $group_settings->cursor()->each(function ($group, $key) use ($action, $user) {
             if ($user->can('edit', $group)) {
                 $this->group_setting_repo->{$action}($group);
             }

@@ -116,10 +116,13 @@ class GroupSettingTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
+        $id = $arr['data']['id'];
+
+        $this->assertEquals(0, $arr['data']['archived_at']);
 
         $data = [
             'action' => 'archive',
-            'ids' => [$arr['data']['id']],
+            'ids' => [$id],
         ];
 
         $response = $this->withHeaders([
@@ -132,5 +135,41 @@ class GroupSettingTest extends TestCase
         $arr = $response->json();
 
         $this->assertNotNull($arr['data'][0]['archived_at']);
+
+        $data = [
+            'action' => 'restore',
+            'ids' => [$id],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
+
+        $data = [
+            'action' => 'delete',
+            'ids' => [$id],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+
+
     }
+
 }
