@@ -22,12 +22,12 @@ class ZeroCostProduct extends AbstractService
     private $data;
 
     /**
-    $data = [
-        'email' => $this->email ?? $this->contact->email,
-        'quantity' => $this->quantity,
-        'contact_id' => $this->contact->id,
-        'client_id' => $this->contact->client->id,
-    ];
+    * $data = [
+    *     'email' => $this->email ?? $this->contact->email,
+    *     'quantity' => $this->quantity,
+    *     'contact_id' => $this->contact->id,
+    *     'client_id' => $this->contact->client->id,
+    * ];
      */
     public function __construct(Subscription $subscription, array $data)
     {
@@ -79,8 +79,8 @@ class ZeroCostProduct extends AbstractService
                 'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
             ];
 
-            if(isset($this->data['utm']))
-                $context['utm'] = $this->data['utm'];
+            if(isset($this->data['campaign']))
+                $context['campaign'] = $this->data['campaign'];
 
             return $context;
         }

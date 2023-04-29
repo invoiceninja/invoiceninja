@@ -121,8 +121,8 @@ class SubscriptionService
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
-            if (!property_exists($payment_hash->data->billing_context, 'utm') && $payment_hash->data->billing_context->utm) {
-                $context['utm'] = $payment_hash->data->billing_context->utm;
+            if (property_exists($payment_hash->data->billing_context, 'campaign')) {
+                $context['campaign'] = $payment_hash->data->billing_context->campaign;
             }
 
             $response = $this->triggerWebhook($context);

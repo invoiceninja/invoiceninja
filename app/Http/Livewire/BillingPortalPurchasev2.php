@@ -529,8 +529,6 @@ class BillingPortalPurchasev2 extends Component
             ->adjustInventory()
             ->save();
 
-        $utm = isset($this->request_data['utm']) ? $this->request_data['utm'] : null;
-
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
@@ -539,7 +537,6 @@ class BillingPortalPurchasev2 extends Component
             'context' => 'purchase',
             'campaign' => $this->campaign,
             'bundle' => $this->bundle,
-            'utm' => $utm,
         ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
