@@ -309,8 +309,8 @@
               type: array
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+                type: string
+                example: '[D2J234DFA,D2J234DFA,D2J234DFA]'
       responses:
         200:
           description: "The Bulk Action response"

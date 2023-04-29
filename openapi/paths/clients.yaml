@@ -133,7 +133,11 @@
       tags:
         - clients
       summary: 'Create client'
-      description: 'Adds a client to a company'
+      description: |
+            Adds a client to a company
+              
+            When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
+
       operationId: storeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -298,7 +302,7 @@
       tags:
         - clients
       summary: 'Edit Client'
-      description: 'Displays a client by id'
+      description: 'Displays a client by id, essentially an alias of the show route'
       operationId: editClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -383,19 +387,16 @@
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/index'
       requestBody:
-        description: 'User credentials'
+        description: 'Bulk action array'
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: 'Array of hashed IDs to be bulk ''actioned'
-                type: integer
-                example: '[0,1,2,3]'
+              $ref: '#/components/schemas/GenericBulkAction'
+              
       responses:
         200:
-          description: 'The Client User response'
+          description: 'The Client listresponse'
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
@@ -484,6 +485,7 @@
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
+        - $ref: '#/components/parameters/X-API-PASSWORD'
         - $ref: '#/components/parameters/client_include'
         - name: id
           in: path
@@ -524,6 +526,7 @@
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
+        - $ref: '#/components/parameters/X-API-PASSWORD'
         - name: id
           in: path
           description: 'The Client Hashed ID'
