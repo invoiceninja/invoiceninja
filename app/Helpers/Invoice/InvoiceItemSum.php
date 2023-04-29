@@ -116,7 +116,6 @@ class InvoiceItemSum
     {
         if (!$this->invoice->line_items || !is_array($this->invoice->line_items)) {
             $this->items = [];
-
             return $this;
         }
 
@@ -146,7 +145,8 @@ class InvoiceItemSum
         }
         
         //should we be filtering by client country here? do we need to reflect at the company <=> client level?
-        if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
+        // if (in_array($this->client->country->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
+        if (in_array($this->client->company->country()->iso_3166_2, $this->tax_jurisdictions)) { //only calculate for supported tax jurisdictions
             
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
@@ -216,7 +216,12 @@ class InvoiceItemSum
 
         return $this;
     }
-
+    
+    /**
+     * calcTaxes
+     *
+     * @return self
+     */
     private function calcTaxes()
     {
         if ($this->calc_tax) {
