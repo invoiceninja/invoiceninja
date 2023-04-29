@@ -733,7 +733,11 @@ class UserController extends BaseController
         $user->oauth_user_refresh_token = null;
         $user->save();
 
-        $company = $user->company();
+
+        /** @var \App\Models\User $logged_in_user */
+        $logged_in_user = auth()->user();
+        $company = $logged_in_user->company();
+
         $settings = $company->settings;
         $settings->email_sending_method = "default";
         $settings->gmail_sending_user_id = "0";
