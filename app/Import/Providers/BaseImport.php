@@ -19,6 +19,7 @@ use App\Models\Invoice;
 use League\Csv\Statement;
 use App\Factory\QuoteFactory;
 use App\Factory\ClientFactory;
+use Illuminate\Support\Carbon;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Import\ImportException;
@@ -495,7 +496,8 @@ class BaseImport
 
                                 /* Make sure we don't apply any payments to invoices with a Zero Amount*/
                                 if ($invoice->amount > 0) {
-                                    $payment_repository->save(
+                                    
+                                    $payment = $payment_repository->save(
                                         $payment_data,
                                         PaymentFactory::create(
                                             $this->company->id,
@@ -503,6 +505,16 @@ class BaseImport
                                             $invoice->client_id
                                         )
                                     );
+
+                                    $payment_date = Carbon::parse($payment->date);
+
+                                    if(!$payment_date->isToday())
+                                    {
+
+                                        $payment->paymentables()->update(['created_at' => $payment_date]);
+
+                                    }
+
                                 }
                             }
                         }
