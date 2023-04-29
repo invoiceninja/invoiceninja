@@ -50,13 +50,6 @@ class DesignRepository extends BaseRepository
         $company->settings = $settings;
         $company->save();
 
-        $company->invoices()->update(['design_id' => $design_id]);
-        $company->quotes()->update(['design_id' => $design_id]);
-        $company->credits()->update(['design_id' => $design_id]);
-        $company->purchase_orders()->update(['design_id' => $design_id]);
-        $company->recurring_invoices()->update(['design_id' => $design_id]);
-
-
         parent::delete($design);
 
         return $design;
