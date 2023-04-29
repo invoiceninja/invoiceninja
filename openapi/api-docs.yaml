@@ -9923,23 +9923,19 @@ paths:
       tags:
         - products
       summary: "Bulk product actions"
-      description: "Archive / Restore / Delete in bulk"
+      description: "Archive / Restore / Delete  / Set tax id in bulk"
       operationId: bulkProducts
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed IDs"
+        description: 'Bulk action array'
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+              $ref: '#/components/schemas/ProductBulkAction'
       responses:
         200:
           description: "The Product response"
@@ -17447,6 +17443,43 @@ components:
           $ref: '#/components/schemas/User'
         token:
           $ref: '#/components/schemas/CompanyToken'
+      type: object
+
+    ProductBulkAction:
+      required:
+        - action
+        - ids
+      properties:
+        action:
+          type: string
+          example: archive
+          description: 'The action to perform ie. archive / restore / delete / set_tax_id'
+        ids:
+          type: array
+          items:
+            format: string
+            type: string
+            example: 2J234DFA,D2J234DFA,D2J234DFA
+            description: string array of client hashed ids
+        tax_id:
+          type: string
+          example: '1'
+          description: |
+                The tax rate id to set on the list of products
+
+                The following constants are available (default = '1')
+                
+                ```
+                PRODUCT_TYPE_PHYSICAL = '1'
+                PRODUCT_TYPE_SERVICE = '2'
+                PRODUCT_TYPE_DIGITAL = '3'
+                PRODUCT_TYPE_SHIPPING = '4'
+                PRODUCT_TYPE_EXEMPT = '5'
+                PRODUCT_TYPE_REDUCED_TAX = '6'
+                PRODUCT_TYPE_OVERRIDE_TAX = '7'
+                PRODUCT_TYPE_ZERO_RATED = '8'
+                PRODUCT_TYPE_REVERSE_TAX = '9'
+                ```
       type: object
     Document:
       properties:
