@@ -60,6 +60,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     post:
@@ -92,6 +96,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/{id}":
@@ -133,6 +141,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     put:
@@ -173,6 +185,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
     delete:
@@ -209,6 +225,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/{id}/edit":
@@ -250,6 +270,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
   "/api/v1/products/create":
@@ -283,6 +307,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
 
@@ -328,6 +356,10 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'
 
@@ -384,5 +416,9 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'

@@ -4,7 +4,38 @@
         - clients
       summary: 'List clients'
       description: |
-            Lists clients. Fine grained filtering is also available using query parameters.  
+            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
+              
+            ```
+            /api/v1/clients?balance=gt:1000
+            ``` 
+            
+            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order:\
+            
+            ```
+            /api/v1/clients?sort=name|desc
+            ```
+
+            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob":\
+            
+            ```
+            /api/v1/clients?balance=gt:1000&name=Bob*
+            ```
+
+            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships:\
+            
+            ```
+            /api/v1/clients?include=activities,ledger,system_logs'
+            ```
+
+            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page:\
+            
+            ```
+            /api/v1/clients?per_page=15&page=2
+            ```
+
+            The default per_page value is 20.
+
       operationId: getClients
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -94,6 +125,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     post:
@@ -106,6 +139,13 @@
         - $ref: '#/components/parameters/X-API-TOKEN'
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/client_include'
+      requestBody:
+        description: Client object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
       responses:
         200:
           description: 'Returns the saved client object'
@@ -126,6 +166,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}':
@@ -167,6 +209,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     put:
@@ -207,6 +251,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
     delete:
@@ -243,6 +289,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/edit':
@@ -284,6 +332,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/clients/create:
@@ -317,6 +367,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/clients/bulk:
@@ -361,6 +413,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/upload':
@@ -416,6 +470,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/purge':
@@ -453,6 +509,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   '/api/v1/clients/{id}/{mergeable_client_hashed_id}/merge':
@@ -498,6 +556,8 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
   /api/v1/client_statement:
@@ -554,5 +614,9 @@
           $ref: '#/components/responses/403'
         422:
           $ref: '#/components/responses/422'
+        429:
+          $ref: '#/components/responses/429'
+        5XX:
+          description: 'Server error'
         default:
           $ref: '#/components/responses/default'

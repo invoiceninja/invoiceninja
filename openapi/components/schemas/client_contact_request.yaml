@@ -1,0 +1,48 @@
+    ClientContactRequest:
+      properties:
+        id:
+          description: 'The hashed if of the contact'
+          type: string
+          example: Opnel5aKBz
+          readOnly: true
+        first_name:
+          description: 'The first name of the contact'
+          type: string
+          example: John
+        last_name:
+          description: 'The last name of the contact'
+          type: string
+          example: Doe
+        phone:
+          description: 'The phone number of the contact'
+          type: string
+          example: 555-152-4524
+        custom_value1:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value2:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value3:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A Custom field value'
+          type: string
+          example: ''
+        email:
+          description: 'The email of the contact'
+          type: string
+          example: ''
+        password:
+          description: 'The hashed password of the contact'
+          type: string
+          example: '*****'
+        send_email:
+          description: 'Boolean value determines is this contact should receive emails'
+          type: boolean
+          example: true
+      type: object
