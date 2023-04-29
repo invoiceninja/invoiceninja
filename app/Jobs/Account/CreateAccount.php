@@ -47,9 +47,9 @@ class CreateAccount
 
     public function handle()
     {
-        if (config('ninja.environment') == 'selfhost' && Account::all()->count() == 0) {
+        if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
             return $this->create();
-        } elseif (config('ninja.environment') == 'selfhost' && Account::all()->count() > 1) {
+        } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
             return response()->json(['message' => Ninja::selfHostedMessage()], 400);
         } elseif (! Ninja::boot()) {
             return response()->json(['message' => Ninja::parse()], 401);

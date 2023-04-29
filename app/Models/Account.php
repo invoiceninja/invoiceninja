@@ -128,6 +128,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmTerm($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account first()
  * @method static \Illuminate\Database\Eloquent\Builder|Account with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users
