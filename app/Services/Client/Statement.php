@@ -411,6 +411,6 @@ class Statement
             $id = (int) $this->client->getSetting('entity_design_id');
         }
 
-        return Design::find($id);
+        return Design::withTrashed()->find($id);
     }
 }
