@@ -381,7 +381,6 @@ class BaseDriver extends AbstractPaymentDriver
      * When a successful payment is made, we need to append the gateway fee
      * to an invoice.
      *
-     * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
     public function confirmGatewayFee() :void
@@ -395,7 +394,7 @@ class BaseDriver extends AbstractPaymentDriver
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->withTrashed()->get();
 
-        $invoices->each(function ($invoice) use ($fee_total) {
+        $invoices->each(function ($invoice) {
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
             }
@@ -421,7 +420,6 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Return the contact if possible.
      *
-     * @return ClientContact The ClientContact object
      */
     public function getContact()
     {

@@ -405,6 +405,8 @@ class BillingPortalPurchase extends Component
             $context = 'whitelabel';
         }
 
+        $utm = isset($this->request_data['utm']) ? $this->request_data['utm'] : null;
+
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->hashed_id,
             'email' => $this->email ?? $this->contact->email,
@@ -412,6 +414,7 @@ class BillingPortalPurchase extends Component
             'invoice_id' => $this->invoice->hashed_id,
             'context' => $context,
             'campaign' => $this->campaign,
+            'utm' => $utm,
         ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
