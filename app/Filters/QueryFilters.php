@@ -172,22 +172,16 @@ abstract class QueryFilters
         switch ($operator) {
             case 'lt':
                 return '<';
-                break;
             case 'gt':
                 return '>';
-                break;
             case 'lte':
                 return '<=';
-                break;
             case 'gte':
                 return '>=';
-                break;
             case 'eq':
                 return '=';
-                break;
             default:
                 return '=';
-                break;
         }
     }
 

@@ -65,26 +65,26 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_large
  * @property int $enable_shop_api
  * @property string $default_auto_bill
- * @property int $mark_expenses_invoiceable
- * @property int $mark_expenses_paid
- * @property int $invoice_expense_documents
- * @property int $auto_start_tasks
- * @property int $invoice_task_timelog
- * @property int $invoice_task_documents
- * @property int $show_tasks_table
- * @property int $is_disabled
- * @property int $default_task_is_date_based
- * @property int $enable_product_discount
- * @property int $calculate_expense_tax_by_amount
- * @property int $expense_inclusive_taxes
+ * @property bool $mark_expenses_invoiceable
+ * @property bool $mark_expenses_paid
+ * @property bool $invoice_expense_documents
+ * @property bool $auto_start_tasks
+ * @property bool $invoice_task_timelog
+ * @property bool $invoice_task_documents
+ * @property bool $show_tasks_table
+ * @property bool $is_disabled
+ * @property bool $default_task_is_date_based
+ * @property bool $enable_product_discount
+ * @property bool $calculate_expense_tax_by_amount
+ * @property bool $expense_inclusive_taxes
  * @property int $session_timeout
- * @property int $oauth_password_required
+ * @property bool $oauth_password_required
  * @property int $invoice_task_datelog
  * @property int $default_password_timeout
- * @property int $show_task_end_date
- * @property int $markdown_enabled
- * @property int $use_comma_as_decimal_place
- * @property int $report_include_drafts
+ * @property bool $show_task_end_date
+ * @property bool $markdown_enabled
+ * @property bool $use_comma_as_decimal_place
+ * @property bool $report_include_drafts
  * @property array|null $client_registration_fields
  * @property bool $convert_rate_to_client
  * @property bool $markdown_email_enabled
