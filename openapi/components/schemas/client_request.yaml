@@ -119,8 +119,6 @@
           type: boolean
           example: false
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/ClientSettings'
         group_settings_id:
           description: 'The group settings assigned to the client'
           type: string
@@ -138,4 +136,6 @@
           type: boolean
           example: false
           readOnly: true
+        settings:
+          $ref: '#/components/schemas/ClientSettings'
       type: object

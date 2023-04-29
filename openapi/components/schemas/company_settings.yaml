@@ -1,5 +1,11 @@
     CompanySettings:
+      required:
+        - currency_id
       properties:
+        currency_id:
+          description: 'The default currency id'
+          type: string
+          example: true
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -19,10 +25,6 @@
         show_currency_code:
           description: 'Toggles whether the currency symbol or code is shown'
           type: boolean
-          example: true
-        currency_id:
-          description: 'The default currency id'
-          type: string
           example: true
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'

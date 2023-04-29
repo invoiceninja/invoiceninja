@@ -5,6 +5,10 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientContact'
         user_id:
           description: 'The unique identifier of the user who created the client'
           type: string
@@ -19,10 +23,6 @@
           type: string
           example: Co7Vn3yLmW
           readOnly: true
-        contacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClientContact'
         name:
           description: 'The name of the client company or organization'
           type: string
@@ -170,8 +170,6 @@
           format: integer
           example: '1628445631'
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/ClientSettings'
         group_settings_id:
           description: 'The group settings assigned to the client'
           type: string
@@ -194,4 +192,6 @@
           type: number
           example: 100
           readOnly: true
+        settings:
+          $ref: '#/components/schemas/ClientSettings'
       type: object

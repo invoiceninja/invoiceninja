@@ -152,6 +152,8 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        5XX:
+          $ref: "#/components/responses/5XX"
         default:
           $ref: "#/components/responses/default"
   /api/v1/refresh:
@@ -13479,6 +13481,12 @@ components:
         application/json:
           schema:
             $ref: '#components/schemas/AuthenticationError'
+    400:      
+      description: 'Invalid user input'
+      content:
+        application/json:
+          schema:
+            $ref: '#components/schemas/InvalidInputError'
 
     429:
       description: 'Rate Limit Exceeded'
@@ -14002,8 +14010,34 @@ components:
                 type: string
           type: object
       type: object
-    
-    
+    RateLimiterError:
+      properties:
+        message:
+          description: 'Rate limit exceeded.'
+          type: string
+          example: 'Rate limit exceeded.'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
+    InvalidInputError:
+      properties:
+        message:
+          description: 'Invalid input'
+          type: string
+          example: 'Invalid input'
+        errors:
+          properties:
+            value:
+              type: array
+              items:
+                type: string
+          type: object
+      type: object
     Webhook:
       properties:
         id:
@@ -14351,6 +14385,10 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientContact'
         user_id:
           description: 'The unique identifier of the user who created the client'
           type: string
@@ -14365,10 +14403,6 @@ components:
           type: string
           example: Co7Vn3yLmW
           readOnly: true
-        contacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClientContact'
         name:
           description: 'The name of the client company or organization'
           type: string
@@ -14516,8 +14550,6 @@ components:
           format: integer
           example: '1628445631'
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/ClientSettings'
         group_settings_id:
           description: 'The group settings assigned to the client'
           type: string
@@ -14540,6 +14572,8 @@ components:
           type: number
           example: 100
           readOnly: true
+        settings:
+          $ref: '#/components/schemas/ClientSettings'
       type: object
     SystemLog:
       properties:
@@ -15794,7 +15828,13 @@ components:
           example: '2'
       type: object
     CompanySettings:
+      required:
+        - currency_id
       properties:
+        currency_id:
+          description: 'The default currency id'
+          type: string
+          example: true
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -15814,10 +15854,6 @@ components:
         show_currency_code:
           description: 'Toggles whether the currency symbol or code is shown'
           type: boolean
-          example: true
-        currency_id:
-          description: 'The default currency id'
-          type: string
           example: true
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
@@ -17177,8 +17213,6 @@ components:
           type: boolean
           example: false
           readOnly: true
-        settings:
-          $ref: '#/components/schemas/ClientSettings'
         group_settings_id:
           description: 'The group settings assigned to the client'
           type: string
@@ -17196,6 +17230,8 @@ components:
           type: boolean
           example: false
           readOnly: true
+        settings:
+          $ref: '#/components/schemas/ClientSettings'
       type: object
     Project:
       type: object
@@ -17525,7 +17561,13 @@ components:
           example: '134341234234'
       type: object
     ClientSettings:
+      required:
+        - currency_id
       properties:
+        currency_id:
+          description: 'The default currency id'
+          type: string
+          example: true
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -17545,10 +17587,6 @@ components:
         show_currency_code:
           description: 'Toggles whether the currency symbol or code is shown'
           type: boolean
-          example: true
-        currency_id:
-          description: 'The default currency id'
-          type: string
           example: true
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
