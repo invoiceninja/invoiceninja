@@ -733,6 +733,14 @@ class UserController extends BaseController
         $user->oauth_user_refresh_token = null;
         $user->save();
 
+        $company = $user->company();
+        $settings = $company->settings;
+        $settings->email_sending_method = "default";
+        $settings->gmail_sending_user_id = "0";
+
+        $company->settings = $settings;
+        $company->save();
+
         return $this->itemResponse($user->fresh());
 
     }
