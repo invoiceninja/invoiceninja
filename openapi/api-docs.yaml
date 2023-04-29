@@ -8657,6 +8657,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Client object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
       responses:
         200:
           description: 'Returns the client object'
@@ -8902,7 +8909,12 @@ paths:
       tags:
         - clients
       summary: 'Purge client'
-      description: 'Handles purging a client'
+      description: |
+            Handles purging a clients.
+
+            Please note this is a destructive action.
+
+            This action will remove all data associated with the client and cannot be undone.
       operationId: purgeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -8942,7 +8954,12 @@ paths:
       tags:
         - clients
       summary: 'Merge client'
-      description: 'Handles merging 2 clients'
+      description: |
+            Handles merging 2 clients
+
+            The id parameter is the client that will be the primary client after the merge has completed. 
+
+            The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
       operationId: mergeClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -8997,7 +9014,7 @@ paths:
         - $ref: '#/components/parameters/X-Requested-With'
         - $ref: '#/components/parameters/include'
       requestBody:
-        description: 'Statment Options'
+        description: 'Statement Options'
         required: true
         content:
           application/json:
@@ -9014,6 +9031,9 @@ paths:
                   type: string
                 show_payments_table:
                   description: 'Flag which determines if the payments table is shown'
+                  type: boolean
+                show_credits_table:
+                  description: 'Flag which determines if the credits table is shown'
                   type: boolean
                 show_aging_table:
                   description: 'Flag which determines if the aging table is shown'
@@ -9740,6 +9760,13 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
       responses:
         200:
           description: "Returns the Product object"
@@ -17030,6 +17057,9 @@ components:
           example: google
       type: object
     ClientRequest:
+      required:
+        - contacts
+        - country_id
       properties:
         id:
           description: 'The unique identifier of the client'
@@ -17038,6 +17068,7 @@ components:
           readOnly: true
         contacts:
           type: array
+          description: 'A list of contacts associated with the client'
           items:
             $ref: '#/components/schemas/ClientContactRequest'
         name:

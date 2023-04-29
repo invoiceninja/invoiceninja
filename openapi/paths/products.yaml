@@ -172,6 +172,13 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Product object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
       responses:
         200:
           description: "Returns the Product object"

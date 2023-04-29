@@ -1,4 +1,7 @@
     ClientRequest:
+      required:
+        - contacts
+        - country_id
       properties:
         id:
           description: 'The unique identifier of the client'
@@ -7,6 +10,7 @@
           readOnly: true
         contacts:
           type: array
+          description: 'A list of contacts associated with the client'
           items:
             $ref: '#/components/schemas/ClientContactRequest'
         name:
