@@ -14,8 +14,6 @@ namespace Tests\Feature;
 use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Payment;
 use Tests\MockAccountData;
 use App\Factory\InvoiceFactory;
 use App\Utils\Traits\MakesHash;
