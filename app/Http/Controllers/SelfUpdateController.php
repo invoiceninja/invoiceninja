@@ -39,35 +39,6 @@ class SelfUpdateController extends BaseController
     {
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/v1/self-update",
-     *      operationId="selfUpdate",
-     *      tags={"update"},
-     *      summary="Performs a system update",
-     *      description="Performs a system update",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-API-PASSWORD"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success/failure response"
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
- 
     public function update()
     {
         set_time_limit(0);
@@ -87,7 +58,8 @@ class SelfUpdateController extends BaseController
 
         nlog('copying release file');
 
-        if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
+        // if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
+        if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.tar'))) {
             nlog('Copied file from URL');
         } else {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
@@ -95,24 +67,22 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-        $file = Storage::disk('local')->path('invoiceninja.zip');
+// $file = Storage::disk('local')->path('invoiceninja.zip');
+        $file = Storage::disk('local')->path('invoiceninja.tar');
 
         nlog('Extracting zip');
 
-        $zipFile = new \PhpZip\ZipFile();
-
-        $zipFile->openFile($file);
-
-        $zipFile->deleteFromName(".htaccess");
+        // $zipFile = new \PhpZip\ZipFile();
+        // $zipFile->openFile($file);
+        // $zipFile->deleteFromName(".htaccess");
+        // $zipFile->rewrite();
+        // $zipFile->extractTo(base_path());
+        // $zipFile->close();
+        // $zipFile = null;
         
-        $zipFile->rewrite();
+        $phar = new \PharData($file);
+        $phar->extractTo(base_path());
 
-        $zipFile->extractTo(base_path());
-
-        $zipFile->close();
-
-        $zipFile = null;
-        
         nlog('Finished extracting files');
 
         unlink($file);
@@ -218,6 +188,7 @@ class SelfUpdateController extends BaseController
     {
         $version = $this->checkVersion();
 
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
         return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
     }
 }
