@@ -2,7 +2,7 @@
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
  * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://clientninja.com)
  *
