@@ -23,13 +23,11 @@ use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
-use App\Jobs\Invoice\CreateEInvoice;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Storage;
 use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 use App\Jobs\Vendor\CreatePurchaseOrderPdf;
-use App\Services\Invoice\GetInvoiceXInvoice;
 
 class EmailDefaults
 {
