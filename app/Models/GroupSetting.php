@@ -11,10 +11,11 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 /**
  * App\Models\GroupSetting
@@ -61,7 +62,8 @@ class GroupSetting extends StaticModel
 {
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',

@@ -400,7 +400,6 @@ class BillingPortalPurchase extends Component
 
         $context = 'purchase';
 
-        // if(Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->id == SubscriptionService::WHITE_LABEL) {
         if (Ninja::isHosted() && $this->subscription->service()->recurring_products()->first()?->product_key == 'whitelabel') {
             $context = 'whitelabel';
         }
@@ -444,13 +443,13 @@ class BillingPortalPurchase extends Component
             return;
         }
 
-
         return $this->subscription->service()->handleNoPaymentRequired([
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
             'coupon' => $this->coupon,
+            'campaign' => $this->campaign,
         ]);
     }
 

@@ -1,4 +1,7 @@
-    Client:
+    ClientRequest:
+      required:
+        - contacts
+        - country_id
       properties:
         id:
           description: 'The unique identifier of the client'
@@ -7,22 +10,9 @@
           readOnly: true
         contacts:
           type: array
+          description: 'A list of contacts associated with the client'
           items:
-            $ref: '#/components/schemas/ClientContact'
-        user_id:
-          description: 'The unique identifier of the user who created the client'
-          type: string
-          example: Ua6Rw4pVbS
-          readOnly: true
-        assigned_user_id:
-          description: 'The unique identifier of the user who has been assigned the client'
-          type: string
-          example: Ua6Rw4pVbS
-        company_id:
-          description: 'The unique identifier of the company the client belongs to'
-          type: string
-          example: Co7Vn3yLmW
-          readOnly: true
+            $ref: '#/components/schemas/ClientContactRequest'
         name:
           description: 'The name of the client company or organization'
           type: string
@@ -35,11 +25,6 @@
           description: 'Notes that are only visible to the user who created the client'
           type: string
           example: 'Client prefers email communication over phone calls'
-        client_hash:
-          description: 'A unique hash value for the client'
-          type: string
-          example: asdfkjhk342hjhbfdvmnfb1
-          readOnly: true
         industry_id:
           description: 'The unique identifier of the industry the client operates in'
           type: number
@@ -134,42 +119,6 @@
           type: boolean
           example: false
           readOnly: true
-        balance:
-          description: 'The outstanding balance the client owes'
-          type: number
-          format: float
-          example: '500.00'
-          readOnly: true
-        paid_to_date:
-          description: 'The total amount the client has paid to date'
-          type: number
-          format: float
-          example: '2000.00'
-          readOnly: true
-        credit_balance:
-          description: 'The available credit balance for the client to use on future purchases'
-          type: number
-          format: float
-          example: '100.00'
-          readOnly: true
-        last_login:
-          description: "The timestamp of the client's last login"
-          type: number
-          format: integer
-          example: '1628686031'
-          readOnly: true
-        created_at:
-          description: 'The timestamp when the client was created'
-          type: number
-          format: integer
-          example: '1617629031'
-          readOnly: true
-        updated_at:
-          description: 'The timestamp when the client was last updated'
-          type: number
-          format: integer
-          example: '1628445631'
-          readOnly: true
         group_settings_id:
           description: 'The group settings assigned to the client'
           type: string
@@ -186,11 +135,6 @@
           description: 'Flag which defines if the client has a valid VAT number'
           type: boolean
           example: false
-          readOnly: true
-        payment_balance:
-          description: 'Defines the payment balance the client has on file (pre payments / over payments / unapplied amounts)'
-          type: number
-          example: 100
           readOnly: true
         settings:
           $ref: '#/components/schemas/ClientSettings'

@@ -521,8 +521,11 @@ class DesignController extends BaseController
 
         $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
 
-        $designs->each(function ($design, $key) use ($action) {
-            if (auth()->user()->can('edit', $design)) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $designs->each(function ($design, $key) use ($action, $user) {
+            if ($user->can('edit', $design)) {
                 $this->design_repo->{$action}($design);
             }
         });
@@ -534,7 +537,11 @@ class DesignController extends BaseController
     {
         $design_id = $request->input('design_id');
         $entity = $request->input('entity');
-        $company = auth()->user()->getCompany();
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = $user->getCompany();
 
         $design = Design::where('company_id', $company->id)
                         ->orWhereNull('company_id')

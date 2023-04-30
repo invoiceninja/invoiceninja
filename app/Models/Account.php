@@ -68,7 +68,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
- * @property int $account_sms_verified
+ * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
  * @property int $is_trial
  * @property-read int|null $bank_integrations_count
@@ -128,6 +128,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Account whereUtmTerm($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Account first()
  * @method static \Illuminate\Database\Eloquent\Builder|Account with()
+ * @method static \Illuminate\Database\Eloquent\Builder|Account count() 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\BankIntegration> $bank_integrations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Company> $companies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyUser> $company_users

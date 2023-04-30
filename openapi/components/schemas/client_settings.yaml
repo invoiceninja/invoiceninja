@@ -1,4 +1,4 @@
-    CompanySettings:
+    ClientSettings:
       required:
         - currency_id
       properties:
@@ -131,10 +131,6 @@
           description: 'Boolean flag determining whether inclusive or exclusive taxes are used'
           type: boolean
           example: true
-        translations:
-          description: 'JSON payload of customized translations'
-          type: object
-          example: ''
         task_number_pattern:
           description: 'Allows customisation of the task number pattern'
           type: string
@@ -308,7 +304,7 @@
           type: string
           example: 'A default email footer'
         email_sending_method:
-          description: 'The email driver to use to send email, options include default, gmail, client_postmark, client_mailgun, office365'
+          description: 'The email driver to use to send email, options include default, gmail'
           type: string
           example: default
         gmail_sending_user_id:

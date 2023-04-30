@@ -14,9 +14,9 @@ namespace App\Filters;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * BankIntegrationFilters.
+ * GroupSettingFilters.
  */
-class BankIntegrationFilters extends QueryFilters
+class GroupSettingFilters extends QueryFilters
 {
     /**
      * Filter by name.
@@ -25,12 +25,12 @@ class BankIntegrationFilters extends QueryFilters
      * @return Builder
      */
     public function name(string $name = ''): Builder
-    {
+    {nlog("filter");
         if (strlen($name) == 0) {
             return $this->builder;
         }
 
-        return $this->builder->where('bank_account_name', 'like', '%'.$name.'%');
+        return $this->builder->where('name', 'like', '%'.$name.'%');
     }
 
     /**
@@ -38,7 +38,6 @@ class BankIntegrationFilters extends QueryFilters
      *
      * @param string $filter
      * @return Builder
-     * @deprecated
      */
     public function filter(string $filter = ''): Builder
     {
@@ -47,39 +46,7 @@ class BankIntegrationFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('bank_account_name', 'like', '%'.$filter.'%');
-        });
-    }
-
-    /**
-     * Filters the list based on the status
-     * archived, active, deleted.
-     *
-     * @param string $filter
-     * @return Builder
-     */
-    public function status(string $filter = ''): Builder
-    {
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        $filters = explode(',', $filter);
-
-        return $this->builder->where(function ($query) use ($filters) {
-            if (in_array(parent::STATUS_ACTIVE, $filters)) {
-                $query->orWhereNull('deleted_at');
-            }
-
-            if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-                $query->orWhere(function ($query) {
-                    $query->whereNotNull('deleted_at');
-                });
-            }
-
-            if (in_array(parent::STATUS_DELETED, $filters)) {
-                $query->orWhere('is_deleted', 1);
-            }
+            $query->where('name', 'like', '%'.$filter.'%');
         });
     }
 
