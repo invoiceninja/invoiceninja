@@ -23,10 +23,6 @@ jobs:
       - name: Copy .env file
         run: |
           cp .env.example .env
-             
-      - name: ChDir
-        run: |
-          cd ninja
 
       - name: Install composer dependencies
         run: |
