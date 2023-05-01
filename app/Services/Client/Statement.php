@@ -245,17 +245,17 @@ class Statement
         switch ($status) {
             case 'all':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                break;
+                
             case 'paid':
                 return [Invoice::STATUS_PAID];
-                break;
+                
             case 'unpaid':
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
-                break;
+                
 
             default:
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
-                break;
+                
         }
     }
 
