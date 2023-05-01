@@ -65,7 +65,8 @@ jobs:
 
       - name: Build project
         run: |
-          tar --exclude='.htaccess' -zcvf ./invoiceninja.tar ./
+          cd ..
+          tar --exclude='.htaccess' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar invoiceninja/
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -75,4 +76,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: my-artifact
-          path: ./invoiceninja.tar  
+          path: /home/runner/work/invoiceninja/invoiceninja.tar
