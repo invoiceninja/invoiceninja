@@ -25,6 +25,10 @@ class SelfUpdateController extends BaseController
     use ClientGroupSettingsSaver;
     use AppSetup;
 
+    private bool $use_tar = false;
+
+    private string $filename = 'invoiceninja.zip';
+
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
         'bootstrap/cache/config.php',
@@ -47,6 +51,11 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
+        if(request()->has('tar')) {
+            $this->use_tar = true;
+            $this->filename = 'invoiceninja.tar';
+        }
+
         nlog('Test filesystem is writable');
 
         $this->testWritable();
@@ -58,7 +67,7 @@ class SelfUpdateController extends BaseController
         nlog('copying release file');
 
         // if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
-        if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.tar'))) {
+        if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
             nlog('Copied file from URL');
         } else {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
@@ -66,26 +75,21 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-        // $file = Storage::disk('local')->path('invoiceninja.zip');
+        if($this->use_tar) {
+            $file = Storage::disk('local')->path($this->filename);
 
-        $file = Storage::disk('local')->path('invoiceninja.tar');
+            nlog('Extracting tar');
 
-        nlog('Extracting zip');
+            $phar = new \PharData($file);
+            $phar->extractTo(base_path());
 
-        // $zipFile = new \PhpZip\ZipFile();
-        // $zipFile->openFile($file);
-        // $zipFile->deleteFromName(".htaccess");
-        // $zipFile->rewrite();
-        // $zipFile->extractTo(base_path());
-        // $zipFile->close();
-        // $zipFile = null;
-        
-        $phar = new \PharData($file);
-        $phar->extractTo(base_path());
+            nlog('Finished extracting files');
 
-        nlog('Finished extracting files');
-
-        unlink($file);
+            unlink($file);
+        }
+        else {
+            $this->extractUsingZip();
+        }
 
         nlog('Deleted release zip file');
 
@@ -110,6 +114,26 @@ class SelfUpdateController extends BaseController
 
         return response()->json(['message' => 'Update completed'], 200);
     }
+
+    private function extractUsingZip()
+    {
+
+        $file = Storage::disk('local')->path($this->filename);
+
+        nlog('Extracting zip');
+
+        $zipFile = new \PhpZip\ZipFile();
+        $zipFile->openFile($file);
+        $zipFile->deleteFromName(".htaccess");
+        $zipFile->rewrite();
+        $zipFile->extractTo(base_path());
+        $zipFile->close();
+        $zipFile = null;
+                
+        unlink($file);
+
+    }
+
 
     // private function deleteDirectory($dir)
     // {
@@ -188,7 +212,10 @@ class SelfUpdateController extends BaseController
     {
         $version = $this->checkVersion();
 
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
-        // return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+        if(request()->has('tar'))
+            return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
+
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+
     }
 }
