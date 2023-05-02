@@ -12,7 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
-use App\Models\Client;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
@@ -67,7 +66,8 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-// $file = Storage::disk('local')->path('invoiceninja.zip');
+        // $file = Storage::disk('local')->path('invoiceninja.zip');
+
         $file = Storage::disk('local')->path('invoiceninja.tar');
 
         nlog('Extracting zip');
@@ -111,40 +111,40 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    private function deleteDirectory($dir)
-    {
-        if (! file_exists($dir)) {
-            return true;
-        }
+    // private function deleteDirectory($dir)
+    // {
+    //     if (! file_exists($dir)) {
+    //         return true;
+    //     }
 
-        if (! is_dir($dir) || is_link($dir)) {
-            return unlink($dir);
-        }
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-            if (! $this->deleteDirectory($dir.'/'.$item)) {
-                if (! $this->deleteDirectory($dir.'/'.$item)) {
-                    return false;
-                }
-            }
-        }
+    //     if (! is_dir($dir) || is_link($dir)) {
+    //         return unlink($dir);
+    //     }
+    //     foreach (scandir($dir) as $item) {
+    //         if ($item == '.' || $item == '..') {
+    //             continue;
+    //         }
+    //         if (! $this->deleteDirectory($dir.'/'.$item)) {
+    //             if (! $this->deleteDirectory($dir.'/'.$item)) {
+    //                 return false;
+    //             }
+    //         }
+    //     }
 
-        return rmdir($dir);
-    }
+    //     return rmdir($dir);
+    // }
 
-    private function postHookUpdate()
-    {
-        if (config('ninja.app_version') == '5.3.82') {
-            Client::withTrashed()->cursor()->each(function ($client) {
-                $entity_settings = $this->checkSettingType($client->settings);
-                $entity_settings->md5 = md5(time());
-                $client->settings = $entity_settings;
-                $client->save();
-            });
-        }
-    }
+    // private function postHookUpdate()
+    // {
+    //     if (config('ninja.app_version') == '5.3.82') {
+    //         Client::withTrashed()->cursor()->each(function ($client) {
+    //             $entity_settings = $this->checkSettingType($client->settings);
+    //             $entity_settings->md5 = md5(time());
+    //             $client->settings = $entity_settings;
+    //             $client->save();
+    //         });
+    //     }
+    // }
 
     private function clearCacheDir()
     {
@@ -167,10 +167,10 @@ class SelfUpdateController extends BaseController
             }
 
             if ($file->isFile() && ! $file->isWritable()) {
+
                 nlog("Cannot update system because {$file->getFileName()} is not writable");
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
 
-                return false;
             }
         }
 
@@ -189,6 +189,6 @@ class SelfUpdateController extends BaseController
         $version = $this->checkVersion();
 
         return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+        // return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
     }
 }
