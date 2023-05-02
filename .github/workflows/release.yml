@@ -67,7 +67,7 @@ jobs:
         run: |
           zip -r /home/runner/work/invoiceninja/invoiceninja.zip .* -x "../*"
           cd ..
-          tar --exclude='.htaccess' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar -C invoiceninja . --xform='s!^\./!!'
+          tar --exclude='.htaccess' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar -C invoiceninja .* --xform='s!^\./!!'
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
