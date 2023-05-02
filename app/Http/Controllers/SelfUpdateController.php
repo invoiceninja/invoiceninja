@@ -51,11 +51,6 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        // if(request()->has('zip')) {
-        //     $this->use_zip = true;
-        //     $this->filename = 'invoiceninja.zip';
-        // }
-
         nlog('Test filesystem is writable');
 
         $this->testWritable();
