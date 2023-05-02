@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Cache;
 use Turbo124\Beacon\Facades\LightLogs;
 use App\Http\Controllers\BaseController;
 use App\Jobs\Company\CreateCompanyToken;
+use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Http\Requests\Login\LoginRequest;
 use App\Libraries\OAuth\Providers\Google;
@@ -109,6 +110,7 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
+            /** @var \App\Models\User $user */
             $user = $this->guard()->user();
 
             //2FA
@@ -135,7 +137,8 @@ class LoginController extends BaseController
                 $account->save();
                 $user = $user->fresh();
             }
-
+            
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -168,7 +171,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return CompanyUser Refresh Feed.
+     * @return Response | JsonResponse.
      */
     public function refresh(Request $request)
     {
@@ -271,6 +274,7 @@ class LoginController extends BaseController
 
             Auth::login($existing_user, true);
 
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -290,12 +294,16 @@ class LoginController extends BaseController
             }
 
             Auth::login($existing_login_user, true);
+            /** @var \App\Models\User $user */
 
-            auth()->user()->update([
+            $user = auth()->user();
+
+            $user->update([
                 'oauth_user_id' => $user->id,
                 'oauth_provider_id' => $provider,
             ]);
 
+            /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
 
             if ($cu->count() == 0) {
@@ -333,9 +341,14 @@ class LoginController extends BaseController
         $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
 
         Auth::login($account->default_company->owner(), true);
-        auth()->user()->email_verified_at = now();
-        auth()->user()->save();
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -363,26 +376,21 @@ class LoginController extends BaseController
             $set_company = $cu->first()->company;
         }
 
-        auth()->user()->setCompany($set_company);
+        /** @var \App\Models\User $user */
+        $user->setCompany($set_company);
 
-        $this->setLoginCache(auth()->user());
+        $this->setLoginCache($user);
 
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($cu->first());
-        $truth->setUser(auth()->user());
+        $truth->setUser($user);
         $truth->setCompany($set_company);
 
-        if ($cu->count() == 0) {
-            return $cu;
-        }
-
-        if (auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count()) {
-            auth()->user()->companies->each(function ($company) {
-                if (!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->where('is_system', true)->exists()) {
-                    (new CreateCompanyToken($company, auth()->user(), 'Google_O_Auth'))->handle();
-                }
-            });
-        }
+        $cu->first()->account->companies->each(function ($company) use ($cu) {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
+                (new CreateCompanyToken($company, $cu->first()->user, request()->server('HTTP_USER_AGENT')))->handle();
+            }
+        });
 
         $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $set_company->id)->first());
 
@@ -457,10 +465,17 @@ class LoginController extends BaseController
         return response()->json(['message' => 'Unable to authenticate this user'], 400);
     }
 
+    /**
+     * send login response to oauthed users
+     *
+     * @param \App\Models\User $existing_user
+     * @return Response | JsonResponse
+     */
     private function existingOauthUser($existing_user)
     {
         Auth::login($existing_user, true);
 
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -476,11 +491,16 @@ class LoginController extends BaseController
 
     private function existingLoginUser($oauth_user_id, $provider)
     {
-        auth()->user()->update([
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->update([
             'oauth_user_id' => $oauth_user_id,
             'oauth_provider_id' => $provider,
         ]);
 
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -579,9 +599,14 @@ class LoginController extends BaseController
         }
 
         Auth::login($account->default_company->owner(), true);
-        auth()->user()->email_verified_at = now();
-        auth()->user()->save();
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
 
         if ($cu->count() == 0) {
@@ -694,8 +719,6 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                // 'oauth_user_token' => $oauth_user_token,
-                // 'oauth_user_refresh_token' => $socialite_user->accessTokenResponseBody['refresh_token'],
                 'oauth_user_token_expiry' => $oauth_expiry,
             ];
 
