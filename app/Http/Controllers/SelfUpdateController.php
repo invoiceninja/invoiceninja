@@ -25,9 +25,9 @@ class SelfUpdateController extends BaseController
     use ClientGroupSettingsSaver;
     use AppSetup;
 
-    private bool $use_tar = false;
+    // private bool $use_zip = false;
 
-    private string $filename = 'invoiceninja.zip';
+    private string $filename = 'invoiceninja.tar';
 
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
@@ -51,10 +51,10 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        if(request()->has('tar')) {
-            $this->use_tar = true;
-            $this->filename = 'invoiceninja.tar';
-        }
+        // if(request()->has('zip')) {
+        //     $this->use_zip = true;
+        //     $this->filename = 'invoiceninja.zip';
+        // }
 
         nlog('Test filesystem is writable');
 
@@ -75,7 +75,7 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-        if($this->use_tar) {
+        // if($this->use_zip) {
             $file = Storage::disk('local')->path($this->filename);
 
             nlog('Extracting tar');
@@ -86,10 +86,10 @@ class SelfUpdateController extends BaseController
             nlog('Finished extracting files');
 
             unlink($file);
-        }
-        else {
-            $this->extractUsingZip();
-        }
+        // }
+        // else {
+        //     $this->extractUsingZip();
+        // }
 
         nlog('Deleted release zip file');
 
@@ -115,59 +115,23 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    private function extractUsingZip()
-    {
+    // private function extractUsingZip()
+    // {
 
-        $file = Storage::disk('local')->path($this->filename);
+    //     $file = Storage::disk('local')->path($this->filename);
 
-        nlog('Extracting zip');
+    //     nlog('Extracting zip');
 
-        $zipFile = new \PhpZip\ZipFile();
-        $zipFile->openFile($file);
-        $zipFile->deleteFromName(".htaccess");
-        $zipFile->rewrite();
-        $zipFile->extractTo(base_path());
-        $zipFile->close();
-        $zipFile = null;
+    //     $zipFile = new \PhpZip\ZipFile();
+    //     $zipFile->openFile($file);
+    //     $zipFile->deleteFromName(".htaccess");
+    //     $zipFile->rewrite();
+    //     $zipFile->extractTo(base_path());
+    //     $zipFile->close();
+    //     $zipFile = null;
                 
-        unlink($file);
+    //     unlink($file);
 
-    }
-
-
-    // private function deleteDirectory($dir)
-    // {
-    //     if (! file_exists($dir)) {
-    //         return true;
-    //     }
-
-    //     if (! is_dir($dir) || is_link($dir)) {
-    //         return unlink($dir);
-    //     }
-    //     foreach (scandir($dir) as $item) {
-    //         if ($item == '.' || $item == '..') {
-    //             continue;
-    //         }
-    //         if (! $this->deleteDirectory($dir.'/'.$item)) {
-    //             if (! $this->deleteDirectory($dir.'/'.$item)) {
-    //                 return false;
-    //             }
-    //         }
-    //     }
-
-    //     return rmdir($dir);
-    // }
-
-    // private function postHookUpdate()
-    // {
-    //     if (config('ninja.app_version') == '5.3.82') {
-    //         Client::withTrashed()->cursor()->each(function ($client) {
-    //             $entity_settings = $this->checkSettingType($client->settings);
-    //             $entity_settings->md5 = md5(time());
-    //             $client->settings = $entity_settings;
-    //             $client->save();
-    //         });
-    //     }
     // }
 
     private function clearCacheDir()
@@ -212,10 +176,10 @@ class SelfUpdateController extends BaseController
     {
         $version = $this->checkVersion();
 
-        if(request()->has('tar'))
-            return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
+        // if(request()->has('zip'))
+        //     return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
 
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
 
     }
 }
