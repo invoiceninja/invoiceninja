@@ -81,7 +81,7 @@ class SelfUpdateController extends BaseController
             nlog('Extracting tar');
 
             $phar = new \PharData($file);
-            $phar->extractTo(base_path());
+            $phar->extractTo(base_path(), null, true);
 
             nlog('Finished extracting files');
 
