@@ -85,7 +85,6 @@ class ZugferdEInvoice extends AbstractService
         }
 
         $invoicing_data = $this->invoice->calc();
-        $globaltax = null;
 
         //Create line items and calculate taxes
         foreach ($this->invoice->line_items as $index => $item) {
@@ -139,15 +138,15 @@ class ZugferdEInvoice extends AbstractService
                 if (!empty($this->invoice->tax_name1)) {
                     $taxtype = $this->getTaxType($this->invoice->tax_name1);
                     $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate1);
-                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate1);
                 } elseif (!empty($this->invoice->tax_name2)) {
                     $taxtype = $this->getTaxType($this->invoice->tax_name2);
                     $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate2);
-                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate2);
                 } elseif (!empty($this->invoice->tax_name3)) {
                     $taxtype = $this->getTaxType($this->invoice->tax_name3);
-                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
-                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate3);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate3);
                 } else {
                     nlog("Can't add correct tax position");
                 }
@@ -156,14 +155,14 @@ class ZugferdEInvoice extends AbstractService
 
 
         if ($this->invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
         } else {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
         }
 
 
         foreach ($this->tax_map as $item){
-            $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]);
+            $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
         }
         $disk = config('filesystems.default');
 
@@ -240,7 +239,7 @@ class ZugferdEInvoice extends AbstractService
             $this->tax_map[$hash] = [
                 "tax_type" => $taxtype,
                 "net_amount" => $netamount,
-                "tax_rate" => $taxrate
+                "tax_rate" => $taxrate / 100
             ];
         }
     }
