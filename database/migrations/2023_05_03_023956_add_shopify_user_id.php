@@ -32,7 +32,8 @@ return new class extends Migration
         });
 
         Schema::table('companies', function(Illuminate\Database\Schema\Blueprint $table){
-            $table->string('shopify_name')->index()->nullable();
+                $table->string('shopify_name')->index()->nullable();
+                $table->string('shopify_access_token')->index()->nullable();
         });
 
 
