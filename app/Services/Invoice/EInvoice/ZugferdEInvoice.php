@@ -148,6 +148,9 @@ class ZugferdEInvoice extends AbstractService
                     $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate3);
                     $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate3);
                 } else {
+                    $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', 0);
+                    $this->addtoTaxMap($taxtype, $linenetamount, 0);
                     nlog("Can't add correct tax position");
                 }
             }
@@ -230,16 +233,16 @@ class ZugferdEInvoice extends AbstractService
         }
         return $tax_type;
     }
-    private function addtoTaxMap(string $taxtype, float $netamount, float $taxrate){
-        $hash = hash("md5", $taxtype."-".$taxrate);
+    private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate){
+        $hash = hash("md5", $tax_type."-".$tax_rate);
         if (array_key_exists($hash, $this->tax_map)){
-            $this->tax_map[$hash]["net_amount"] += $netamount;
+            $this->tax_map[$hash]["net_amount"] += $net_amount;
         }
         else{
             $this->tax_map[$hash] = [
-                "tax_type" => $taxtype,
-                "net_amount" => $netamount,
-                "tax_rate" => $taxrate / 100
+                "tax_type" => $tax_type,
+                "net_amount" => $net_amount,
+                "tax_rate" => $tax_rate / 100
             ];
         }
     }
