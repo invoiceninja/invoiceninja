@@ -231,7 +231,7 @@ class ZugferdEInvoice extends AbstractService
         return $tax_type;
     }
     private function addtoTaxMap(string $taxtype, float $netamount, float $taxrate){
-        $hash = hash("md5", $taxtype."-".$taxrate, true);
+        $hash = hash("md5", $taxtype."-".$taxrate);
         if (array_key_exists($hash, $this->tax_map)){
             $this->tax_map[$hash]["net_amount"] += $netamount;
         }
