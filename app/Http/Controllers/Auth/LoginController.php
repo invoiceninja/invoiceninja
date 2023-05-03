@@ -24,6 +24,7 @@ use App\Models\CompanyToken;
 use Illuminate\Http\Request;
 use App\Libraries\OAuth\OAuth;
 use App\Events\User\UserLoggedIn;
+use Illuminate\Http\JsonResponse;
 use PragmaRX\Google2FA\Google2FA;
 use App\Jobs\Account\CreateAccount;
 use Illuminate\Support\Facades\Auth;
@@ -171,7 +172,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return Response | JsonResponse.
+     * @return Response|JsonResponse
      */
     public function refresh(Request $request)
     {
@@ -378,7 +379,7 @@ class LoginController extends BaseController
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $user->setCompany($set_company);
 
         $this->setLoginCache($user);
