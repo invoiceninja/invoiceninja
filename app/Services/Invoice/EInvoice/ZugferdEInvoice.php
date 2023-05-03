@@ -162,23 +162,9 @@ class ZugferdEInvoice extends AbstractService
         }
 
 
-        foreach ($invoicing_data->getTaxMap() as $item) {
-
-            $tax_name = explode(" ", $item["name"]);
-            $tax_rate = (explode("%", end($tax_name))[0] / 100);
-
-            $total_tax = $tax_rate == 0 ? 0 : $item["total"] / $tax_rate;
-
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $total_tax, $item["total"], explode("%", end($tax_name))[0]);
-            // TODO: Add correct tax type within getTaxType
+        foreach ($this->tax_map as $item){
+            $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]);
         }
-
-        if (!empty($globaltax && isset($invoicing_data->getTotalTaxMap()[$globaltax]["name"]))) {
-            $tax_name = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax_name))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax_name))[0]);
-            // TODO: Add correct tax type within getTaxType
-        }
-
         $disk = config('filesystems.default');
 
         if (!Storage::disk($disk)->exists($client->e_invoice_filepath($this->invoice->invitations->first()))) {
@@ -248,13 +234,13 @@ class ZugferdEInvoice extends AbstractService
     private function addtoTaxMap(ZugferdDutyTaxFeeCategories $taxtype, float $netamount, float $taxrate){
         $hash = hash("md5", sprintf("%s%s", $taxtype, $taxrate), true);
         if (array_key_exists($hash, $this->tax_map)){
-            $this->tax_map[$hash]["netamount"] += $netamount;
+            $this->tax_map[$hash]["net_amount"] += $netamount;
         }
         else{
             $this->tax_map[$hash] = [
-                "taxtype" => $taxtype,
-                "netamount" => $netamount,
-                "taxrate" => $taxrate
+                "tax_type" => $taxtype,
+                "net_amount" => $netamount,
+                "tax_rate" => $taxrate
             ];
         }
     }
