@@ -203,6 +203,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value3',
         'custom_value4',
         'is_deleted',
+        'shopify_user_id',
         // 'oauth_user_token',
         // 'oauth_user_refresh_token',
     ];

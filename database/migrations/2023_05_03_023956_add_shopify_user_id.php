@@ -27,13 +27,15 @@ return new class extends Migration
 
         });
 
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->unsignedInteger('shopify_user_id')->index()->nullable();
         });
 
+        Schema::table('companies', function(Illuminate\Database\Schema\Blueprint $table){
+            $table->string('shopify_name')->index()->nullable();
+        });
 
 
-        //902541635
     }
 
     /**
