@@ -35,6 +35,10 @@ class PdfCreatorTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        if(config('ninja.testvars.travis'))
+            $this->markTestSkipped();
+            
     }
 
     // public function testCreditPdfCreated()
