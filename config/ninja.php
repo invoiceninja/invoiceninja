@@ -215,4 +215,8 @@ return [
     ],
     'licenses' => env('LICENSES',false),
     'google_application_credentials' => env("GOOGLE_APPLICATION_CREDENTIALS", false),
+    'shopify' => [
+        'client_id' => env('SHOPIFY_CLIENT_ID', null),
+        'client_secret' => env('SHOPIFY_CLIENT_SECRET', null),
+    ],
 ];
