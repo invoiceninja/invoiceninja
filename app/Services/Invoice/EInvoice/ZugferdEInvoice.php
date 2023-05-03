@@ -195,44 +195,44 @@ class ZugferdEInvoice extends AbstractService
 
     private function getTaxType($name): string
     {
-        $taxtype = null;
+        $tax_type = null;
         switch ($name) {
             case Product::PRODUCT_TYPE_SERVICE:
             case Product::PRODUCT_TYPE_DIGITAL:
             case Product::PRODUCT_TYPE_PHYSICAL:
             case Product::PRODUCT_TYPE_SHIPPING:
             case Product::PRODUCT_TYPE_REDUCED_TAX:
-                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
                 break;
             case Product::PRODUCT_TYPE_EXEMPT:
-                $taxtype =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+                $tax_type =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
                 break;
             case Product::PRODUCT_TYPE_ZERO_RATED:
-                $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                $tax_type = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
                 break;
             case Product::PRODUCT_TYPE_REVERSE_TAX:
-                $taxtype = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
+                $tax_type = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
                 break;
         }
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
-        if (empty($taxtype)) {
+        if (empty($tax_type)) {
             if ((in_array($this->invoice->company->country()->iso_3166_2, $eu_states) && in_array($this->invoice->client->country->iso_3166_2, $eu_states)) && $this->invoice->company->country()->iso_3166_2 != $this->invoice->client->country->iso_3166_2) {
-                $taxtype = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+                $tax_type = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
             } elseif (!in_array($this->invoice->client->country->iso_3166_2, $eu_states)) {
-                $taxtype = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
+                $tax_type = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
             } elseif ($this->invoice->client->country->iso_3166_2 == "ES-CN") {
-                $taxtype = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
+                $tax_type = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
             } elseif (in_array($this->invoice->client->country->iso_3166_2, ["ES-CE", "ES-ML"])) {
-                $taxtype = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
+                $tax_type = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
             } else {
                 nlog("Unkown tax case for xinvoice");
-                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
             }
         }
-        return $taxtype;
+        return $tax_type;
     }
-    private function addtoTaxMap(ZugferdDutyTaxFeeCategories $taxtype, float $netamount, float $taxrate){
-        $hash = hash("md5", sprintf("%s%s", $taxtype, $taxrate), true);
+    private function addtoTaxMap(string $taxtype, float $netamount, float $taxrate){
+        $hash = hash("md5", $taxtype."-".$taxrate, true);
         if (array_key_exists($hash, $this->tax_map)){
             $this->tax_map[$hash]["net_amount"] += $netamount;
         }
