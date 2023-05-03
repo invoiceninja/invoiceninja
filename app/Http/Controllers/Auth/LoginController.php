@@ -377,6 +377,8 @@ class LoginController extends BaseController
         }
 
         /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         $user->setCompany($set_company);
 
         $this->setLoginCache($user);
