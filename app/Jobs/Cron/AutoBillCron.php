@@ -11,10 +11,11 @@
 
 namespace App\Jobs\Cron;
 
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Libraries\MultiDB;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Bus\Dispatchable;
 
 class AutoBillCron
 {
@@ -44,6 +45,8 @@ class AutoBillCron
 
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
         info('Performing Autobilling '.Carbon::now()->format('Y-m-d h:i:s'));
+
+        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())

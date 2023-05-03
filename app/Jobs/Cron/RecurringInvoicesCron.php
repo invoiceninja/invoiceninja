@@ -11,12 +11,13 @@
 
 namespace App\Jobs\Cron;
 
-use App\Jobs\RecurringInvoice\SendRecurring;
-use App\Libraries\MultiDB;
 use App\Models\Invoice;
-use App\Models\RecurringInvoice;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Libraries\MultiDB;
 use Illuminate\Support\Carbon;
+use App\Models\RecurringInvoice;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Jobs\RecurringInvoice\SendRecurring;
 
 class RecurringInvoicesCron
 {
@@ -43,6 +44,8 @@ class RecurringInvoicesCron
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
         $start = Carbon::now()->format('Y-m-d h:i:s');
         nlog('Sending recurring invoices '.$start);
+        
+        Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('status_id', RecurringInvoice::STATUS_ACTIVE)
