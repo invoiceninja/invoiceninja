@@ -23,7 +23,7 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 class ZugferdEInvoice extends AbstractService
 {
 
-    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
+    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "", private array $tax_map = [])
     {
     }
 
@@ -122,25 +122,32 @@ class ZugferdEInvoice extends AbstractService
             $xrechnung->setDocumentPositionLineSummation($linenetamount);
             // According to european law, each line item can only have one tax rate
             if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))) {
+                $taxtype = $this->getTaxType($item->tax_id);
                 if (!empty($item->tax_name1)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } elseif (!empty($item->tax_name2)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate2);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate2);
                 } elseif (!empty($item->tax_name3)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate3);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate3);
                 } else {
                     nlog("Can't add correct tax position");
                 }
             } else {
                 if (!empty($this->invoice->tax_name1)) {
-                    $globaltax = 0;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name1), 'VAT', $this->invoice->tax_rate1);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name1);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } elseif (!empty($this->invoice->tax_name2)) {
-                    $globaltax = 1;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name2), 'VAT', $this->invoice->tax_rate2);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name2);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate2);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } elseif (!empty($this->invoice->tax_name3)) {
-                    $globaltax = 2;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name3), 'VAT', $item->tax_rate3);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name3);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } else {
                     nlog("Can't add correct tax position");
                 }
@@ -237,6 +244,19 @@ class ZugferdEInvoice extends AbstractService
             }
         }
         return $taxtype;
+    }
+    private function addtoTaxMap(ZugferdDutyTaxFeeCategories $taxtype, float $netamount, float $taxrate){
+        $hash = hash("md5", sprintf("%s%s", $taxtype, $taxrate), true);
+        if (array_key_exists($hash, $this->tax_map)){
+            $this->tax_map[$hash]["netamount"] += $netamount;
+        }
+        else{
+            $this->tax_map[$hash] = [
+                "taxtype" => $taxtype,
+                "netamount" => $netamount,
+                "taxrate" => $taxrate
+            ];
+        }
     }
 
 }
