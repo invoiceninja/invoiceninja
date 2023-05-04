@@ -119,6 +119,7 @@ class AppServiceProvider extends ServiceProvider
         ParallelTesting::setUpTestDatabase(function ($database, $token) {
             Artisan::call('db:seed');
         });
+
     }
 
     public function register(): void

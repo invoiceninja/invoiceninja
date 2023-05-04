@@ -81,6 +81,7 @@
         "sentry/sentry-laravel": "^3",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.3",
+        "shopify/shopify-api": "^4.3",
         "socialiteproviders/apple": "^5.2",
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^3.2",

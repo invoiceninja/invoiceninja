@@ -16,7 +16,6 @@ use App\Models\Credit;
 use App\Models\Payment;
 use App\Services\Email\Email;
 use App\Services\Email\EmailObject;
-use App\Services\Email\EmailService;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Mail\Mailables\Address;
@@ -167,9 +166,6 @@ class ClientService
     {
         $this->client_start_date = $this->translateDate($options['start_date'], $this->client->date_format(), $this->client->locale());
         $this->client_end_date = $this->translateDate($options['end_date'], $this->client->date_format(), $this->client->locale());
-
-        // $email_service = new EmailService($this->buildStatementMailableData($pdf), $this->client->company);
-        // $email_service->send();
         
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);

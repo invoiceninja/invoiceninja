@@ -5068,6 +5068,18 @@ $LANG = array(
     'tax_exempt' => 'Tax Exempt',
     'late_fee_added_locked_invoice' => 'Late fee for invoice :invoice added on :date',
     'lang_Khmer' => 'Khmer',
+    'routing_id' => 'Routing ID',
+    'enable_e_invoice' => 'Enable E-Invoice',
+    'e_invoice_type' => 'E-Invoice Type',
+    'reduced_tax' => 'Reduced Tax',
+    'override_tax' => 'Override Tax',
+    'zero_rated' => 'Zero Rated',
+    'reverse_tax' => 'Reverse Tax',
+    'updated_tax_category' => 'Successfully updated the tax category',
+    'updated_tax_categories' => 'Successfully updated the tax categories',
+    'set_tax_category' => 'Set Tax Category',
+    'payment_manual' => 'Payment Manual',
+    'expense_payment_type' => 'Expense Payment Type',
 );
 
 

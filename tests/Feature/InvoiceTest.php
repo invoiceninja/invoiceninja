@@ -33,6 +33,8 @@ class InvoiceTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -44,6 +46,24 @@ class InvoiceTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+
+    public function testInvoiceGetPaidReversedInvoice()
+    {
+        $this->invoice->service()->handleReversal()->save();
+
+        $this->assertEquals(6, $this->invoice->fresh()->status_id);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/invoices?status_id=6', )
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
     }
 
 

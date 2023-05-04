@@ -310,7 +310,24 @@ class MultiDB
 
         self::setDB($current_db);
 
-        return false;
+        return null;
+    }
+
+    public static function findAndSetDbByShopifyName($shopify_name) :?Company
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if ($company = Company::on($db)->with('tokens')->where('shopify_name', $shopify_name)->first()) {
+                self::setDb($db);
+
+                return $company;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return null;
     }
 
     public static function findAndSetDbByAccountKey($account_key) :bool
@@ -413,7 +430,7 @@ class MultiDB
 
         self::setDB($current_db);
 
-        return false;
+        return null;
     }
 
     public static function findAndSetDbByDomain($query_array)

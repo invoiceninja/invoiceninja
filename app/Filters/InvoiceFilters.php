@@ -118,6 +118,23 @@ class InvoiceFilters extends QueryFilters
      * @return Builder
      * @throws RuntimeException
      */
+    public function status_id(string $status = ''): Builder
+    {
+
+        if (strlen($status) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereIn('status_id', explode(",", $status));
+
+    }
+
+
+
+    /**
+     * @return Builder
+     * @throws RuntimeException
+     */
     public function without_deleted_clients(): Builder
     {
         return $this->builder->whereHas('client', function ($query) {

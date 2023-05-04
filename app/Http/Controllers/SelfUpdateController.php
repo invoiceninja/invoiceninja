@@ -12,7 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
-use App\Models\Client;
 use App\Utils\Ninja;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
@@ -25,6 +24,10 @@ class SelfUpdateController extends BaseController
     use DispatchesJobs;
     use ClientGroupSettingsSaver;
     use AppSetup;
+
+    // private bool $use_zip = false;
+
+    private string $filename = 'invoiceninja.tar';
 
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
@@ -39,35 +42,6 @@ class SelfUpdateController extends BaseController
     {
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/v1/self-update",
-     *      operationId="selfUpdate",
-     *      tags={"update"},
-     *      summary="Performs a system update",
-     *      description="Performs a system update",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-API-PASSWORD"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success/failure response"
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
- 
     public function update()
     {
         set_time_limit(0);
@@ -87,7 +61,8 @@ class SelfUpdateController extends BaseController
 
         nlog('copying release file');
 
-        if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
+        // if (copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))) {
+        if (copy($this->getDownloadUrl(), storage_path("app/{$this->filename}"))) {
             nlog('Copied file from URL');
         } else {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
@@ -95,27 +70,21 @@ class SelfUpdateController extends BaseController
 
         nlog('Finished copying');
 
-        $file = Storage::disk('local')->path('invoiceninja.zip');
+        // if($this->use_zip) {
+            $file = Storage::disk('local')->path($this->filename);
 
-        nlog('Extracting zip');
+            nlog('Extracting tar');
 
-        $zipFile = new \PhpZip\ZipFile();
+            $phar = new \PharData($file);
+            $phar->extractTo(base_path(), null, true);
 
-        $zipFile->openFile($file);
+            nlog('Finished extracting files');
 
-        $zipFile->deleteFromName(".htaccess");
-        
-        $zipFile->rewrite();
-
-        $zipFile->extractTo(base_path());
-
-        $zipFile->close();
-
-        $zipFile = null;
-        
-        nlog('Finished extracting files');
-
-        unlink($file);
+            unlink($file);
+        // }
+        // else {
+        //     $this->extractUsingZip();
+        // }
 
         nlog('Deleted release zip file');
 
@@ -141,40 +110,24 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    private function deleteDirectory($dir)
-    {
-        if (! file_exists($dir)) {
-            return true;
-        }
+    // private function extractUsingZip()
+    // {
 
-        if (! is_dir($dir) || is_link($dir)) {
-            return unlink($dir);
-        }
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-            if (! $this->deleteDirectory($dir.'/'.$item)) {
-                if (! $this->deleteDirectory($dir.'/'.$item)) {
-                    return false;
-                }
-            }
-        }
+    //     $file = Storage::disk('local')->path($this->filename);
 
-        return rmdir($dir);
-    }
+    //     nlog('Extracting zip');
 
-    private function postHookUpdate()
-    {
-        if (config('ninja.app_version') == '5.3.82') {
-            Client::withTrashed()->cursor()->each(function ($client) {
-                $entity_settings = $this->checkSettingType($client->settings);
-                $entity_settings->md5 = md5(time());
-                $client->settings = $entity_settings;
-                $client->save();
-            });
-        }
-    }
+    //     $zipFile = new \PhpZip\ZipFile();
+    //     $zipFile->openFile($file);
+    //     $zipFile->deleteFromName(".htaccess");
+    //     $zipFile->rewrite();
+    //     $zipFile->extractTo(base_path());
+    //     $zipFile->close();
+    //     $zipFile = null;
+                
+    //     unlink($file);
+
+    // }
 
     private function clearCacheDir()
     {
@@ -197,10 +150,10 @@ class SelfUpdateController extends BaseController
             }
 
             if ($file->isFile() && ! $file->isWritable()) {
+
                 nlog("Cannot update system because {$file->getFileName()} is not writable");
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
 
-                return false;
             }
         }
 
@@ -218,6 +171,10 @@ class SelfUpdateController extends BaseController
     {
         $version = $this->checkVersion();
 
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+        // if(request()->has('zip'))
+        //     return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
+
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.tar";
+
     }
 }

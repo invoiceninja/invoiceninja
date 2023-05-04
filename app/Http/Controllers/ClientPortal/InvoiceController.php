@@ -60,7 +60,7 @@ class InvoiceController extends Controller
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
-            event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+            event(new InvoiceWasViewed($invitation, $invoice->company, Ninja::eventVars()));
         }
 
         $data = [
