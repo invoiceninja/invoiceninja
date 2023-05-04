@@ -23,7 +23,7 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 class ZugferdEInvoice extends AbstractService
 {
 
-    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "")
+    public function __construct(public Invoice $invoice, private bool $alterPDF, private string $custom_pdf_path = "", private array $tax_map = [])
     {
     }
 
@@ -85,7 +85,6 @@ class ZugferdEInvoice extends AbstractService
         }
 
         $invoicing_data = $this->invoice->calc();
-        $globaltax = null;
 
         //Create line items and calculate taxes
         foreach ($this->invoice->line_items as $index => $item) {
@@ -122,26 +121,36 @@ class ZugferdEInvoice extends AbstractService
             $xrechnung->setDocumentPositionLineSummation($linenetamount);
             // According to european law, each line item can only have one tax rate
             if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))) {
+                $taxtype = $this->getTaxType($item->tax_id);
                 if (!empty($item->tax_name1)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate1);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } elseif (!empty($item->tax_name2)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate2);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate2);
                 } elseif (!empty($item->tax_name3)) {
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($item->tax_id), 'VAT', $item->tax_rate3);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate3);
                 } else {
                     nlog("Can't add correct tax position");
                 }
             } else {
                 if (!empty($this->invoice->tax_name1)) {
-                    $globaltax = 0;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name1), 'VAT', $this->invoice->tax_rate1);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name1);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate1);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate1);
                 } elseif (!empty($this->invoice->tax_name2)) {
-                    $globaltax = 1;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name2), 'VAT', $this->invoice->tax_rate2);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name2);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate2);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate2);
                 } elseif (!empty($this->invoice->tax_name3)) {
-                    $globaltax = 2;
-                    $xrechnung->addDocumentPositionTax($this->getTaxType($this->invoice->tax_name3), 'VAT', $item->tax_rate3);
+                    $taxtype = $this->getTaxType($this->invoice->tax_name3);
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', $this->invoice->tax_rate3);
+                    $this->addtoTaxMap($taxtype, $linenetamount, $this->invoice->tax_rate3);
                 } else {
+                    $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                    $xrechnung->addDocumentPositionTax($taxtype, 'VAT', 0);
+                    $this->addtoTaxMap($taxtype, $linenetamount, 0);
                     nlog("Can't add correct tax position");
                 }
             }
@@ -149,29 +158,15 @@ class ZugferdEInvoice extends AbstractService
 
 
         if ($this->invoice->isPartial()) {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, $this->invoice->partial);
         } else {
-            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->amount-$this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
+            $xrechnung->setDocumentSummation($this->invoice->amount, $this->invoice->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), null, 0.0);
         }
 
 
-        foreach ($invoicing_data->getTaxMap() as $item) {
-
-            $tax_name = explode(" ", $item["name"]);
-            $tax_rate = (explode("%", end($tax_name))[0] / 100);
-
-            $total_tax = $tax_rate == 0 ? 0 : $item["total"] / $tax_rate;
-
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $total_tax, $item["total"], explode("%", end($tax_name))[0]);
-            // TODO: Add correct tax type within getTaxType
+        foreach ($this->tax_map as $item){
+            $xrechnung->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"]*$item["net_amount"], $item["tax_rate"]*100);
         }
-
-        if (!empty($globaltax && isset($invoicing_data->getTotalTaxMap()[$globaltax]["name"]))) {
-            $tax_name = explode(" ", $invoicing_data->getTotalTaxMap()[$globaltax]["name"]);
-            $xrechnung->addDocumentTax($this->getTaxType(""), "VAT", $invoicing_data->getTotalTaxMap()[$globaltax]["total"] / (explode("%", end($tax_name))[0] / 100), $invoicing_data->getTotalTaxMap()[$globaltax]["total"], explode("%", end($tax_name))[0]);
-            // TODO: Add correct tax type within getTaxType
-        }
-
         $disk = config('filesystems.default');
 
         if (!Storage::disk($disk)->exists($client->e_invoice_filepath($this->invoice->invitations->first()))) {
@@ -202,41 +197,54 @@ class ZugferdEInvoice extends AbstractService
 
     private function getTaxType($name): string
     {
-        $taxtype = null;
+        $tax_type = null;
         switch ($name) {
             case Product::PRODUCT_TYPE_SERVICE:
             case Product::PRODUCT_TYPE_DIGITAL:
             case Product::PRODUCT_TYPE_PHYSICAL:
             case Product::PRODUCT_TYPE_SHIPPING:
             case Product::PRODUCT_TYPE_REDUCED_TAX:
-                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
                 break;
             case Product::PRODUCT_TYPE_EXEMPT:
-                $taxtype =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+                $tax_type =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
                 break;
             case Product::PRODUCT_TYPE_ZERO_RATED:
-                $taxtype = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
+                $tax_type = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;
                 break;
             case Product::PRODUCT_TYPE_REVERSE_TAX:
-                $taxtype = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
+                $tax_type = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
                 break;
         }
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
-        if (empty($taxtype)) {
+        if (empty($tax_type)) {
             if ((in_array($this->invoice->company->country()->iso_3166_2, $eu_states) && in_array($this->invoice->client->country->iso_3166_2, $eu_states)) && $this->invoice->company->country()->iso_3166_2 != $this->invoice->client->country->iso_3166_2) {
-                $taxtype = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+                $tax_type = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
             } elseif (!in_array($this->invoice->client->country->iso_3166_2, $eu_states)) {
-                $taxtype = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
+                $tax_type = ZugferdDutyTaxFeeCategories::SERVICE_OUTSIDE_SCOPE_OF_TAX;
             } elseif ($this->invoice->client->country->iso_3166_2 == "ES-CN") {
-                $taxtype = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
+                $tax_type = ZugferdDutyTaxFeeCategories::CANARY_ISLANDS_GENERAL_INDIRECT_TAX;
             } elseif (in_array($this->invoice->client->country->iso_3166_2, ["ES-CE", "ES-ML"])) {
-                $taxtype = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
+                $tax_type = ZugferdDutyTaxFeeCategories::TAX_FOR_PRODUCTION_SERVICES_AND_IMPORTATION_IN_CEUTA_AND_MELILLA;
             } else {
                 nlog("Unkown tax case for xinvoice");
-                $taxtype = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
+                $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
             }
         }
-        return $taxtype;
+        return $tax_type;
+    }
+    private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate){
+        $hash = hash("md5", $tax_type."-".$tax_rate);
+        if (array_key_exists($hash, $this->tax_map)){
+            $this->tax_map[$hash]["net_amount"] += $net_amount;
+        }
+        else{
+            $this->tax_map[$hash] = [
+                "tax_type" => $tax_type,
+                "net_amount" => $net_amount,
+                "tax_rate" => $tax_rate / 100
+            ];
+        }
     }
 
 }
