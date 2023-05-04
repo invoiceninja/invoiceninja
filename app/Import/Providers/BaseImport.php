@@ -392,7 +392,7 @@ class BaseImport
                     report($ex);
                     $message = 'Unknown error ';
                     nlog($ex->getMessage());
-                    nlog($raw_invoice);
+                    nlog($invoice_data);
                 }
 
                 $this->error_array['recurring_invoice'][] = [
