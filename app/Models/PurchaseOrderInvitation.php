@@ -153,17 +153,13 @@ class PurchaseOrderInvitation extends BaseModel
         switch ($this->company->portal_mode) {
             case 'subdomain':
                 return $domain.'/vendor/';
-                break;
             case 'iframe':
                 return $domain.'/vendor/';
-                break;
             case 'domain':
                 return $domain.'/vendor/';
-                break;
 
             default:
                 return '';
-                break;
         }
     }
 
@@ -180,17 +176,13 @@ class PurchaseOrderInvitation extends BaseModel
         switch ($this->company->portal_mode) {
             case 'subdomain':
                 return $domain.'/vendor/'.$entity_type.'/'.$this->key;
-                break;
             case 'iframe':
                 return $domain.'/vendor/'.$entity_type.'/'.$this->key;
-                break;
             case 'domain':
                 return $domain.'/vendor/'.$entity_type.'/'.$this->key;
-                break;
 
             default:
                 return '';
-                break;
         }
     }
 
