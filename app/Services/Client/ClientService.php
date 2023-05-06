@@ -179,8 +179,23 @@ class ClientService
      */
     public function buildStatementMailableData($pdf) :EmailObject
     {
+        $email = $this->client->present()->email();
+
         $email_object = new EmailObject;
-        $email_object->to = [new Address($this->client->present()->email(), $this->client->present()->name())];
+        $email_object->to = [new Address($email, $this->client->present()->name())];
+
+        $cc_contacts = $this->client
+                            ->contacts()
+                            ->where('send_email', true)
+                            ->where('email', '!=',  $email)
+                            ->get();
+
+        foreach ($cc_contacts as $contact) {
+        
+            $email_object->cc[] = new Address($contact->email, $contact->present()->name());
+        
+        }
+
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
         $email_object->email_template_subject = 'email_subject_statement';
@@ -191,6 +206,8 @@ class ClientService
             '$end_date' => $this->client_end_date,
         ];
 
+        nlog($email_object);
+        
         return $email_object;
     }
 
