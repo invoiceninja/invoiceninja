@@ -30,7 +30,7 @@ class InvoiceWasViewed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(public InvoiceInvitation $invitation, Company $company, array $event_vars)
+    public function __construct(public InvoiceInvitation $invitation, public Company $company, public array $event_vars)
     {
     }
 }
