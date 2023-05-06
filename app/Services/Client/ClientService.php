@@ -206,8 +206,6 @@ class ClientService
             '$end_date' => $this->client_end_date,
         ];
 
-        nlog($email_object);
-        
         return $email_object;
     }
 
