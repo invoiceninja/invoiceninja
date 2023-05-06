@@ -79,7 +79,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
-     * @var array
+     * @var array<1, string>
      */
     protected $dontFlash = [
         'current_password',
@@ -102,6 +102,11 @@ class Handler extends ExceptionHandler
         }
 
         if (Ninja::isHosted()) {
+
+            if($exception instanceof ThrottleRequestsException && class_exists(\Modules\Admin\Events\ThrottledExceptionRaised::class)) {
+                event(new \Modules\Admin\Events\ThrottledExceptionRaised(auth()->user()->account->key));
+            }
+
             Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
 
@@ -202,7 +207,6 @@ class Handler extends ExceptionHandler
      *
      * @param Request $request
      * @param Throwable $exception
-     * @return Response
      * @throws Throwable
      */
     public function render($request, Throwable $exception)

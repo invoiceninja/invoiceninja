@@ -64,7 +64,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $hosted_company_count
  * @property string|null $inapp_transaction_id
  * @property bool $set_react_as_default_ap
- * @property int $is_flagged
+ * @property bool $is_flagged
  * @property int $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
@@ -260,6 +260,11 @@ class Account extends BaseModel
     public function owner()
     {
         return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
+    }
+
+    public function tokens()
+    {
+        return $this->hasMany(CompanyToken::class)->withTrashed();
     }
 
     public function getPlan()

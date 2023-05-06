@@ -21,7 +21,7 @@ class DeleteCompanyDocuments
     /**
      * Handle the event.
      *
-     * @param CompanyWasDeleted $event
+     * @param $event
      * @return void
      */
     public function handle($event)

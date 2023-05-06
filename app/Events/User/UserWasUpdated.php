@@ -26,9 +26,6 @@ class UserWasUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $user;
 
     public $creating_user;

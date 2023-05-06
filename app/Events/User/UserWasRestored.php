@@ -26,9 +26,6 @@ class UserWasRestored
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $user;
 
     public $company;

@@ -23,7 +23,7 @@ class InvoiceWasEmailed
     use SerializesModels;
 
     /**
-     * @var Invoice
+     * @var InvoiceInvitation
      */
     public $invitation;
 
