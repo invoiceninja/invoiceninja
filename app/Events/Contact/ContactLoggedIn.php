@@ -25,9 +25,6 @@ class ContactLoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var
-     */
     public $client_contact;
 
     public $company;

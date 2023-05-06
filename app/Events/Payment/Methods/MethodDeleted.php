@@ -26,7 +26,7 @@ class MethodDeleted
     /**
      * @var ClientGatewayToken
      */
-    private $payment_method;
+    public $payment_method;
 
     public $company;
 
