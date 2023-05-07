@@ -123,8 +123,6 @@ class PayPalExpressPaymentDriver extends BaseDriver
     {
         $this->initializeOmnipayGateway();
 
-        dd('here');
-
         $response = $this->omnipay_gateway
             ->completePurchase(['amount' => $this->payment_hash->data->amount, 'currency' => $this->client->getCurrencyCode()])
             ->send();

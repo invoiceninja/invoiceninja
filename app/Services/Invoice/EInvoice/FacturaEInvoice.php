@@ -17,6 +17,7 @@ use App\Services\AbstractService;
 use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use Illuminate\Support\Facades\Storage;
+use josemmo\Facturae\Common\FacturaeSigner;
 
 class FacturaEInvoice extends AbstractService
 {
@@ -129,7 +130,8 @@ class FacturaEInvoice extends AbstractService
              ->buildSeller()
              ->buildItems()
              ->setDiscount()
-             ->setPoNumber();
+             ->setPoNumber()
+             ->signDocument();
 
 
         $disk = config('filesystems.default');
@@ -180,7 +182,7 @@ class FacturaEInvoice extends AbstractService
             ]));
             
         }
-    
+
         return $this;
     
     }
@@ -191,22 +193,24 @@ class FacturaEInvoice extends AbstractService
 
         if (strlen($item->tax_name1) > 1) {
         
-            $data[] = [$this->resolveTaxCode($item->tax_name1) => $item->tax_rate1];
+            $data[$this->resolveTaxCode($item->tax_name1)] = $item->tax_rate1;
         
         }
 
         if (strlen($item->tax_name2) > 1) {
                 
-            $data[] = [$this->resolveTaxCode($item->tax_name2) => $item->tax_rate2];
+
+            $data[$this->resolveTaxCode($item->tax_name2)] = $item->tax_rate2;
                 
         }
 
         if (strlen($item->tax_name3) > 1) {
                 
-            $data[] = [$this->resolveTaxCode($item->tax_name3) => $item->tax_rate3];
+
+            $data[$this->resolveTaxCode($item->tax_name3)] = $item->tax_rate3;
                 
         }
-
+        
         return $data;
     }
 
@@ -308,5 +312,15 @@ class FacturaEInvoice extends AbstractService
 
         return $this;
     }
+
+    private function signDocument(): self
+    {
+        // $ssl_cert = file_get_contents(base_path('e_invoice_cert.p12'));
+
+        // $this->fac->sign($ssl_cert, null, "SuperSecrethere");
+
+        return $this;
+    }
+
 
 }
