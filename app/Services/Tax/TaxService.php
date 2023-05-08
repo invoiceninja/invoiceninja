@@ -19,11 +19,11 @@ use App\Services\Tax\Providers\ZipTax;
 class TaxService
 {
 
-    public function __construct(protected Company $company, protected Client $client)
+    public function __construct(public Client $client)
     {
     }
 
-    private function validateVat(): self
+    public function validateVat(): self
     {
         $client_country_code = $this->client->shipping_country ? $this->client->shipping_country->iso_3166_2 : $this->client->country->iso_3166_2;
 
