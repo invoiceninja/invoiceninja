@@ -194,17 +194,14 @@ class Charge
         switch ($type) {
             case 'visa':
                 return PaymentType::VISA;
-                break;
             case 'mastercard':
                 return PaymentType::MASTERCARD;
-                break;
             case PaymentType::SEPA:
                 return PaymentType::SEPA;
             case PaymentType::BACS:
                 return PaymentType::BACS;
             default:
                 return PaymentType::CREDIT_CARD_OTHER;
-                break;
         }
     }
 }
