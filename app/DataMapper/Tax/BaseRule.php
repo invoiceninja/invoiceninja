@@ -160,7 +160,7 @@ class BaseRule implements RuleInterface
             return $this;
 
         //determine if we are taxing locally or if we are taxing globally
-        $tax_data = $this->invoice->client->tax_data ?? new Response([]);
+        $tax_data = is_object($this->invoice->client->tax_data) ? $this->invoice->client->tax_data : new Response([]);
 
         if(strlen($this->invoice->tax_data?->originDestination) == 0 && $this->client->company->tax_data->seller_subregion != $this->client_subregion) {
             $tax_data->originDestination = "D";
