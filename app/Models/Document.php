@@ -95,11 +95,12 @@ class Document extends BaseModel
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
     /**
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'is_default',
         'is_public',
+        'name',
     ];
 
     /**

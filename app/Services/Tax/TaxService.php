@@ -12,9 +12,6 @@
 namespace App\Services\Tax;
 
 use App\Models\Client;
-use App\Models\Company;
-use App\Services\Tax\Providers\ZipTax;
-
 
 class TaxService
 {
