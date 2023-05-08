@@ -169,6 +169,7 @@ class FacturaEInvoice extends AbstractService
 
         foreach($this->invoice->line_items as $item) {
             $this->fac->addItem(new FacturaeItem([
+                'name' => $item->product_key,
                 'description' => $item->notes,
                 'quantity' => $item->quantity,
                 'unitPrice' => $item->cost,
@@ -302,7 +303,7 @@ class FacturaEInvoice extends AbstractService
         "email"   => $this->invoice->client->present()->email(),
         "phone"   => $this->invoice->client->present()->phone(),
         "fax"     => "",
-        "website" => $this->invoice->client->present()->website(),
+        "website" => substr($this->invoice->client->present()->website(), 0 ,60),
         "contactPeople" => $this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(),
         // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
         // "ineTownCode" => "280796" // Cód. de municipio del INE
@@ -317,7 +318,7 @@ class FacturaEInvoice extends AbstractService
     {
         // $ssl_cert = file_get_contents(base_path('e_invoice_cert.p12'));
 
-        // $this->fac->sign($ssl_cert, null, "SuperSecrethere");
+        // $this->fac->sign($ssl_cert, null, "SuperSecretPassword");
 
         return $this;
     }
