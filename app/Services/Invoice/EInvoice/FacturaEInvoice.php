@@ -212,6 +212,9 @@ class FacturaEInvoice extends AbstractService
                 
         }
         
+        if(count($data) == 0)
+            $data[Facturae::TAX_IVA] = 0;
+
         return $data;
     }
 
@@ -258,28 +261,29 @@ class FacturaEInvoice extends AbstractService
         $company = $this->invoice->company;
 
         $seller = new FacturaeParty([
-        "isLegalEntity" => true, // Se asume true si se omite
-        "taxNumber"     => $company->settings->vat_number,
-        "name"          => $company->present()->name(),
-        "address"       => $company->settings->address1,
-        "postCode"      => $company->settings->postal_code,
-        "town"          => $company->settings->city,
-        "province"      => $company->settings->state,
-        "countryCode"   => $company->country()->iso_3166_3,  // Se asume España si se omite
-        "book"             => "0",  // Libro
-        "merchantRegister" => "RG", // Registro Mercantil
-        "sheet"            => "1",  // Hoja
-        "folio"            => "2",  // Folio
-        "section"          => "3",  // Sección
-        "volume"           => "4",  // Tomo
-        "email"   => $company->settings->email,
-        "phone"   => $company->settings->phone,
-        "fax"     => "",
-        "website" => $company->settings->website,
-        "contactPeople" => $company->owner()->present()->name(),
-        // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
-        // "ineTownCode" => "280796" // Cód. de municipio del INE
+            "isLegalEntity" => true, // Se asume true si se omite
+            "taxNumber" => $company->settings->vat_number,
+            "name" => substr($company->present()->name(), 0, 40),
+            "address" => substr($company->settings->address1, 0, 80),
+            "postCode" => substr($this->invoice->client->postal_code, 0, 5),
+            "town" => substr($company->settings->city, 0, 50),
+            "province" => substr($company->settings->state, 0, 20),
+            "countryCode" => $company->country()->iso_3166_3,  // Se asume España si se omite
+            "book" => "0",  // Libro
+            "merchantRegister" => "RG", // Registro Mercantil
+            "sheet" => "1",  // Hoja
+            "folio" => "2",  // Folio
+            "section" => "3",  // Sección
+            "volume" => "4",  // Tomo
+            "email" => substr($company->settings->email, 0, 60),
+            "phone" => substr($company->settings->phone, 0, 15),
+            "fax" => "",
+            "website" => substr($company->settings->website, 0, 50),
+            "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
+            // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
+            // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
+
 
         $this->fac->setSeller($seller);
         
@@ -292,19 +296,19 @@ class FacturaEInvoice extends AbstractService
         $buyer = new FacturaeParty([
         "isLegalEntity" => $this->invoice->client->has_valid_vat_number,
         "taxNumber"     => $this->invoice->client->vat_number,
-        "name"          => $this->invoice->client->present()->name(),
-        "firstSurname"  => $this->invoice->client->present()->first_name(),
-        "lastSurname"   => $this->invoice->client->present()->last_name(),
-        "address"       => $this->invoice->client->address1,
-        "postCode"      => $this->invoice->client->postal_code,
-        "town"          => $this->invoice->client->city,
-        "province"      => $this->invoice->client->state,
+        "name"          => substr($this->invoice->client->present()->name(),0, 40),
+        "firstSurname"  => substr($this->invoice->client->present()->first_name(),0, 40),
+        "lastSurname"   => substr($this->invoice->client->present()->last_name(),0, 40),
+        "address"       => substr($this->invoice->client->address1,0, 80),
+        "postCode"      => substr($this->invoice->client->postal_code,0,5),
+        "town"          => substr($this->invoice->client->city,0, 50),
+        "province"      => substr($this->invoice->client->state,0, 20),
         "countryCode"   => $this->invoice->client->country->iso_3166_3,  // Se asume España si se omite
-        "email"   => $this->invoice->client->present()->email(),
-        "phone"   => $this->invoice->client->present()->phone(),
+        "email"   => substr($this->invoice->client->present()->email(),0, 60),
+        "phone"   => substr($this->invoice->client->present()->phone(),0, 15),
         "fax"     => "",
         "website" => substr($this->invoice->client->present()->website(), 0 ,60),
-        "contactPeople" => $this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(),
+        "contactPeople" => substr($this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(), 0, 40),
         // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
         // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);

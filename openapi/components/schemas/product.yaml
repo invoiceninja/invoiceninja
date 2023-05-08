@@ -55,17 +55,17 @@
         cost:
           type: number
           format: double
-          description: 'The cost of the product.'
+          description: 'The cost of the product. (Your purchase price for this product)'
           example: 10.0
         price:
           type: number
           format: double
-          description: 'The price of the product.'
+          description: 'The price of the product that you are charging.'
           example: 20.0
         quantity:
           type: number
           format: double
-          description: 'The quantity of the product.'
+          description: 'The quantity of the product. (used as a default)'
           example: 5.0
         tax_name1:
           type: string
