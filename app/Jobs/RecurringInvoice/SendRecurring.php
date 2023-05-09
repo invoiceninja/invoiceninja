@@ -34,10 +34,6 @@ class SendRecurring implements ShouldQueue
     use GeneratesCounter;
     use MakesHash;
 
-    public $recurring_invoice;
-
-    protected $db;
-
     public $tries = 1;
 
     /**
@@ -46,7 +42,7 @@ class SendRecurring implements ShouldQueue
      * @param RecurringInvoice $recurring_invoice
      * @param string $db
      */
-    public function __construct(RecurringInvoice $recurring_invoice, string $db = 'db-ninja-01')
+    public function __construct(public RecurringInvoice $recurring_invoice, public string $db = 'db-ninja-01')
     {
         $this->recurring_invoice = $recurring_invoice;
         $this->db = $db;
