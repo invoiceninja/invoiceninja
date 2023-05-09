@@ -11,14 +11,15 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class SEPA
 {
@@ -158,6 +159,17 @@ class SEPA
                 'token' => $intent->payment_method,
                 'payment_method_id' => GatewayType::SEPA,
             ];
+
+            $token = ClientGatewayToken::where([
+                'gateway_customer_reference' => $method->customer,
+                'token' => $method->id,
+                'client_id' => $this->stripe->client->id,
+                'company_id' => $this->stripe->client->company_id,
+            ])->first();
+
+            if($token) {
+                return $token;
+            }
 
             $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
         } catch (\Exception $e) {

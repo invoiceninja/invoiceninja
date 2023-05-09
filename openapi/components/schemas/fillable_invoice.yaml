@@ -73,9 +73,10 @@
           type: number
           example: 8.00
         line_items:
-          description: "Array of line items included in the invoice"
-          type: object
-          example: "[{item1}, {item2}]"
+          type: array
+          description: 'An array of objects which define the line items of the invoice'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         discount:
           description: "The discount applied to the invoice"
           type: number

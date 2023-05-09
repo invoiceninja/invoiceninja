@@ -106,7 +106,7 @@ class StripePaymentDriver extends BaseDriver
 
     /**
      * Initializes the Stripe API.
-     * @return void
+     * @return self
      */
     public function init()
     {

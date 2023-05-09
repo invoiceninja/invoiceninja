@@ -16907,9 +16907,10 @@ components:
           type: number
           example: 8.00
         line_items:
-          description: "Array of line items included in the invoice"
-          type: object
-          example: "[{item1}, {item2}]"
+          type: array
+          description: 'An array of objects which define the line items of the invoice'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
         discount:
           description: "The discount applied to the invoice"
           type: number
@@ -17324,83 +17325,116 @@ components:
         quantity:
           type: integer
           example: 1
+          description: 'The quantity of the product offered for this line item'
         cost:
           type: number
           format: float
           example: 10.00
+          description: 'The cost of the product offered for this line item'
         product_key:
           type: string
           example: 'Product key'
+          description: 'The product key of the product offered for this line item (Referred to as Product in the product tab)'
         product_cost:
           type: number
           format: float
           example: 10.00
+          description: 'The cost of the product offered for this line item (Referred to as Cost in the product tab)'
         notes:
           type: string
           example: 'Item notes'
+          description: 'The notes/description for the product offered for this line item'
         discount:
           type: number
           format: float
           example: 5.00
+          description: 'The discount applied to the product offered for this line item'
         is_amount_discount:
           type: boolean
           example: false
+          description: 'Indicates whether the discount applied to the product offered for this line item is a fixed amount or a percentage'
         tax_name1:
           type: string
-          example: 'Tax name 1'
+          example: 'GST'
+          description: 'The name of the first tax applied to the product offered for this line item'
         tax_rate1:
           type: number
           format: float
           example: 10.00
+          description: 'The rate of the first tax applied to the product offered for this line item'
         tax_name2:
           type: string
-          example: 'Tax name 2'
+          example: 'VAT'
+          description: 'The name of the second tax applied to the product offered for this line item'
         tax_rate2:
           type: number
           format: float
           example: 5.00
+          description: 'The rate of the second tax applied to the product offered for this line item'
         tax_name3:
           type: string
-          example: 'Tax name 3'
+          example: 'CA Sales Tax'
+          description: 'The name of the third tax applied to the product offered for this line item'
         tax_rate3:
           type: number
           format: float
           example: 3.00
+          description: 'The rate of the third tax applied to the product offered for this line item'
         sort_id:
           type: string
           example: '0'
+          description: 'Deprecated'
+          deprecated: true
         line_total:
           type: number
           format: float
           example: 10.00
+          description: 'The total amount of the product offered for this line item'
+          readOnly: true
         gross_line_total:
           type: number
           format: float
           example: 15.00
+          description: 'The total amount of the product offered for this line item before discounts'
+          readOnly: true
         tax_amount:
           type: number
           format: float
           example: 1.00
+          description: 'The total amount of tax applied to the product offered for this line item'
+          readOnly: true
         date:
           type: string
           format: date-time
           example: '2023-03-19T00:00:00Z'
+          description: 'Deprecated'
+          deprecated: true
         custom_value1:
           type: string
           example: 'Custom value 1'
+          description: 'The first custom value of the product offered for this line item'
         custom_value2:
           type: string
           example: 'Custom value 2'
+          description: 'The second custom value of the product offered for this line item'
         custom_value3:
           type: string
           example: 'Custom value 3'
+          description: 'The third custom value of the product offered for this line item'
         custom_value4:
           type: string
           example: 'Custom value 4'
+          description: 'The fourth custom value of the product offered for this line item'
         type_id:
           type: string
           example: '1'
           description: '1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee, 5 late fee, 6 expense'
+          default: '1'
+        tax_id:
+          type: string
+          example: '1'
+          default: '1'
+          description: 'The tax ID of the product: 1 product, 2 service, 3 digital, 4 shipping, 5 exempt, 5 reduced tax, 7 override, 8 zero rate, 9 reverse tax'
     CompanyUser:
       properties:
         permissions:
@@ -19431,17 +19465,17 @@ components:
         cost:
           type: number
           format: double
-          description: 'The cost of the product.'
+          description: 'The cost of the product. (Your purchase price for this product)'
           example: 10.0
         price:
           type: number
           format: double
-          description: 'The price of the product.'
+          description: 'The price of the product that you are charging.'
           example: 20.0
         quantity:
           type: number
           format: double
-          description: 'The quantity of the product.'
+          description: 'The quantity of the product. (used as a default)'
           example: 5.0
         tax_name1:
           type: string
