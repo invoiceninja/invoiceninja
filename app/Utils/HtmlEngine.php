@@ -460,6 +460,12 @@ class HtmlEngine
         $data['$client.shipping_state'] = ['value' => $this->client->shipping_state ?: ' ', 'label' => ctrans('texts.shipping_state')];
         $data['$client.shipping_postal_code'] = ['value' => $this->client->shipping_postal_code ?: ' ', 'label' => ctrans('texts.shipping_postal_code')];
         $data['$client.shipping_country'] = ['value' => isset($this->client->shipping_country->name) ? ctrans('texts.country_' . $this->client->shipping_country->name) : '', 'label' => ctrans('texts.shipping_country')];
+        $data['$shipping_postal_city_state'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, $this->client->shipping_state, $this->client->shipping_postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city_state')];
+        $data['$client.shipping_postal_city_state'] = &$data['$shipping_postal_city_state'];
+        $data['$shipping_postal_city'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, null, $this->client->shipping_postal_code, true) ?: ' ', 'label' => ctrans('texts.postal_city')];
+        $data['$client.shipping_postal_city'] = &$data['$shipping_postal_city'];
+        $data['$shipping_city_state_postal'] = ['value' => $this->entity->present()->cityStateZip($this->client->shipping_city, $this->client->shipping_state, $this->client->shipping_postal_code, false) ?: ' ', 'label' => ctrans('texts.city_state_postal')];
+        $data['$client.shipping_city_state_postal'] = &$data['$shipping_city_state_postal'];
 
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 
