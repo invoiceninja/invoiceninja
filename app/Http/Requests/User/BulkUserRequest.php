@@ -11,9 +11,10 @@
 
 namespace App\Http\Requests\User;
 
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Ninja\CanRestoreUserRule;
 use App\Utils\Ninja;
+use App\Http\Requests\Request;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\Http\ValidationRules\Ninja\CanRestoreUserRule;
 
 class BulkUserRequest extends Request
 {
@@ -23,7 +24,11 @@ class BulkUserRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {
+    {nlog($this->all());
+        nlog($this->ids);
+        if($this->action == 'delete' && in_array(auth()->user()->hashed_id, $this->ids))
+            return false;
+
         return auth()->user()->isAdmin();
     }
 
@@ -43,5 +48,10 @@ class BulkUserRequest extends Request
         $input = $this->all();
 
         $this->replace($input);
+    }
+
+    protected function failedAuthorization()
+    {
+        throw new AuthorizationException("This Action is unauthorized.");
     }
 }
