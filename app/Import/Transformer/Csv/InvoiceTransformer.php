@@ -167,24 +167,25 @@ class InvoiceTransformer extends BaseTransformer
                     ),
                 ],
             ];
-        } elseif (
-            isset($transformed['amount']) &&
-            isset($transformed['balance']) &&
-            $transformed['amount'] != $transformed['balance']
-        ) {
-            $transformed['payments'] = [
-                [
-                    'date' => isset($invoice_data['payment.date'])
-                        ? $this->parseDate($invoice_data['payment.date'])
-                        : date('y-m-d'),
-                    'transaction_reference' => $this->getString(
-                        $invoice_data,
-                        'payment.transaction_reference'
-                    ),
-                    'amount' => $transformed['amount'] - $transformed['balance'],
-                ],
-            ];
-        }
+        } 
+        // elseif (
+        //     isset($transformed['amount']) &&
+        //     isset($transformed['balance']) &&
+        //     $transformed['amount'] != $transformed['balance']
+        // ) {
+        //     $transformed['payments'] = [
+        //         [
+        //             'date' => isset($invoice_data['payment.date'])
+        //                 ? $this->parseDate($invoice_data['payment.date'])
+        //                 : date('y-m-d'),
+        //             'transaction_reference' => $this->getString(
+        //                 $invoice_data,
+        //                 'payment.transaction_reference'
+        //             ),
+        //             'amount' => $transformed['amount'] - $transformed['balance'],
+        //         ],
+        //     ];
+        // }
 
         $line_items = [];
         foreach ($line_items_data as $record) {
