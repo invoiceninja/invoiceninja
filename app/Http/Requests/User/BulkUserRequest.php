@@ -24,8 +24,7 @@ class BulkUserRequest extends Request
      * @return bool
      */
     public function authorize() : bool
-    {nlog($this->all());
-        nlog($this->ids);
+    {
         if($this->action == 'delete' && in_array(auth()->user()->hashed_id, $this->ids))
             return false;
 
