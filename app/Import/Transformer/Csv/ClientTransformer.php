@@ -110,8 +110,8 @@ class ClientTransformer extends BaseTransformer
                     ),
                 ],
             ],
-            'country_id' => isset($data['client.country'])
-                ? $this->getCountryId($data['client.country'])
+            'country_id' => isset($data['client.country_id'])
+                ? $this->getCountryId($data['client.country_id'])
                 : null,
             'shipping_country_id' => isset($data['client.shipping_country'])
                 ? $this->getCountryId($data['client.shipping_country'])

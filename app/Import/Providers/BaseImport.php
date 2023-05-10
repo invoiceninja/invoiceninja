@@ -213,6 +213,9 @@ class BaseImport
         }
 
         foreach ($data as $key => $record) {
+            
+            unset($record['']);
+
             try {
                 $entity = $this->transformer->transform($record);
 

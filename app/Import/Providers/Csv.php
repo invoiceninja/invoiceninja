@@ -121,7 +121,6 @@ class Csv extends BaseImport implements ImportInterface
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
-
             return;
         }
 

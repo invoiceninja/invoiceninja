@@ -371,7 +371,8 @@ class BaseTransformer
      */
     public function getCountryId($name)
     {
-        if (strlen($name) == 2) {
+
+        if (strlen(trim($name)) == 2) {
             return $this->getCountryIdBy2($name);
         }
 
