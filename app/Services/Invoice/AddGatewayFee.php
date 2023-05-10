@@ -76,8 +76,11 @@ class AddGatewayFee extends AbstractService
 
         if ($fees_and_limits = $this->company_gateway->getFeesAndLimits($this->gateway_type_id)) {
             $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
+            $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
             $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
+            $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
+            $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
         }
 
         $invoice_items = (array) $this->invoice->line_items;
