@@ -5080,6 +5080,12 @@ $LANG = array(
     'set_tax_category' => 'Set Tax Category',
     'payment_manual' => 'Payment Manual',
     'expense_payment_type' => 'Expense Payment Type',
+    'payment_type_Cash App' => 'Cash App',
+    'rename' => 'Rename',
+    'renamed_document' => 'Successfully renamed document',
+    'e_invoice' => 'E-Invoice',
+    'light_dark_mode' => 'Light/Dark Mode',
+    'activities' => 'Activities',
 );
 
 

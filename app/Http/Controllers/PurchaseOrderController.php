@@ -360,6 +360,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_order = $purchase_order->service()
             ->triggeredActions($request)
+            ->touchPdf()
             ->save();
 
         event(new PurchaseOrderWasUpdated($purchase_order, $purchase_order->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

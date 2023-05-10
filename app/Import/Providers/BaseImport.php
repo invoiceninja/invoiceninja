@@ -213,6 +213,9 @@ class BaseImport
         }
 
         foreach ($data as $key => $record) {
+            
+            unset($record['']);
+
             try {
                 $entity = $this->transformer->transform($record);
 
@@ -470,6 +473,9 @@ class BaseImport
                     if (! empty($invoice_data['status_id'])) {
                         $invoice->status_id = $invoice_data['status_id'];
                     }
+                    
+                    nlog($invoice_data);
+
                     $invoice_repository->save($invoice_data, $invoice);
 
                     $count++;
