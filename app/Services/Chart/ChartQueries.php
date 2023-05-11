@@ -128,6 +128,7 @@ trait ChartQueries
         return DB::select(DB::raw("
             SELECT
             sum(invoices.paid_to_date) as paid_to_date,
+            sum(invoices.amount) as invoiced_amount,
             IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
             FROM clients
             JOIN invoices
