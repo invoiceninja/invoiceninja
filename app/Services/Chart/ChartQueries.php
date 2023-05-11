@@ -108,6 +108,7 @@ trait ChartQueries
         return DB::select(DB::raw("
             SELECT
             sum(invoices.balance) as amount,
+            count(invoices.id) as outstanding_count,
             IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
             FROM clients
             JOIN invoices
