@@ -75,7 +75,7 @@ class ChartService
 
         foreach ($currencies as $key => $value) {
             $data[$key]['invoices'] = $this->getInvoiceChartQuery($start_date, $end_date, $key);
-            // $data[$key]['outstanding'] = $this->getOutstandingChartQuery($start_date, $end_date, $key);
+            $data[$key]['outstanding'] = $this->getOutstandingChartQuery($start_date, $end_date, $key);
             $data[$key]['payments'] = $this->getPaymentChartQuery($start_date, $end_date, $key);
             $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
         }
