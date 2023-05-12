@@ -85,9 +85,9 @@ trait ChartQueries
             payments.date,
             IFNULL(payments.currency_id, :company_currency) AS currency_id
             FROM payments
-            WHERE payments.status_id IN (4,5,6)
-            AND payments.company_id = :company_id
+            WHERE payments.company_id = :company_id
             AND payments.is_deleted = 0
+            AND payments.status_id IN (4,5,6)
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.date
             HAVING currency_id = :currency_id
@@ -115,9 +115,9 @@ trait ChartQueries
             on invoices.client_id = clients.id
             WHERE invoices.status_id IN (2,3)
             AND invoices.company_id = :company_id
-            AND invoices.balance > 0
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
+            AND invoices.balance > 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
@@ -132,7 +132,26 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (3,4)
+            WHERE invoices.company_id = :company_id
+            AND clients.is_deleted = 0
+            AND invoices.is_deleted = 0
+            AND invoices.amount > 0
+            AND invoices.status_id IN (3,4)
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            GROUP BY currency_id
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+    }
+
+    public function getInvoicesQuery($start_date, $end_date)
+    {
+        return DB::select(DB::raw("
+            SELECT
+            sum(invoices.amount) as invoiced_amount,
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
+            FROM clients
+            JOIN invoices
+            on invoices.client_id = clients.id
+            WHERE invoices.status_id IN (2,3,4)
             AND invoices.company_id = :company_id
             AND invoices.amount > 0
             AND clients.is_deleted = 0
@@ -179,10 +198,10 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3,4)
-            AND invoices.company_id = :company_id
+            WHERE invoices.company_id = :company_id
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
+            AND invoices.status_id IN (2,3,4)
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
             HAVING currency_id = :currency_id

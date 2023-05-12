@@ -94,16 +94,27 @@ class ChartService
         $data['currencies'] = $this->getCurrencyCodes();
 
         foreach ($data['currencies'] as $key => $value) {
+            
             $revenue = $this->getRevenue($start_date, $end_date);
             $outstanding = $this->getOutstanding($start_date, $end_date);
             $expenses = $this->getExpenses($start_date, $end_date);
+            $invoices = $this->getInvoices($start_date, $end_date);
 
+            $data[$key]['invoices'] = count($invoices) > 0 ? $invoices[array_search($key, array_column($invoices, 'currency_id'))] : new \stdClass;
             $data[$key]['revenue'] = count($revenue) > 0 ? $revenue[array_search($key, array_column($revenue, 'currency_id'))] : new \stdClass;
             $data[$key]['outstanding'] = count($outstanding) > 0 ? $outstanding[array_search($key, array_column($outstanding, 'currency_id'))] : new \stdClass;
             $data[$key]['expenses'] = count($expenses) > 0 ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass;
         }
 
         return $data;
+    }
+
+    public function getInvoices($start_date, $end_date) :array
+    {
+        $revenue = $this->getInvoicesQuery($start_date, $end_date);
+        $revenue = $this->addCurrencyCodes($revenue);
+
+        return $revenue;
     }
 
     public function getRevenue($start_date, $end_date) :array
