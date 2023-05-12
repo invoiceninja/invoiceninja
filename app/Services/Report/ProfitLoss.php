@@ -237,7 +237,7 @@ class ProfitLoss
             sum(invoices.total_taxes) as total_taxes,
             (sum(invoices.total_taxes) / IFNULL(invoices.exchange_rate, 1)) AS net_converted_taxes,
             sum(invoices.amount - invoices.total_taxes) as net_amount,
-            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
+            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id,
             (sum(invoices.amount - invoices.total_taxes) / IFNULL(invoices.exchange_rate, 1)) AS net_converted_amount
             FROM clients
             JOIN invoices
