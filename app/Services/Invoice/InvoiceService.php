@@ -48,8 +48,15 @@ class InvoiceService
 
         return $this;
     }
-
-    public function applyPaymentAmount($amount, ?string $reference = null)
+    
+    /**
+     * applyPaymentAmount
+     *
+     * @param  float $amount
+     * @param  ?string $reference
+     * @return self
+     */
+    public function applyPaymentAmount($amount, ?string $reference = null): self
     {
         $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount, $reference))->run();
 
