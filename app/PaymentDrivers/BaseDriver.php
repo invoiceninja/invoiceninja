@@ -720,6 +720,27 @@ class BaseDriver extends AbstractPaymentDriver
         return $types;
     }
 
+    public function getStatementDescriptor(): string
+    {
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+        App::setLocale($this->client->company->locale());
+        
+        if (! $this->payment_hash || !$this->client) 
+            return 'x';
+
+        $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
+
+        $invoices_string = str_replace(["*","<",">","'",'"'], "-", $invoices_string);
+        
+        $invoices_string = substr($invoices_string,0,22);
+        
+        $invoices_string = str_pad($invoices_string, 5, ctrans('texts.invoice'), STR_PAD_LEFT);
+
+        return $invoices_string;
+
+    }
     /**
      * Generic description handler
      */
@@ -735,7 +756,7 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
-        $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?: 0, $this->client);
+        $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?? 0, $this->client);
 
         if($abbreviated && $invoices_string){
             return $invoices_string;

@@ -75,6 +75,7 @@ class ChartService
 
         foreach ($currencies as $key => $value) {
             $data[$key]['invoices'] = $this->getInvoiceChartQuery($start_date, $end_date, $key);
+            $data[$key]['outstanding'] = $this->getOutstandingChartQuery($start_date, $end_date, $key);
             $data[$key]['payments'] = $this->getPaymentChartQuery($start_date, $end_date, $key);
             $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
         }
@@ -92,17 +93,34 @@ class ChartService
 
         $data['currencies'] = $this->getCurrencyCodes();
 
-        foreach ($data['currencies'] as $key => $value) {
-            $revenue = $this->getRevenue($start_date, $end_date);
-            $outstanding = $this->getOutstanding($start_date, $end_date);
-            $expenses = $this->getExpenses($start_date, $end_date);
+        $revenue = $this->getRevenue($start_date, $end_date);
+        $outstanding = $this->getOutstanding($start_date, $end_date);
+        $expenses = $this->getExpenses($start_date, $end_date);
+        $invoices = $this->getInvoices($start_date, $end_date);
 
-            $data[$key]['revenue'] = count($revenue) > 0 ? $revenue[array_search($key, array_column($revenue, 'currency_id'))] : new \stdClass;
-            $data[$key]['outstanding'] = count($outstanding) > 0 ? $outstanding[array_search($key, array_column($outstanding, 'currency_id'))] : new \stdClass;
-            $data[$key]['expenses'] = count($expenses) > 0 ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass;
+        foreach ($data['currencies'] as $key => $value) {
+           
+            $invoices_set = array_search($key, array_column($invoices, 'currency_id'));
+            $revenue_set = array_search($key, array_column($revenue, 'currency_id'));
+            $outstanding_set = array_search($key, array_column($outstanding, 'currency_id'));
+            $expenses_set = array_search($key, array_column($expenses, 'currency_id'));
+
+            $data[$key]['invoices'] = $invoices_set !== false ? $invoices[array_search($key, array_column($invoices, 'currency_id'))] : new \stdClass;
+            $data[$key]['revenue'] = $revenue_set !== false ? $revenue[array_search($key, array_column($revenue, 'currency_id'))] : new \stdClass;
+            $data[$key]['outstanding'] = $outstanding_set !== false ? $outstanding[array_search($key, array_column($outstanding, 'currency_id'))] : new \stdClass;
+            $data[$key]['expenses'] = $expenses_set !== false ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass;
+
         }
 
         return $data;
+    }
+
+    public function getInvoices($start_date, $end_date) :array
+    {
+        $revenue = $this->getInvoicesQuery($start_date, $end_date);
+        $revenue = $this->addCurrencyCodes($revenue);
+
+        return $revenue;
     }
 
     public function getRevenue($start_date, $end_date) :array

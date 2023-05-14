@@ -201,6 +201,7 @@ class ACH
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => GatewayType::BANK_TRANSFER,
                 ],
+                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
             ]
             );
         }
@@ -275,6 +276,7 @@ class ACH
                     'payment_hash' => $this->stripe->payment_hash->hash,
                     'gateway_type_id' => $cgt->gateway_type_id,
                 ],
+                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
             ];
 
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {

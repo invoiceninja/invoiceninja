@@ -530,9 +530,11 @@ class Invoice extends BaseModel
     {
         return $this->hasOne(Expense::class);
     }
-
+ 
     /**
      * Service entry points.
+     *
+     * @return InvoiceService
      */
     public function service() :InvoiceService
     {

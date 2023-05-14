@@ -63,7 +63,7 @@ class ChartController extends BaseController
      *           @OA\JsonContent(ref="#/components/schemas/Error"),
      *       ),
      *     )
-     * @param Request $request
+     * @param ShowChartRequest $request
      */
     public function totals(ShowChartRequest $request)
     {
