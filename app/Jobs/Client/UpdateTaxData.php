@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Company;
+namespace App\Jobs\Client;
 
 use App\DataProviders\USStates;
 use App\Models\Client;

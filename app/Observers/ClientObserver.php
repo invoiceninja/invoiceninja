@@ -14,7 +14,7 @@ namespace App\Observers;
 use App\Models\Client;
 use App\Models\Webhook;
 use App\Jobs\Util\WebhookHandler;
-use App\Jobs\Company\UpdateTaxData;
+use App\Jobs\Client\UpdateTaxData;
 
 class ClientObserver
 {
