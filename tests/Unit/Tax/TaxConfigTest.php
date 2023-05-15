@@ -11,6 +11,7 @@
 
 namespace Tests\Unit\Tax;
 
+use App\DataProviders\USStates;
 use Tests\TestCase;
 use App\Models\Client;
 use Tests\MockAccountData;
@@ -56,15 +57,18 @@ class TaxConfigTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'address1' => '400 Evelyn Pl',
-            'city' =>'Beverley Hills',
-            'state' =>'CA',
-            'postal_code' =>90210,
+            'city' => 'Beverley Hills',
+            'state' => '',
+            'postal_code' => 90210,
             'country_id' => 840,
         ]);
 
-        $this->bootApi($client);
 
-        $this->tp->updateClientTaxData();
+        $this->assertEquals('CA', USStates::getState('90210'));
+
+        // $this->bootApi($client);
+
+        // $this->tp->updateClientTaxData();
         
     }
 

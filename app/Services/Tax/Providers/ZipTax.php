@@ -72,8 +72,10 @@ class ZipTax implements TaxProviderInterface
 
     private function parseResponse($response)
     {
-        $tax = $response['results']['0'];
+        if(isset($response['results']['0']))
+            return $response['results']['0'];
 
-        return $tax;
+        throw new \Exception("Error resolving tax  (code) = " . $response['rCode']);
+        
     }
 }
