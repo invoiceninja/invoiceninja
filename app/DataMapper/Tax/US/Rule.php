@@ -144,6 +144,8 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function default(): self
     {
+nlog("default rate");
+nlog($this->tax_data);
 
         if($this->tax_data?->stateSalesTax == 0) {
 
