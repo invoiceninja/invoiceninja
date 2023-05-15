@@ -54,7 +54,6 @@ class TaxProvider
 
     public function __construct(public Company $company, public Client $client)
     {
-
     }
 
 
@@ -113,6 +112,8 @@ class TaxProvider
         $tax_provider->setApiCredentials($this->api_credentials);
         
         $tax_data = $tax_provider->run();
+        
+        nlog($tax_data);
         
         $this->client->tax_data = $tax_data;
         

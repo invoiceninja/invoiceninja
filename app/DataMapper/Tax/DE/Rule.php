@@ -74,12 +74,27 @@ class Rule extends BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
             Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
+            Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated(),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $this->reverseTax(),
             default => $this->default(),
         };
         
         return $this;
     }
     
+    /**
+     * Calculates the tax rate for a reduced tax product
+     *
+     * @return self
+     */
+    public function reverseTax(): self
+    {
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = 'ermäßigte MwSt.';
+
+        return $this;
+    }
+
     /**
      * Calculates the tax rate for a reduced tax product
      *
@@ -93,6 +108,20 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
     
+    /**
+     * Calculates the tax rate for a zero rated tax product
+     *
+     * @return self
+     */
+    public function zeroRated(): self
+    {
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = 'ermäßigte MwSt.';
+
+        return $this;
+    }
+    
+
     /**
      * Calculates the tax rate for a tax exempt product
      *

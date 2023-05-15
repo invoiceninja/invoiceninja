@@ -64,7 +64,8 @@ class Rule extends BaseRule implements RuleInterface
             Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
             Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
             Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
-            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(), 
+            Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated(),
             default => $this->default(),
         };
         
@@ -169,6 +170,16 @@ class Rule extends BaseRule implements RuleInterface
         return $this;
     }
     
+    public function zeroRated(): self
+    {
+
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = "{$this->tax_data->geoState} Zero Rated Tax";
+
+        return $this;
+
+    }
+
     /**
      * Calculates the tax rate for a reduced tax product
      *
@@ -190,4 +201,18 @@ class Rule extends BaseRule implements RuleInterface
     {
         return $this;
     }
+
+    /**
+     * Calculates the tax rate for a reverse tax product
+     *
+     * @return self
+     */
+    public function reverseTax(): self
+    {
+        $this->default();
+
+        return $this;
+    }
+
+
 }
