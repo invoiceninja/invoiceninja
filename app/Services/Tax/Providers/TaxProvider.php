@@ -52,7 +52,7 @@ class TaxProvider
     
     private mixed $api_credentials;
 
-    public function __construct(protected Company $company, protected Client $client)
+    public function __construct(public Company $company, public Client $client)
     {
 
     }
@@ -108,15 +108,15 @@ class TaxProvider
         ];
 
 
-        $tax_provider = new $this->provider();
+        $tax_provider = new $this->provider($billing_details);
 
         $tax_provider->setApiCredentials($this->api_credentials);
         
         $tax_data = $tax_provider->run();
         
-        $this->company->tax_data = $tax_data;
+        $this->client->tax_data = $tax_data;
         
-        $this->company->save();
+        $this->client->save();
 
         return $this;
 
