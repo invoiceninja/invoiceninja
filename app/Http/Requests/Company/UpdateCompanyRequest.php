@@ -54,7 +54,7 @@ class UpdateCompanyRequest extends Request
         $rules['work_email'] = 'email|nullable';
         $rules['matomo_id'] = 'nullable|integer';
         $rules['e_invoice_certificate_passphrase'] = 'sometimes|nullable';
-        $rules['e_invoice_certificate'] = 'sometimes|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
+        $rules['e_invoice_certificate'] = 'sometimes|nullable|file|mimes:p12,pfx,pem,cer,crt,der,txt,p7b,spc,bin';
         // $rules['client_registration_fields'] = 'array';
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {

@@ -418,7 +418,7 @@ class CompanyController extends BaseController
             $this->saveDocuments($request->input('documents'), $company, false);
         }
 
-        if($request->has('e_invoice_certificate')){
+        if($request->has('e_invoice_certificate') && !is_null($request->file("e_invoice_certificate"))){
 
             $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
             $company->save();

@@ -114,7 +114,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxService($item): self
     {
-        if($this->tax_data?->txbService == 'Y') {
+        if(in_array($this->tax_data?->txbService,['Y','L'])) {
             $this->default($item);
         }
 
