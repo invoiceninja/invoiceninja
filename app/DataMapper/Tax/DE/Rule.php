@@ -56,27 +56,27 @@ class Rule extends BaseRule implements RuleInterface
     /**
      * Sets the correct tax rate based on the product type.
      *
-     * @param  mixed $product_tax_type
+     * @param  mixed $item
      * @return self
      */
-    public function taxByType($product_tax_type): self
+    public function taxByType($item): self
     {
 
         if ($this->client->is_tax_exempt) {
-            return $this->taxExempt();
+            return $this->taxExempt($item);
         }
 
-        match(intval($product_tax_type)){
-            Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt(),
-            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital(),
-            Product::PRODUCT_TYPE_SERVICE => $this->taxService(),
-            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping(),
-            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical(),
-            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced(),
-            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override(),
-            Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated(),
-            Product::PRODUCT_TYPE_REVERSE_TAX => $this->reverseTax(),
-            default => $this->default(),
+        match(intval($item->tax_id)){
+            Product::PRODUCT_TYPE_EXEMPT => $this->taxExempt($item),
+            Product::PRODUCT_TYPE_DIGITAL => $this->taxDigital($item),
+            Product::PRODUCT_TYPE_SERVICE => $this->taxService($item),
+            Product::PRODUCT_TYPE_SHIPPING => $this->taxShipping($item),
+            Product::PRODUCT_TYPE_PHYSICAL => $this->taxPhysical($item),
+            Product::PRODUCT_TYPE_REDUCED_TAX => $this->taxReduced($item),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $this->override($item),
+            Product::PRODUCT_TYPE_ZERO_RATED => $this->zeroRated($item),
+            Product::PRODUCT_TYPE_REVERSE_TAX => $this->reverseTax($item),
+            default => $this->default($item),
         };
         
         return $this;
@@ -87,7 +87,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function reverseTax(): self
+    public function reverseTax($item): self
     {
         $this->tax_rate1 = 0;
         $this->tax_name1 = 'ermäßigte MwSt.';
@@ -100,7 +100,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxReduced(): self
+    public function taxReduced($item): self
     {
         $this->tax_rate1 = $this->reduced_tax_rate;
         $this->tax_name1 = 'ermäßigte MwSt.';
@@ -113,7 +113,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function zeroRated(): self
+    public function zeroRated($item): self
     {
         $this->tax_rate1 = 0;
         $this->tax_name1 = 'ermäßigte MwSt.';
@@ -127,7 +127,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxExempt(): self
+    public function taxExempt($item): self
     {
         $this->tax_name1 = '';
         $this->tax_rate1 = 0;
@@ -140,7 +140,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxDigital(): self
+    public function taxDigital($item): self
     {
 
         $this->tax_rate1 = $this->tax_rate;
@@ -154,7 +154,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxService(): self
+    public function taxService($item): self
     {
 
         $this->tax_rate1 = $this->tax_rate;
@@ -168,7 +168,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxShipping(): self
+    public function taxShipping($item): self
     {
 
         $this->tax_rate1 = $this->tax_rate;
@@ -182,7 +182,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function taxPhysical(): self
+    public function taxPhysical($item): self
     {
 
         $this->tax_rate1 = $this->tax_rate;
@@ -196,7 +196,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function default(): self
+    public function default($item): self
     {
         
         $this->tax_name1 = '';
@@ -210,7 +210,7 @@ class Rule extends BaseRule implements RuleInterface
      *
      * @return self
      */
-    public function override(): self
+    public function override($item): self
     {
         return $this;
     }

@@ -41,6 +41,7 @@ use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Str;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -415,6 +416,13 @@ class CompanyController extends BaseController
 
         if ($request->has('documents')) {
             $this->saveDocuments($request->input('documents'), $company, false);
+        }
+
+        if($request->has('e_invoice_certificate')){
+
+            $company->e_invoice_certificate = base64_encode($request->file("e_invoice_certificate")->get());
+            $company->save();
+
         }
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);

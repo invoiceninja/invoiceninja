@@ -339,6 +339,7 @@ class Company extends BaseModel
         'notify_vendor_when_paid',
         'calculate_taxes',
         'tax_data',
+        'e_invoice_certificate_passphrase',
     ];
 
     protected $hidden = [
@@ -357,6 +358,7 @@ class Company extends BaseModel
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
         'tax_data' => 'object',
+        'e_invoice_certificate_passphrase' => 'encrypted',
     ];
 
     protected $with = [];
@@ -365,7 +367,6 @@ class Company extends BaseModel
         self::ENTITY_RECURRING_INVOICE => 1,
         self::ENTITY_CREDIT => 2,
         self::ENTITY_QUOTE => 4,
-        // @phpstan-ignore-next-line
         self::ENTITY_TASK => 8,
         self::ENTITY_EXPENSE => 16,
         self::ENTITY_PROJECT => 32,

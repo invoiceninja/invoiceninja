@@ -15,25 +15,25 @@ interface RuleInterface
 {
     public function init();
 
-    public function tax($item = null);
+    public function tax($item);
 
     public function taxByType($type);
 
-    public function taxExempt();
+    public function taxExempt($item);
     
-    public function taxDigital();
+    public function taxDigital($item);
 
-    public function taxService();
+    public function taxService($item);
 
-    public function taxShipping();
+    public function taxShipping($item);
 
-    public function taxPhysical();
+    public function taxPhysical($item);
 
-    public function taxReduced();
+    public function taxReduced($item);
 
-    public function default();
+    public function default($item);
 
-    public function override();
+    public function override($item);
 
     public function calculateRates();
 }
