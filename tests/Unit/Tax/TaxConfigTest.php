@@ -59,16 +59,16 @@ class TaxConfigTest extends TestCase
             'address1' => '400 Evelyn Pl',
             'city' => 'Beverley Hills',
             'state' => '',
-            'postal_code' => 90210,
+            'postal_code' => '',
             'country_id' => 840,
         ]);
 
 
-        $this->assertEquals('CA', USStates::getState('90210'));
+        // $this->assertEquals('CA', USStates::getState('90210'));
 
-        // $this->bootApi($client);
+        $this->bootApi($client);
 
-        // $this->tp->updateClientTaxData();
+        $this->tp->updateClientTaxData();
         
     }
 

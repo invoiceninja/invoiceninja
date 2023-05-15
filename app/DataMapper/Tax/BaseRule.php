@@ -152,6 +152,7 @@ class BaseRule implements RuleInterface
             $this->client->saveQuietly();
 
             nlog('Automatic tax calculations not supported for this country - defaulting to company country');
+            
         }
 
         /** Harvest the client_region */
