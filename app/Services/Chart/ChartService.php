@@ -35,6 +35,9 @@ class ChartService
         $currencies = Client::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
+            ->when(!$this->is_admin, function ($query) {
+                $query->where('user_id', $this->user->id);
+            })
             ->distinct()
             ->pluck('settings->currency_id as id');
 
@@ -45,6 +48,9 @@ class ChartService
         $expense_currencies = Expense::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
+            ->when(!$this->is_admin, function ($query) {
+                $query->where('user_id', $this->user->id);
+            })
             ->distinct()
             ->pluck('currency_id as id');
 
