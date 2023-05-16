@@ -32,7 +32,7 @@ class QueryLogging
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
-    {
+    {nlog("yoyo");
         // Enable query logging for development
         if (! Ninja::isHosted() || ! config('beacon.enabled')) {
             return $next($request);
