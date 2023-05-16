@@ -18,12 +18,31 @@ use josemmo\Facturae\FacturaeItem;
 use josemmo\Facturae\FacturaeParty;
 use Illuminate\Support\Facades\Storage;
 use josemmo\Facturae\Common\FacturaeSigner;
+use josemmo\Facturae\FacturaeCentre;
 
 class FacturaEInvoice extends AbstractService
 {
     private Facturae $fac;
     
     private $calc;
+
+    private $centre_codes = [
+        'CONTABLE' => FacturaeCentre::ROLE_CONTABLE,
+        'FISCAL' => FacturaeCentre::ROLE_FISCAL,
+        'GESTOR' => FacturaeCentre::ROLE_GESTOR,
+        'RECEPTOR' => FacturaeCentre::ROLE_RECEPTOR,
+        'TRAMITADOR' => FacturaeCentre::ROLE_TRAMITADOR,
+        'PAGADOR' => FacturaeCentre::ROLE_PAGADOR,
+        'PROPONENTE' => FacturaeCentre::ROLE_PAGADOR,
+        'B2B_FISCAL' => FacturaeCentre::ROLE_B2B_FISCAL,
+        'B2B_PAYER' => FacturaeCentre::ROLE_B2B_PAYER,
+        'B2B_BUYER' => FacturaeCentre::ROLE_B2B_BUYER,
+        'B2B_COLLECTOR' => FacturaeCentre::ROLE_B2B_COLLECTOR,
+        'B2B_SELLER' => FacturaeCentre::ROLE_B2B_SELLER,
+        'B2B_PAYMENT_RECEIVER' => FacturaeCentre::ROLE_B2B_PAYMENT_RECEIVER ,
+        'B2B_COLLECTION_RECEIVER' => FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER ,
+        'B2B_ISSUER' => FacturaeCentre::ROLE_B2B_ISSUER,
+    ];
 
     // Facturae::SCHEMA_3_2	Invoice Format 3.2
     // Facturae::SCHEMA_3_2_1	Invoice Format 3.2.1
@@ -111,6 +130,25 @@ class FacturaEInvoice extends AbstractService
     // FacturaeCentre::ROLE_B2B_COLLECTION_RECEIVER	Collection receiver in FACeB2B
     // FacturaeCentre::ROLE_B2B_ISSUER	Issuer in FACeB2B
 
+    /*
+    const ROLE_CONTABLE = "01";
+    const ROLE_FISCAL = "01";
+    const ROLE_GESTOR = "02";
+    const ROLE_RECEPTOR = "02";
+    const ROLE_TRAMITADOR = "03";
+    const ROLE_PAGADOR = "03";
+    const ROLE_PROPONENTE = "04";
+
+    const ROLE_B2B_FISCAL = "Fiscal";
+    const ROLE_B2B_PAYER = "Payer";
+    const ROLE_B2B_BUYER = "Buyer";
+    const ROLE_B2B_COLLECTOR = "Collector";
+    const ROLE_B2B_SELLER = "Seller";
+    const ROLE_B2B_PAYMENT_RECEIVER = "Payment receiver";
+    const ROLE_B2B_COLLECTION_RECEIVER = "Collection receiver";
+    const ROLE_B2B_ISSUER = "Issuer";
+    */
+
 
     public function __construct(public Invoice $invoice, private mixed $profile)
     {
@@ -144,6 +182,33 @@ class FacturaEInvoice extends AbstractService
 
         return $this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig");
 
+    }
+
+    /** Check if this is a public administration body */
+    private function setFace(): array
+    {
+        $facturae_centres = [];
+
+        if($this->invoice->client->custom_value1 == 'yes')
+        {
+
+            foreach($this->invoice->client->contacts() as $contact)
+            {
+
+                if(in_array($contact->custom_value1, array_keys($this->centre_codes)))
+                {
+                    $facturae_centres[] = new FacturaeCentre([
+                        'role' => $this->centre_codes[$contact->custom_value1],
+                        'code' => $contact->custom_value2,
+                        'name' => $contact->custom_value3,
+                    ]);
+                }
+
+            }
+
+        }
+
+        return $facturae_centres;
     }
 
     private function setPoNumber(): self
@@ -280,6 +345,7 @@ class FacturaEInvoice extends AbstractService
             "fax" => "",
             "website" => substr($company->settings->website, 0, 50),
             "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
+            'centres' => $this->setFace(),
             // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);

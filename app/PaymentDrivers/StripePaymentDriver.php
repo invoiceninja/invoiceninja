@@ -777,7 +777,8 @@ class StripePaymentDriver extends BaseDriver
                     ->where('token', $request->data['object']['payment_method'])
                     ->first();
 
-                $clientgateway->delete();
+                if($clientgateway)
+                    $clientgateway->delete();
                 
                 return response()->json([], 200);
             } elseif ($request->data['object']['status'] == "pending") {

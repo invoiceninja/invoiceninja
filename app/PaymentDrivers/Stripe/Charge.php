@@ -43,7 +43,7 @@ class Charge
      * Create a charge against a payment method.
      * @param ClientGatewayToken $cgt
      * @param PaymentHash $payment_hash
-     * @return bool success/failure
+     * @return mixed success/failure
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -86,7 +86,7 @@ class Charge
                 $data['off_session'] = true;
             }
 
-            $response = $this->stripe->createPaymentIntent($data, array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
+            $response = $this->stripe->createPaymentIntent($data);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
         } catch (\Exception $e) {
