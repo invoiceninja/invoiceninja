@@ -150,23 +150,6 @@ class EmailEntity implements ShouldQueue
         return '';
     }
 
-    /**
-     * @deprecated
-     * @unused
-     */
-    // private function entityEmailFailed($message)
-    // {
-    //     switch ($this->entity_string) {
-    //         case 'invoice':
-    //             event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-    //             break;
-
-    //         default:
-    //             // code...
-    //             break;
-    //     }
-    // }
-
     /* Builds the email builder object */
     private function resolveEmailBuilder()
     {
