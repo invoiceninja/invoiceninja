@@ -83,6 +83,10 @@ class UpdateCompanyRequest extends Request
             $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
         }
 
+        if(array_key_exists('e_invoice_certificate_passphrase', $input) && empty($input['e_invoice_certificate_passphrase'])) {
+            unset($input['e_invoice_certificate_passphrase']);
+        }
+
         $this->replace($input);
     }
 
