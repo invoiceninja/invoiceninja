@@ -35,12 +35,8 @@ class ChartService
         $currencies = Client::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
-            ->distinct();
-
-            if(!$this->is_admin)
-                $currencies->where('user_id', $this->user->id);
-
-        $currencies->pluck('settings->currency_id as id');
+            ->distinct()
+            ->pluck('settings->currency_id as id');
 
         /* Push the company currency on also */
         $currencies->push((int) $this->company->settings->currency_id);
@@ -49,14 +45,8 @@ class ChartService
         $expense_currencies = Expense::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
-            ->distinct();
-
-            
-        if (!$this->is_admin) {
-            $expense_currencies->where('user_id', $this->user->id);
-        }
-
-        $expense_currencies->pluck('currency_id as id');
+            ->distinct()
+            ->pluck('currency_id as id');
 
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
