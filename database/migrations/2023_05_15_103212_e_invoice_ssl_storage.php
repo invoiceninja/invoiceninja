@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('companies', function (Illuminate\Database\Schema\Blueprint $table) {
             $table->text('e_invoice_certificate')->nullable();
-            $table->string('e_invoice_certificate_passphrase')->nullable();
+            $table->text('e_invoice_certificate_passphrase')->nullable();
         });
 
     }
