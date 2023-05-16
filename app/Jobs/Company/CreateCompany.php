@@ -152,7 +152,7 @@ class CreateCompany
 
             $company->save();
 
-            $user = $company->account->users()->first();
+            $user = $this->account->users()->orderBy('id','asc')->first();
 
             $tax_rate = TaxRateFactory::create($company->id, $user->id);
             $tax_rate->name = $company->tax_data->regions->EU->subregions->ES->tax_name;
