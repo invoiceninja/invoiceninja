@@ -874,6 +874,8 @@ class Design extends BaseDesign
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
 
+                    nlog("{$key} => {$cell}");
+
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost'], 'properties' => ['data-ref' => 'task_table-task.cost-td']];
                     } elseif ($cell == '$product.discount' && !$this->company->enable_product_discount) {

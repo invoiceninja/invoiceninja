@@ -151,15 +151,21 @@ trait DesignHelpers
     public function processTaxColumns(string $type): void
     {
         $column_type = $type;
-        if ($type == 'product' || $type == 'product_quote') {
+
+        if ($type == 'product') {
             $type_id = 1;
-            $column_type = 'product_quote';
-            $type = 'product';
         }
 
         if ($type == 'task') {
             $type_id = 2;
         }
+        
+        if ($type == 'product_quote') {
+            $type_id = 1;
+            $column_type = 'product_quote';
+            $type = 'product';
+        }
+
 
         // At the moment we pass "task" or "product" as type.
         // However, "pdf_variables" contains "$task.tax" or "$product.tax" <-- Notice the dollar sign.
