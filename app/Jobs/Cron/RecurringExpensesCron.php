@@ -98,15 +98,10 @@ class RecurringExpensesCron
         }
     }
 
-    private function getRecurringExpenses()
-    {
-        //extracting this back to the if/else block to test duplicate crons
-    }
-
     private function generateExpense(RecurringExpense $recurring_expense)
     {
         $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
-        $expense->save();
+        $expense->saveQuietly();
 
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->save();

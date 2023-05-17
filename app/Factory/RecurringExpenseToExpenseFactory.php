@@ -40,7 +40,7 @@ class RecurringExpenseToExpenseFactory
         $expense->tax_name3 = $recurring_expense->tax_name3;
         $expense->tax_rate3 = $recurring_expense->tax_rate3;
         $expense->date = now()->format('Y-m-d');
-        $expense->payment_date = $recurring_expense->payment_date;
+        $expense->payment_date = $recurring_expense->payment_date ?: now()->format('Y-m-d');
         $expense->amount = $recurring_expense->amount;
         $expense->foreign_amount = $recurring_expense->foreign_amount ?: 0;
 

@@ -30,7 +30,9 @@ class UpdateDocumentRequest extends Request
 
     public function rules()
     {
-        return [];
+        return [
+            'name' => 'sometimes|alpha_num'
+        ];
     }
 
     public function prepareForValidation()
