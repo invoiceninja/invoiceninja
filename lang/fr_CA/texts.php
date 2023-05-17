@@ -5072,6 +5072,12 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'set_tax_category' => 'Définir la catégorie de taxe',
     'payment_manual' => 'Paiement manuel',
     'expense_payment_type' => 'Type de paiement de dépense',
+    'payment_type_Cash App' => 'Cash App',
+    'rename' => 'Renommer',
+    'renamed_document' => 'Le document a été renommé',
+    'e_invoice' => 'Facture électronique',
+    'light_dark_mode' => 'Mode clair/sombre',
+    'activities' => 'Activités',
 );
 
 

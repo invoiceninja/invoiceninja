@@ -57,6 +57,6 @@ class UpdateSchedulerRequest extends Request
             $this->merge(['next_run_client' => $input['next_run']]);
         }
         
-        return $input;
+        $this->replace($input);
     }
 }
