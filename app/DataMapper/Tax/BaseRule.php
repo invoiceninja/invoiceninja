@@ -215,9 +215,12 @@ class BaseRule implements RuleInterface
         }
 
         /** Applies the tax data to the invoice */
-        if($this->invoice instanceof Invoice && \DB::transactionLevel() == 0) {
+        if($this->invoice instanceof Invoice) {
+
             $this->invoice->tax_data = $tax_data;
-            $this->invoice->saveQuietly();
+            
+            if(\DB::transactionLevel() == 0)
+                $this->invoice->saveQuietly();
         }
             
         return $this;

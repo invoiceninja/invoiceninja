@@ -156,7 +156,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function default($item): self
     {
-
+        
         if($this->tax_data?->stateSalesTax == 0) {
 
             $this->tax_rate1 = $this->invoice->client->company->tax_data->regions->{$this->client_region}->subregions->{$this->client_subregion}->tax_rate;
