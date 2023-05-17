@@ -45,7 +45,7 @@ class ZipTax implements TaxProviderInterface
 
         }
 
-        $response->throw();
+        // $response->throw();
 
     }
     
@@ -75,7 +75,7 @@ class ZipTax implements TaxProviderInterface
         if(isset($response['results']['0']))
             return $response['results']['0'];
 
-        throw new \Exception("Error resolving tax  (code) = " . $response['rCode']);
-        
+        return null;
+        // throw new \Exception("Error resolving tax  (code) = " . $response['rCode']);
     }
 }
