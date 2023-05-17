@@ -150,6 +150,8 @@ trait DesignHelpers
      */
     public function processTaxColumns(string $type): void
     {
+        $column_type = $type;
+
         if ($type == 'product') {
             $type_id = 1;
         }
@@ -157,13 +159,21 @@ trait DesignHelpers
         if ($type == 'task') {
             $type_id = 2;
         }
+        
+        /** 17-05-2023 need to explicity define product_quote here */
+        if ($type == 'product_quote') {
+            $type_id = 1;
+            $column_type = 'product_quote';
+            $type = 'product';
+        }
+
 
         // At the moment we pass "task" or "product" as type.
         // However, "pdf_variables" contains "$task.tax" or "$product.tax" <-- Notice the dollar sign.
         // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
         // evaluating the variable.
 
-        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$type}_columns"])) {
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$column_type}_columns"])) {
             $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
                 return $item->type_id = $type_id;
             });
@@ -186,10 +196,10 @@ trait DesignHelpers
                 array_push($taxes, sprintf('%s%s.tax_rate3', '$', $type));
             }
 
-            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$type}_columns"], true);
+            $key = array_search(sprintf('%s%s.tax', '$', $type), $this->context['pdf_variables']["{$column_type}_columns"], true);
 
             if ($key !== false) {
-                array_splice($this->context['pdf_variables']["{$type}_columns"], $key, 1, $taxes);
+                array_splice($this->context['pdf_variables']["{$column_type}_columns"], $key, 1, $taxes);
             }
         }
     }

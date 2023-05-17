@@ -145,8 +145,6 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxPhysical($item): self
     {
-        nlog("tax physical");
-        nlog($item);
         $this->default($item);
 
         return $this;

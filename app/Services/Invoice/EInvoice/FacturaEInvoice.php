@@ -192,7 +192,7 @@ class FacturaEInvoice extends AbstractService
         if($this->invoice->client->custom_value1 == 'yes')
         {
 
-            foreach($this->invoice->client->contacts() as $contact)
+            foreach($this->invoice->client->contacts()->whereNotNull('custom_value1')->whereNull('deleted_at')->cursor() as $contact)
             {
 
                 if(in_array($contact->custom_value1, array_keys($this->centre_codes)))
@@ -345,11 +345,10 @@ class FacturaEInvoice extends AbstractService
             "fax" => "",
             "website" => substr($company->settings->website, 0, 50),
             "contactPeople" => substr($company->owner()->present()->name(), 0, 40),
-            'centres' => $this->setFace(),
+            // 'centres' => $this->setFace(),
             // "cnoCnae" => "04647", // Clasif. Nacional de Act. Económicas
             // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
-
 
         $this->fac->setSeller($seller);
         
@@ -375,6 +374,7 @@ class FacturaEInvoice extends AbstractService
         "fax"     => "",
         "website" => substr($this->invoice->client->present()->website(), 0 ,60),
         "contactPeople" => substr($this->invoice->client->present()->first_name()." ".$this->invoice->client->present()->last_name(), 0, 40),
+        'centres' => $this->setFace(),
         // "cnoCnae" => "04791", // Clasif. Nacional de Act. Económicas
         // "ineTownCode" => "280796" // Cód. de municipio del INE
         ]);
