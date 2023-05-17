@@ -444,6 +444,8 @@ class EuTaxTest extends TestCase
             'company_id' => $company->id,
             'country_id' => 840,
             'shipping_country_id' => 840,
+            'state' => 'CA',
+            'postal_code' => '90210',
             'has_valid_vat_number' => false,
         ]);
 
@@ -453,7 +455,7 @@ class EuTaxTest extends TestCase
            'user_id' => $this->user->id,
            'status_id' => Invoice::STATUS_SENT,
            'tax_data' => new Response([
-                    'geoState' => 'CA',
+           'geoState' => 'CA',
            ]),
         ]);
 
