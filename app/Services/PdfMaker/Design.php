@@ -841,7 +841,6 @@ class Design extends BaseDesign
             $table_type = "product_quote_columns";
         }
 
-
         foreach ($items as $row) {
             $element = ['element' => 'tr', 'elements' => []];
 
@@ -873,8 +872,6 @@ class Design extends BaseDesign
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
                     // $task.quantity => $task.hours
-
-                    nlog("{$key} => {$cell}");
 
                     if ($cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.cost'], 'properties' => ['data-ref' => 'task_table-task.cost-td']];
