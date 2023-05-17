@@ -56,7 +56,7 @@ class AccountTransformer extends EntityTransformer
             'key' => (string) $account->key,
             'default_url' => config('ninja.app_url'),
             'plan' => $account->getPlan(),
-            'plan_term' => (string) $account->plan_terms,
+            'plan_term' => (string) $account->plan_term,
             'plan_started' => (string) $account->plan_started,
             'plan_paid' => (string) $account->plan_paid,
             'plan_expires' => (string) $account->plan_expires,
