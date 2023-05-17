@@ -140,8 +140,12 @@ class BaseRule implements RuleInterface
 
         $this->client = $invoice->client;
 
-        $this->resolveRegions()
-             ->configTaxData();
+        $this->resolveRegions();
+
+        if(!$this->isTaxableRegion())
+            return $this;
+
+        $this->configTaxData();
 
         $this->tax_data = new Response($this->invoice->tax_data);
 
