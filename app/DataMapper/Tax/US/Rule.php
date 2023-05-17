@@ -129,6 +129,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxShipping($item): self
     {
+
         if($this->tax_data?->txbFreight == 'Y') {
             $this->default($item);
         }
@@ -144,6 +145,8 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxPhysical($item): self
     {
+        nlog("tax physical");
+        nlog($item);
         $this->default($item);
 
         return $this;

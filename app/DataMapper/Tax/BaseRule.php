@@ -147,8 +147,6 @@ class BaseRule implements RuleInterface
 
         $this->configTaxData();
 
-        nlog($this->invoice->tax_data);
-
         $this->tax_data = new Response($this->invoice->tax_data);
 
         return $this;
