@@ -359,6 +359,7 @@ class Company extends BaseModel
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
         'tax_data' => 'object',
+        'origin_tax_data' => 'object',
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
     ];
 

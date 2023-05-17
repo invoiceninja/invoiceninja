@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 
 class USStates
 {
-    protected static array $states = [
+    public static array $states = [
         'AL' => 'Alabama',
         'AK' => 'Alaska',
         'AZ' => 'Arizona',

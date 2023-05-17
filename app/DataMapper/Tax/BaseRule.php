@@ -16,6 +16,7 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\DataProviders\USStates;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\Services\Tax\Providers\TaxProvider;
 
 class BaseRule implements RuleInterface
 {
@@ -103,9 +104,6 @@ class BaseRule implements RuleInterface
     /** EU TAXES */
 
 
-    /** US TAXES */
-    /** US TAXES */
-
     public string $tax_name1 = '';
     public float $tax_rate1 = 0;
 
@@ -129,75 +127,132 @@ class BaseRule implements RuleInterface
     {
         return $this;
     }
-
+    
+    /**
+     * Initializes the tax rule for the entity.
+     *
+     * @param  mixed $invoice
+     * @return self
+     */
     public function setEntity(mixed $invoice): self
     {
         $this->invoice = $invoice;
 
         $this->client = $invoice->client;
 
-        $this->configTaxData()
-             ->resolveRegions();
+        $this->resolveRegions()
+             ->configTaxData();
 
         $this->tax_data = new Response($this->invoice->tax_data);
 
         return $this;
     }
-
+    
+    /**
+     * Configigures the Tax Data for the entity
+     *
+     * @return self
+     */
     private function configTaxData(): self
     {
-        /* If the client Country is not in the region_codes, we force the company country onto the client? @TODO  */
+        /* We should only apply taxes for configured states */
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes)) {
-            // $this->client->country_id = $this->invoice->company->settings->country_id;
-            // $this->client->saveQuietly();
-
             nlog('Automatic tax calculations not supported for this country - defaulting to company country');
-            
+            nlog("With new logic, we should never see this");
         }
 
         /** Harvest the client_region */
-        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         /** If the tax data is already set and the invoice is marked as sent, do not adjust the rates */
         if($this->invoice->tax_data && $this->invoice->status_id > 1)
             return $this;
 
-        //Pass the client tax data into the invoice tax data object
-        $tax_data = is_object($this->invoice->client->tax_data) ? $this->invoice->client->tax_data : new Response([]);
+        /**
+         * Origin - Company Tax Data
+         * Destination - Client Tax Data
+         * 
+         */
+        $tax_data = new Response([]);
 
-        /** If no Origin / Destination has been set and the seller and client sub regions are not the same, force destination tax */
-        if(strlen($this->invoice->tax_data?->originDestination) == 0 && $this->client->company->tax_data->seller_subregion != $this->client_subregion) {
-            $tax_data->originDestination = "D";
-            $tax_data->geoState = $this->client_subregion;
+        if($this->seller_region == 'US'){
+        
+            $company = $this->invoice->company;
+ 
+            /** If no company tax data has been configured, lets do that now. */
+            if(!$company->origin_tax_data && \DB::transactionLevel() == 0)
+            {
+ 
+                $tp = new TaxProvider($company);
+                $tp->updateCompanyTaxData();
+                $company->fresh();
 
-            if($this->invoice instanceof Invoice) {
-                $this->invoice->tax_data = $tax_data;
-                $this->invoice->saveQuietly();
             }
-            
+
+            /** If we are in a Origin based state, force the company tax here */
+            if($company->origin_tax_data->originDestination == 'O' && ($company->tax_data->seller_subregion == $this->client_subregion)) {
+
+                $tax_data = $company->origin_tax_data;
+
+            }
+            else{
+                
+                /** Ensures the client tax data has been updated */
+                if(!$this->client->tax_data && \DB::transactionLevel() == 0) {
+ 
+                    $tp = new TaxProvider($company, $this->client);
+                    $tp->updateClientTaxData();
+                    $this->client->fresh();
+                }
+                
+                $tax_data = $this->client->tax_data;
+
+            }
+
         }
 
+        /** Applies the tax data to the invoice */
+        if($this->invoice instanceof Invoice && \DB::transactionLevel() == 0) {
+            $this->invoice->tax_data = $tax_data;
+            $this->invoice->saveQuietly();
+        }
+            
         return $this;
+
     }
 
-    // Refactor to support switching between shipping / billing country / region / subregion
+    
+    /**
+     * Resolve Regions & Subregions
+     *
+     * @return self
+     */
     private function resolveRegions(): self
     {
+        
+        $this->client_region = $this->region_codes[$this->client->country->iso_3166_2];
 
         match($this->client_region){
-            'US' => $this->client_subregion = strlen($this->invoice?->tax_data?->geoState) > 1 ? $this->invoice?->tax_data?->geoState : $this->getUSState(),
+            'US' => $this->client_subregion = strlen($this->invoice?->client?->tax_data?->geoState) > 1 ? $this->invoice->client->tax_data->geoState : $this->getUSState(),
             'EU' => $this->client_subregion = $this->client->country->iso_3166_2,
             'AU' => $this->client_subregion = 'AU',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
     
         return $this;
+
     }
 
     private function getUSState(): string
     {
         try {
+            
+            $states = USStates::$states;
+
+            if(isset($states[$this->client->state]))
+                return $this->client->state;
+
             return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
+
         } catch (\Exception $e) {
             return $this->client->company->country()->iso_3166_2 == 'US' ? $this->client->company->tax_data->seller_subregion : 'CA';
         }
