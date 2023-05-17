@@ -160,6 +160,7 @@ trait DesignHelpers
             $type_id = 2;
         }
         
+        /** 17-05-2023 need to explicity define product_quote here */
         if ($type == 'product_quote') {
             $type_id = 1;
             $column_type = 'product_quote';
