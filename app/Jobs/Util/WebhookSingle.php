@@ -170,9 +170,9 @@ class WebhookSingle implements ShouldQueue
             }
 
             if ($e->getResponse()->getStatusCode() >= 500) {
-                nlog("endpoint returned a 500, failing");
+                nlog("{$subscription->target_url} returned a 500, failing");
 
-                $message = "The was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
 
                 (new SystemLogger(
                     ['message' => $message],
