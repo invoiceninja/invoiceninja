@@ -53,4 +53,18 @@ class TaskStatusRepository extends BaseRepository
 
         return $task_status;
     }
+
+    public function reorder(TaskStatus $task_status)
+    {
+
+        TaskStatus::query()
+                  ->where('company_id', $task_status->company_id)
+                  ->orderByRaw('ISNULL(status_order), status_order ASC')
+                  ->orderBy('updated_at', 'DESC')
+                  ->cursor()
+                  ->each(function ($task_status, $index) {
+                      $task_status->update(['status_order' => $index+1]);
+                  });
+
+    }
 }

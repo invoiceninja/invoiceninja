@@ -11,6 +11,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\TaskStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -28,6 +29,8 @@ class TaskStatusApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -39,6 +42,38 @@ class TaskStatusApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testSorting()
+    {
+        TaskStatus::factory()->count(5)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id
+        ]);
+        
+        
+        $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('id', 'desc');
+        
+        $this->assertEquals(10, $t->count());
+        $task_status = $t->first();
+
+        $id = $task_status->id;
+        
+        nlog("setting {$id} to index 1");
+
+        $data = [
+            'status_order' => 1,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/task_statuses/'.$task_status->hashed_id, $data);
+
+        $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('status_order', 'asc')->first();
+
+        $this->assertEquals($id, $t->id);
+        
     }
 
     public function testTaskStatusGetFilter()

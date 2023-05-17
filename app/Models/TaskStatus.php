@@ -63,7 +63,7 @@ class TaskStatus extends BaseModel
     public $timestamps = true;
 
     /**
-     * @var array
+     * @var array<string>
      */
     protected $fillable = [
         'name',
