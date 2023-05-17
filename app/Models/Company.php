@@ -11,18 +11,19 @@
 
 namespace App\Models;
 
-use App\DataMapper\CompanySettings;
-use App\Models\Presenters\CompanyPresenter;
-use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
+use App\Casts\EncryptedCast;
 use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Notifications\Notification;
+use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
+use App\Utils\Traits\CompanySettingsSaver;
+use Illuminate\Notifications\Notification;
+use App\Models\Presenters\CompanyPresenter;
+use App\Services\Notification\NotificationService;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Company
@@ -339,6 +340,7 @@ class Company extends BaseModel
         'notify_vendor_when_paid',
         'calculate_taxes',
         'tax_data',
+        'e_invoice_certificate_passphrase',
     ];
 
     protected $hidden = [
@@ -357,6 +359,8 @@ class Company extends BaseModel
         'deleted_at' => 'timestamp',
         'client_registration_fields' => 'array',
         'tax_data' => 'object',
+        'origin_tax_data' => 'object',
+        'e_invoice_certificate_passphrase' => EncryptedCast::class,
     ];
 
     protected $with = [];
@@ -365,7 +369,6 @@ class Company extends BaseModel
         self::ENTITY_RECURRING_INVOICE => 1,
         self::ENTITY_CREDIT => 2,
         self::ENTITY_QUOTE => 4,
-        // @phpstan-ignore-next-line
         self::ENTITY_TASK => 8,
         self::ENTITY_EXPENSE => 16,
         self::ENTITY_PROJECT => 32,

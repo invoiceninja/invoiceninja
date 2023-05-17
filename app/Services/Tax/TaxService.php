@@ -31,4 +31,9 @@ class TaxService
 
         return $this;
     }
+
+    public function initTaxProvider()
+    {
+        
+    }
 }

@@ -66,7 +66,12 @@ trait CleanLineItems
                 $item['tax_id'] = '1';
             }
             elseif(array_key_exists('tax_id', $item) && $item['tax_id'] == '') {
-                $item['tax_id'] = '1';
+                
+                if($item['type_id'] == '2')
+                    $item['tax_id'] = '2';
+                else 
+                    $item['tax_id'] = '1';
+                
             }
             
         }

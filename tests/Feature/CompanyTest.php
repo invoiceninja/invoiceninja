@@ -143,6 +143,8 @@ class CompanyTest extends TestCase
 
         $company->settings = $settings;
 
+        nlog($company->toArray());
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

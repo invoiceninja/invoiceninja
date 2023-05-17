@@ -63,20 +63,6 @@ class InvoiceEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                // $template = $event->template ?? '';
-
-                // if(isset($event->reminder)){
-
-                //     $template = match($event->reminder){
-                //         63 => 'reminder1',
-                //         64 => 'reminder2',
-                //         65 => 'reminder3',
-                //         66 => 'endless_reminder',
-                //         default => ''
-                //     };
-
-                // }
-
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer((new EntitySentObject($event->invitation, 'invoice', $event->template))->build());
                 $nmo->company = $invoice->company;

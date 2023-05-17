@@ -219,8 +219,4 @@ return [
         'client_id' => env('SHOPIFY_CLIENT_ID', null),
         'client_secret' => env('SHOPIFY_CLIENT_SECRET', null),
     ],
-    'tax_api' => [
-        'provider' => env('TAX_API_PROVIDER', false),
-        'api_key' => env('TAX_API_KEY', false),
-    ]
 ];

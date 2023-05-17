@@ -52,15 +52,14 @@ class TaxProvider
     
     private mixed $api_credentials;
 
-    public function __construct(protected Company $company, protected Client $client)
+    public function __construct(public Company $company, public ?Client $client = null)
     {
-
     }
 
 
     public function updateCompanyTaxData(): self
     {
-        $this->configureProvider($this->provider); //hard coded for now to one provider, but we'll be able to swap these out later
+        $this->configureProvider($this->provider, $this->company->country()->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $company_details = [
             'address1' => $this->company->settings->address1,
@@ -77,7 +76,7 @@ class TaxProvider
         
         $tax_data = $tax_provider->run();
         
-        $this->company->tax_data = $tax_data;
+        $this->company->origin_tax_data = $tax_data;
         
         $this->company->save();
 
@@ -87,7 +86,7 @@ class TaxProvider
 
     public function updateClientTaxData(): self
     {
-        $this->configureProvider($this->provider); //hard coded for now to one provider, but we'll be able to swap these out later
+        $this->configureProvider($this->provider, $this->client->country->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
         $billing_details =[
             'address1' => $this->client->address1,
@@ -108,24 +107,24 @@ class TaxProvider
         ];
 
 
-        $tax_provider = new $this->provider();
+        $tax_provider = new $this->provider($billing_details);
 
         $tax_provider->setApiCredentials($this->api_credentials);
         
         $tax_data = $tax_provider->run();
+                
+        $this->client->tax_data = $tax_data;
         
-        $this->company->tax_data = $tax_data;
-        
-        $this->company->save();
+        $this->client->save();
 
         return $this;
 
     }
 
-    private function configureProvider(?string $provider): self
+    private function configureProvider(?string $provider, string $country_code): self
     {
 
-        match($this->client->country->iso_3166_2){
+        match($country_code){
             'US' => $this->configureZipTax(),
             "AT" => $this->configureEuTax(),
             "BE" => $this->configureEuTax(),
@@ -168,11 +167,11 @@ class TaxProvider
         return $this;
     }
 
-    private function noTaxRegionDefined(): self
+    private function noTaxRegionDefined()
     {
         throw new \Exception("No tax region defined for this country");
 
-        return $this;
+        // return $this;
     }
 
     private function configureZipTax(): self

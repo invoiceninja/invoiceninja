@@ -28,7 +28,7 @@ class ClientTransformer extends BaseTransformer
     public function transform($data)
     {
         if (isset($data['Company Name']) && $this->hasClient($data['Company Name'])) {
-            throw new ImportException('Client already exists');
+            throw new ImportException('Client already exists => '. $data['Company Name']);
         }
 
         $settings = new \stdClass;
@@ -40,7 +40,7 @@ class ClientTransformer extends BaseTransformer
 
         $client_id_proxy = array_key_exists('Customer ID', $data) ? 'Customer ID' : 'Primary Contact ID';
 
-        return [
+        $data = [
             'company_id'    => $this->company->id,
             'name'          => $this->getString($data, 'Display Name'),
             'phone'    		=> $this->getString($data, 'Phone'),
@@ -72,5 +72,7 @@ class ClientTransformer extends BaseTransformer
                 ],
             ],
         ];
+
+        return $data;
     }
 }

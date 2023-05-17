@@ -11,9 +11,10 @@
 
 namespace App\Observers;
 
-use App\Jobs\Util\WebhookHandler;
 use App\Models\Client;
 use App\Models\Webhook;
+use App\Jobs\Util\WebhookHandler;
+use App\Jobs\Client\UpdateTaxData;
 
 class ClientObserver
 {
@@ -27,6 +28,11 @@ class ClientObserver
      */
     public function created(Client $client)
     {
+
+        if ($client->country_id == 840 && $client->company->calculate_taxes) {
+            UpdateTaxData::dispatch($client, $client->company);
+        }
+
         $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', Webhook::EVENT_CREATE_CLIENT)
                                     ->exists();
@@ -44,6 +50,11 @@ class ClientObserver
      */
     public function updated(Client $client)
     {
+        if($client->getOriginal('postal_code') != $client->postal_code && $client->country_id == 840 && $client->company->calculate_taxes)
+        {
+            UpdateTaxData::dispatch($client, $client->company);
+        }
+
         $event = Webhook::EVENT_UPDATE_CLIENT;
 
         if ($client->getOriginal('deleted_at') && !$client->deleted_at) {
@@ -53,8 +64,7 @@ class ClientObserver
         if ($client->is_deleted) {
             $event = Webhook::EVENT_DELETE_CLIENT;
         }
-        
-        
+    
         $subscriptions = Webhook::where('company_id', $client->company_id)
                                     ->where('event_id', $event)
                                     ->exists();

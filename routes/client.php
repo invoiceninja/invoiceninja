@@ -158,4 +158,4 @@ Route::fallback(function () {
 
     abort(404);
 
-});
+})->middleware('throttle:404');

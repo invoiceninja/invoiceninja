@@ -824,7 +824,7 @@ class Invoice extends BaseModel
             case 'custom1':
             case 'custom2':
             case 'custom3':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             default:
                 // code...

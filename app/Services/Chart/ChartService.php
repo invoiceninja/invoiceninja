@@ -11,6 +11,7 @@
 
 namespace App\Services\Chart;
 
+use App\Models\User;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
@@ -20,11 +21,8 @@ class ChartService
 {
     use ChartQueries;
 
-    public Company $company;
-
-    public function __construct(Company $company)
+    public function __construct(public Company $company, private User $user, private bool $is_admin)
     {
-        $this->company = $company;
     }
 
     /**
@@ -37,6 +35,9 @@ class ChartService
         $currencies = Client::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
+            ->when(!$this->is_admin, function ($query) {
+                $query->where('user_id', $this->user->id);
+            })
             ->distinct()
             ->pluck('settings->currency_id as id');
 
@@ -47,6 +48,9 @@ class ChartService
         $expense_currencies = Expense::withTrashed()
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
+            ->when(!$this->is_admin, function ($query) {
+                $query->where('user_id', $this->user->id);
+            })
             ->distinct()
             ->pluck('currency_id as id');
 
