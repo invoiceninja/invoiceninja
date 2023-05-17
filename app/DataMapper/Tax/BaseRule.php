@@ -174,7 +174,7 @@ class BaseRule implements RuleInterface
          */
         $tax_data = new Response([]);
 
-        if($this->seller_region == 'US'){
+        if($this->seller_region == 'US' && $this->client_region == 'US'){
         
             $company = $this->invoice->company;
  
@@ -237,7 +237,7 @@ class BaseRule implements RuleInterface
             'AU' => $this->client_subregion = 'AU',
             default => $this->client_subregion = $this->client->country->iso_3166_2,
         };
-    
+
         return $this;
 
     }
