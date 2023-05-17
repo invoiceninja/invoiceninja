@@ -100,7 +100,7 @@ class SchedulerTest extends TestCase
                 'clients' => [],
                 'report_keys' => [],
                 'client_id' => $this->client->hashed_id,
-                'report_name' => 'product_sales_report',
+                'report_name' => 'product_sales',
 
             ],
         ];
@@ -147,7 +147,7 @@ class SchedulerTest extends TestCase
                 'clients' => [$this->client->hashed_id],
                 'report_keys' => [],
                 'client_id' => null,
-                'report_name' => 'product_sales_report',
+                'report_name' => 'product_sales',
             ],
         ];
 
@@ -193,7 +193,7 @@ class SchedulerTest extends TestCase
                 'clients' => [],
                 'report_keys' => [],
                 'client_id' => null,
-                'report_name' => 'product_sales_report',
+                'report_name' => 'product_sales',
             ],
         ];
 
@@ -234,7 +234,7 @@ class SchedulerTest extends TestCase
             'parameters' => [
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
-                'report_name' => 'product_sales_report',
+                'report_name' => 'product_sales',
             ],
         ];
 

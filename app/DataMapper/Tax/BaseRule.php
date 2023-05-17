@@ -148,8 +148,8 @@ class BaseRule implements RuleInterface
     {
         /* If the client Country is not in the region_codes, we force the company country onto the client? @TODO  */
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes)) {
-            $this->client->country_id = $this->invoice->company->settings->country_id;
-            $this->client->saveQuietly();
+            // $this->client->country_id = $this->invoice->company->settings->country_id;
+            // $this->client->saveQuietly();
 
             nlog('Automatic tax calculations not supported for this country - defaulting to company country');
             
