@@ -743,8 +743,6 @@ class Design extends BaseDesign
      */
     public function buildTableHeader(string $type): array
     {
-        $this->processTaxColumns($type);
-        // $this->processCustomColumns($type);
 
         $elements = [];
 
@@ -757,10 +755,16 @@ class Design extends BaseDesign
 
         $table_type = "{$type}_columns";
 
+        $column_type = $type;
+
         if ($type == 'product' && $this->entity instanceof Quote && !$this->settings_object->getSetting('sync_invoice_quote_columns')) {
             $table_type = "product_quote_columns";
+            $column_type = 'product_quote';
         }
-            
+
+        $this->processTaxColumns($column_type);
+
+
         foreach ($this->context['pdf_variables'][$table_type] as $column) {
             if (array_key_exists($column, $aliases)) {
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'hidden' => $this->settings_object->getSetting('hide_empty_columns_on_pdf')]];
