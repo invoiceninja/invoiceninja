@@ -374,4 +374,10 @@ class BaseRule implements RuleInterface
     {
         return $this;
     }
+
+    public function regionWithNoTaxCoverage(string $iso_3166_2): bool
+    {
+        return ! in_array($iso_3166_2, array_merge($this->eu_country_codes, array_keys($this->region_codes)));
+    }
+
 }
