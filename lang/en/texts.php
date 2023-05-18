@@ -5087,6 +5087,8 @@ $LANG = array(
     'light_dark_mode' => 'Light/Dark Mode',
     'activities' => 'Activities',
     'recent_transactions' => "Here are your company's most recent transactions:",
+    'country_Palestine' => "Palestine",
+    'country_Taiwan' => 'Taiwan',
 );
 
 
