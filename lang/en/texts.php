@@ -5093,6 +5093,7 @@ $LANG = array(
     'order_number' => 'Order Number',
     'order_id' => 'Order',
     'total_invoices_outstanding' => 'Total Invoices Outstanding',
+    'recent_activity' => 'Recent Activity',
 );
 
 
