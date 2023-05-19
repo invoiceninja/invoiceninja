@@ -5089,6 +5089,9 @@ $LANG = array(
     'recent_transactions' => "Here are your company's most recent transactions:",
     'country_Palestine' => "Palestine",
     'country_Taiwan' => 'Taiwan',
+    'duties' => 'Duties',
+    'order_number' => 'Order Number',
+    'order_id' => 'Order',
 );
 
 
