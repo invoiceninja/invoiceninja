@@ -26,13 +26,13 @@ class Design extends BaseDesign
 {
     use MakesInvoiceValues, DesignHelpers, MakesDates;
 
-    /** @var App\Models\Invoice || @var App\Models\Quote */
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice */
     public $entity;
 
-    /** @var App\Models\Client */
+    /** @var \App\Models\Client */
     public $client;
 
-    /** @var App\Models\Vendor */
+    /** @var \App\Models\Vendor */
     public $vendor;
 
     /** Global state of the design, @var array */
