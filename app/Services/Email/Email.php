@@ -76,7 +76,7 @@ class Email implements ShouldQueue
     public function backoff()
     {
         // return [10, 30, 60, 240];
-        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
+        return [rand(10, 20), rand(30, 45), rand(60, 79), rand(160, 400)];
     }
 
     public function handle()
