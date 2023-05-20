@@ -44,12 +44,12 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        PDOException::class,
-        MaxAttemptsExceededException::class,
-        CommandNotFoundException::class,
-        ValidationException::class,
-        ModelNotFoundException::class,
-        NotFoundHttpException::class,
+        // PDOException::class,
+        // MaxAttemptsExceededException::class,
+        // CommandNotFoundException::class,
+        // ValidationException::class,
+        // ModelNotFoundException::class,
+        // NotFoundHttpException::class,
     ];
 
     protected $selfHostDontReport = [
