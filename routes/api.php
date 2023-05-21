@@ -142,6 +142,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('charts/totals', [ChartController::class, 'totals'])->name('chart.totals');
     Route::post('charts/chart_summary', [ChartController::class, 'chart_summary'])->name('chart.chart_summary');
 
+    Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
+    Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
+
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
 
     Route::resource('clients', ClientController::class); // name = (clients. index / create / show / update / destroy / edit
