@@ -122,7 +122,10 @@ class ARSummaryReport extends BaseExport
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
-            ->where('due_date', '<', now()->startOfDay())
+            ->where(function ($query){
+                $query->where('due_date', '<', now()->startOfDay())
+                    ->orWhereNull('due_date');
+            })
             ->sum('balance');
 
         return Number::formatMoney($amount, $this->client);

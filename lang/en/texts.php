@@ -5087,6 +5087,13 @@ $LANG = array(
     'light_dark_mode' => 'Light/Dark Mode',
     'activities' => 'Activities',
     'recent_transactions' => "Here are your company's most recent transactions:",
+    'country_Palestine' => "Palestine",
+    'country_Taiwan' => 'Taiwan',
+    'duties' => 'Duties',
+    'order_number' => 'Order Number',
+    'order_id' => 'Order',
+    'total_invoices_outstanding' => 'Total Invoices Outstanding',
+    'recent_activity' => 'Recent Activity',
 );
 
 

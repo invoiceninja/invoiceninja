@@ -21,8 +21,6 @@ class SchedulerService
     use MakesHash;
     use MakesDates;
 
-    private string $method;
-
     public function __construct(public Scheduler $scheduler)
     {
     }

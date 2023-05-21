@@ -153,6 +153,9 @@ class Scheduler extends BaseModel
         $offset = $this->company->timezone_offset();
 
         switch ($this->frequency_id) {
+            case 0: //used only for email entities
+                $next_run = now()->startOfDay();
+                break;
             case RecurringInvoice::FREQUENCY_DAILY:
                 $next_run = now()->startOfDay()->addDay();
                 break;

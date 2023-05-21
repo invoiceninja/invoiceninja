@@ -63,7 +63,9 @@ class WebhookSingle implements ShouldQueue
 
     public function backoff()
     {
-        return [15, 35, 65, 185, 3605];
+        // return [15, 35, 65, 185, 3605];
+        return [rand(10, 15), rand(30, 40), rand(60, 79), rand(160, 200), rand(3000, 5000)];
+
     }
 
     /**
@@ -170,9 +172,9 @@ class WebhookSingle implements ShouldQueue
             }
 
             if ($e->getResponse()->getStatusCode() >= 500) {
-                nlog("endpoint returned a 500, failing");
+                nlog("{$subscription->target_url} returned a 500, failing");
 
-                $message = "The was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
+                $message = "There was a problem when connecting to {$subscription->target_url} => status code ". $e->getResponse()->getStatusCode(). " no retry attempted.";
 
                 (new SystemLogger(
                     ['message' => $message],

@@ -25,10 +25,14 @@ class SchedulerRepository extends BaseRepository
      */
     public function save(array $data, Scheduler $scheduler): Scheduler
     {
+
         $scheduler->fill($data);
 
         $scheduler->save();
 
-        return $scheduler;
+        /** 18-5-2023 set client specific send times. */
+        $scheduler->calculateNextRun();
+        
+        return $scheduler->fresh();
     }
 }

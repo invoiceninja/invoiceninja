@@ -60,7 +60,5 @@ class StoreSchedulerRequest extends Request
             $this->merge(['next_run_client' => $input['next_run']]);
         }
         
-        $this->replace($input);
-
     }
 }

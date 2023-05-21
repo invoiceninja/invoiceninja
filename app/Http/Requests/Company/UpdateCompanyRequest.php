@@ -63,7 +63,7 @@ class UpdateCompanyRequest extends Request
             if (Ninja::isHosted()) {
                 $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain($this->all())];
             } else {
-                $rules['subdomain'] = 'nullable|alpha_num';
+                $rules['subdomain'] = 'nullable|regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/';
             }
         }
 

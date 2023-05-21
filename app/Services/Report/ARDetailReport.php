@@ -100,8 +100,6 @@ class ARDetailReport extends BaseExport
 
         $query = $this->filterByClients($query);
 
-        $this->csv->insertOne($this->buildHeader());
-
         $query->cursor()
             ->each(function ($invoice) {
                     $this->csv->insertOne($this->buildRow($invoice));

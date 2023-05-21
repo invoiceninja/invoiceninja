@@ -72,7 +72,9 @@ class NinjaMailerJob implements ShouldQueue
 
     public function backoff()
     {
-        return [5, 10, 30, 240];
+        // return [5, 10, 30, 240];
+        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
+
     }
 
     public function handle()

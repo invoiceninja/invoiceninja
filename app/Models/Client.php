@@ -250,6 +250,7 @@ class Client extends BaseModel implements HasLocalePreference
         'phone',
         'number',
         'routing_id',
+        'is_tax_exempt',
     ];
 
     protected $with = [
