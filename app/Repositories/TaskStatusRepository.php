@@ -56,13 +56,20 @@ class TaskStatusRepository extends BaseRepository
 
     public function reorder(TaskStatus $task_status)
     {
+nlog("i am dirty");
 
+nlog(TaskStatus::query()
+                  ->where('company_id', $task_status->company_id)
+                  ->orderByRaw('ISNULL(status_order), status_order ASC')
+                  ->orderBy('status_order', 'DESC')->pluck('name'));
+                  
         TaskStatus::query()
                   ->where('company_id', $task_status->company_id)
                   ->orderByRaw('ISNULL(status_order), status_order ASC')
-                  ->orderBy('updated_at', 'DESC')
+                  ->orderBy('status_order', 'DESC')
                   ->cursor()
                   ->each(function ($task_status, $index) {
+                    nlog($index." ".$task_status->name);
                       $task_status->update(['status_order' => $index+1]);
                   });
 

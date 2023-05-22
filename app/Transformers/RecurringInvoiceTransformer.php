@@ -91,6 +91,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
             'next_send_date' => $invoice->next_send_date_client ?: '',
+            'next_send_datetime' => $invoice->next_send_date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
