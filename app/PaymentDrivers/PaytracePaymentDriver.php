@@ -11,18 +11,19 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\SystemError;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\CurlUtils;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\PaymentDrivers\PayTrace\CreditCard;
-use App\Utils\CurlUtils;
+use App\Exceptions\SystemError;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\PayTrace\CreditCard;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class PaytracePaymentDriver extends BaseDriver
 {
@@ -125,13 +126,25 @@ class PaytracePaymentDriver extends BaseDriver
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+        $_invoice = collect($payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+
+        if ($invoice) {
+            $invoice_id =  ctrans('texts.invoice_number').'# '.$invoice->number;
+        }
+
+        $invoice_id = ctrans('texts.invoice_number').'# '.substr($payment_hash->hash, 0, 6);
+
         $data = [
             'customer_id' => $cgt->token,
             'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'amount' => $amount,
+            'invoice_id' => $invoice_id,
         ];
 
         $response = $this->gatewayRequest('/v1/transactions/sale/by_customer', $data);
+
+        nlog($response);
 
         if ($response && $response->success) {
             $data = [
