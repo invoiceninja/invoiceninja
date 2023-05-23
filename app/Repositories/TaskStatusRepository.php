@@ -78,7 +78,7 @@ class TaskStatusRepository extends BaseRepository
                 ->orderByRaw('ISNULL(status_order), status_order ASC')
                 ->cursor()
                 ->each(function ($ts, $key) {
-                    $ts->status_order = $key;
+                    $ts->status_order = $key+1;
                     $ts->save();
                 });
 
