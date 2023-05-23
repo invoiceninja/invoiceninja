@@ -173,7 +173,10 @@ class PaytracePaymentDriver extends BaseDriver
     /*Helpers*/
     private function generateAuthHeaders()
     {
-        $url = 'https://api.paytrace.com/oauth/token';
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
+        $url = "{$api_endpoint}/oauth/token";
+        
         $data = [
             'grant_type' => 'password',
             'username' => $this->company_gateway->getConfigField('username'),
@@ -197,9 +200,12 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function getAuthToken()
     {
+
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
         $headers = $this->generateAuthHeaders();
 
-        $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
+        $response = CurlUtils::post("{$api_endpoint}/v1/payment_fields/token/create", [], $headers);
 
         $response = json_decode($response);
 
@@ -212,7 +218,10 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
-        $base_url = "https://api.paytrace.com{$uri}";
+        
+        $api_endpoint = $this->company_gateway->getConfigField('testMode') ? 'https://api.sandbox.paytrace.com' : 'https://api.paytrace.com';
+
+        $base_url = "{$api_endpoint}{$uri}";
 
         $headers = $this->generateAuthHeaders();
 
