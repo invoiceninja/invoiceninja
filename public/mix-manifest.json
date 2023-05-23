@@ -26,7 +26,7 @@
     "/js/clients/payments/braintree-paypal.js": "/js/clients/payments/braintree-paypal.js?id=881f15cb83dc9d0412625da80f094912",
     "/js/clients/payments/wepay-credit-card.js": "/js/clients/payments/wepay-credit-card.js?id=b8b588f18e7c692faa44b598f3f1bde0",
     "/js/clients/payment_methods/wepay-bank-account.js": "/js/clients/payment_methods/wepay-bank-account.js?id=e984eca06a662d2e8a8e01cae085794c",
-    "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=5ff9cc69d2923a89c05412bff3a8c862",
+    "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=800e95b9c19d54e844338d619e87c9dc",
     "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=2f72b969507e6135b5c52a65522ab3ae",
     "/js/clients/payments/eway-credit-card.js": "/js/clients/payments/eway-credit-card.js?id=0d1c8957b02c5601b7d57c39740bff75",
     "/js/clients/payment_methods/braintree-ach.js": "/js/clients/payment_methods/braintree-ach.js?id=2f8e5af9ba5ce266d2ee49b084fbe291",
