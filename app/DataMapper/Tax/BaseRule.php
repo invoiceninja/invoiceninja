@@ -182,7 +182,7 @@ class BaseRule implements RuleInterface
          * Destination - Client Tax Data
          * 
          */
-        // $tax_data = new Response([]);
+
         $tax_data = false;
 
         if($this->seller_region == 'US' && $this->client_region == 'US'){
@@ -193,14 +193,12 @@ class BaseRule implements RuleInterface
             /** We should never encounter this scenario */
             if(!$company->origin_tax_data)
             {
-                $this->should_calc_tax = false;
-                
+                $this->should_calc_tax = false;        
                 return $this;
-                
             }
 
             /** If we are in a Origin based state, force the company tax here */
-            if($company?->origin_tax_data?->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
+            if($company->origin_tax_data?->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
 
                 $tax_data = $company->origin_tax_data;
 
