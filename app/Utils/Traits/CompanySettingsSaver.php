@@ -11,9 +11,10 @@
 
 namespace App\Utils\Traits;
 
-use App\DataMapper\CompanySettings;
-use App\Models\Company;
 use stdClass;
+use App\Utils\Ninja;
+use App\Models\Company;
+use App\DataMapper\CompanySettings;
 
 /**
  * Class CompanySettingsSaver.
@@ -77,7 +78,7 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
-        if(array_key_exists('settings', $entity->getDirty())) 
+        if(Ninja::isHosted() && array_key_exists('settings', $entity->getDirty())) 
         {
             $old_settings = $entity->getOriginal()['settings'];
 
