@@ -31,7 +31,7 @@ class UpdateDocumentRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'sometimes|alpha_num'
+            'name' => 'sometimes'
         ];
     }
 
