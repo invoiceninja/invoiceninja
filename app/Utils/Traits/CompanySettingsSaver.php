@@ -78,7 +78,7 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
-        if(Ninja::isHosted() && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty())) 
+        if(Ninja::isHosted() && $entity?->calc_taxes && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty())) 
         {
             $old_settings = $entity->getOriginal()['settings'];
                                 
