@@ -19,10 +19,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use App\Services\Tax\Providers\TaxProvider;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class CompanyTaxRate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $tries = 1;
 
     /**
      * Create a new job instance.
@@ -38,8 +41,14 @@ class CompanyTaxRate implements ShouldQueue
         MultiDB::setDB($this->company->db);
 
         $tp = new TaxProvider($this->company);
+        
         $tp->updateCompanyTaxData();
         
+    }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping($this->company->id)];
     }
 
 }

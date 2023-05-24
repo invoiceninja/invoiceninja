@@ -184,14 +184,15 @@ class BaseRule implements RuleInterface
             $company = $this->invoice->company;
  
             /** If no company tax data has been configured, lets do that now. */
-            if(!$company->origin_tax_data && \DB::transactionLevel() == 0)
-            {
+            /** We should never encounter this scenario */
+            // if(!$company->origin_tax_data && \DB::transactionLevel() == 0)
+            // {
  
-                $tp = new TaxProvider($company);
-                $tp->updateCompanyTaxData();
-                $company->fresh();
+            //     $tp = new TaxProvider($company);
+            //     $tp->updateCompanyTaxData();
+            //     $company->fresh();
 
-            }
+            // }
 
             /** If we are in a Origin based state, force the company tax here */
             if($company->origin_tax_data?->originDestination == 'O' && ($company->tax_data?->seller_subregion == $this->client_subregion)) {
