@@ -59,7 +59,7 @@ class CompanyTaxRate implements ShouldQueue
               ->where('country_id', 840)
               ->whereNotNull('postal_code')
               ->whereNull('tax_data')
-              ->whereFalse('is_tax_exempt')
+              ->where('is_tax_exempt', false)
               ->cursor()
               ->each(function ($client) {
                 

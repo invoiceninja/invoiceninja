@@ -600,6 +600,8 @@ class BaseTransformer
      */
     public function getExpenseCategoryId($name)
     {
+        /** @var \App\Models\ExpenseCategory $ec */
+        
         $ec = ExpenseCategory::where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
@@ -607,6 +609,13 @@ class BaseTransformer
             ])
             ->first();
 
+        if($ec)
+            return $ec->id;
+
+        $ec = \App\Factory\ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
+        $ec->name = $name;
+        $ec->save();
+        
         return $ec ? $ec->id : null;
     }
 
