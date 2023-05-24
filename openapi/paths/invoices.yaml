@@ -135,7 +135,7 @@
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FillableInvoice"
+              $ref: "#/components/schemas/InvoiceRequest"
       responses:
         200:
           description: "Returns the saved invoice entity"

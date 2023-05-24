@@ -78,13 +78,13 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
-        if(Ninja::isHosted() && array_key_exists('settings', $entity->getDirty())) 
+        if(Ninja::isHosted() && $company_settings->country_id == "840" && array_key_exists('settings', $entity->getDirty())) 
         {
             $old_settings = $entity->getOriginal()['settings'];
-
-            if($settings->name != $old_settings->name) {
-                
-                nlog("name change {$old_settings->name} -> {$settings->name} ");
+                                
+            /** Monitor changes of the Postal code */
+            if($old_settings->postal_code != $company_settings->postal_code)
+            {
 
             }
         }
