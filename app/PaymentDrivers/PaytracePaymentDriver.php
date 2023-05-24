@@ -144,8 +144,6 @@ class PaytracePaymentDriver extends BaseDriver
 
         $response = $this->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        nlog($response);
-
         if ($response && $response->success) {
             $data = [
                 'gateway_type_id' => $cgt->gateway_type_id,
