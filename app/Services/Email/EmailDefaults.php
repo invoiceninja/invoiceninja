@@ -180,6 +180,8 @@ class EmailDefaults
             $this->email->email_object->body = EmailTemplateDefaults::getDefaultTemplate($this->email->email_object->email_template_body, $this->locale);
         }
 
+        $this->email->email_object->text_body = strip_tags($this->email->email_object->body);
+        
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
         }
