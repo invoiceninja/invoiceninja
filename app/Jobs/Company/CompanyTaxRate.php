@@ -11,9 +11,11 @@
 
 namespace App\Jobs\Company;
 
+use App\Models\Client;
 use App\Models\Company;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use App\Jobs\Client\UpdateTaxData;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Services\Tax\Providers\TaxProvider;
@@ -38,11 +40,32 @@ class CompanyTaxRate implements ShouldQueue
 
     public function handle()
     {
+
+        if(!config('services.tax.zip_tax.key')) {
+            return;
+        }
+
         MultiDB::setDB($this->company->db);
 
         $tp = new TaxProvider($this->company);
-        
+
         $tp->updateCompanyTaxData();
+
+        $tp = null;
+
+        Client::query()
+              ->where('company_id', $this->company->id)
+              ->where('is_deleted', false)
+              ->where('country_id', 840)
+              ->whereNotNull('postal_code')
+              ->whereNull('tax_data')
+              ->whereFalse('is_tax_exempt')
+              ->cursor()
+              ->each(function ($client) {
+                
+                  (new UpdateTaxData($client, $this->company))->handle();
+                  
+              });
         
     }
 

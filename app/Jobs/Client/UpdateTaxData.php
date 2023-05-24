@@ -60,7 +60,6 @@ class UpdateTaxData implements ShouldQueue
             
             $tax_provider->updateClientTaxData();
         
-        
             if (!$this->client->state && $this->client->postal_code) {
 
                 $this->client->state = USStates::getState($this->client->postal_code);
