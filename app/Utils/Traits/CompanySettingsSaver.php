@@ -77,6 +77,18 @@ trait CompanySettingsSaver
 
         $entity->settings = $company_settings;
 
+        if(array_key_exists('settings', $entity->getDirty())) 
+        {
+            $old_settings = $entity->getOriginal()['settings'];
+
+            if($settings->name != $old_settings->name) {
+                
+                nlog("name change {$old_settings->name} -> {$settings->name} ");
+
+            }
+        }
+        
+        
         $entity->save();
     }
 

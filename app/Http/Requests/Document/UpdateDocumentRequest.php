@@ -23,15 +23,18 @@ class UpdateDocumentRequest extends Request
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return auth()->user()->can('edit', $this->document);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', $this->document);
     }
 
     public function rules()
     {
         return [
-            'name' => 'sometimes|alpha_num'
+            'name' => 'sometimes'
         ];
     }
 

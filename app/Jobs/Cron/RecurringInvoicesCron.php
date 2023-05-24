@@ -73,7 +73,6 @@ class RecurringInvoicesCron
                 /* Special check if we should generate another invoice is the previous one is yet to be paid */
                 if ($recurring_invoice->company->stop_on_unpaid_recurring && $recurring_invoice->invoices()->whereIn('status_id', [2, 3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
                     nlog('Existing invoice exists, skipping');
-
                     return;
                 }
 
