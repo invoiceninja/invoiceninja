@@ -76,7 +76,7 @@ trait CleanLineItems
             
         }
 
-        if (array_key_exists('id', $item)) {
+        if (array_key_exists('id', $item) || array_key_exists('_id', $item)) {
             unset($item['id']);
         }
 

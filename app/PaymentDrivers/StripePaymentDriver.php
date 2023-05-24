@@ -617,7 +617,7 @@ class StripePaymentDriver extends BaseDriver
                 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
             ], $meta);
 
-            if ($response->status == $response::STATUS_SUCCEEDED) {
+            if (in_array($response->status, [$response::STATUS_SUCCEEDED, 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
                 return [
@@ -712,6 +712,11 @@ class StripePaymentDriver extends BaseDriver
                 }
 
                 if ($payment) {
+
+                    if(isset($transaction['payment_method_details']['au_becs_debit'])) {
+                        $payment->transaction_reference = $transaction['id'];
+                    }
+
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
                 }

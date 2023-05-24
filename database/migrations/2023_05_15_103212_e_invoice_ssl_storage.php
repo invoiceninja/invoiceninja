@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('origin_tax_data')->nullable();
         });
 
+        \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
+
     }
 
     /**

@@ -124,15 +124,16 @@ class TaskStatusController extends BaseController
      */
     public function update(UpdateTaskStatusRequest $request, TaskStatus $task_status)
     {
-        
+    
         $task_status->fill($request->all());
         $reorder = $task_status->isDirty('status_order');
         $task_status->save();
-
+        
         if ($reorder) 
             $this->task_status_repo->reorder($task_status);
 
         return $this->itemResponse($task_status->fresh());
+    
     }
 
     /**

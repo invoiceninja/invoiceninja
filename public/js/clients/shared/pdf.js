@@ -29,10 +29,10 @@ var PDF = /*#__PURE__*/function () {
     this.context = canvas.getContext('2d');
     this.currentPage = 1;
     this.maxPages = 1;
-    this.currentScale = 1.25;
+    this.currentScale = 1;
     this.currentScaleText = document.getElementById('zoom-level');
     if (matchMedia('only screen and (max-width: 480px)').matches) {
-      this.currentScale = 1.25;
+      this.currentScale = 1;
     }
     this.currentScaleText.textContent = this.currentScale * 100 + '%';
   }
@@ -135,6 +135,24 @@ var PDF = /*#__PURE__*/function () {
                 viewport: viewport
               });
               this.setPagesInViewport();
+
+              /* document.addEventListener("webviewerloaded", function () {
+                  PDFViewerApplication.initializedPromise.then(function () {
+                      PDFViewerApplication.eventBus.on("pagerendered", function handler(event) {
+                          try {
+                              if (window.chrome && !/Edge/.test(navigator.userAgent) && !event.source.__rerendered) {
+                                  console.log("Chrome-like browser detected, re-rendering page %d for the first time.", event.pageNumber);
+                                  var currentScale = event.source.scale;
+                                  event.source.__rerendered = true;
+                                  event.source.update(currentScale * 0.99);
+                                  event.source.update(currentScale);
+                              }
+                          } catch (e) {
+                              console.error(e);
+                          }
+                      });
+                  });
+              }); */
             case 14:
             case "end":
               return _context.stop();
