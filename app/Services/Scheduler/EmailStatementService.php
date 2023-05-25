@@ -36,7 +36,7 @@ class EmailStatementService
 
         //Email only the selected clients
         if (count($this->scheduler->parameters['clients']) >= 1) {
-            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
+            $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']))->where('balance', '>', 0);
         }
      
         $query->cursor()
