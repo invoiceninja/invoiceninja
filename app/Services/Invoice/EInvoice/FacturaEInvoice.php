@@ -171,12 +171,11 @@ class FacturaEInvoice extends AbstractService
              ->setPoNumber()
              ->signDocument();
 
-
         $disk = config('filesystems.default');
 
-        // if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
-        //     Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
-        // }
+        if (!Storage::disk($disk)->exists($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()))) {
+            Storage::makeDirectory($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()));
+        }
 
         $this->fac->export(Storage::disk($disk)->path($this->invoice->client->e_invoice_filepath($this->invoice->invitations->first()) . $this->invoice->getFileName("xsig")));
 
