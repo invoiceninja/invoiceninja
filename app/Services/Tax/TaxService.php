@@ -26,10 +26,13 @@ class TaxService
 
         $vat_check = (new VatNumberCheck($this->client->vat_number, $client_country_code))->run();
 
-        $this->client->has_valid_vat_number = $vat_check->isValid();
-        $this->client->saveQuietly();
+        if($vat_check->isValid()) {
+            $this->client->has_valid_vat_number = true;
+            $this->client->saveQuietly();
+        }
 
         return $this;
+        
     }
 
     public function initTaxProvider()
